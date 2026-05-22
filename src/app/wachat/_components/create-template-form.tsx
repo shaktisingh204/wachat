@@ -105,14 +105,14 @@ function SubmitButton({
     buttonText = 'Submit Carousel for Approval';
 
   return (
-    <ZoruButton size="lg" type="submit" disabled={pending}>
+    <Button size="lg" type="submit" disabled={pending}>
       {pending ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         <FileUp className="h-4 w-4" />
       )}
       {pending ? 'Submitting…' : buttonText}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -357,10 +357,10 @@ export function CreateTemplateForm({
 
       {/* Type selector */}
       <div className="mb-8">
-        <ZoruLabel className="text-base mb-2 block text-zoru-ink">
+        <Label className="text-base mb-2 block text-zoru-ink">
           Choose Template Type
-        </ZoruLabel>
-        <ZoruRadioGroup
+        </Label>
+        <RadioGroup
           value={templateType}
           onValueChange={(v) => {
             const newType = v as
@@ -409,21 +409,21 @@ export function CreateTemplateForm({
             description="Interactive product list"
             active={templateType === 'CATALOG_MESSAGE'}
           />
-        </ZoruRadioGroup>
+        </RadioGroup>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Editor column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Common details */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Template Details</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <ZoruLabel>Name</ZoruLabel>
-                <ZoruInput
+                <Label>Name</Label>
+                <Input
                   name="name"
                   value={templateName}
                   onChange={(e) => setTemplateName(e.target.value)}
@@ -434,8 +434,8 @@ export function CreateTemplateForm({
               {templateType !== 'CATALOG_MESSAGE' && (
                 <>
                   <div className="space-y-2">
-                    <ZoruLabel>Category</ZoruLabel>
-                    <ZoruSelect
+                    <Label>Category</Label>
+                    <Select
                       name="category"
                       value={category}
                       onValueChange={(v) => setCategory(v as any)}
@@ -451,11 +451,11 @@ export function CreateTemplateForm({
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
                   <div className="space-y-2">
-                    <ZoruLabel>Language</ZoruLabel>
-                    <ZoruSelect
+                    <Label>Language</Label>
+                    <Select
                       name="language"
                       value={language}
                       onValueChange={setLanguage}
@@ -471,24 +471,24 @@ export function CreateTemplateForm({
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
                 </>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* STANDARD message editor */}
           {templateType === 'STANDARD' && (
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Message Content</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="space-y-6">
                 {/* Header */}
                 <div className="space-y-3">
-                  <ZoruLabel>Header</ZoruLabel>
-                  <ZoruRadioGroup
+                  <Label>Header</Label>
+                  <RadioGroup
                     value={headerFormat}
                     onValueChange={setHeaderFormat}
                     className="flex flex-wrap gap-2"
@@ -512,7 +512,7 @@ export function CreateTemplateForm({
                         </label>
                       ),
                     )}
-                  </ZoruRadioGroup>
+                  </RadioGroup>
                   <input
                     type="hidden"
                     name="headerFormat"
@@ -521,7 +521,7 @@ export function CreateTemplateForm({
 
                   {headerFormat === 'TEXT' && (
                     <div className="space-y-2">
-                      <ZoruInput
+                      <Input
                         name="headerText"
                         placeholder="Header Text (e.g. Welcome {{1}})"
                         value={headerText}
@@ -529,10 +529,10 @@ export function CreateTemplateForm({
                       />
                       {headerText.match(/{{\s*(\d+)\s*}}/g) && (
                         <div className="mt-2 rounded-[var(--zoru-radius)] bg-zoru-surface p-2 text-sm">
-                          <ZoruLabel className="text-xs mb-1 block">
+                          <Label className="text-xs mb-1 block">
                             Header Variable Example
-                          </ZoruLabel>
-                          <ZoruInput
+                          </Label>
+                          <Input
                             name="headerExample"
                             placeholder="e.g. Discount"
                             required
@@ -545,7 +545,7 @@ export function CreateTemplateForm({
                     headerFormat === 'VIDEO' ||
                     headerFormat === 'DOCUMENT') && (
                     <div className="space-y-2">
-                      <ZoruInput
+                      <Input
                         ref={headerSampleFileRef}
                         type="file"
                         name="headerSampleFile"
@@ -615,8 +615,8 @@ export function CreateTemplateForm({
 
                 {/* Body */}
                 <div className="space-y-2">
-                  <ZoruLabel>Body</ZoruLabel>
-                  <ZoruTextarea
+                  <Label>Body</Label>
+                  <Textarea
                     name="body"
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
@@ -644,9 +644,9 @@ export function CreateTemplateForm({
                       if (vars.length > 0) {
                         return (
                           <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 mt-2">
-                            <ZoruLabel className="text-xs">
+                            <Label className="text-xs">
                               Variable Examples (Required)
-                            </ZoruLabel>
+                            </Label>
                             <div className="grid gap-2">
                               {vars.map((v) => (
                                 <div
@@ -656,7 +656,7 @@ export function CreateTemplateForm({
                                   <span className="text-xs text-zoru-ink-muted w-8 font-mono">
                                     {`{{${v}}}`}
                                   </span>
-                                  <ZoruInput
+                                  <Input
                                     name={`body_example_${v}`}
                                     placeholder="e.g. John"
                                     className="text-sm"
@@ -675,8 +675,8 @@ export function CreateTemplateForm({
 
                 {/* Footer */}
                 <div className="space-y-2">
-                  <ZoruLabel>Footer (Optional)</ZoruLabel>
-                  <ZoruInput
+                  <Label>Footer (Optional)</Label>
+                  <Input
                     name="footer"
                     value={footer}
                     onChange={(e) => setFooter(e.target.value)}
@@ -687,9 +687,9 @@ export function CreateTemplateForm({
               {/* Buttons editor */}
               <ZoruCardContent className="space-y-3 pt-0">
                 <div className="flex items-center justify-between">
-                  <ZoruLabel className="text-base">
+                  <Label className="text-base">
                     Buttons ({buttons.length})
-                  </ZoruLabel>
+                  </Label>
                 </div>
 
                 {buttons.map((b, i) => (
@@ -698,7 +698,7 @@ export function CreateTemplateForm({
                     className="relative space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
                   >
                     <div className="text-xs text-zoru-ink-muted">{b.type}</div>
-                    <ZoruInput
+                    <Input
                       placeholder="Label"
                       value={b.text}
                       onChange={(e) => {
@@ -707,7 +707,7 @@ export function CreateTemplateForm({
                         setButtons(newBtns);
                       }}
                     />
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon-sm"
@@ -720,10 +720,10 @@ export function CreateTemplateForm({
                       aria-label="Remove button"
                     >
                       <Trash2 className="h-3 w-3" />
-                    </ZoruButton>
+                    </Button>
 
                     {b.type === 'URL' && (
-                      <ZoruInput
+                      <Input
                         placeholder="https://website.com"
                         value={b.url || ''}
                         onChange={(e) => {
@@ -735,7 +735,7 @@ export function CreateTemplateForm({
                     )}
 
                     {b.type === 'PHONE_NUMBER' && (
-                      <ZoruInput
+                      <Input
                         placeholder="+1234567890"
                         value={b.phone_number || ''}
                         onChange={(e) => {
@@ -752,7 +752,7 @@ export function CreateTemplateForm({
                 ))}
                 {buttons.length < 3 && (
                   <div className="flex gap-2">
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="outline"
                       size="sm"
@@ -764,8 +764,8 @@ export function CreateTemplateForm({
                       }
                     >
                       Quick Reply
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       type="button"
                       variant="outline"
                       size="sm"
@@ -777,16 +777,16 @@ export function CreateTemplateForm({
                       }
                     >
                       URL
-                    </ZoruButton>
+                    </Button>
                   </div>
                 )}
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           )}
 
           {/* MARKETING_CAROUSEL — stubbed */}
           {templateType === 'MARKETING_CAROUSEL' && (
-            <ZoruAlert>
+            <Alert>
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertTitle>Marketing Carousel — TODO</ZoruAlertTitle>
               <ZoruAlertDescription>
@@ -794,13 +794,13 @@ export function CreateTemplateForm({
                 Submitting will create an empty-card carousel — please use
                 the legacy Wachat builder for now if you need card content.
               </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           )}
 
           {/* CATALOG_MESSAGE — partial */}
           {templateType === 'CATALOG_MESSAGE' && (
             <div className="space-y-6">
-              <ZoruCard>
+              <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle>Catalog Configuration</ZoruCardTitle>
                   <ZoruCardDescription>
@@ -809,8 +809,8 @@ export function CreateTemplateForm({
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                   <div className="space-y-2">
-                    <ZoruLabel>Select Catalog</ZoruLabel>
-                    <ZoruSelect
+                    <Label>Select Catalog</Label>
+                    <Select
                       value={catalogId}
                       onValueChange={setCatalogId}
                       required
@@ -825,20 +825,20 @@ export function CreateTemplateForm({
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <ZoruLabel>Header Text (Optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label>Header Text (Optional)</Label>
+                    <Input
                       value={catalogHeader}
                       onChange={(e) => setCatalogHeader(e.target.value)}
                       placeholder="Our Collection"
                     />
                   </div>
                   <div className="space-y-2">
-                    <ZoruLabel>Body Text</ZoruLabel>
-                    <ZoruTextarea
+                    <Label>Body Text</Label>
+                    <Textarea
                       value={catalogBody}
                       onChange={(e) => setCatalogBody(e.target.value)}
                       placeholder="Check out these items..."
@@ -846,33 +846,33 @@ export function CreateTemplateForm({
                     />
                   </div>
                   <div className="space-y-2">
-                    <ZoruLabel>Footer Text (Optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label>Footer Text (Optional)</Label>
+                    <Input
                       value={catalogFooter}
                       onChange={(e) => setCatalogFooter(e.target.value)}
                       placeholder="Prices incl. VAT"
                     />
                   </div>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
 
-              <ZoruAlert>
+              <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Product Picker — TODO</ZoruAlertTitle>
                 <ZoruAlertDescription>
                   The catalog product picker hasn&apos;t been ported to ZoruUI
                   yet. Section product IDs will be empty on submit.
                 </ZoruAlertDescription>
-              </ZoruAlert>
+              </Alert>
 
-              <ZoruCard>
+              <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle>Section 1</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                   <div className="space-y-2">
-                    <ZoruLabel>Section Title</ZoruLabel>
-                    <ZoruInput
+                    <Label>Section Title</Label>
+                    <Input
                       value={catalogSection1Title}
                       onChange={(e) =>
                         setCatalogSection1Title(e.target.value)
@@ -880,16 +880,16 @@ export function CreateTemplateForm({
                     />
                   </div>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
 
-              <ZoruCard>
+              <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle>Section 2 (Optional)</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                   <div className="space-y-2">
-                    <ZoruLabel>Section Title</ZoruLabel>
-                    <ZoruInput
+                    <Label>Section Title</Label>
+                    <Input
                       value={catalogSection2Title}
                       onChange={(e) =>
                         setCatalogSection2Title(e.target.value)
@@ -897,14 +897,14 @@ export function CreateTemplateForm({
                     />
                   </div>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             </div>
           )}
         </div>
 
         {/* Action column */}
         <div className="lg:col-span-1 space-y-6">
-          <ZoruCard className="sticky top-6">
+          <Card className="sticky top-6">
             <ZoruCardHeader>
               <ZoruCardTitle>Publish</ZoruCardTitle>
             </ZoruCardHeader>
@@ -923,7 +923,7 @@ export function CreateTemplateForm({
                 isBulkForm={isBulkForm}
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
       </div>
     </form>

@@ -52,29 +52,29 @@ export default async function PipelineDetailPage({
             eyebrow="PIPELINE"
             back={{ href: BASE, label: 'Pipelines' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${pipelineId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
                     <StatusPill label={status} tone={tone} />
                     {pipeline.isDefault ? (
-                        <ZoruBadge variant="info">Default</ZoruBadge>
+                        <Badge variant="info">Default</Badge>
                     ) : null}
                     {pipeline.entityKind ? (
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                             Applies to: {pipeline.entityKind}
-                        </ZoruBadge>
+                        </Badge>
                     ) : null}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -110,10 +110,10 @@ export default async function PipelineDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Stages ladder */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center justify-between">
                     <div className="text-[15px] font-medium text-zoru-ink">
                         Stages
@@ -170,7 +170,7 @@ export default async function PipelineDetailPage({
                         ))}
                     </ol>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

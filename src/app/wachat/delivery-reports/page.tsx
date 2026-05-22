@@ -129,7 +129,7 @@ export default function DeliveryReportsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -143,7 +143,7 @@ export default function DeliveryReportsPage() {
             <ZoruBreadcrumbPage>Delivery Reports</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -154,20 +154,20 @@ export default function DeliveryReportsPage() {
             View message delivery status breakdown and failed message details.
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           onClick={() => setExportOpen(true)}
           disabled={failedMessages.length === 0}
         >
           <Download /> Export CSV
-        </ZoruButton>
+        </Button>
       </div>
 
       {isLoading && stats.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[120px]" />
+            <Skeleton key={i} className="h-[120px]" />
           ))}
         </div>
       ) : (
@@ -176,7 +176,7 @@ export default function DeliveryReportsPage() {
             const value = statMap[m.key] ?? 0;
             const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
             return (
-              <ZoruStatCard
+              <StatCard
                 key={m.key}
                 label={m.label}
                 value={value.toLocaleString()}
@@ -188,7 +188,7 @@ export default function DeliveryReportsPage() {
         </div>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Recent Failed Messages</ZoruCardTitle>
         </ZoruCardHeader>
@@ -196,17 +196,17 @@ export default function DeliveryReportsPage() {
           {isLoading && failedMessages.length === 0 ? (
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="h-10" />
+                <Skeleton key={i} className="h-10" />
               ))}
             </div>
           ) : failedMessages.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Inbox />}
               title="No failed messages"
               description="Nothing failed in the last 7 days."
             />
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead>Recipient</ZoruTableHead>
@@ -224,30 +224,30 @@ export default function DeliveryReportsPage() {
                     </ZoruTableCell>
                     <ZoruTableCell>{m.type || 'text'}</ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant="danger">{m.status}</ZoruBadge>
+                      <Badge variant="danger">{m.status}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="whitespace-nowrap text-zoru-ink-muted">
                       {m.timestamp ? new Date(m.timestamp).toLocaleString() : '-'}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setDetailRow(m)}
                       >
                         <Eye /> View
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* View delivery detail sheet */}
-      <ZoruSheet
+      <Sheet
         open={!!detailRow}
         onOpenChange={(open) => {
           if (!open) setDetailRow(null);
@@ -266,7 +266,7 @@ export default function DeliveryReportsPage() {
               <DetailRow label="Type" value={detailRow.type || 'text'} />
               <DetailRow
                 label="Status"
-                value={<ZoruBadge variant="danger">{detailRow.status}</ZoruBadge>}
+                value={<Badge variant="danger">{detailRow.status}</Badge>}
               />
               <DetailRow
                 label="Timestamp"
@@ -290,10 +290,10 @@ export default function DeliveryReportsPage() {
             </div>
           )}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       {/* Export CSV dialog */}
-      <ZoruDialog open={exportOpen} onOpenChange={setExportOpen}>
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Export delivery report</ZoruDialogTitle>
@@ -302,15 +302,15 @@ export default function DeliveryReportsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setExportOpen(false)}>
+            <Button variant="ghost" onClick={() => setExportOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleExport}>
+            </Button>
+            <Button onClick={handleExport}>
               <Download /> Download CSV
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

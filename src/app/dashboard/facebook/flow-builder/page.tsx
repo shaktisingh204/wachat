@@ -180,7 +180,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Workflow />}
           title="No project selected"
           description="Pick a project to manage its Messenger flows."
@@ -191,7 +191,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -205,7 +205,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Flow Builder</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -216,40 +216,40 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
-          <ZoruButton onClick={() => setCreateOpen(true)}>
+          </Button>
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New flow
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load flows</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {loading && flows.length === 0 ? (
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-16 w-full" />
-          <ZoruSkeleton className="h-16 w-full" />
-          <ZoruSkeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
         </div>
       ) : flows.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Workflow />}
           title="No flows yet"
           description="Create your first Messenger flow to automate replies and routing."
           action={
-            <ZoruButton onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" /> New flow
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
@@ -260,7 +260,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
             const msgCount = f.messageCount ?? f.nodes?.length ?? 0;
             return (
               <li key={id}>
-                <ZoruCard className="flex items-center gap-3 p-3">
+                <Card className="flex items-center gap-3 p-3">
                   <button
                     type="button"
                     onClick={() => router.push(editorHref(id))}
@@ -286,15 +286,15 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
                         ) : null}
                       </div>
                     </div>
-                    <ZoruBadge variant={statusVariant(status)} className="capitalize">
+                    <Badge variant={statusVariant(status)} className="capitalize">
                       {status.toLowerCase()}
-                    </ZoruBadge>
+                    </Badge>
                   </button>
-                  <ZoruDropdownMenu>
+                  <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                      <ZoruButton variant="ghost" size="icon-sm" aria-label="Flow actions">
+                      <Button variant="ghost" size="icon-sm" aria-label="Flow actions">
                         <MoreHorizontal className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="end">
                       <ZoruDropdownMenuItem onSelect={() => router.push(editorHref(id))}>
@@ -307,8 +307,8 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
                         <Trash2 className="mr-2 h-4 w-4" /> Delete flow
                       </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                  </ZoruDropdownMenu>
-                </ZoruCard>
+                  </DropdownMenu>
+                </Card>
               </li>
             );
           })}
@@ -316,7 +316,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
       )}
 
       {/* ── New flow dialog ── */}
-      <ZoruDialog
+      <Dialog
         open={createOpen}
         onOpenChange={(open) => {
           setCreateOpen(open);
@@ -332,8 +332,8 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="flow-name">Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="flow-name">Name</Label>
+            <Input
               id="flow-name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -342,24 +342,24 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => setCreateOpen(false)}
               disabled={submitting}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               type="button"
               onClick={onCreate}
               disabled={submitting || !newName.trim()}
             >
               {submitting ? 'Creating…' : 'Create flow'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Delete confirmation ── */}
       <ZoruAlertDialog

@@ -36,7 +36,7 @@ export function KbSearch() {
                 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted"
                 aria-hidden
             />
-            <ZoruInput
+            <Input
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="Search articles…"

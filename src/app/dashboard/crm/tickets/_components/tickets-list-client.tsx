@@ -394,11 +394,11 @@ export function TicketsListClient({
                     placeholder: t('crm.tickets.list.search.placeholder'),
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/tickets/new">
                             <Plus className="h-4 w-4" /> {t('crm.tickets.list.action.new')}
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <TicketsFiltersRow
@@ -480,11 +480,11 @@ export function TicketsListClient({
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Clear filters or log a new ticket to get started.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/tickets/new">
                                     <Plus className="h-4 w-4" /> New ticket
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

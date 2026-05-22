@@ -74,26 +74,26 @@ export default async function PolicyDetailPage({
             title={policy.name}
             subtitle={policy.summary || 'Policy detail'}
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${policyId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {tags.map((t) => (
-                        <ZoruBadge key={t} variant="ghost">
+                        <Badge key={t} variant="ghost">
                             {t}
-                        </ZoruBadge>
+                        </Badge>
                     ))}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -138,11 +138,11 @@ export default async function PolicyDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Attached document */}
             {policy.documentUrl ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
                         <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                         Attached document
@@ -155,12 +155,12 @@ export default async function PolicyDetailPage({
                     >
                         {policy.documentUrl}
                     </a>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Acknowledgement strip */}
             {ackRequired ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
                         <CheckSquare className="h-4 w-4 text-zoru-ink-muted" />
                         Employee acknowledgement required
@@ -169,11 +169,11 @@ export default async function PolicyDetailPage({
                         <span className="font-mono text-zoru-ink">{ackCount}</span>{' '}
                         acknowledgement{ackCount === 1 ? '' : 's'} recorded
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Inline content */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Content
                 </div>
@@ -186,7 +186,7 @@ export default async function PolicyDetailPage({
                         No inline content for this policy.
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

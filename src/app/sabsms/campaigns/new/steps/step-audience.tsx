@@ -64,7 +64,7 @@ export function StepAudience({
 
   return (
     <div className="space-y-5">
-      <ZoruRadioGroup
+      <RadioGroup
         value={kind}
         onValueChange={(v) => setKind(v as AudienceKind)}
         className="grid gap-3 md:grid-cols-3"
@@ -84,17 +84,17 @@ export function StepAudience({
           label="CSV upload"
           description="Upload via SabFiles."
         />
-      </ZoruRadioGroup>
+      </RadioGroup>
 
       {kind === "segment" && (
         <div className="space-y-2">
-          <ZoruLabel>Segment</ZoruLabel>
+          <Label>Segment</Label>
           {segments.length === 0 ? (
             <p className="rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
               No segments yet. Create one in the CRM. {"// TODO: wire segments collection once shipped"}
             </p>
           ) : (
-            <ZoruSelect
+            <Select
               value={
                 draft.audience?.kind === "segment"
                   ? draft.audience.segmentId
@@ -115,13 +115,13 @@ export function StepAudience({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           )}
         </div>
       )}
 
       {kind === "contacts" && (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">Contacts</ZoruCardTitle>
             <ZoruCardDescription>
@@ -146,7 +146,7 @@ export function StepAudience({
                       key={c.id}
                       className="flex cursor-pointer items-center gap-3 rounded p-2 hover:bg-slate-50"
                     >
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={checked}
                         onCheckedChange={(v) => {
                           const next = v
@@ -172,11 +172,11 @@ export function StepAudience({
               </div>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {kind === "csv" && (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">CSV upload</ZoruCardTitle>
             <ZoruCardDescription>
@@ -202,16 +202,16 @@ export function StepAudience({
             </SabFilePickerButton>
             {draft.audience?.kind === "csv" && draft.audience.sabFileId && (
               <div className="flex items-center gap-2 text-sm text-slate-600">
-                <ZoruBadge variant="secondary">
+                <Badge variant="secondary">
                   {draft.audience.sabFileName ?? "csv"}
-                </ZoruBadge>
+                </Badge>
                 <code className="text-xs text-slate-500">
                   sabFileId={draft.audience.sabFileId}
                 </code>
               </div>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );

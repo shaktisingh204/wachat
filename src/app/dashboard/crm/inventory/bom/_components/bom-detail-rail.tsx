@@ -32,7 +32,7 @@ export interface BomDetailRailProps {
 export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps) {
     return (
         <div className="flex flex-col gap-4">
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Versions / variants</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -58,9 +58,9 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
                         </ul>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Related production orders</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -91,7 +91,7 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
                         </ul>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

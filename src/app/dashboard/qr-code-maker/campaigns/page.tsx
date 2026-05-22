@@ -92,7 +92,7 @@ export default function QrCampaignsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
@@ -106,38 +106,38 @@ export default function QrCampaignsPage() {
             <ZoruBreadcrumbPage>Campaigns</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Campaigns</ZoruPageTitle>
             <ZoruPageDescription>
               Group QR codes together for unified analytics.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton size="sm" onClick={() => setShowForm((v) => !v)}>
+        </PageHeader>
+        <Button size="sm" onClick={() => setShowForm((v) => !v)}>
           <Plus className="h-3.5 w-3.5" />
           New Campaign
-        </ZoruButton>
+        </Button>
       </div>
 
       {showForm ? (
-        <ZoruCard className="p-5 space-y-4">
+        <Card className="p-5 space-y-4">
           <h3 className="text-[14px] text-zoru-ink">Create Campaign</h3>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Name</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12.5px] text-zoru-ink-muted">Name</Label>
+              <Input
                 placeholder="e.g., Summer 2026"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Description (Optional)</ZoruLabel>
-              <ZoruTextarea
+              <Label className="text-[12.5px] text-zoru-ink-muted">Description (Optional)</Label>
+              <Textarea
                 placeholder="What is this campaign about?"
                 value={formDescription}
                 rows={1}
@@ -145,7 +145,7 @@ export default function QrCampaignsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Start Date (Optional)</ZoruLabel>
+              <Label className="text-[12.5px] text-zoru-ink-muted">Start Date (Optional)</Label>
               <input
                 type="date"
                 value={formStartDate}
@@ -154,7 +154,7 @@ export default function QrCampaignsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">End Date (Optional)</ZoruLabel>
+              <Label className="text-[12.5px] text-zoru-ink-muted">End Date (Optional)</Label>
               <input
                 type="date"
                 value={formEndDate}
@@ -164,14 +164,14 @@ export default function QrCampaignsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 pt-1">
-            <ZoruButton size="sm" onClick={handleCreate}>Create</ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={resetForm}>Cancel</ZoruButton>
+            <Button size="sm" onClick={handleCreate}>Create</Button>
+            <Button size="sm" variant="ghost" onClick={resetForm}>Cancel</Button>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {campaigns.length === 0 && !showForm ? (
-        <ZoruCard className="p-10 text-center">
+        <Card className="p-10 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
             <Megaphone className="h-5 w-5" />
           </div>
@@ -179,18 +179,18 @@ export default function QrCampaignsPage() {
           <p className="mt-1 text-xs text-zoru-ink-muted">
             Group your QR codes into campaigns to track performance together.
           </p>
-          <ZoruButton size="sm" className="mt-4" onClick={() => setShowForm(true)}>
+          <Button size="sm" className="mt-4" onClick={() => setShowForm(true)}>
             <Plus className="h-3.5 w-3.5" />
             Create your first campaign
-          </ZoruButton>
-        </ZoruCard>
+          </Button>
+        </Card>
       ) : campaigns.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {campaigns.map((c) => {
             const start = formatDate(c.startDate);
             const end = formatDate(c.endDate);
             return (
-              <ZoruCard key={c.id} className="p-5 flex flex-col gap-3">
+              <Card key={c.id} className="p-5 flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-[14px] font-medium text-zoru-ink truncate">{c.name}</p>
@@ -209,20 +209,20 @@ export default function QrCampaignsPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <ZoruBadge variant="outline" className="text-[11px]">
+                  <Badge variant="outline" className="text-[11px]">
                     {c.qrCodeIds.length} QR code{c.qrCodeIds.length !== 1 ? 's' : ''}
-                  </ZoruBadge>
+                  </Badge>
                   {start || end ? (
-                    <ZoruBadge variant="ghost" className="text-[11px]">
+                    <Badge variant="ghost" className="text-[11px]">
                       {start ?? '…'} → {end ?? '…'}
-                    </ZoruBadge>
+                    </Badge>
                   ) : null}
                 </div>
 
-                <ZoruButton size="sm" variant="outline" className="mt-auto w-full">
+                <Button size="sm" variant="outline" className="mt-auto w-full">
                   View
-                </ZoruButton>
-              </ZoruCard>
+                </Button>
+              </Card>
             );
           })}
         </div>

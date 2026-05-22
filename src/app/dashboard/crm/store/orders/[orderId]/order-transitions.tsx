@@ -57,7 +57,7 @@ export function OrderTransitions({
     return (
         <div className="flex flex-wrap items-center gap-2">
             {canMarkPaid ? (
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="outline"
                     disabled={pending}
@@ -67,10 +67,10 @@ export function OrderTransitions({
                 >
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Mark paid
-                </ZoruButton>
+                </Button>
             ) : null}
             {canFulfill ? (
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="outline"
                     disabled={pending}
@@ -82,10 +82,10 @@ export function OrderTransitions({
                 >
                     <PackageCheck className="h-3.5 w-3.5" />
                     Mark fulfilled
-                </ZoruButton>
+                </Button>
             ) : null}
             {canCancel ? (
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="outline"
                     disabled={pending}
@@ -95,7 +95,7 @@ export function OrderTransitions({
                 >
                     <XCircle className="h-3.5 w-3.5" />
                     Cancel
-                </ZoruButton>
+                </Button>
             ) : null}
         </div>
     );

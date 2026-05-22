@@ -13,8 +13,8 @@ export function IfEditor({ component, updateField }: IfEditorProps) {
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="condition">Condition Expression</ZoruLabel>
-                <ZoruInput 
+                <Label htmlFor="condition">Condition Expression</Label>
+                <Input 
                     id="condition" 
                     value={component.condition || ''} 
                     onChange={(e) => updateField('condition', e.target.value)} 
@@ -27,13 +27,13 @@ export function IfEditor({ component, updateField }: IfEditorProps) {
                 </p>
             </div>
             
-            <ZoruAlert>
+            <Alert>
                 <Lightbulb className="h-4 w-4" />
                 <ZoruAlertTitle>Component Management</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     The components to show in the "then" and "else" branches should be managed in the "Raw JSON" editor view for full control over nested components.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         </div>
     );
 }

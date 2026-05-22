@@ -69,7 +69,7 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
     const BlockIcon = [...blockTypes, { type: 'triggerTagAdded', label: 'Trigger', icon: Play }].find(b => b.type === node.type)?.icon || Play;
     
     return (
-        <ZoruCard
+        <Card
             onClick={onSelect}
             className={cn(
                 'p-0 w-80 cursor-pointer transition-shadow hover:shadow-md',
@@ -92,29 +92,29 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
                     )}
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
 function AddActionPopover({ onAddNode, sourceNodeId, sourceHandle }: { onAddNode: (type: NodeType, sourceNodeId: string, sourceHandle?: string) => void; sourceNodeId: string; sourceHandle?: string; }) {
     return (
-        <ZoruPopover>
+        <Popover>
             <ZoruPopoverTrigger asChild>
-                <ZoruButton variant="outline" size="icon" className="rounded-full bg-background hover:bg-muted shadow-md">
+                <Button variant="outline" size="icon" className="rounded-full bg-background hover:bg-muted shadow-md">
                     <Plus className="h-5 w-5" />
-                </ZoruButton>
+                </Button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent className="w-64 p-2">
                 <div className="space-y-1">
                     {blockTypes.map(block => (
-                         <ZoruButton key={block.type} variant="ghost" className="w-full justify-start" onClick={() => onAddNode(block.type as NodeType, sourceNodeId, sourceHandle)}>
+                         <Button key={block.type} variant="ghost" className="w-full justify-start" onClick={() => onAddNode(block.type as NodeType, sourceNodeId, sourceHandle)}>
                             <block.icon className="mr-2 h-4 w-4"/>
                             {block.label}
-                        </ZoruButton>
+                        </Button>
                     ))}
                 </div>
             </ZoruPopoverContent>
-        </ZoruPopover>
+        </Popover>
     )
 }
 
@@ -296,35 +296,35 @@ export default function CrmAutomationsPage() {
                     configs persist today.
                 </p>
                 <div className="flex gap-2">
-                    <ZoruButton size="sm" className="flex-1" onClick={handleCreateNewFlow}><Plus className="mr-2 h-4 w-4"/>New</ZoruButton>
+                    <Button size="sm" className="flex-1" onClick={handleCreateNewFlow}><Plus className="mr-2 h-4 w-4"/>New</Button>
                 </div>
-                <ZoruScrollArea className="flex-1 -mx-4">
+                <ScrollArea className="flex-1 -mx-4">
                     <div className="px-4">
                         {flows.map(flow => (
-                            <ZoruButton key={flow._id.toString()} variant="ghost" className={cn("w-full justify-start", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted')} onClick={() => handleSelectFlow(flow._id.toString())}>
+                            <Button key={flow._id.toString()} variant="ghost" className={cn("w-full justify-start", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted')} onClick={() => handleSelectFlow(flow._id.toString())}>
                                 {flow.name}
-                            </ZoruButton>
+                            </Button>
                         ))}
                     </div>
-                </ZoruScrollArea>
+                </ScrollArea>
                 <div className="mt-auto">
-                    <ZoruButton variant="ghost" className="w-full justify-start" asChild>
+                    <Button variant="ghost" className="w-full justify-start" asChild>
                         <Link href="/dashboard/crm/automations/docs"><BookOpen className="mr-2 h-4 w-4" />Documentation</Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             </aside>
             <div className="flex-1 flex flex-col relative">
                  <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                      <div className="flex items-center gap-2">
-                        <ZoruInput id="automation-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || 'New Automation'} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
+                        <Input id="automation-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || 'New Automation'} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">Last run: N/A</span>
-                        <div className="flex items-center gap-2"><ZoruLabel htmlFor="enabled-switch" className="text-sm">Enabled</ZoruLabel><ZoruSwitch id="enabled-switch" /></div>
-                        <ZoruButton variant="outline" size="sm"><Webhook className="mr-2 h-4 w-4"/>Get Webhook URL</ZoruButton>
+                        <div className="flex items-center gap-2"><Label htmlFor="enabled-switch" className="text-sm">Enabled</Label><Switch id="enabled-switch" /></div>
+                        <Button variant="outline" size="sm"><Webhook className="mr-2 h-4 w-4"/>Get Webhook URL</Button>
                         <ZoruAlertDialog>
                             <ZoruAlertDialogTrigger asChild>
-                                <ZoruButton variant="destructive" size="icon" className="h-8 w-8" disabled={!currentFlow}><Trash2 className="h-4 w-4"/></ZoruButton>
+                                <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!currentFlow}><Trash2 className="h-4 w-4"/></Button>
                             </ZoruAlertDialogTrigger>
                             <ZoruAlertDialogContent>
                                 <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This action will permanently delete this automation.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
@@ -334,18 +334,18 @@ export default function CrmAutomationsPage() {
                                 </ZoruAlertDialogFooter>
                             </ZoruAlertDialogContent>
                         </ZoruAlertDialog>
-                        <ZoruButton onClick={handleSaveFlow} disabled={isSaving}>
+                        <Button onClick={handleSaveFlow} disabled={isSaving}>
                             {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </div>
                  </header>
                  <main className="flex-1 grid grid-cols-12 overflow-hidden">
-                    <ZoruScrollArea className="col-span-8 p-8">
+                    <ScrollArea className="col-span-8 p-8">
                         <div className="flex justify-center">
                             {nodes.length > 0 && renderNodeAndChildren(nodes[0].id)}
                         </div>
-                    </ZoruScrollArea>
+                    </ScrollArea>
                     <aside className="col-span-4 bg-background border-l p-4">
                         {selectedNode ? (
                            <CrmAutomationBlockEditor node={selectedNode} onUpdate={(data) => updateNodeData(selectedNodeId!, data)} />
@@ -356,29 +356,29 @@ export default function CrmAutomationsPage() {
                         )}
                     </aside>
                  </main>
-                  <ZoruCard
+                  <Card
                     className="p-0 absolute bottom-4 left-1/2 z-10 w-full max-w-lg -translate-x-1/2"
                   >
                     <div className="p-2">
                         <div className="flex items-center gap-2">
                             <Wand2 className="h-5 w-5 shrink-0 text-muted-foreground" />
-                            <ZoruInput
+                            <Input
                                 placeholder="Describe your workflow and let AI build it..."
                                 className="border-none shadow-none focus-visible:ring-0"
                                 value={prompt}
                                 onChange={e => setPrompt(e.target.value)}
                             />
-                            <ZoruButton
+                            <Button
                                
                                 onClick={handleGenerateClick}
                                 disabled={isGenerating || !prompt.trim()}
                                
                             >
                                 Generate
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

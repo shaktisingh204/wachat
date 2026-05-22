@@ -375,24 +375,24 @@ export default function LeadNotesPage() {
       }}
       primaryAction={
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+          <Button variant="outline" size="sm" onClick={onExportCsv}>
             <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
             CSV
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={onExportXlsx}>
             <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />
             XLSX
-          </ZoruButton>
-          <ZoruButton onClick={openNew}>
+          </Button>
+          <Button onClick={openNew}>
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Note
-          </ZoruButton>
+          </Button>
         </div>
       }
       filters={
         <>
           <div className="w-40">
-            <ZoruSelect
+            <Select
               value={tagFilter || 'all'}
               onValueChange={(v) => setTagFilter(v === 'all' ? '' : v)}
             >
@@ -407,10 +407,10 @@ export default function LeadNotesPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="w-56">
-            <ZoruSelect
+            <Select
               value={leadFilter || 'all'}
               onValueChange={(v) => setLeadFilter(v === 'all' ? '' : v)}
             >
@@ -425,22 +425,22 @@ export default function LeadNotesPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               className="h-9 w-[160px]"
             />
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
@@ -456,22 +456,22 @@ export default function LeadNotesPage() {
               {selected.size} selected
             </span>
             <div className="flex items-center gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={onExportCsv}
               >
                 <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Export CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkArchive' })}
@@ -479,8 +479,8 @@ export default function LeadNotesPage() {
               >
                 <Archive className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Archive
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkDelete' })}
@@ -491,7 +491,7 @@ export default function LeadNotesPage() {
                   strokeWidth={1.75}
                 />
                 Delete
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null
@@ -525,7 +525,7 @@ export default function LeadNotesPage() {
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           {isLoading && rows.length === 0 ? (
             <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
               Loading…
@@ -542,7 +542,7 @@ export default function LeadNotesPage() {
                 <thead>
                   <tr className="border-b border-zoru-line bg-zoru-surface-2">
                     <th className="w-10 px-3 py-3">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allOnPageSelected}
                         onCheckedChange={(c) =>
                           toggleAllOnPage(Boolean(c))
@@ -584,7 +584,7 @@ export default function LeadNotesPage() {
                         className="border-b border-zoru-line last:border-0"
                       >
                         <td className="px-3 py-3">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSel}
                             onCheckedChange={(c) => {
                               setSelected((s) => {
@@ -628,13 +628,13 @@ export default function LeadNotesPage() {
                           ) : (
                             <div className="flex flex-wrap gap-1">
                               {tags.slice(0, 3).map((t) => (
-                                <ZoruBadge
+                                <Badge
                                   key={t}
                                   variant="ghost"
                                   className="text-[11px]"
                                 >
                                   {t}
-                                </ZoruBadge>
+                                </Badge>
                               ))}
                               {tags.length > 3 ? (
                                 <span className="text-[11px] text-zoru-ink-muted">
@@ -657,7 +657,7 @@ export default function LeadNotesPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openEdit(r)}
@@ -667,8 +667,8 @@ export default function LeadNotesPage() {
                                 strokeWidth={1.75}
                               />
                               Edit
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() =>
@@ -685,7 +685,7 @@ export default function LeadNotesPage() {
                                 strokeWidth={1.75}
                               />
                               Delete
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -702,15 +702,15 @@ export default function LeadNotesPage() {
                 Page {pageSafe} of {totalPages} · {filtered.length} notes
               </span>
               <div className="flex items-center gap-1">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe >= totalPages}
@@ -719,33 +719,33 @@ export default function LeadNotesPage() {
                   }
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Add/Edit modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <ZoruCard className="w-full max-w-xl p-6">
+          <Card className="w-full max-w-xl p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[16px] text-zoru-ink">
                 {editing ? 'Edit Note' : 'Add Note'}
               </h2>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setOpen(false)}
               >
                 <X className="h-4 w-4" strokeWidth={1.75} />
                 Close
-              </ZoruButton>
+              </Button>
             </div>
             <div className="grid gap-3">
               <div>
-                <ZoruLabel>Lead *</ZoruLabel>
+                <Label>Lead *</Label>
                 <div className="mt-1.5">
                   <EntityFormField
                     entity="lead"
@@ -759,8 +759,8 @@ export default function LeadNotesPage() {
                 </div>
               </div>
               <div>
-                <ZoruLabel>Title *</ZoruLabel>
-                <ZoruInput
+                <Label>Title *</Label>
+                <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="mt-1.5"
@@ -768,8 +768,8 @@ export default function LeadNotesPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Tags (comma-separated)</ZoruLabel>
-                <ZoruInput
+                <Label>Tags (comma-separated)</Label>
+                <Input
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   className="mt-1.5"
@@ -777,7 +777,7 @@ export default function LeadNotesPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Details</ZoruLabel>
+                <Label>Details</Label>
                 <textarea
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
@@ -786,13 +786,13 @@ export default function LeadNotesPage() {
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   onClick={handleSave}
                   disabled={isMutating || !title.trim() || !leadId}
                 >
@@ -803,10 +803,10 @@ export default function LeadNotesPage() {
                     />
                   ) : null}
                   {editing ? 'Update' : 'Create'}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       )}
 
@@ -866,7 +866,7 @@ function KpiCard({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-2 text-zoru-ink-muted">
         {icon}
         <p className="text-[12.5px] font-medium">{label}</p>
@@ -882,7 +882,7 @@ function KpiCard({
           {hint}
         </p>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -903,9 +903,9 @@ function NoteDrawerBody({
       {tags.length > 0 ? (
         <div className="flex flex-wrap gap-1">
           {tags.map((t) => (
-            <ZoruBadge key={t} variant="ghost" className="text-[11px]">
+            <Badge key={t} variant="ghost" className="text-[11px]">
               {t}
-            </ZoruBadge>
+            </Badge>
           ))}
         </div>
       ) : null}

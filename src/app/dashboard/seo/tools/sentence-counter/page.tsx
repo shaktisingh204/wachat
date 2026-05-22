@@ -16,11 +16,11 @@ export default function SentenceCounterPage() {
 
   return (
     <ToolShell title="Sentence Counter" description="Count sentences and average words per sentence.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste your text…" className="min-h-[240px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste your text…" className="min-h-[240px]" />
       <div className="grid grid-cols-3 gap-3">
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{sentences}</div><div className="text-xs text-muted-foreground">Sentences</div></ZoruCardContent></ZoruCard>
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></ZoruCard>
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{avg}</div><div className="text-xs text-muted-foreground">Words / sentence</div></ZoruCardContent></ZoruCard>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{sentences}</div><div className="text-xs text-muted-foreground">Sentences</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{avg}</div><div className="text-xs text-muted-foreground">Words / sentence</div></ZoruCardContent></Card>
       </div>
     </ToolShell>
   );

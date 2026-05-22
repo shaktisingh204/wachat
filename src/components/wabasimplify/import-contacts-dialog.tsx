@@ -48,7 +48,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       variant="rose"
       size="md"
@@ -60,7 +60,7 @@ function SubmitButton() {
       }
     >
       {pending ? 'Importing…' : 'Import contacts'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -120,15 +120,15 @@ export function ImportContactsDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton
+        <Button
           variant="pill"
           size="md"
           leading={<LuFileUp className="h-3.5 w-3.5" strokeWidth={2} />}
         >
           Import
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="max-w-[520px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
         <form action={formAction} ref={formRef}>
@@ -158,10 +158,10 @@ export function ImportContactsDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* WhatsApp number */}
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
                 Associate with number
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 value={selectedPhoneNumberId}
                 onValueChange={setSelectedPhoneNumberId}
               >
@@ -175,15 +175,15 @@ export function ImportContactsDialog({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             {/* File drop */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
+                <Label className="text-[11.5px] font-semibold text-muted-foreground">
                   Contact file <span className="ml-1 text-destructive">*</span>
-                </ZoruLabel>
+                </Label>
                 <button
                   type="button"
                   onClick={handleDownloadSample}
@@ -233,18 +233,18 @@ export function ImportContactsDialog({
           </div>
 
           <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="pill"
               size="md"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

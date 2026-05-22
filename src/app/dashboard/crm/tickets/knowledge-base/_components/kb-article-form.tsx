@@ -41,14 +41,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ editing }: { editing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {editing ? 'Save changes' : 'Create article'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -90,16 +90,16 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                 <input type="hidden" name="articleId" value={articleId} />
             ) : null}
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Article details
                 </h2>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
-                        <ZoruLabel htmlFor="title">
+                        <Label htmlFor="title">
                             Title <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -108,8 +108,8 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="slug">Slug</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="slug">Slug</Label>
+                        <Input
                             id="slug"
                             name="slug"
                             defaultValue={(init.slug as string | undefined) ?? ''}
@@ -117,7 +117,7 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Category</ZoruLabel>
+                        <Label>Category</Label>
                         <EntityFormField
                             entity="category"
                             name="category"
@@ -127,8 +127,8 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                     <div className="space-y-1.5 sm:col-span-2">
-                        <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
                             id="tags"
                             name="tags"
                             defaultValue={tagsCsv}
@@ -136,15 +136,15 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Content</h2>
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="body">
+                    <Label htmlFor="body">
                         Body (Markdown) <span className="text-zoru-danger-ink">*</span>
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                         id="body"
                         name="body"
                         rows={16}
@@ -153,16 +153,16 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         placeholder="Write the article content here. Markdown supported."
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
                     SEO & links
                 </h2>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
-                        <ZoruLabel htmlFor="seoTitle">SEO title</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="seoTitle">SEO title</Label>
+                        <Input
                             id="seoTitle"
                             name="seoTitle"
                             defaultValue={(init.seoTitle as string | undefined) ?? ''}
@@ -170,8 +170,8 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                     <div className="space-y-1.5 sm:col-span-2">
-                        <ZoruLabel htmlFor="seoDescription">SEO description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="seoDescription">SEO description</Label>
+                        <Textarea
                             id="seoDescription"
                             name="seoDescription"
                             rows={2}
@@ -180,15 +180,15 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Visibility & status
                 </h2>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Visibility</ZoruLabel>
+                        <Label>Visibility</Label>
                         <EnumFormField
                             enumName="kbVisibility"
                             name="visibility"
@@ -197,7 +197,7 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="kbStatus"
                             name="status"
@@ -206,10 +206,10 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div className="flex items-center justify-between">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link
                         href={
                             editing && articleId
@@ -219,7 +219,7 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                     >
                         <ArrowLeft className="h-4 w-4" /> Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton editing={editing} />
             </div>
         </form>

@@ -95,28 +95,28 @@ export function StockTransferDetailActions({
     return (
         <>
             {status !== 'Cancelled' && status !== 'archived' ? (
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     disabled={pending}
                     onClick={() => setCancelOpen(true)}
                 >
                     <Ban className="h-3.5 w-3.5" strokeWidth={1.75} /> Cancel
-                </ZoruButton>
+                </Button>
             ) : null}
 
             {status !== 'archived' ? (
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     disabled={pending}
                     onClick={() => setArchiveOpen(true)}
                 >
                     <Archive className="h-3.5 w-3.5" strokeWidth={1.75} /> Archive
-                </ZoruButton>
+                </Button>
             ) : null}
 
-            <ZoruButton
+            <Button
                 variant="outline"
                 size="sm"
                 disabled={pending}
@@ -124,7 +124,7 @@ export function StockTransferDetailActions({
                 className="text-zoru-danger-ink"
             >
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} /> Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={cancelOpen}

@@ -128,7 +128,7 @@ const TILES: Tile[] = [
 export default function FacebookAdsPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -142,7 +142,7 @@ export default function FacebookAdsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Ads</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -151,17 +151,17 @@ export default function FacebookAdsPage(): React.JSX.Element {
             Quick-access tiles into the full Ads Manager workspace.
           </p>
         </div>
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/ad-manager/create">
             <Plus className="mr-2 h-4 w-4" />
             New campaign
           </Link>
-        </ZoruButton>
+        </Button>
       </header>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {TILES.map((t) => (
-          <ZoruCard key={t.key} className="flex flex-col gap-3 p-5">
+          <Card key={t.key} className="flex flex-col gap-3 p-5">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink-muted [&_svg]:size-4">
                 {t.icon}
@@ -170,15 +170,15 @@ export default function FacebookAdsPage(): React.JSX.Element {
             </div>
             <p className="text-xs text-zoru-ink-muted">{t.description}</p>
             <footer className="flex items-center justify-between border-t border-zoru-line pt-3">
-              <ZoruBadge variant="ghost">live</ZoruBadge>
-              <ZoruButton asChild variant="ghost" size="sm">
+              <Badge variant="ghost">live</Badge>
+              <Button asChild variant="ghost" size="sm">
                 <Link href={t.href} className="inline-flex items-center">
                   Open
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
-              </ZoruButton>
+              </Button>
             </footer>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     </div>

@@ -121,7 +121,7 @@ export function RecruitmentDetailShell({
                   );
                   if (a.href) {
                     return (
-                      <ZoruButton
+                      <Button
                         key={a.key}
                         variant={variant === 'destructive' ? 'ghost' : variant}
                         size="sm"
@@ -129,11 +129,11 @@ export function RecruitmentDetailShell({
                         asChild
                       >
                         <Link href={a.href}>{inner}</Link>
-                      </ZoruButton>
+                      </Button>
                     );
                   }
                   return (
-                    <ZoruButton
+                    <Button
                       key={a.key}
                       variant={variant === 'destructive' ? 'ghost' : variant}
                       size="sm"
@@ -141,7 +141,7 @@ export function RecruitmentDetailShell({
                       type="button"
                     >
                       {inner}
-                    </ZoruButton>
+                    </Button>
                   );
                 })
               : null}
@@ -181,7 +181,7 @@ export function DetailCard({
   children?: React.ReactNode;
 }) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-[15px]">{title}</ZoruCardTitle>
       </ZoruCardHeader>
@@ -206,7 +206,7 @@ export function DetailCard({
         ) : null}
         {children}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -219,7 +219,7 @@ export function RailCard({
   children: React.ReactNode;
 }) {
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <ZoruCardHeader className="pb-2">
         <ZoruCardTitle className="text-[13px] font-medium uppercase tracking-wide text-zoru-ink-muted">
           {title}
@@ -228,7 +228,7 @@ export function RailCard({
       <ZoruCardContent className="space-y-2 text-[13px]">
         {children}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 

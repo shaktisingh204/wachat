@@ -91,7 +91,7 @@ function RailButton({ item }: { item: ZoruAppRailItem }) {
   );
 
   return (
-    <ZoruTooltip>
+    <Tooltip>
       <ZoruTooltipTrigger asChild>
         {item.href ? (
           <Link
@@ -114,6 +114,6 @@ function RailButton({ item }: { item: ZoruAppRailItem }) {
         )}
       </ZoruTooltipTrigger>
       <ZoruTooltipContent side="right">{item.label}</ZoruTooltipContent>
-    </ZoruTooltip>
+    </Tooltip>
   );
 }

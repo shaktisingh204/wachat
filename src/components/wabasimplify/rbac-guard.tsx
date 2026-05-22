@@ -37,18 +37,18 @@ function ForbiddenPage() {
 
                 {/* Actions */}
                 <div className="relative flex gap-3 justify-center">
-                    <ZoruButton asChild size="sm" className="gap-2 rounded-xl bg-primary/90 hover:bg-primary shadow-md">
+                    <Button asChild size="sm" className="gap-2 rounded-xl bg-primary/90 hover:bg-primary shadow-md">
                         <Link href="/wachat">
                             <Home className="h-4 w-4" />
                             Go Home
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild size="sm" variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
+                    </Button>
+                    <Button asChild size="sm" variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
                         <Link href="/dashboard/team/team-chat">
                             <MessageSquare className="h-4 w-4" />
                             Contact Admin
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
         </div>

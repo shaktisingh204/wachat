@@ -15,8 +15,8 @@ import Link from 'next/link';
 function SettingsPageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <div><ZoruSkeleton className="h-8 w-1/3" /><ZoruSkeleton className="h-4 w-2/3 mt-2" /></div>
-            <ZoruSkeleton className="h-96 w-full" />
+            <div><Skeleton className="h-8 w-1/3" /><Skeleton className="h-4 w-2/3 mt-2" /></div>
+            <Skeleton className="h-96 w-full" />
         </div>
     );
 }
@@ -40,25 +40,25 @@ export default function QrCodeSettingsPage() {
 
     if (!user) {
         return (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     You need to be logged in to access this page.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         );
     }
 
     return (
         <div className="flex flex-col gap-8">
              <div>
-                <ZoruButton variant="ghost" asChild className="mb-2 -ml-4">
+                <Button variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/dashboard/qr-code-maker">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to QR Code Maker
                     </Link>
-                </ZoruButton>
+                </Button>
                 <h1 className="text-3xl text-zoru-ink">QR Code Maker Settings</h1>
                 <p className="text-zoru-ink-muted">Manage your tags. Tags can be applied to QR codes and short links to help you organize them.</p>
             </div>

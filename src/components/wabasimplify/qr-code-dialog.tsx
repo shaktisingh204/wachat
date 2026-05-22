@@ -34,7 +34,7 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-xs max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <ZoruDialogHeader className="px-6 pt-6 pb-2">
                     <ZoruDialogTitle>QR Code</ZoruDialogTitle>
@@ -55,12 +55,12 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
                     </div>
                 </div>
                 <div className="px-6 pb-6 pt-2">
-                    <ZoruButton onClick={handleDownload} className="w-full">
+                    <Button onClick={handleDownload} className="w-full">
                         <Download className="mr-2 h-4 w-4" />
                         Download QR Code
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

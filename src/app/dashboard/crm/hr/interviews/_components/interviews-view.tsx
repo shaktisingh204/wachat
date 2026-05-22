@@ -303,23 +303,23 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
         subtitle="Schedule rounds, capture panel feedback, and track candidate outcomes."
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   <Download className="h-3.5 w-3.5" /> Export
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuItem onSelect={handleExport}>
                   <FileSpreadsheet className="h-3.5 w-3.5" /> Download CSV
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
-            <ZoruButton asChild>
+            </DropdownMenu>
+            <Button asChild>
               <Link href="/dashboard/crm/hr/interviews/new">
                 <Plus className="h-4 w-4" /> New interview
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         }
         bulkBar={
@@ -327,19 +327,19 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-sm text-zoru-ink">{selected.size} selected</span>
               <div className="flex flex-wrap gap-2">
-                <ZoruButton size="sm" variant="outline" onClick={() => setSelected(new Set())}>Clear</ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={handleExport}>
+                <Button size="sm" variant="outline" onClick={() => setSelected(new Set())}>Clear</Button>
+                <Button size="sm" variant="outline" onClick={handleExport}>
                   <Download className="h-3.5 w-3.5" /> Export selected
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={() => runBulk('reschedule')}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => runBulk('reschedule')}>
                   Reschedule
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={() => setPendingBulk('cancel')}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setPendingBulk('cancel')}>
                   Cancel
-                </ZoruButton>
-                <ZoruButton size="sm" variant="destructive" onClick={() => setPendingBulk('delete')}>
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => setPendingBulk('delete')}>
                   <Trash2 className="h-3.5 w-3.5" /> Delete
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -354,10 +354,10 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
               { label: 'Completed', value: kpis.completed },
               { label: 'Cancelled / no-show', value: kpis.noShows },
             ].map((k) => (
-              <ZoruCard key={k.label} className="p-3">
+              <Card key={k.label} className="p-3">
                 <p className="text-xs text-zoru-ink-muted">{k.label}</p>
                 <p className="mt-1 text-xl font-semibold text-zoru-ink">{k.value}</p>
-              </ZoruCard>
+              </Card>
             ))}
           </div>
 
@@ -365,14 +365,14 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative max-w-sm flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-              <ZoruInput
+              <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by candidate, panel, position…"
                 className="h-9 pl-9 text-[13px]"
               />
             </div>
-            <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="All stages" />
               </ZoruSelectTrigger>
@@ -384,8 +384,8 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
                 <ZoruSelectItem value="no-show">No-show</ZoruSelectItem>
                 <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={typeFilter} onValueChange={setTypeFilter}>
+            </Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
               <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
                 <ZoruSelectValue placeholder="All types" />
               </ZoruSelectTrigger>
@@ -396,22 +396,22 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
                 <ZoruSelectItem value="onsite">Onsite</ZoruSelectItem>
                 <ZoruSelectItem value="in-person">In-person</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {hasFilters ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
 
           {/* Table */}
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--zoru-radius)]">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
-                      <ZoruCheckbox
+                      <Checkbox
                         aria-label="Select all"
                         checked={allSelected}
                         onCheckedChange={(v) => toggleAll(Boolean(v))}
@@ -448,7 +448,7 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
                       return (
                         <ZoruTableRow key={id} className="border-zoru-line">
                           <ZoruTableCell>
-                            <ZoruCheckbox
+                            <Checkbox
                               aria-label={`Select ${candidateLabel(row)}`}
                               checked={isSelected}
                               onCheckedChange={() => toggleOne(id)}
@@ -480,28 +480,28 @@ export function InterviewsView({ initial }: InterviewsViewProps) {
                             <StatusPill label={outcome} tone={outcomeTone(outcome)} />
                           </ZoruTableCell>
                           <ZoruTableCell className="text-right">
-                            <ZoruButton size="sm" variant="ghost" asChild>
+                            <Button size="sm" variant="ghost" asChild>
                               <Link href={`/dashboard/crm/hr/interviews/${id}/edit`} aria-label={`Edit interview for ${candidateLabel(row)}`}>
                                 Edit
                               </Link>
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => setPendingDelete(row)}
                               aria-label={`Delete interview for ${candidateLabel(row)}`}
                             >
                               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           </ZoruTableCell>
                         </ZoruTableRow>
                       );
                     })
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

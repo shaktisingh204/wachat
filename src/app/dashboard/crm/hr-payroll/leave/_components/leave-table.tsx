@@ -3,7 +3,7 @@
 /**
  * Leave list table — `/dashboard/crm/hr-payroll/leave`.
  *
- * Renders the filtered set of leave requests as a `<ZoruTable>` with
+ * Renders the filtered set of leave requests as a `<Table>` with
  * bulk-select. Columns:
  *   • select        — per-row checkbox
  *   • Employee      — `<EntityRowLink>` to the detail page,
@@ -98,12 +98,12 @@ export function LeaveTable({
     rows.length > 0 && rows.every((r) => selected.has(r._id));
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <ZoruTable>
+    <Card className="overflow-hidden p-0">
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead className="w-8">
-              <ZoruCheckbox
+              <Checkbox
                 checked={headChecked}
                 onCheckedChange={(c) => onToggleAll(Boolean(c))}
                 aria-label="Select all leave requests"
@@ -138,7 +138,7 @@ export function LeaveTable({
               return (
                 <ZoruTableRow key={id}>
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={checked}
                       onCheckedChange={() => onToggleOne(id)}
                       aria-label={`Select leave request for ${employeeName}`}
@@ -171,22 +171,22 @@ export function LeaveTable({
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link
                           href={`/dashboard/crm/hr-payroll/leave/${id}`}
                           aria-label={`View leave request for ${employeeName}`}
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      </Button>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link
                           href={`/dashboard/crm/hr-payroll/leave/${id}/edit`}
                           aria-label={`Edit leave request for ${employeeName}`}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -194,7 +194,7 @@ export function LeaveTable({
             })
           )}
         </ZoruTableBody>
-      </ZoruTable>
-    </ZoruCard>
+      </Table>
+    </Card>
   );
 }

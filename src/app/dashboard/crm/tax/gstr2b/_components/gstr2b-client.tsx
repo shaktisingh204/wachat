@@ -116,22 +116,22 @@ function computeKpis(parsed: Gstr2bReturn): Gstr2bKpis {
 function KpiStrip({ kpis }: { kpis: Gstr2bKpis }) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <ZoruStatCard
+      <StatCard
         label="Total invoices"
         value={kpis.totalInvoices.toLocaleString()}
         icon={<ListChecks className="h-4 w-4" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="ITC available"
         value={fmtInr(kpis.itcAvailable)}
         icon={<TrendingUp className="h-4 w-4 text-emerald-500" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="ITC ineligible"
         value={fmtInr(kpis.itcIneligible)}
         icon={<TrendingDown className="h-4 w-4 text-red-500" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Suppliers"
         value={kpis.supplierCount.toLocaleString()}
         icon={<AlertCircle className="h-4 w-4 text-blue-500" />}
@@ -307,13 +307,13 @@ export function Gstr2bClient() {
   return (
     <div className="flex flex-col gap-5">
       {/* Period + upload toolbar */}
-      <ZoruCard>
+      <Card>
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="mb-1 block text-[12px] text-muted-foreground">
               Month
             </label>
-            <ZoruSelect
+            <Select
               value={String(period.month)}
               onValueChange={(v) =>
                 setPeriod((p) => ({ ...p, month: Number(v) }))
@@ -329,13 +329,13 @@ export function Gstr2bClient() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
             <label className="mb-1 block text-[12px] text-muted-foreground">
               Year
             </label>
-            <ZoruInput
+            <Input
               type="number"
               value={period.year}
               onChange={(e) =>
@@ -356,15 +356,15 @@ export function Gstr2bClient() {
             <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
       {!parsed && !loading ? (
-        <ZoruCard>
+        <Card>
           <p className="text-[13px] text-muted-foreground">
             No GSTR-2B import on file for this period. Download the JSON from
             the GST portal and upload it above.
           </p>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {parsed && kpis ? (
@@ -373,7 +373,7 @@ export function Gstr2bClient() {
           <KpiStrip kpis={kpis} />
 
           {/* Summary box */}
-          <ZoruCard>
+          <Card>
             <h2 className="text-[15px] font-semibold text-foreground">Summary</h2>
             <p className="mt-0.5 text-[12px] text-muted-foreground">
               GSTIN {parsed.gstin} — Period {parsed.period}
@@ -417,13 +417,13 @@ export function Gstr2bClient() {
                 </div>
               ))}
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Supplier table */}
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
               <div className="flex items-center gap-2">
-                <ZoruInput
+                <Input
                   type="search"
                   value={gstinSearch}
                   onChange={(e) => setGstinSearch(e.target.value)}
@@ -431,14 +431,14 @@ export function Gstr2bClient() {
                   className="h-9 w-64 text-[13px]"
                 />
                 {gstinSearch ? (
-                  <ZoruButton
+                  <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setGstinSearch('')}
                     aria-label="Clear search"
                   >
                     <X className="h-3.5 w-3.5" />
-                  </ZoruButton>
+                  </Button>
                 ) : null}
               </div>
               <div className="flex items-center gap-2">
@@ -447,29 +447,29 @@ export function Gstr2bClient() {
                     {selected.size} selected
                   </span>
                 ) : null}
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExportCsv}
                 >
                   <Download className="h-3.5 w-3.5" /> CSV
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => void handleExportXlsx()}
                 >
                   <Download className="h-3.5 w-3.5" /> XLSX
-                </ZoruButton>
+                </Button>
               </div>
             </div>
 
             <div className="overflow-x-auto">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-border hover:bg-transparent">
                     <ZoruTableHead className="w-10 text-muted-foreground">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allChecked}
                         onCheckedChange={(c) => toggleAll(Boolean(c))}
                         aria-label="Select all suppliers"
@@ -516,7 +516,7 @@ export function Gstr2bClient() {
                         data-state={selected.has(s.gstin) ? 'selected' : undefined}
                       >
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={selected.has(s.gstin)}
                             onCheckedChange={() => toggle(s.gstin)}
                             aria-label={`Select ${s.gstin}`}
@@ -547,9 +547,9 @@ export function Gstr2bClient() {
                     ))
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </>
       ) : null}
     </div>

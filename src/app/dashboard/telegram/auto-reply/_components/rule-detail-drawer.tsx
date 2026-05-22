@@ -80,11 +80,11 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
                     <ZoruDrawerTitle>{rule.name}</ZoruDrawerTitle>
                     <ZoruDrawerDescription>
                         {triggerSummary(rule.trigger)} ·{' '}
-                        <ZoruBadge
+                        <Badge
                             variant={rule.status === 'enabled' ? 'success' : 'ghost'}
                         >
                             {rule.status}
-                        </ZoruBadge>
+                        </Badge>
                     </ZoruDrawerDescription>
                 </ZoruDrawerHeader>
 
@@ -133,7 +133,7 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
 function OverviewPane({ rule }: { rule: RuleRow }) {
     return (
         <div className="grid gap-4">
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="space-y-2 p-4 text-sm">
                     <Row label="Priority" value={rule.priority} />
                     <Row label="Bot" value={rule.botId ?? 'All bots'} />
@@ -159,18 +159,18 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
                         }
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <section>
                 <h4 className="mb-2 text-sm font-semibold">Trigger</h4>
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-4 text-sm">
                         <p>{triggerSummary(rule.trigger)}</p>
                         <pre className="mt-2 max-h-40 overflow-auto rounded bg-muted/40 p-2 text-xs">
                             {JSON.stringify(rule.trigger, null, 2)}
                         </pre>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </section>
 
             <section>
@@ -205,7 +205,7 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
                     <ol className="space-y-1 text-sm">
                         {rule.actions.map((a, i) => (
                             <li key={i} className="rounded-md border bg-card/60 p-2">
-                                <ZoruBadge variant="ghost">#{i + 1}</ZoruBadge>{' '}
+                                <Badge variant="ghost">#{i + 1}</Badge>{' '}
                                 <span className="font-medium">{actionLabel(a.kind)}</span>
                             </li>
                         ))}
@@ -283,8 +283,8 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
         <div className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2 space-y-1">
-                    <ZoruLabel>Simulated text</ZoruLabel>
-                    <ZoruTextarea
+                    <Label>Simulated text</Label>
+                    <Textarea
                         rows={3}
                         value={msg.text ?? ''}
                         onChange={(e) =>
@@ -294,8 +294,8 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                     />
                 </div>
                 <div className="space-y-1">
-                    <ZoruLabel>Chat type</ZoruLabel>
-                    <ZoruSelect
+                    <Label>Chat type</Label>
+                    <Select
                         value={msg.isGroup ? 'group' : 'private'}
                         onValueChange={(v) =>
                             setMsg((m) => ({ ...m, isGroup: v === 'group' }))
@@ -308,11 +308,11 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                             <ZoruSelectItem value="private">Private (DM)</ZoruSelectItem>
                             <ZoruSelectItem value="group">Group</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="space-y-1">
-                    <ZoruLabel>Sender tag (optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label>Sender tag (optional)</Label>
+                    <Input
                         value={msg.senderTag ?? ''}
                         onChange={(e) =>
                             setMsg((m) => ({ ...m, senderTag: e.target.value }))
@@ -320,8 +320,8 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                     />
                 </div>
                 <div className="space-y-1">
-                    <ZoruLabel>Sender role (optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label>Sender role (optional)</Label>
+                    <Input
                         value={msg.senderRole ?? ''}
                         onChange={(e) =>
                             setMsg((m) => ({ ...m, senderRole: e.target.value }))
@@ -329,8 +329,8 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                     />
                 </div>
                 <div className="space-y-1">
-                    <ZoruLabel>Language (optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label>Language (optional)</Label>
+                    <Input
                         value={msg.languageCode ?? ''}
                         onChange={(e) =>
                             setMsg((m) => ({ ...m, languageCode: e.target.value }))
@@ -339,7 +339,7 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                     />
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruSwitch
+                    <Switch
                         checked={msg.hasMedia ?? false}
                         onCheckedChange={(v) =>
                             setMsg((m) => ({ ...m, hasMedia: v }))
@@ -348,7 +348,7 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                     <span className="text-sm">Message has media</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruSwitch
+                    <Switch
                         checked={msg.isFirstMessage ?? false}
                         onCheckedChange={(v) =>
                             setMsg((m) => ({ ...m, isFirstMessage: v }))
@@ -359,14 +359,14 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
             </div>
 
             <div>
-                <ZoruButton onClick={run} disabled={running}>
+                <Button onClick={run} disabled={running}>
                     {running ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                         <Play className="mr-2 h-4 w-4" />
                     )}
                     Run test
-                </ZoruButton>
+                </Button>
             </div>
 
             {err && (
@@ -377,9 +377,9 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
 
             {matched !== null && (
                 <div className="space-y-3">
-                    <ZoruBadge variant={matched ? 'success' : 'ghost'}>
+                    <Badge variant={matched ? 'success' : 'ghost'}>
                         {matched ? 'Rule matched' : 'Rule did not match'}
-                    </ZoruBadge>
+                    </Badge>
                     <div className="rounded-md border bg-card/60 p-3">
                         <h5 className="mb-2 text-sm font-semibold">
                             Evaluation steps
@@ -390,11 +390,11 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                                     key={i}
                                     className="flex items-start gap-2"
                                 >
-                                    <ZoruBadge
+                                    <Badge
                                         variant={s.passed ? 'success' : 'danger'}
                                     >
                                         {s.stage}
-                                    </ZoruBadge>
+                                    </Badge>
                                     <div>
                                         <p>{s.label}</p>
                                         {s.detail && (
@@ -468,7 +468,7 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                 <p className="text-sm text-muted-foreground">
                     Recent fires for this rule.
                 </p>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => load(true)}
@@ -478,7 +478,7 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                         className={cn('mr-1 h-3.5 w-3.5', loading && 'animate-spin')}
                     />
                     Refresh
-                </ZoruButton>
+                </Button>
             </div>
 
             {err && (
@@ -500,13 +500,13 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                                 <span className="font-medium">
                                     {r.triggerSummary || rule.name}
                                 </span>
-                                <ZoruBadge
+                                <Badge
                                     variant={
                                         r.status === 'fired' ? 'success' : 'danger'
                                     }
                                 >
                                     {r.status}
-                                </ZoruBadge>
+                                </Badge>
                             </div>
                             <div className="mt-1 text-xs text-muted-foreground">
                                 {new Date(r.firedAt).toLocaleString()} · chat{' '}
@@ -518,14 +518,14 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
             )}
 
             {hasMore && (
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={() => load(false, cursor)}
                     disabled={loading}
                 >
                     Load more
-                </ZoruButton>
+                </Button>
             )}
         </div>
     );

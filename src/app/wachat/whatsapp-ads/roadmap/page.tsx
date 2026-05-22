@@ -89,7 +89,7 @@ function statusVariant(
 export default function AdsRoadmapPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -103,9 +103,9 @@ export default function AdsRoadmapPage() {
             <ZoruBreadcrumbPage>Ads Roadmap</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-2">
+      <PageHeader className="mt-2">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat · Ads</ZoruPageEyebrow>
           <ZoruPageTitle className="flex items-center gap-3">
@@ -120,11 +120,11 @@ export default function AdsRoadmapPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions />
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2">
         {ROADMAP_PHASES.map((phase) => (
-          <ZoruCard key={phase.phase} className="flex flex-col gap-4 p-5">
+          <Card key={phase.phase} className="flex flex-col gap-4 p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -134,9 +134,9 @@ export default function AdsRoadmapPage() {
                   {phase.title}
                 </h3>
               </div>
-              <ZoruBadge variant={statusVariant(phase.status)}>
+              <Badge variant={statusVariant(phase.status)}>
                 {phase.status}
-              </ZoruBadge>
+              </Badge>
             </div>
             <ul className="flex flex-col gap-2.5">
               {phase.milestones.map((milestone) => (
@@ -149,7 +149,7 @@ export default function AdsRoadmapPage() {
                 </li>
               ))}
             </ul>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     </div>

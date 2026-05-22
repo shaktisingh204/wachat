@@ -98,7 +98,7 @@ export default function CustomEcommerceAppearancePage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -120,9 +120,9 @@ export default function CustomEcommerceAppearancePage() {
             <ZoruBreadcrumbPage>Appearance</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Custom Shops</ZoruPageEyebrow>
           <ZoruPageTitle>Default appearance</ZoruPageTitle>
@@ -132,18 +132,18 @@ export default function CustomEcommerceAppearancePage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" onClick={() => router.back()}>
+          <Button variant="outline" onClick={() => router.back()}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={() => setSaveOpen(true)}>
+          </Button>
+          <Button onClick={() => setSaveOpen(true)}>
             <Save /> Save theme
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
         {/* ── Editor ── */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <h2 className="text-[15px] tracking-tight text-zoru-ink">
             Palette presets
           </h2>
@@ -174,7 +174,7 @@ export default function CustomEcommerceAppearancePage() {
           </div>
 
           <div className="mt-6 flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="primary-color">Primary color</ZoruLabel>
+            <Label htmlFor="primary-color">Primary color</Label>
             <ZoruColorPicker
               value={primary}
               onChange={(c) => {
@@ -190,18 +190,18 @@ export default function CustomEcommerceAppearancePage() {
           </div>
 
           <div className="mt-4 flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="theme-name">Theme name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="theme-name">Theme name</Label>
+            <Input
               id="theme-name"
               value={themeName}
               onChange={(e) => setThemeName(e.target.value)}
               placeholder="e.g. Default"
             />
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* ── Preview ── */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
             <Brush className="h-3.5 w-3.5" />
             Live preview
@@ -255,10 +255,10 @@ export default function CustomEcommerceAppearancePage() {
             </code>
             and overrides the default chosen here.
           </p>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruDialog open={saveOpen} onOpenChange={setSaveOpen}>
+      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Save default theme?</ZoruDialogTitle>
@@ -268,13 +268,13 @@ export default function CustomEcommerceAppearancePage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setSaveOpen(false)}>
+            <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSave}>Save theme</ZoruButton>
+            </Button>
+            <Button onClick={handleSave}>Save theme</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

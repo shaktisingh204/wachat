@@ -343,24 +343,24 @@ export default function ClientNotesPage() {
       }}
       primaryAction={
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+          <Button variant="outline" size="sm" onClick={onExportCsv}>
             <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
             CSV
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={onExportXlsx}>
             <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />
             XLSX
-          </ZoruButton>
-          <ZoruButton onClick={openNew}>
+          </Button>
+          <Button onClick={openNew}>
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Note
-          </ZoruButton>
+          </Button>
         </div>
       }
       filters={
         <>
           <div className="w-40">
-            <ZoruSelect
+            <Select
               value={statusFilter}
               onValueChange={(v) =>
                 setStatusFilter(v as typeof statusFilter)
@@ -374,10 +374,10 @@ export default function ClientNotesPage() {
                 <ZoruSelectItem value="pinned">Pinned</ZoruSelectItem>
                 <ZoruSelectItem value="unpinned">Unpinned</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="w-56">
-            <ZoruSelect
+            <Select
               value={clientFilter || 'all'}
               onValueChange={(v) =>
                 setClientFilter(v === 'all' ? '' : v)
@@ -394,22 +394,22 @@ export default function ClientNotesPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               className="h-9 w-[160px]"
             />
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
@@ -425,22 +425,22 @@ export default function ClientNotesPage() {
               {selected.size} selected
             </span>
             <div className="flex items-center gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={onExportCsv}
               >
                 <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Export CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkArchive' })}
@@ -448,8 +448,8 @@ export default function ClientNotesPage() {
               >
                 <Archive className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Archive
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkDelete' })}
@@ -460,7 +460,7 @@ export default function ClientNotesPage() {
                   strokeWidth={1.75}
                 />
                 Delete
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null
@@ -494,7 +494,7 @@ export default function ClientNotesPage() {
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           {isLoading && rows.length === 0 ? (
             <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
               Loading…
@@ -511,7 +511,7 @@ export default function ClientNotesPage() {
                 <thead>
                   <tr className="border-b border-zoru-line bg-zoru-surface-2">
                     <th className="w-10 px-3 py-3">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allOnPageSelected}
                         onCheckedChange={(c) =>
                           toggleAllOnPage(Boolean(c))
@@ -552,7 +552,7 @@ export default function ClientNotesPage() {
                         className="border-b border-zoru-line last:border-0"
                       >
                         <td className="px-3 py-3">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSel}
                             onCheckedChange={(c) => {
                               setSelected((s) => {
@@ -596,13 +596,13 @@ export default function ClientNotesPage() {
                         </td>
                         <td className="px-4 py-3">
                           {r.pinned ? (
-                            <ZoruBadge variant="info">
+                            <Badge variant="info">
                               <Pin
                                 className="h-3 w-3"
                                 strokeWidth={1.75}
                               />
                               Pinned
-                            </ZoruBadge>
+                            </Badge>
                           ) : (
                             <span className="text-zoru-ink-muted">—</span>
                           )}
@@ -612,7 +612,7 @@ export default function ClientNotesPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openEdit(r)}
@@ -622,8 +622,8 @@ export default function ClientNotesPage() {
                                 strokeWidth={1.75}
                               />
                               Edit
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() =>
@@ -640,7 +640,7 @@ export default function ClientNotesPage() {
                                 strokeWidth={1.75}
                               />
                               Delete
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -657,15 +657,15 @@ export default function ClientNotesPage() {
                 Page {pageSafe} of {totalPages} · {filtered.length} notes
               </span>
               <div className="flex items-center gap-1">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe >= totalPages}
@@ -674,33 +674,33 @@ export default function ClientNotesPage() {
                   }
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Add/Edit modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <ZoruCard className="w-full max-w-xl p-6">
+          <Card className="w-full max-w-xl p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[16px] text-zoru-ink">
                 {editing ? 'Edit Note' : 'Add Note'}
               </h2>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setOpen(false)}
               >
                 <X className="h-4 w-4" strokeWidth={1.75} />
                 Close
-              </ZoruButton>
+              </Button>
             </div>
             <div className="grid gap-3">
               <div>
-                <ZoruLabel>Client *</ZoruLabel>
+                <Label>Client *</Label>
                 <div className="mt-1.5">
                   <EntityFormField
                     entity="client"
@@ -714,8 +714,8 @@ export default function ClientNotesPage() {
                 </div>
               </div>
               <div>
-                <ZoruLabel>Title *</ZoruLabel>
-                <ZoruInput
+                <Label>Title *</Label>
+                <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="mt-1.5"
@@ -723,7 +723,7 @@ export default function ClientNotesPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Details</ZoruLabel>
+                <Label>Details</Label>
                 <textarea
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
@@ -732,8 +732,8 @@ export default function ClientNotesPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Pinned</ZoruLabel>
-                <ZoruSelect
+                <Label>Pinned</Label>
+                <Select
                   value={pinned}
                   onValueChange={(v) => setPinned(v as 'yes' | 'no')}
                 >
@@ -744,16 +744,16 @@ export default function ClientNotesPage() {
                     <ZoruSelectItem value="no">No</ZoruSelectItem>
                     <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   onClick={handleSave}
                   disabled={isMutating || !title.trim() || !clientId}
                 >
@@ -764,10 +764,10 @@ export default function ClientNotesPage() {
                     />
                   ) : null}
                   {editing ? 'Update' : 'Create'}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       )}
 
@@ -827,7 +827,7 @@ function KpiCard({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-2 text-zoru-ink-muted">
         {icon}
         <p className="text-[12.5px] font-medium">{label}</p>
@@ -843,7 +843,7 @@ function KpiCard({
           {hint}
         </p>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -861,10 +861,10 @@ function NoteDrawerBody({
         <span>{clientLabel}</span>
       </div>
       {note.pinned ? (
-        <ZoruBadge variant="info" className="w-fit">
+        <Badge variant="info" className="w-fit">
           <Pin className="h-3 w-3" strokeWidth={1.75} />
           Pinned
-        </ZoruBadge>
+        </Badge>
       ) : null}
       <div className="whitespace-pre-wrap text-[13px] leading-6 text-zoru-ink">
         {note.details || (

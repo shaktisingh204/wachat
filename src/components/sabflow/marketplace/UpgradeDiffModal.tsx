@@ -179,7 +179,7 @@ export function UpgradeDiffModal({
   const isDone = upgradeState.phase === 'done';
 
   return (
-    <ZoruDialog open onOpenChange={(open) => (!open ? onClose() : undefined)}>
+    <Dialog open onOpenChange={(open) => (!open ? onClose() : undefined)}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
@@ -239,17 +239,17 @@ export function UpgradeDiffModal({
 
         {/* Actions */}
         <div className="mt-6 flex items-center justify-end gap-2">
-          <ZoruButton variant="ghost" size="sm" onClick={onClose} disabled={isUpgrading || isDone}>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={isUpgrading || isDone}>
             <LuX className="mr-1 h-3.5 w-3.5" />
             Cancel
-          </ZoruButton>
+          </Button>
           {fetchState.phase === 'error' && (
-            <ZoruButton variant="outline" size="sm" onClick={() => void fetchDiff()}>
+            <Button variant="outline" size="sm" onClick={() => void fetchDiff()}>
               <LuRefreshCw className="mr-1 h-3.5 w-3.5" />
               Retry diff
-            </ZoruButton>
+            </Button>
           )}
-          <ZoruButton
+          <Button
             size="sm"
             onClick={() => void handleUpgrade()}
             disabled={
@@ -274,10 +274,10 @@ export function UpgradeDiffModal({
                 Apply Upgrade
               </>
             )}
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

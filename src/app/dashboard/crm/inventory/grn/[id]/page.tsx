@@ -70,11 +70,11 @@ export default async function GrnDetailPage({
                     <p className="text-[14px] text-zoru-ink">
                         Couldn&apos;t load this GRN — {error}
                     </p>
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href="/dashboard/crm/inventory/grn">
                             <ArrowLeft className="h-4 w-4" /> Back to GRNs
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             );
         }
@@ -112,27 +112,27 @@ export default async function GrnDetailPage({
             back={{ href: '/dashboard/crm/inventory/grn', label: 'GRNs' }}
             actions={
                 <>
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={`/dashboard/crm/inventory/grn/${id}/activity`}>
                             <Activity className="h-4 w-4" /> Activity
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <GrnDetailActions id={id} currentStatus={status} />
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link
                             href={`/dashboard/crm/purchases/expenses/new?fromKind=grn&fromId=${id}`}
                         >
                             <Receipt className="h-4 w-4" /> Convert to Bill
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" disabled title="Coming soon">
+                    </Button>
+                    <Button variant="outline" disabled title="Coming soon">
                         <Printer className="h-4 w-4" /> Print
-                    </ZoruButton>
-                    <ZoruButton asChild>
+                    </Button>
+                    <Button asChild>
                         <Link href={`/dashboard/crm/inventory/grn/${id}/edit`}>
                             <Pencil className="h-4 w-4" /> Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </>
             }
         >
@@ -140,7 +140,7 @@ export default async function GrnDetailPage({
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="flex flex-col gap-6">
                     {/* Header card */}
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <div className="mb-4 flex items-center justify-between gap-3">
                             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Header
@@ -203,7 +203,7 @@ export default async function GrnDetailPage({
                                 )}
                             </Field>
                         </div>
-                    </ZoruCard>
+                    </Card>
 
                     {/* Vehicle & transport — only when carried forward by the legacy form */}
                     {transport &&
@@ -211,7 +211,7 @@ export default async function GrnDetailPage({
                         transport.driverName ||
                         transport.lrNumber ||
                         transport.mode) ? (
-                        <ZoruCard className="p-6">
+                        <Card className="p-6">
                             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Vehicle & transport
                             </h3>
@@ -226,11 +226,11 @@ export default async function GrnDetailPage({
                                 </Field>
                                 <Field label="LR date">{fmtDate(transport.lrDate)}</Field>
                             </div>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
 
                     {/* Line items */}
-                    <ZoruCard className="overflow-hidden p-0">
+                    <Card className="overflow-hidden p-0">
                         <div className="border-b border-zoru-line p-3">
                             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Line items
@@ -306,11 +306,11 @@ export default async function GrnDetailPage({
                                 </tbody>
                             </table>
                         </div>
-                    </ZoruCard>
+                    </Card>
 
                     {/* Attachments / photos */}
                     {Array.isArray(grn.attachments) && grn.attachments.length > 0 ? (
-                        <ZoruCard className="p-6">
+                        <Card className="p-6">
                             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Photos & attachments ({grn.attachments.length})
                             </h3>
@@ -326,18 +326,18 @@ export default async function GrnDetailPage({
                                     </li>
                                 ))}
                             </ul>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
 
                     {extra.notes ? (
-                        <ZoruCard className="p-6">
+                        <Card className="p-6">
                             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Notes
                             </h3>
                             <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
                                 {extra.notes}
                             </div>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
 
                     <div className="text-[11px] text-zoru-ink-muted">
@@ -347,7 +347,7 @@ export default async function GrnDetailPage({
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Counterpart links
                         </h3>
@@ -367,7 +367,7 @@ export default async function GrnDetailPage({
                                 )}
                             </Field>
                         </div>
-                    </ZoruCard>
+                    </Card>
 
                     <LineageRail
                         current={{

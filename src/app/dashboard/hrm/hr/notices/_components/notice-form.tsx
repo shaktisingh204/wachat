@@ -96,14 +96,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create notice'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -207,7 +207,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                 />
             ) : null}
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Notice details
                 </div>
@@ -216,10 +216,10 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                     {/* Row: number + reference */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="noticeNumber">
+                            <Label htmlFor="noticeNumber">
                                 Notice Number
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="noticeNumber"
                                 name="noticeNumber"
                                 placeholder="Auto-generated when blank"
@@ -230,10 +230,10 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                             </p>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="referenceNumber">
+                            <Label htmlFor="referenceNumber">
                                 Reference Number
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="referenceNumber"
                                 name="referenceNumber"
                                 placeholder="Optional external reference"
@@ -244,8 +244,8 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
 
                     {/* Title */}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Title *</Label>
+                        <Input
                             id="title"
                             name="title"
                             placeholder="A short headline for the notice"
@@ -256,8 +256,8 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
 
                     {/* Body */}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="body">Body *</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="body">Body *</Label>
+                        <Textarea
                             id="body"
                             name="body"
                             placeholder="Full text of the notice. Markdown is supported."
@@ -270,8 +270,8 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                     {/* Category / Severity / Audience */}
                     <div className="grid gap-4 sm:grid-cols-3">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="category">Category</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="category">Category</Label>
+                            <Select
                                 name="category"
                                 defaultValue={
                                     (initialData?.category as string) ?? 'general'
@@ -287,10 +287,10 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel>Severity</ZoruLabel>
+                            <Label>Severity</Label>
                             <EnumFormField
                                 enumName="announcementSeverity"
                                 name="severity"
@@ -301,8 +301,8 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="issuedTo">Issued To</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="issuedTo">Issued To</Label>
+                            <Select
                                 name="issuedTo"
                                 defaultValue={
                                     (initialData?.issuedTo as string) ?? 'all'
@@ -318,17 +318,17 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
 
                     {/* Effective dates */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="effectiveFrom">
+                            <Label htmlFor="effectiveFrom">
                                 Effective From
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="effectiveFrom"
                                 name="effectiveFrom"
                                 type="date"
@@ -336,10 +336,10 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="effectiveUntil">
+                            <Label htmlFor="effectiveUntil">
                                 Effective Until
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="effectiveUntil"
                                 name="effectiveUntil"
                                 type="date"
@@ -351,23 +351,23 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                     {/* Acknowledgement + Status */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="flex items-center gap-2 pt-6">
-                            <ZoruCheckbox
+                            <Checkbox
                                 id="requireAcknowledgement"
                                 name="requireAcknowledgement"
                                 defaultChecked={
                                     !!initialData?.requireAcknowledgement
                                 }
                             />
-                            <ZoruLabel
+                            <Label
                                 htmlFor="requireAcknowledgement"
                                 className="cursor-pointer text-[13px] font-normal"
                             >
                                 Require recipients to acknowledge this notice
-                            </ZoruLabel>
+                            </Label>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="status">Status</Label>
+                            <Select
                                 name="status"
                                 defaultValue={
                                     (initialData?.status as string) ?? 'draft'
@@ -383,14 +383,14 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
 
                     {/* Notes */}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes">Internal notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Internal notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             placeholder="Notes visible to HR only (not shown to recipients)."
@@ -399,10 +399,10 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Attachments — SabFiles only, no URL paste */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-1 flex items-baseline justify-between">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Attachments
@@ -447,7 +447,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                     name="attachments"
                                     value={a.url}
                                 />
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon-sm"
@@ -455,7 +455,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                     onClick={() => removeAttachment(a.key)}
                                 >
                                     <X className="h-4 w-4" />
-                                </ZoruButton>
+                                </Button>
                             </li>
                         ))}
                     </ul>
@@ -470,11 +470,11 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                         Add from SabFiles
                     </SabFilePickerButton>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Form actions */}
             <div className="flex items-center justify-end gap-2">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link
                         href={
                             isEditing && initialData?._id
@@ -485,7 +485,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                         <ArrowLeft className="mr-1.5 h-4 w-4" />
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton isEditing={isEditing} />
             </div>
         </form>

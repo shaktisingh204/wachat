@@ -96,7 +96,7 @@ function KpiCard({
     icon: React.ReactElement;
 }) {
     return (
-        <ZoruCard className="p-4">
+        <Card className="p-4">
             <div className="flex items-start justify-between">
                 <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                     {label}
@@ -114,7 +114,7 @@ function KpiCard({
             {hint ? (
                 <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div>
             ) : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -133,7 +133,7 @@ function ChannelCard({
         ? `https://t.me/${channel.username}`
         : undefined;
     return (
-        <ZoruCard className="flex flex-col gap-3 p-4">
+        <Card className="flex flex-col gap-3 p-4">
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ function ChannelCard({
                             {channel.title}
                         </h3>
                         {channel.isVerified ? (
-                            <ZoruBadge variant="secondary">verified</ZoruBadge>
+                            <Badge variant="secondary">verified</Badge>
                         ) : null}
                     </div>
                     {channel.username ? (
@@ -163,15 +163,15 @@ function ChannelCard({
                         </div>
                     )}
                 </div>
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="icon-sm"
                             aria-label="Channel actions"
                         >
                             <MoreHorizontal />
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="end">
                         <ZoruDropdownMenuItem onSelect={() => onOpen(channel._id)}>
@@ -184,19 +184,19 @@ function ChannelCard({
                             Remove channel
                         </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
-                <ZoruBadge variant="outline">{channel.type}</ZoruBadge>
+                <Badge variant="outline">{channel.type}</Badge>
                 {channel.isAdmin ? (
-                    <ZoruBadge variant="secondary">
+                    <Badge variant="secondary">
                         <Crown className="mr-1 h-3 w-3" /> Admin
-                    </ZoruBadge>
+                    </Badge>
                 ) : (
-                    <ZoruBadge variant="danger">
+                    <Badge variant="danger">
                         <AlertCircle className="mr-1 h-3 w-3" /> Not admin
-                    </ZoruBadge>
+                    </Badge>
                 )}
                 <span className="inline-flex items-center gap-1">
                     <Users className="h-3 w-3" />
@@ -217,20 +217,20 @@ function ChannelCard({
                     href={`/dashboard/telegram/channels/${channel._id}`}
                     className="flex-1"
                 >
-                    <ZoruButton variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full">
                         Open
-                    </ZoruButton>
+                    </Button>
                 </Link>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => onRefresh(channel._id)}
                     aria-label="Refresh"
                 >
                     <RefreshCw />
-                </ZoruButton>
+                </Button>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -248,7 +248,7 @@ function DiscoverDialog({
     onClose: () => void;
 }) {
     return (
-        <ZoruDialog open={state.open} onOpenChange={(o) => (o ? null : onClose())}>
+        <Dialog open={state.open} onOpenChange={(o) => (o ? null : onClose())}>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>Discover channel</ZoruDialogTitle>
@@ -260,8 +260,8 @@ function DiscoverDialog({
 
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel>Bot</ZoruLabel>
-                        <ZoruSelect
+                        <Label>Bot</Label>
+                        <Select
                             value={state.botId}
                             onValueChange={(v) => onChange({ ...state, botId: v })}
                         >
@@ -275,11 +275,11 @@ function DiscoverDialog({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel>Channel</ZoruLabel>
-                        <ZoruInput
+                        <Label>Channel</Label>
+                        <Input
                             value={state.input}
                             onChange={(e) =>
                                 onChange({ ...state, input: e.target.value })
@@ -295,10 +295,10 @@ function DiscoverDialog({
                 </div>
 
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" onClick={onClose} disabled={state.busy}>
+                    <Button variant="ghost" onClick={onClose} disabled={state.busy}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         onClick={onSubmit}
                         disabled={state.busy || !state.botId || !state.input.trim()}
                     >
@@ -311,10 +311,10 @@ function DiscoverDialog({
                                 <Plus /> Add
                             </>
                         )}
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -485,13 +485,13 @@ export default function TelegramChannelsPage() {
     if (isLoadingProject) {
         return (
             <div className="flex flex-col gap-6 p-6">
-                <ZoruSkeleton className="h-10 w-64" />
+                <Skeleton className="h-10 w-64" />
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
-                        <ZoruSkeleton key={i} className="h-24 w-full rounded-xl" />
+                        <Skeleton key={i} className="h-24 w-full rounded-xl" />
                     ))}
                 </div>
-                <ZoruSkeleton className="h-64 w-full rounded-xl" />
+                <Skeleton className="h-64 w-full rounded-xl" />
             </div>
         );
     }
@@ -499,7 +499,7 @@ export default function TelegramChannelsPage() {
     if (!projectId) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     title="Pick a project"
                     description="Telegram channels are scoped to a project. Select one from the header switcher to continue."
                 />
@@ -510,7 +510,7 @@ export default function TelegramChannelsPage() {
     return (
         <div className="flex flex-col gap-6 p-6">
             <TelegramProjectGate />
-            <ZoruPageHeader>
+            <PageHeader>
                 <div className="flex items-start justify-between gap-3">
                     <ZoruPageHeading>
                         <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
@@ -530,7 +530,7 @@ export default function TelegramChannelsPage() {
                             broadcasts, and manage administrators.
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                    <ZoruButton
+                    <Button
                         onClick={() =>
                             setDiscover({
                                 open: true,
@@ -543,12 +543,12 @@ export default function TelegramChannelsPage() {
                         style={{ background: ACCENT }}
                     >
                         <Plus /> Discover channel
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {bots.length === 0 ? (
-                <ZoruCard className="p-4 text-sm text-zoru-ink-muted">
+                <Card className="p-4 text-sm text-zoru-ink-muted">
                     Connect a Telegram bot first — channels are managed through your bot.{' '}
                     <Link
                         href="/dashboard/telegram/bots"
@@ -557,7 +557,7 @@ export default function TelegramChannelsPage() {
                         Go to bots
                     </Link>
                     .
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* KPI */}
@@ -589,7 +589,7 @@ export default function TelegramChannelsPage() {
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruInput
+                <Input
                     value={filters.search}
                     onChange={(e) =>
                         setFilters((f) => ({ ...f, search: e.target.value }))
@@ -598,7 +598,7 @@ export default function TelegramChannelsPage() {
                     leadingSlot={<Search />}
                     className="min-w-[240px] flex-1"
                 />
-                <ZoruSelect
+                <Select
                     value={filters.type}
                     onValueChange={(v: Filters['type']) =>
                         setFilters((f) => ({ ...f, type: v }))
@@ -612,8 +612,8 @@ export default function TelegramChannelsPage() {
                         <ZoruSelectItem value="channel">Channels</ZoruSelectItem>
                         <ZoruSelectItem value="supergroup">Supergroups</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruSelect
+                </Select>
+                <Select
                     value={filters.botId}
                     onValueChange={(v) => setFilters((f) => ({ ...f, botId: v }))}
                 >
@@ -628,26 +628,26 @@ export default function TelegramChannelsPage() {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruButton variant="outline" onClick={load} disabled={loading}>
+                </Select>
+                <Button variant="outline" onClick={load} disabled={loading}>
                     {loading ? (
                         <Loader2 className="animate-spin" />
                     ) : (
                         <RefreshCw />
                     )}{' '}
                     Refresh
-                </ZoruButton>
+                </Button>
             </div>
 
             {/* Grid */}
             {loading && channels.length === 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {Array.from({ length: 6 }).map((_, i) => (
-                        <ZoruSkeleton key={i} className="h-44 w-full rounded-xl" />
+                        <Skeleton key={i} className="h-44 w-full rounded-xl" />
                     ))}
                 </div>
             ) : channels.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title="No channels yet"
                     description={
                         bots.length === 0
@@ -656,7 +656,7 @@ export default function TelegramChannelsPage() {
                     }
                     action={
                         bots.length > 0 ? (
-                            <ZoruButton
+                            <Button
                                 onClick={() =>
                                     setDiscover({
                                         open: true,
@@ -668,7 +668,7 @@ export default function TelegramChannelsPage() {
                                 style={{ background: ACCENT }}
                             >
                                 <Plus /> Discover channel
-                            </ZoruButton>
+                            </Button>
                         ) : null
                     }
                 />

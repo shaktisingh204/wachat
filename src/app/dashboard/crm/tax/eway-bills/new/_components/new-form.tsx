@@ -62,10 +62,10 @@ export function NewEWayBillForm() {
             <Field label="Vehicle number" name="vehicleNumber" />
 
             <div className="sm:col-span-2 flex items-center gap-3">
-                <ZoruButton type="submit" disabled={pending}>
+                <Button type="submit" disabled={pending}>
                     {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Generate
-                </ZoruButton>
+                </Button>
                 {error ? <p className="text-[12px] text-red-600">{error}</p> : null}
             </div>
         </form>
@@ -89,8 +89,8 @@ function Field({
 }) {
     return (
         <div className="flex flex-col gap-1">
-            <ZoruLabel htmlFor={name}>{label}</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor={name}>{label}</Label>
+            <Input
                 id={name}
                 name={name}
                 type={type ?? 'text'}

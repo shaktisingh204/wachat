@@ -33,7 +33,7 @@ export default function AttributesSettingsPage() {
   const { activeProject, isLoadingProject } = useProject();
 
   const breadcrumbs = (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -47,14 +47,14 @@ export default function AttributesSettingsPage() {
           <ZoruBreadcrumbPage>User attributes</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 
   if (isLoadingProject) {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruSkeleton className="h-[420px] w-full" />
+        <Skeleton className="h-[420px] w-full" />
       </div>
     );
   }
@@ -63,11 +63,11 @@ export default function AttributesSettingsPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert className="h-10 w-10" />}
           title="Select a project first"
           description="Pick a project from the WaChat home page to manage user attributes."
-          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
       </div>
     );
@@ -77,20 +77,20 @@ export default function AttributesSettingsPage() {
     <div className="flex min-h-full flex-col gap-6">
       {breadcrumbs}
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>User attributes</ZoruPageTitle>
           <ZoruPageDescription>
             Custom contact fields for segmentation and personalization.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent>
           <UserAttributesSettingsTab project={activeProject} />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -17,9 +17,9 @@ export const dynamic = 'force-dynamic';
 function ChatPageSkeleton() {
   return (
     <div className="flex h-full w-full gap-3 p-3">
-      <ZoruSkeleton className="h-full w-[320px] shrink-0" />
-      <ZoruSkeleton className="h-full flex-1" />
-      <ZoruSkeleton className="h-full w-[300px] shrink-0" />
+      <Skeleton className="h-full w-[320px] shrink-0" />
+      <Skeleton className="h-full flex-1" />
+      <Skeleton className="h-full w-[300px] shrink-0" />
     </div>
   );
 }

@@ -87,21 +87,21 @@ export function TemplateDetailActions({
 
   return (
     <>
-      <ZoruButton size="sm" variant="outline" onClick={onUseTemplate}>
+      <Button size="sm" variant="outline" onClick={onUseTemplate}>
         <FilePlus className="h-4 w-4" />
         Use template
-      </ZoruButton>
-      <ZoruButton asChild size="sm" variant="outline">
+      </Button>
+      <Button asChild size="sm" variant="outline">
         <Link href={`/dashboard/crm/contracts/templates?edit=${templateId}`}>
           <Pencil className="h-4 w-4" />
           Edit
         </Link>
-      </ZoruButton>
-      <ZoruDropdownMenu>
+      </Button>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
-          <ZoruButton size="sm" variant="outline">
+          <Button size="sm" variant="outline">
             More
-          </ZoruButton>
+          </Button>
         </ZoruDropdownMenuTrigger>
         <ZoruDropdownMenuContent align="end">
           <ZoruDropdownMenuItem onSelect={onDuplicate}>
@@ -115,7 +115,7 @@ export function TemplateDetailActions({
             <Trash2 className="mr-2 h-4 w-4" /> Delete
           </ZoruDropdownMenuItem>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
     </>
   );
 }

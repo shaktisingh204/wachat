@@ -74,7 +74,7 @@ export function GrnDetailActions({ id, currentStatus }: GrnDetailActionsProps) {
 
     return (
         <>
-            <ZoruButton
+            <Button
                 variant="outline"
                 onClick={() => run('qc')}
                 disabled={
@@ -89,8 +89,8 @@ export function GrnDetailActions({ id, currentStatus }: GrnDetailActionsProps) {
                     <ClipboardCheck className="h-4 w-4" />
                 )}
                 QC check
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 onClick={() => run('accept')}
                 disabled={pending || currentStatus === 'posted'}
@@ -101,8 +101,8 @@ export function GrnDetailActions({ id, currentStatus }: GrnDetailActionsProps) {
                     <CheckCircle2 className="h-4 w-4" />
                 )}
                 Accept
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 onClick={() => run('archive')}
                 disabled={pending}
@@ -113,7 +113,7 @@ export function GrnDetailActions({ id, currentStatus }: GrnDetailActionsProps) {
                     <Archive className="h-4 w-4" />
                 )}
                 Archive
-            </ZoruButton>
+            </Button>
         </>
     );
 }

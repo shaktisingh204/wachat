@@ -33,7 +33,7 @@ export default function FacebookKanbanPage() {
   return (
     <div className="flex h-full flex-col">
       <div className="px-6 pt-6 pb-2">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -49,9 +49,9 @@ export default function FacebookKanbanPage() {
               <ZoruBreadcrumbPage>Kanban</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
 
-        <ZoruPageHeader bordered={false} className="mt-5 pb-3">
+        <PageHeader bordered={false} className="mt-5 pb-3">
           <ZoruPageHeading>
             <ZoruPageTitle>Workflow kanban</ZoruPageTitle>
             <ZoruPageDescription>
@@ -60,11 +60,11 @@ export default function FacebookKanbanPage() {
               coming soon.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
       </div>
 
       <div className="min-h-0 flex-1">
-        <Suspense fallback={<ZoruSkeleton className="h-full w-full" />}>
+        <Suspense fallback={<Skeleton className="h-full w-full" />}>
           <ZoruFacebookKanbanBoard />
         </Suspense>
       </div>

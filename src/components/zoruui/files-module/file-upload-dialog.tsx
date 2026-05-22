@@ -43,7 +43,7 @@ export function ZoruFileUploadDialog({
   onDone,
 }: ZoruFileUploadDialogProps) {
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Upload files</ZoruDialogTitle>
@@ -61,16 +61,16 @@ export function ZoruFileUploadDialog({
           onRemove={onRemove}
         />
         <ZoruDialogFooter>
-          <ZoruButton
+          <Button
             onClick={() => {
               onDone?.();
               onOpenChange(false);
             }}
           >
             Done
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

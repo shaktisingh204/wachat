@@ -37,10 +37,10 @@ const initialState = { message: null, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Settings
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -72,7 +72,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
     return (
         <form action={formAction}>
             <input type="hidden" name="shopId" value={shop._id.toString()} />
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Basic Configuration</ZoruCardTitle>
                     <ZoruCardDescription>Set the fundamental properties for your custom shop.</ZoruCardDescription>
@@ -80,12 +80,12 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                 <ZoruCardContent className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="shopName">Shop Name</ZoruLabel>
-                            <ZoruInput id="shopName" name="name" placeholder="My Awesome Store" defaultValue={shop.name || ''} required />
+                            <Label htmlFor="shopName">Shop Name</Label>
+                            <Input id="shopName" name="name" placeholder="My Awesome Store" defaultValue={shop.name || ''} required />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                            <ZoruSelect name="currency" defaultValue={shop.currency || 'USD'} required>
+                            <Label htmlFor="currency">Currency</Label>
+                            <Select name="currency" defaultValue={shop.currency || 'USD'} required>
                                 <ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     <ZoruSelectItem value="USD">USD - US Dollar</ZoruSelectItem>
@@ -93,11 +93,11 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                                     <ZoruSelectItem value="INR">INR - Indian Rupee</ZoruSelectItem>
                                     <ZoruSelectItem value="GBP">GBP - British Pound</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-2 md:col-span-2">
-                            <ZoruLabel htmlFor="customDomain">Custom Domain</ZoruLabel>
-                            <ZoruSelect name="customDomain" defaultValue={shop.customDomain || 'none'}>
+                            <Label htmlFor="customDomain">Custom Domain</Label>
+                            <Select name="customDomain" defaultValue={shop.customDomain || 'none'}>
                                 <ZoruSelectTrigger id="customDomain">
                                     <ZoruSelectValue placeholder="Select a verified domain..." />
                                 </ZoruSelectTrigger>
@@ -107,53 +107,53 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                                         <ZoruSelectItem key={d._id.toString()} value={d.hostname}>{d.hostname}</ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             <p className="text-xs text-muted-foreground">Add and verify domains in the section below.</p>
                         </div>
                     </div>
-                    <ZoruSeparator />
+                    <Separator />
                      <div>
                         <h3 className="text-base font-semibold mb-2 flex items-center gap-2"><CreditCard className="h-4 w-4"/>Payment Links</h3>
                         <p className="text-sm text-muted-foreground mb-4">Provide direct payment links for services like Razorpay, Paytm, or GPay to enable "Pay" buttons in your shop flows.</p>
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="paymentLinkRazorpay">Razorpay Link</ZoruLabel>
-                                <ZoruInput id="paymentLinkRazorpay" name="paymentLinkRazorpay" placeholder="https://rzp.io/l/yourlink" defaultValue={shop.paymentLinkRazorpay || ''} />
+                                <Label htmlFor="paymentLinkRazorpay">Razorpay Link</Label>
+                                <Input id="paymentLinkRazorpay" name="paymentLinkRazorpay" placeholder="https://rzp.io/l/yourlink" defaultValue={shop.paymentLinkRazorpay || ''} />
                             </div>
                              <div className="space-y-2">
-                                <ZoruLabel htmlFor="paymentLinkPaytm">Paytm Link</ZoruLabel>
-                                <ZoruInput id="paymentLinkPaytm" name="paymentLinkPaytm" placeholder="https://p.paytm.me/yourlink" defaultValue={shop.paymentLinkPaytm || ''} />
+                                <Label htmlFor="paymentLinkPaytm">Paytm Link</Label>
+                                <Input id="paymentLinkPaytm" name="paymentLinkPaytm" placeholder="https://p.paytm.me/yourlink" defaultValue={shop.paymentLinkPaytm || ''} />
                             </div>
                              <div className="space-y-2">
-                                <ZoruLabel htmlFor="paymentLinkGPay">Google Pay (GPay) Link</ZoruLabel>
-                                <ZoruInput id="paymentLinkGPay" name="paymentLinkGPay" placeholder="gpay://..." defaultValue={shop.paymentLinkGPay || ''} />
+                                <Label htmlFor="paymentLinkGPay">Google Pay (GPay) Link</Label>
+                                <Input id="paymentLinkGPay" name="paymentLinkGPay" placeholder="gpay://..." defaultValue={shop.paymentLinkGPay || ''} />
                             </div>
                         </div>
                     </div>
-                     <ZoruSeparator />
+                     <Separator />
                      <div>
                         <h3 className="text-base font-semibold mb-2 flex items-center gap-2"><Bell className="h-4 w-4"/>Abandoned Cart Reminder</h3>
                         <p className="text-sm text-muted-foreground mb-4">Automatically send a follow-up message to users who leave items in their cart.</p>
                         <div className="space-y-4 rounded-lg border p-4">
                             <div className="flex items-center justify-between">
-                                <ZoruLabel htmlFor="abandonedCart.enabled" className="font-medium">Enable Reminder</ZoruLabel>
-                                <ZoruSwitch id="abandonedCart.enabled" name="abandonedCart.enabled" defaultChecked={shop.abandonedCart?.enabled || false} />
+                                <Label htmlFor="abandonedCart.enabled" className="font-medium">Enable Reminder</Label>
+                                <Switch id="abandonedCart.enabled" name="abandonedCart.enabled" defaultChecked={shop.abandonedCart?.enabled || false} />
                             </div>
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="abandonedCart.delayMinutes">Delay (minutes)</ZoruLabel>
-                                    <ZoruInput id="abandonedCart.delayMinutes" name="abandonedCart.delayMinutes" type="number" defaultValue={shop.abandonedCart?.delayMinutes || 60} />
+                                    <Label htmlFor="abandonedCart.delayMinutes">Delay (minutes)</Label>
+                                    <Input id="abandonedCart.delayMinutes" name="abandonedCart.delayMinutes" type="number" defaultValue={shop.abandonedCart?.delayMinutes || 60} />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="abandonedCart.flowId">Reminder Flow</ZoruLabel>
-                                    <ZoruSelect name="abandonedCart.flowId" defaultValue={shop.abandonedCart?.flowId}>
+                                    <Label htmlFor="abandonedCart.flowId">Reminder Flow</Label>
+                                    <Select name="abandonedCart.flowId" defaultValue={shop.abandonedCart?.flowId}>
                                         <ZoruSelectTrigger id="abandonedCart.flowId"><ZoruSelectValue placeholder="Select a flow..."/></ZoruSelectTrigger>
                                         <ZoruSelectContent>
                                             {ecommFlows.map(flow => (
                                                 <ZoruSelectItem key={flow._id.toString()} value={flow._id.toString()}>{flow.name}</ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                             </div>
                         </div>
@@ -162,7 +162,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                 <ZoruCardFooter>
                     <SubmitButton />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

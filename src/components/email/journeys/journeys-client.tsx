@@ -52,7 +52,7 @@ export function JourneysClient() {
 
   return (
     <div className="space-y-8">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -64,22 +64,22 @@ export function JourneysClient() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New journey
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <section className="space-y-4">
         <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">Your journeys</h2>
         {loading ? (
-          <ZoruSkeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
         ) : journeys.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<GitBranch />}
             title="No journeys yet"
             description="Start from a prebuilt template below — or create a blank draft."
-            action={<ZoruButton onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New journey</ZoruButton>}
+            action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New journey</Button>}
           />
         ) : (
           <JourneyList journeys={journeys} onChanged={refresh} />
@@ -141,7 +141,7 @@ function NewJourneyDialog({ open, onOpenChange, onCreated }: NewJourneyDialogPro
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>New journey</ZoruDialogTitle>
@@ -149,19 +149,19 @@ function NewJourneyDialog({ open, onOpenChange, onCreated }: NewJourneyDialogPro
         </ZoruDialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
-            <ZoruLabel htmlFor="j-name">Name</ZoruLabel>
-            <ZoruInput id="j-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Welcome series" />
+            <Label htmlFor="j-name">Name</Label>
+            <Input id="j-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Welcome series" />
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="j-desc">Description (optional)</ZoruLabel>
-            <ZoruTextarea id="j-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Label htmlFor="j-desc">Description (optional)</Label>
+            <Textarea id="j-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</ZoruButton>
-          <ZoruButton onClick={submit} disabled={pending}>{pending ? 'Saving…' : 'Create draft'}</ZoruButton>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</Button>
+          <Button onClick={submit} disabled={pending}>{pending ? 'Saving…' : 'Create draft'}</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

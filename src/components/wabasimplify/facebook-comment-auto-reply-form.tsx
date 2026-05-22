@@ -28,10 +28,10 @@ const initialState = { success: false, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Auto-Reply Settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -56,7 +56,7 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
     return (
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
-            <ZoruCard className="card-gradient card-gradient-purple">
+            <Card className="card-gradient card-gradient-purple">
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
                         <MessageSquareReply className="h-5 w-5" />
@@ -69,14 +69,14 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
                 <ZoruCardContent className="space-y-4">
                     <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
                         <div className="space-y-0.5">
-                            <ZoruLabel htmlFor="enabled" className="text-base">Enable Auto-Reply</ZoruLabel>
+                            <Label htmlFor="enabled" className="text-base">Enable Auto-Reply</Label>
                             <p className="text-sm text-muted-foreground">Automatically post a reply to all new top-level comments.</p>
                         </div>
-                        <ZoruSwitch id="enabled" name="enabled" defaultChecked={settings?.enabled ?? false} />
+                        <Switch id="enabled" name="enabled" defaultChecked={settings?.enabled ?? false} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="replyText">Reply Text</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="replyText">Reply Text</Label>
+                        <Textarea
                             id="replyText"
                             name="replyText"
                             placeholder="Thanks for your comment! We'll get back to you shortly."
@@ -89,7 +89,7 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
                 <ZoruCardFooter>
                     <SubmitButton />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

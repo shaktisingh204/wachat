@@ -170,11 +170,11 @@ export function ConsentTable({
         id: "kind",
         header: "Kind",
         render: (r) => (
-          <ZoruBadge
+          <Badge
             variant={r.kind.startsWith("opt_in") ? "default" : "destructive"}
           >
             {r.kind.replace(/_/g, " ")}
-          </ZoruBadge>
+          </Badge>
         ),
         width: "170px",
       },
@@ -357,7 +357,7 @@ export function ConsentTable({
   return (
     <div className="space-y-4">
       {/* Jurisdiction badge row */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="pb-2">
           <ZoruCardTitle className="text-sm">Compliance status</ZoruCardTitle>
         </ZoruCardHeader>
@@ -368,7 +368,7 @@ export function ConsentTable({
               className="flex items-center gap-1.5 rounded-md border border-slate-200 px-2.5 py-1 text-xs"
               title={j.note}
             >
-              <ZoruBadge
+              <Badge
                 variant={
                   j.status === "ok"
                     ? "default"
@@ -378,16 +378,16 @@ export function ConsentTable({
                 }
               >
                 {j.code}
-              </ZoruBadge>
+              </Badge>
               <span className="text-slate-600">{j.note}</span>
             </span>
           ))}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Cohort retention */}
       {cohort.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader className="pb-2">
             <ZoruCardTitle className="text-sm">
               Consent stickiness (last 12 cohorts)
@@ -426,7 +426,7 @@ export function ConsentTable({
               </ZoruChart.BarChart>
             </ZoruChartContainer>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       <SabsmsFilterBar
@@ -447,26 +447,26 @@ export function ConsentTable({
           <>
             <SabsmsSavedViews scope="consent" />
             <SabsmsRefreshButton onRefresh={refresh} />
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setVerifyOpen(true)}
             >
               <BadgeCheck className="mr-1.5 h-3.5 w-3.5" /> Verify double opt-in
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setImportOpen(true)}
             >
               <ListPlus className="mr-1.5 h-3.5 w-3.5" /> Import
-            </ZoruButton>
+            </Button>
             <SabsmsExportMenu
               filename={`sabsms-consent-${Date.now()}`}
               toCsv={exportCsv}
               toJson={exportJson}
             />
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={async () => {
@@ -475,33 +475,33 @@ export function ConsentTable({
               }}
             >
               Audit PDF
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setDsrOpen(true)}
             >
               <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> DSR
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setErasureOpen(true)}
             >
               <Eraser className="mr-1.5 h-3.5 w-3.5" /> Erasure
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setTaxonomyOpen(true)}
             >
               <Tag className="mr-1.5 h-3.5 w-3.5" /> Reasons
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" asChild>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
               <a href="/sabsms/webhooks">
                 <Webhook className="mr-1.5 h-3.5 w-3.5" /> Webhook
               </a>
-            </ZoruButton>
+            </Button>
           </>
         }
       />
@@ -565,13 +565,13 @@ export function ConsentTable({
                 className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs"
               >
                 <div className="flex items-center justify-between">
-                  <ZoruBadge
+                  <Badge
                     variant={
                       e.kind.startsWith("opt_in") ? "default" : "destructive"
                     }
                   >
                     {e.kind}
-                  </ZoruBadge>
+                  </Badge>
                   <span className="text-slate-500">
                     {new Date(e.createdAt).toLocaleString()}
                   </span>
@@ -588,7 +588,7 @@ export function ConsentTable({
       </SabsmsDetailDrawer>
 
       {/* Verify double-opt-in dialog */}
-      <ZoruDialog open={verifyOpen} onOpenChange={setVerifyOpen}>
+      <Dialog open={verifyOpen} onOpenChange={setVerifyOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Verify double opt-in</ZoruDialogTitle>
@@ -597,7 +597,7 @@ export function ConsentTable({
               sequence without an intervening opt-out.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruInput
+          <Input
             value={verifyHash}
             onChange={(e) => setVerifyHash(e.target.value)}
             placeholder="64-char phone hash"
@@ -612,18 +612,18 @@ export function ConsentTable({
             </div>
           )}
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setVerifyOpen(false)}>
+            <Button variant="outline" onClick={() => setVerifyOpen(false)}>
               Close
-            </ZoruButton>
-            <ZoruButton onClick={runVerify} disabled={!verifyHash.trim() || !!busy}>
+            </Button>
+            <Button onClick={runVerify} disabled={!verifyHash.trim() || !!busy}>
               {busy ?? "Verify"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Retroactive import */}
-      <ZoruDialog open={importOpen} onOpenChange={setImportOpen}>
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Import retroactive consents</ZoruDialogTitle>
@@ -635,8 +635,8 @@ export function ConsentTable({
           </ZoruDialogHeader>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <ZoruLabel>Kind</ZoruLabel>
-              <ZoruSelect
+              <Label>Kind</Label>
+              <Select
                 value={importKind}
                 onValueChange={(v) => setImportKind(v as ConsentRow["kind"])}
               >
@@ -650,11 +650,11 @@ export function ConsentTable({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel>Capture method</ZoruLabel>
-              <ZoruSelect
+              <Label>Capture method</Label>
+              <Select
                 value={importCapture}
                 onValueChange={(v) =>
                   setImportCapture(v as ConsentRow["captureMethod"])
@@ -670,14 +670,14 @@ export function ConsentTable({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setImportOpen(false)}>
+            <Button variant="outline" onClick={() => setImportOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 // The SabFilePicker is rendered separately — opening the
                 // file picker requires its own state, so we close the
@@ -687,10 +687,10 @@ export function ConsentTable({
               }}
             >
               Pick CSV from SabFiles
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
       <ConsentImportPicker
         kind={importKind}
         captureMethod={importCapture}
@@ -698,7 +698,7 @@ export function ConsentTable({
       />
 
       {/* Tag */}
-      <ZoruDialog open={!!tagRow} onOpenChange={(o) => !o && setTagRow(null)}>
+      <Dialog open={!!tagRow} onOpenChange={(o) => !o && setTagRow(null)}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Tag consent event</ZoruDialogTitle>
@@ -706,7 +706,7 @@ export function ConsentTable({
               Useful for grouping events by campaign or audit batch.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruInput
+          <Input
             value={tagValue}
             onChange={(e) => setTagValue(e.target.value)}
             placeholder="e.g. q4-audit"
@@ -714,30 +714,30 @@ export function ConsentTable({
           {reasonTaxonomy.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {reasonTaxonomy.map((t) => (
-                <ZoruBadge
+                <Badge
                   key={t}
                   variant="outline"
                   className="cursor-pointer"
                   onClick={() => setTagValue(t)}
                 >
                   {t}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           )}
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setTagRow(null)}>
+            <Button variant="outline" onClick={() => setTagRow(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSaveTag} disabled={!!busy}>
+            </Button>
+            <Button onClick={handleSaveTag} disabled={!!busy}>
               {busy ?? "Save"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* DSR */}
-      <ZoruDialog open={dsrOpen} onOpenChange={setDsrOpen}>
+      <Dialog open={dsrOpen} onOpenChange={setDsrOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
             <ZoruDialogTitle>Subject access request</ZoruDialogTitle>
@@ -746,13 +746,13 @@ export function ConsentTable({
               phone hash.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruInput
+          <Input
             value={dsrHash}
             onChange={(e) => setDsrHash(e.target.value)}
             placeholder="64-char phone hash"
           />
           {dsrPayload && (
-            <ZoruTextarea
+            <Textarea
               rows={10}
               value={dsrPayload}
               readOnly
@@ -760,18 +760,18 @@ export function ConsentTable({
             />
           )}
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setDsrOpen(false)}>
+            <Button variant="outline" onClick={() => setDsrOpen(false)}>
               Close
-            </ZoruButton>
-            <ZoruButton onClick={runDsr} disabled={!dsrHash.trim() || !!busy}>
+            </Button>
+            <Button onClick={runDsr} disabled={!dsrHash.trim() || !!busy}>
               {busy ?? "Build payload"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Erasure */}
-      <ZoruDialog open={erasureOpen} onOpenChange={setErasureOpen}>
+      <Dialog open={erasureOpen} onOpenChange={setErasureOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Erasure request</ZoruDialogTitle>
@@ -780,28 +780,28 @@ export function ConsentTable({
               hashed row so we still honour the opt-out forever.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruInput
+          <Input
             value={erasureHash}
             onChange={(e) => setErasureHash(e.target.value)}
             placeholder="64-char phone hash"
           />
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setErasureOpen(false)}>
+            <Button variant="outline" onClick={() => setErasureOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="destructive"
               onClick={runErasure}
               disabled={!erasureHash.trim() || !isAdmin || !!busy}
             >
               {busy ?? (isAdmin ? "Run erasure" : "Admin only")}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Reason taxonomy */}
-      <ZoruDialog open={taxonomyOpen} onOpenChange={setTaxonomyOpen}>
+      <Dialog open={taxonomyOpen} onOpenChange={setTaxonomyOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Consent reason taxonomy</ZoruDialogTitle>
@@ -811,7 +811,7 @@ export function ConsentTable({
           </ZoruDialogHeader>
           <ConsentTaxonomyEditor initial={reasonTaxonomy} refresh={refresh} />
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 
@@ -909,21 +909,21 @@ function ConsentTaxonomyEditor({
             className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-1.5 text-sm"
           >
             <span>{l}</span>
-            <ZoruButton variant="ghost" size="sm" onClick={() => remove(l)}>
+            <Button variant="ghost" size="sm" onClick={() => remove(l)}>
               <Activity className="mr-1 h-3.5 w-3.5" /> Remove
-            </ZoruButton>
+            </Button>
           </li>
         ))}
       </ul>
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="New reason label"
         />
-        <ZoruButton onClick={add} disabled={!draft.trim()}>
+        <Button onClick={add} disabled={!draft.trim()}>
           Add
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

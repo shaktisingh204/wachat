@@ -423,13 +423,13 @@ export default function PinnedItemsPage() {
           placeholder: 'Search title, type or id…',
         }}
         primaryAction={
-          <ZoruButton variant="outline" onClick={exportCsv}>
+          <Button variant="outline" onClick={exportCsv}>
             <Download className="h-4 w-4" /> Export CSV
-          </ZoruButton>
+          </Button>
         }
         filters={
           <>
-            <ZoruSelect
+            <Select
               value={typeFilter}
               onValueChange={(v) => {
                 setTypeFilter(v as 'all' | WsPinnedResourceType);
@@ -446,8 +446,8 @@ export default function PinnedItemsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={periodFilter}
               onValueChange={(v) => {
                 setPeriodFilter(v as PeriodFilter);
@@ -464,11 +464,11 @@ export default function PinnedItemsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {hasActiveFilters ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
           </>
         }
@@ -479,34 +479,34 @@ export default function PinnedItemsPage() {
                 {selected.size} selected
               </div>
               <div className="flex items-center gap-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={exportCsv}
                 >
                   <Download className="h-4 w-4" /> CSV
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={exportXlsx}
                 >
                   <Download className="h-4 w-4" /> XLSX
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => setBulkUnpinOpen(true)}
                 >
                   <PinOff className="h-4 w-4" /> Unpin
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={clearSelection}
                 >
                   Clear
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -526,12 +526,12 @@ export default function PinnedItemsPage() {
                   : 'Pin projects, deals, tasks, tickets or articles to have them show up here.'}
               </p>
               {hasActiveFilters ? (
-                <ZoruButton variant="outline" onClick={clearFilters}>
+                <Button variant="outline" onClick={clearFilters}>
                   Clear filters
-                </ZoruButton>
+                </Button>
               ) : (
                 <Link href="/dashboard/crm">
-                  <ZoruButton variant="outline">Back to CRM</ZoruButton>
+                  <Button variant="outline">Back to CRM</Button>
                 </Link>
               )}
             </div>
@@ -555,9 +555,9 @@ export default function PinnedItemsPage() {
         <div className="flex flex-col gap-4">
           {kpiStrip}
 
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="flex items-center gap-2 border-b border-zoru-line px-4 py-2 text-[12px] text-zoru-ink-muted">
-              <ZoruCheckbox
+              <Checkbox
                 checked={
                   allOnPageSelected
                     ? true
@@ -582,7 +582,7 @@ export default function PinnedItemsPage() {
                     key={r._id}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-zoru-surface-2/50"
                   >
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => toggleOne(r._id)}
                       aria-label={`Select ${titleFor(r)}`}
@@ -618,27 +618,27 @@ export default function PinnedItemsPage() {
                         </div>
                       )}
                     </div>
-                    <ZoruBadge variant={RECENT_VARIANTS[r.resource_type]}>
+                    <Badge variant={RECENT_VARIANTS[r.resource_type]}>
                       {r.resource_type}
-                    </ZoruBadge>
+                    </Badge>
                     <p className="hidden w-44 text-right text-[12px] text-zoru-ink-muted sm:block">
                       {formatPinnedAt(r)}
                     </p>
                     <div className="w-20 text-right">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         aria-label={`Unpin ${titleFor(r)}`}
                         onClick={() => setUnpinTargetId(r._id)}
                       >
                         <PinOff className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </li>
                 );
               })}
             </ul>
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 
@@ -676,7 +676,7 @@ function KpiCard({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -693,6 +693,6 @@ function KpiCard({
           {icon}
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

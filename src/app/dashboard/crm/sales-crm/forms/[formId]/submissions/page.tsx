@@ -70,11 +70,11 @@ export default async function FormSubmissionsPage({ params, searchParams }: Page
             subtitle={`${listing.total} response${listing.total === 1 ? '' : 's'} captured.`}
             primaryAction={
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href="/dashboard/crm/sales-crm/forms">
                             <ArrowLeft className="h-4 w-4" /> All forms
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <ExportButton
                         formId={formId}
                         filters={{ q, status, from, to }}

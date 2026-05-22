@@ -46,7 +46,7 @@ export function ImagesSection(props: ImagesSectionProps) {
     >
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
-          <ZoruLabel>Thumbnail</ZoruLabel>
+          <Label>Thumbnail</Label>
           <div className="flex items-center gap-2">
             <SabFilePickerButton
               accept="image"
@@ -57,7 +57,7 @@ export function ImagesSection(props: ImagesSectionProps) {
               {props.thumbnail ? 'Replace' : 'Choose'}
             </SabFilePickerButton>
             {props.thumbnail ? (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -65,7 +65,7 @@ export function ImagesSection(props: ImagesSectionProps) {
                 aria-label="Remove thumbnail"
               >
                 <X className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
           {props.thumbnail ? (
@@ -79,7 +79,7 @@ export function ImagesSection(props: ImagesSectionProps) {
           <input type="hidden" name="imageUrl" value={props.thumbnail} />
         </div>
         <div className="space-y-2">
-          <ZoruLabel>Gallery</ZoruLabel>
+          <Label>Gallery</Label>
           <div className="flex flex-wrap gap-2">
             {props.gallery.map((url, idx) => (
               <div key={idx} className="relative">
@@ -139,7 +139,7 @@ export function DimensionsSection(props: DimensionsSectionProps) {
     >
       <div className="grid gap-4 md:grid-cols-3">
         <Field label="Length (cm)">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="length"
@@ -147,7 +147,7 @@ export function DimensionsSection(props: DimensionsSectionProps) {
           />
         </Field>
         <Field label="Breadth (cm)">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="breadth"
@@ -155,7 +155,7 @@ export function DimensionsSection(props: DimensionsSectionProps) {
           />
         </Field>
         <Field label="Height (cm)">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="height"
@@ -163,7 +163,7 @@ export function DimensionsSection(props: DimensionsSectionProps) {
           />
         </Field>
         <Field label="Volume (cm³)">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="volume"
@@ -171,7 +171,7 @@ export function DimensionsSection(props: DimensionsSectionProps) {
           />
         </Field>
         <Field label="Gross weight (kg)">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="grossWeight"
@@ -179,7 +179,7 @@ export function DimensionsSection(props: DimensionsSectionProps) {
           />
         </Field>
         <Field label="Net weight (kg)">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="netWeight"
@@ -274,10 +274,10 @@ export function MetaSection(props: MetaSectionProps) {
     >
       <div className="grid gap-4">
         <div className="space-y-2">
-          <ZoruLabel>Custom attributes</ZoruLabel>
+          <Label>Custom attributes</Label>
           {props.customAttrs.map((row, idx) => (
             <div key={idx} className="grid grid-cols-[1fr_2fr_auto] gap-2">
-              <ZoruInput
+              <Input
                 placeholder="Key"
                 value={row.key}
                 onChange={(e) => {
@@ -286,7 +286,7 @@ export function MetaSection(props: MetaSectionProps) {
                   props.onCustomAttrs(next);
                 }}
               />
-              <ZoruInput
+              <Input
                 placeholder="Value"
                 value={row.value}
                 onChange={(e) => {
@@ -295,7 +295,7 @@ export function MetaSection(props: MetaSectionProps) {
                   props.onCustomAttrs(next);
                 }}
               />
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -305,10 +305,10 @@ export function MetaSection(props: MetaSectionProps) {
                 aria-label="Remove attribute"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           ))}
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -317,7 +317,7 @@ export function MetaSection(props: MetaSectionProps) {
             }
           >
             <Plus className="h-3.5 w-3.5" /> Add attribute
-          </ZoruButton>
+          </Button>
           <input
             type="hidden"
             name="customAttributes"
@@ -326,10 +326,10 @@ export function MetaSection(props: MetaSectionProps) {
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Tags (comma separated)">
-            <ZoruInput name="tags" defaultValue={props.defaultTags} />
+            <Input name="tags" defaultValue={props.defaultTags} />
           </Field>
           <Field label="Status">
-            <ZoruSelect
+            <Select
               value={props.status}
               onValueChange={(v) => props.onStatus(v as 'active' | 'archived')}
             >
@@ -340,7 +340,7 @@ export function MetaSection(props: MetaSectionProps) {
                 <ZoruSelectItem value="active">Active</ZoruSelectItem>
                 <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <input type="hidden" name="status" value={props.status} />
           </Field>
         </div>

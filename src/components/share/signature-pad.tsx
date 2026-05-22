@@ -130,7 +130,7 @@ export function SignaturePad({
     <div className={className}>
       <div className="mb-2 flex items-center justify-between">
         <label className="text-sm font-medium text-zinc-700">{label}</label>
-        <ZoruButton
+        <Button
           type="button"
           variant="ghost"
           size="sm"
@@ -138,7 +138,7 @@ export function SignaturePad({
           disabled={isEmpty}
         >
           Clear
-        </ZoruButton>
+        </Button>
       </div>
       <canvas
         ref={canvasRef}

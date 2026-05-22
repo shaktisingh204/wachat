@@ -82,7 +82,7 @@ export function FixedAssetAssignDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Assign asset</ZoruDialogTitle>
@@ -92,7 +92,7 @@ export function FixedAssetAssignDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="assign-employee">Custodian</ZoruLabel>
+            <Label htmlFor="assign-employee">Custodian</Label>
             <div className="mt-1.5">
               <EntityPicker
                 entity="employee"
@@ -107,8 +107,8 @@ export function FixedAssetAssignDialog({
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="assign-from">Effective from</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="assign-from">Effective from</Label>
+            <Input
               id="assign-from"
               type="date"
               value={from}
@@ -118,15 +118,15 @@ export function FixedAssetAssignDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Assign'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -188,7 +188,7 @@ export function FixedAssetRetireDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Retire / dispose asset</ZoruDialogTitle>
@@ -199,8 +199,8 @@ export function FixedAssetRetireDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="ret-date">Retirement date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ret-date">Retirement date</Label>
+            <Input
               id="ret-date"
               type="date"
               value={date}
@@ -209,8 +209,8 @@ export function FixedAssetRetireDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="ret-sale">Sale value (optional)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ret-sale">Sale value (optional)</Label>
+            <Input
               id="ret-sale"
               type="number"
               inputMode="decimal"
@@ -221,8 +221,8 @@ export function FixedAssetRetireDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="ret-reason">Reason</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="ret-reason">Reason</Label>
+            <Textarea
               id="ret-reason"
               rows={3}
               value={reason}
@@ -233,18 +233,18 @@ export function FixedAssetRetireDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="destructive"
             onClick={onSubmit}
             disabled={pending}
           >
             {pending ? 'Saving…' : 'Retire'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

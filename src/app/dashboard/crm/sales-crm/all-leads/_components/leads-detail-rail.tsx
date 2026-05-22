@@ -39,7 +39,7 @@ export function LeadsDetailRail({
     const status = (lead.status as string) || 'New';
     return (
         <>
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Pipeline</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -73,9 +73,9 @@ export function LeadsDetailRail({
                         />
                     </RailRow>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Activity stats</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -110,9 +110,9 @@ export function LeadsDetailRail({
                     />
                     <Stat label="Lead score" value={(lead as any).leadScore ?? '—'} />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Related</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -138,7 +138,7 @@ export function LeadsDetailRail({
                         href={`/dashboard/crm/sales-crm/quotations?leadId=${leadId}`}
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </>
     );
 }
@@ -182,7 +182,7 @@ function RelatedLink({
             className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-zoru-ink hover:bg-zoru-surface-2"
         >
             <span>{label}</span>
-            <ZoruBadge variant={count > 0 ? 'info' : 'default'}>{count}</ZoruBadge>
+            <Badge variant={count > 0 ? 'info' : 'default'}>{count}</Badge>
         </Link>
     );
 }

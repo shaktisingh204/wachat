@@ -57,7 +57,7 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
   return (
     <>
       {/* Overview */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Overview
         </h2>
@@ -86,10 +86,10 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
             {fmtMoney(bill.tdsAmount, currency)}
           </DetailField>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Vendor */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Vendor
         </h2>
@@ -108,11 +108,11 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
             <DetailField label="Primary phone">{vendorContact.phone}</DetailField>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
       {items.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Line items
           </h2>
@@ -185,12 +185,12 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
               </tfoot>
             </table>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Expense lines */}
       {expenseLines.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Expense lines
           </h2>
@@ -235,11 +235,11 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
               </tbody>
             </table>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Money summary */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Money summary
         </h2>
@@ -282,34 +282,34 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
             tone={(bill.balance ?? totals.total) > 0 ? 'danger' : 'default'}
           />
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Notes */}
       {bill.notes ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Notes
           </h2>
           <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
             {bill.notes}
           </p>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Tags */}
       {Array.isArray(bill.tags) && bill.tags.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Tags
           </h2>
           <div className="flex flex-wrap gap-2">
             {bill.tags.map((t) => (
-              <ZoruBadge key={t} variant="outline">
+              <Badge key={t} variant="outline">
                 {t}
-              </ZoruBadge>
+              </Badge>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
     </>
   );

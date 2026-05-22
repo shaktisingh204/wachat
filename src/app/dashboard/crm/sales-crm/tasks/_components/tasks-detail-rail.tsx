@@ -46,7 +46,7 @@ export function TaskDetailRail({
     const status = (task.status as CrmTask['status']) || 'To-Do';
     return (
         <>
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Owner</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -111,10 +111,10 @@ export function TaskDetailRail({
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {linkedKey && linkedId ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Linked {linkedKindLabel}</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -134,10 +134,10 @@ export function TaskDetailRail({
                             </Link>
                         ) : null}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Related tasks</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -165,7 +165,7 @@ export function TaskDetailRail({
                         </ul>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </>
     );
 }

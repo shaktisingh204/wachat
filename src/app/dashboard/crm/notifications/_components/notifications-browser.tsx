@@ -183,20 +183,20 @@ export function NotificationsBrowser({
       title="Notifications"
       subtitle="System and teammate notifications addressed to you — mentions, assignments, SLA breaches."
       primaryAction={
-        <ZoruButton
+        <Button
           variant="ghost"
           onClick={markAll}
           disabled={busyAll || kpis.unread === 0}
         >
           <CheckCheck className="h-4 w-4" />
           Mark all read
-        </ZoruButton>
+        </Button>
       }
       filters={
         <div className="flex flex-wrap items-end gap-2">
           <div className="w-44">
-            <ZoruLabel className="text-[11px]">Type</ZoruLabel>
-            <ZoruSelect value={typeFilter} onValueChange={setTypeFilter}>
+            <Label className="text-[11px]">Type</Label>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -208,11 +208,11 @@ export function NotificationsBrowser({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="w-36">
-            <ZoruLabel className="text-[11px]">Status</ZoruLabel>
-            <ZoruSelect
+            <Label className="text-[11px]">Status</Label>
+            <Select
               value={readFilter}
               onValueChange={(v) => setReadFilter(v as 'all' | 'unread' | 'read')}
             >
@@ -224,13 +224,13 @@ export function NotificationsBrowser({
                 <ZoruSelectItem value="unread">Unread only</ZoruSelectItem>
                 <ZoruSelectItem value="read">Read only</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="w-36">
-            <ZoruLabel className="text-[11px]" htmlFor="nf-from">
+            <Label className="text-[11px]" htmlFor="nf-from">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="nf-from"
               type="date"
               value={dateFrom}
@@ -238,10 +238,10 @@ export function NotificationsBrowser({
             />
           </div>
           <div className="w-36">
-            <ZoruLabel className="text-[11px]" htmlFor="nf-to">
+            <Label className="text-[11px]" htmlFor="nf-to">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="nf-to"
               type="date"
               value={dateTo}
@@ -249,9 +249,9 @@ export function NotificationsBrowser({
             />
           </div>
           {hasActiveFilters ? (
-            <ZoruButton variant="ghost" size="sm" onClick={clearFilters} className="mb-1">
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="mb-1">
               <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
       }
@@ -268,9 +268,9 @@ export function NotificationsBrowser({
                 : 'Try clearing the filters above.'}
             </p>
             {hasActiveFilters ? (
-              <ZoruButton variant="outline" onClick={clearFilters}>
+              <Button variant="outline" onClick={clearFilters}>
                 Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         ) : null
@@ -278,10 +278,10 @@ export function NotificationsBrowser({
     >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-          <ZoruStatCard label="Unread" value={kpis.unread.toLocaleString()} />
-          <ZoruStatCard label="Today" value={kpis.today.toLocaleString()} />
-          <ZoruStatCard label="This week" value={kpis.thisWeek.toLocaleString()} />
-          <ZoruStatCard label="Types" value={kpis.types.toLocaleString()} />
+          <StatCard label="Unread" value={kpis.unread.toLocaleString()} />
+          <StatCard label="Today" value={kpis.today.toLocaleString()} />
+          <StatCard label="This week" value={kpis.thisWeek.toLocaleString()} />
+          <StatCard label="Types" value={kpis.types.toLocaleString()} />
         </div>
 
         {unreadRows.length > 0 ? (
@@ -324,12 +324,12 @@ function Section({
   onDismiss: (id: string) => void;
 }): React.JSX.Element {
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <div className="border-b border-zoru-line p-4">
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4 text-zoru-ink-muted" />
           <h2 className="text-[14px] font-semibold text-zoru-ink">{title}</h2>
-          <ZoruBadge variant={tone === 'amber' ? 'warning' : 'secondary'}>{count}</ZoruBadge>
+          <Badge variant={tone === 'amber' ? 'warning' : 'secondary'}>{count}</Badge>
         </div>
       </div>
       <ul className="divide-y divide-zoru-line">
@@ -346,9 +346,9 @@ function Section({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-[13px] font-medium text-zoru-ink">{n.title}</p>
-                  <ZoruBadge variant="secondary">{n.type}</ZoruBadge>
+                  <Badge variant="secondary">{n.type}</Badge>
                   {n.resource_type ? (
-                    <ZoruBadge variant="secondary">{n.resource_type}</ZoruBadge>
+                    <Badge variant="secondary">{n.resource_type}</Badge>
                   ) : null}
                 </div>
                 {n.body ? (
@@ -360,27 +360,27 @@ function Section({
               </div>
               <div className="flex shrink-0 items-center gap-1">
                 {href ? (
-                  <ZoruButton asChild variant="ghost" size="sm">
+                  <Button asChild variant="ghost" size="sm">
                     <Link href={href}>
                       <ExternalLink className="h-3.5 w-3.5" />
                       Open
                     </Link>
-                  </ZoruButton>
+                  </Button>
                 ) : null}
                 {onMarkRead && !n.read_at ? (
-                  <ZoruButton variant="ghost" size="sm" onClick={() => onMarkRead(n._id)}>
+                  <Button variant="ghost" size="sm" onClick={() => onMarkRead(n._id)}>
                     <Check className="h-3.5 w-3.5" />
                     Read
-                  </ZoruButton>
+                  </Button>
                 ) : null}
-                <ZoruButton variant="ghost" size="sm" onClick={() => onDismiss(n._id)}>
+                <Button variant="ghost" size="sm" onClick={() => onDismiss(n._id)}>
                   <X className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
               </div>
             </li>
           );
         })}
       </ul>
-    </ZoruCard>
+    </Card>
   );
 }

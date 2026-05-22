@@ -76,10 +76,10 @@ const formInitialState: { message: string | null; error?: string } = {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending && <LoaderCircle className="animate-spin" />}
       {isEditing ? "Save changes" : "Add reply"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -117,7 +117,7 @@ function QuickReplyFormDialog({
   }, [state, toast, onSave, onOpenChange]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <form action={formAction}>
           {reply?._id && (
@@ -133,8 +133,8 @@ function QuickReplyFormDialog({
           </ZoruDialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="shortcut">Shortcut</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="shortcut">Shortcut</Label>
+              <Input
                 id="shortcut"
                 name="shortcut"
                 defaultValue={reply?.shortcut}
@@ -146,8 +146,8 @@ function QuickReplyFormDialog({
               </p>
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="message">Message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="message">Message</Label>
+              <Textarea
                 id="message"
                 name="message"
                 defaultValue={reply?.message}
@@ -157,18 +157,18 @@ function QuickReplyFormDialog({
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton isEditing={!!reply} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -213,7 +213,7 @@ export default function SabChatQuickRepliesPage() {
         onSave={reloadProject}
       />
 
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -229,9 +229,9 @@ export default function SabChatQuickRepliesPage() {
             <ZoruBreadcrumbPage>Quick Replies</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Quick replies</ZoruPageTitle>
           <ZoruPageDescription>
@@ -239,28 +239,28 @@ export default function SabChatQuickRepliesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={() => handleOpenDialog()}>
+          <Button onClick={() => handleOpenDialog()}>
             <Plus />
             Add reply
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {replies.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<LifeBuoy />}
           title="No quick replies yet"
           description="Create canned responses your agents can drop into a chat with a slash shortcut."
           action={
-            <ZoruButton onClick={() => handleOpenDialog()}>
+            <Button onClick={() => handleOpenDialog()}>
               <Plus />
               Add your first reply
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
-        <ZoruCard className="overflow-hidden p-0">
-          <ZoruTable>
+        <Card className="overflow-hidden p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Shortcut</ZoruTableHead>
@@ -279,23 +279,23 @@ export default function SabChatQuickRepliesPage() {
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => handleOpenDialog(reply)}
                         aria-label="Edit reply"
                       >
                         <Pencil />
-                      </ZoruButton>
+                      </Button>
                       <ZoruAlertDialog>
                         <ZoruAlertDialogTrigger asChild>
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="icon-sm"
                             aria-label="Delete reply"
                           >
                             <Trash2 />
-                          </ZoruButton>
+                          </Button>
                         </ZoruAlertDialogTrigger>
                         <ZoruAlertDialogContent>
                           <ZoruAlertDialogHeader>
@@ -328,8 +328,8 @@ export default function SabChatQuickRepliesPage() {
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       )}
     </div>
   );

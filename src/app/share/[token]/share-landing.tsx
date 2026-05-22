@@ -161,14 +161,14 @@ export function ShareLanding({
                     <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2 text-sm">
                             <span className="font-semibold text-zoru-ink">SabFiles</span>
-                            <ZoruBadge variant={view.password_protected ? 'warning' : 'success'}>
+                            <Badge variant={view.password_protected ? 'warning' : 'success'}>
                                 {view.password_protected ? <KeyRound /> : <ShieldCheck />}
                                 {view.password_protected ? 'Password protected' : 'Ready to view'}
-                            </ZoruBadge>
-                            <ZoruBadge variant={view.download_enabled ? 'info' : 'ghost'}>
+                            </Badge>
+                            <Badge variant={view.download_enabled ? 'info' : 'ghost'}>
                                 {view.download_enabled ? <Download /> : <Eye />}
                                 {view.download_enabled ? 'Download enabled' : 'View only'}
-                            </ZoruBadge>
+                            </Badge>
                         </div>
                         <h1 className="mt-2 break-words text-2xl font-semibold tracking-normal text-zoru-ink sm:text-3xl">
                             {view.name}
@@ -182,15 +182,15 @@ export function ShareLanding({
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" onClick={onCopy}>
+                        <Button variant="outline" onClick={onCopy}>
                             {copied ? <Check /> : <Copy />}
                             {copied ? 'Copied' : 'Copy link'}
-                        </ZoruButton>
+                        </Button>
                         {view.download_enabled && view.type === 'file' && (
-                            <ZoruButton onClick={onDownload} disabled={busy}>
+                            <Button onClick={onDownload} disabled={busy}>
                                 <Download />
                                 {busy ? 'Preparing...' : 'Download'}
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                 </header>
@@ -212,9 +212,9 @@ export function ShareLanding({
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <ZoruBadge variant="secondary">{previewKind}</ZoruBadge>
+                                <Badge variant="secondary">{previewKind}</Badge>
                                 {previewUrl && (
-                                    <ZoruButton variant="ghost" size="sm" asChild>
+                                    <Button variant="ghost" size="sm" asChild>
                                         <a
                                             href={previewKind === 'office' ? officePreviewUrl(previewUrl) : previewUrl}
                                             target="_blank"
@@ -223,7 +223,7 @@ export function ShareLanding({
                                             <ExternalLink />
                                             Open
                                         </a>
-                                    </ZoruButton>
+                                    </Button>
                                 )}
                             </div>
                         </div>
@@ -287,7 +287,7 @@ export function ShareLanding({
                     </section>
 
                     <aside className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
-                        <ZoruCard className="p-0">
+                        <Card className="p-0">
                             <ZoruCardContent className="flex flex-col gap-4 p-4">
                                 <div>
                                     <div className="text-xs uppercase tracking-wide text-zoru-ink-muted">
@@ -300,11 +300,11 @@ export function ShareLanding({
 
                                 {view.password_protected && (
                                     <div className="grid gap-2">
-                                        <ZoruLabel>
+                                        <Label>
                                             <Lock className="mr-1 inline h-3.5 w-3.5" />
                                             Password required
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             type="password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
@@ -317,20 +317,20 @@ export function ShareLanding({
                                     </div>
                                 )}
 
-                                <ZoruButton
+                                <Button
                                     onClick={onDownload}
                                     disabled={busy || !view.download_enabled || view.type !== 'file'}
                                     block
                                 >
                                     <Download />
                                     {view.download_enabled ? 'Download file' : 'Downloads disabled'}
-                                </ZoruButton>
-                                <ZoruButton variant="outline" onClick={onCopy} block>
+                                </Button>
+                                <Button variant="outline" onClick={onCopy} block>
                                     {copied ? <Check /> : <Link2 />}
                                     {copied ? 'Copied' : 'Copy share link'}
-                                </ZoruButton>
+                                </Button>
                                 {previewUrl && (
-                                    <ZoruButton variant="ghost" asChild block>
+                                    <Button variant="ghost" asChild block>
                                         <a
                                             href={previewKind === 'office' ? officePreviewUrl(previewUrl) : previewUrl}
                                             target="_blank"
@@ -339,12 +339,12 @@ export function ShareLanding({
                                             <ExternalLink />
                                             Open preview
                                         </a>
-                                    </ZoruButton>
+                                    </Button>
                                 )}
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
-                        <ZoruCard className="p-0">
+                        <Card className="p-0">
                             <ZoruCardContent className="p-4">
                                 <div className="mb-3 text-xs uppercase tracking-wide text-zoru-ink-muted">
                                     File details
@@ -359,7 +359,7 @@ export function ShareLanding({
                                     />
                                 </dl>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
                         <div
                             className={cn(

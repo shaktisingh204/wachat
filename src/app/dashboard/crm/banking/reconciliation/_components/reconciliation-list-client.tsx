@@ -120,22 +120,22 @@ function fmtDate(v: unknown): string {
 function KpiStrip({ kpis }: { kpis: CrmReconciliationKpis }) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <ZoruStatCard
+      <StatCard
         label="Reconciled"
         value={kpis.reconciled.toLocaleString()}
         icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Unreconciled"
         value={kpis.unreconciled.toLocaleString()}
         icon={<ListChecks className="h-4 w-4 text-amber-500" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Last reconciled"
         value={kpis.lastReconciledDate ? fmtDate(kpis.lastReconciledDate) : 'Never'}
         icon={<Clock className="h-4 w-4" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Total difference"
         value={fmtInr(kpis.totalDifference)}
         icon={<GitCompare className="h-4 w-4" />}
@@ -155,26 +155,26 @@ function RecordsTable({
 }) {
   if (records.length === 0) {
     return (
-      <ZoruCard>
+      <Card>
         <p className="text-[13px] text-zoru-ink-muted">
           No saved reconciliation records yet. Use the matcher below to reconcile
           your first period.
         </p>
-      </ZoruCard>
+      </Card>
     );
   }
   return (
-    <ZoruCard className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h2 className="text-[14px] font-semibold text-zoru-ink">
           Saved reconciliations
         </h2>
-        <ZoruButton variant="outline" size="sm" onClick={onExport}>
+        <Button variant="outline" size="sm" onClick={onExport}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
+        </Button>
       </div>
       <div className="overflow-x-auto">
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow className="border-border hover:bg-transparent">
               <ZoruTableHead className="text-muted-foreground">Period</ZoruTableHead>
@@ -235,9 +235,9 @@ function RecordsTable({
               </ZoruTableRow>
             ))}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -260,10 +260,10 @@ const TransactionTable = ({
   totalCredit: number;
   isBankStatement?: boolean;
 }) => (
-  <ZoruCard>
+  <Card>
     <h3 className="mb-4 text-[15px] font-semibold text-foreground">{title}</h3>
     <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-lg border border-border">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader className="sticky top-0 bg-card">
           <ZoruTableRow className="border-border hover:bg-transparent">
             <ZoruTableHead className="w-10 text-muted-foreground">
@@ -299,7 +299,7 @@ const TransactionTable = ({
                 data-state={matchedIds.has(e._id) ? 'selected' : ''}
               >
                 <ZoruTableCell>
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={matchedIds.has(e._id)}
                     onCheckedChange={() => onMatchToggle(e._id)}
                   />
@@ -320,7 +320,7 @@ const TransactionTable = ({
             );
           })}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
     <div className="mt-4 flex justify-end gap-6 border-t border-border pt-2 text-[13px] font-semibold text-foreground">
       <div className="text-right">
@@ -330,7 +330,7 @@ const TransactionTable = ({
         Credit: <span className="font-mono">₹{totalCredit.toFixed(2)}</span>
       </div>
     </div>
-  </ZoruCard>
+  </Card>
 );
 
 /* ─── Main client component ───────────────────────────────────────────── */
@@ -570,14 +570,14 @@ export function ReconciliationListClient({
       <RecordsTable records={records} onExport={handleExportRecords} />
 
       {/* Interactive matcher */}
-      <ZoruCard>
+      <Card>
         <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">
           Statement matcher
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
-            <ZoruLabel>Bank account</ZoruLabel>
-            <ZoruSelect
+            <Label>Bank account</Label>
+            <Select
               value={selectedAccountId}
               onValueChange={setSelectedAccountId}
             >
@@ -594,19 +594,19 @@ export function ReconciliationListClient({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-2">
-            <ZoruLabel>From</ZoruLabel>
-            <ZoruDatePicker value={startDate} onChange={setStartDate} />
+            <Label>From</Label>
+            <DatePicker value={startDate} onChange={setStartDate} />
           </div>
           <div className="space-y-2">
-            <ZoruLabel>To</ZoruLabel>
-            <ZoruDatePicker value={endDate} onChange={setEndDate} />
+            <Label>To</Label>
+            <DatePicker value={endDate} onChange={setEndDate} />
           </div>
           <div className="space-y-2">
-            <ZoruLabel>Bank statement (CSV)</ZoruLabel>
-            <ZoruInput
+            <Label>Bank statement (CSV)</Label>
+            <Input
               type="file"
               accept=".csv"
               onChange={(e) => setStatementFile(e.target.files?.[0] ?? null)}
@@ -616,7 +616,7 @@ export function ReconciliationListClient({
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex gap-2">
-            <ZoruButton
+            <Button
               onClick={() => void handleFetchData()}
               disabled={isLoading}
             >
@@ -624,43 +624,43 @@ export function ReconciliationListClient({
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : null}
               Load data
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               onClick={handleAutoMatch}
               disabled={!reconciliationData}
             >
               Auto-match
-            </ZoruButton>
+            </Button>
           </div>
-          <ZoruButton
+          <Button
             onClick={() => void handleSave()}
             disabled={!reconciliationData || difference !== 0}
           >
             Save reconciliation
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
 
       {reconciliationData ? (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Cleared in books"
               value={fmtInr(clearedBookAmount)}
               icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Cleared in bank"
               value={fmtInr(clearedStatementAmount)}
               icon={<CheckCircle2 className="h-4 w-4 text-blue-500" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Uncleared amount"
               value={fmtInr(unclearedBookAmount)}
               icon={<Clock className="h-4 w-4 text-amber-500" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Difference"
               value={fmtInr(difference)}
               icon={<GitCompare className="h-4 w-4" />}

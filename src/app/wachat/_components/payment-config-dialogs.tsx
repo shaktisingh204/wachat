@@ -74,10 +74,10 @@ import * as React from 'react';
 function PendingSubmit({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : null}
       {children}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -132,7 +132,7 @@ export function CreatePaymentConfigDialog({
 
   if (state.oauth_url) {
     return (
-      <ZoruDialog open={isOpen} onOpenChange={handleOpenChange}>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Complete Onboarding</ZoruDialogTitle>
@@ -141,15 +141,15 @@ export function CreatePaymentConfigDialog({
               setup with your payment provider.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruAlert>
+          <Alert>
             <ZoruAlertTitle>Action Required</ZoruAlertTitle>
             <ZoruAlertDescription>
               Click the button below to go to the provider&apos;s site and
               authorize the connection.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
           <ZoruDialogFooter>
-            <ZoruButton asChild>
+            <Button asChild>
               <a
                 href={state.oauth_url}
                 target="_blank"
@@ -158,15 +158,15 @@ export function CreatePaymentConfigDialog({
               >
                 Complete Onboarding
               </a>
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     );
   }
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction as any} ref={formRef}>
           <input
@@ -186,18 +186,18 @@ export function CreatePaymentConfigDialog({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           {state.error && (
-            <ZoruAlert variant="destructive" className="mt-3">
+            <Alert variant="destructive" className="mt-3">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           )}
-          <ZoruScrollArea className="my-4 max-h-[60vh]">
+          <ScrollArea className="my-4 max-h-[60vh]">
             <div className="grid gap-4 py-4 pr-2">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="configuration_name">
+                <Label htmlFor="configuration_name">
                   Configuration Name
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="configuration_name"
                   name="configuration_name"
                   placeholder="e.g., my-razorpay-setup"
@@ -205,8 +205,8 @@ export function CreatePaymentConfigDialog({
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="provider_name">Provider</ZoruLabel>
-                <ZoruSelect
+                <Label htmlFor="provider_name">Provider</Label>
+                <Select
                   name="provider_name"
                   onValueChange={setProviderType}
                   defaultValue="gateway"
@@ -221,12 +221,12 @@ export function CreatePaymentConfigDialog({
                     <ZoruSelectItem value="zaakpay">Zaakpay</ZoruSelectItem>
                     <ZoruSelectItem value="upi_vpa">UPI VPA</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               {providerType !== 'upi_vpa' ? (
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="redirect_url">Redirect URL</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="redirect_url">Redirect URL</Label>
+                  <Input
                     id="redirect_url"
                     name="redirect_url"
                     type="url"
@@ -236,8 +236,8 @@ export function CreatePaymentConfigDialog({
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="merchant_vpa">Merchant VPA</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="merchant_vpa">Merchant VPA</Label>
+                  <Input
                     id="merchant_vpa"
                     name="merchant_vpa"
                     placeholder="your-business@okhdfcbank"
@@ -246,8 +246,8 @@ export function CreatePaymentConfigDialog({
                 </div>
               )}
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="purpose_code">Purpose Code</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="purpose_code">Purpose Code</Label>
+                <Input
                   id="purpose_code"
                   name="purpose_code"
                   placeholder="e.g., 00"
@@ -255,10 +255,10 @@ export function CreatePaymentConfigDialog({
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="merchant_category_code">
+                <Label htmlFor="merchant_category_code">
                   Merchant Category Code (MCC)
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="merchant_category_code"
                   name="merchant_category_code"
                   placeholder="e.g., 0000"
@@ -266,20 +266,20 @@ export function CreatePaymentConfigDialog({
                 />
               </div>
             </div>
-          </ZoruScrollArea>
+          </ScrollArea>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => handleOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <PendingSubmit>Create Configuration</PendingSubmit>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -337,7 +337,7 @@ export function RegenerateOauthDialog({
 
   if (state.oauth_url) {
     return (
-      <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Complete Re-onboarding</ZoruDialogTitle>
@@ -346,15 +346,15 @@ export function RegenerateOauthDialog({
               with your payment provider.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruAlert>
+          <Alert>
             <ZoruAlertTitle>Action Required</ZoruAlertTitle>
             <ZoruAlertDescription>
               Click the button below to go to the provider&apos;s site and
               re-authorize the connection.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
           <ZoruDialogFooter>
-            <ZoruButton asChild>
+            <Button asChild>
               <a
                 href={state.oauth_url}
                 target="_blank"
@@ -363,20 +363,20 @@ export function RegenerateOauthDialog({
               >
                 Complete Onboarding
               </a>
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     );
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <LinkIcon />
           Regenerate Link
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction as any} ref={formRef}>
@@ -394,8 +394,8 @@ export function RegenerateOauthDialog({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-1.5 py-4">
-            <ZoruLabel htmlFor="redirect_url">Redirect URL</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="redirect_url">Redirect URL</Label>
+            <Input
               id="redirect_url"
               name="redirect_url"
               type="url"
@@ -404,18 +404,18 @@ export function RegenerateOauthDialog({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <PendingSubmit>Regenerate Link</PendingSubmit>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -461,12 +461,12 @@ export function UpdateDataEndpointDialog({
   }, [state, toast, onSuccess]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <Settings />
           Data Endpoint
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction as any} ref={formRef}>
@@ -485,8 +485,8 @@ export function UpdateDataEndpointDialog({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-1.5 py-4">
-            <ZoruLabel htmlFor="dataEndpointUrl">Endpoint URL</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="dataEndpointUrl">Endpoint URL</Label>
+            <Input
               id="dataEndpointUrl"
               name="dataEndpointUrl"
               placeholder="https://your-api.com/whatsapp-data"
@@ -494,13 +494,13 @@ export function UpdateDataEndpointDialog({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <PendingSubmit>
               <LinkIcon />
               Update Endpoint
@@ -508,7 +508,7 @@ export function UpdateDataEndpointDialog({
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -553,10 +553,10 @@ export function DeletePaymentConfigButton({
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton variant="destructive" size="sm" disabled={isPending}>
+        <Button variant="destructive" size="sm" disabled={isPending}>
           <Trash2 />
           Delete
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>

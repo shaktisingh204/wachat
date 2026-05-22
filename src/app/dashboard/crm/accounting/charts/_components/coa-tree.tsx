@@ -75,14 +75,14 @@ export function CoaTree({ rows }: CoaTreeProps) {
 
     if (rows.length === 0) {
         return (
-            <ZoruCard className="flex min-h-[200px] items-center justify-center">
+            <Card className="flex min-h-[200px] items-center justify-center">
                 <p className="text-[13px] text-muted-foreground">No accounts match this filter.</p>
-            </ZoruCard>
+            </Card>
         );
     }
 
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <ul className="divide-y divide-border">
                 {Array.from(tree.entries()).map(([nature, groups]) => {
                     const natureKey = `nature::${nature}`;
@@ -164,6 +164,6 @@ export function CoaTree({ rows }: CoaTreeProps) {
                     );
                 })}
             </ul>
-        </ZoruCard>
+        </Card>
     );
 }

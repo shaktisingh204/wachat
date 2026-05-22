@@ -55,7 +55,7 @@ export default function FacebookWebhooksPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -71,10 +71,10 @@ export default function FacebookWebhooksPage() {
             <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Page header */}
-      <ZoruPageHeader className="mt-4">
+      <PageHeader className="mt-4">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite · Infrastructure</ZoruPageEyebrow>
           <ZoruPageTitle>
@@ -90,14 +90,14 @@ export default function FacebookWebhooksPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => router.push('/dashboard/facebook/settings')}
           >
             <Cog /> Page settings
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() =>
@@ -109,9 +109,9 @@ export default function FacebookWebhooksPage() {
             }
           >
             <ExternalLink /> Meta docs
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Body */}
       <div className="mt-6">

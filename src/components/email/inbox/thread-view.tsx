@@ -103,9 +103,9 @@ export function ThreadView({
             <h2 className="truncate text-base font-semibold text-zoru-ink">
               {thread.subject || '(no subject)'}
             </h2>
-            <ZoruBadge variant="outline" className="text-[10px] uppercase">
+            <Badge variant="outline" className="text-[10px] uppercase">
               {thread.status}
-            </ZoruBadge>
+            </Badge>
           </div>
           <div className="flex flex-wrap items-center gap-1.5 text-xs text-zoru-ink-muted">
             <span>
@@ -125,7 +125,7 @@ export function ThreadView({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="icon-sm"
@@ -138,8 +138,8 @@ export function ThreadView({
             ) : (
               <StarOff />
             )}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="ghost"
             size="icon-sm"
@@ -148,8 +148,8 @@ export function ThreadView({
             onClick={onToggleUnread}
           >
             <MailOpen />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -167,8 +167,8 @@ export function ThreadView({
                 <CheckCircle2 /> Close
               </>
             )}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -176,11 +176,11 @@ export function ThreadView({
             onClick={() => onToggleStatus(isArchived ? 'open' : 'archived')}
           >
             <Archive /> {isArchived ? 'Unarchive' : 'Archive'}
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
-      <ZoruScrollArea className="min-h-0 flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-3 p-4">
           {loading && messages.length === 0 ? (
             <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted">
@@ -197,9 +197,9 @@ export function ThreadView({
             ))
           )}
         </div>
-      </ZoruScrollArea>
+      </ScrollArea>
 
-      <ZoruSeparator />
+      <Separator />
       <div className="border-t border-zoru-line bg-zoru-surface/40">
         <ReplyComposer {...composer} />
       </div>
@@ -216,11 +216,11 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
         outbound ? 'flex-row-reverse' : 'flex-row',
       )}
     >
-      <ZoruAvatar className="mt-1 h-8 w-8 shrink-0">
+      <Avatar className="mt-1 h-8 w-8 shrink-0">
         <ZoruAvatarFallback className="text-[10px]">
           {initialsForEmail(message.from?.email)}
         </ZoruAvatarFallback>
-      </ZoruAvatar>
+      </Avatar>
       <div
         className={cn(
           'max-w-[75%] rounded-[var(--zoru-radius-lg)] border px-3 py-2 shadow-sm',

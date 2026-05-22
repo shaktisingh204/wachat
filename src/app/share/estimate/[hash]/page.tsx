@@ -45,7 +45,7 @@ export default async function PublicEstimatePage({ params }: { params: Params })
 
   return (
     <div className="space-y-6">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>Estimate {estimate.estimateNumber}</ZoruCardTitle>
@@ -54,9 +54,9 @@ export default async function PublicEstimatePage({ params }: { params: Params })
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruBadge variant={STATUS_VARIANT[estimate.status] || 'outline'}>
+            <Badge variant={STATUS_VARIANT[estimate.status] || 'outline'}>
               {estimate.status}
-            </ZoruBadge>
+            </Badge>
             <a
               href={`/share/estimate/${hash}/download`}
               target="_blank"
@@ -124,7 +124,7 @@ export default async function PublicEstimatePage({ params }: { params: Params })
             </section>
           ) : null}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <EstimateActionsPanel
         hash={hash}

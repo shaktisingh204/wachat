@@ -53,25 +53,25 @@ export function FaqBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
 
     return (
         <div className="space-y-4">
-            <ZoruAccordion type="multiple" className="w-full" defaultValue={['content']}>
+            <Accordion type="multiple" className="w-full" defaultValue={['content']}>
                 <ZoruAccordionItem value="content">
                     <ZoruAccordionTrigger>Content</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor={`title-${settings.id}`}>Section Title</ZoruLabel>
-                            <ZoruInput id={`title-${settings.id}`} value={settings.title || 'Frequently Asked Questions'} onChange={(e) => onUpdate({ ...settings, title: e.target.value })} />
+                            <Label htmlFor={`title-${settings.id}`}>Section Title</Label>
+                            <Input id={`title-${settings.id}`} value={settings.title || 'Frequently Asked Questions'} onChange={(e) => onUpdate({ ...settings, title: e.target.value })} />
                         </div>
                         {faqItems.map((item: any, index: number) => (
                             <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-background">
-                                <ZoruButton type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeItem(index)}>
+                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeItem(index)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
-                                <ZoruLabel>FAQ {index + 1}</ZoruLabel>
-                                <ZoruInput placeholder="Question..." value={item.question || ''} onChange={(e) => handleItemChange(index, 'question', e.target.value)} />
-                                <ZoruTextarea placeholder="Answer..." value={item.answer || ''} onChange={(e) => handleItemChange(index, 'answer', e.target.value)} />
+                                </Button>
+                                <Label>FAQ {index + 1}</Label>
+                                <Input placeholder="Question..." value={item.question || ''} onChange={(e) => handleItemChange(index, 'question', e.target.value)} />
+                                <Textarea placeholder="Answer..." value={item.answer || ''} onChange={(e) => handleItemChange(index, 'answer', e.target.value)} />
                             </div>
                         ))}
-                        <ZoruButton type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add FAQ</ZoruButton>
+                        <Button type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add FAQ</Button>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                 <ZoruAccordionItem value="layout">
@@ -79,38 +79,38 @@ export function FaqBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
                     <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Width</ZoruLabel>
-                                <ZoruInput value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
+                                <Label>Width</Label>
+                                <Input value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Height</ZoruLabel>
-                                <ZoruInput value={settings.layout?.height || 'auto'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
+                                <Label>Height</Label>
+                                <Input value={settings.layout?.height || 'auto'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Max Width</ZoruLabel>
-                                <ZoruInput value={settings.layout?.maxWidth || ''} placeholder="e.g. 1200px" onChange={e => handleSubFieldUpdate('layout', 'maxWidth', e.target.value)} />
+                                <Label>Max Width</Label>
+                                <Input value={settings.layout?.maxWidth || ''} placeholder="e.g. 1200px" onChange={e => handleSubFieldUpdate('layout', 'maxWidth', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Min Height</ZoruLabel>
-                                <ZoruInput value={settings.layout?.minHeight || ''} placeholder="e.g. 200px" onChange={e => handleSubFieldUpdate('layout', 'minHeight', e.target.value)} />
+                                <Label>Min Height</Label>
+                                <Input value={settings.layout?.minHeight || ''} placeholder="e.g. 200px" onChange={e => handleSubFieldUpdate('layout', 'minHeight', e.target.value)} />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Overflow</ZoruLabel>
-                            <ZoruSelect value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
+                            <Label>Overflow</Label>
+                            <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
                                 <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     <ZoruSelectItem value="visible">Visible</ZoruSelectItem>
                                     <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
                                     <ZoruSelectItem value="scroll">Scroll</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
         </div>
     );
 }

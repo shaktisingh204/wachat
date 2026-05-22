@@ -73,7 +73,7 @@ export default async function SabsmsProvidersPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Providers</ZoruPageTitle>
           <ZoruPageDescription>
@@ -82,10 +82,10 @@ export default async function SabsmsProvidersPage() {
             multi-provider routing ship in Phase 7.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {envCredsPresent ? (
-        <ZoruAlert>
+        <Alert>
           <ZoruAlertTitle>Twilio is wired</ZoruAlertTitle>
           <ZoruAlertDescription>
             The engine has{" "}
@@ -105,9 +105,9 @@ export default async function SabsmsProvidersPage() {
             </Link>
             .
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <ZoruAlertTitle>Twilio creds missing on the engine</ZoruAlertTitle>
           <ZoruAlertDescription>
             Set <code>SABSMS_TWILIO_ACCOUNT_SID</code>,{" "}
@@ -115,10 +115,10 @@ export default async function SabsmsProvidersPage() {
             <code>SABSMS_TWILIO_DEFAULT_FROM</code> in the engine env,
             then restart the <code>sabsms-engine</code> PM2 app.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Workspace credentials</ZoruCardTitle>
           <ZoruCardDescription>
@@ -131,7 +131,7 @@ export default async function SabsmsProvidersPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {rows.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<ServerCog />}
               title="No workspace credentials saved"
               description="Phase 1.5 adds a dialog to paste Twilio credentials per workspace. For now the engine uses its env-level fallback."
@@ -156,22 +156,22 @@ export default async function SabsmsProvidersPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {r.isDefault && (
-                      <ZoruBadge variant="default">default</ZoruBadge>
+                      <Badge variant="default">default</Badge>
                     )}
-                    <ZoruBadge
+                    <Badge
                       variant={r.status === "active" ? "default" : "destructive"}
                     >
                       {r.status}
-                    </ZoruBadge>
+                    </Badge>
                   </div>
                 </li>
               ))}
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Provider catalog</ZoruCardTitle>
           <ZoruCardDescription>
@@ -190,19 +190,19 @@ export default async function SabsmsProvidersPage() {
                   <div className="font-medium">{p.name}</div>
                   <div className="text-xs text-slate-500">{p.region}</div>
                 </div>
-                <ZoruBadge variant={p.available ? "default" : "secondary"}>
+                <Badge variant={p.available ? "default" : "secondary"}>
                   {p.available ? "Available" : "Phase 7"}
-                </ZoruBadge>
+                </Badge>
               </li>
             ))}
           </ul>
-          <ZoruSeparator className="my-4" />
+          <Separator className="my-4" />
           <p className="text-xs text-slate-500">
             Roadmap: <code>plans/sabsms-world-class-plan.md</code> — Phase
             7 (multi-provider routing + sender pool + cost engine).
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

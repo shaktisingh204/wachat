@@ -134,7 +134,7 @@ export default function CampaignAbTestPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -148,7 +148,7 @@ export default function CampaignAbTestPage() {
             <ZoruBreadcrumbPage>Campaign A/B Test</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -160,11 +160,11 @@ export default function CampaignAbTestPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <h2 className="mb-3 flex items-center gap-2 text-sm text-zoru-ink">
-            <ZoruBadge variant="info">A</ZoruBadge> Variant A
+            <Badge variant="info">A</Badge> Variant A
           </h2>
-          <ZoruSelect value={variantA} onValueChange={setVariantA}>
+          <Select value={variantA} onValueChange={setVariantA}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -175,13 +175,13 @@ export default function CampaignAbTestPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
-        </ZoruCard>
-        <ZoruCard className="p-5">
+          </Select>
+        </Card>
+        <Card className="p-5">
           <h2 className="mb-3 flex items-center gap-2 text-sm text-zoru-ink">
-            <ZoruBadge variant="secondary">B</ZoruBadge> Variant B
+            <Badge variant="secondary">B</Badge> Variant B
           </h2>
-          <ZoruSelect value={variantB} onValueChange={setVariantB}>
+          <Select value={variantB} onValueChange={setVariantB}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -192,14 +192,14 @@ export default function CampaignAbTestPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
-        </ZoruCard>
+          </Select>
+        </Card>
       </div>
 
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <ZoruLabel className="mb-2 block">Test split</ZoruLabel>
+            <Label className="mb-2 block">Test split</Label>
             <div className="flex items-center gap-3">
               <span className="w-10 text-[12px] text-zoru-ink-muted tabular-nums">
                 A: {split}%
@@ -228,8 +228,8 @@ export default function CampaignAbTestPage() {
             </div>
           </div>
           <div>
-            <ZoruLabel className="mb-2 block">Audience</ZoruLabel>
-            <ZoruSelect value={audience} onValueChange={setAudience}>
+            <Label className="mb-2 block">Audience</Label>
+            <Select value={audience} onValueChange={setAudience}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -241,7 +241,7 @@ export default function CampaignAbTestPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {isPending && (
               <span className="mt-1 inline-block text-[11px] text-zoru-ink-muted">
                 Loading segments…
@@ -249,19 +249,19 @@ export default function CampaignAbTestPage() {
             )}
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex items-center gap-2">
         <ZoruAlertDialog>
           <ZoruAlertDialogTrigger asChild>
-            <ZoruButton disabled={sending || variantA === variantB}>
+            <Button disabled={sending || variantA === variantB}>
               {sending ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <Send className="h-3.5 w-3.5" />
               )}
               {sending ? 'Running test…' : 'Launch A/B test'}
-            </ZoruButton>
+            </Button>
           </ZoruAlertDialogTrigger>
           <ZoruAlertDialogContent>
             <ZoruAlertDialogHeader>
@@ -284,10 +284,10 @@ export default function CampaignAbTestPage() {
         {sending && (
           <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-              <ZoruButton variant="outline">
+              <Button variant="outline">
                 <Square className="h-3.5 w-3.5" />
                 Stop
-              </ZoruButton>
+              </Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
               <ZoruAlertDialogHeader>
@@ -315,7 +315,7 @@ export default function CampaignAbTestPage() {
       )}
 
       {results && (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <h2 className="mb-4 flex items-center gap-2 text-sm text-zoru-ink">
             <ChartBar className="h-4 w-4" /> Results
           </h2>
@@ -340,7 +340,7 @@ export default function CampaignAbTestPage() {
                       Variant {r.variant}:{' '}
                       {r.variant === 'A' ? variantA : variantB}
                     </h3>
-                    {isWinner && <ZoruBadge variant="success">Winner</ZoruBadge>}
+                    {isWinner && <Badge variant="success">Winner</Badge>}
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
@@ -368,7 +368,7 @@ export default function CampaignAbTestPage() {
               );
             })}
           </div>
-        </ZoruCard>
+        </Card>
       )}
       <div className="h-6" />
     </div>

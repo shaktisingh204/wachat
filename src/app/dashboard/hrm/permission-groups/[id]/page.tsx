@@ -164,13 +164,13 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
         <p className="text-[13px] text-zoru-ink-muted">
           This permission group may have been deleted.
         </p>
-        <ZoruButton
+        <Button
           variant="outline"
           onClick={() => router.push('/dashboard/hrm/permission-groups')}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Groups
-        </ZoruButton>
+        </Button>
       </div>
     );
   }
@@ -182,17 +182,17 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => router.push('/dashboard/hrm/permission-groups')}
             aria-label="Back"
           >
             <ArrowLeft className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
           <div>
             {loading ? (
-              <ZoruSkeleton className="h-6 w-48" />
+              <Skeleton className="h-6 w-48" />
             ) : (
               <h1 className="text-xl font-semibold text-zoru-ink">
                 {group?.name}
@@ -203,7 +203,7 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
             </p>
           </div>
         </div>
-        <ZoruButton
+        <Button
           onClick={handleSave}
           disabled={saving || loading}
         >
@@ -211,28 +211,28 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
             <LoaderCircle className="h-4 w-4 animate-spin" />
           ) : null}
           {saving ? 'Saving…' : 'Save Changes'}
-        </ZoruButton>
+        </Button>
       </div>
 
       {loading ? (
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-24 w-full rounded-[var(--zoru-radius)]" />
+            <Skeleton key={i} className="h-24 w-full rounded-[var(--zoru-radius)]" />
           ))}
         </div>
       ) : (
         <>
           {/* Identity card */}
-          <ZoruCard className="flex flex-col gap-5 p-5">
+          <Card className="flex flex-col gap-5 p-5">
             <h2 className="text-sm font-semibold text-zoru-ink">
               Group Details
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="edit-name">
+                <Label htmlFor="edit-name">
                   Name <span className="text-zoru-danger-ink">*</span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="edit-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -240,8 +240,8 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="edit-desc">Description</ZoruLabel>
-                <ZoruTextarea
+                <Label htmlFor="edit-desc">Description</Label>
+                <Textarea
                   id="edit-desc"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -274,30 +274,30 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
                 </span>
               </div>
             ) : null}
-          </ZoruCard>
+          </Card>
 
           {/* Permission matrix card */}
-          <ZoruCard className="flex flex-col gap-4 p-5">
+          <Card className="flex flex-col gap-4 p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-zoru-ink">
                 Module Permissions
               </h2>
-              <ZoruBadge variant="secondary">
+              <Badge variant="secondary">
                 {permissions.filter((p) => p.actions.length > 0).length} modules active
-              </ZoruBadge>
+              </Badge>
             </div>
             <PermissionMatrix value={permissions} onChange={setPermissions} />
-          </ZoruCard>
+          </Card>
 
           {/* Assigned employees card */}
-          <ZoruCard className="flex flex-col gap-4 p-5">
+          <Card className="flex flex-col gap-4 p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-zoru-ink">
                 Assigned Employees
               </h2>
-              <ZoruBadge variant="secondary">
+              <Badge variant="secondary">
                 {assignedEmployees.length}
-              </ZoruBadge>
+              </Badge>
             </div>
 
             {assignedEmployees.length === 0 ? (
@@ -310,7 +310,7 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
               </p>
             ) : (
               <div className="overflow-x-auto rounded-md border border-zoru-line">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                       <ZoruTableHead>Employee</ZoruTableHead>
@@ -332,7 +332,7 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
                           {new Date(e.assignedAt).toLocaleDateString()}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             aria-label={`Remove ${e.name}`}
@@ -344,15 +344,15 @@ export default function PermissionGroupEditPage(): React.JSX.Element {
                             ) : (
                               <UserMinus className="h-3.5 w-3.5 text-zoru-danger-ink" />
                             )}
-                          </ZoruButton>
+                          </Button>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
             )}
-          </ZoruCard>
+          </Card>
         </>
       )}
     </div>

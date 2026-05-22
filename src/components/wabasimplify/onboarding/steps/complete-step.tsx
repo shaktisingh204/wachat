@@ -99,12 +99,12 @@ export function CompleteStep({
             </div>
 
             <div className="flex justify-end pt-2">
-                <ZoruButton asChild className="h-11 px-6 text-base">
+                <Button asChild className="h-11 px-6 text-base">
                     <Link href="/wachat">
                         Go to dashboard
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );

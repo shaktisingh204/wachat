@@ -22,13 +22,13 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
 
     return (
         <div className="space-y-4">
-            <ZoruAccordion type="multiple" className="w-full" defaultValue={['layout']}>
+            <Accordion type="multiple" className="w-full" defaultValue={['layout']}>
                 <ZoruAccordionItem value="layout">
                     <ZoruAccordionTrigger>Layout</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <ZoruLabel>Columns</ZoruLabel>
+                                <Label>Columns</Label>
                                 <span className="text-sm text-muted-foreground">{columnCount}</span>
                             </div>
                             <Slider
@@ -41,7 +41,7 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                         </div>
                         <div className="space-y-2">
                              <div className="flex justify-between items-center">
-                                <ZoruLabel>Gap between columns (px)</ZoruLabel>
+                                <Label>Gap between columns (px)</Label>
                                 <span className="text-sm text-muted-foreground">{settings.gap || 16}px</span>
                              </div>
                             <Slider
@@ -53,8 +53,8 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             />
                         </div>
                         <div className="flex items-center space-x-2">
-                            <ZoruSwitch id="stackOnMobile" checked={settings.stackOnMobile !== false} onCheckedChange={(val) => handleUpdate('stackOnMobile', val)} />
-                            <ZoruLabel htmlFor="stackOnMobile">Stack on mobile devices</ZoruLabel>
+                            <Switch id="stackOnMobile" checked={settings.stackOnMobile !== false} onCheckedChange={(val) => handleUpdate('stackOnMobile', val)} />
+                            <Label htmlFor="stackOnMobile">Stack on mobile devices</Label>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
@@ -62,17 +62,17 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                     <ZoruAccordionTrigger>Spacing</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-4 pt-2">
                          <div className="space-y-2">
-                            <ZoruLabel>Padding (Top, Right, Bottom, Left) in px</ZoruLabel>
+                            <Label>Padding (Top, Right, Bottom, Left) in px</Label>
                             <div className="grid grid-cols-4 gap-2">
-                                <ZoruInput type="number" placeholder="Top" value={settings.padding?.top || ''} onChange={(e) => handleSubFieldUpdate('padding', 'top', e.target.value)} />
-                                <ZoruInput type="number" placeholder="Right" value={settings.padding?.right || ''} onChange={(e) => handleSubFieldUpdate('padding', 'right', e.target.value)} />
-                                <ZoruInput type="number" placeholder="Bottom" value={settings.padding?.bottom || ''} onChange={(e) => handleSubFieldUpdate('padding', 'bottom', e.target.value)} />
-                                <ZoruInput type="number" placeholder="Left" value={settings.padding?.left || ''} onChange={(e) => handleSubFieldUpdate('padding', 'left', e.target.value)} />
+                                <Input type="number" placeholder="Top" value={settings.padding?.top || ''} onChange={(e) => handleSubFieldUpdate('padding', 'top', e.target.value)} />
+                                <Input type="number" placeholder="Right" value={settings.padding?.right || ''} onChange={(e) => handleSubFieldUpdate('padding', 'right', e.target.value)} />
+                                <Input type="number" placeholder="Bottom" value={settings.padding?.bottom || ''} onChange={(e) => handleSubFieldUpdate('padding', 'bottom', e.target.value)} />
+                                <Input type="number" placeholder="Left" value={settings.padding?.left || ''} onChange={(e) => handleSubFieldUpdate('padding', 'left', e.target.value)} />
                             </div>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
         </div>
     );
 }

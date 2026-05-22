@@ -25,13 +25,13 @@ export function FacebookKanbanColumn({ title, conversations }: FacebookKanbanCol
                     <span className="text-sm font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">{conversations.length}</span>
                 </ZoruCardTitle>
             </ZoruCardHeader>
-            <ZoruScrollArea className="flex-1 p-2">
+            <ScrollArea className="flex-1 p-2">
                 <div className="space-y-3">
                     {conversations.map((convo, index) => (
                         <FacebookKanbanCard key={convo._id.toString()} conversation={convo} index={index} />
                     ))}
                 </div>
-            </ZoruScrollArea>
+            </ScrollArea>
         </div>
     );
 }

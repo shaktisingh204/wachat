@@ -46,7 +46,7 @@ export function PermissionErrorDialog({
   if (!project) return null;
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
@@ -60,11 +60,11 @@ export function PermissionErrorDialog({
 
         <div className="flex flex-col gap-4">
           {error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertTitle>Error from Meta</ZoruAlertTitle>
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
 
           <p className="text-[12.5px] text-zoru-ink-muted leading-relaxed">
@@ -74,20 +74,20 @@ export function PermissionErrorDialog({
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             onClick={() => onOpenChange(false)}
           >
             Close
-          </ZoruButton>
-          <ZoruButton asChild>
+          </Button>
+          <Button asChild>
             <a href="/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth">
               <FacebookGlyph className="h-4 w-4" /> Re-authorize
             </a>
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

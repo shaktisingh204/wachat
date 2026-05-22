@@ -126,7 +126,7 @@ export default async function LoanDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="loan" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Outstanding principal</ZoruCardTitle>
             </ZoruCardHeader>
@@ -158,9 +158,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Borrower</ZoruCardTitle>
             </ZoruCardHeader>
@@ -172,9 +172,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Next payment</ZoruCardTitle>
             </ZoruCardHeader>
@@ -192,9 +192,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -214,11 +214,11 @@ export default async function LoanDetailPage({ params }: PageProps) {
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -246,9 +246,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
             <Field label="Status" value={status} />
           </dl>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Borrower</ZoruCardTitle>
         </ZoruCardHeader>
@@ -258,9 +258,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
             <Field label="Borrower ID" value={loan.borrowerId || '—'} />
           </dl>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>EMI schedule</ZoruCardTitle>
         </ZoruCardHeader>
@@ -292,9 +292,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
                       {fmtMoney(row.amount)}
                     </td>
                     <td className="py-2 text-right">
-                      <ZoruBadge variant={row.paid ? 'success' : 'outline'}>
+                      <Badge variant={row.paid ? 'success' : 'outline'}>
                         {row.paid ? 'Paid' : 'Pending'}
-                      </ZoruBadge>
+                      </Badge>
                     </td>
                   </tr>
                 ))}
@@ -302,9 +302,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
             </table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Payment history</ZoruCardTitle>
         </ZoruCardHeader>
@@ -343,9 +343,9 @@ export default async function LoanDetailPage({ params }: PageProps) {
             </table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Documents</ZoruCardTitle>
         </ZoruCardHeader>
@@ -361,10 +361,10 @@ export default async function LoanDetailPage({ params }: PageProps) {
             </Link>
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {loan.notes ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -373,24 +373,24 @@ export default async function LoanDetailPage({ params }: PageProps) {
               {loan.notes}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {Array.isArray(loan.tags) && loan.tags.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Tags</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
             <div className="flex flex-wrap gap-2">
               {loan.tags.map((t) => (
-                <ZoruBadge key={t} variant="outline">
+                <Badge key={t} variant="outline">
                   {t}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

@@ -89,7 +89,7 @@ export function PurchaseOrdersFilters({
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           <EnumFilterField
             enumName="purchaseOrderStatus"
             value={statusFilter}
@@ -98,7 +98,7 @@ export function PurchaseOrdersFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Vendor</ZoruLabel>
+          <Label>Vendor</Label>
           <EntityFormField
             entity="vendor"
             name="_filter_vendor"
@@ -107,7 +107,7 @@ export function PurchaseOrdersFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Buyer / Owner</ZoruLabel>
+          <Label>Buyer / Owner</Label>
           <EntityFormField
             entity="user"
             name="_filter_buyer"
@@ -116,7 +116,7 @@ export function PurchaseOrdersFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Branch</ZoruLabel>
+          <Label>Branch</Label>
           <EntityFormField
             entity="branch"
             name="_filter_branch"
@@ -125,7 +125,7 @@ export function PurchaseOrdersFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Approval status</ZoruLabel>
+          <Label>Approval status</Label>
           <EnumFilterField
             enumName="approvalStatus"
             value={approvalFilter}
@@ -134,40 +134,40 @@ export function PurchaseOrdersFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>PO date — from</ZoruLabel>
-          <ZoruInput
+          <Label>PO date — from</Label>
+          <Input
             type="date"
             value={fromDate}
             onChange={(e) => onFromDate(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>PO date — to</ZoruLabel>
-          <ZoruInput
+          <Label>PO date — to</Label>
+          <Input
             type="date"
             value={toDate}
             onChange={(e) => onToDate(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Expected delivery — from</ZoruLabel>
-          <ZoruInput
+          <Label>Expected delivery — from</Label>
+          <Input
             type="date"
             value={expectedFrom}
             onChange={(e) => onExpectedFrom(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Expected delivery — to</ZoruLabel>
-          <ZoruInput
+          <Label>Expected delivery — to</Label>
+          <Input
             type="date"
             value={expectedTo}
             onChange={(e) => onExpectedTo(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Amount min</ZoruLabel>
-          <ZoruInput
+          <Label>Amount min</Label>
+          <Input
             type="number"
             value={amountMin}
             onChange={(e) => onAmountMin(e.target.value)}
@@ -175,8 +175,8 @@ export function PurchaseOrdersFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Amount max</ZoruLabel>
-          <ZoruInput
+          <Label>Amount max</Label>
+          <Input
             type="number"
             value={amountMax}
             onChange={(e) => onAmountMax(e.target.value)}

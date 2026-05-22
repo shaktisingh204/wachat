@@ -33,10 +33,10 @@ const initialState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" className="w-full" disabled={pending}>
+        <Button type="submit" className="w-full" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Send Reset Link
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
                 </Link>
             </div>
 
-            <ZoruCard className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up">
+            <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up">
                 <form action={formAction}>
                     <ZoruCardHeader className="text-center">
                         <ZoruCardTitle className="text-2xl font-bold font-headline">Forgot Your Password?</ZoruCardTitle>
@@ -67,22 +67,22 @@ export default function ForgotPasswordPage() {
                     </ZoruCardHeader>
                     <ZoruCardContent className="space-y-6 p-6">
                         {state?.error && (
-                            <ZoruAlert variant="destructive">
+                            <Alert variant="destructive">
                                 <AlertCircle className="h-4 w-4" />
                                 <ZoruAlertTitle>Error</ZoruAlertTitle>
                                 <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
-                            </ZoruAlert>
+                            </Alert>
                         )}
                         {state?.message && (
-                            <ZoruAlert>
+                            <Alert>
                                 <CheckCircle className="h-4 w-4" />
                                 <ZoruAlertTitle>Check Your Email</ZoruAlertTitle>
                                 <ZoruAlertDescription>{state.message}</ZoruAlertDescription>
-                            </ZoruAlert>
+                            </Alert>
                         )}
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="email" className="sr-only">Email</ZoruLabel>
-                            <ZoruInput id="email" name="email" type="email" placeholder="Enter your email" required />
+                            <Label htmlFor="email" className="sr-only">Email</Label>
+                            <Input id="email" name="email" type="email" placeholder="Enter your email" required />
                         </div>
                         <SubmitButton />
                     </ZoruCardContent>
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
                         </p>
                     </ZoruCardFooter>
                 </form>
-            </ZoruCard>
+            </Card>
 
             <div className="absolute bottom-6 text-center w-full">
                 <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} SabNode. All Rights Reserved. | <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></p>

@@ -36,8 +36,8 @@ export default function HtmlToMarkdownPage() {
   const md = useMemo(() => html2md(html), [html]);
   return (
     <ToolShell title="HTML to Markdown" description="Convert basic HTML to Markdown.">
-      <ZoruTextarea value={html} onChange={(e) => setHtml(e.target.value)} className="min-h-[220px] font-mono text-xs" placeholder="Paste HTML…" />
-      <ZoruTextarea readOnly value={md} className="min-h-[220px] font-mono text-xs" />
+      <Textarea value={html} onChange={(e) => setHtml(e.target.value)} className="min-h-[220px] font-mono text-xs" placeholder="Paste HTML…" />
+      <Textarea readOnly value={md} className="min-h-[220px] font-mono text-xs" />
     </ToolShell>
   );
 }

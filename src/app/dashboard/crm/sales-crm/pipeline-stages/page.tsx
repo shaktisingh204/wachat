@@ -66,11 +66,11 @@ function buildStageFormData(input: {
 
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
-        <ZoruCard>
+        <Card>
             <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
             <p className="mt-1 text-[28px] font-semibold text-foreground">{value.toLocaleString()}</p>
             {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -133,8 +133,8 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
     return (
         <div className="space-y-3">
             <div className="space-y-1">
-                <ZoruLabel className="text-foreground">Pipeline</ZoruLabel>
-                <ZoruSelect value={pipelineId} onValueChange={setPipelineId}>
+                <Label className="text-foreground">Pipeline</Label>
+                <Select value={pipelineId} onValueChange={setPipelineId}>
                     <ZoruSelectTrigger>
                         <ZoruSelectValue placeholder="Select…" />
                     </ZoruSelectTrigger>
@@ -145,28 +145,28 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
             <div className="space-y-1">
-                <ZoruLabel className="text-foreground">Stage name</ZoruLabel>
-                <ZoruInput value={name} onChange={(e) => setName(e.target.value)} placeholder="Qualified" />
+                <Label className="text-foreground">Stage name</Label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Qualified" />
             </div>
             <div className="space-y-1">
-                <ZoruLabel className="text-foreground">Slug</ZoruLabel>
-                <ZoruInput value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="qualified" />
+                <Label className="text-foreground">Slug</Label>
+                <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="qualified" />
             </div>
             <div className="space-y-1">
-                <ZoruLabel className="text-foreground">Order</ZoruLabel>
-                <ZoruInput
+                <Label className="text-foreground">Order</Label>
+                <Input
                     type="number"
                     value={String(priority)}
                     onChange={(e) => setPriority(Number(e.target.value) || 0)}
                 />
             </div>
             <div className="space-y-1">
-                <ZoruLabel className="text-foreground">Label color</ZoruLabel>
+                <Label className="text-foreground">Label color</Label>
                 <div className="flex items-center gap-2">
-                    <ZoruInput
+                    <Input
                         value={labelColor}
                         onChange={(e) => setLabelColor(e.target.value)}
                         placeholder="#64748b"
@@ -179,12 +179,12 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
                 </div>
             </div>
             <div className="mt-4 flex items-center justify-end gap-2">
-                <ZoruButton variant="outline" onClick={onCancel} disabled={pending}>
+                <Button variant="outline" onClick={onCancel} disabled={pending}>
                     Cancel
-                </ZoruButton>
-                <ZoruButton onClick={submit} disabled={pending}>
+                </Button>
+                <Button onClick={submit} disabled={pending}>
                     {pending ? 'Saving…' : initial ? 'Save changes' : 'Create stage'}
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -334,9 +334,9 @@ export default function LeadPipelineStagesPage() {
             title="Pipeline stages"
             subtitle="Ordered stages inside each pipeline — drag rows to reorder."
             primaryAction={
-                <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
                     <Plus className="h-3.5 w-3.5" /> New stage
-                </ZoruButton>
+                </Button>
             }
         >
             {/* KPI strip */}
@@ -352,11 +352,11 @@ export default function LeadPipelineStagesPage() {
             </div>
 
             {/* Filter + actions row */}
-            <ZoruCard>
+            <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[220px]">
-                        <ZoruLabel className="text-foreground">Pipeline</ZoruLabel>
-                        <ZoruSelect value={pipelineFilter} onValueChange={setPipelineFilter}>
+                        <Label className="text-foreground">Pipeline</Label>
+                        <Select value={pipelineFilter} onValueChange={setPipelineFilter}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="All pipelines" />
                             </ZoruSelectTrigger>
@@ -368,25 +368,25 @@ export default function LeadPipelineStagesPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     {pipelineFilter ? (
-                        <ZoruButton variant="ghost" size="sm" onClick={() => setPipelineFilter('')}>
+                        <Button variant="ghost" size="sm" onClick={() => setPipelineFilter('')}>
                             Clear
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     {reorderPending ? (
                         <span className="text-[12px] text-muted-foreground">Saving order…</span>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Table */}
-            <ZoruCard className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0">
                 {isLoading ? (
                     <div className="space-y-2 p-4">
                         {[...Array(4)].map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-10 w-full" />
+                            <Skeleton key={i} className="h-10 w-full" />
                         ))}
                     </div>
                 ) : filteredStages.length === 0 ? (
@@ -396,13 +396,13 @@ export default function LeadPipelineStagesPage() {
                         <p className="max-w-sm text-sm text-muted-foreground">
                             Create your first stage to start organising leads inside this pipeline.
                         </p>
-                        <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                        <Button size="sm" onClick={() => setCreateOpen(true)}>
                             <Plus className="h-3.5 w-3.5" /> New stage
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-border hover:bg-transparent">
                                     <ZoruTableHead className="w-[40px]" />
@@ -475,7 +475,7 @@ export default function LeadPipelineStagesPage() {
                                                         className="inline-block h-3 w-3 rounded-full border border-border"
                                                         style={{ backgroundColor: color }}
                                                     />
-                                                    <ZoruBadge
+                                                    <Badge
                                                         style={{
                                                             backgroundColor: color + '20',
                                                             color,
@@ -483,18 +483,18 @@ export default function LeadPipelineStagesPage() {
                                                         }}
                                                     >
                                                         {color}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </span>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton
+                                                <Button
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => setEditing(stage)}
                                                 >
                                                     Edit
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => setConfirmDeleteId(stage._id)}
@@ -502,13 +502,13 @@ export default function LeadPipelineStagesPage() {
                                                     className="ml-1"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 )}
                 {!pipelineFilter && filteredStages.length > 0 ? (
@@ -516,11 +516,11 @@ export default function LeadPipelineStagesPage() {
                         Drag-reorder requires picking a single pipeline first.
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
             {/* Create — inline drawer-like using RowDrawer trigger button */}
             {createOpen ? (
-                <ZoruCard>
+                <Card>
                     <h2 className="mb-3 text-[14px] font-semibold text-foreground">New stage</h2>
                     <StageEditForm
                         initial={null}
@@ -532,12 +532,12 @@ export default function LeadPipelineStagesPage() {
                         }}
                         onCancel={() => setCreateOpen(false)}
                     />
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Edit (inline panel — drawer trigger is on the row label) */}
             {editing ? (
-                <ZoruCard>
+                <Card>
                     <h2 className="mb-3 text-[14px] font-semibold text-foreground">
                         Edit stage: {editing.name}
                     </h2>
@@ -550,7 +550,7 @@ export default function LeadPipelineStagesPage() {
                         }}
                         onCancel={() => setEditing(null)}
                     />
-                </ZoruCard>
+                </Card>
             ) : null}
 
             <ConfirmDialog

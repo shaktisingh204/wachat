@@ -107,7 +107,7 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
     };
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <ZoruDialogHeader className="px-6 pt-6 pb-2">
                     <ZoruDialogTitle>{isCreating ? 'Create New Pipeline' : 'Edit Pipelines'}</ZoruDialogTitle>
@@ -120,9 +120,9 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
                         {!isCreating && (
                             <div className="col-span-1 space-y-2">
                                 {pipelines.map(p => (
-                                    <ZoruButton key={p.id} variant={activePipelineId === p.id ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => setActivePipelineId(p.id)}>
+                                    <Button key={p.id} variant={activePipelineId === p.id ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => setActivePipelineId(p.id)}>
                                         {p.name}
-                                    </ZoruButton>
+                                    </Button>
                                 ))}
                             </div>
                         )}
@@ -130,23 +130,23 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
                             {activePipeline ? (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <ZoruLabel>Pipeline Name</ZoruLabel>
-                                        <ZoruInput value={activePipeline.name} onChange={e => handlePipelineNameChange(activePipeline.id, e.target.value)} />
+                                        <Label>Pipeline Name</Label>
+                                        <Input value={activePipeline.name} onChange={e => handlePipelineNameChange(activePipeline.id, e.target.value)} />
                                     </div>
                                     <div className="space-y-2">
-                                        <ZoruLabel>Stages</ZoruLabel>
+                                        <Label>Stages</Label>
                                         <div className="space-y-2 pr-2">
                                             {activePipeline.stages.map((stage) => (
                                                 <div key={stage.id} className="flex items-center gap-2">
-                                                    <ZoruInput value={stage.name} onChange={e => handleStageChange(activePipelineId!, stage.id, 'name', e.target.value)} />
-                                                    <ZoruInput type="number" value={stage.chance} onChange={e => handleStageChange(activePipelineId!, stage.id, 'chance', Number(e.target.value))} className="w-24" />
-                                                    <ZoruButton variant="ghost" size="icon" onClick={() => handleRemoveStage(activePipelineId!, stage.id)}><Trash2 className="h-4 w-4" /></ZoruButton>
+                                                    <Input value={stage.name} onChange={e => handleStageChange(activePipelineId!, stage.id, 'name', e.target.value)} />
+                                                    <Input type="number" value={stage.chance} onChange={e => handleStageChange(activePipelineId!, stage.id, 'chance', Number(e.target.value))} className="w-24" />
+                                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveStage(activePipelineId!, stage.id)}><Trash2 className="h-4 w-4" /></Button>
                                                 </div>
                                             ))}
                                         </div>
-                                        <ZoruButton variant="outline" size="sm" onClick={() => handleAddStage(activePipelineId!)}>
+                                        <Button variant="outline" size="sm" onClick={() => handleAddStage(activePipelineId!)}>
                                             <Plus className="mr-2 h-4 w-4" /> Add Stage
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 </div>
                             ) : <p>Select a pipeline to edit.</p>}
@@ -154,14 +154,14 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
                     </div>
                 </div>
                 <ZoruDialogFooter className="px-6 pb-6 pt-2">
-                    <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
-                    <ZoruButton onClick={handleSave} disabled={isSaving}>
+                    <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <Button onClick={handleSave} disabled={isSaving}>
                         {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Save Changes
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 

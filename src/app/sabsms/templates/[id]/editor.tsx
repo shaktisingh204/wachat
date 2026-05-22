@@ -332,7 +332,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
       <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
         {/* ── Left column — primary editor ─────────────────────────── */}
         <div className="space-y-6">
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -349,7 +349,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     .
                   </ZoruCardDescription>
                 </div>
-                <ZoruBadge
+                <Badge
                   variant={
                     vm.status === "approved"
                       ? "default"
@@ -361,14 +361,14 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   }
                 >
                   {vm.status}
-                </ZoruBadge>
+                </Badge>
               </div>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="tpl-name">Name</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="tpl-name">Name</Label>
+                  <Input
                     id="tpl-name"
                     value={vm.name}
                     onChange={(e) => setVm((p) => ({ ...p, name: e.target.value }))}
@@ -376,8 +376,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="tpl-category">Category</ZoruLabel>
-                  <ZoruSelect
+                  <Label htmlFor="tpl-category">Category</Label>
+                  <Select
                     value={vm.category}
                     onValueChange={(v) =>
                       setVm((p) => ({
@@ -396,7 +396,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         </ZoruSelectItem>
                       ))}
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
               </div>
 
@@ -450,15 +450,15 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               {/* Body textarea */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <ZoruLabel htmlFor={`tpl-body-${activeLocale}`}>
+                  <Label htmlFor={`tpl-body-${activeLocale}`}>
                     Body — {activeLocale}
-                  </ZoruLabel>
-                  <ZoruPopover open={varsHelpOpen} onOpenChange={setVarsHelpOpen}>
+                  </Label>
+                  <Popover open={varsHelpOpen} onOpenChange={setVarsHelpOpen}>
                     <ZoruPopoverTrigger asChild>
-                      <ZoruButton variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm">
                         <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                         Variables &amp; helpers
-                      </ZoruButton>
+                      </Button>
                     </ZoruPopoverTrigger>
                     <ZoruPopoverContent className="w-80 space-y-3 text-sm">
                       <div>
@@ -479,7 +479,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                           ))}
                         </div>
                       </div>
-                      <ZoruSeparator />
+                      <Separator />
                       <div>
                         <div className="mb-1 font-medium">Conditional block</div>
                         <button
@@ -494,10 +494,10 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         </button>
                       </div>
                     </ZoruPopoverContent>
-                  </ZoruPopover>
+                  </Popover>
                 </div>
                 <div className="relative">
-                  <ZoruTextarea
+                  <Textarea
                     id={`tpl-body-${activeLocale}`}
                     ref={textareaRef}
                     rows={8}
@@ -532,10 +532,10 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 onApplyTranslation={(locale, body) => setBodyForLocale(locale, body)}
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Variable defaults */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Variable defaults</ZoruCardTitle>
               <ZoruCardDescription>
@@ -558,7 +558,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   key={v.name + i}
                   className="grid grid-cols-[1fr_1.5fr_auto] items-center gap-2"
                 >
-                  <ZoruInput
+                  <Input
                     value={v.name}
                     onChange={(e) =>
                       setVm((p) => {
@@ -569,7 +569,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     }
                     className="font-mono text-xs"
                   />
-                  <ZoruInput
+                  <Input
                     value={v.defaultValue}
                     onChange={(e) =>
                       setVm((p) => {
@@ -581,7 +581,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     placeholder="default value"
                     className="text-xs"
                   />
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="icon"
                     onClick={() =>
@@ -595,10 +595,10 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     aria-label={`Remove ${v.name}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                  </ZoruButton>
+                  </Button>
                 </div>
               ))}
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() =>
@@ -613,13 +613,13 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               >
                 <Plus className="mr-1 h-3.5 w-3.5" />
                 Add variable
-              </ZoruButton>
+              </Button>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Carrier-registration forms */}
           <div className="grid gap-6 lg:grid-cols-2">
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>India DLT</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -667,8 +667,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   }
                 />
                 <div className="space-y-1.5">
-                  <ZoruLabel>Content category</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Content category</Label>
+                  <Select
                     value={vm.metadata.dlt.contentCategory}
                     onValueChange={(v) =>
                       setVm((p) => ({
@@ -697,12 +697,12 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         Service — explicit
                       </ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>US 10DLC</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -737,8 +737,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   }
                 />
                 <div className="space-y-1.5">
-                  <ZoruLabel>Use case</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Use case</Label>
+                  <Select
                     value={vm.metadata.tendlc.useCase}
                     onValueChange={(v) =>
                       setVm((p) => ({
@@ -770,11 +770,11 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         Delivery notification
                       </ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel>Sample messages</ZoruLabel>
-                  <ZoruTextarea
+                  <Label>Sample messages</Label>
+                  <Textarea
                     rows={3}
                     value={vm.metadata.tendlc.sampleMessages.join("\n")}
                     onChange={(e) =>
@@ -794,11 +794,11 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   />
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </div>
 
           {/* Per-template settings */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Send-time policy</ZoruCardTitle>
               <ZoruCardDescription>
@@ -835,10 +835,10 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 }
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Approval */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Approval</ZoruCardTitle>
               <ZoruCardDescription>
@@ -846,8 +846,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               </ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-3">
-              <ZoruLabel htmlFor="reviewer-notes">Reviewer notes</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="reviewer-notes">Reviewer notes</Label>
+              <Textarea
                 id="reviewer-notes"
                 rows={3}
                 value={reviewerNotes}
@@ -855,35 +855,35 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 placeholder="Why this template, what changed, links to spec…"
               />
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <ZoruButton
+                <Button
                   variant="outline"
                   onClick={handleSubmitForApproval}
                   disabled={pending}
                 >
                   <ShieldCheck className="mr-1.5 h-4 w-4" />
                   Submit for approval
-                </ZoruButton>
+                </Button>
                 {vm.status === "submitted" && (
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     onClick={handleWithdraw}
                     disabled={pending}
                   >
                     Withdraw
-                  </ZoruButton>
+                  </Button>
                 )}
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                   <Link href="/sabsms/templates/approvals">
                     Reviewer inbox
                   </Link>
-                </ZoruButton>
+                </Button>
                 <p className="text-[11px] text-slate-500">
                   TODO: <code>/sabsms/templates/approvals</code> ships
                   with Phase 11.
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
 
         {/* ── Right column — preview + toolbar ──────────────────────── */}
@@ -899,43 +899,43 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
 
             <div className="rounded border border-slate-200 bg-white p-3 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton onClick={handleSave} disabled={pending}>
+                <Button onClick={handleSave} disabled={pending}>
                   <Save className="mr-1.5 h-4 w-4" />
                   {pending ? "Saving…" : "Save draft"}
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   onClick={handlePublish}
                   disabled={pending}
                 >
                   <SendHorizontal className="mr-1.5 h-4 w-4" />
                   Publish
-                </ZoruButton>
+                </Button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSampleOpen(true)}
                 >
                   <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
                   Test with contact
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={openDiff}
                 >
                   <GitCompareArrows className="mr-1.5 h-3.5 w-3.5" />
                   Diff vs published
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setPiiOpen(true)}
                 >
                   PII scrub preview
-                </ZoruButton>
+                </Button>
                 <SabsmsKbdHint
                   shortcuts={[
                     { keys: ["Cmd", "S"], description: "Save draft" },
@@ -960,7 +960,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
       </div>
 
       {/* ── Test with contact dialog (#8) ─────────────────────────── */}
-      <ZoruDialog open={sampleOpen} onOpenChange={setSampleOpen}>
+      <Dialog open={sampleOpen} onOpenChange={setSampleOpen}>
         <ZoruDialogContent className="max-w-md">
           <ZoruDialogHeader>
             <ZoruDialogTitle>Test with a sample contact</ZoruDialogTitle>
@@ -977,8 +977,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
             )}
             {detectedVars.map((v) => (
               <div key={v} className="space-y-1">
-                <ZoruLabel htmlFor={`sample-${v}`}>{v}</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor={`sample-${v}`}>{v}</Label>
+                <Input
                   id={`sample-${v}`}
                   value={sampleVars[v] ?? ""}
                   onChange={(e) =>
@@ -989,7 +989,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
             ))}
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Diff drawer (#18) ─────────────────────────────────────── */}
       <SabsmsDetailDrawer
@@ -1074,8 +1074,8 @@ function DltField({
 }) {
   return (
     <div className="space-y-1.5">
-      <ZoruLabel>{label}</ZoruLabel>
-      <ZoruInput
+      <Label>{label}</Label>
+      <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="font-mono text-xs"
@@ -1097,7 +1097,7 @@ function PolicyRow({
 }) {
   return (
     <label className="flex items-start gap-3 cursor-pointer">
-      <ZoruSwitch checked={checked} onCheckedChange={onChange} />
+      <Switch checked={checked} onCheckedChange={onChange} />
       <div className="flex-1">
         <div className="text-sm font-medium text-slate-800">{title}</div>
         <div className="text-xs text-slate-500">{desc}</div>

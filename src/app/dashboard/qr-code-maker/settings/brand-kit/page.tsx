@@ -98,12 +98,12 @@ export default function BrandKitPage() {
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
       <div>
-        <ZoruButton variant="ghost" asChild className="mb-2 -ml-4">
+        <Button variant="ghost" asChild className="mb-2 -ml-4">
           <Link href="/dashboard/qr-code-maker/settings">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Settings
           </Link>
-        </ZoruButton>
+        </Button>
         <h1 className="text-3xl text-zoru-ink">Brand Kit</h1>
         <p className="text-zoru-ink-muted mt-1">Save your colors and logo as reusable presets.</p>
       </div>
@@ -111,15 +111,15 @@ export default function BrandKitPage() {
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{kits.length} / {MAX_KITS} kits saved</p>
         {!showForm && kits.length < MAX_KITS && (
-          <ZoruButton onClick={() => { setShowForm(true); setFormError(''); }} size="sm">
+          <Button onClick={() => { setShowForm(true); setFormError(''); }} size="sm">
             <Plus className="h-4 w-4 mr-2" />
             Add Brand Kit
-          </ZoruButton>
+          </Button>
         )}
       </div>
 
       {showForm && (
-        <ZoruCard className="border-purple-200 ring-1 ring-purple-100">
+        <Card className="border-purple-200 ring-1 ring-purple-100">
           <ZoruCardHeader>
             <ZoruCardTitle className="flex items-center gap-2 text-base">
               <Palette className="h-4 w-4 text-purple-600" />
@@ -128,8 +128,8 @@ export default function BrandKitPage() {
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-4">
             <div className="space-y-2">
-              <ZoruLabel>Kit Name <span className="text-red-500">*</span></ZoruLabel>
-              <ZoruInput
+              <Label>Kit Name <span className="text-red-500">*</span></Label>
+              <Input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Corporate Blue"
@@ -138,7 +138,7 @@ export default function BrandKitPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <ZoruLabel>Primary Color</ZoruLabel>
+                <Label>Primary Color</Label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
@@ -146,7 +146,7 @@ export default function BrandKitPage() {
                     onChange={e => setForm(f => ({ ...f, primaryColor: e.target.value }))}
                     className="w-10 h-10 rounded border cursor-pointer p-0.5"
                   />
-                  <ZoruInput
+                  <Input
                     value={form.primaryColor}
                     onChange={e => setForm(f => ({ ...f, primaryColor: e.target.value }))}
                     className="font-mono text-sm"
@@ -155,7 +155,7 @@ export default function BrandKitPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <ZoruLabel>Background Color</ZoruLabel>
+                <Label>Background Color</Label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
@@ -163,7 +163,7 @@ export default function BrandKitPage() {
                     onChange={e => setForm(f => ({ ...f, bgColor: e.target.value }))}
                     className="w-10 h-10 rounded border cursor-pointer p-0.5"
                   />
-                  <ZoruInput
+                  <Input
                     value={form.bgColor}
                     onChange={e => setForm(f => ({ ...f, bgColor: e.target.value }))}
                     className="font-mono text-sm"
@@ -173,7 +173,7 @@ export default function BrandKitPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <ZoruLabel>Logo</ZoruLabel>
+              <Label>Logo</Label>
               <div className="flex items-center gap-3">
                 {form.logoUrl && (
                   <div className="w-12 h-12 border rounded-lg overflow-hidden flex items-center justify-center bg-slate-50">
@@ -187,9 +187,9 @@ export default function BrandKitPage() {
                   {form.logoUrl ? 'Change Logo' : 'Choose Logo'}
                 </SabFilePickerButton>
                 {form.logoUrl && (
-                  <ZoruButton variant="ghost" size="sm" onClick={() => setForm(f => ({ ...f, logoUrl: undefined }))}>
+                  <Button variant="ghost" size="sm" onClick={() => setForm(f => ({ ...f, logoUrl: undefined }))}>
                     Remove
-                  </ZoruButton>
+                  </Button>
                 )}
               </div>
             </div>
@@ -197,11 +197,11 @@ export default function BrandKitPage() {
               <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-2">{formError}</p>
             )}
             <div className="flex gap-2 pt-2">
-              <ZoruButton onClick={handleAdd}>Save Kit</ZoruButton>
-              <ZoruButton variant="ghost" onClick={() => { setShowForm(false); setForm(defaultForm()); setFormError(''); }}>Cancel</ZoruButton>
+              <Button onClick={handleAdd}>Save Kit</Button>
+              <Button variant="ghost" onClick={() => { setShowForm(false); setForm(defaultForm()); setFormError(''); }}>Cancel</Button>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {kits.length === 0 && !showForm && (
@@ -214,7 +214,7 @@ export default function BrandKitPage() {
 
       <div className="space-y-3">
         {kits.map(kit => (
-          <ZoruCard key={kit.id} className="border hover:shadow-sm transition-shadow">
+          <Card key={kit.id} className="border hover:shadow-sm transition-shadow">
             <ZoruCardContent className="flex items-center gap-4 py-4">
               <div className="flex gap-2 shrink-0">
                 <div
@@ -238,15 +238,15 @@ export default function BrandKitPage() {
                 <p className="text-xs text-muted-foreground font-mono">{kit.primaryColor} · {kit.bgColor}</p>
               </div>
               <div className="flex gap-2 shrink-0">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleApply(kit)}
                   className={cn(copied === kit.id && "border-green-500 text-green-700")}
                 >
                   {copied === kit.id ? 'Copied!' : 'Apply'}
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(kit.id)}
@@ -254,10 +254,10 @@ export default function BrandKitPage() {
                   aria-label={`Delete ${kit.name}`}
                 >
                   <Trash2 className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     </div>

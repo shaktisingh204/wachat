@@ -70,36 +70,36 @@ export default async function BatchDetailPage({
             title={batch.batchNumber}
             back={{ href: BASE, label: 'Batch & expiry' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${id}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" /> Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Expiry alert */}
             {expired ? (
-                <ZoruCard className="flex items-center gap-3 border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
+                <Card className="flex items-center gap-3 border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
                     <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-300" />
                     <div className="text-[13px] text-red-700 dark:text-red-200">
                         This batch expired {Math.abs(days!)} day
                         {Math.abs(days!) === 1 ? '' : 's'} ago. Quarantine remaining
                         stock immediately.
                     </div>
-                </ZoruCard>
+                </Card>
             ) : soon ? (
-                <ZoruCard className="flex items-center gap-3 border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
+                <Card className="flex items-center gap-3 border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
                     <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-300" />
                     <div className="text-[13px] text-amber-700 dark:text-amber-200">
                         Expires in {days} day{days === 1 ? '' : 's'}. Plan rotation
                         or markdown.
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
@@ -176,7 +176,7 @@ export default async function BatchDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

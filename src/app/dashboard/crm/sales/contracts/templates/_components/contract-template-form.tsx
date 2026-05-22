@@ -26,7 +26,7 @@ import { ArrowLeft,
  * <ContractTemplateForm /> — create + edit form for CRM Contract Templates.
  *
  * Posts to `saveContractTemplate` via `useActionState`. The body is a plain
- * `<ZoruTextarea>` (markdown, no WYSIWYG) so the template author can paste
+ * `<Textarea>` (markdown, no WYSIWYG) so the template author can paste
  * `{{variable}}` placeholders directly.
  */
 
@@ -66,14 +66,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create template'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -122,7 +122,7 @@ export function ContractTemplateForm({
     const variablesInitial = (initialData?.variables ?? []).join(', ');
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -137,10 +137,10 @@ export function ContractTemplateForm({
                 {/* Row 1: Name + Type */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">
+                        <Label htmlFor="name">
                             Name <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -149,7 +149,7 @@ export function ContractTemplateForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Type</ZoruLabel>
+                        <Label>Type</Label>
                         <EnumFormField
                             enumName="contractTemplateType"
                             name="__type_picker"
@@ -162,8 +162,8 @@ export function ContractTemplateForm({
 
                 {/* Row 2: Body (markdown textarea, not WYSIWYG) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="body">Body (markdown)</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="body">Body (markdown)</Label>
+                    <Textarea
                         id="body"
                         name="body"
                         rows={14}
@@ -176,10 +176,10 @@ export function ContractTemplateForm({
                 {/* Row 3: Default term months + Default auto-renew */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="defaultTermMonths">
+                        <Label htmlFor="defaultTermMonths">
                             Default term (months)
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="defaultTermMonths"
                             name="defaultTermMonths"
                             type="number"
@@ -190,26 +190,26 @@ export function ContractTemplateForm({
                         />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="defaultAutoRenew"
                             name="defaultAutoRenew"
                             defaultChecked={!!initialData?.defaultAutoRenew}
                         />
-                        <ZoruLabel
+                        <Label
                             htmlFor="defaultAutoRenew"
                             className="cursor-pointer"
                         >
                             Default auto-renew on
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 {/* Row 4: Variables */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="variables">
+                    <Label htmlFor="variables">
                         Variables (comma-separated)
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         id="variables"
                         name="variables"
                         placeholder="e.g. party_a, party_b, start_date, fee"
@@ -224,7 +224,7 @@ export function ContractTemplateForm({
                 {/* Row 5: Status + Active */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="contractTemplateStatus"
                             name="__status_picker"
@@ -233,31 +233,31 @@ export function ContractTemplateForm({
                         />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isActive"
                             name="isActive"
                             defaultChecked={initialData?.isActive !== false}
                         />
-                        <ZoruLabel
+                        <Label
                             htmlFor="isActive"
                             className="cursor-pointer"
                         >
                             Available for selection
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to templates
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

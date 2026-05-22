@@ -107,9 +107,9 @@ export function PairingFlow({
       <div className="flex items-center gap-2">
         <StatusBadge status={badgeStatus} />
         {stream.error ? (
-          <ZoruBadge variant="danger" className="text-[10.5px]">
+          <Badge variant="danger" className="text-[10.5px]">
             {stream.error}
-          </ZoruBadge>
+          </Badge>
         ) : null}
       </div>
 
@@ -144,7 +144,7 @@ export function PairingFlow({
           <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
             <span>QR refreshes in {secondsLeft}s</span>
             {onRefresh && (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -153,7 +153,7 @@ export function PairingFlow({
               >
                 <RefreshCw />
                 <span>Refresh now</span>
-              </ZoruButton>
+              </Button>
             )}
           </div>
         </div>
@@ -179,7 +179,7 @@ export function PairingFlow({
       )}
 
       {onModeChange ? (
-        <ZoruButton
+        <Button
           type="button"
           variant="link"
           size="sm"
@@ -187,7 +187,7 @@ export function PairingFlow({
           onClick={() => onModeChange(mode === 'qr' ? 'code' : 'qr')}
         >
           {mode === 'qr' ? 'Use pair code instead' : 'Use QR code instead'}
-        </ZoruButton>
+        </Button>
       ) : null}
     </div>
   );

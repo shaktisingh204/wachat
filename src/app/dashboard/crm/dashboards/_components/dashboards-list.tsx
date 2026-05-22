@@ -68,7 +68,7 @@ function KpiCard({
     value: number | string;
 }) {
     return (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
             <div className="flex items-center gap-2 text-zoru-ink-muted">
                 {icon}
                 <p className="text-[12.5px] font-medium">{label}</p>
@@ -76,7 +76,7 @@ function KpiCard({
             <div className="mt-2 text-[22px] font-semibold text-zoru-ink">
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -109,10 +109,10 @@ export function DashboardsList({
             subtitle="Build your own dashboards with the metrics that matter to your team."
             primaryAction={
                 <Link href="/dashboard/crm/dashboards/new">
-                    <ZoruButton variant="outline">
+                    <Button variant="outline">
                         <Plus className="h-4 w-4" strokeWidth={1.75} />
                         New dashboard
-                    </ZoruButton>
+                    </Button>
                 </Link>
             }
         >
@@ -140,7 +140,7 @@ export function DashboardsList({
                 />
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h2 className="text-[16px] text-zoru-ink">All dashboards</h2>
@@ -150,7 +150,7 @@ export function DashboardsList({
                     </div>
                     <div className="relative w-64">
                         <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-                        <ZoruInput
+                        <Input
                             placeholder="Search by title or owner…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -159,7 +159,7 @@ export function DashboardsList({
                     </div>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
@@ -217,9 +217,9 @@ export function DashboardsList({
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

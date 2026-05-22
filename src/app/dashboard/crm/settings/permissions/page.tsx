@@ -300,7 +300,7 @@ export default function PermissionsPage() {
       title="Permissions"
       subtitle="Granular access keys grouped by module. Assign to roles to grant capability."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -308,7 +308,7 @@ export default function PermissionsPage() {
         >
           <Plus className="h-4 w-4" />
           Add Permission
-        </ZoruButton>
+        </Button>
       }
       search={{
         value: search,
@@ -318,10 +318,10 @@ export default function PermissionsPage() {
       filters={
         <>
           <div className="flex items-center gap-2">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               Module
-            </ZoruLabel>
-            <ZoruSelect
+            </Label>
+            <Select
               value={moduleFilter}
               onValueChange={(v) => {
                 setModuleFilter(v);
@@ -340,10 +340,10 @@ export default function PermissionsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           {(['all', 'custom', 'builtin'] as FilterKind[]).map((k) => (
-            <ZoruButton
+            <Button
               key={k}
               variant={kindFilter === k ? 'default' : 'outline'}
               size="sm"
@@ -353,7 +353,7 @@ export default function PermissionsPage() {
               }}
             >
               {k === 'all' ? 'All' : k === 'custom' ? 'Custom' : 'Built-in'}
-            </ZoruButton>
+            </Button>
           ))}
         </>
       }
@@ -364,7 +364,7 @@ export default function PermissionsPage() {
               {selected.size} selected
             </span>
             <span className="text-zoru-ink-muted">·</span>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
@@ -372,32 +372,32 @@ export default function PermissionsPage() {
             >
               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
               Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('csv')}
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('xlsx')}
             >
               <FileSpreadsheet className="h-3.5 w-3.5" />
               Export XLSX
-            </ZoruButton>
+            </Button>
             <span className="ml-auto" />
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelected(new Set())}
             >
               <X className="h-3.5 w-3.5" />
               Clear
-            </ZoruButton>
+            </Button>
           </div>
         ) : null
       }
@@ -405,17 +405,17 @@ export default function PermissionsPage() {
     >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Total permissions"
             value={kpis.total}
             icon={<KeyRound className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Granted to roles"
             value={kpis.granted_role_count}
             icon={<Users className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Top role"
             value={kpis.top_role ? kpis.top_role.name : '—'}
             period={
@@ -425,20 +425,20 @@ export default function PermissionsPage() {
             }
             icon={<Crown className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Last updated"
             value={formatRelative(kpis.last_updated_at)}
             icon={<Clock className="h-4 w-4" />}
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="w-[40px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
@@ -484,7 +484,7 @@ export default function PermissionsPage() {
                   pageRows.map((p) => (
                     <ZoruTableRow key={p._id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(p._id)}
                           onCheckedChange={() => toggleOne(p._id)}
                           aria-label={`Select ${p.name}`}
@@ -523,7 +523,7 @@ export default function PermissionsPage() {
                               <div>{p.is_custom ? 'Custom' : 'Built-in'}</div>
                             </div>
                             <div className="pt-2">
-                              <ZoruButton
+                              <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
@@ -533,7 +533,7 @@ export default function PermissionsPage() {
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                                 Edit
-                              </ZoruButton>
+                              </Button>
                             </div>
                           </div>
                         </RowDrawer>
@@ -545,13 +545,13 @@ export default function PermissionsPage() {
                         {p.module_name}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={p.is_custom ? 'success' : 'ghost'}>
+                        <Badge variant={p.is_custom ? 'success' : 'ghost'}>
                           {p.is_custom ? 'Custom' : 'Built-in'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
@@ -561,22 +561,22 @@ export default function PermissionsPage() {
                             aria-label="Edit"
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setDeletingId(p._id)}
                             aria-label="Delete"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
           <PaginationBar
             page={page}
@@ -590,10 +590,10 @@ export default function PermissionsPage() {
               },
             }}
           />
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
             <ZoruDialogTitle>
@@ -610,10 +610,10 @@ export default function PermissionsPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <ZoruLabel htmlFor="display_name">
+              <Label htmlFor="display_name">
                 Display name <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="display_name"
                 name="display_name"
                 required
@@ -621,8 +621,8 @@ export default function PermissionsPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="name">Slug</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="name">Slug</Label>
+              <Input
                 id="name"
                 name="name"
                 defaultValue={editing?.name || ''}
@@ -630,7 +630,7 @@ export default function PermissionsPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="module_id">Module</ZoruLabel>
+              <Label htmlFor="module_id">Module</Label>
               <select
                 id="module_id"
                 name="module_id"
@@ -646,8 +646,8 @@ export default function PermissionsPage() {
               </select>
             </div>
             <div>
-              <ZoruLabel htmlFor="description">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="description">Description</Label>
+              <Textarea
                 id="description"
                 name="description"
                 rows={3}
@@ -663,29 +663,29 @@ export default function PermissionsPage() {
                 defaultChecked={!!editing?.is_custom}
                 className="h-4 w-4 accent-zoru-ink"
               />
-              <ZoruLabel htmlFor="is_custom" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="is_custom" className="text-[13px] text-zoru-ink">
                 Custom (user-defined)
-              </ZoruLabel>
+              </Label>
             </div>
 
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingId !== null}

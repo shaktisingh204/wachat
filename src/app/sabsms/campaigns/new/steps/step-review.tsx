@@ -189,7 +189,7 @@ export function StepReview({
   return (
     <div className="space-y-5">
       {issues.length > 0 && (
-        <ZoruCard className="border-rose-300 bg-rose-50">
+        <Card className="border-rose-300 bg-rose-50">
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base text-rose-700">
               {issues.length} issue{issues.length === 1 ? "" : "s"} blocking launch
@@ -206,22 +206,22 @@ export function StepReview({
                     <code className="mr-2 text-xs">{i.step}</code>
                     {i.message}
                   </span>
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => onJump(i.step)}
                   >
                     Jump
-                  </ZoruButton>
+                  </Button>
                 </li>
               ))}
             </ul>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">
             Page-7 feature checklist
@@ -239,7 +239,7 @@ export function StepReview({
                 className="flex items-center justify-between gap-3 py-2 text-sm"
               >
                 <div className="flex items-center gap-3">
-                  <ZoruBadge variant="outline">{it.index}</ZoruBadge>
+                  <Badge variant="outline">{it.index}</Badge>
                   <span className="font-medium text-slate-700">
                     {it.label}
                   </span>
@@ -248,20 +248,20 @@ export function StepReview({
                   <span className="max-w-xs truncate text-right text-xs text-slate-500">
                     {it.value}
                   </span>
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => onJump(it.step)}
                   >
                     Edit
-                  </ZoruButton>
+                  </Button>
                 </div>
               </li>
             ))}
           </ul>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

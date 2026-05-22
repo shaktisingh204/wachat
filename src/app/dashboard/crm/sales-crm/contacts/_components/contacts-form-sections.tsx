@@ -84,7 +84,7 @@ export function PersonalSection({
 }: PersonalSectionProps) {
     const anyInitial = initial as unknown as Record<string, string | undefined>;
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <ZoruCardHeader>
                 <ZoruCardTitle>Personal</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -93,8 +93,8 @@ export function PersonalSection({
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="firstName">First name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="firstName">First name *</Label>
+                    <Input
                         id="firstName"
                         value={firstName}
                         onChange={(e) => {
@@ -106,8 +106,8 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="lastName">Last name</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input
                         id="lastName"
                         value={lastName}
                         onChange={(e) => {
@@ -118,7 +118,7 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="salutation">Salutation</ZoruLabel>
+                    <Label htmlFor="salutation">Salutation</Label>
                     <EntityFormField
                         entity="salutation"
                         name="salutation"
@@ -131,8 +131,8 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="displayName">Display name</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="displayName">Display name</Label>
+                    <Input
                         id="displayName"
                         value={displayName}
                         onChange={(e) => {
@@ -143,7 +143,7 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="jobTitleField">Job title</ZoruLabel>
+                    <Label htmlFor="jobTitleField">Job title</Label>
                     <EntityFormField
                         entity="jobTitle"
                         name="jobTitleField"
@@ -156,8 +156,8 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="email">Email *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
                         id="email"
                         name="email"
                         type="email"
@@ -167,8 +167,8 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
                         id="phone"
                         name="phone"
                         defaultValue={initial?.phone ?? prefillPhone ?? ''}
@@ -176,8 +176,8 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="mobile">Mobile</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="mobile">Mobile</Label>
+                    <Input
                         id="mobile"
                         name="mobile"
                         defaultValue={anyInitial?.mobile ?? ''}
@@ -185,8 +185,8 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel>Date of birth</ZoruLabel>
-                    <ZoruDatePicker
+                    <Label>Date of birth</Label>
+                    <DatePicker
                         value={dob}
                         onChange={(d) => {
                             setDob(d);
@@ -196,7 +196,7 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="timezoneField">Timezone</ZoruLabel>
+                    <Label htmlFor="timezoneField">Timezone</Label>
                     <EntityFormField
                         entity="timezone"
                         name="timezoneField"
@@ -209,7 +209,7 @@ export function PersonalSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="language">Language</ZoruLabel>
+                    <Label htmlFor="language">Language</Label>
                     <EntityFormField
                         entity="language"
                         name="language"
@@ -222,7 +222,7 @@ export function PersonalSection({
                     />
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -262,7 +262,7 @@ export function LinkedSection({
     prefillCompany,
 }: LinkedSectionProps) {
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <ZoruCardHeader>
                 <ZoruCardTitle>Linked</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -271,7 +271,7 @@ export function LinkedSection({
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="accountField">Account</ZoruLabel>
+                    <Label htmlFor="accountField">Account</Label>
                     <EntityFormField
                         entity="client"
                         name="accountField"
@@ -284,7 +284,7 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="ownerField">Owner</ZoruLabel>
+                    <Label htmlFor="ownerField">Owner</Label>
                     <EntityFormField
                         entity="user"
                         name="ownerField"
@@ -297,7 +297,7 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel>Status</ZoruLabel>
+                    <Label>Status</Label>
                     <EnumFormField
                         enumName="contactStatus"
                         name="status"
@@ -309,7 +309,7 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel>Lifecycle stage</ZoruLabel>
+                    <Label>Lifecycle stage</Label>
                     <EnumFormField
                         enumName="lifecycleStage"
                         name="lifecycleStage"
@@ -322,7 +322,7 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="leadSourceField">Lead source</ZoruLabel>
+                    <Label htmlFor="leadSourceField">Lead source</Label>
                     <EntityFormField
                         entity="leadSource"
                         name="leadSourceField"
@@ -335,8 +335,8 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="sourceText">Source detail</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="sourceText">Source detail</Label>
+                    <Input
                         id="sourceText"
                         value={source}
                         onChange={(e) => {
@@ -347,8 +347,8 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="company">Company (free text)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="company">Company (free text)</Label>
+                    <Input
                         id="company"
                         name="company"
                         defaultValue={initial?.company ?? prefillCompany ?? ''}
@@ -356,8 +356,8 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="leadScore">Lead score</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="leadScore">Lead score</Label>
+                    <Input
                         id="leadScore"
                         name="leadScore"
                         type="number"
@@ -369,7 +369,7 @@ export function LinkedSection({
                     />
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -394,7 +394,7 @@ export function AddressSection({
     setCity,
 }: AddressSectionProps) {
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <ZoruCardHeader>
                 <ZoruCardTitle>Address</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -403,7 +403,7 @@ export function AddressSection({
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="country">Country</ZoruLabel>
+                    <Label htmlFor="country">Country</Label>
                     <EntityFormField
                         entity="country"
                         name="country"
@@ -417,7 +417,7 @@ export function AddressSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="state">State</ZoruLabel>
+                    <Label htmlFor="state">State</Label>
                     <EntityFormField
                         entity="state"
                         name="state"
@@ -432,7 +432,7 @@ export function AddressSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="city">City</ZoruLabel>
+                    <Label htmlFor="city">City</Label>
                     <EntityFormField
                         entity="city"
                         name="city"
@@ -452,7 +452,7 @@ export function AddressSection({
                     />
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -463,7 +463,7 @@ interface SocialSectionProps extends BaseSectionProps {}
 export function SocialSection({ initial }: SocialSectionProps) {
     const anyInitial = initial as unknown as Record<string, string | undefined>;
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <ZoruCardHeader>
                 <ZoruCardTitle>Social</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -472,8 +472,8 @@ export function SocialSection({ initial }: SocialSectionProps) {
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="linkedinUrl">LinkedIn URL</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
+                    <Input
                         id="linkedinUrl"
                         name="linkedinUrl"
                         type="url"
@@ -482,8 +482,8 @@ export function SocialSection({ initial }: SocialSectionProps) {
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="twitterHandle">Twitter / X handle</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="twitterHandle">Twitter / X handle</Label>
+                    <Input
                         id="twitterHandle"
                         name="twitterHandle"
                         defaultValue={initial?.twitterHandle ?? ''}
@@ -491,8 +491,8 @@ export function SocialSection({ initial }: SocialSectionProps) {
                     />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                    <ZoruLabel htmlFor="website">Website</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="website">Website</Label>
+                    <Input
                         id="website"
                         name="website"
                         type="url"
@@ -501,14 +501,14 @@ export function SocialSection({ initial }: SocialSectionProps) {
                     />
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
 export function NotesTagsSection({ initial }: BaseSectionProps) {
     const anyInitial = initial as unknown as Record<string, string | undefined>;
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <ZoruCardHeader>
                 <ZoruCardTitle>Notes &amp; tags</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -517,8 +517,8 @@ export function NotesTagsSection({ initial }: BaseSectionProps) {
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="tags">Tags</Label>
+                    <Input
                         id="tags"
                         name="tags"
                         defaultValue={
@@ -530,8 +530,8 @@ export function NotesTagsSection({ initial }: BaseSectionProps) {
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={4}
@@ -543,6 +543,6 @@ export function NotesTagsSection({ initial }: BaseSectionProps) {
                         inline composer here writes free text only. */}
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

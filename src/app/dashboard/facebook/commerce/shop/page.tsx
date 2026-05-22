@@ -196,7 +196,7 @@ export default function CommerceShopPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Store />}
           title="No project selected"
           description="Pick a project to view its commerce shop."
@@ -207,7 +207,7 @@ export default function CommerceShopPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -227,7 +227,7 @@ export default function CommerceShopPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Shop</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -237,25 +237,25 @@ export default function CommerceShopPage(): React.JSX.Element {
             account.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+        <Button variant="ghost" onClick={refresh} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load shop data</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {/* ── Merchant settings card ── */}
       {loading && !settings ? (
-        <ZoruSkeleton className="h-28 w-full" />
+        <Skeleton className="h-28 w-full" />
       ) : (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-md bg-zoru-surface-2 text-zoru-ink-muted">
               <Store className="h-5 w-5" />
@@ -291,7 +291,7 @@ export default function CommerceShopPage(): React.JSX.Element {
               <p className="text-zoru-ink">{orders.length}</p>
             </div>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* ── Recent orders ── */}
@@ -302,18 +302,18 @@ export default function CommerceShopPage(): React.JSX.Element {
 
         {loading && orders.length === 0 ? (
           <div className="flex flex-col gap-2">
-            <ZoruSkeleton className="h-12 w-full" />
-            <ZoruSkeleton className="h-12 w-full" />
-            <ZoruSkeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
           </div>
         ) : orders.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<PackageCheck />}
             title="No recent orders"
             description="When buyers place orders through your Meta Commerce shop, they'll appear here."
           />
         ) : (
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-zoru-surface-2 text-left text-xs uppercase tracking-wide text-zoru-ink-subtle">
@@ -345,27 +345,27 @@ export default function CommerceShopPage(): React.JSX.Element {
                           '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <ZoruBadge
+                        <Badge
                           variant={statusVariant(o.order_status?.state)}
                           className="capitalize"
                         >
                           {o.order_status?.state?.replace(/_/g, ' ').toLowerCase() ??
                             '—'}
-                        </ZoruBadge>
+                        </Badge>
                       </td>
                       <td className="px-4 py-3 text-zoru-ink-muted">
                         <span title={safeDate(o.created)}>{safeWhen(o.created)}</span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                           <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="icon-sm"
                               aria-label="Order actions"
                             >
                               <MoreHorizontal className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                           </ZoruDropdownMenuTrigger>
                           <ZoruDropdownMenuContent align="end">
                             <ZoruDropdownMenuItem onSelect={() => openAction('fulfill', o)}>
@@ -381,14 +381,14 @@ export default function CommerceShopPage(): React.JSX.Element {
                               <XCircle className="mr-2 h-4 w-4" /> Cancel
                             </ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </ZoruCard>
+          </Card>
         )}
       </section>
 
@@ -416,8 +416,8 @@ export default function CommerceShopPage(): React.JSX.Element {
           {pendingAction?.type === 'fulfill' ? (
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="ord-carrier">Carrier</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="ord-carrier">Carrier</Label>
+                <Input
                   id="ord-carrier"
                   value={carrier}
                   onChange={(e) => setCarrier(e.target.value)}
@@ -425,8 +425,8 @@ export default function CommerceShopPage(): React.JSX.Element {
                 />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="ord-tracking">Tracking number</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="ord-tracking">Tracking number</Label>
+                <Input
                   id="ord-tracking"
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
@@ -436,8 +436,8 @@ export default function CommerceShopPage(): React.JSX.Element {
             </div>
           ) : (
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="ord-reason">Reason (optional)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="ord-reason">Reason (optional)</Label>
+              <Input
                 id="ord-reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}

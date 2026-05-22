@@ -117,7 +117,7 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Compass />}
           title="No project selected"
           description="Pick a project with a connected Instagram account to use discovery."
@@ -128,7 +128,7 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -142,7 +142,7 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Discovery</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -151,14 +151,14 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
             Look up any public Instagram Business or Creator account by username.
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="ghost"
           onClick={() => onSearch(username)}
           disabled={loading || !username}
         >
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       <form
@@ -168,54 +168,54 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
           onSearch(username);
         }}
       >
-        <ZoruInput
+        <Input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="e.g. instagram"
           aria-label="Instagram username"
           className="max-w-md"
         />
-        <ZoruButton type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading}>
           <Search className="mr-2 h-4 w-4" />
           Discover
-        </ZoruButton>
+        </Button>
       </form>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Discovery failed</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {loading && !profile ? (
         <div className="flex flex-col gap-3">
-          <ZoruSkeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruSkeleton className="aspect-square w-full" />
-            <ZoruSkeleton className="aspect-square w-full" />
-            <ZoruSkeleton className="aspect-square w-full" />
-            <ZoruSkeleton className="aspect-square w-full" />
+            <Skeleton className="aspect-square w-full" />
+            <Skeleton className="aspect-square w-full" />
+            <Skeleton className="aspect-square w-full" />
+            <Skeleton className="aspect-square w-full" />
           </div>
         </div>
       ) : !profile ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Compass />}
           title="No discovery yet"
           description="Enter a username above to fetch their public profile and recent posts."
         />
       ) : (
         <>
-          <ZoruCard className="flex flex-col gap-4 p-5 md:flex-row md:items-start">
-            <ZoruAvatar className="h-20 w-20">
+          <Card className="flex flex-col gap-4 p-5 md:flex-row md:items-start">
+            <Avatar className="h-20 w-20">
               {profile.profile_picture_url ? (
                 <ZoruAvatarImage src={profile.profile_picture_url} alt="" />
               ) : null}
               <ZoruAvatarFallback>
                 <Users className="h-6 w-6" />
               </ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <div className="min-w-0 flex-1">
               <p className="text-lg text-zoru-ink">{profile.name || profile.username}</p>
               <p className="text-sm text-zoru-ink-muted">@{profile.username}</p>
@@ -235,22 +235,22 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
                 </a>
               ) : null}
               <div className="mt-3 flex flex-wrap gap-2">
-                <ZoruBadge variant="outline">
+                <Badge variant="outline">
                   Followers · {formatNumber(profile.followers_count)}
-                </ZoruBadge>
-                <ZoruBadge variant="outline">
+                </Badge>
+                <Badge variant="outline">
                   Following · {formatNumber(profile.follows_count)}
-                </ZoruBadge>
-                <ZoruBadge variant="outline">
+                </Badge>
+                <Badge variant="outline">
                   Posts · {formatNumber(profile.media_count)}
-                </ZoruBadge>
+                </Badge>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
           <h2 className="mt-2 text-sm text-zoru-ink">Recent media</h2>
           {!profile.media?.data?.length ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<ImageIcon />}
               title="No recent media"
               description="This account has not published any public media recently."

@@ -117,15 +117,15 @@ export default function WeeklyTimesheetsPage() {
       subtitle="Track, submit, and approve weekly hour logs across your team."
       primaryAction={
         <Link href="/dashboard/hrm/payroll/weekly-timesheets/new">
-          <ZoruButton>
+          <Button>
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             New Timesheet
-          </ZoruButton>
+          </Button>
         </Link>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-[16px] text-zoru-ink">All Timesheets</h2>
@@ -168,28 +168,28 @@ export default function WeeklyTimesheetsPage() {
                     <td className="px-4 py-2.5 text-zoru-ink">{fmtDate(s.week_end_date)}</td>
                     <td className="px-4 py-2.5 font-mono text-zoru-ink">{fmtHours(s.total_hours, s.total_minutes)}</td>
                     <td className="px-4 py-2.5">
-                      <ZoruBadge variant={STATUS_VARIANT[s.status]}>{s.status}</ZoruBadge>
+                      <Badge variant={STATUS_VARIANT[s.status]}>{s.status}</Badge>
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/dashboard/hrm/payroll/weekly-timesheets/${s._id}`}>
-                          <ZoruButton variant="outline" size="sm" title="View detail">
+                          <Button variant="outline" size="sm" title="View detail">
                             <Eye className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                         </Link>
                         {s.status === 'draft' && (
-                          <ZoruButton variant="outline" size="sm" onClick={() => handleSubmit(s._id)} title="Submit for approval">
+                          <Button variant="outline" size="sm" onClick={() => handleSubmit(s._id)} title="Submit for approval">
                             <Send className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                         )}
                         {s.status === 'submitted' && (
                           <>
-                            <ZoruButton variant="outline" size="sm" onClick={() => handleApprove(s._id)} title="Approve">
+                            <Button variant="outline" size="sm" onClick={() => handleApprove(s._id)} title="Approve">
                               <Check className="h-3.5 w-3.5 text-emerald-500" />
-                            </ZoruButton>
-                            <ZoruButton variant="outline" size="sm" onClick={() => handleReject(s._id)} title="Reject">
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => handleReject(s._id)} title="Reject">
                               <X className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           </>
                         )}
                       </div>
@@ -200,7 +200,7 @@ export default function WeeklyTimesheetsPage() {
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

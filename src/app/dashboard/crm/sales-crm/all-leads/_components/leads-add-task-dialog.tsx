@@ -44,14 +44,14 @@ interface LeadsAddTaskDialogProps {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Plus className="h-4 w-4" />
             )}
             Create Task
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -87,7 +87,7 @@ export function LeadsAddTaskDialog({
     );
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-md">
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>Add task for this lead</ZoruDialogTitle>
@@ -104,8 +104,8 @@ export function LeadsAddTaskDialog({
                     <input type="hidden" name="linkedId" value={leadId} />
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="leadTaskTitle">Title</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="leadTaskTitle">Title</Label>
+                        <Input
                             id="leadTaskTitle"
                             name="title"
                             required
@@ -114,8 +114,8 @@ export function LeadsAddTaskDialog({
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="leadTaskDescription">Description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="leadTaskDescription">Description</Label>
+                        <Textarea
                             id="leadTaskDescription"
                             name="description"
                             rows={2}
@@ -125,15 +125,15 @@ export function LeadsAddTaskDialog({
 
                     <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor="leadTaskDue">Due date</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="leadTaskDue">Due date</Label>
+                            <Input
                                 id="leadTaskDue"
                                 type="date"
                                 name="dueDate"
                             />
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel>Priority</ZoruLabel>
+                            <Label>Priority</Label>
                             <EnumFormField
                                 enumName="priorityLegacy"
                                 name="priority"
@@ -143,7 +143,7 @@ export function LeadsAddTaskDialog({
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel>Assign to</ZoruLabel>
+                        <Label>Assign to</Label>
                         <EntityFormField
                             entity="user"
                             name="assignedTo"
@@ -152,19 +152,19 @@ export function LeadsAddTaskDialog({
                     </div>
 
                     <ZoruDialogFooter className="pt-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                             disabled={isPending}
                         >
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 

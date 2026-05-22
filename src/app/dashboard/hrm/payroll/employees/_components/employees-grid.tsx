@@ -51,7 +51,7 @@ export function EmployeesGrid({ rows, filtersActive }: EmployeesGridProps) {
         const id = emp._id;
         const name = fullName(emp);
         return (
-          <ZoruCard
+          <Card
             key={id}
             className="flex flex-col gap-3 p-4 transition hover:shadow-md"
           >
@@ -105,18 +105,18 @@ export function EmployeesGrid({ rows, filtersActive }: EmployeesGridProps) {
             </div>
 
             <div className="mt-auto flex items-center justify-end gap-1">
-              <ZoruButton size="sm" variant="ghost" asChild>
+              <Button size="sm" variant="ghost" asChild>
                 <Link href={`/dashboard/hrm/payroll/employees/${id}`}>
                   View
                 </Link>
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" asChild>
+              </Button>
+              <Button size="sm" variant="outline" asChild>
                 <Link href={`/dashboard/hrm/payroll/employees/${id}/edit`}>
                   Edit
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
         );
       })}
     </div>

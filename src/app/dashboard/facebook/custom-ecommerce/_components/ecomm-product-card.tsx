@@ -90,7 +90,7 @@ export function EcommProductCard({
   const inStock = stock > 0;
 
   return (
-    <ZoruCard className="flex flex-col overflow-hidden p-0">
+    <Card className="flex flex-col overflow-hidden p-0">
       <Wrapper>
         <ZoruCardHeader className="p-0">
           <div className="relative aspect-[4/5] bg-zoru-surface-2">
@@ -119,23 +119,23 @@ export function EcommProductCard({
                 currency,
               }).format(product.price)}
             </p>
-            <ZoruBadge variant={inStock ? "default" : "danger"}>
+            <Badge variant={inStock ? "default" : "danger"}>
               {inStock ? `${stock} in stock` : "Out of stock"}
-            </ZoruBadge>
+            </Badge>
           </div>
         </ZoruCardContent>
       </Wrapper>
       <ZoruCardFooter className="flex justify-end gap-2 border-t border-zoru-line p-4">
-        <ZoruButton variant="outline" size="sm" onClick={onEdit}>
+        <Button variant="outline" size="sm" onClick={onEdit}>
           <Edit />
           Edit
-        </ZoruButton>
+        </Button>
         <ZoruAlertDialog>
           <ZoruAlertDialogTrigger asChild>
-            <ZoruButton variant="destructive" size="sm">
+            <Button variant="destructive" size="sm">
               <Trash2 />
               Delete
-            </ZoruButton>
+            </Button>
           </ZoruAlertDialogTrigger>
           <ZoruAlertDialogContent>
             <ZoruAlertDialogHeader>
@@ -153,6 +153,6 @@ export function EcommProductCard({
           </ZoruAlertDialogContent>
         </ZoruAlertDialog>
       </ZoruCardFooter>
-    </ZoruCard>
+    </Card>
   );
 }

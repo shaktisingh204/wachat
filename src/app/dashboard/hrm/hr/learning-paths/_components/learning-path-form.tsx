@@ -74,14 +74,14 @@ const FORM_STATUS_OPTIONS = STATUS_OPTIONS.filter(
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create learning path'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -169,7 +169,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -183,8 +183,8 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -195,8 +195,8 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
 
                 {/* Row 2: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={4}
@@ -208,8 +208,8 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                 {/* Row 3: Audience + Duration */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="audience-trigger">Target audience</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="audience-trigger">Target audience</Label>
+                        <Select
                             value={audience}
                             onValueChange={(v) =>
                                 setAudience(v as CrmLearningPathAudience)
@@ -225,11 +225,11 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="durationWeeks">Duration (weeks)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="durationWeeks">Duration (weeks)</Label>
+                        <Input
                             id="durationWeeks"
                             name="durationWeeks"
                             type="number"
@@ -242,7 +242,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                 {/* Row 4: Trainings multi-pick */}
                 <div className="space-y-2">
                     <div className="flex items-baseline justify-between">
-                        <ZoruLabel>Trainings</ZoruLabel>
+                        <Label>Trainings</Label>
                         <span className="text-[11.5px] text-zoru-ink-muted">
                             {selectedTrainings.length} selected
                         </span>
@@ -260,7 +260,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
 
                     {/* Picker — single Select + Add button. */}
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect value={pickerValue} onValueChange={setPickerValue}>
+                        <Select value={pickerValue} onValueChange={setPickerValue}>
                             <ZoruSelectTrigger className="min-w-[260px] flex-1">
                                 <ZoruSelectValue
                                     placeholder={
@@ -279,8 +279,8 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruButton
+                        </Select>
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={addTraining}
@@ -288,7 +288,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
                             Add
-                        </ZoruButton>
+                        </Button>
                     </div>
 
                     {/* Chips list */}
@@ -300,7 +300,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                         <ul className="flex flex-wrap gap-2">
                             {selectedTrainings.map((id) => (
                                 <li key={id}>
-                                    <ZoruBadge
+                                    <Badge
                                         variant="ghost"
                                         className="flex items-center gap-1.5 pr-1"
                                     >
@@ -316,7 +316,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                         >
                                             <X className="h-3 w-3" />
                                         </button>
-                                    </ZoruBadge>
+                                    </Badge>
                                 </li>
                             ))}
                         </ul>
@@ -326,18 +326,18 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                 {/* Row 5: Mandatory + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isMandatory"
                             name="isMandatory"
                             defaultChecked={!!initialData?.isMandatory}
                         />
-                        <ZoruLabel htmlFor="isMandatory" className="cursor-pointer">
+                        <Label htmlFor="isMandatory" className="cursor-pointer">
                             Mandatory for the target audience
-                        </ZoruLabel>
+                        </Label>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) =>
                                 setStatus(v as CrmLearningPathStatus)
@@ -353,21 +353,21 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to learning paths
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

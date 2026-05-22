@@ -25,7 +25,7 @@ export default async function ApiKeysPage(): Promise<JSX.Element> {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
@@ -35,9 +35,9 @@ export default async function ApiKeysPage(): Promise<JSX.Element> {
             <ZoruBreadcrumbPage>API keys</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>API keys</ZoruPageTitle>
           <ZoruPageDescription>
@@ -45,13 +45,13 @@ export default async function ApiKeysPage(): Promise<JSX.Element> {
             passwords — they grant full programmatic access.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loadError ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>Failed to load keys: {loadError}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       <KeysClient initialKeys={initialKeys} />

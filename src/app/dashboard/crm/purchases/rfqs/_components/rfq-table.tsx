@@ -139,7 +139,7 @@ export function RfqTable({
                   {r.scope || r.title || '—'}
                 </td>
                 <td className={`${cell} align-middle`}>
-                  <ZoruBadge variant="outline">{r.vendorsInvitedCount}</ZoruBadge>
+                  <Badge variant="outline">{r.vendorsInvitedCount}</Badge>
                 </td>
                 <td
                   className={`${cell} align-middle ${
@@ -173,11 +173,11 @@ export function RfqTable({
                   {fmtDate(r.createdAt)}
                 </td>
                 <td className={`${cell} text-right align-middle`}>
-                  <ZoruDropdownMenu>
+                  <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                      <ZoruButton size="sm" variant="ghost" aria-label="Row actions">
+                      <Button size="sm" variant="ghost" aria-label="Row actions">
                         …
-                      </ZoruButton>
+                      </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent>
                       <ZoruDropdownMenuItem asChild>
@@ -204,7 +204,7 @@ export function RfqTable({
                         </Link>
                       </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                  </ZoruDropdownMenu>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))

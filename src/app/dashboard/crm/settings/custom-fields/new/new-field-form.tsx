@@ -159,10 +159,10 @@ export function NewCustomFieldForm() {
         ) : null}
 
         <div>
-          <ZoruLabel htmlFor="group_id" className="text-foreground">
+          <Label htmlFor="group_id" className="text-foreground">
             Group <span className="text-destructive">*</span>
-          </ZoruLabel>
-          <ZoruSelect name="group_id" defaultValue={defaultGroup} required>
+          </Label>
+          <Select name="group_id" defaultValue={defaultGroup} required>
             <ZoruSelectTrigger
               id="group_id"
               className="h-10 rounded-lg border-border bg-card text-[13px]"
@@ -176,15 +176,15 @@ export function NewCustomFieldForm() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="label" className="text-foreground">
+            <Label htmlFor="label" className="text-foreground">
               Label <span className="text-destructive">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="label"
               name="label"
               required
@@ -193,10 +193,10 @@ export function NewCustomFieldForm() {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="name" className="text-foreground">
+            <Label htmlFor="name" className="text-foreground">
               Slug (optional)
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="name"
               name="name"
               defaultValue={existing?.name || ''}
@@ -208,12 +208,12 @@ export function NewCustomFieldForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="type" className="text-foreground">
+            <Label htmlFor="type" className="text-foreground">
               Type
-            </ZoruLabel>
+            </Label>
             {/* TODO §1E: type needs enumName="customFieldType" — pending label/value alignment
                 between this form (radio, checkbox) and the CRM_ENUMS set (boolean, multiselect, etc.) */}
-            <ZoruSelect name="type" value={type} onValueChange={setType}>
+            <Select name="type" value={type} onValueChange={setType}>
               <ZoruSelectTrigger
                 id="type"
                 className="h-10 rounded-lg border-border bg-card text-[13px]"
@@ -232,13 +232,13 @@ export function NewCustomFieldForm() {
                 <ZoruSelectItem value="url">URL</ZoruSelectItem>
                 <ZoruSelectItem value="entity_ref">Linked record</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
-            <ZoruLabel htmlFor="position" className="text-foreground">
+            <Label htmlFor="position" className="text-foreground">
               Position
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="position"
               name="position"
               type="number"
@@ -249,10 +249,10 @@ export function NewCustomFieldForm() {
         </div>
 
         <div>
-          <ZoruLabel htmlFor="values" className="text-foreground">
+          <Label htmlFor="values" className="text-foreground">
             Options (comma or newline separated)
-          </ZoruLabel>
-          <ZoruTextarea
+          </Label>
+          <Textarea
             id="values"
             name="values"
             rows={3}
@@ -265,10 +265,10 @@ export function NewCustomFieldForm() {
         {type === 'entity_ref' ? (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel htmlFor="targetEntity" className="text-foreground">
+              <Label htmlFor="targetEntity" className="text-foreground">
                 Linked entity <span className="text-destructive">*</span>
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 name="targetEntity"
                 value={targetEntity}
                 onValueChange={setTargetEntity}
@@ -287,16 +287,16 @@ export function NewCustomFieldForm() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Renders as a searchable picker for the chosen entity.
               </p>
             </div>
             <div>
-              <ZoruLabel htmlFor="multi" className="text-foreground">
+              <Label htmlFor="multi" className="text-foreground">
                 Multiple values
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 name="multi"
                 value={multi ? 'true' : 'false'}
                 onValueChange={(v) => setMulti(v === 'true')}
@@ -311,17 +311,17 @@ export function NewCustomFieldForm() {
                   <ZoruSelectItem value="false">Single</ZoruSelectItem>
                   <ZoruSelectItem value="true">Multiple</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
         ) : null}
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="is_required" className="text-foreground">
+            <Label htmlFor="is_required" className="text-foreground">
               Required
-            </ZoruLabel>
-            <ZoruSelect
+            </Label>
+            <Select
               name="is_required"
               defaultValue={existing?.is_required ? 'true' : 'false'}
             >
@@ -335,13 +335,13 @@ export function NewCustomFieldForm() {
                 <ZoruSelectItem value="false">No</ZoruSelectItem>
                 <ZoruSelectItem value="true">Yes</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
-            <ZoruLabel htmlFor="display_in_table" className="text-foreground">
+            <Label htmlFor="display_in_table" className="text-foreground">
               Show in tables
-            </ZoruLabel>
-            <ZoruSelect
+            </Label>
+            <Select
               name="display_in_table"
               defaultValue={existing?.display_in_table ? 'true' : 'false'}
             >
@@ -355,12 +355,12 @@ export function NewCustomFieldForm() {
                 <ZoruSelectItem value="false">No</ZoruSelectItem>
                 <ZoruSelectItem value="true">Yes</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="pill"
             onClick={() =>
@@ -368,8 +368,8 @@ export function NewCustomFieldForm() {
             }
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="obsidian"
             disabled={isPending}
@@ -383,7 +383,7 @@ export function NewCustomFieldForm() {
             }
           >
             Save
-          </ZoruButton>
+          </Button>
         </div>
       </form>
     </ClayCard>

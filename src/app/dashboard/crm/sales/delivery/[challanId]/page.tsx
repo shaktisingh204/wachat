@@ -78,42 +78,42 @@ export default async function DeliveryChallanDetailPage({
       back={{ href: '/dashboard/crm/sales/delivery', label: 'Delivery challans' }}
       actions={
         <>
-          <ZoruButton variant="default" size="sm" asChild>
+          <Button variant="default" size="sm" asChild>
             <Link
               href={`/dashboard/crm/sales/invoices/new?fromKind=deliveryChallan&fromId=${id}`}
             >
               <Receipt className="h-3.5 w-3.5" /> Convert to invoice
             </Link>
-          </ZoruButton>
-          <ZoruButton disabled asChild={false} variant="outline" size="sm" title="Edit — coming soon">
+          </Button>
+          <Button disabled asChild={false} variant="outline" size="sm" title="Edit — coming soon">
             <Pencil className="h-3.5 w-3.5" />
             Edit
-          </ZoruButton>
+          </Button>
           <span className="mx-1 h-4 w-px bg-zoru-line" />
-          <ZoruButton variant="outline" size="sm" disabled title="Email — coming soon">
+          <Button variant="outline" size="sm" disabled title="Email — coming soon">
             <Mail className="h-3.5 w-3.5" /> Email
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" asChild>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
             <Link
               href={`/dashboard/crm/sales/delivery/${id}?print=1`}
               target="_blank"
             >
               <Printer className="h-3.5 w-3.5" /> Print
             </Link>
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" disabled title="Share — coming soon">
+          </Button>
+          <Button variant="outline" size="sm" disabled title="Share — coming soon">
             <Share2 className="h-3.5 w-3.5" /> Share
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" disabled title="Duplicate — coming soon">
+          </Button>
+          <Button variant="outline" size="sm" disabled title="Duplicate — coming soon">
             <Copy className="h-3.5 w-3.5" /> Duplicate
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" disabled title="Archive — coming soon">
+          </Button>
+          <Button variant="outline" size="sm" disabled title="Archive — coming soon">
             <Archive className="h-3.5 w-3.5" /> Archive
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" disabled title="Activity — coming soon">
+          </Button>
+          <Button variant="outline" size="sm" disabled title="Activity — coming soon">
             <Activity className="h-3.5 w-3.5" /> Activity
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             disabled
@@ -121,7 +121,7 @@ export default async function DeliveryChallanDetailPage({
             title="Delete — use the list page's row action"
           >
             <Trash2 className="h-3.5 w-3.5" /> Delete
-          </ZoruButton>
+          </Button>
         </>
       }
       rightRail={
@@ -135,17 +135,17 @@ export default async function DeliveryChallanDetailPage({
             }}
             lineage={lineage}
           />
-          <ZoruCard className="p-4 text-[11.5px] text-zoru-ink-muted">
+          <Card className="p-4 text-[11.5px] text-zoru-ink-muted">
             Created {fmtDate(dc.createdAt)}
             <br />
             Updated {fmtDate(dc.updatedAt)}
-          </ZoruCard>
+          </Card>
         </>
       }
       audit={<EntityAuditTimeline entityKind="deliveryChallan" entityId={challanId} />}
     >
       {/* Header card */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Header
@@ -197,10 +197,10 @@ export default async function DeliveryChallanDetailPage({
             </Field>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Vehicle & transport */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Vehicle & transport
         </h3>
@@ -219,10 +219,10 @@ export default async function DeliveryChallanDetailPage({
           <Field label="E-way bill no">{dcExtra.ewayBillNumber || '—'}</Field>
           <Field label="Mode of transport">{transport.mode || '—'}</Field>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Line items
         </h3>
@@ -296,17 +296,17 @@ export default async function DeliveryChallanDetailPage({
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {dc.notes ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Notes
           </h3>
           <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
             {dc.notes}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

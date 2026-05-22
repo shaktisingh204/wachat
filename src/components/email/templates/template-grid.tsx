@@ -60,7 +60,7 @@ export function TemplateGrid({
 
   if (sorted.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<FileText />}
         title="No templates yet"
         description="Create your first template to send branded campaigns."
@@ -72,7 +72,7 @@ export function TemplateGrid({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {sorted.map((t) => (
-        <ZoruCard key={t._id} className="flex flex-col overflow-hidden">
+        <Card key={t._id} className="flex flex-col overflow-hidden">
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-zoru-surface-2">
             {t.thumbnailUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -87,9 +87,9 @@ export function TemplateGrid({
               </div>
             )}
             {t.isLibrary ? (
-              <ZoruBadge variant="outline" className="absolute right-2 top-2 gap-1 bg-card">
+              <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-card">
                 <Sparkles className="h-3 w-3" /> Library
-              </ZoruBadge>
+              </Badge>
             ) : null}
           </div>
           <ZoruCardHeader>
@@ -101,23 +101,23 @@ export function TemplateGrid({
           </ZoruCardContent>
           <ZoruCardFooter className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
-              <ZoruButton asChild type="button" variant="outline" size="sm">
+              <Button asChild type="button" variant="outline" size="sm">
                 <Link href={`/dashboard/email/templates/${t._id}/builder`}>
                   <PenLine /> Edit
                 </Link>
-              </ZoruButton>
+              </Button>
               {onUse ? (
-                <ZoruButton
+                <Button
                   type="button"
                   size="sm"
                   onClick={() => onUse(t)}
                 >
                   Use
-                </ZoruButton>
+                </Button>
               ) : null}
             </div>
             {onDelete ? (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
@@ -126,10 +126,10 @@ export function TemplateGrid({
                 className="text-zoru-danger"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             ) : null}
           </ZoruCardFooter>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );

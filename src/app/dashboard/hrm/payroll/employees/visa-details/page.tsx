@@ -154,14 +154,14 @@ export default function VisaDetailsPage() {
       title="Visa Details"
       subtitle="Track employee work visas and expiry dates."
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Add Visa
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
@@ -192,7 +192,7 @@ export default function VisaDetailsPage() {
                       <td className="px-4 py-2.5 text-zoru-ink-muted">{fmtDate(v.issue_date)}</td>
                       <td className="px-4 py-2.5">
                         {v.expiry_date ? (
-                          <ZoruBadge variant={expiryVariant(v.expiry_date)}>{fmtDate(v.expiry_date)}</ZoruBadge>
+                          <Badge variant={expiryVariant(v.expiry_date)}>{fmtDate(v.expiry_date)}</Badge>
                         ) : <span className="text-zoru-ink-muted">—</span>}
                       </td>
                       <td className="px-4 py-2.5">
@@ -204,12 +204,12 @@ export default function VisaDetailsPage() {
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(v)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(v)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(String(v._id))}>
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(String(v._id))}>
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -219,17 +219,17 @@ export default function VisaDetailsPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg border-zoru-line bg-zoru-bg">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">{form._id ? 'Edit Visa Details' : 'Add Visa Details'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-2 md:grid-cols-2">
             <div className="md:col-span-2">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruSelect value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
+              <Label className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></Label>
+              <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select employee…" />
                 </ZoruSelectTrigger>
@@ -237,28 +237,28 @@ export default function VisaDetailsPage() {
                   <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
                   {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Country <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruInput value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-zoru-ink-muted">Country <span className="text-zoru-danger-ink">*</span></Label>
+              <Input value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Visa Number</ZoruLabel>
-              <ZoruInput value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-zoru-ink-muted">Visa Number</Label>
+              <Input value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Issue Date</ZoruLabel>
-              <ZoruInput type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-zoru-ink-muted">Issue Date</Label>
+              <Input type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Expiry Date</ZoruLabel>
-              <ZoruInput type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-zoru-ink-muted">Expiry Date</Label>
+              <Input type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div className="md:col-span-2">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">File URL</ZoruLabel>
+              <Label className="text-[12px] text-zoru-ink-muted">File URL</Label>
               <div className="mt-1.5 flex items-center gap-2">
-                <ZoruInput type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="h-10 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                <Input type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="h-10 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 <SabFilePickerButton
                   accept="document"
                   onPick={({ url }) => set('file', url)}
@@ -269,14 +269,14 @@ export default function VisaDetailsPage() {
             </div>
           </div>
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>Cancel</ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

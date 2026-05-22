@@ -113,17 +113,17 @@ export function ProfileStep({
     return (
         <form onSubmit={submit} className="space-y-5" noValidate>
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Fix the highlighted fields</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             )}
 
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="fullName">Full name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="fullName">Full name *</Label>
+                    <Input
                         id="fullName"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
@@ -134,8 +134,8 @@ export function ProfileStep({
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="companyName">Company / brand *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="companyName">Company / brand *</Label>
+                    <Input
                         id="companyName"
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
@@ -146,8 +146,8 @@ export function ProfileStep({
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="role">Your role *</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="role">Your role *</Label>
+                    <Select
                         value={role}
                         onValueChange={setRole}
                         disabled={isPending}
@@ -162,12 +162,12 @@ export function ProfileStep({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="country">Country *</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="country">Country *</Label>
+                    <Select
                         value={country}
                         onValueChange={setCountry}
                         disabled={isPending}
@@ -182,12 +182,12 @@ export function ProfileStep({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="phone">Phone (optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="phone">Phone (optional)</Label>
+                    <Input
                         id="phone"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -198,8 +198,8 @@ export function ProfileStep({
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="website">Website (optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="website">Website (optional)</Label>
+                    <Input
                         id="website"
                         value={website}
                         onChange={(e) => setWebsite(e.target.value)}
@@ -211,7 +211,7 @@ export function ProfileStep({
             </div>
 
             <div className="flex justify-end pt-2">
-                <ZoruButton
+                <Button
                     type="submit"
                     className="h-11 px-6 text-base"
                     disabled={isPending}
@@ -220,7 +220,7 @@ export function ProfileStep({
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Continue
-                </ZoruButton>
+                </Button>
             </div>
         </form>
     );

@@ -25,22 +25,22 @@ export default function KeywordGeneratorPage() {
   return (
     <ToolShell title="Keyword Generator" description="Generate keyword variants from a seed term using common prefixes and suffixes.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword (e.g. running shoes)"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <ZoruButton onClick={run}>Generate</ZoruButton>
+        <Button onClick={run}>Generate</Button>
       </div>
       {results.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 flex flex-wrap gap-2">
             {results.map((r) => (
-              <ZoruBadge key={r} variant="secondary" className="text-sm">{r}</ZoruBadge>
+              <Badge key={r} variant="secondary" className="text-sm">{r}</Badge>
             ))}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

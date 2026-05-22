@@ -57,13 +57,13 @@ export interface AccountsFiltersRowProps {
 
 export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-5">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
-                    </ZoruLabel>
-                    <ZoruSelect
+                    </Label>
+                    <Select
                         value={props.statusFilter}
                         onValueChange={(v) =>
                             props.onStatusChange(v as AccountStatusFilter)
@@ -77,14 +77,14 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                             <ZoruSelectItem value="active">Active</ZoruSelectItem>
                             <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Category
-                    </ZoruLabel>
-                    <ZoruSelect
+                    </Label>
+                    <Select
                         value={props.categoryFilter}
                         onValueChange={(v) =>
                             props.onCategoryChange(v as AccountCategoryFilter)
@@ -100,13 +100,13 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                             <ZoruSelectItem value="key">Key</ZoruSelectItem>
                             <ZoruSelectItem value="regular">Regular</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Industry
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="industry"
                         name="filter_industry"
@@ -117,9 +117,9 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Country
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="country"
                         name="filter_country"
@@ -130,9 +130,9 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Currency
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="currency"
                         name="filter_currency"
@@ -144,9 +144,9 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
 
                 {props.onDateRangeChange ? (
                     <div className="space-y-1 lg:col-span-2">
-                        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                        <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                             Created
-                        </ZoruLabel>
+                        </Label>
                         <ZoruDateRangePicker
                             value={props.dateRange}
                             onChange={props.onDateRangeChange}
@@ -157,13 +157,13 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end lg:col-span-5">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -187,7 +187,7 @@ export function AccountsBulkBar({
     return (
         <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                <ZoruBadge variant="info">{count} selected</ZoruBadge>
+                <Badge variant="info">{count} selected</Badge>
                 <button
                     type="button"
                     onClick={onClear}
@@ -197,7 +197,7 @@ export function AccountsBulkBar({
                 </button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruSelect onValueChange={(v) => onCategoryChange(v as 'new' | 'strategic' | 'key' | 'regular')}>
+                <Select onValueChange={(v) => onCategoryChange(v as 'new' | 'strategic' | 'key' | 'regular')}>
                     <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
                         <Tag className="mr-1.5 h-3.5 w-3.5" />
                         <ZoruSelectValue placeholder="Set category…" />
@@ -208,22 +208,22 @@ export function AccountsBulkBar({
                         <ZoruSelectItem value="key">Mark as Key</ZoruSelectItem>
                         <ZoruSelectItem value="regular">Mark as Regular</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruButton variant="outline" size="sm" onClick={onExport}>
+                </Select>
+                <Button variant="outline" size="sm" onClick={onExport}>
                     <Download className="h-3.5 w-3.5" /> Export CSV
-                </ZoruButton>
+                </Button>
                 {onExportXlsx ? (
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={onExportXlsx}
                     >
                         <FileSpreadsheet className="h-3.5 w-3.5" /> Export XLSX
-                    </ZoruButton>
+                    </Button>
                 ) : null}
-                <ZoruButton variant="outline" size="sm" onClick={onArchive}>
+                <Button variant="outline" size="sm" onClick={onArchive}>
                     <Archive className="h-3.5 w-3.5" /> Archive
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );

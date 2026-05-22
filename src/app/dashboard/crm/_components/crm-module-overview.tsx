@@ -36,7 +36,7 @@ export function CrmModuleOverview({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sections.map(({ href, label, description, icon: Icon }) => (
           <Link key={href} href={href} className="group">
-            <ZoruCard className="flex h-full flex-col p-6 transition-colors hover:border-zoru-ink-muted">
+            <Card className="flex h-full flex-col p-6 transition-colors hover:border-zoru-ink-muted">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                   <Icon className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
@@ -54,7 +54,7 @@ export function CrmModuleOverview({
                   </p>
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
           </Link>
         ))}
       </div>

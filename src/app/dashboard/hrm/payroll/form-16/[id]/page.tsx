@@ -74,7 +74,7 @@ export default async function Form16DetailPage({
             actions={
                 <div className="flex items-center gap-2">
                     {documentUrl ? (
-                        <ZoruButton variant="outline" asChild>
+                        <Button variant="outline" asChild>
                             <a
                                 href={documentUrl}
                                 target="_blank"
@@ -83,19 +83,19 @@ export default async function Form16DetailPage({
                                 <Download className="mr-2 h-4 w-4" />
                                 Download PDF
                             </a>
-                        </ZoruButton>
+                        </Button>
                     ) : null}
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href={`${BASE}/${id}/edit`}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill label={status} tone={tone} />
@@ -146,10 +146,10 @@ export default async function Form16DetailPage({
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {documentUrl ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
                         <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                         Attached document
@@ -162,7 +162,7 @@ export default async function Form16DetailPage({
                     >
                         {documentUrl}
                     </a>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

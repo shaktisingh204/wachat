@@ -235,9 +235,9 @@ function LineageRow({ kind, ref_, isCurrent, isFilled, isLast }: LineageRowProps
             <div className="flex items-center justify-between gap-2">
                 <span className={labelClass}>{label}</span>
                 {ref_?.status && (
-                    <ZoruBadge variant={isCurrent ? 'secondary' : 'ghost'}>
+                    <Badge variant={isCurrent ? 'secondary' : 'ghost'}>
                         {ref_.status}
-                    </ZoruBadge>
+                    </Badge>
                 )}
             </div>
             {isFilled && ref_ ? (

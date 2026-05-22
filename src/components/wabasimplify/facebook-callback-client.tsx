@@ -55,7 +55,7 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-muted">
-      <ZoruCard className="max-w-sm text-center">
+      <Card className="max-w-sm text-center">
         <ZoruCardHeader>
           <div className="flex justify-center mb-4">
             <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
@@ -65,7 +65,7 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
             This may take a moment. Do not close this window.
           </ZoruCardDescription>
         </ZoruCardHeader>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

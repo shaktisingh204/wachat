@@ -77,7 +77,7 @@ function KanbanPageSkeleton() {
     <div className="flex h-full w-full gap-4 overflow-x-auto p-4">
       {[0, 1, 2].map((i) => (
         <div key={i} className="w-80 shrink-0">
-          <ZoruSkeleton className="h-full w-full" />
+          <Skeleton className="h-full w-full" />
         </div>
       ))}
     </div>
@@ -100,19 +100,19 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
 
   if (!isAdding) {
     return (
-      <ZoruButton
+      <Button
         variant="outline"
         className="h-12 w-72 shrink-0"
         onClick={() => setIsAdding(true)}
       >
         <Plus /> Add another list
-      </ZoruButton>
+      </Button>
     );
   }
 
   return (
     <div className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3">
-      <ZoruInput
+      <Input
         autoFocus
         placeholder="Enter list title..."
         value={listName}
@@ -123,16 +123,16 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
         }}
       />
       <div className="flex items-center gap-2">
-        <ZoruButton size="sm" onClick={handleAdd}>
+        <Button size="sm" onClick={handleAdd}>
           Add list
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={() => setIsAdding(false)}
         >
           Cancel
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );
@@ -165,11 +165,11 @@ function ZoruKanbanCard({
   };
 
   return (
-    <ZoruCard className="p-3" variant="default">
+    <Card className="p-3" variant="default">
       <div className="flex items-start gap-2.5">
-        <ZoruAvatar className="h-8 w-8 shrink-0">
+        <Avatar className="h-8 w-8 shrink-0">
           <ZoruAvatarFallback>{initial}</ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p className="truncate text-[13px] text-zoru-ink leading-tight">
@@ -177,11 +177,11 @@ function ZoruKanbanCard({
             </p>
             <div className="flex shrink-0 items-center gap-1">
               {unread > 0 && (
-                <ZoruBadge className="h-5 min-w-[1.25rem] justify-center px-1.5 text-[10px]">
+                <Badge className="h-5 min-w-[1.25rem] justify-center px-1.5 text-[10px]">
                   {unread}
-                </ZoruBadge>
+                </Badge>
               )}
-              <ZoruDropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
                   <button
                     type="button"
@@ -207,7 +207,7 @@ function ZoruKanbanCard({
                     <MessageSquare /> Open chat
                   </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
+              </DropdownMenu>
             </div>
           </div>
           <p className="mt-0.5 truncate text-[11px] text-zoru-ink-muted">
@@ -219,16 +219,16 @@ function ZoruKanbanCard({
         </div>
       </div>
       <div className="mt-3">
-        <ZoruButton
+        <Button
           size="sm"
           variant="outline"
           className="w-full"
           onClick={handleGoToChat}
         >
           <MessageSquare /> Open chat
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -242,7 +242,7 @@ interface KanbanColumnProps {
 
 function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
   return (
-    <ZoruCard
+    <Card
       className={cn(
         "flex h-full w-80 shrink-0 flex-col gap-0 p-0",
         // TODO: drag-reorder — wire useDroppable here when DnD returns.
@@ -252,17 +252,17 @@ function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
       <ZoruCardHeader className="shrink-0 border-b border-zoru-line">
         <ZoruCardTitle className="flex items-center gap-2 text-[14px] capitalize">
           <span>{title.replace(/_/g, " ")}</span>
-          <ZoruBadge variant="secondary" className="h-5 px-2 text-[10px]">
+          <Badge variant="secondary" className="h-5 px-2 text-[10px]">
             {count}
-          </ZoruBadge>
+          </Badge>
         </ZoruCardTitle>
       </ZoruCardHeader>
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         <ZoruCardContent className="flex flex-col gap-3 p-3">
           {children}
         </ZoruCardContent>
-      </ZoruScrollArea>
-    </ZoruCard>
+      </ScrollArea>
+    </Card>
   );
 }
 
@@ -373,14 +373,14 @@ export function ZoruKanbanBoard() {
   if (!project) {
     return (
       <div className="p-4">
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>No project selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Please select a project from the main dashboard page to view the
             chat kanban board.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       </div>
     );
   }
@@ -389,7 +389,7 @@ export function ZoruKanbanBoard() {
 
   return (
     <div className="h-full w-full">
-      <ZoruScrollArea className="h-full w-full">
+      <ScrollArea className="h-full w-full">
         <div className="flex h-full w-max gap-4 p-4">
           {boardData.map((column) => (
             <ZoruKanbanColumn
@@ -417,7 +417,7 @@ export function ZoruKanbanBoard() {
           <AddListInline onAddList={handleAddList} />
         </div>
         <ZoruScrollBar orientation="horizontal" />
-      </ZoruScrollArea>
+      </ScrollArea>
     </div>
   );
 }

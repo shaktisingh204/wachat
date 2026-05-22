@@ -21,7 +21,7 @@ export function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="mb-4">
         <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           {title}
@@ -31,7 +31,7 @@ export function SectionCard({
         ) : null}
       </div>
       {children}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -46,10 +46,10 @@ export function Field({
 }) {
   return (
     <div className="space-y-1">
-      <ZoruLabel>
+      <Label>
         {label}
         {required ? <span className="ml-0.5 text-zoru-danger">*</span> : null}
-      </ZoruLabel>
+      </Label>
       {children}
     </div>
   );
@@ -68,7 +68,7 @@ export function BoolToggle({
 }) {
   return (
     <label className="flex h-9 cursor-pointer items-center gap-2 rounded border border-zoru-line bg-zoru-surface px-2 text-[12.5px]">
-      <ZoruCheckbox
+      <Checkbox
         checked={checked}
         onCheckedChange={(c) => onChange(Boolean(c))}
       />

@@ -68,7 +68,7 @@ function MediaGrid({
 }): React.JSX.Element {
   if (items.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Hash />}
         title={emptyTitle}
         description="Try a different hashtag, or check back later."
@@ -164,7 +164,7 @@ export default function HashtagSearchPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Hash />}
           title="No project selected"
           description="Pick a project with a connected Instagram account to search hashtags."
@@ -175,7 +175,7 @@ export default function HashtagSearchPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -189,7 +189,7 @@ export default function HashtagSearchPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Hashtag search</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -198,14 +198,14 @@ export default function HashtagSearchPage(): React.JSX.Element {
             Explore top-performing and recent public media for any hashtag.
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="ghost"
           onClick={() => runSearch(tag)}
           disabled={loading || !tag}
         >
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       <form
@@ -215,39 +215,39 @@ export default function HashtagSearchPage(): React.JSX.Element {
           runSearch(tag);
         }}
       >
-        <ZoruInput
+        <Input
           value={tag}
           onChange={(e) => setTag(e.target.value)}
           placeholder="e.g. travel"
           aria-label="Hashtag"
           className="max-w-md"
         />
-        <ZoruButton type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading}>
           <Search className="mr-2 h-4 w-4" />
           Search
-        </ZoruButton>
+        </Button>
         {hashtagId ? (
-          <ZoruBadge variant="outline">id · {hashtagId}</ZoruBadge>
+          <Badge variant="outline">id · {hashtagId}</Badge>
         ) : null}
       </form>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Search failed</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          <ZoruSkeleton className="aspect-square w-full" />
-          <ZoruSkeleton className="aspect-square w-full" />
-          <ZoruSkeleton className="aspect-square w-full" />
-          <ZoruSkeleton className="aspect-square w-full" />
+          <Skeleton className="aspect-square w-full" />
+          <Skeleton className="aspect-square w-full" />
+          <Skeleton className="aspect-square w-full" />
+          <Skeleton className="aspect-square w-full" />
         </div>
       ) : !hashtagId ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Hash />}
           title="Search a hashtag"
           description="Enter a hashtag above to load top and recent media."

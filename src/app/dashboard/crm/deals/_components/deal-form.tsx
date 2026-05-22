@@ -43,10 +43,10 @@ const INITIAL_STATE = { message: undefined, error: undefined, id: undefined };
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create deal'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -96,16 +96,16 @@ export function DealForm({ initial, customFields }: DealFormProps) {
       <input type="hidden" name="partyId" value={partyId ?? ''} />
       <input type="hidden" name="customFields" value={JSON.stringify(customFieldValues)} />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Basics
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="title">
+            <Label htmlFor="title">
               Title <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="title"
               name="title"
               required
@@ -115,9 +115,9 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Counter-party type <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="partyKind"
@@ -131,10 +131,10 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               {partyKind === 'client' ? 'Client' : 'Lead'}{' '}
               <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityPicker
                 entity={partyKind}
@@ -144,17 +144,17 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Pipeline & Ownership
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>
+            <Label>
               Pipeline <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="pipeline"
@@ -166,9 +166,9 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Stage <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="stage"
@@ -180,9 +180,9 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Owner <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -193,7 +193,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Status</ZoruLabel>
+            <Label>Status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="dealStatus"
@@ -204,18 +204,18 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Value & Forecast
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="amount">
+            <Label htmlFor="amount">
               Amount <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="amount"
               name="amount"
               type="number"
@@ -227,7 +227,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Currency</ZoruLabel>
+            <Label>Currency</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="currency"
@@ -237,8 +237,8 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="probabilityPct">Probability % (0–100)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="probabilityPct">Probability % (0–100)</Label>
+            <Input
               id="probabilityPct"
               name="probabilityPct"
               type="number"
@@ -249,10 +249,10 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="expectedClose">
+            <Label htmlFor="expectedClose">
               Expected close date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="expectedClose"
               name="expectedClose"
               type="date"
@@ -266,8 +266,8 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             />
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="wonLostReason">Won / Lost reason</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="wonLostReason">Won / Lost reason</Label>
+            <Input
               id="wonLostReason"
               name="wonLostReason"
               defaultValue={initial?.wonLostReason ?? ''}
@@ -276,10 +276,10 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {customFields.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Custom fields
           </h3>
@@ -293,17 +293,17 @@ export function DealForm({ initial, customFields }: DealFormProps) {
               />
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={editing ? `/dashboard/crm/deals/${String(initial!._id)}` : '/dashboard/crm/deals'}
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

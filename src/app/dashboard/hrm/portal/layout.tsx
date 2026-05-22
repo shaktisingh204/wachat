@@ -34,7 +34,7 @@ export default async function PortalLayout({ children }: PortalLayoutProps) {
     if (!profile) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center p-6">
-                <ZoruCard className="max-w-md w-full text-center" variant="soft">
+                <Card className="max-w-md w-full text-center" variant="soft">
                     <ZoruCardHeader className="items-center gap-3 pb-2">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2">
                             <UserX className="h-6 w-6 text-zoru-ink-muted" />
@@ -52,7 +52,7 @@ export default async function PortalLayout({ children }: PortalLayoutProps) {
                     <ZoruCardContent className="pb-6 text-[12.5px] text-zoru-ink-muted">
                         Once linked, your profile, team, and tasks will appear here.
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         );
     }

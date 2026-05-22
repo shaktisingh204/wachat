@@ -865,32 +865,32 @@ export default function TelegramContactsPage() {
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={() => setSyncOpen(true)} disabled={!projectId}>
+                    <Button variant="outline" size="sm" onClick={() => setSyncOpen(true)} disabled={!projectId}>
                         <ContactIcon className="h-3.5 w-3.5" />
                         Sync from chats
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" onClick={() => setImportOpen(true)} disabled={!projectId}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setImportOpen(true)} disabled={!projectId}>
                         <Upload className="h-3.5 w-3.5" />
                         Import CSV
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" onClick={runExport} disabled={!projectId}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={runExport} disabled={!projectId}>
                         <Download className="h-3.5 w-3.5" />
                         Export
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={openCreate} disabled={!projectId}>
+                    </Button>
+                    <Button size="sm" onClick={openCreate} disabled={!projectId}>
                         <Plus className="h-3.5 w-3.5" />
                         New contact
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             {!projectId ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="flex items-center gap-2 text-zoru-ink-muted">
                         <AlertCircle className="h-4 w-4" />
                         <span className="text-sm">Select a project to view Telegram contacts.</span>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* KPI cards */}
@@ -920,11 +920,11 @@ export default function TelegramContactsPage() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
                 <div className="flex min-w-0 flex-col gap-4">
                     {/* Filter bar */}
-                    <ZoruCard className="p-3">
+                    <Card className="p-3">
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="relative min-w-[220px] flex-1">
                                 <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
-                                <ZoruInput
+                                <Input
                                     placeholder="Search name, username, phone, notes"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
@@ -932,7 +932,7 @@ export default function TelegramContactsPage() {
                                 />
                             </div>
                             <div className="min-w-[160px]">
-                                <ZoruSelect value={botId} onValueChange={setBotId}>
+                                <Select value={botId} onValueChange={setBotId}>
                                     <ZoruSelectTrigger>
                                         <ZoruSelectValue placeholder="All bots" />
                                     </ZoruSelectTrigger>
@@ -944,10 +944,10 @@ export default function TelegramContactsPage() {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="min-w-[140px]">
-                                <ZoruSelect value={language} onValueChange={setLanguage}>
+                                <Select value={language} onValueChange={setLanguage}>
                                     <ZoruSelectTrigger>
                                         <ZoruSelectValue placeholder="All languages" />
                                     </ZoruSelectTrigger>
@@ -959,10 +959,10 @@ export default function TelegramContactsPage() {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="min-w-[140px]">
-                                <ZoruSelect value={tag} onValueChange={setTag}>
+                                <Select value={tag} onValueChange={setTag}>
                                     <ZoruSelectTrigger>
                                         <ZoruSelectValue placeholder="All tags" />
                                     </ZoruSelectTrigger>
@@ -974,7 +974,7 @@ export default function TelegramContactsPage() {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="min-w-[260px]">
                                 <ZoruDateRangePicker
@@ -983,14 +983,14 @@ export default function TelegramContactsPage() {
                                 />
                             </div>
                             <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-                                <ZoruSwitch checked={hasPhone} onCheckedChange={setHasPhone} />
+                                <Switch checked={hasPhone} onCheckedChange={setHasPhone} />
                                 Has phone
                             </label>
                             <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-                                <ZoruSwitch checked={blockedFilter} onCheckedChange={setBlockedFilter} />
+                                <Switch checked={blockedFilter} onCheckedChange={setBlockedFilter} />
                                 Blocked only
                             </label>
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setSegmentOpen(true)}
@@ -998,36 +998,36 @@ export default function TelegramContactsPage() {
                             >
                                 <Filter className="h-3.5 w-3.5" />
                                 Save as segment
-                            </ZoruButton>
+                            </Button>
                             {selected.size > 0 ? (
                                 <>
-                                    <ZoruButton size="sm" variant="outline" onClick={() => setBulkTagOpen(true)}>
+                                    <Button size="sm" variant="outline" onClick={() => setBulkTagOpen(true)}>
                                         <Tag className="h-3.5 w-3.5" />
                                         Tag {selected.size}
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         size="sm"
                                         variant="outline"
                                         onClick={() => setBulkAssignOpen(true)}
                                     >
                                         <UserPlus className="h-3.5 w-3.5" />
                                         Assign {selected.size}
-                                    </ZoruButton>
-                                    <ZoruButton size="sm" variant="outline" onClick={() => setBulkDeleteOpen(true)}>
+                                    </Button>
+                                    <Button size="sm" variant="outline" onClick={() => setBulkDeleteOpen(true)}>
                                         <Trash2 className="h-3.5 w-3.5" />
                                         Delete {selected.size}
-                                    </ZoruButton>
+                                    </Button>
                                 </>
                             ) : null}
                         </div>
-                    </ZoruCard>
+                    </Card>
 
                     {/* Table */}
-                    <ZoruCard className="overflow-hidden">
+                    <Card className="overflow-hidden">
                         {loading ? (
                             <div className="flex flex-col gap-2 p-4">
                                 {Array.from({ length: 6 }).map((_, i) => (
-                                    <ZoruSkeleton key={i} className="h-10 w-full" />
+                                    <Skeleton key={i} className="h-10 w-full" />
                                 ))}
                             </div>
                         ) : data?.error ? (
@@ -1036,20 +1036,20 @@ export default function TelegramContactsPage() {
                                 {data.error}
                             </div>
                         ) : rows.length === 0 ? (
-                            <ZoruEmptyState
+                            <EmptyState
                                 title="No contacts yet"
                                 description="Sync from your existing private chats, import a CSV, or create one manually."
                                 icon={<Users className="h-5 w-5" />}
                                 action={
                                     <div className="flex gap-2">
-                                        <ZoruButton size="sm" variant="outline" onClick={() => setSyncOpen(true)}>
+                                        <Button size="sm" variant="outline" onClick={() => setSyncOpen(true)}>
                                             <ContactIcon className="h-3.5 w-3.5" />
                                             Sync from chats
-                                        </ZoruButton>
-                                        <ZoruButton size="sm" onClick={openCreate}>
+                                        </Button>
+                                        <Button size="sm" onClick={openCreate}>
                                             <Plus className="h-3.5 w-3.5" />
                                             New contact
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 }
                             />
@@ -1059,7 +1059,7 @@ export default function TelegramContactsPage() {
                                     <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
                                         <tr>
                                             <th className="w-10 p-3">
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                                     onCheckedChange={(v) => toggleAll(!!v)}
                                                 />
@@ -1087,7 +1087,7 @@ export default function TelegramContactsPage() {
                                                     }}
                                                 >
                                                     <td className="p-3" data-stop>
-                                                        <ZoruCheckbox
+                                                        <Checkbox
                                                             checked={checked}
                                                             onCheckedChange={(v) =>
                                                                 setSelected((prev) => {
@@ -1101,22 +1101,22 @@ export default function TelegramContactsPage() {
                                                     </td>
                                                     <td className="p-3">
                                                         <div className="flex items-center gap-3">
-                                                            <ZoruAvatar className="h-8 w-8">
+                                                            <Avatar className="h-8 w-8">
                                                                 <ZoruAvatarFallback>{initials(row)}</ZoruAvatarFallback>
-                                                            </ZoruAvatar>
+                                                            </Avatar>
                                                             <div className="min-w-0">
                                                                 <div className="truncate text-zoru-ink">
                                                                     {displayName(row)}
                                                                 </div>
                                                                 <div className="flex items-center gap-1.5 text-[11.5px] text-zoru-ink-subtle">
                                                                     {row.blocked ? (
-                                                                        <ZoruBadge variant="warning">Blocked</ZoruBadge>
+                                                                        <Badge variant="warning">Blocked</Badge>
                                                                     ) : null}
                                                                     {row.isPremium ? (
-                                                                        <ZoruBadge variant="info">Premium</ZoruBadge>
+                                                                        <Badge variant="info">Premium</Badge>
                                                                     ) : null}
                                                                     {row.isBot ? (
-                                                                        <ZoruBadge variant="secondary">Bot</ZoruBadge>
+                                                                        <Badge variant="secondary">Bot</Badge>
                                                                     ) : null}
                                                                 </div>
                                                             </div>
@@ -1142,9 +1142,9 @@ export default function TelegramContactsPage() {
                                                     <td className="p-3">
                                                         <div className="flex flex-wrap gap-1">
                                                             {(row.tags ?? []).slice(0, 3).map((t) => (
-                                                                <ZoruBadge key={t} variant="secondary">
+                                                                <Badge key={t} variant="secondary">
                                                                     #{t}
-                                                                </ZoruBadge>
+                                                                </Badge>
                                                             ))}
                                                             {row.tags && row.tags.length > 3 ? (
                                                                 <span className="text-[11px] text-zoru-ink-subtle">
@@ -1166,11 +1166,11 @@ export default function TelegramContactsPage() {
                                                     </td>
                                                     <td className="p-3" data-stop>
                                                         <div className="flex justify-end">
-                                                            <ZoruDropdownMenu>
+                                                            <DropdownMenu>
                                                                 <ZoruDropdownMenuTrigger asChild>
-                                                                    <ZoruButton size="sm" variant="ghost">
+                                                                    <Button size="sm" variant="ghost">
                                                                         <Pencil className="h-3.5 w-3.5" />
-                                                                    </ZoruButton>
+                                                                    </Button>
                                                                 </ZoruDropdownMenuTrigger>
                                                                 <ZoruDropdownMenuContent align="end">
                                                                     <ZoruDropdownMenuItem onSelect={() => openView(row)}>
@@ -1209,7 +1209,7 @@ export default function TelegramContactsPage() {
                                                                         Delete
                                                                     </ZoruDropdownMenuItem>
                                                                 </ZoruDropdownMenuContent>
-                                                            </ZoruDropdownMenu>
+                                                            </DropdownMenu>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -1227,7 +1227,7 @@ export default function TelegramContactsPage() {
                                     {data.total}
                                 </span>
                                 <div className="flex items-center gap-1">
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         disabled={page <= 1}
@@ -1235,11 +1235,11 @@ export default function TelegramContactsPage() {
                                     >
                                         <ChevronLeft className="h-3.5 w-3.5" />
                                         Prev
-                                    </ZoruButton>
+                                    </Button>
                                     <span className="px-2">
                                         Page {page} / {totalPages}
                                     </span>
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         disabled={!data.hasMore}
@@ -1247,18 +1247,18 @@ export default function TelegramContactsPage() {
                                     >
                                         Next
                                         <ChevronRight className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
                         ) : null}
-                    </ZoruCard>
+                    </Card>
                 </div>
 
                 {/* Segments panel */}
-                <ZoruCard className="p-3">
+                <Card className="p-3">
                     <div className="mb-2 flex items-center justify-between">
                         <h3 className="text-[13.5px] font-medium text-zoru-ink">Segments</h3>
-                        <ZoruButton
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setSegmentOpen(true)}
@@ -1266,12 +1266,12 @@ export default function TelegramContactsPage() {
                         >
                             <Plus className="h-3.5 w-3.5" />
                             New
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {segmentsLoading ? (
                         <div className="flex flex-col gap-2">
-                            <ZoruSkeleton className="h-10 w-full" />
-                            <ZoruSkeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
                         </div>
                     ) : segments.length === 0 ? (
                         <p className="text-[12.5px] text-zoru-ink-muted">
@@ -1295,18 +1295,18 @@ export default function TelegramContactsPage() {
                                             {seg.memberCount === 1 ? '' : 's'}
                                         </span>
                                     </button>
-                                    <ZoruButton
+                                    <Button
                                         size="sm"
                                         variant="ghost"
                                         onClick={() => deleteSegment(seg)}
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
                     )}
-                </ZoruCard>
+                </Card>
             </div>
 
             {/* Editor drawer */}
@@ -1358,7 +1358,7 @@ export default function TelegramContactsPage() {
                         {editorTab === 'overview' ? (
                             <div className="grid gap-3 sm:grid-cols-2">
                                 <Field label="First name">
-                                    <ZoruInput
+                                    <Input
                                         value={editorForm.firstName}
                                         readOnly={viewMode === 'view'}
                                         onChange={(e) =>
@@ -1367,7 +1367,7 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <Field label="Last name">
-                                    <ZoruInput
+                                    <Input
                                         value={editorForm.lastName}
                                         readOnly={viewMode === 'view'}
                                         onChange={(e) =>
@@ -1376,7 +1376,7 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <Field label="Username">
-                                    <ZoruInput
+                                    <Input
                                         value={editorForm.username}
                                         readOnly={viewMode === 'view'}
                                         onChange={(e) =>
@@ -1386,7 +1386,7 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <Field label="Phone">
-                                    <ZoruInput
+                                    <Input
                                         value={editorForm.phoneNumber}
                                         readOnly={viewMode === 'view'}
                                         onChange={(e) =>
@@ -1396,7 +1396,7 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <Field label="Chat ID">
-                                    <ZoruInput
+                                    <Input
                                         inputMode="numeric"
                                         value={editorForm.chatId}
                                         readOnly={viewMode === 'view' || !!editorForm.contactId}
@@ -1406,7 +1406,7 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <Field label="Language code">
-                                    <ZoruInput
+                                    <Input
                                         value={editorForm.languageCode}
                                         readOnly={viewMode === 'view'}
                                         onChange={(e) =>
@@ -1416,7 +1416,7 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <Field label="Assigned to (user id)">
-                                    <ZoruInput
+                                    <Input
                                         value={editorForm.assignedAgentId}
                                         readOnly={viewMode === 'view'}
                                         onChange={(e) =>
@@ -1427,7 +1427,7 @@ export default function TelegramContactsPage() {
                                 </Field>
                                 <div className="sm:col-span-2 flex flex-wrap gap-4">
                                     <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-                                        <ZoruSwitch
+                                        <Switch
                                             checked={editorForm.blocked}
                                             onCheckedChange={(v) =>
                                                 setEditorForm((f) => ({ ...f, blocked: v }))
@@ -1437,7 +1437,7 @@ export default function TelegramContactsPage() {
                                         Blocked
                                     </label>
                                     <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-                                        <ZoruSwitch
+                                        <Switch
                                             checked={editorForm.isPremium}
                                             onCheckedChange={(v) =>
                                                 setEditorForm((f) => ({ ...f, isPremium: v }))
@@ -1447,7 +1447,7 @@ export default function TelegramContactsPage() {
                                         Premium
                                     </label>
                                     <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-                                        <ZoruSwitch
+                                        <Switch
                                             checked={editorForm.isVerified}
                                             onCheckedChange={(v) =>
                                                 setEditorForm((f) => ({ ...f, isVerified: v }))
@@ -1467,7 +1467,7 @@ export default function TelegramContactsPage() {
                                         <span className="text-[12px] text-zoru-ink-muted">No tags yet.</span>
                                     ) : null}
                                     {editorForm.tags.map((t) => (
-                                        <ZoruBadge key={t} variant="secondary" className="gap-1">
+                                        <Badge key={t} variant="secondary" className="gap-1">
                                             #{t}
                                             {viewMode !== 'view' ? (
                                                 <button
@@ -1479,12 +1479,12 @@ export default function TelegramContactsPage() {
                                                     <X className="h-3 w-3" />
                                                 </button>
                                             ) : null}
-                                        </ZoruBadge>
+                                        </Badge>
                                     ))}
                                 </div>
                                 {viewMode !== 'view' ? (
                                     <div className="flex gap-2">
-                                        <ZoruInput
+                                        <Input
                                             value={editorForm.tagsInput}
                                             placeholder="Add tag and press Enter"
                                             onChange={(e) =>
@@ -1497,9 +1497,9 @@ export default function TelegramContactsPage() {
                                                 }
                                             }}
                                         />
-                                        <ZoruButton size="sm" variant="outline" onClick={addTagToEditor}>
+                                        <Button size="sm" variant="outline" onClick={addTagToEditor}>
                                             Add
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 ) : null}
                             </div>
@@ -1512,41 +1512,41 @@ export default function TelegramContactsPage() {
                                 ) : null}
                                 {editorForm.customFields.map((cf, i) => (
                                     <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-                                        <ZoruInput
+                                        <Input
                                             placeholder="key"
                                             value={cf.key}
                                             readOnly={viewMode === 'view'}
                                             onChange={(e) => setCustomFieldRow(i, 'key', e.target.value)}
                                         />
-                                        <ZoruInput
+                                        <Input
                                             placeholder="value"
                                             value={cf.value}
                                             readOnly={viewMode === 'view'}
                                             onChange={(e) => setCustomFieldRow(i, 'value', e.target.value)}
                                         />
                                         {viewMode !== 'view' ? (
-                                            <ZoruButton
+                                            <Button
                                                 size="sm"
                                                 variant="ghost"
                                                 onClick={() => removeCustomFieldRow(i)}
                                             >
                                                 <Trash2 className="h-3.5 w-3.5" />
-                                            </ZoruButton>
+                                            </Button>
                                         ) : null}
                                     </div>
                                 ))}
                                 {viewMode !== 'view' ? (
-                                    <ZoruButton size="sm" variant="outline" onClick={addCustomFieldRow}>
+                                    <Button size="sm" variant="outline" onClick={addCustomFieldRow}>
                                         <Plus className="h-3.5 w-3.5" />
                                         Add field
-                                    </ZoruButton>
+                                    </Button>
                                 ) : null}
                             </div>
                         ) : null}
 
                         {editorTab === 'notes' ? (
                             <Field label="Notes">
-                                <ZoruTextarea
+                                <Textarea
                                     rows={8}
                                     value={editorForm.notes}
                                     readOnly={viewMode === 'view'}
@@ -1600,16 +1600,16 @@ export default function TelegramContactsPage() {
                     </div>
 
                     <div className="flex justify-end gap-2 px-6 pb-6">
-                        <ZoruButton variant="outline" size="sm" onClick={() => setEditorOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setEditorOpen(false)}>
                             {viewMode === 'view' ? 'Close' : 'Cancel'}
-                        </ZoruButton>
+                        </Button>
                         {viewMode !== 'view' ? (
-                            <ZoruButton size="sm" onClick={saveEditor} disabled={editorSaving}>
+                            <Button size="sm" onClick={saveEditor} disabled={editorSaving}>
                                 {editorSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                                 Save
-                            </ZoruButton>
+                            </Button>
                         ) : (
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 onClick={() => {
                                     setViewMode('edit');
@@ -1617,14 +1617,14 @@ export default function TelegramContactsPage() {
                             >
                                 <Pencil className="h-3.5 w-3.5" />
                                 Edit
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                 </ZoruDrawerContent>
             </ZoruDrawer>
 
             {/* Import dialog */}
-            <ZoruDialog open={importOpen} onOpenChange={setImportOpen}>
+            <Dialog open={importOpen} onOpenChange={setImportOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Import contacts from CSV</ZoruDialogTitle>
@@ -1642,7 +1642,7 @@ export default function TelegramContactsPage() {
 123456,Ada,Lovelace,ada,+15555550100,en,vip;newsletter,Met at conf 2026`}
                             </pre>
                         </div>
-                        <ZoruSelect
+                        <Select
                             value={importMode}
                             onValueChange={(v) => setImportMode(v as 'append' | 'replace')}
                         >
@@ -1653,8 +1653,8 @@ export default function TelegramContactsPage() {
                                 <ZoruSelectItem value="append">Append (merge tags)</ZoruSelectItem>
                                 <ZoruSelectItem value="replace">Replace (wipe scope first)</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruTextarea
+                        </Select>
+                        <Textarea
                             value={importCsv}
                             onChange={(e) => setImportCsv(e.target.value)}
                             rows={10}
@@ -1663,19 +1663,19 @@ export default function TelegramContactsPage() {
                         />
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setImportOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runImport} disabled={importing}>
+                        </Button>
+                        <Button size="sm" onClick={runImport} disabled={importing}>
                             {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Import
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Sync confirm */}
-            <ZoruDialog open={syncOpen} onOpenChange={setSyncOpen}>
+            <Dialog open={syncOpen} onOpenChange={setSyncOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Sync contacts from chats?</ZoruDialogTitle>
@@ -1687,19 +1687,19 @@ export default function TelegramContactsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setSyncOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setSyncOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runSync} disabled={syncing}>
+                        </Button>
+                        <Button size="sm" onClick={runSync} disabled={syncing}>
                             {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Sync now
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Single-row delete confirm */}
-            <ZoruDialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
+            <Dialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete contact?</ZoruDialogTitle>
@@ -1709,40 +1709,40 @@ export default function TelegramContactsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
+                        <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={confirmDelete}>
+                        </Button>
+                        <Button size="sm" onClick={confirmDelete}>
                             Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Bulk delete */}
-            <ZoruDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+            <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete {selected.size} contacts?</ZoruDialogTitle>
                         <ZoruDialogDescription>This cannot be undone.</ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setBulkDeleteOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={confirmBulkDelete}>
+                        </Button>
+                        <Button size="sm" onClick={confirmBulkDelete}>
                             Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Bulk tag */}
-            <ZoruDialog open={bulkTagOpen} onOpenChange={setBulkTagOpen}>
+            <Dialog open={bulkTagOpen} onOpenChange={setBulkTagOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Tag {selected.size} contacts</ZoruDialogTitle>
@@ -1751,7 +1751,7 @@ export default function TelegramContactsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="grid gap-3">
-                        <ZoruSelect
+                        <Select
                             value={bulkTagMode}
                             onValueChange={(v) => setBulkTagMode(v as 'add' | 'remove')}
                         >
@@ -1762,27 +1762,27 @@ export default function TelegramContactsPage() {
                                 <ZoruSelectItem value="add">Add tags</ZoruSelectItem>
                                 <ZoruSelectItem value="remove">Remove tags</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruInput
+                        </Select>
+                        <Input
                             value={bulkTagInput}
                             onChange={(e) => setBulkTagInput(e.target.value)}
                             placeholder="vip, newsletter, demo-2026"
                         />
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setBulkTagOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setBulkTagOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runBulkTag} disabled={bulkTagBusy}>
+                        </Button>
+                        <Button size="sm" onClick={runBulkTag} disabled={bulkTagBusy}>
                             {bulkTagBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Apply
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Bulk assign */}
-            <ZoruDialog open={bulkAssignOpen} onOpenChange={setBulkAssignOpen}>
+            <Dialog open={bulkAssignOpen} onOpenChange={setBulkAssignOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Assign {selected.size} contacts</ZoruDialogTitle>
@@ -1790,25 +1790,25 @@ export default function TelegramContactsPage() {
                             Paste a user id, or leave blank to unassign.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
-                    <ZoruInput
+                    <Input
                         value={bulkAssignAgent}
                         onChange={(e) => setBulkAssignAgent(e.target.value)}
                         placeholder="Mongo user id"
                     />
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setBulkAssignOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setBulkAssignOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runBulkAssign} disabled={bulkAssignBusy}>
+                        </Button>
+                        <Button size="sm" onClick={runBulkAssign} disabled={bulkAssignBusy}>
                             {bulkAssignBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Apply
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Save segment */}
-            <ZoruDialog open={segmentOpen} onOpenChange={setSegmentOpen}>
+            <Dialog open={segmentOpen} onOpenChange={setSegmentOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Save current filter as segment</ZoruDialogTitle>
@@ -1819,14 +1819,14 @@ export default function TelegramContactsPage() {
                     </ZoruDialogHeader>
                     <div className="grid gap-3">
                         <Field label="Name">
-                            <ZoruInput
+                            <Input
                                 value={segmentName}
                                 onChange={(e) => setSegmentName(e.target.value)}
                                 placeholder="VIPs without phone"
                             />
                         </Field>
                         <Field label="Description (optional)">
-                            <ZoruTextarea
+                            <Textarea
                                 value={segmentDesc}
                                 onChange={(e) => setSegmentDesc(e.target.value)}
                                 rows={3}
@@ -1840,16 +1840,16 @@ export default function TelegramContactsPage() {
                         </details>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setSegmentOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setSegmentOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={saveSegment} disabled={segmentBusy}>
+                        </Button>
+                        <Button size="sm" onClick={saveSegment} disabled={segmentBusy}>
                             {segmentBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Save segment
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }
@@ -1866,18 +1866,18 @@ function KpiCard({
     loading: boolean;
 }) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
                     {label}
                 </p>
                 {loading ? (
-                    <ZoruSkeleton className="h-7 w-24" />
+                    <Skeleton className="h-7 w-24" />
                 ) : (
                     <p className="text-2xl font-semibold tracking-tight text-zoru-ink">{value}</p>
                 )}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 

@@ -22,13 +22,13 @@ export default function ManualInstagramSetupDocsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
+        <Button variant="ghost" asChild className="mb-4 -ml-4">
           <Link href="/dashboard/instagram/setup">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Setup Options
           </Link>
-        </ZoruButton>
-        <ZoruPageHeader>
+        </Button>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Manual Setup Guide for Instagram</ZoruPageTitle>
             <ZoruPageDescription>
@@ -36,10 +36,10 @@ export default function ManualInstagramSetupDocsPage() {
               Account by providing credentials directly.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <ZoruCardHeader>
           <ZoruCardTitle>Prerequisites</ZoruCardTitle>
           <ZoruCardDescription>
@@ -56,9 +56,9 @@ export default function ManualInstagramSetupDocsPage() {
             </li>
           </ul>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <ZoruCardHeader>
           <ZoruCardTitle>Step 1: Find Your IDs</ZoruCardTitle>
           <ZoruCardDescription>
@@ -81,9 +81,9 @@ export default function ManualInstagramSetupDocsPage() {
             </p>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <ZoruCardHeader>
           <ZoruCardTitle>Step 2: Generate a Permanent Access Token</ZoruCardTitle>
           <ZoruCardDescription>
@@ -119,18 +119,18 @@ export default function ManualInstagramSetupDocsPage() {
               Click <strong>Generate Token</strong> and copy it immediately.
             </li>
           </ol>
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <ZoruAlertTitle>Important: Store Your Token Securely</ZoruAlertTitle>
             <ZoruAlertDescription>
               The permanent access token is like a password. Treat it securely and do not share
               it.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <ZoruCardHeader>
           <ZoruCardTitle>Step 3: Connect to SabNode</ZoruCardTitle>
           <ZoruCardDescription>
@@ -147,7 +147,7 @@ export default function ManualInstagramSetupDocsPage() {
             respective fields.
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

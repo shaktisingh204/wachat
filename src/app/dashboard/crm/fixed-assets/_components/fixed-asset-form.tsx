@@ -60,10 +60,10 @@ const CONDITIONS = [
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create fixed asset'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -116,16 +116,16 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
       <input type="hidden" name="depreciationMethod" value={depreciationMethod} />
       <input type="hidden" name="condition" value={condition} />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="code">
+            <Label htmlFor="code">
               Asset code <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="code"
               name="code"
               required
@@ -135,10 +135,10 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="name">
+            <Label htmlFor="name">
               Asset name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="name"
               name="name"
               required
@@ -148,7 +148,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Category</ZoruLabel>
+            <Label>Category</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="category"
@@ -159,19 +159,19 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Purchase
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="purchaseDate">
+            <Label htmlFor="purchaseDate">
               Purchase date{' '}
               {!editing ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="purchaseDate"
               name="purchaseDate"
               type="date"
@@ -181,11 +181,11 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="cost">
+            <Label htmlFor="cost">
               Purchase value{' '}
               {!editing ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="cost"
               name="cost"
               type="number"
@@ -197,7 +197,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Currency</ZoruLabel>
+            <Label>Currency</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="currency"
@@ -207,7 +207,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Vendor (purchased from)</ZoruLabel>
+            <Label>Vendor (purchased from)</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="vendor"
@@ -217,15 +217,15 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Assignment
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Custodian (assigned employee)</ZoruLabel>
+            <Label>Custodian (assigned employee)</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="employee"
@@ -235,7 +235,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Location (branch)</ZoruLabel>
+            <Label>Location (branch)</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="branch"
@@ -246,7 +246,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Warehouse</ZoruLabel>
+            <Label>Warehouse</Label>
             <div className="mt-1.5">
               {/*
                * The Rust DTO doesn't carry a warehouseId for fixed
@@ -263,8 +263,8 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="warrantyUntil">Warranty until</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="warrantyUntil">Warranty until</Label>
+            <Input
               id="warrantyUntil"
               name="warrantyUntil"
               type="date"
@@ -273,8 +273,8 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="insuranceUntil">Insurance until</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="insuranceUntil">Insurance until</Label>
+            <Input
               id="insuranceUntil"
               name="insuranceUntil"
               type="date"
@@ -283,16 +283,16 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Depreciation
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="depreciationMethod">Depreciation method</ZoruLabel>
-            <ZoruSelect value={depreciationMethod} onValueChange={setDepreciationMethod}>
+            <Label htmlFor="depreciationMethod">Depreciation method</Label>
+            <Select value={depreciationMethod} onValueChange={setDepreciationMethod}>
               <ZoruSelectTrigger id="depreciationMethod" className="mt-1.5">
                 <ZoruSelectValue placeholder="Select method" />
               </ZoruSelectTrigger>
@@ -303,14 +303,14 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
-            <ZoruLabel htmlFor="usefulLifeMonths">
+            <Label htmlFor="usefulLifeMonths">
               Useful life (months){' '}
               {!editing ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="usefulLifeMonths"
               name="usefulLifeMonths"
               type="number"
@@ -323,8 +323,8 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="residualValue">Residual value</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="residualValue">Residual value</Label>
+            <Input
               id="residualValue"
               name="residualValue"
               type="number"
@@ -335,16 +335,16 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Status
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="condition">Condition</ZoruLabel>
-            <ZoruSelect value={condition} onValueChange={setCondition}>
+            <Label htmlFor="condition">Condition</Label>
+            <Select value={condition} onValueChange={setCondition}>
               <ZoruSelectTrigger id="condition" className="mt-1.5">
                 <ZoruSelectValue placeholder="Select condition" />
               </ZoruSelectTrigger>
@@ -355,13 +355,13 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -371,7 +371,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

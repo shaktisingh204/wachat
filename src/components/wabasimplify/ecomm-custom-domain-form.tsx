@@ -35,10 +35,10 @@ const addDomainInitialState = { success: undefined, error: undefined };
 function AddDomainButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Add Domain
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -58,7 +58,7 @@ function VerifyButton({ domainId, onActionComplete }: { domainId: string, onActi
         });
     };
 
-    return <ZoruButton onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify</ZoruButton>;
+    return <Button onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify</Button>;
 }
 
 function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
@@ -76,7 +76,7 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
         });
     }
 
-    return <ZoruButton variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</ZoruButton>;
+    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</Button>;
 }
 
 export function EcommCustomDomainForm() {
@@ -109,25 +109,25 @@ export function EcommCustomDomainForm() {
     }, [addState, toast]);
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardHeader>
                 <ZoruCardTitle>Custom Domains</ZoruCardTitle>
                 <ZoruCardDescription>Use your own domain for branded shop URLs (e.g., shop.mybrand.com).</ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-6">
                 <form action={addAction} ref={addFormRef} className="space-y-2">
-                    <ZoruLabel htmlFor="hostname">Add New Domain</ZoruLabel>
+                    <Label htmlFor="hostname">Add New Domain</Label>
                     <div className="flex gap-2">
-                        <ZoruInput id="hostname" name="hostname" placeholder="e.g., shop.mybrand.com" required />
+                        <Input id="hostname" name="hostname" placeholder="e.g., shop.mybrand.com" required />
                         <AddDomainButton />
                     </div>
                 </form>
 
-                <ZoruSeparator />
+                <Separator />
                  <div className="space-y-4">
                     <h4 className="font-medium">Your Domains</h4>
                     {isLoading ? (
-                        <ZoruSkeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
                     ) : domains.length > 0 ? (
                         domains.map(domain => (
                             <div key={domain._id.toString()} className="p-4 border rounded-lg space-y-4">
@@ -135,9 +135,9 @@ export function EcommCustomDomainForm() {
                                     <div className="flex items-center gap-2">
                                         <p className="font-semibold">{domain.hostname}</p>
                                         {domain.verified ? (
-                                            <ZoruBadge><CheckCircle className="mr-1 h-3 w-3" /> Verified</ZoruBadge>
+                                            <Badge><CheckCircle className="mr-1 h-3 w-3" /> Verified</Badge>
                                         ) : (
-                                            <ZoruBadge variant="secondary">Unverified</ZoruBadge>
+                                            <Badge variant="secondary">Unverified</Badge>
                                         )}
                                     </div>
                                     <DeleteButton domainId={domain._id.toString()} onActionComplete={fetchData} />
@@ -150,7 +150,7 @@ export function EcommCustomDomainForm() {
                                             <span className="text-muted-foreground">Value/Target:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="break-all">cname.sabnode.com</span>
-                                                <ZoruButton variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></ZoruButton>
+                                                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></Button>
                                             </div>
                                         </div>
                                     </div>
@@ -162,7 +162,7 @@ export function EcommCustomDomainForm() {
                                             <span className="text-muted-foreground">Value:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="break-all">{domain.verificationCode}</span>
-                                                <ZoruButton variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy(domain.verificationCode)}><Key className="h-3 w-3"/></ZoruButton>
+                                                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy(domain.verificationCode)}><Key className="h-3 w-3"/></Button>
                                             </div>
                                         </div>
                                          <div className="flex justify-end pt-2">
@@ -177,6 +177,6 @@ export function EcommCustomDomainForm() {
                     )}
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

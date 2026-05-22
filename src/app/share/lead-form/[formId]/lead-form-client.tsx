@@ -92,9 +92,9 @@ export function LeadFormClient({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {banner ? (
-        <ZoruAlert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+        <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
           <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {fields.map((field) => (
@@ -108,7 +108,7 @@ export function LeadFormClient({
 
       {consentEnabled ? (
         <label className="flex items-start gap-2 text-sm text-zinc-700">
-          <ZoruCheckbox
+          <Checkbox
             checked={Boolean(values.__consent)}
             onCheckedChange={(checked: boolean | 'indeterminate') =>
               setField('__consent', checked === true)
@@ -118,9 +118,9 @@ export function LeadFormClient({
         </label>
       ) : null}
 
-      <ZoruButton type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending}>
         {pending ? 'Submitting…' : 'Submit'}
-      </ZoruButton>
+      </Button>
     </form>
   );
 }
@@ -134,10 +134,10 @@ type FieldRowProps = {
 function FieldRow({ field, value, onChange }: FieldRowProps) {
   const id = `field-${field.name}`;
   const label = (
-    <ZoruLabel htmlFor={id}>
+    <Label htmlFor={id}>
       {field.label}
       {field.required ? <span className="ml-1 text-red-500">*</span> : null}
-    </ZoruLabel>
+    </Label>
   );
 
   switch (field.type) {
@@ -145,7 +145,7 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
       return (
         <div>
           {label}
-          <ZoruTextarea
+          <Textarea
             id={id}
             placeholder={field.placeholder}
             required={field.required}
@@ -159,7 +159,7 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
       return (
         <div>
           {label}
-          <ZoruSelect
+          <Select
             value={typeof value === 'string' ? value : ''}
             onValueChange={(v) => onChange(v)}
           >
@@ -173,13 +173,13 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       );
     case 'checkbox':
       return (
         <label htmlFor={id} className="flex items-center gap-2 text-sm text-zinc-700">
-          <ZoruCheckbox
+          <Checkbox
             id={id}
             checked={Boolean(value)}
             onCheckedChange={(checked: boolean | 'indeterminate') =>
@@ -211,7 +211,7 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
       return (
         <div>
           {label}
-          <ZoruInput
+          <Input
             id={id}
             type={htmlType}
             placeholder={field.placeholder}

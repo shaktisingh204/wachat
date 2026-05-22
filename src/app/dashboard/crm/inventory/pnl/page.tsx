@@ -113,14 +113,14 @@ function KpiTile({
               ? 'text-destructive'
               : 'text-foreground';
     return (
-        <ZoruCard>
+        <Card>
             <div className="flex items-center justify-between">
                 <p className="text-[12.5px] font-medium text-muted-foreground">{label}</p>
                 <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
             </div>
             <p className={`mt-2 truncate text-[22px] font-semibold ${toneClass}`}>{value}</p>
             {sub ? <p className="mt-0.5 truncate text-[11.5px] text-muted-foreground">{sub}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -251,21 +251,21 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
             subtitle="Per-product profitability over the trailing six months."
             primaryAction={
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         onClick={handleCsv}
                         disabled={isLoading || exportRows.length === 0}
                     >
                         <Download className="mr-2 h-4 w-4" />
                         CSV
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="outline"
                         onClick={handleXlsx}
                         disabled={isLoading || exportRows.length === 0}
                     >
                         XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
@@ -296,7 +296,7 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
                 />
             </div>
 
-            <ZoruCard className="mt-4">
+            <Card className="mt-4">
                 <h2 className="text-[16px] font-semibold text-foreground">Monthly P&L</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                     Revenue vs. COGS, with the resulting gross profit line.
@@ -333,13 +333,13 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="mt-4">
+            <Card className="mt-4">
                 <h2 className="text-[16px] font-semibold text-foreground">Per-product profitability</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">All figures are in INR (₹).</p>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <SortableHeader columnKey="productName" label="Product" />
@@ -397,9 +397,9 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

@@ -178,26 +178,26 @@ export function TopClientsReport({
             className="h-9 w-32 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
-        <ZoruButton type="submit" size="sm" disabled={isPending}>
+        <Button type="submit" size="sm" disabled={isPending}>
           Apply
-        </ZoruButton>
+        </Button>
         <div className="ml-auto flex gap-2">
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={onCsv}
           >
             CSV
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={onXlsx}
           >
             XLSX
-          </ZoruButton>
+          </Button>
         </div>
       </form>
 
@@ -219,7 +219,7 @@ export function TopClientsReport({
       </div>
 
       {/* Bar chart: top 10 by revenue */}
-      <ZoruCard>
+      <Card>
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">
             Top 10 clients by revenue
@@ -272,12 +272,12 @@ export function TopClientsReport({
             </ResponsiveContainer>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Data table */}
-      <ZoruCard>
+      <Card>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="w-10 text-muted-foreground">
@@ -351,7 +351,7 @@ export function TopClientsReport({
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
           <PaginationBar
             page={page}
             limit={limit}
@@ -359,7 +359,7 @@ export function TopClientsReport({
             total={rows.length}
           />
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -67,7 +67,7 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
             key={index}
             className="relative rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3"
           >
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               size="icon-sm"
@@ -76,18 +76,18 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
               onClick={() => handleRemove(index)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
             <div className="grid items-end gap-3 md:grid-cols-3">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Date</ZoruLabel>
-                <ZoruDatePicker
+                <Label>Date</Label>
+                <DatePicker
                   value={new Date(entry.date)}
                   onChange={(d) => handleChange(index, 'date', d)}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Start Time</ZoruLabel>
-                <ZoruInput
+                <Label>Start Time</Label>
+                <Input
                   type="time"
                   value={
                     entry.start_time.slice(0, 2) +
@@ -100,8 +100,8 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>End Time</ZoruLabel>
-                <ZoruInput
+                <Label>End Time</Label>
+                <Input
                   type="time"
                   value={
                     entry.end_time.slice(0, 2) + ':' + entry.end_time.slice(2)
@@ -115,7 +115,7 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
           </div>
         ))}
       </div>
-      <ZoruButton
+      <Button
         type="button"
         variant="outline"
         size="sm"
@@ -123,7 +123,7 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
       >
         <Plus />
         Add Holiday
-      </ZoruButton>
+      </Button>
     </div>
   );
 };

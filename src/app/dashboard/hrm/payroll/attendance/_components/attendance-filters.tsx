@@ -72,7 +72,7 @@ export function AttendanceFilters({
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           <EnumFilterField
             enumName="attendanceStatus"
             value={statusFilter}
@@ -81,7 +81,7 @@ export function AttendanceFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Employee</ZoruLabel>
+          <Label>Employee</Label>
           <EntityFormField
             entity="employee"
             name="_filter_employee"
@@ -90,7 +90,7 @@ export function AttendanceFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Department</ZoruLabel>
+          <Label>Department</Label>
           <EntityFormField
             entity="department"
             name="_filter_department"
@@ -99,15 +99,15 @@ export function AttendanceFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Shift</ZoruLabel>
-          <ZoruInput
+          <Label>Shift</Label>
+          <Input
             value={shiftFilter ?? ''}
             onChange={(e) => onShiftFilter(e.target.value || null)}
             placeholder="Shift ID"
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Source</ZoruLabel>
+          <Label>Source</Label>
           <EnumFilterField
             enumName="attendanceMode"
             value={sourceFilter}
@@ -116,16 +116,16 @@ export function AttendanceFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Date — from</ZoruLabel>
-          <ZoruInput
+          <Label>Date — from</Label>
+          <Input
             type="date"
             value={fromDate}
             onChange={(e) => onFromDate(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Date — to</ZoruLabel>
-          <ZoruInput
+          <Label>Date — to</Label>
+          <Input
             type="date"
             value={toDate}
             onChange={(e) => onToDate(e.target.value)}

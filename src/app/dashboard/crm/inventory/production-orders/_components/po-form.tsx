@@ -82,10 +82,10 @@ function toDateTimeInput(value: string | undefined): string {
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -183,7 +183,7 @@ export function PoForm({ initial }: PoFormProps) {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                         <Link
                             href={
                                 editing
@@ -193,20 +193,20 @@ export function PoForm({ initial }: PoFormProps) {
                         >
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton label={editing ? 'Save changes' : 'Create order'} />
                 </div>
             </header>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Header</ZoruCardTitle>
                     <ZoruCardDescription>Pick a BOM to auto-populate components.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="orderNo">PO #</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="orderNo">PO #</Label>
+                        <Input
                             id="orderNo"
                             name="orderNo"
                             defaultValue={initial?.orderNo ?? ''}
@@ -216,8 +216,8 @@ export function PoForm({ initial }: PoFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="bomRef">BOM</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="bomRef">BOM</Label>
+                        <Input
                             id="bomRef"
                             name="bomRef"
                             value={bomId}
@@ -227,7 +227,7 @@ export function PoForm({ initial }: PoFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="finishedGoodId">Finished good *</ZoruLabel>
+                        <Label htmlFor="finishedGoodId">Finished good *</Label>
                         <EntityFormField
                             entity="item"
                             name="finishedGoodId"
@@ -245,8 +245,8 @@ export function PoForm({ initial }: PoFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="plannedQty">Planned qty *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="plannedQty">Planned qty *</Label>
+                        <Input
                             id="plannedQty"
                             name="plannedQty"
                             type="number"
@@ -260,7 +260,7 @@ export function PoForm({ initial }: PoFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="unit">Output unit</ZoruLabel>
+                        <Label htmlFor="unit">Output unit</Label>
                         <EntityFormField
                             entity="unit"
                             name="unit"
@@ -273,7 +273,7 @@ export function PoForm({ initial }: PoFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                        <Label htmlFor="status">Status</Label>
                         <EnumFormField
                             enumName="productionOrderStatus"
                             name="status"
@@ -281,16 +281,16 @@ export function PoForm({ initial }: PoFormProps) {
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Schedule</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="plannedStart">Planned start</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="plannedStart">Planned start</Label>
+                        <Input
                             id="plannedStart"
                             name="plannedStart"
                             type="datetime-local"
@@ -298,8 +298,8 @@ export function PoForm({ initial }: PoFormProps) {
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="plannedEnd">Planned end</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="plannedEnd">Planned end</Label>
+                        <Input
                             id="plannedEnd"
                             name="plannedEnd"
                             type="datetime-local"
@@ -307,8 +307,8 @@ export function PoForm({ initial }: PoFormProps) {
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="machineId">Machine / line</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="machineId">Machine / line</Label>
+                        <Input
                             id="machineId"
                             name="machineId"
                             defaultValue={initial?.machineId ?? ''}
@@ -317,7 +317,7 @@ export function PoForm({ initial }: PoFormProps) {
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel>Operator</ZoruLabel>
+                        <Label>Operator</Label>
                         <EntityFormField
                             entity="employee"
                             name="machineOperatorId"
@@ -328,14 +328,14 @@ export function PoForm({ initial }: PoFormProps) {
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Notes & cost preview</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-4">
-                    <ZoruTextarea
+                    <Textarea
                         name="notes"
                         defaultValue={initial?.notes ?? ''}
                         placeholder="Downtime considerations, scheduling notes, quality remarks…"
@@ -357,7 +357,7 @@ export function PoForm({ initial }: PoFormProps) {
                     ) : null}
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                         <div>
-                            <ZoruLabel>Material cost</ZoruLabel>
+                            <Label>Material cost</Label>
                             <div className="font-mono text-[13px] text-zoru-ink">
                                 {materialCost.toLocaleString('en-IN', {
                                     style: 'currency',
@@ -367,8 +367,8 @@ export function PoForm({ initial }: PoFormProps) {
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor="labourCostInput">Labour cost</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="labourCostInput">Labour cost</Label>
+                            <Input
                                 id="labourCostInput"
                                 type="number"
                                 min={0}
@@ -378,8 +378,8 @@ export function PoForm({ initial }: PoFormProps) {
                             />
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor="overheadCostInput">Overhead</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="overheadCostInput">Overhead</Label>
+                            <Input
                                 id="overheadCostInput"
                                 type="number"
                                 min={0}
@@ -389,7 +389,7 @@ export function PoForm({ initial }: PoFormProps) {
                             />
                         </div>
                         <div>
-                            <ZoruLabel>Total cost</ZoruLabel>
+                            <Label>Total cost</Label>
                             <div className="font-mono text-[13px] font-semibold text-zoru-ink">
                                 {totalCost.toLocaleString('en-IN', {
                                     style: 'currency',
@@ -400,10 +400,10 @@ export function PoForm({ initial }: PoFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="sticky bottom-0 flex justify-end gap-2 border-t border-zoru-line bg-zoru-bg py-3">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link
                         href={
                             editing
@@ -413,7 +413,7 @@ export function PoForm({ initial }: PoFormProps) {
                     >
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton label={editing ? 'Save changes' : 'Create order'} />
             </div>
         </form>

@@ -347,7 +347,7 @@ export default function BroadcastCronPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -361,7 +361,7 @@ export default function BroadcastCronPage() {
             <ZoruBreadcrumbPage>Broadcast Cron</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -376,11 +376,11 @@ export default function BroadcastCronPage() {
         </div>
         <div className="flex items-center gap-2">
           {queue.some((e) => e.status === 'started' || e.status === 'failed') && (
-            <ZoruButton variant="outline" size="sm" onClick={handleClearDone}>
+            <Button variant="outline" size="sm" onClick={handleClearDone}>
               Clear done
-            </ZoruButton>
+            </Button>
           )}
-          <ZoruButton
+          <Button
             size="sm"
             onClick={handleStartCron}
             disabled={isStarting || pendingCount === 0 || !selectedTemplate}
@@ -393,7 +393,7 @@ export default function BroadcastCronPage() {
             {isStarting
               ? 'Starting…'
               : `Start Cron${pendingCount > 0 ? ` (${pendingCount})` : ''}`}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -407,14 +407,14 @@ export default function BroadcastCronPage() {
             Pick a phone number, then the template, then this entry's audience.
           </p>
         </div>
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="grid gap-5 sm:grid-cols-2">
             {/* Phone number */}
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                 Phone Number <span className="text-zoru-danger">*</span>
-              </ZoruLabel>
-              <ZoruSelect value={phoneNumberId} onValueChange={setPhoneNumberId}>
+              </Label>
+              <Select value={phoneNumberId} onValueChange={setPhoneNumberId}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Choose a number…" />
                 </ZoruSelectTrigger>
@@ -431,22 +431,22 @@ export default function BroadcastCronPage() {
                     ))
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             {/* Template — global; locks once any row is queued. */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                   Template <span className="text-zoru-danger">*</span>
-                </ZoruLabel>
+                </Label>
                 {templateLocked && (
                   <span className="text-[10px] text-zoru-ink-muted">
                     Locked · clear queue to switch
                   </span>
                 )}
               </div>
-              <ZoruSelect
+              <Select
                 value={selectedTemplate?._id.toString()}
                 onValueChange={handleTemplateChange}
                 disabled={isLoadingTemplates || templateLocked}
@@ -476,16 +476,16 @@ export default function BroadcastCronPage() {
                     ))
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
 
           {/* Audience type */}
           <div className="mt-5 flex flex-col gap-1.5">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
               Audience <span className="text-zoru-danger">*</span>
-            </ZoruLabel>
-            <ZoruRadioGroup
+            </Label>
+            <RadioGroup
               value={audienceType}
               onValueChange={(v) => setAudienceType(v as AudienceKind)}
               className="flex gap-2"
@@ -504,17 +504,17 @@ export default function BroadcastCronPage() {
                 description="CSV or XLSX"
                 active={audienceType === 'file'}
               />
-            </ZoruRadioGroup>
+            </RadioGroup>
           </div>
 
           {/* Audience inputs */}
           <div className="mt-5">
             {audienceType === 'tags' ? (
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                   Audience Tags <span className="text-zoru-danger">*</span>
-                </ZoruLabel>
-                <ZoruPopover
+                </Label>
+                <Popover
                   open={tagPopoverOpen}
                   onOpenChange={setTagPopoverOpen}
                 >
@@ -585,7 +585,7 @@ export default function BroadcastCronPage() {
                       </ZoruCommandList>
                     </ZoruCommand>
                   </ZoruPopoverContent>
-                </ZoruPopover>
+                </Popover>
                 {selectedTagIds.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {selectedTagIds.map((id) => {
@@ -619,9 +619,9 @@ export default function BroadcastCronPage() {
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                   Contact file <span className="text-zoru-danger">*</span>
-                </ZoruLabel>
+                </Label>
                 <div
                   className={cn(
                     'flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-dashed px-4 py-3',
@@ -675,11 +675,11 @@ export default function BroadcastCronPage() {
               Each entry sends the chosen template (with variables and media
               set in the cards below) from this number to the chosen audience.
             </p>
-            <ZoruButton onClick={handleAdd} disabled={!activeProjectId}>
+            <Button onClick={handleAdd} disabled={!activeProjectId}>
               Add to Queue
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       </section>
 
       {/* ── Queue ────────────────────────────────────────────────── */}
@@ -701,13 +701,13 @@ export default function BroadcastCronPage() {
           )}
         </div>
         {queue.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Timer />}
             title="Queue is empty"
             description="Use the form above to add phone + audience pairs, then hit Start Cron."
           />
         ) : (
-          <ZoruCard className="p-0 overflow-x-auto">
+          <Card className="p-0 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -748,12 +748,12 @@ export default function BroadcastCronPage() {
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex flex-col gap-0.5">
-                        <ZoruBadge variant={statusVariant(entry.status)}>
+                        <Badge variant={statusVariant(entry.status)}>
                           {entry.status === 'starting' && (
                             <Loader2 className="h-2.5 w-2.5 animate-spin" />
                           )}
                           {statusLabel(entry.status)}
-                        </ZoruBadge>
+                        </Badge>
                         {entry.error && (
                           <span className="text-[10.5px] text-zoru-danger leading-tight max-w-[260px]">
                             {entry.error}
@@ -763,7 +763,7 @@ export default function BroadcastCronPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       {entry.status === 'pending' && (
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => handleRemove(entry.id)}
@@ -771,14 +771,14 @@ export default function BroadcastCronPage() {
                           className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </ZoruCard>
+          </Card>
         )}
       </section>
 
@@ -803,7 +803,7 @@ export default function BroadcastCronPage() {
 
         {/* Template variables — visible once a template is picked above. */}
         {selectedTemplate && (
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="flex flex-col gap-4">
               <div>
                 <h2 className="text-[16px] font-medium text-zoru-ink leading-none">
@@ -818,11 +818,11 @@ export default function BroadcastCronPage() {
                 variableOptions={TAG_VARIABLE_HINTS}
               />
             </div>
-          </ZoruCard>
+          </Card>
         )}
 
         {/* Options */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <label className="flex items-start gap-3 cursor-pointer select-none">
             <input
               type="checkbox"
@@ -841,7 +841,7 @@ export default function BroadcastCronPage() {
               </span>
             </div>
           </label>
-        </ZoruCard>
+        </Card>
       </form>
 
       <div className="h-6" />

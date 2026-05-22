@@ -41,7 +41,7 @@ export default async function InvoiceEInvoicePage(props: {
         >
 
             {!block ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Not generated</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -52,16 +52,16 @@ export default async function InvoiceEInvoicePage(props: {
                         </p>
                         <EInvoiceActions invoiceId={id} hasIrn={false} cancelled={false} />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : (
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
                             <ZoruCardTitle>IRN</ZoruCardTitle>
                             {block.cancelled ? (
-                                <ZoruBadge variant="danger">Cancelled</ZoruBadge>
+                                <Badge variant="danger">Cancelled</Badge>
                             ) : (
-                                <ZoruBadge variant="success">{block.status}</ZoruBadge>
+                                <Badge variant="success">{block.status}</Badge>
                             )}
                         </ZoruCardHeader>
                         <ZoruCardContent>
@@ -93,9 +93,9 @@ export default async function InvoiceEInvoicePage(props: {
                                 ) : null}
                             </dl>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Signed QR</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -117,9 +117,9 @@ export default async function InvoiceEInvoicePage(props: {
                                 </pre>
                             </details>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Actions</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -130,7 +130,7 @@ export default async function InvoiceEInvoicePage(props: {
                                 cancelled={!!block.cancelled}
                             />
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             )}
         </EntityDetailShell>

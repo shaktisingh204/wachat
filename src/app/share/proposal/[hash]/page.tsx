@@ -57,7 +57,7 @@ export default async function PublicProposalPage({ params }: { params: Params })
 
   return (
     <div className="space-y-6">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>{proposal.title || 'Proposal'}</ZoruCardTitle>
@@ -67,9 +67,9 @@ export default async function PublicProposalPage({ params }: { params: Params })
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruBadge variant={STATUS_VARIANT[proposal.status] || 'outline'}>
+            <Badge variant={STATUS_VARIANT[proposal.status] || 'outline'}>
               {proposal.status}
-            </ZoruBadge>
+            </Badge>
             <a
               href={`/share/proposal/${hash}/download`}
               target="_blank"
@@ -94,7 +94,7 @@ export default async function PublicProposalPage({ params }: { params: Params })
             <p className="text-sm text-zinc-500">No proposal body provided.</p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <ProposalActionsPanel
         hash={hash}

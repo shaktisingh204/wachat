@@ -66,7 +66,7 @@ export function JourneyNodeCard({ node, selected, onSelect, index }: JourneyNode
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <ZoruBadge variant="outline" className="text-[10px] uppercase tracking-wide">{meta.label}</ZoruBadge>
+            <Badge variant="outline" className="text-[10px] uppercase tracking-wide">{meta.label}</Badge>
             {node.data.label ? (
               <span className="truncate text-sm font-medium">{node.data.label}</span>
             ) : null}

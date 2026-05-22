@@ -5,7 +5,7 @@ import { EmailSuiteLayout } from '@/components/email/layout';
 export default function EmailFormsPage() {
   return (
     <EmailSuiteLayout>
-      <Suspense fallback={<ZoruSkeleton className="h-96 w-full" />}>
+      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
         <RouteComingSoon
           title="Forms"
           description="Signup forms, popups and hosted landing pages."

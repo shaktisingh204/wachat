@@ -488,7 +488,7 @@ export default async function SabsmsAnalyticsPage({
       </div>
 
       {/* Group-by table — driven by the URL ?groupBy=… selector. */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>By {groupBy}</ZoruCardTitle>
           <ZoruCardDescription>
@@ -503,7 +503,7 @@ export default async function SabsmsAnalyticsPage({
               No data yet — try a wider date range or switch group-by.
             </p>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>{groupBy}</ZoruTableHead>
@@ -531,28 +531,28 @@ export default async function SabsmsAnalyticsPage({
                       {g.failed.toLocaleString()}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-xs">
-                      <ZoruBadge
+                      <Badge
                         variant={
                           g.deliveryRate >= 95 ? "default" : "secondary"
                         }
                       >
                         {g.deliveryRate}%
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <DashboardGrid items={gridItems} workspaceId={workspaceId || "anon"} />
 
       {/* CTR + conversions tables — surfaced as inline cards so the layout
           stays predictable even when these collections are empty. */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>CTR per link</ZoruCardTitle>
             <ZoruCardDescription>
@@ -570,9 +570,9 @@ export default async function SabsmsAnalyticsPage({
               with a tracked short link, this table fills automatically.
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Conversions</ZoruCardTitle>
             <ZoruCardDescription>
@@ -581,7 +581,7 @@ export default async function SabsmsAnalyticsPage({
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent className="p-0">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Event</ZoruTableHead>
@@ -608,9 +608,9 @@ export default async function SabsmsAnalyticsPage({
                   </ZoruTableCell>
                 </ZoruTableRow>
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     </SabsmsPageShell>
   );

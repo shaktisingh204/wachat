@@ -36,10 +36,10 @@ export function NewIssueForm() {
     <ClayCard>
       <form action={action} className="space-y-4">
         <div>
-          <ZoruLabel htmlFor="title" className="text-foreground">
+          <Label htmlFor="title" className="text-foreground">
             Title <span className="text-destructive">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="title"
             name="title"
             required
@@ -48,10 +48,10 @@ export function NewIssueForm() {
         </div>
 
         <div>
-          <ZoruLabel htmlFor="description" className="text-foreground">
+          <Label htmlFor="description" className="text-foreground">
             Description
-          </ZoruLabel>
-          <ZoruTextarea
+          </Label>
+          <Textarea
             id="description"
             name="description"
             rows={4}
@@ -61,9 +61,9 @@ export function NewIssueForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="projectId" className="text-foreground">
+            <Label htmlFor="projectId" className="text-foreground">
               Project
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="project"
               name="projectId"
@@ -71,7 +71,7 @@ export function NewIssueForm() {
             />
           </div>
           <div>
-            <ZoruLabel className="text-foreground">Status</ZoruLabel>
+            <Label className="text-foreground">Status</Label>
             <EnumFormField
               enumName="issueStatus"
               name="status"
@@ -83,7 +83,7 @@ export function NewIssueForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel className="text-foreground">Priority</ZoruLabel>
+            <Label className="text-foreground">Priority</Label>
             <EnumFormField
               enumName="priorityMedium"
               name="priority"
@@ -92,9 +92,9 @@ export function NewIssueForm() {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="assigneeId" className="text-foreground">
+            <Label htmlFor="assigneeId" className="text-foreground">
               Assignee
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="employee"
               name="assigneeId"
@@ -105,9 +105,9 @@ export function NewIssueForm() {
         </div>
 
         <div>
-          <ZoruLabel htmlFor="reporterId" className="text-foreground">
+          <Label htmlFor="reporterId" className="text-foreground">
             Reporter
-          </ZoruLabel>
+          </Label>
           <EntityFormField
             entity="user"
             name="reporterId"
@@ -117,14 +117,14 @@ export function NewIssueForm() {
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="pill"
             onClick={() => router.push('/dashboard/crm/projects/issues')}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="obsidian"
             disabled={isPending}
@@ -138,7 +138,7 @@ export function NewIssueForm() {
             }
           >
             Save
-          </ZoruButton>
+          </Button>
         </div>
       </form>
     </ClayCard>

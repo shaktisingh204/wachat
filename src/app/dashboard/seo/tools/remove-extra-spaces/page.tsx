@@ -13,10 +13,10 @@ export default function RemoveExtraSpacesPage() {
 
   return (
     <ToolShell title="Remove Extra Spaces" description="Collapse multiple spaces and blank lines.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text with extra spaces…" className="min-h-[220px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text with extra spaces…" className="min-h-[220px]" />
       <div className="flex gap-2">
-        <ZoruButton onClick={() => setText(removeExtraSpaces(text))}>Remove</ZoruButton>
-        <ZoruButton variant="ghost" onClick={() => setText('')}>Clear</ZoruButton>
+        <Button onClick={() => setText(removeExtraSpaces(text))}>Remove</Button>
+        <Button variant="ghost" onClick={() => setText('')}>Clear</Button>
       </div>
     </ToolShell>
   );

@@ -41,14 +41,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create milestone'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -91,7 +91,7 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -105,8 +105,8 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
 
                 {/* Name */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -117,8 +117,8 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={3}
@@ -130,7 +130,7 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                 {/* Project + parent */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Project</ZoruLabel>
+                        <Label>Project</Label>
                         <EntityFormField
                             entity="project"
                             name="projectId"
@@ -139,11 +139,11 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Parent milestone</ZoruLabel>
+                        <Label>Parent milestone</Label>
                         {/* TODO 1E.sweep: no `milestone` entity in lookup-registry — falling
                             back to free-text id input. Promote once a milestone lookup
                             adapter exists. */}
-                        <ZoruInput
+                        <Input
                             id="parentId"
                             name="parentId"
                             placeholder="Optional — parent milestone id"
@@ -155,8 +155,8 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                 {/* Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="dueDate">Due date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="dueDate">Due date</Label>
+                        <Input
                             id="dueDate"
                             name="dueDate"
                             type="date"
@@ -164,8 +164,8 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="completedAt">Completed on</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="completedAt">Completed on</Label>
+                        <Input
                             id="completedAt"
                             name="completedAt"
                             type="date"
@@ -177,8 +177,8 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                 {/* Progress + Priority */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="progress">Progress (%)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="progress">Progress (%)</Label>
+                        <Input
                             id="progress"
                             name="progress"
                             type="number"
@@ -194,7 +194,7 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Priority</ZoruLabel>
+                        <Label>Priority</Label>
                         <EnumFormField
                             enumName="priorityMedium"
                             name="priorityPicker"
@@ -210,7 +210,7 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                 {/* Status + Owner */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="milestoneStatus"
                             name="statusPicker"
@@ -222,7 +222,7 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Owner</ZoruLabel>
+                        <Label>Owner</Label>
                         <EntityFormField
                             entity="employee"
                             name="ownerId"
@@ -234,8 +234,8 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
 
                 {/* Tags */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="tags">Tags</Label>
+                    <Input
                         id="tags"
                         name="tags"
                         placeholder="comma, separated, tags"
@@ -245,16 +245,16 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to milestones
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }
 

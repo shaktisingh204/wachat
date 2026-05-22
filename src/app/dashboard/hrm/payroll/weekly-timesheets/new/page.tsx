@@ -110,7 +110,7 @@ export default function NewWeeklyTimesheetPage() {
       subtitle="Create a draft timesheet for an employee for a given week."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoadingEmps ? (
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading employees…
@@ -118,10 +118,10 @@ export default function NewWeeklyTimesheetPage() {
         ) : (
           <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              <Label className="text-[12px] text-zoru-ink-muted">
                 Employee <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruSelect value={userId} onValueChange={setUserId}>
+              </Label>
+              <Select value={userId} onValueChange={setUserId}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select employee" />
                 </ZoruSelectTrigger>
@@ -132,14 +132,14 @@ export default function NewWeeklyTimesheetPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              <Label className="text-[12px] text-zoru-ink-muted">
                 Week Start <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 type="date"
                 value={weekStart}
                 onChange={(e) => setWeekStart(e.target.value)}
@@ -149,8 +149,8 @@ export default function NewWeeklyTimesheetPage() {
             </div>
 
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Week End (auto)</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12px] text-zoru-ink-muted">Week End (auto)</Label>
+              <Input
                 type="date"
                 value={weekEnd}
                 readOnly
@@ -159,14 +159,14 @@ export default function NewWeeklyTimesheetPage() {
             </div>
 
             <div className="flex gap-2 md:col-span-2 md:justify-end">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.push('/dashboard/hrm/payroll/weekly-timesheets')}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 type="submit"
                 disabled={isSaving}
               >
@@ -174,11 +174,11 @@ export default function NewWeeklyTimesheetPage() {
                   <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
                 ) : null}
                 Create Timesheet
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

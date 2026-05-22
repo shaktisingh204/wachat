@@ -21,10 +21,10 @@ const sendInitialState: { success: boolean; error?: string } = { success: false,
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="icon" disabled={pending}>
+        <Button type="submit" size="icon" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send</span>
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -32,9 +32,9 @@ function ChatMessage({ message, isAgent }: { message: SabChatMessage, isAgent: b
     return (
         <div className={cn("flex items-end gap-2 group/message", isAgent ? "justify-end" : "justify-start")}>
             {!isAgent && (
-                <ZoruAvatar className="h-8 w-8 self-end">
+                <Avatar className="h-8 w-8 self-end">
                     <ZoruAvatarFallback>{'V'}</ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
             )}
             <div
                 className={cn(
@@ -85,16 +85,16 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
         <div className="flex flex-col h-full bg-transparent">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <ZoruAvatar>
+                    <Avatar>
                         <ZoruAvatarFallback>{session.visitorInfo?.email?.charAt(0).toUpperCase() || 'V'}</ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <div>
                         <p className="font-semibold">{session.visitorInfo?.email || 'New Visitor'}</p>
                     </div>
                 </div>
             </div>
 
-            <ZoruScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
+            <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                         <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -107,13 +107,13 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
                         <div ref={messagesEndRef} />
                     </div>
                 )}
-            </ZoruScrollArea>
+            </ScrollArea>
 
             <div className="flex items-center p-3 border-t bg-background flex-shrink-0">
                 <form ref={formRef} action={sendFormAction} className="w-full flex items-center gap-2">
                     <input type="hidden" name="sessionId" value={session._id.toString()} />
                     <input type="hidden" name="sender" value="agent" />
-                    <ZoruInput name="content" placeholder="Type your reply..." autoComplete="off" />
+                    <Input name="content" placeholder="Type your reply..." autoComplete="off" />
                     <SubmitButton />
                 </form>
             </div>

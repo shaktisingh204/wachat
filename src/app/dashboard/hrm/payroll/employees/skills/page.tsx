@@ -92,14 +92,14 @@ export default function SkillsMasterPage() {
       title="Skills Master"
       subtitle={`Manage the master list of skills used across the organisation.${!isLoading && skills.length > 0 ? `  ${skills.length} skill${skills.length !== 1 ? 's' : ''} defined.` : ''}`}
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Add Skill
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
@@ -133,16 +133,16 @@ export default function SkillsMasterPage() {
                       <td className="px-4 py-2.5 text-zoru-ink">{s.name}</td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(s)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(String(s._id))}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -152,9 +152,9 @@ export default function SkillsMasterPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-sm border-zoru-line bg-zoru-bg">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">
@@ -163,10 +163,10 @@ export default function SkillsMasterPage() {
           </ZoruDialogHeader>
 
           <div className="py-2">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               Skill Name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
@@ -177,16 +177,16 @@ export default function SkillsMasterPage() {
           </div>
 
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

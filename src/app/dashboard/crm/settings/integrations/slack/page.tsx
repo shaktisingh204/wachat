@@ -177,9 +177,9 @@ export default function SlackIntegrationPage() {
         >
           {!doc && !id ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -189,9 +189,9 @@ export default function SlackIntegrationPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <ZoruLabel htmlFor="webhook_url">Webhook URL</ZoruLabel>
+                <Label htmlFor="webhook_url">Webhook URL</Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="webhook_url"
                     name="webhook_url"
                     defaultValue={v('webhook_url')}
@@ -201,9 +201,9 @@ export default function SlackIntegrationPage() {
               </div>
 
               <div>
-                <ZoruLabel htmlFor="channel">Channel</ZoruLabel>
+                <Label htmlFor="channel">Channel</Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="channel"
                     name="channel"
                     defaultValue={v('channel')}
@@ -213,9 +213,9 @@ export default function SlackIntegrationPage() {
               </div>
 
               <div>
-                <ZoruLabel htmlFor="username">Username</ZoruLabel>
+                <Label htmlFor="username">Username</Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="username"
                     name="username"
                     defaultValue={v('username')}
@@ -231,7 +231,7 @@ export default function SlackIntegrationPage() {
                     Enable Slack notifications.
                   </div>
                 </div>
-                <ZoruSwitch
+                <Switch
                   checked={isActive}
                   onCheckedChange={setIsActive}
                   aria-label="Slack active"
@@ -240,16 +240,16 @@ export default function SlackIntegrationPage() {
             </div>
 
             <div className="flex flex-wrap justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -259,7 +259,7 @@ export default function SlackIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <IntegrationActivityFeed

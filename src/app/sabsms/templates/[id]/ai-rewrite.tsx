@@ -86,7 +86,7 @@ export function AiRewriteToolbar({
         AI assistance
       </div>
       <div className="flex flex-wrap gap-2">
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           disabled={disabled}
@@ -94,8 +94,8 @@ export function AiRewriteToolbar({
         >
           <Scissors className="mr-1.5 h-3.5 w-3.5" />
           {busy.mode === "shorter" && pending ? "Rewriting…" : "Rewrite shorter"}
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           variant="outline"
           size="sm"
           disabled={disabled}
@@ -103,8 +103,8 @@ export function AiRewriteToolbar({
         >
           <Smile className="mr-1.5 h-3.5 w-3.5" />
           {busy.mode === "friendlier" && pending ? "Rewriting…" : "Make friendlier"}
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           variant="outline"
           size="sm"
           disabled={disabled}
@@ -112,7 +112,7 @@ export function AiRewriteToolbar({
         >
           <MousePointerClick className="mr-1.5 h-3.5 w-3.5" />
           {busy.mode === "add_cta" && pending ? "Adding CTA…" : "Add CTA"}
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="flex flex-wrap items-end gap-2 border-t border-slate-200 pt-3">
@@ -120,7 +120,7 @@ export function AiRewriteToolbar({
           <div className="text-[11px] font-medium text-slate-600">
             Translate to
           </div>
-          <ZoruSelect value={target} onValueChange={(v) => setTarget(v as LocaleCode)}>
+          <Select value={target} onValueChange={(v) => setTarget(v as LocaleCode)}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -131,9 +131,9 @@ export function AiRewriteToolbar({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           disabled={disabled}
@@ -141,7 +141,7 @@ export function AiRewriteToolbar({
         >
           <Languages className="mr-1.5 h-3.5 w-3.5" />
           {busy.mode === "translate" && pending ? "Translating…" : "Translate"}
-        </ZoruButton>
+        </Button>
       </div>
 
       {busy.error && (

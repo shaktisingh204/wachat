@@ -854,7 +854,7 @@ export default function TelegramBroadcastsPage() {
     if (!projectId) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     title="No project selected"
                     description="Pick a project from the header to manage Telegram broadcasts."
                 />
@@ -864,7 +864,7 @@ export default function TelegramBroadcastsPage() {
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageEyebrow style={{ color: ACCENT }}>Telegram</ZoruPageEyebrow>
                     <ZoruPageTitle className="flex items-center gap-2">
@@ -877,34 +877,34 @@ export default function TelegramBroadcastsPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <ZoruPageActions>
-                    <ZoruButton
+                    <Button
                         type="button"
                         onClick={openNewComposer}
                         style={{ backgroundColor: ACCENT, color: 'white' }}
                     >
                         <Plus /> New broadcast
-                    </ZoruButton>
+                    </Button>
                 </ZoruPageActions>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* KPI cards */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Total broadcasts"
                     value={analyticsLoading ? '—' : fmtNumber(kpis.total)}
                     icon={<Megaphone />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Scheduled (page)"
                     value={fmtNumber(kpis.scheduled)}
                     icon={<CalendarIcon />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Sending now"
                     value={fmtNumber(kpis.sending)}
                     icon={<Send />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Avg success rate"
                     value={analyticsLoading ? '—' : pct(kpis.successRate)}
                     icon={<Check />}
@@ -912,18 +912,18 @@ export default function TelegramBroadcastsPage() {
             </div>
 
             {/* Filter bar */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="flex flex-col gap-3 p-3 md:flex-row md:items-center md:p-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 opacity-50" />
-                        <ZoruInput
+                        <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search by name…"
                             className="pl-9"
                         />
                     </div>
-                    <ZoruSelect
+                    <Select
                         value={botFilter}
                         onValueChange={(v) => setBotFilter(v as 'all' | string)}
                     >
@@ -938,8 +938,8 @@ export default function TelegramBroadcastsPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect
+                    </Select>
+                    <Select
                         value={statusFilter}
                         onValueChange={(v) => setStatusFilter(v as 'all' | BroadcastStatus)}
                     >
@@ -953,21 +953,21 @@ export default function TelegramBroadcastsPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                     {selected.size > 0 ? (
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="destructive"
                             onClick={() => setBulkDeleteOpen(true)}
                         >
                             <Trash2 /> Delete {selected.size}
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Table */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="p-0">
                     {error ? (
                         <div className="flex items-center gap-2 p-6 text-sm text-red-500">
@@ -979,7 +979,7 @@ export default function TelegramBroadcastsPage() {
                             <thead className="border-b text-left text-xs uppercase tracking-wide text-zoru-ink-muted">
                                 <tr>
                                     <th className="w-10 px-3 py-2">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={allSelected}
                                             onCheckedChange={(v) => toggleAll(Boolean(v))}
                                             aria-label="Select all"
@@ -1000,23 +1000,23 @@ export default function TelegramBroadcastsPage() {
                                     Array.from({ length: 4 }).map((_, i) => (
                                         <tr key={`s${i}`} className="border-b">
                                             <td colSpan={9} className="px-3 py-3">
-                                                <ZoruSkeleton className="h-6 w-full" />
+                                                <Skeleton className="h-6 w-full" />
                                             </td>
                                         </tr>
                                     ))
                                 ) : rows.length === 0 ? (
                                     <tr>
                                         <td colSpan={9} className="px-3 py-10">
-                                            <ZoruEmptyState
+                                            <EmptyState
                                                 title="No broadcasts yet"
                                                 description="Compose your first broadcast to fan out a message to your subscribers."
                                                 action={
-                                                    <ZoruButton
+                                                    <Button
                                                         type="button"
                                                         onClick={openNewComposer}
                                                     >
                                                         <Plus /> New broadcast
-                                                    </ZoruButton>
+                                                    </Button>
                                                 }
                                             />
                                         </td>
@@ -1034,7 +1034,7 @@ export default function TelegramBroadcastsPage() {
                                                 className="border-b hover:bg-zoru-bg-muted/40"
                                             >
                                                 <td className="px-3 py-2">
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={selected.has(row._id)}
                                                         onCheckedChange={(v) =>
                                                             toggleOne(row._id, Boolean(v))
@@ -1058,11 +1058,11 @@ export default function TelegramBroadcastsPage() {
                                                     {audienceLabel(row.audience)}
                                                 </td>
                                                 <td className="px-3 py-2">
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant={STATUS_VARIANT[row.status]}
                                                     >
                                                         {row.status}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </td>
                                                 <td className="px-3 py-2 text-zoru-ink-muted">
                                                     {fmtDateTime(row.scheduledAt)}
@@ -1075,7 +1075,7 @@ export default function TelegramBroadcastsPage() {
                                                 </td>
                                                 <td className="px-3 py-2 text-right">
                                                     <div className="flex justify-end gap-1">
-                                                        <ZoruButton
+                                                        <Button
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
@@ -1087,8 +1087,8 @@ export default function TelegramBroadcastsPage() {
                                                             aria-label="Open"
                                                         >
                                                             <Pencil className="size-4" />
-                                                        </ZoruButton>
-                                                        <ZoruButton
+                                                        </Button>
+                                                        <Button
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
@@ -1096,10 +1096,10 @@ export default function TelegramBroadcastsPage() {
                                                             aria-label="Duplicate"
                                                         >
                                                             <Copy className="size-4" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                         {(row.status === 'scheduled' ||
                                                             row.status === 'sending') && (
-                                                            <ZoruButton
+                                                            <Button
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="sm"
@@ -1107,10 +1107,10 @@ export default function TelegramBroadcastsPage() {
                                                                 aria-label="Cancel"
                                                             >
                                                                 <XCircle className="size-4" />
-                                                            </ZoruButton>
+                                                            </Button>
                                                         )}
                                                         {row.status === 'draft' && (
-                                                            <ZoruButton
+                                                            <Button
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="sm"
@@ -1118,9 +1118,9 @@ export default function TelegramBroadcastsPage() {
                                                                 aria-label="Send now"
                                                             >
                                                                 <Send className="size-4" />
-                                                            </ZoruButton>
+                                                            </Button>
                                                         )}
-                                                        <ZoruButton
+                                                        <Button
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
@@ -1128,7 +1128,7 @@ export default function TelegramBroadcastsPage() {
                                                             aria-label="Delete"
                                                         >
                                                             <Trash2 className="size-4 text-red-500" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1145,7 +1145,7 @@ export default function TelegramBroadcastsPage() {
                             Page {pageIdx + 1}
                         </span>
                         <div className="flex gap-2">
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
@@ -1153,8 +1153,8 @@ export default function TelegramBroadcastsPage() {
                                 disabled={pageIdx === 0}
                             >
                                 <ChevronLeft className="size-4" /> Prev
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
@@ -1162,11 +1162,11 @@ export default function TelegramBroadcastsPage() {
                                 disabled={!nextCursor}
                             >
                                 Next <ChevronRight className="size-4" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Composer drawer */}
             <Composer
@@ -1196,7 +1196,7 @@ export default function TelegramBroadcastsPage() {
             />
 
             {/* Test-send dialog */}
-            <ZoruDialog open={testOpen} onOpenChange={setTestOpen}>
+            <Dialog open={testOpen} onOpenChange={setTestOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Send a test</ZoruDialogTitle>
@@ -1206,8 +1206,8 @@ export default function TelegramBroadcastsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="flex flex-col gap-2 py-2">
-                        <ZoruLabel htmlFor="test-chat-id">Chat id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="test-chat-id">Chat id</Label>
+                        <Input
                             id="test-chat-id"
                             value={testChatId}
                             onChange={(e) => setTestChatId(e.target.value)}
@@ -1215,27 +1215,27 @@ export default function TelegramBroadcastsPage() {
                         />
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => setTestOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             onClick={runTestSend}
                             disabled={testSending}
                         >
                             {testSending ? <Loader2 className="animate-spin" /> : <Send />}
                             Send test
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Delete confirm */}
-            <ZoruDialog open={deleteRow !== null} onOpenChange={(o) => !o && setDeleteRow(null)}>
+            <Dialog open={deleteRow !== null} onOpenChange={(o) => !o && setDeleteRow(null)}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete this broadcast?</ZoruDialogTitle>
@@ -1245,22 +1245,22 @@ export default function TelegramBroadcastsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => setDeleteRow(null)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton type="button" variant="destructive" onClick={doDelete}>
+                        </Button>
+                        <Button type="button" variant="destructive" onClick={doDelete}>
                             <Trash2 /> Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Bulk delete confirm */}
-            <ZoruDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+            <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>
@@ -1272,19 +1272,19 @@ export default function TelegramBroadcastsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => setBulkDeleteOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton type="button" variant="destructive" onClick={doBulkDelete}>
+                        </Button>
+                        <Button type="button" variant="destructive" onClick={doBulkDelete}>
                             <Trash2 /> Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Detail drawer */}
             <DetailDrawer
@@ -1394,16 +1394,16 @@ function Composer(props: ComposerProps) {
                     <Section title="1 · Basics">
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                             <div className="flex flex-col gap-1.5">
-                                <ZoruLabel>Name</ZoruLabel>
-                                <ZoruInput
+                                <Label>Name</Label>
+                                <Input
                                     value={composer.name}
                                     onChange={(e) => update('name', e.target.value)}
                                     placeholder="Weekly drop · subscribers"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <ZoruLabel>Bot</ZoruLabel>
-                                <ZoruSelect
+                                <Label>Bot</Label>
+                                <Select
                                     value={composer.botId}
                                     onValueChange={(v) => update('botId', v)}
                                 >
@@ -1424,13 +1424,13 @@ function Composer(props: ComposerProps) {
                                             ))
                                         )}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
 
-                        <ZoruSeparator className="my-2" />
+                        <Separator className="my-2" />
 
-                        <ZoruLabel>Audience</ZoruLabel>
+                        <Label>Audience</Label>
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                             {AUDIENCE_KINDS.map((k) => (
                                 <button
@@ -1453,8 +1453,8 @@ function Composer(props: ComposerProps) {
 
                         {composer.audienceKind === 'segment' ? (
                             <div className="flex flex-col gap-1.5">
-                                <ZoruLabel>Segment id</ZoruLabel>
-                                <ZoruInput
+                                <Label>Segment id</Label>
+                                <Input
                                     value={composer.segmentId}
                                     onChange={(e) => update('segmentId', e.target.value)}
                                     placeholder="seg_…"
@@ -1464,8 +1464,8 @@ function Composer(props: ComposerProps) {
 
                         {composer.audienceKind === 'contactIds' ? (
                             <div className="flex flex-col gap-1.5">
-                                <ZoruLabel>Chat ids</ZoruLabel>
-                                <ZoruTextarea
+                                <Label>Chat ids</Label>
+                                <Textarea
                                     value={composer.contactIds}
                                     onChange={(e) => update('contactIds', e.target.value)}
                                     placeholder="1234567890, 9876543210"
@@ -1481,8 +1481,8 @@ function Composer(props: ComposerProps) {
                         {composer.audienceKind === 'filter' ? (
                             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                                 <div className="flex flex-col gap-1.5">
-                                    <ZoruLabel>Tags</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Tags</Label>
+                                    <Input
                                         value={composer.filterTags}
                                         onChange={(e) =>
                                             update('filterTags', e.target.value)
@@ -1491,8 +1491,8 @@ function Composer(props: ComposerProps) {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <ZoruLabel>Language</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Language</Label>
+                                    <Input
                                         value={composer.filterLang}
                                         onChange={(e) =>
                                             update('filterLang', e.target.value)
@@ -1508,7 +1508,7 @@ function Composer(props: ComposerProps) {
                     <Section title="2 · Message">
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-zoru-ink-muted">Format:</span>
-                            <ZoruRadioGroup
+                            <RadioGroup
                                 value={composer.parseMode}
                                 onValueChange={(v) =>
                                     update('parseMode', v as ComposerState['parseMode'])
@@ -1526,31 +1526,31 @@ function Composer(props: ComposerProps) {
                                         </label>
                                     </div>
                                 ))}
-                            </ZoruRadioGroup>
+                            </RadioGroup>
                         </div>
-                        <ZoruTextarea
+                        <Textarea
                             value={composer.text}
                             onChange={(e) => update('text', e.target.value)}
                             placeholder="Hello {{first_name}}, …"
                             rows={6}
                         />
                         <div className="flex items-center gap-2">
-                            <ZoruCheckbox
+                            <Checkbox
                                 id="dwpp"
                                 checked={composer.disableWebPagePreview}
                                 onCheckedChange={(v) =>
                                     update('disableWebPagePreview', Boolean(v))
                                 }
                             />
-                            <ZoruLabel htmlFor="dwpp" className="text-sm font-normal">
+                            <Label htmlFor="dwpp" className="text-sm font-normal">
                                 Disable link previews
-                            </ZoruLabel>
+                            </Label>
                         </div>
 
-                        <ZoruSeparator className="my-2" />
+                        <Separator className="my-2" />
 
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                            <ZoruLabel>Media (optional)</ZoruLabel>
+                            <Label>Media (optional)</Label>
                             <div className="flex flex-wrap gap-2">
                                 {(Object.keys(MEDIA_KIND_LABEL) as BroadcastMediaKind[]).map(
                                     (kind) => {
@@ -1600,7 +1600,7 @@ function Composer(props: ComposerProps) {
                                                     </span>
                                                 </div>
                                                 <div className="flex gap-1">
-                                                    <ZoruButton
+                                                    <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
@@ -1608,8 +1608,8 @@ function Composer(props: ComposerProps) {
                                                         aria-label="Move up"
                                                     >
                                                         <ChevronUp className="size-4" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
@@ -1617,8 +1617,8 @@ function Composer(props: ComposerProps) {
                                                         aria-label="Move down"
                                                     >
                                                         <ChevronDown className="size-4" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
@@ -1626,10 +1626,10 @@ function Composer(props: ComposerProps) {
                                                         aria-label="Remove"
                                                     >
                                                         <X className="size-4 text-red-500" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             </div>
-                                            <ZoruInput
+                                            <Input
                                                 value={m.caption ?? ''}
                                                 onChange={(e) =>
                                                     onSetMediaCaption(idx, e.target.value)
@@ -1661,7 +1661,7 @@ function Composer(props: ComposerProps) {
                                                 Row {rowIdx + 1}
                                             </span>
                                             <div className="flex gap-1">
-                                                <ZoruButton
+                                                <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
@@ -1670,8 +1670,8 @@ function Composer(props: ComposerProps) {
                                                     }
                                                 >
                                                     <Plus className="size-4" /> Button
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
@@ -1681,7 +1681,7 @@ function Composer(props: ComposerProps) {
                                                     aria-label="Remove row"
                                                 >
                                                     <Trash2 className="size-4 text-red-500" />
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                         </div>
                                         <ul className="flex flex-col gap-2">
@@ -1690,7 +1690,7 @@ function Composer(props: ComposerProps) {
                                                     key={`btn-${rowIdx}-${colIdx}`}
                                                     className="grid grid-cols-1 gap-2 rounded-md border p-2 md:grid-cols-[1fr_1fr_1fr_auto]"
                                                 >
-                                                    <ZoruInput
+                                                    <Input
                                                         value={btn.text}
                                                         onChange={(e) =>
                                                             onUpdateKeyboardButton(
@@ -1701,7 +1701,7 @@ function Composer(props: ComposerProps) {
                                                         }
                                                         placeholder="Button label"
                                                     />
-                                                    <ZoruInput
+                                                    <Input
                                                         value={btn.url ?? ''}
                                                         onChange={(e) =>
                                                             onUpdateKeyboardButton(
@@ -1715,7 +1715,7 @@ function Composer(props: ComposerProps) {
                                                         }
                                                         placeholder="https://… (optional)"
                                                     />
-                                                    <ZoruInput
+                                                    <Input
                                                         value={btn.callbackData ?? ''}
                                                         onChange={(e) =>
                                                             onUpdateKeyboardButton(
@@ -1730,7 +1730,7 @@ function Composer(props: ComposerProps) {
                                                         }
                                                         placeholder="callback_data (optional)"
                                                     />
-                                                    <ZoruButton
+                                                    <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
@@ -1743,7 +1743,7 @@ function Composer(props: ComposerProps) {
                                                         aria-label="Remove button"
                                                     >
                                                         <X className="size-4 text-red-500" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </li>
                                             ))}
                                         </ul>
@@ -1751,18 +1751,18 @@ function Composer(props: ComposerProps) {
                                 ))}
                             </ul>
                         )}
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={onAddKeyboardRow}
                         >
                             <Plus /> Add row
-                        </ZoruButton>
+                        </Button>
                     </Section>
 
                     {/* ── 4. Schedule ───────────────────────────────── */}
                     <Section title="4 · Schedule">
-                        <ZoruRadioGroup
+                        <RadioGroup
                             value={composer.sendChoice}
                             onValueChange={(v) =>
                                 update('sendChoice', v as 'now' | 'schedule')
@@ -1781,9 +1781,9 @@ function Composer(props: ComposerProps) {
                                     Schedule for…
                                 </label>
                             </div>
-                        </ZoruRadioGroup>
+                        </RadioGroup>
                         {composer.sendChoice === 'schedule' ? (
-                            <ZoruInput
+                            <Input
                                 type="datetime-local"
                                 value={composer.scheduledLocal}
                                 onChange={(e) =>
@@ -1829,14 +1829,14 @@ function Composer(props: ComposerProps) {
                             ) : null}
                         </div>
                         <div className="flex justify-end">
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 onClick={onOpenTest}
                                 disabled={!composer.broadcastId}
                             >
                                 <Send /> Send test
-                            </ZoruButton>
+                            </Button>
                         </div>
                         {!composer.broadcastId ? (
                             <p className="text-right text-xs text-zoru-ink-muted">
@@ -1847,15 +1847,15 @@ function Composer(props: ComposerProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-end gap-2 border-t p-3">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
                         disabled={saving}
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         type="button"
                         variant="outline"
                         onClick={onSaveDraft}
@@ -1863,14 +1863,14 @@ function Composer(props: ComposerProps) {
                     >
                         {saving ? <Loader2 className="animate-spin" /> : null}
                         Save draft
-                    </ZoruButton>
+                    </Button>
                     {composer.sendChoice === 'schedule' ? (
-                        <ZoruButton type="button" onClick={onSchedule} disabled={saving}>
+                        <Button type="button" onClick={onSchedule} disabled={saving}>
                             {saving ? <Loader2 className="animate-spin" /> : <CalendarIcon />}
                             Save & schedule
-                        </ZoruButton>
+                        </Button>
                     ) : (
-                        <ZoruButton
+                        <Button
                             type="button"
                             onClick={onSendNow}
                             disabled={saving}
@@ -1878,7 +1878,7 @@ function Composer(props: ComposerProps) {
                         >
                             {saving ? <Loader2 className="animate-spin" /> : <Send />}
                             Save & send now
-                        </ZoruButton>
+                        </Button>
                     )}
                 </div>
             </ZoruDrawerContent>
@@ -1981,7 +1981,7 @@ function DetailDrawer(props: DetailDrawerProps) {
 
                 <div className="flex flex-col gap-4 overflow-y-auto px-4 pb-4 md:px-6">
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruBadge variant={STATUS_VARIANT[row.status]}>{row.status}</ZoruBadge>
+                        <Badge variant={STATUS_VARIANT[row.status]}>{row.status}</Badge>
                         {row.scheduledAt ? (
                             <span className="text-xs text-zoru-ink-muted">
                                 Scheduled: {fmtDateTime(row.scheduledAt)}
@@ -2001,10 +2001,10 @@ function DetailDrawer(props: DetailDrawerProps) {
 
                     {/* Counters */}
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                        <ZoruStatCard label="Queued" value={fmtNumber(queued)} />
-                        <ZoruStatCard label="Sent" value={fmtNumber(sent)} />
-                        <ZoruStatCard label="Failed" value={fmtNumber(failed)} />
-                        <ZoruStatCard label="Skipped" value={fmtNumber(skipped)} />
+                        <StatCard label="Queued" value={fmtNumber(queued)} />
+                        <StatCard label="Sent" value={fmtNumber(sent)} />
+                        <StatCard label="Failed" value={fmtNumber(failed)} />
+                        <StatCard label="Skipped" value={fmtNumber(skipped)} />
                     </div>
 
                     {row.errorSummary ? (
@@ -2024,7 +2024,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                         <h3 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Deliveries
                         </h3>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -2037,7 +2037,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                                 <Download className="size-3.5" />
                             )}
                             CSV
-                        </ZoruButton>
+                        </Button>
                     </div>
 
                     <div className="overflow-x-auto rounded-md border">
@@ -2069,7 +2069,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                                                 {d.chatId}
                                             </td>
                                             <td className="px-3 py-2">
-                                                <ZoruBadge
+                                                <Badge
                                                     variant={
                                                         d.status === 'sent'
                                                             ? 'success'
@@ -2079,7 +2079,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                                                     }
                                                 >
                                                     {d.status}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </td>
                                             <td className="px-3 py-2 text-xs text-zoru-ink-muted">
                                                 {d.errorMessage ?? ''}
@@ -2095,7 +2095,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                     </div>
                     {deliveriesCursor ? (
                         <div className="flex justify-center">
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
@@ -2106,20 +2106,20 @@ function DetailDrawer(props: DetailDrawerProps) {
                                     <Loader2 className="animate-spin" />
                                 ) : null}
                                 Load more
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null}
                 </div>
 
                 <div className="flex justify-end gap-2 border-t p-3">
                     {(row.status === 'scheduled' || row.status === 'sending') && (
-                        <ZoruButton type="button" variant="destructive" onClick={onCancel}>
+                        <Button type="button" variant="destructive" onClick={onCancel}>
                             <XCircle /> Cancel
-                        </ZoruButton>
+                        </Button>
                     )}
-                    <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                         Close
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruDrawerContent>
         </ZoruDrawer>

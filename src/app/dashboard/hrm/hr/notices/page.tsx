@@ -195,11 +195,11 @@ export default function NoticesListPage() {
                     title="Notices"
                     subtitle="Company-wide notices, advisories, and circulars."
                     primaryAction={
-                        <ZoruButton asChild>
+                        <Button asChild>
                             <Link href="/dashboard/hrm/hr/notices/new">
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New notice
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -208,7 +208,7 @@ export default function NoticesListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <Select
                                 value={statusFilter}
                                 onValueChange={(v) =>
                                     setStatusFilter(v as StatusFilter)
@@ -227,8 +227,8 @@ export default function NoticesListPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                            </Select>
+                            <Select
                                 value={categoryFilter}
                                 onValueChange={(v) =>
                                     setCategoryFilter(v as CategoryFilter)
@@ -247,7 +247,7 @@ export default function NoticesListPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             <EnumFilterField
                                 enumName="announcementSeverity"
                                 value={severityFilter}
@@ -259,7 +259,7 @@ export default function NoticesListPage() {
                     loading={isLoading && items.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-border">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-border hover:bg-transparent">
                                     <ZoruTableHead className="text-muted-foreground">
@@ -368,7 +368,7 @@ export default function NoticesListPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         asChild
@@ -379,8 +379,8 @@ export default function NoticesListPage() {
                                                         >
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label={`Delete ${n.title}`}
@@ -389,14 +389,14 @@ export default function NoticesListPage() {
                                                         }
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
             </EntityListShell>
 

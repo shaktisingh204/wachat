@@ -24,7 +24,7 @@ export default function AdwordsWrapperPage() {
   return (
     <ToolShell title="AdWords Keyword Wrapper" description="Wrap a list of keywords with Google Ads match type syntax.">
       <div className="space-y-1">
-        <ZoruLabel>Match type</ZoruLabel>
+        <Label>Match type</Label>
         <select className="border border-zoru-line rounded-[var(--zoru-radius)] h-9 px-2 bg-zoru-bg text-zoru-ink text-sm" value={mt} onChange={(e) => setMt(e.target.value as MatchType)}>
           <option value="broad">Broad</option>
           <option value="phrase">"Phrase"</option>
@@ -32,8 +32,8 @@ export default function AdwordsWrapperPage() {
           <option value="modified">+modified +broad</option>
         </select>
       </div>
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="One keyword per line…" />
-      <ZoruTextarea readOnly value={out} className="min-h-[180px] font-mono text-xs" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="One keyword per line…" />
+      <Textarea readOnly value={out} className="min-h-[180px] font-mono text-xs" />
     </ToolShell>
   );
 }

@@ -414,7 +414,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
       {/* search + filter row (parent shell already renders status chips above) */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="min-w-[200px] flex-1">
-          <ZoruInput
+          <Input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -425,7 +425,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
         {showFilterRow ? (
           <>
             {cycleOptions && setCycle ? (
-              <ZoruSelect value={cycle ?? 'all'} onValueChange={setCycle}>
+              <Select value={cycle ?? 'all'} onValueChange={setCycle}>
                 <ZoruSelectTrigger className="h-9 w-[160px]">
                   <ZoruSelectValue placeholder={cycleLabel ?? 'Cycle'} />
                 </ZoruSelectTrigger>
@@ -439,11 +439,11 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             ) : null}
 
             {deptOptions && setDept ? (
-              <ZoruSelect value={dept ?? 'all'} onValueChange={setDept}>
+              <Select value={dept ?? 'all'} onValueChange={setDept}>
                 <ZoruSelectTrigger className="h-9 w-[160px]">
                   <ZoruSelectValue placeholder="Department" />
                 </ZoruSelectTrigger>
@@ -455,11 +455,11 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             ) : null}
 
             {ownerOptions && setOwner ? (
-              <ZoruSelect value={owner ?? 'all'} onValueChange={setOwner}>
+              <Select value={owner ?? 'all'} onValueChange={setOwner}>
                 <ZoruSelectTrigger className="h-9 w-[160px]">
                   <ZoruSelectValue placeholder="Owner" />
                 </ZoruSelectTrigger>
@@ -471,12 +471,12 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             ) : null}
 
             {setDateFrom && setDateTo ? (
               <div className="flex items-center gap-1">
-                <ZoruInput
+                <Input
                   type="date"
                   className="h-9 w-[150px]"
                   value={dateFrom ?? ''}
@@ -484,7 +484,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
                   aria-label="From date"
                 />
                 <span className="text-[12px] text-zoru-ink-muted">to</span>
-                <ZoruInput
+                <Input
                   type="date"
                   className="h-9 w-[150px]"
                   value={dateTo ?? ''}
@@ -497,7 +497,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
         ) : null}
 
         <div className="ml-auto flex items-center gap-1">
-          <ZoruButton
+          <Button
             size="sm"
             variant="outline"
             onClick={handleExportCsv}
@@ -505,8 +505,8 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
           >
             <Download className="h-3.5 w-3.5" />
             CSV
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             variant="outline"
             onClick={handleExportXlsx}
@@ -514,7 +514,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
           >
             <Download className="h-3.5 w-3.5" />
             XLSX
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -523,11 +523,11 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
         <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
           <span className="text-sm text-zoru-ink">{selected.size} selected</span>
           <div className="flex flex-wrap gap-2">
-            <ZoruButton size="sm" variant="ghost" onClick={clearSelection} disabled={busy}>
+            <Button size="sm" variant="ghost" onClick={clearSelection} disabled={busy}>
               Clear
-            </ZoruButton>
+            </Button>
             {onBulkReminder ? (
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => {
@@ -537,9 +537,9 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
               >
                 <Send className="h-3.5 w-3.5" />
                 {reminderLabel}
-              </ZoruButton>
+              </Button>
             ) : null}
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={handleExportCsv}
@@ -547,8 +547,8 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={handleExportXlsx}
@@ -556,8 +556,8 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
             >
               <Download className="h-3.5 w-3.5" />
               Export XLSX
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={() => setBulkArchiveOpen(true)}
@@ -565,8 +565,8 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
             >
               <Archive className="h-3.5 w-3.5" />
               Archive
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="destructive"
               onClick={() => setBulkDeleteOpen(true)}
@@ -574,19 +574,19 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
             >
               <Trash2 className="h-3.5 w-3.5" />
               Delete
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
       {/* table */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-[var(--zoru-radius)]">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     aria-label="Select page"
                     checked={allOnPageSelected}
                     onCheckedChange={(v) => togglePage(Boolean(v))}
@@ -616,7 +616,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
                   return (
                     <ZoruTableRow key={id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           aria-label="Select row"
                           checked={selected.has(id)}
                           onCheckedChange={() => toggleOne(id)}
@@ -648,19 +648,19 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
                       })}
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" asChild>
+                          <Button variant="ghost" size="sm" asChild>
                             <Link href={editHref(row)} aria-label="Edit">
                               <Pencil className="h-3.5 w-3.5" />
                             </Link>
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             aria-label="Delete"
                             onClick={() => setPendingDeleteId(id)}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -668,7 +668,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
 
         {totalRows > 0 ? (
@@ -690,7 +690,7 @@ export function HrDeepListBody<T>(props: HrDeepListBodyProps<T>): React.JSX.Elem
             }}
           />
         ) : null}
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={!!pendingDeleteId}

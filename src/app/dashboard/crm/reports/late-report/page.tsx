@@ -158,7 +158,7 @@ export default async function LateReportPage(props: PageProps) {
         />
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[16px] font-semibold text-foreground">
             Late items by month — stacked by kind
@@ -168,11 +168,11 @@ export default async function LateReportPage(props: PageProps) {
           </span>
         </div>
         <LateStackedChart data={stacked} />
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">Kind</ZoruTableHead>
@@ -201,9 +201,9 @@ export default async function LateReportPage(props: PageProps) {
                     className="border-border"
                   >
                     <ZoruTableCell>
-                      <ZoruBadge variant={kindVariant(r.kind)}>
+                      <Badge variant={kindVariant(r.kind)}>
                         {KIND_LABEL[r.kind]}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <EntityRowLink
@@ -237,9 +237,9 @@ export default async function LateReportPage(props: PageProps) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

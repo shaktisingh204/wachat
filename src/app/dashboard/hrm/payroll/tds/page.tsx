@@ -24,8 +24,8 @@ const months = [
 ];
 
 function regimeBadge(regime: string) {
-    if (regime === 'new') return <ZoruBadge variant="info">New Regime</ZoruBadge>;
-    return <ZoruBadge variant="warning">Old Regime</ZoruBadge>;
+    if (regime === 'new') return <Badge variant="info">New Regime</Badge>;
+    return <Badge variant="warning">Old Regime</Badge>;
 }
 
 export default function TdsPage() {
@@ -73,47 +73,47 @@ export default function TdsPage() {
             subtitle={`Tax Deducted at Source tracking for ${periodLabel}.`}
             primaryAction={
                 <>
-                    <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                    <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
                         <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                    </Select>
+                    <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
                         <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </>
             }
         >
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total TDS Collected</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalTDS.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{periodLabel}</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Employees with TDS</p>
                     <div className="mt-2 text-2xl text-zoru-ink">{rows.filter(r => r.tds > 0).length}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">out of {rows.length} employees</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Avg. TDS per Employee</p>
                     <div className="mt-2 text-2xl text-zoru-ink">
                         ₹{rows.length > 0 ? Math.round(totalTDS / rows.filter(r => r.tds > 0).length || 0).toLocaleString('en-IN') : 0}
                     </div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">among applicable employees</p>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4">
                     <h2 className="text-[16px] text-zoru-ink">TDS Deduction Details</h2>
                     <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Per-employee breakdown with PAN, tax regime, and deduction date.</p>
@@ -151,7 +151,7 @@ export default function TdsPage() {
                                         <td className="px-4 py-3">{regimeBadge(row.taxRegime)}</td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">
-                                            {row.tds > 0 ? `₹${row.tds.toLocaleString('en-IN')}` : <ZoruBadge variant="secondary">Nil</ZoruBadge>}
+                                            {row.tds > 0 ? `₹${row.tds.toLocaleString('en-IN')}` : <Badge variant="secondary">Nil</Badge>}
                                         </td>
                                         <td className="px-4 py-3 text-zoru-ink">{periodLabel}</td>
                                         <td className="px-4 py-3 text-zoru-ink-muted">{row.deductionDate}</td>
@@ -176,7 +176,7 @@ export default function TdsPage() {
                         )}
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

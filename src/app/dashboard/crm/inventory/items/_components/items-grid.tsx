@@ -65,7 +65,7 @@ export function ItemsGrid({
             : 'text-zoru-ink';
         const status = item.status ?? 'active';
         return (
-          <ZoruCard
+          <Card
             key={item._id}
             className="relative overflow-hidden p-0 transition hover:shadow-sm"
           >
@@ -115,7 +115,7 @@ export function ItemsGrid({
                 </span>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         );
       })}
     </div>

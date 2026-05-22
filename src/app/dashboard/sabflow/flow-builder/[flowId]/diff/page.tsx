@@ -250,14 +250,14 @@ export default function FlowDiffPage() {
     <div className="flex min-h-screen flex-col bg-zoru-bg text-zoru-ink">
       {/* ── Header ─────────────────────────────────────────── */}
       <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-zoru-line bg-zoru-surface/90 px-4 py-3 backdrop-blur-md">
-        <ZoruButton variant="ghost" size="icon-sm" asChild>
+        <Button variant="ghost" size="icon-sm" asChild>
           <Link
             href={`/dashboard/sabflow/flow-builder/${flowId}`}
             aria-label="Back to flow editor"
           >
             <ArrowLeft />
           </Link>
-        </ZoruButton>
+        </Button>
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-semibold text-zoru-ink-strong">
             Compare flow versions
@@ -270,7 +270,7 @@ export default function FlowDiffPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setConfirming("before")}
@@ -281,8 +281,8 @@ export default function FlowDiffPage() {
           >
             <RotateCcw />
             Restore from left
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             onClick={() => setConfirming("after")}
             disabled={
@@ -292,27 +292,27 @@ export default function FlowDiffPage() {
           >
             <RotateCcw />
             Restore from right
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {/* ── Restore error banner ───────────────────────────── */}
       {restoreError && (
         <div className="mx-4 mt-3">
-          <ZoruAlert variant="destructive" className="flex items-center gap-2">
+          <Alert variant="destructive" className="flex items-center gap-2">
             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
             <ZoruAlertDescription className="flex-1 truncate">
               {restoreError}
             </ZoruAlertDescription>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               onClick={() => setRestoreError(null)}
               aria-label="Dismiss error"
             >
               <X />
-            </ZoruButton>
-          </ZoruAlert>
+            </Button>
+          </Alert>
         </div>
       )}
 
@@ -324,7 +324,7 @@ export default function FlowDiffPage() {
           </div>
         ) : state.error ? (
           <div className="mx-auto max-w-md">
-            <ZoruEmptyState
+            <EmptyState
               icon={<AlertTriangle />}
               title="Could not load diff"
               description={state.error}

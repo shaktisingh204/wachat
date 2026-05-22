@@ -57,8 +57,8 @@ export function ProfileForm({ initialName, email, initialMobile }: ProfileFormPr
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="pf-name">Name</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="pf-name">Name</Label>
+                <Input
                     id="pf-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -66,15 +66,15 @@ export function ProfileForm({ initialName, email, initialMobile }: ProfileFormPr
                 />
             </div>
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="pf-email">Email</ZoruLabel>
-                <ZoruInput id="pf-email" value={email} readOnly disabled />
+                <Label htmlFor="pf-email">Email</Label>
+                <Input id="pf-email" value={email} readOnly disabled />
                 <p className="text-xs text-zoru-ink-muted">
                     Contact support to change your sign-in email.
                 </p>
             </div>
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="pf-mobile">Mobile</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="pf-mobile">Mobile</Label>
+                <Input
                     id="pf-mobile"
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
@@ -83,8 +83,8 @@ export function ProfileForm({ initialName, email, initialMobile }: ProfileFormPr
                 />
             </div>
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="pf-password">New password</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="pf-password">New password</Label>
+                <Input
                     id="pf-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -105,9 +105,9 @@ export function ProfileForm({ initialName, email, initialMobile }: ProfileFormPr
                 </div>
             ) : null}
             <div className="flex justify-end">
-                <ZoruButton type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting}>
                     {submitting ? 'Saving…' : 'Save changes'}
-                </ZoruButton>
+                </Button>
             </div>
         </form>
     );

@@ -68,7 +68,7 @@ interface RecentDealsCardProps {
 }
 
 export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
-  <ZoruCard className="p-6 md:col-span-2">
+  <Card className="p-6 md:col-span-2">
     <SectionHead
       icon={Handshake}
       title="Recent Deals"
@@ -77,7 +77,7 @@ export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
     {deals.length === 0 ? (
       <EmptyState icon={Handshake} text="No recent deals found." />
     ) : (
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Deal Name</ZoruTableHead>
@@ -90,7 +90,7 @@ export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
             <ZoruTableRow key={deal._id}>
               <ZoruTableCell className="font-medium text-zoru-ink">{deal.name}</ZoruTableCell>
               <ZoruTableCell>
-                <ZoruBadge variant="ghost">{deal.stage}</ZoruBadge>
+                <Badge variant="ghost">{deal.stage}</Badge>
               </ZoruTableCell>
               <ZoruTableCell className="text-right font-medium text-zoru-ink">
                 {new Intl.NumberFormat('en-US', {
@@ -101,9 +101,9 @@ export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     )}
-  </ZoruCard>
+  </Card>
 );
 
 interface UpcomingTasksCardProps {
@@ -111,7 +111,7 @@ interface UpcomingTasksCardProps {
 }
 
 export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
-  <ZoruCard className="p-6">
+  <Card className="p-6">
     <SectionHead
       icon={Calendar}
       title="Upcoming Tasks"
@@ -120,7 +120,7 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
     {tasks.length === 0 ? (
       <EmptyState icon={CheckCircle2} text="No pending tasks." />
     ) : (
-      <ZoruScrollArea className="h-[250px] pr-3">
+      <ScrollArea className="h-[250px] pr-3">
         <div className="space-y-3">
           {tasks.map((task) => (
             <div
@@ -132,9 +132,9 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
                   {task.title}
                 </p>
                 <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
-                  <ZoruBadge variant={task.priority === 'High' ? 'danger' : 'ghost'}>
+                  <Badge variant={task.priority === 'High' ? 'danger' : 'ghost'}>
                     {task.priority || 'Normal'}
-                  </ZoruBadge>
+                  </Badge>
                   {task.dueDate && (
                     <span>{format(new Date(task.dueDate), 'MMM d, yyyy')}</span>
                   )}
@@ -150,9 +150,9 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
             </div>
           ))}
         </div>
-      </ZoruScrollArea>
+      </ScrollArea>
     )}
-  </ZoruCard>
+  </Card>
 );
 
 interface PipelineBreakdownCardProps {
@@ -161,7 +161,7 @@ interface PipelineBreakdownCardProps {
 }
 
 export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCardProps) => (
-  <ZoruCard className="p-6 md:col-span-2">
+  <Card className="p-6 md:col-span-2">
     <SectionHead
       icon={TrendingUp}
       title="Pipeline Breakdown"
@@ -192,7 +192,7 @@ export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCar
         ))}
       </div>
     )}
-  </ZoruCard>
+  </Card>
 );
 
 interface RecentContactsCardProps {
@@ -200,7 +200,7 @@ interface RecentContactsCardProps {
 }
 
 export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
-  <ZoruCard className="p-6">
+  <Card className="p-6">
     <SectionHead
       icon={UserPlus}
       title="Recent Contacts"
@@ -212,12 +212,12 @@ export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
       <div className="space-y-3">
         {contacts.map((contact) => (
           <div key={contact._id} className="flex items-center gap-3">
-            <ZoruAvatar className="h-9 w-9 border border-zoru-line">
+            <Avatar className="h-9 w-9 border border-zoru-line">
               <ZoruAvatarImage src={contact.avatarUrl} alt={contact.name} />
               <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
                 {contact.name?.charAt(0) ?? '?'}
               </ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <div className="min-w-0">
               <p className="truncate text-[13px] font-medium leading-tight text-zoru-ink">
                 {contact.name}
@@ -228,7 +228,7 @@ export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
         ))}
       </div>
     )}
-  </ZoruCard>
+  </Card>
 );
 
 interface InvoiceStatsCardProps {
@@ -241,7 +241,7 @@ export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) =
     new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD' }).format(n);
 
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <SectionHead
         icon={FileText}
         title="Invoices"
@@ -274,6 +274,6 @@ export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) =
           </div>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 };

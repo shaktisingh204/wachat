@@ -182,7 +182,7 @@ export default async function DiscussionDetailPage({
                 }
                 rightRail={
                     <>
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Key facts</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -190,9 +190,9 @@ export default async function DiscussionDetailPage({
                                 <dl className="grid grid-cols-2 gap-y-1.5 text-[12.5px]">
                                     <dt className="text-zoru-ink-muted">Status</dt>
                                     <dd>
-                                        <ZoruBadge variant="outline">
+                                        <Badge variant="outline">
                                             {status.label}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </dd>
                                     <dt className="text-zoru-ink-muted">Category</dt>
                                     <dd className="text-zoru-ink">
@@ -218,9 +218,9 @@ export default async function DiscussionDetailPage({
                                     </dd>
                                 </dl>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>
                                     Participants ({participantIds.length})
@@ -249,10 +249,10 @@ export default async function DiscussionDetailPage({
                                     </div>
                                 )}
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
                         {d.project_id ? (
-                            <ZoruCard>
+                            <Card>
                                 <ZoruCardHeader>
                                     <ZoruCardTitle>Project</ZoruCardTitle>
                                 </ZoruCardHeader>
@@ -262,57 +262,57 @@ export default async function DiscussionDetailPage({
                                         id={d.project_id}
                                     />
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ) : null}
 
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Quick actions</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 <div className="flex flex-col gap-2 text-[12.5px]">
-                                    <ZoruButton asChild variant="outline" size="sm">
+                                    <Button asChild variant="outline" size="sm">
                                         <a href="#section-thread">
                                             <MessageSquare className="h-3.5 w-3.5" />{' '}
                                             Jump to reply box
                                         </a>
-                                    </ZoruButton>
-                                    <ZoruButton asChild variant="ghost" size="sm">
+                                    </Button>
+                                    <Button asChild variant="ghost" size="sm">
                                         <Link
                                             href={`/dashboard/crm/workspace/discussions/${String(d._id)}/edit`}
                                         >
                                             Edit discussion
                                         </Link>
-                                    </ZoruButton>
-                                    <ZoruButton asChild variant="ghost" size="sm">
+                                    </Button>
+                                    <Button asChild variant="ghost" size="sm">
                                         <Link href="/dashboard/crm/workspace/discussions">
                                             All discussions
                                         </Link>
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </>
                 }
             >
                 <SectionNav />
 
-                <ZoruCard id="section-overview">
+                <Card id="section-overview">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Overview</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="mb-3 flex flex-wrap items-center gap-2">
-                            <ZoruBadge variant="ghost">
+                            <Badge variant="ghost">
                                 Category: {cat?.name ?? 'Uncategorized'}
-                            </ZoruBadge>
-                            <ZoruBadge variant="secondary">
+                            </Badge>
+                            <Badge variant="secondary">
                                 Opened {fmtDate(d.createdAt)}
-                            </ZoruBadge>
-                            <ZoruBadge variant="outline">
+                            </Badge>
+                            <Badge variant="outline">
                                 {replies.length}{' '}
                                 {replies.length === 1 ? 'reply' : 'replies'}
-                            </ZoruBadge>
+                            </Badge>
                         </div>
                         <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
                             {d.description || (
@@ -322,9 +322,9 @@ export default async function DiscussionDetailPage({
                             )}
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-details">
+                <Card id="section-details">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Details</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -359,25 +359,25 @@ export default async function DiscussionDetailPage({
                             </Field>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 <div id="section-thread">
                     <DiscussionsRepliesPanel discussionId={String(d._id)} />
                 </div>
 
-                <ZoruCard id="section-files">
+                <Card id="section-files">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Files</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <ZoruEmptyState
+                        <EmptyState
                             title="No files attached"
                             description="A getDiscussionFiles() server action and SabFile picker integration land with the §1D.2 attachments roster."
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-moderation">
+                <Card id="section-moderation">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Moderation</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -389,32 +389,32 @@ export default async function DiscussionDetailPage({
                             actions land (TODO 1D.2).
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
-                            <ZoruButton asChild variant="outline" size="sm">
+                            <Button asChild variant="outline" size="sm">
                                 <Link
                                     href={`/dashboard/crm/workspace/discussions/${String(d._id)}/edit`}
                                 >
                                     Lock thread
                                 </Link>
-                            </ZoruButton>
-                            <ZoruButton asChild variant="outline" size="sm">
+                            </Button>
+                            <Button asChild variant="outline" size="sm">
                                 <Link
                                     href={`/dashboard/crm/workspace/discussions/${String(d._id)}/edit`}
                                 >
                                     Pin reply
                                 </Link>
-                            </ZoruButton>
-                            <ZoruButton asChild variant="outline" size="sm">
+                            </Button>
+                            <Button asChild variant="outline" size="sm">
                                 <Link
                                     href={`/dashboard/crm/workspace/discussions/${String(d._id)}/edit`}
                                 >
                                     Mark solved
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-related">
+                <Card id="section-related">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Related</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -444,7 +444,7 @@ export default async function DiscussionDetailPage({
                             ) : null}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 <p className="text-[11px] text-zoru-ink-muted">
                     Opened {fmtDate(d.createdAt)} · Last activity{' '}

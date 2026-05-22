@@ -83,11 +83,11 @@ export function AdjustmentsTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all"
                                 checked={
                                     allSelected
@@ -115,7 +115,7 @@ export function AdjustmentsTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={10}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -142,7 +142,7 @@ export function AdjustmentsTable({
                         ))
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }
@@ -178,7 +178,7 @@ function AdjustmentRow({
             ].join(' ')}
         >
             <ZoruTableCell>
-                <ZoruCheckbox
+                <Checkbox
                     aria-label={`Select ${num}`}
                     checked={selected}
                     onCheckedChange={() => onToggle(id)}
@@ -206,7 +206,7 @@ function AdjustmentRow({
                 )}
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px]">
-                <ZoruBadge variant="secondary">{a.reason}</ZoruBadge>
+                <Badge variant="secondary">{a.reason}</Badge>
             </ZoruTableCell>
             <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
                 {linesCount}
@@ -242,7 +242,7 @@ function AdjustmentRow({
                 )}
             </ZoruTableCell>
             <ZoruTableCell className="text-right">
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
                         <button
                             type="button"
@@ -291,7 +291,7 @@ function AdjustmentRow({
                             Delete
                         </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
             </ZoruTableCell>
         </ZoruTableRow>
     );

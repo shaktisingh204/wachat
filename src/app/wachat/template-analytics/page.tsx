@@ -137,7 +137,7 @@ export default function TemplateAnalyticsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -157,9 +157,9 @@ export default function TemplateAnalyticsPage() {
             <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false}>
+      <PageHeader bordered={false}>
         <ZoruPageHeading>
           <ZoruPageTitle>Template analytics</ZoruPageTitle>
           <ZoruPageDescription>
@@ -168,7 +168,7 @@ export default function TemplateAnalyticsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => projectId && fetchAnalytics(projectId, true)}
@@ -176,28 +176,28 @@ export default function TemplateAnalyticsPage() {
           >
             <RefreshCw className={isLoading ? 'animate-spin' : ''} />
             {isLoading ? 'Refreshing…' : 'Refresh'}
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ZoruStatCard
+        <StatCard
           label="Total sent"
           value={totals.totalSent.toLocaleString()}
           icon={<Send />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Delivered"
           value={totals.totalDelivered.toLocaleString()}
           icon={<CircleCheck />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Read"
           value={totals.totalRead.toLocaleString()}
           icon={<Eye />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Failed"
           value={totals.totalFailed.toLocaleString()}
           icon={<CircleX />}
@@ -205,7 +205,7 @@ export default function TemplateAnalyticsPage() {
       </div>
 
       {/* Engagement chart */}
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="pt-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -218,9 +218,9 @@ export default function TemplateAnalyticsPage() {
             </div>
           </div>
           {isLoading && analytics.length === 0 ? (
-            <ZoruSkeleton className="h-[280px] w-full" />
+            <Skeleton className="h-[280px] w-full" />
           ) : chartData.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               compact
               icon={<BarChart3 />}
               title="No engagement data"
@@ -273,10 +273,10 @@ export default function TemplateAnalyticsPage() {
             </ZoruChartContainer>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Per-template table */}
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="pt-6">
           <div className="mb-4">
             <h3 className="text-[15px] font-semibold text-zoru-ink">
@@ -291,14 +291,14 @@ export default function TemplateAnalyticsPage() {
               <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
             </div>
           ) : analytics.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               compact
               icon={<BarChart3 />}
               title="No analytics data"
               description="Send template messages to start collecting delivery metrics."
             />
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Template name</ZoruTableHead>
@@ -351,10 +351,10 @@ export default function TemplateAnalyticsPage() {
                   );
                 })}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="h-6" />
     </div>

@@ -150,34 +150,34 @@ export function PublicPaymentClient(): React.JSX.Element {
       <div className="flex flex-col gap-4">
         {/* KPI strip */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          <ZoruStatCard label="Configured gateways" value={kpis.configured.toLocaleString()} />
-          <ZoruStatCard label="Active gateways" value={kpis.active.toLocaleString()} />
-          <ZoruStatCard label="In test mode" value={kpis.testMode.toLocaleString()} icon={<TestTube className="h-4 w-4" />} />
+          <StatCard label="Configured gateways" value={kpis.configured.toLocaleString()} />
+          <StatCard label="Active gateways" value={kpis.active.toLocaleString()} />
+          <StatCard label="In test mode" value={kpis.testMode.toLocaleString()} icon={<TestTube className="h-4 w-4" />} />
         </div>
 
         {/* Export toolbar */}
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={handleExportCsv} disabled={rows.length === 0}>
+          <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={rows.length === 0}>
             <Download className="mr-1 h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={rows.length === 0}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={rows.length === 0}>
             <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX
-          </ZoruButton>
+          </Button>
         </div>
 
         {/* Gateway cards */}
         {loading && rows.length === 0 ? (
           <div className="flex flex-col gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-20 w-full" />
+              <Skeleton key={i} className="h-20 w-full" />
             ))}
           </div>
         ) : rows.length === 0 ? (
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
               No gateways configured yet. Go to Payment Gateways settings to add one.
             </div>
-          </ZoruCard>
+          </Card>
         ) : (
           <div className="flex flex-col gap-3">
             {rows.map((row) => {
@@ -189,7 +189,7 @@ export function PublicPaymentClient(): React.JSX.Element {
               const isTesting = testingId === row._id;
 
               return (
-                <ZoruCard key={row._id} className="p-4">
+                <Card key={row._id} className="p-4">
                   <div className="flex flex-wrap items-center gap-4">
                     {/* Gateway avatar */}
                     <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-semibold ${colorCls}`}>
@@ -200,16 +200,16 @@ export function PublicPaymentClient(): React.JSX.Element {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium text-zoru-ink">{label}</span>
-                        <ZoruBadge variant={row.mode === 'live' ? 'success' : 'warning'}>
+                        <Badge variant={row.mode === 'live' ? 'success' : 'warning'}>
                           {row.mode}
-                        </ZoruBadge>
-                        <ZoruBadge variant={row.is_active ? 'success' : 'ghost'}>
+                        </Badge>
+                        <Badge variant={row.is_active ? 'success' : 'ghost'}>
                           {row.is_active ? 'active' : 'inactive'}
-                        </ZoruBadge>
+                        </Badge>
                         {testResult !== undefined && (
                           testResult
-                            ? <ZoruBadge variant="success"><CheckCircle2 className="mr-1 h-3 w-3" />OK</ZoruBadge>
-                            : <ZoruBadge variant="destructive"><XCircle className="mr-1 h-3 w-3" />Failed</ZoruBadge>
+                            ? <Badge variant="success"><CheckCircle2 className="mr-1 h-3 w-3" />OK</Badge>
+                            : <Badge variant="destructive"><XCircle className="mr-1 h-3 w-3" />Failed</Badge>
                         )}
                       </div>
                       <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -222,7 +222,7 @@ export function PublicPaymentClient(): React.JSX.Element {
 
                     {/* Actions */}
                     <div className="flex shrink-0 flex-wrap items-center gap-2">
-                      <ZoruButton
+                      <Button
                         variant="outline"
                         size="sm"
                         disabled={isTesting || !row.is_active}
@@ -231,9 +231,9 @@ export function PublicPaymentClient(): React.JSX.Element {
                         {isTesting
                           ? <><LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" />Testing…</>
                           : <><TestTube className="mr-1.5 h-3.5 w-3.5" />Test</>}
-                      </ZoruButton>
+                      </Button>
 
-                      <ZoruButton
+                      <Button
                         variant="outline"
                         size="sm"
                         disabled={isToggling}
@@ -242,9 +242,9 @@ export function PublicPaymentClient(): React.JSX.Element {
                         {isToggling
                           ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                           : row.is_active ? 'Deactivate' : 'Activate'}
-                      </ZoruButton>
+                      </Button>
 
-                      <ZoruButton
+                      <Button
                         variant={row.show_on_public ? 'default' : 'ghost'}
                         size="sm"
                         disabled={isToggling || !row.is_active}
@@ -253,10 +253,10 @@ export function PublicPaymentClient(): React.JSX.Element {
                         {isToggling
                           ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                           : row.show_on_public ? 'Hide from public' : 'Show on public'}
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
-                </ZoruCard>
+                </Card>
               );
             })}
           </div>

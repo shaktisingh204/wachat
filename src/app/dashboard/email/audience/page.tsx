@@ -6,7 +6,7 @@ import { EmailSubscribersClient } from '@/components/email/audience/subscribers-
 export default function EmailAudiencePage() {
   return (
     <EmailSuiteLayout>
-      <Suspense fallback={<ZoruSkeleton className="h-96 w-full" />}>
+      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
         <EmailSubscribersClient />
       </Suspense>
     </EmailSuiteLayout>

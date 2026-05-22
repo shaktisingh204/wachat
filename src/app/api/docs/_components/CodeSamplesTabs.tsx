@@ -62,10 +62,10 @@ export function CodeSamplesTabs({ samples }: Props): JSX.Element {
           ))}
         </div>
         <div className="px-2 flex-shrink-0">
-          <ZoruButton variant="ghost" size="sm" onClick={copy}>
+          <Button variant="ghost" size="sm" onClick={copy}>
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
             <span className="ml-1 text-xs">{copied ? 'Copied' : 'Copy'}</span>
-          </ZoruButton>
+          </Button>
         </div>
       </div>
       <pre className="px-4 py-3 text-xs text-zinc-100 m-0 overflow-x-auto leading-relaxed">

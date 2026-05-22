@@ -57,14 +57,14 @@ export function BlockPalette({ onAdd }: BlockPaletteProps) {
         </p>
         <p className="text-xs text-muted-foreground/80">Click to add</p>
       </header>
-      <ZoruSeparator />
-      <ZoruScrollArea className="flex-1">
+      <Separator />
+      <ScrollArea className="flex-1">
         <ul className="grid grid-cols-2 gap-2 p-3">
           {ENTRIES.map((entry) => {
             const Icon = entry.icon;
             return (
               <li key={entry.type}>
-                <ZoruButton
+                <Button
                   type="button"
                   variant="outline"
                   className="flex h-auto w-full flex-col items-center gap-1.5 px-2 py-3 text-center"
@@ -74,12 +74,12 @@ export function BlockPalette({ onAdd }: BlockPaletteProps) {
                 >
                   <Icon className="h-4 w-4" />
                   <span className="text-xs font-medium">{entry.label}</span>
-                </ZoruButton>
+                </Button>
               </li>
             );
           })}
         </ul>
-      </ZoruScrollArea>
+      </ScrollArea>
     </aside>
   );
 }

@@ -63,7 +63,7 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
     const SubmitIcon = settings.buttonIcon ? LucideIcons[settings.buttonIcon] : null;
 
     return (
-        <ZoruCard className="shadow-md w-full" id={`preview-${uniqueId}`}>
+        <Card className="shadow-md w-full" id={`preview-${uniqueId}`}>
             <style>{dynamicStyles}</style>
             <div className="flex flex-col items-center text-center p-6 pb-4 gap-1.5">
                  {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain" />}
@@ -82,21 +82,21 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                         const fieldOptions = (field.options || '').split('\n').map(o => o.trim());
 
                         switch(field.type) {
-                            case 'textarea': return <ZoruTextarea {...commonProps} />;
-                            case 'select': return <ZoruSelect><ZoruSelectTrigger className={cn('form-field-preview', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect>;
-                            case 'checkbox': return <div className="flex items-center gap-2 pt-2"><ZoruCheckbox id={`preview-${field.id}`} disabled /><ZoruLabel htmlFor={`preview-${field.id}`} className="font-normal">{field.label}</ZoruLabel></div>;
-                            case 'acceptance': return <div className="flex items-center gap-2 pt-2"><ZoruCheckbox id={`preview-${field.id}`} disabled /><ZoruLabel htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</ZoruLabel></div>;
-                            case 'radio': return <ZoruRadioGroup defaultValue={field.defaultValue} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} disabled /><ZoruLabel htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</ZoruLabel></div>)}</ZoruRadioGroup>
-                            case 'file': return <ZoruInput {...commonProps} type="file" />;
-                            case 'phone': return <ZoruInput {...commonProps} type="tel" placeholder={field.placeholder || '+1 555 123 4567'} />;
+                            case 'textarea': return <Textarea {...commonProps} />;
+                            case 'select': return <Select><ZoruSelectTrigger className={cn('form-field-preview', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></Select>;
+                            case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} disabled /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.label}</Label></div>;
+                            case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} disabled /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
+                            case 'radio': return <RadioGroup defaultValue={field.defaultValue} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} disabled /><Label htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
+                            case 'file': return <Input {...commonProps} type="file" />;
+                            case 'phone': return <Input {...commonProps} type="tel" placeholder={field.placeholder || '+1 555 123 4567'} />;
                             case 'address': return (
                                 <div className="grid grid-cols-2 gap-2">
-                                    <ZoruInput className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 1" disabled />
-                                    <ZoruInput className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 2" disabled />
-                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="City" disabled />
-                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="State" disabled />
-                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="ZIP" disabled />
-                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="Country" disabled />
+                                    <Input className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 1" disabled />
+                                    <Input className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 2" disabled />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="City" disabled />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="State" disabled />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="ZIP" disabled />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="Country" disabled />
                                 </div>
                             );
                             case 'rating': return (
@@ -106,14 +106,14 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                                     ))}
                                 </div>
                             );
-                            case 'signature': return <ZoruInput {...commonProps} placeholder={field.placeholder || 'Type your name as signature'} />;
-                            default: return <ZoruInput {...commonProps} type={field.type} />;
+                            case 'signature': return <Input {...commonProps} placeholder={field.placeholder || 'Type your name as signature'} />;
+                            default: return <Input {...commonProps} type={field.type} />;
                         }
                     };
 
                     return (
                         <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
-                            {field.labelPosition !== 'hidden' && <ZoruLabel htmlFor={`preview-${field.id}`} className={cn('text-zoru-ink', field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label}</ZoruLabel>}
+                            {field.labelPosition !== 'hidden' && <Label htmlFor={`preview-${field.id}`} className={cn('text-zoru-ink', field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label}</Label>}
                             <div className="w-full">
                                 {fieldContent()}
                                 {field.description && <p className="text-xs pt-1 text-zoru-ink-muted">{field.description}</p>}
@@ -123,13 +123,13 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                 })}
             </div>
             <div className="flex p-6 pt-0" style={{flexDirection: 'column', justifyContent: settings.buttonAlign || 'flex-start', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
-                <ZoruButton disabled className="w-full submit-button-preview" size={settings.buttonSize}>
+                <Button disabled className="w-full submit-button-preview" size={settings.buttonSize}>
                     {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`}}/>}
                     {settings.submitButtonText || 'Submit'}
                     {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`}}/>}
-                </ZoruButton>
+                </Button>
                 {settings.footerText && <p className="text-xs text-zoru-ink-muted text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }

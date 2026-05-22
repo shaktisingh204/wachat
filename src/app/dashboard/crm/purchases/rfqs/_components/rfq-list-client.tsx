@@ -374,7 +374,7 @@ export function RfqListClient({
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <RfqListToolbar
           query={query}
           onQueryChange={setQuery}
@@ -427,7 +427,7 @@ export function RfqListClient({
         />
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={archivePending}

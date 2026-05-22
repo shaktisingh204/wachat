@@ -102,37 +102,37 @@ export function BomDetailActions({
     return (
         <>
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton size="sm" asChild>
+                <Button size="sm" asChild>
                     <Link href={`/dashboard/crm/inventory/bom/${bomId}/edit`}>
                         <Edit className="h-3.5 w-3.5" /> Edit
                     </Link>
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={onToggleActive}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={onToggleActive}>
                     <Power className="h-3.5 w-3.5" />
                     {active ? 'Deactivate' : 'Activate'}
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={onDuplicate}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={onDuplicate}>
                     <Copy className="h-3.5 w-3.5" /> Duplicate
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={onPrint}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={onPrint}>
                     <Printer className="h-3.5 w-3.5" /> Print
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" asChild>
+                </Button>
+                <Button size="sm" variant="outline" asChild>
                     <Link href={`/dashboard/crm/inventory/production-orders/new?bomId=${bomId}`}>
                         <Factory className="h-3.5 w-3.5" /> Create production order
                     </Link>
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={onEmail}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={onEmail}>
                     <Mail className="h-3.5 w-3.5" /> Email
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
                     <Archive className="h-3.5 w-3.5" /> Archive
-                </ZoruButton>
-                <ZoruButton size="sm" variant="ghost" asChild>
+                </Button>
+                <Button size="sm" variant="ghost" asChild>
                     <Link href={`/dashboard/crm/inventory/bom/${bomId}/activity`}>
                         <Activity className="h-3.5 w-3.5" /> Activity
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
 
             <ConfirmDialog

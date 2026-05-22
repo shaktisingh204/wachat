@@ -6,7 +6,7 @@ import { EmailCampaignsClient } from '@/components/email/campaigns/campaigns-cli
 export default function EmailCampaignsPage() {
   return (
     <EmailSuiteLayout>
-      <Suspense fallback={<ZoruSkeleton className="h-96 w-full" />}>
+      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
         <EmailCampaignsClient />
       </Suspense>
     </EmailSuiteLayout>

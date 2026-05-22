@@ -111,7 +111,7 @@ export function InvoiceDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -134,43 +134,43 @@ export function InvoiceDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/sales/invoices/${invoiceId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
         <Mail className="h-3.5 w-3.5" /> Send
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setMarkPaidOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setMarkPaidOpen(true)}>
         <Banknote className="h-3.5 w-3.5" /> Mark paid
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/sales/receipts/new?fromKind=invoice&fromId=${invoiceId}`}
         >
           <Receipt className="h-3.5 w-3.5" /> Record payment
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/sales/credit-notes/new?fromKind=invoice&fromId=${invoiceId}`}
         >
           <FileMinus className="h-3.5 w-3.5" /> Convert to credit note
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setWhatsAppOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setWhatsAppOpen(true)}>
         <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/sales/invoices/${invoiceId}?print=1`}
           target="_blank"
@@ -178,29 +178,29 @@ export function InvoiceDetailActions({
         >
           <Printer className="h-3.5 w-3.5" /> Print
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/sales/invoices/new?fromKind=invoice&fromId=${invoiceId}`}
         >
           <Copy className="h-3.5 w-3.5" /> Duplicate
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}>
+      <Button size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}>
         <Trash2 className="h-3.5 w-3.5" /> Delete
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/sales/invoices/${invoiceId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <InvoiceEmailDialog
         open={emailOpen}

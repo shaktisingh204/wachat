@@ -284,11 +284,11 @@ function renderField(field: HrField, value?: unknown) {
   };
 
   if (field.type === 'textarea') {
-    return <ZoruTextarea {...common} rows={3} />;
+    return <Textarea {...common} rows={3} />;
   }
   if (field.type === 'select') {
     return (
-      <ZoruSelect name={field.name} defaultValue={String(common.defaultValue || '')}>
+      <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
         <ZoruSelectTrigger id={field.name}>
           <ZoruSelectValue placeholder={field.placeholder || 'Select'} />
         </ZoruSelectTrigger>
@@ -299,11 +299,11 @@ function renderField(field: HrField, value?: unknown) {
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
     );
   }
   return (
-    <ZoruInput
+    <Input
       {...common}
       type={field.type || 'text'}
       min={field.type === 'number' ? 0 : undefined}
@@ -402,8 +402,8 @@ function FieldArray({
                 if (s.type === 'select') {
                   return (
                     <div key={s.name} className="min-w-[120px] flex-1">
-                      <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
-                      <ZoruSelect
+                      <Label htmlFor={fieldId}>{s.label}</Label>
+                      <Select
                         value={row[s.name] || ''}
                         onValueChange={(v) => updateRow(i, s.name, v)}
                       >
@@ -417,14 +417,14 @@ function FieldArray({
                             </ZoruSelectItem>
                           ))}
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </div>
                   );
                 }
                 return (
                   <div key={s.name} className="min-w-[120px] flex-1">
-                    <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor={fieldId}>{s.label}</Label>
+                    <Input
                       id={fieldId}
                       type={s.type || 'text'}
                       min={s.type === 'number' ? 0 : undefined}
@@ -436,7 +436,7 @@ function FieldArray({
                   </div>
                 );
               })}
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -445,16 +445,16 @@ function FieldArray({
                 aria-label="Remove row"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           ))}
         </div>
       )}
 
-      <ZoruButton type="button" variant="outline" size="sm" onClick={addRow}>
+      <Button type="button" variant="outline" size="sm" onClick={addRow}>
         <Plus className="mr-1.5 h-3.5 w-3.5" />
         {field.addLabel || 'Add row'}
-      </ZoruButton>
+      </Button>
 
       {field.help ? (
         <p className="text-[11.5px] text-zoru-ink-muted">{field.help}</p>
@@ -479,7 +479,7 @@ function HrKpiStrip<T>({ rows, kpis }: { rows: T[]; kpis: HrKpi<T>[] }) {
         const hint = typeof k.hint === 'function' ? k.hint(rows) : k.hint;
         const toneClass = KPI_TONE_CLASS[k.tone || 'neutral'];
         return (
-          <ZoruCard key={i} className="p-3">
+          <Card key={i} className="p-3">
             <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
               {k.label}
             </div>
@@ -489,7 +489,7 @@ function HrKpiStrip<T>({ rows, kpis }: { rows: T[]; kpis: HrKpi<T>[] }) {
             {hint ? (
               <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div>
             ) : null}
-          </ZoruCard>
+          </Card>
         );
       })}
     </div>
@@ -571,14 +571,14 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       subtitle={subtitle}
       primaryAction={
         basePath ? (
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href={`${basePath}/new`}>
               <Plus className="h-4 w-4" strokeWidth={1.75} />
               Add {singular}
             </Link>
-          </ZoruButton>
+          </Button>
         ) : (
-          <ZoruButton
+          <Button
             onClick={() => {
               setEditing(null);
               setDialogOpen(true);
@@ -586,7 +586,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
           >
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add {singular}
-          </ZoruButton>
+          </Button>
         )
       }
     >
@@ -595,9 +595,9 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
         <HrKpiStrip rows={rows} kpis={kpis} />
       ) : null}
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 {columns.map((c) => (
@@ -613,7 +613,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                 [...Array(3)].map((_, i) => (
                   <ZoruTableRow key={i}>
                     <ZoruTableCell colSpan={columns.length + 1}>
-                      <ZoruSkeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
@@ -649,20 +649,20 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         {basePath && rowLinksToDetail ? (
-                          <ZoruButton variant="ghost" size="sm" asChild>
+                          <Button variant="ghost" size="sm" asChild>
                             <Link href={`${basePath}/${row._id}`} aria-label="View">
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Link>
-                          </ZoruButton>
+                          </Button>
                         ) : null}
                         {basePath ? (
-                          <ZoruButton variant="ghost" size="sm" asChild>
+                          <Button variant="ghost" size="sm" asChild>
                             <Link href={`${basePath}/${row._id}/edit`} aria-label="Edit">
                               <Pencil className="h-3.5 w-3.5" />
                             </Link>
-                          </ZoruButton>
+                          </Button>
                         ) : (
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             aria-label="Edit"
@@ -672,27 +672,27 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                             }}
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                         )}
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           aria-label="Delete"
                           onClick={() => setDeletingId(row._id)}
                         >
                           <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
             <ZoruDialogTitle>
@@ -714,10 +714,10 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                   key={field.name}
                   className={field.fullWidth ? 'md:col-span-2' : ''}
                 >
-                  <ZoruLabel htmlFor={field.name}>
+                  <Label htmlFor={field.name}>
                     {field.label}
                     {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
-                  </ZoruLabel>
+                  </Label>
                   <div className="mt-1.5">
                     {renderField(
                       field,
@@ -733,23 +733,23 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
             </div>
 
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
                 ) : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingId !== null}

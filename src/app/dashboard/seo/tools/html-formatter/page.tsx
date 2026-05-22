@@ -27,8 +27,8 @@ export default function HtmlFormatterPage() {
   const out = useMemo(() => format(text), [text]);
   return (
     <ToolShell title="HTML Formatter" description="Pretty-print minified or messy HTML.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste HTML…" />
-      <ZoruTextarea readOnly value={out} className="min-h-[240px] font-mono text-xs" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste HTML…" />
+      <Textarea readOnly value={out} className="min-h-[240px] font-mono text-xs" />
     </ToolShell>
   );
 }

@@ -64,12 +64,12 @@ function ReplayBroadcastDialog({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="ghost" size="sm">
+        <Button variant="ghost" size="sm">
           <RotateCw className="h-3.5 w-3.5" />
           Replay
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent>
         <ZoruDialogHeader>
@@ -80,20 +80,20 @@ function ReplayBroadcastDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={() => {
               onConfirm(broadcast._id);
               setOpen(false);
             }}
           >
             Replay broadcast
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -160,7 +160,7 @@ export default function BroadcastHistoryPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -174,7 +174,7 @@ export default function BroadcastHistoryPage() {
             <ZoruBreadcrumbPage>Broadcast History</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -187,15 +187,15 @@ export default function BroadcastHistoryPage() {
 
       {broadcasts.length > 0 && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <ZoruStatCard
+          <StatCard
             label="Total broadcasts"
             value={broadcasts.length.toLocaleString()}
           />
-          <ZoruStatCard
+          <StatCard
             label="Total messages"
             value={totals.totalMessages.toLocaleString()}
           />
-          <ZoruStatCard
+          <StatCard
             label="Avg delivery rate"
             value={totals.avgDelivery}
           />
@@ -207,13 +207,13 @@ export default function BroadcastHistoryPage() {
           <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
         </div>
       ) : broadcasts.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Radio />}
           title="No broadcasts sent yet"
           description="Past broadcasts will appear here once you start a campaign."
         />
       ) : (
-        <ZoruCard className="overflow-x-auto p-0">
+        <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -248,9 +248,9 @@ export default function BroadcastHistoryPage() {
                         {b.name || b.templateName || 'Broadcast'}
                       </td>
                       <td className="px-5 py-3">
-                        <ZoruBadge variant={statusVariant(b.status)}>
+                        <Badge variant={statusVariant(b.status)}>
                           {b.status || 'unknown'}
-                        </ZoruBadge>
+                        </Badge>
                       </td>
                       <td className="px-5 py-3 text-right text-[13px] text-zoru-ink tabular-nums">
                         {(b.totalContacts || b.total || 0).toLocaleString()}
@@ -315,7 +315,7 @@ export default function BroadcastHistoryPage() {
               })}
             </tbody>
           </table>
-        </ZoruCard>
+        </Card>
       )}
       <div className="h-6" />
     </div>

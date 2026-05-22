@@ -42,16 +42,16 @@ export default function KeywordCpcPage() {
   return (
     <ToolShell title="Keyword CPC Estimator" description="Estimate cost-per-click range for a keyword based on intent and length heuristics.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={kw}
           onChange={(e) => setKw(e.target.value)}
           placeholder="Enter a keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <ZoruButton onClick={run}>Estimate</ZoruButton>
+        <Button onClick={run}>Estimate</Button>
       </div>
       {result && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-6 space-y-4">
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold">${result.low}</span>
@@ -66,7 +66,7 @@ export default function KeywordCpcPage() {
               Heuristic estimate based on commercial intent words and keyword length. Use Google Keyword Planner for precise numbers.
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

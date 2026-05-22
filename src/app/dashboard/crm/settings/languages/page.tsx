@@ -44,10 +44,10 @@ function SetDefaultButton({
     const [pending, start] = useTransition();
     const { toast } = useZoruToast();
     if (isDefault) {
-        return <ZoruBadge variant="success">Default</ZoruBadge>;
+        return <Badge variant="success">Default</Badge>;
     }
     return (
-        <ZoruButton
+        <Button
             variant="ghost"
             size="sm"
             disabled={pending}
@@ -69,7 +69,7 @@ function SetDefaultButton({
             className="text-[12px] text-zoru-ink-muted"
         >
             <Star className="h-3.5 w-3.5" /> Set default
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -157,9 +157,9 @@ export default function LanguagesPage() {
                     key: 'is_enabled',
                     label: 'Enabled',
                     render: (row) => (
-                        <ZoruBadge variant={row.is_enabled ? 'success' : 'ghost'}>
+                        <Badge variant={row.is_enabled ? 'success' : 'ghost'}>
                             {row.is_enabled ? 'Yes' : 'No'}
-                        </ZoruBadge>
+                        </Badge>
                     ),
                 },
                 {

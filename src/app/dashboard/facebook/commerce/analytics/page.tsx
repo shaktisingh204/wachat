@@ -70,22 +70,22 @@ type BuyerRow = { name: string; orders: number; revenue: number };
 function AnalyticsSkeleton() {
   return (
     <CommercePage>
-      <ZoruSkeleton className="h-3 w-72" />
+      <Skeleton className="h-3 w-72" />
       <div className="mt-5 flex items-end justify-between">
         <div className="space-y-3">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <ZoruSkeleton className="h-9 w-28" />
+        <Skeleton className="h-9 w-28" />
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-28" />
+          <Skeleton key={i} className="h-28" />
         ))}
       </div>
-      <ZoruSkeleton className="mt-6 h-72 w-full" />
-      <ZoruSkeleton className="mt-6 h-48 w-full" />
+      <Skeleton className="mt-6 h-72 w-full" />
+      <Skeleton className="mt-6 h-48 w-full" />
     </CommercePage>
   );
 }
@@ -232,9 +232,9 @@ export default function CommerceAnalyticsPage() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
-          <ZoruBadge variant="outline" className="capitalize">
+          <Badge variant="outline" className="capitalize">
             {row.original.status.replace(/_/g, " ")}
-          </ZoruBadge>
+          </Badge>
         ),
       },
       {
@@ -266,7 +266,7 @@ export default function CommerceAnalyticsPage() {
         title="Commerce analytics"
         description="Track shop performance, sales velocity and customer mix derived from your Facebook orders."
         actions={
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={fetchData}
@@ -274,27 +274,27 @@ export default function CommerceAnalyticsPage() {
           >
             {isLoading ? <LoaderCircle className="animate-spin" /> : <RefreshCw />}
             Refresh
-          </ZoruButton>
+          </Button>
         }
       />
 
       {error ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Could not fetch analytics</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {/* ── KPI strip ── */}
       <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <ZoruStatCard
+        <StatCard
           label="Orders (all time)"
           value={stats.total.toLocaleString()}
           icon={<Package />}
           period={`${stats.fulfilled.toLocaleString()} fulfilled`}
         />
-        <ZoruStatCard
+        <StatCard
           label="Revenue"
           value={
             stats.revenue
@@ -307,7 +307,7 @@ export default function CommerceAnalyticsPage() {
           icon={<Coins />}
           period="based on visible orders"
         />
-        <ZoruStatCard
+        <StatCard
           label="Avg. order value"
           value={
             stats.aov
@@ -320,7 +320,7 @@ export default function CommerceAnalyticsPage() {
           icon={<ShoppingBag />}
           period={stats.total ? `across ${stats.total} orders` : "no orders"}
         />
-        <ZoruStatCard
+        <StatCard
           label="Unique buyers"
           value={stats.uniqueBuyers.toLocaleString()}
           icon={<Users />}
@@ -329,7 +329,7 @@ export default function CommerceAnalyticsPage() {
       </section>
 
       {/* ── Trend chart (greyscale) ── */}
-      <ZoruCard className="mt-6">
+      <Card className="mt-6">
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2 text-base">
             <BarChart3 className="h-4 w-4" /> Last 30 days
@@ -341,7 +341,7 @@ export default function CommerceAnalyticsPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {orders.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               compact
               icon={<BarChart3 />}
               title="No orders yet"
@@ -401,11 +401,11 @@ export default function CommerceAnalyticsPage() {
             </ZoruChartContainer>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* ── Breakdowns ── */}
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">Status mix</ZoruCardTitle>
             <ZoruCardDescription>
@@ -414,14 +414,14 @@ export default function CommerceAnalyticsPage() {
           </ZoruCardHeader>
           <ZoruCardContent>
             {statusMix.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 compact
                 icon={<Package />}
                 title="No status data"
                 description="Order statuses will appear here once orders are recorded."
               />
             ) : (
-              <ZoruDataTable
+              <DataTable
                 columns={statusColumns}
                 data={statusMix}
                 pageSize={6}
@@ -429,9 +429,9 @@ export default function CommerceAnalyticsPage() {
               />
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">Top customers</ZoruCardTitle>
             <ZoruCardDescription>
@@ -440,14 +440,14 @@ export default function CommerceAnalyticsPage() {
           </ZoruCardHeader>
           <ZoruCardContent>
             {topBuyers.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 compact
                 icon={<Users />}
                 title="No customer data"
                 description="Customer breakdown will appear here once orders are recorded."
               />
             ) : (
-              <ZoruDataTable
+              <DataTable
                 columns={buyerColumns}
                 data={topBuyers}
                 pageSize={6}
@@ -455,7 +455,7 @@ export default function CommerceAnalyticsPage() {
               />
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </section>
     </CommercePage>
   );

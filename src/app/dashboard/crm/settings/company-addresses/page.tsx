@@ -44,10 +44,10 @@ function SetDefaultButton({
     const [pending, start] = useTransition();
     const { toast } = useZoruToast();
     if (isDefault) {
-        return <ZoruBadge variant="success">Default</ZoruBadge>;
+        return <Badge variant="success">Default</Badge>;
     }
     return (
-        <ZoruButton
+        <Button
             variant="ghost"
             size="sm"
             disabled={pending}
@@ -69,7 +69,7 @@ function SetDefaultButton({
             className="text-[12px] text-zoru-ink-muted"
         >
             <Star className="h-3.5 w-3.5" /> Set default
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -134,7 +134,7 @@ export default function CompanyAddressesPage() {
                     key: 'type',
                     label: 'Type',
                     render: (row) => (
-                        <ZoruBadge variant="default">{row.type || 'office'}</ZoruBadge>
+                        <Badge variant="default">{row.type || 'office'}</Badge>
                     ),
                 },
                 { key: 'address', label: 'Address' },

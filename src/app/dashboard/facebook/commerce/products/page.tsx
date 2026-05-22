@@ -55,18 +55,18 @@ import {
 function ProductsSkeleton() {
   return (
     <CommercePage>
-      <ZoruSkeleton className="h-3 w-72" />
+      <Skeleton className="h-3 w-72" />
       <div className="mt-5 flex items-end justify-between">
         <div className="space-y-3">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <ZoruSkeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-32" />
       </div>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-44" />
+          <Skeleton key={i} className="h-44" />
         ))}
       </div>
     </CommercePage>
@@ -143,7 +143,7 @@ export default function ProductsCatalogListPage() {
         description="Browse the catalogs powering your Facebook Shop and drill into each to manage products."
         actions={
           hasCatalogAccess && isFacebookProject ? (
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={handleSync}
@@ -153,31 +153,31 @@ export default function ProductsCatalogListPage() {
                 className={isSyncing ? "animate-spin" : undefined}
               />
               Sync with Meta
-            </ZoruButton>
+            </Button>
           ) : undefined
         }
       />
 
       {!activeProjectId ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>No project selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Pick a Facebook Page project from the Connections page to manage
             catalogs.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : !isFacebookProject ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Invalid project type</ZoruAlertTitle>
           <ZoruAlertDescription>
             This section is for Facebook Page projects. Switch to a Facebook
             project to continue.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : !hasCatalogAccess ? (
-        <ZoruCard className="mt-8">
+        <Card className="mt-8">
           <ZoruCardHeader>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
               <Lock className="h-5 w-5" />
@@ -190,25 +190,25 @@ export default function ProductsCatalogListPage() {
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href="/dashboard/facebook/all-projects">
                 Re-authorize project
               </Link>
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : isLoading && catalogs.length === 0 ? (
         <ProductsSkeleton />
       ) : catalogs.length === 0 ? (
         <div className="mt-8">
-          <ZoruEmptyState
+          <EmptyState
             icon={<ServerCog />}
             title="No catalogs found"
             description={
               "Create a catalog in Meta Commerce Manager, then click Sync with Meta to pull it in."
             }
             action={
-              <ZoruButton asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline">
                 <a
                   href="https://business.facebook.com/commerce_manager/"
                   target="_blank"
@@ -216,7 +216,7 @@ export default function ProductsCatalogListPage() {
                 >
                   Open Commerce Manager <ExternalLink />
                 </a>
-              </ZoruButton>
+              </Button>
             }
           />
         </div>
@@ -234,7 +234,7 @@ export default function ProductsCatalogListPage() {
 function CatalogTile({ catalog }: { catalog: WithId<Catalog> }) {
   const id = catalog.metaCatalogId ?? (catalog as unknown as { id?: string }).id;
   return (
-    <ZoruCard className="flex h-full flex-col">
+    <Card className="flex h-full flex-col">
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">{catalog.name}</ZoruCardTitle>
         <ZoruCardDescription className="break-all font-mono text-[11px]">
@@ -247,12 +247,12 @@ function CatalogTile({ catalog }: { catalog: WithId<Catalog> }) {
           : "No creation date available"}
       </ZoruCardContent>
       <div className="px-6 pb-6">
-        <ZoruButton asChild size="sm" className="w-full">
+        <Button asChild size="sm" className="w-full">
           <Link href={`/dashboard/facebook/commerce/products/${id}`}>
             <ShoppingBag /> View products
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

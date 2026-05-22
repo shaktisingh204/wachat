@@ -75,12 +75,12 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
   }, [state, toast, onSuccess]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" size="md">
+        <Button variant="outline" size="md">
           <RefreshCw />
           Add WABA from Meta
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={action} ref={formRef}>
@@ -95,10 +95,10 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
 
           <div className="grid gap-4 py-4">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="wabaId">
+              <Label htmlFor="wabaId">
                 WhatsApp Business Account ID
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="wabaId"
                 name="wabaId"
                 placeholder="e.g. 102345678901234"
@@ -112,8 +112,8 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="accessToken">Meta Access Token</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="accessToken">Meta Access Token</Label>
+              <Input
                 id="accessToken"
                 name="accessToken"
                 type="password"
@@ -128,8 +128,8 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="appId">App ID</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="appId">App ID</Label>
+              <Input
                 id="appId"
                 name="appId"
                 placeholder="Your Meta App ID"
@@ -137,8 +137,8 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="groupName">Group Name (Optional)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="groupName">Group Name (Optional)</Label>
+              <Input
                 id="groupName"
                 name="groupName"
                 placeholder="e.g. My Agency's Clients"
@@ -149,14 +149,14 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isPending}>
+            </Button>
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="animate-spin" />
@@ -165,10 +165,10 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
               ) : (
                 'Add WABA'
               )}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

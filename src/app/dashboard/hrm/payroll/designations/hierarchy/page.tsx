@@ -83,7 +83,7 @@ function TreeRow({
                 className="flex items-center gap-2 border-b border-zoru-line py-2.5 last:border-b-0"
                 style={{ paddingLeft: `${level * 20 + 8}px` }}
             >
-                <ZoruButton
+                <Button
                     type="button"
                     variant="ghost"
                     size="icon"
@@ -100,7 +100,7 @@ function TreeRow({
                     ) : (
                         <span className="inline-block h-3.5 w-3.5" />
                     )}
-                </ZoruButton>
+                </Button>
 
                 <div className="min-w-0 flex-1">
                     <div className="text-[13px] text-zoru-ink">{node.name}</div>
@@ -110,7 +110,7 @@ function TreeRow({
                 </div>
 
                 <div className="w-[220px] shrink-0">
-                    <ZoruSelect
+                    <Select
                         value={node.parent_id ?? '__none__'}
                         onValueChange={(v) =>
                             onSetParent(node._id, v === '__none__' ? null : v)
@@ -127,10 +127,10 @@ function TreeRow({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
@@ -138,8 +138,8 @@ function TreeRow({
                     aria-label="Edit"
                 >
                     <Pencil className="h-3.5 w-3.5" />
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
@@ -147,7 +147,7 @@ function TreeRow({
                     aria-label="Delete"
                 >
                     <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                </ZoruButton>
+                </Button>
             </div>
             {hasChildren && isOpen ? (
                 <div>
@@ -264,16 +264,16 @@ export default function DesignationsHierarchyPage() {
             title="Designations — Hierarchy"
             subtitle="Nested job-title structure. Set a parent designation to model reporting chains."
             primaryAction={
-                <ZoruButton onClick={handleAdd}>
+                <Button onClick={handleAdd}>
                     <Plus className="h-4 w-4" />
                     Add Designation
-                </ZoruButton>
+                </Button>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 {isLoading && tree.length === 0 ? (
-                    <ZoruSkeleton className="h-[240px] w-full" />
+                    <Skeleton className="h-[240px] w-full" />
                 ) : tree.length === 0 ? (
                     <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
                         No designations yet — click Add to get started.
@@ -295,9 +295,9 @@ export default function DesignationsHierarchyPage() {
                         ))}
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
-            <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle className="text-zoru-ink">
@@ -312,10 +312,10 @@ export default function DesignationsHierarchyPage() {
                             <input type="hidden" name="_id" value={String(editing._id)} />
                         ) : null}
                         <div>
-                            <ZoruLabel htmlFor="name" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="name" className="text-[13px] text-zoru-ink">
                                 Name <span className="text-red-500">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 required
@@ -324,10 +324,10 @@ export default function DesignationsHierarchyPage() {
                             />
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="description" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="description" className="text-[13px] text-zoru-ink">
                                 Description
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="description"
                                 name="description"
                                 rows={2}
@@ -336,13 +336,13 @@ export default function DesignationsHierarchyPage() {
                             />
                         </div>
                         <div>
-                            <ZoruLabel
+                            <Label
                                 htmlFor="parent_designation_id"
                                 className="text-[13px] text-zoru-ink"
                             >
                                 Parent Designation
-                            </ZoruLabel>
-                            <ZoruSelect
+                            </Label>
+                            <Select
                                 name="parent_designation_id"
                                 defaultValue={editingParent}
                             >
@@ -362,30 +362,30 @@ export default function DesignationsHierarchyPage() {
                                             </ZoruSelectItem>
                                         ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             <p className="mt-1 text-[11px] text-zoru-ink-muted">
                                 Select &quot;Root&quot; to make this a top-level designation.
                             </p>
                         </div>
                         <ZoruDialogFooter>
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => setDialogOpen(false)}
                             >
                                 Cancel
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 type="submit"
                                 disabled={isSaving}
                             >
                                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                                 Save
-                            </ZoruButton>
+                            </Button>
                         </ZoruDialogFooter>
                     </form>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </EntityListShell>
     );
 }

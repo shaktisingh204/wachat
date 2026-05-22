@@ -311,7 +311,7 @@ export function ServiceContractsListClient({
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search contract no, customer, coverage…"
@@ -359,9 +359,9 @@ export function ServiceContractsListClient({
           ]}
         />
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
@@ -373,44 +373,44 @@ export function ServiceContractsListClient({
             {selected.size} selected
           </div>
           <div className="flex flex-wrap items-center gap-1">
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={() => setBulkOp('renew')}
               disabled={bulkPending}
             >
               <RefreshCw className="h-3.5 w-3.5" /> Renew
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={() => setBulkOp('terminate')}
               disabled={bulkPending}
             >
               <XCircle className="h-3.5 w-3.5" /> Terminate
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
               <Download className="h-3.5 w-3.5" /> CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportXlsx}>
               <Download className="h-3.5 w-3.5" /> XLSX
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="destructive"
               onClick={() => setBulkOp('delete')}
               disabled={bulkPending}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
@@ -418,23 +418,23 @@ export function ServiceContractsListClient({
       {/* Export row (no selection) */}
       {selected.size === 0 && filtered.length > 0 ? (
         <div className="flex items-center justify-end gap-2">
-          <ZoruButton size="sm" variant="ghost" onClick={exportCsv}>
+          <Button size="sm" variant="ghost" onClick={exportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
-          <ZoruButton size="sm" variant="ghost" onClick={exportXlsx}>
+          </Button>
+          <Button size="sm" variant="ghost" onClick={exportXlsx}>
             <Download className="h-3.5 w-3.5" /> Export XLSX
-          </ZoruButton>
+          </Button>
         </div>
       ) : null}
 
       {/* Table */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-8">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
@@ -473,7 +473,7 @@ export function ServiceContractsListClient({
                   return (
                     <ZoruTableRow key={c._id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={checked}
                           onCheckedChange={() => toggleOne(c._id)}
                           aria-label={`Select ${c.contractNo ?? c._id}`}
@@ -508,22 +508,22 @@ export function ServiceContractsListClient({
                         />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruButton size="sm" variant="ghost" asChild>
+                        <Button size="sm" variant="ghost" asChild>
                           <Link
                             href={`/dashboard/crm/service-contracts/${c._id}/edit`}
                           >
                             Edit
                           </Link>
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Bulk confirm dialogs */}
       <ConfirmDialog
@@ -571,7 +571,7 @@ function FilterSelect({
   options: Array<{ value: string; label: string }>;
 }) {
   return (
-    <ZoruSelect value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={onChange}>
       <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
         <ZoruSelectValue placeholder={placeholder} />
       </ZoruSelectTrigger>
@@ -582,7 +582,7 @@ function FilterSelect({
           </ZoruSelectItem>
         ))}
       </ZoruSelectContent>
-    </ZoruSelect>
+    </Select>
   );
 }
 

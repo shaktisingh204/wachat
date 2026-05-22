@@ -89,7 +89,7 @@ export function DeliverabilityClient() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -101,14 +101,14 @@ export function DeliverabilityClient() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" onClick={() => void fetchAll()} disabled={loading}>
+          <Button variant="outline" onClick={() => void fetchAll()} disabled={loading}>
             <RefreshCw className="h-4 w-4" /> Refresh
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <ZoruCard className="lg:col-span-1">
+        <Card className="lg:col-span-1">
           <ZoruCardHeader>
             <ZoruCardTitle className="flex items-center gap-2">
               <Activity className="h-4 w-4" /> Sender score
@@ -119,7 +119,7 @@ export function DeliverabilityClient() {
           </ZoruCardHeader>
           <ZoruCardContent className="flex flex-col items-center gap-3">
             {loading ? (
-              <ZoruSkeleton className="h-[168px] w-[168px] rounded-full" />
+              <Skeleton className="h-[168px] w-[168px] rounded-full" />
             ) : score ? (
               <>
                 <ScoreGauge score={score.score} grade={score.grade} />
@@ -143,9 +143,9 @@ export function DeliverabilityClient() {
               <p className="text-sm text-zoru-ink-muted">No score available.</p>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="lg:col-span-2">
+        <Card className="lg:col-span-2">
           <ZoruCardHeader>
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -156,18 +156,18 @@ export function DeliverabilityClient() {
                     : 'Run a placement test to see where your mail lands.'}
                 </ZoruCardDescription>
               </div>
-              <ZoruButton
+              <Button
                 size="sm"
                 onClick={handleRunPlacement}
                 disabled={pending}
               >
                 <PlayCircle className="h-4 w-4" /> Run test
-              </ZoruButton>
+              </Button>
             </div>
           </ZoruCardHeader>
           <ZoruCardContent>
             {loading ? (
-              <ZoruSkeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
             ) : placement ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -186,7 +186,7 @@ export function DeliverabilityClient() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {placement.results.map((r) => (
-                    <ZoruBadge
+                    <Badge
                       key={r.provider}
                       variant={
                         r.folder === 'inbox'
@@ -197,7 +197,7 @@ export function DeliverabilityClient() {
                       }
                     >
                       {r.provider}: {r.folder}
-                    </ZoruBadge>
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -207,7 +207,7 @@ export function DeliverabilityClient() {
               </p>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       <section className="space-y-3">
@@ -217,7 +217,7 @@ export function DeliverabilityClient() {
           </h2>
         </div>
         {loading ? (
-          <ZoruSkeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
         ) : (
           <DomainList domains={domains} onUpdated={fetchAll} />
         )}
@@ -231,7 +231,7 @@ export function DeliverabilityClient() {
           </h2>
         </div>
         {loading ? (
-          <ZoruSkeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
         ) : (
           <WarmupSchedule runs={warmups} onUpdated={fetchAll} />
         )}

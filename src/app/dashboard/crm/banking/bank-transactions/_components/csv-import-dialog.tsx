@@ -219,7 +219,7 @@ export function CsvImportDialog({
     }, [accountId, preview, pick, onImported, onOpenChange, toast]);
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>Import bank statement CSV</ZoruDialogTitle>
@@ -233,8 +233,8 @@ export function CsvImportDialog({
 
                 <div className="flex flex-col gap-4">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="csv-account">Target account</ZoruLabel>
-                        <ZoruSelect value={accountId} onValueChange={setAccountId}>
+                        <Label htmlFor="csv-account">Target account</Label>
+                        <Select value={accountId} onValueChange={setAccountId}>
                             <ZoruSelectTrigger id="csv-account">
                                 <ZoruSelectValue placeholder="Pick a payment account…" />
                             </ZoruSelectTrigger>
@@ -245,11 +245,11 @@ export function CsvImportDialog({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel>Statement file (CSV)</ZoruLabel>
+                        <Label>Statement file (CSV)</Label>
                         <div className="flex flex-wrap items-center gap-2">
                             <SabFilePickerButton
                                 accept="document"
@@ -312,10 +312,10 @@ export function CsvImportDialog({
                 </div>
 
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+                    <Button variant="ghost" onClick={() => onOpenChange(false)}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         onClick={handleImport}
                         disabled={isImporting || preview.length === 0 || !accountId}
                     >
@@ -326,9 +326,9 @@ export function CsvImportDialog({
                         )}
                         Import {preview.length || ''}{' '}
                         {preview.length === 1 ? 'row' : preview.length > 1 ? 'rows' : ''}
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

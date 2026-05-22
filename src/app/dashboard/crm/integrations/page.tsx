@@ -125,7 +125,7 @@ export default async function IntegrationsPage() {
                     const connected = integration.status === 'connected';
 
                     return (
-                        <ZoruCard key={integration.name} className="flex h-full flex-col p-6">
+                        <Card key={integration.name} className="flex h-full flex-col p-6">
                             <div className="flex items-start gap-3">
                                 <div
                                     className={
@@ -143,7 +143,7 @@ export default async function IntegrationsPage() {
                                             {integration.name}
                                         </h3>
                                         {connected ? (
-                                            <ZoruBadge variant="success">Connected</ZoruBadge>
+                                            <Badge variant="success">Connected</Badge>
                                         ) : null}
                                     </div>
                                     <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
@@ -171,7 +171,7 @@ export default async function IntegrationsPage() {
                             ) : (
                                 <span className={cn(btnBase, btnDisabled)}>Coming Soon</span>
                             )}
-                        </ZoruCard>
+                        </Card>
                     );
                 })}
             </div>

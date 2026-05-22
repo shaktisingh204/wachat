@@ -148,14 +148,14 @@ function normaliseTasks(rows?: TaskRow[]): TaskRow[] {
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -307,18 +307,18 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
             <input type="hidden" name="buddyName" value={buddyName} />
 
             {/* ── Template basics ─────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Template basics</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                            <ZoruLabel htmlFor="name">
+                            <Label htmlFor="name">
                                 Name{' '}
                                 <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 required
@@ -329,9 +329,9 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                             />
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="department">
+                            <Label htmlFor="department">
                                 Department
-                            </ZoruLabel>
+                            </Label>
                             <div className="mt-1.5">
                                 <EntityFormField
                                     entity="department"
@@ -345,10 +345,10 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                             </div>
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="estimatedDays">
+                            <Label htmlFor="estimatedDays">
                                 Estimated days
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="estimatedDays"
                                 name="estimatedDays"
                                 type="number"
@@ -364,7 +364,7 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                         </div>
                         <div className="grid gap-3 md:grid-cols-2 md:col-span-2">
                             <div>
-                                <ZoruLabel>Mentor</ZoruLabel>
+                                <Label>Mentor</Label>
                                 <div className="mt-1.5">
                                     <EntityFormField
                                         entity="employee"
@@ -382,7 +382,7 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel>Buddy</ZoruLabel>
+                                <Label>Buddy</Label>
                                 <div className="mt-1.5">
                                     <EntityFormField
                                         entity="employee"
@@ -402,31 +402,31 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Phase task lists ────────────────────────────────── */}
             {PHASES.map((phase) => (
-                <ZoruCard key={phase.slug} className="p-0">
+                <Card key={phase.slug} className="p-0">
                     <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                         <div>
                             <ZoruCardTitle>
                                 {phase.label}
-                                <ZoruBadge
+                                <Badge
                                     variant="secondary"
                                     className="ml-2"
                                 >
                                     {tasksByPhase.get(phase.slug)?.length ?? 0}
-                                </ZoruBadge>
+                                </Badge>
                             </ZoruCardTitle>
                         </div>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => addTaskTo(phase.slug)}
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add task
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         {(tasksByPhase.get(phase.slug) ?? []).length === 0 ? (
@@ -442,7 +442,7 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                             className="rounded-md border border-zoru-line bg-zoru-surface-2 p-2.5"
                                         >
                                             <div className="grid items-end gap-2 sm:grid-cols-[1fr_180px_120px_140px_auto]">
-                                                <ZoruInput
+                                                <Input
                                                     placeholder={`Task ${idx + 1}`}
                                                     value={row.title}
                                                     onChange={(e) =>
@@ -476,7 +476,7 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                                         );
                                                     }}
                                                 />
-                                                <ZoruInput
+                                                <Input
                                                     type="number"
                                                     min={0}
                                                     placeholder="Due days"
@@ -523,7 +523,7 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                                     )}
                                                 </select>
                                                 <div className="flex items-center justify-end gap-1">
-                                                    <ZoruButton
+                                                    <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="icon"
@@ -534,8 +534,8 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                                         }
                                                     >
                                                         <ArrowUp className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="icon"
@@ -548,8 +548,8 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                                         }
                                                     >
                                                         <ArrowDown className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="icon"
@@ -559,11 +559,11 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                                         }
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             </div>
                                             <div className="mt-2">
-                                                <ZoruTextarea
+                                                <Textarea
                                                     rows={2}
                                                     value={
                                                         row.description ?? ''
@@ -584,11 +584,11 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                             </ul>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ))}
 
             {/* ── Documents ────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
                         <ZoruCardTitle>Onboarding documents</ZoruCardTitle>
@@ -633,7 +633,7 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                     <span className="truncate text-zoru-ink">
                                         {d.name}
                                     </span>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -641,13 +641,13 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
                                         aria-label={`Remove ${d.name}`}
                                     >
                                         <X className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {state?.error ? (
                 <p
@@ -660,11 +660,11 @@ export function OnboardingForm({ initial }: OnboardingFormProps) {
 
             {/* ── Sticky footer ────────────────────────────────────── */}
             <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link href={BASE}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton
                     label={
                         isEditing ? 'Save changes' : 'Create template'

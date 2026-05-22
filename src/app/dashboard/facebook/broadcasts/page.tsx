@@ -110,13 +110,13 @@ type StepKey = (typeof STEPS)[number]['key'];
 function PageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-center justify-between">
-        <ZoruSkeleton className="h-9 w-72" />
-        <ZoruSkeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-72" />
+        <Skeleton className="h-9 w-32" />
       </div>
-      <ZoruSkeleton className="mt-6 h-16 w-full" />
-      <ZoruSkeleton className="mt-6 h-72 w-full" />
+      <Skeleton className="mt-6 h-16 w-full" />
+      <Skeleton className="mt-6 h-72 w-full" />
     </div>
   );
 }
@@ -184,14 +184,14 @@ function StepperHeader({ current }: { current: StepKey }) {
 function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending || disabled}>
+    <Button type="submit" disabled={pending || disabled}>
       {pending ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         <Send className="h-4 w-4" />
       )}
       Send broadcast
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -333,7 +333,7 @@ export default function FacebookBroadcastsPage() {
                 Failed {b.failedCount}
               </span>
               {b.status === 'PROCESSING' ? (
-                <ZoruProgress value={pct} className="h-1" />
+                <Progress value={pct} className="h-1" />
               ) : null}
             </div>
           );
@@ -347,7 +347,7 @@ export default function FacebookBroadcastsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -363,9 +363,9 @@ export default function FacebookBroadcastsPage() {
             <ZoruBreadcrumbPage>Broadcasts</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Marketing</ZoruPageEyebrow>
           <ZoruPageTitle>Messenger broadcasts</ZoruPageTitle>
@@ -376,20 +376,20 @@ export default function FacebookBroadcastsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" size="sm" onClick={fetchData}>
+          <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh history
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!activeProject ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>No project selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Select a project from the main dashboard to send broadcasts.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : (
         <div className="relative mt-6">
           <FeatureLockOverlay
@@ -398,19 +398,19 @@ export default function FacebookBroadcastsPage() {
           />
           <FeatureLock isAllowed={isAllowed}>
             <div className="mt-2 grid gap-3 md:grid-cols-3">
-              <ZoruStatCard
+              <StatCard
                 label="Total broadcasts"
                 value={stats.total.toLocaleString()}
                 period="Lifetime"
                 icon={<Send />}
               />
-              <ZoruStatCard
+              <StatCard
                 label="Completed"
                 value={stats.completed.toLocaleString()}
                 period="Successful runs"
                 icon={<CheckCircle2 />}
               />
-              <ZoruStatCard
+              <StatCard
                 label="In progress"
                 value={stats.inFlight.toLocaleString()}
                 period="Queued or processing"
@@ -422,7 +422,7 @@ export default function FacebookBroadcastsPage() {
               <StepperHeader current={step} />
             </div>
 
-            <ZoruCard className="mt-4 p-0">
+            <Card className="mt-4 p-0">
               <ZoruCardHeader>
                 <ZoruCardTitle className="text-base">
                   {STEPS.find((s) => s.key === step)?.label}
@@ -439,7 +439,7 @@ export default function FacebookBroadcastsPage() {
 
                   {step === 'audience' ? (
                     <div className="flex flex-col gap-4">
-                      <ZoruAlert>
+                      <Alert>
                         <Users className="h-4 w-4" />
                         <ZoruAlertTitle>Audience scope</ZoruAlertTitle>
                         <ZoruAlertDescription>
@@ -455,14 +455,14 @@ export default function FacebookBroadcastsPage() {
                           </a>{' '}
                           page.
                         </ZoruAlertDescription>
-                      </ZoruAlert>
+                      </Alert>
                       <div className="flex justify-end">
-                        <ZoruButton
+                        <Button
                           type="button"
                           onClick={() => setStep('compose')}
                         >
                           Continue <ArrowRight />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </div>
                   ) : null}
@@ -470,10 +470,10 @@ export default function FacebookBroadcastsPage() {
                   {step === 'compose' ? (
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="broadcast-message">
+                        <Label htmlFor="broadcast-message">
                           Message
-                        </ZoruLabel>
-                        <ZoruTextarea
+                        </Label>
+                        <Textarea
                           id="broadcast-message"
                           className="min-h-32"
                           placeholder="Enter your broadcast message…"
@@ -486,20 +486,20 @@ export default function FacebookBroadcastsPage() {
                         </p>
                       </div>
                       <div className="flex justify-between">
-                        <ZoruButton
+                        <Button
                           type="button"
                           variant="outline"
                           onClick={() => setStep('audience')}
                         >
                           <ArrowLeft /> Back
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           type="button"
                           onClick={() => setStep('review')}
                           disabled={!message.trim()}
                         >
                           Continue <ArrowRight />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </div>
                   ) : null}
@@ -514,29 +514,29 @@ export default function FacebookBroadcastsPage() {
                           {message || '— empty message —'}
                         </p>
                       </div>
-                      <ZoruAlert variant="warning">
+                      <Alert variant="warning">
                         <AlertCircle className="h-4 w-4" />
                         <ZoruAlertTitle>One-shot dispatch</ZoruAlertTitle>
                         <ZoruAlertDescription>
                           This sends to every eligible subscriber as soon as
                           you click send. There is no scheduling at this step.
                         </ZoruAlertDescription>
-                      </ZoruAlert>
+                      </Alert>
                       <div className="flex justify-between">
-                        <ZoruButton
+                        <Button
                           type="button"
                           variant="outline"
                           onClick={() => setStep('compose')}
                         >
                           <ArrowLeft /> Back
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton disabled={!message.trim()} />
                       </div>
                     </div>
                   ) : null}
                 </form>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="mt-8">
               <h2 className="text-[14px] font-medium text-zoru-ink">
@@ -549,17 +549,17 @@ export default function FacebookBroadcastsPage() {
                 {isLoading && broadcasts.length === 0 ? (
                   <div className="flex flex-col gap-2">
                     {Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruSkeleton key={i} className="h-10 w-full" />
+                      <Skeleton key={i} className="h-10 w-full" />
                     ))}
                   </div>
                 ) : broadcasts.length === 0 ? (
-                  <ZoruEmptyState
+                  <EmptyState
                     icon={<Send />}
                     title="No broadcasts sent yet"
                     description="Compose one above to reach your Messenger subscribers."
                   />
                 ) : (
-                  <ZoruDataTable
+                  <DataTable
                     columns={columns}
                     data={broadcasts}
                     showColumnMenu={false}

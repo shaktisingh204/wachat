@@ -25,29 +25,29 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
             case 'productBreadcrumbs':
                 return (
                      <div className="space-y-2">
-                        <ZoruLabel>Alignment</ZoruLabel>
-                        <ZoruSelect value={settings.textAlign || 'left'} onValueChange={(val) => handleUpdate('textAlign', val)}>
+                        <Label>Alignment</Label>
+                        <Select value={settings.textAlign || 'left'} onValueChange={(val) => handleUpdate('textAlign', val)}>
                             <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="left">Left</ZoruSelectItem>
                                 <ZoruSelectItem value="center">Center</ZoruSelectItem>
                                 <ZoruSelectItem value="right">Right</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 );
             case 'productImage':
                 return (
                     <div className="space-y-2">
-                        <ZoruLabel>Object Fit</ZoruLabel>
-                        <ZoruSelect value={settings.objectFit || 'cover'} onValueChange={(val) => handleUpdate('objectFit', val)}>
+                        <Label>Object Fit</Label>
+                        <Select value={settings.objectFit || 'cover'} onValueChange={(val) => handleUpdate('objectFit', val)}>
                             <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="cover">Cover</ZoruSelectItem>
                                 <ZoruSelectItem value="contain">Contain</ZoruSelectItem>
                                 <ZoruSelectItem value="fill">Fill</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 );
             case 'productAddToCart':
@@ -59,14 +59,14 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
     
     return (
         <div className="space-y-4">
-             <ZoruAccordion type="single" collapsible className="w-full" defaultValue={'settings'}>
+             <Accordion type="single" collapsible className="w-full" defaultValue={'settings'}>
                 <ZoruAccordionItem value="settings">
                     <ZoruAccordionTrigger>Settings</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-2">
                         {renderSpecificEditor()}
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
         </div>
     );
 }

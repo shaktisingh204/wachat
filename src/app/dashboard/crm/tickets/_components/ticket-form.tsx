@@ -15,7 +15,7 @@ import { LoaderCircle } from 'lucide-react';
 /**
  * <TicketForm> — Create / Edit form for tickets (§1D.3 bar).
  *
- * Sections rendered as `<ZoruCard>`:
+ * Sections rendered as `<Card>`:
  *   1. Basics — subject, description, requester (polymorphic), channel,
  *      product, category + sub-category.
  *   2. Workflow — priority, severity, status, SLA, due-by, agent group.
@@ -68,10 +68,10 @@ const REQUESTER_ENTITY: Record<RequesterKind, EntityKey> = {
 function SubmitButton({ editing }: { editing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {editing ? 'Save changes' : 'Create ticket'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -168,16 +168,16 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
             <input type="hidden" name="severity" value={severity} />
 
             {/* ─── Basics ──────────────────────────────────────────────── */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Basics
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="subject">
+                        <Label htmlFor="subject">
                             Subject <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="subject"
                             name="subject"
                             required
@@ -188,8 +188,8 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
                             id="description"
                             name="description"
                             rows={3}
@@ -200,9 +200,9 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel>
+                        <Label>
                             Requester type <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
+                        </Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="requesterKind"
@@ -221,9 +221,9 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel>
+                        <Label>
                             Requester <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
+                        </Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 key={requesterKind}
@@ -237,9 +237,9 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel>
+                        <Label>
                             Channel <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
+                        </Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="ticketChannel"
@@ -252,7 +252,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel>Product</ZoruLabel>
+                        <Label>Product</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="item"
@@ -263,7 +263,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel>Category</ZoruLabel>
+                        <Label>Category</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="category"
@@ -274,8 +274,8 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel htmlFor="subCategory">Sub-category</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="subCategory">Sub-category</Label>
+                        <Input
                             id="subCategory"
                             name="subCategory"
                             defaultValue={(initialBag.subCategory as string | undefined) ?? ''}
@@ -284,16 +284,16 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Workflow ────────────────────────────────────────────── */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Workflow
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel>Priority</ZoruLabel>
+                        <Label>Priority</Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="ticketPriority"
@@ -305,9 +305,9 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>
+                        <Label>
                             Severity <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
+                        </Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="ticketSeverity"
@@ -319,7 +319,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="ticketStatus"
@@ -331,8 +331,8 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="dueBy">Due by</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="dueBy">Due by</Label>
+                        <Input
                             id="dueBy"
                             name="dueBy"
                             type="datetime-local"
@@ -345,7 +345,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel>Agent group</ZoruLabel>
+                        <Label>Agent group</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="ticketGroup"
@@ -357,16 +357,16 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Assignment & linked ─────────────────────────────────── */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Assignment & links
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel>Assignee (agent)</ZoruLabel>
+                        <Label>Assignee (agent)</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="user"
@@ -376,7 +376,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Linked deal</ZoruLabel>
+                        <Label>Linked deal</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="deal"
@@ -386,7 +386,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Linked invoice</ZoruLabel>
+                        <Label>Linked invoice</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="invoice"
@@ -396,7 +396,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Parent ticket</ZoruLabel>
+                        <Label>Parent ticket</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="ticketGroup"
@@ -407,7 +407,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                     <div className="md:col-span-2">
-                        <ZoruLabel>Tags</ZoruLabel>
+                        <Label>Tags</Label>
                         <div className="mt-1.5">
                             <EntityMultiFormField
                                 entity="tag"
@@ -419,10 +419,10 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {customFields.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                         Custom fields
                     </h3>
@@ -438,11 +438,11 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                             />
                         ))}
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             <div className="flex justify-end gap-2">
-                <ZoruButton variant="outline" asChild>
+                <Button variant="outline" asChild>
                     <Link
                         href={
                             editing
@@ -452,7 +452,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     >
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton editing={editing} />
             </div>
         </form>

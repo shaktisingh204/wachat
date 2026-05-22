@@ -80,22 +80,22 @@ export default function CapiPage() {
                 title="Conversions API (CAPI)"
                 description="Send server-side events to Meta for privacy-safe conversion tracking. Bypasses iOS 14+ / ad-blocker signal loss."
                 actions={
-                    <ZoruBadge className="bg-green-600 text-white">
+                    <Badge className="bg-green-600 text-white">
                         <ShieldCheck className="h-3 w-3 mr-1" /> Server-side
-                    </ZoruBadge>
+                    </Badge>
                 }
             />
 
-            <ZoruAlert>
+            <Alert>
                 <ShieldCheck className="h-4 w-4" />
                 <ZoruAlertTitle>Why CAPI?</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Meta Pixel alone loses ~30% of events on modern browsers. CAPI closes that gap by sending events server-to-server,
                     and lets you match purchase revenue to ads with near-perfect attribution.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-base">1. Pick a pixel</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -118,40 +118,40 @@ export default function CapiPage() {
                         </div>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-base">2. Endpoint</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="flex items-center gap-2 bg-muted p-2.5 rounded font-mono text-xs">
                         <span className="flex-1 break-all">{endpoint}</span>
-                        <ZoruButton variant="ghost" size="icon" className="h-6 w-6" onClick={() => copy(endpoint)}>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copy(endpoint)}>
                             <Copy className="h-3 w-3" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-base">3. Sample event payload</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">{SAMPLE_PAYLOAD}</pre>
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         className="mt-2"
                         onClick={() => copy(SAMPLE_PAYLOAD)}
                     >
                         <Copy className="h-3 w-3 mr-1" /> Copy payload
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-base">4. Send a test event from SabNode</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -163,7 +163,7 @@ export default function CapiPage() {
                     <div className="flex items-end gap-3">
                         <div className="space-y-1.5">
                             <p className="text-xs font-medium text-muted-foreground">Event name</p>
-                            <ZoruSelect value={testEventName} onValueChange={setTestEventName}>
+                            <Select value={testEventName} onValueChange={setTestEventName}>
                                 <ZoruSelectTrigger className="w-[180px]">
                                     <ZoruSelectValue />
                                 </ZoruSelectTrigger>
@@ -173,9 +173,9 @@ export default function CapiPage() {
                                     <ZoruSelectItem value="Lead">Lead</ZoruSelectItem>
                                     <ZoruSelectItem value="AddToCart">AddToCart</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
-                        <ZoruButton
+                        <Button
                             disabled={!selectedPixelId || sendingTest}
                             onClick={async () => {
                                 if (!selectedPixelId) return;
@@ -191,9 +191,9 @@ export default function CapiPage() {
                         >
                             <Send className="h-4 w-4 mr-1" />
                             {sendingTest ? 'Sending...' : 'Send Test Event'}
-                        </ZoruButton>
+                        </Button>
                     </div>
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <a
                             href="https://developers.facebook.com/docs/marketing-api/conversions-api"
                             target="_blank"
@@ -201,9 +201,9 @@ export default function CapiPage() {
                         >
                             Read Meta CAPI docs <ExternalLink className="h-3 w-3 ml-1" />
                         </a>
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

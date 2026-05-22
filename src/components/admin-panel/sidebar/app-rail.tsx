@@ -162,24 +162,24 @@ export function AppRail({ activeApp }: AppRailProps) {
                 <Divider />
 
                 {/* User avatar → user settings */}
-                <ZoruTooltip>
+                <Tooltip>
                     <ZoruTooltipTrigger asChild>
                         <Link
                             href="/dashboard/user/profile"
                             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:scale-105 mt-0.5"
                         >
-                            <ZoruAvatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
+                            <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
                                 <ZoruAvatarImage src={avatarSrc} />
                                 <ZoruAvatarFallback className="text-[11px] font-bold bg-secondary text-foreground">
                                     {initials}
                                 </ZoruAvatarFallback>
-                            </ZoruAvatar>
+                            </Avatar>
                         </Link>
                     </ZoruTooltipTrigger>
                     <ZoruTooltipContent side="right" sideOffset={12}>
                         <p>{(sessionUser as any)?.name || 'Profile'}</p>
                     </ZoruTooltipContent>
-                </ZoruTooltip>
+                </Tooltip>
 
                 {/* Logout */}
                 <RailItem
@@ -214,7 +214,7 @@ function RailItem({
     destructive?: boolean;
 }) {
     return (
-        <ZoruTooltip>
+        <Tooltip>
             <ZoruTooltipTrigger asChild>
                 <Link
                     href={href}
@@ -239,7 +239,7 @@ function RailItem({
             <ZoruTooltipContent side="right" sideOffset={12}>
                 <p>{label}</p>
             </ZoruTooltipContent>
-        </ZoruTooltip>
+        </Tooltip>
     );
 }
 

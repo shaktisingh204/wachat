@@ -104,11 +104,11 @@ export default async function ServiceContractsPage() {
       title="Service Contracts (AMC)"
       subtitle="Annual maintenance contracts with coverage and visit frequency."
       primaryAction={
-        <ZoruButton variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/crm/service-contracts/new">
             <Plus className="h-4 w-4" /> New contract
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       {loadError ? (

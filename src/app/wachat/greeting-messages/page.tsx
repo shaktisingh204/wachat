@@ -100,15 +100,15 @@ export default function GreetingMessagesPage() {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruSkeleton className="h-3 w-52" />
+        <Skeleton className="h-3 w-52" />
         <div className="mt-5 space-y-3">
-          <ZoruSkeleton className="h-9 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-9 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
         <div className="mt-8 grid gap-4">
-          <ZoruSkeleton className="h-24" />
-          <ZoruSkeleton className="h-40" />
-          <ZoruSkeleton className="h-32" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-40" />
+          <Skeleton className="h-32" />
         </div>
       </div>
     );
@@ -116,7 +116,7 @@ export default function GreetingMessagesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -130,9 +130,9 @@ export default function GreetingMessagesPage() {
             <ZoruBreadcrumbPage>Greeting Messages</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat</ZoruPageEyebrow>
           <ZoruPageTitle>Greeting Messages</ZoruPageTitle>
@@ -142,15 +142,15 @@ export default function GreetingMessagesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} disabled={isSaving}>
             <Save /> {isSaving ? 'Saving…' : 'Save'}
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 grid gap-4">
         {/* Activate switch */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-[15px] text-zoru-ink">Enable greeting</h2>
@@ -159,19 +159,19 @@ export default function GreetingMessagesPage() {
                 first time.
               </p>
             </div>
-            <ZoruSwitch
+            <Switch
               checked={enabled}
               onCheckedChange={setEnabled}
               aria-label="Enable greeting"
             />
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Message body */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex flex-col gap-3">
-            <ZoruLabel htmlFor="greeting-body">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="greeting-body">Message</Label>
+            <Textarea
               id="greeting-body"
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
@@ -193,20 +193,20 @@ export default function GreetingMessagesPage() {
               ))}
             </div>
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Preview */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] text-zoru-ink">Preview</h2>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowPreview((v) => !v)}
             >
               {showPreview ? <EyeOff /> : <Eye />}
               {showPreview ? 'Hide' : 'Show'}
-            </ZoruButton>
+            </Button>
           </div>
           {showPreview && (
             <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
@@ -219,7 +219,7 @@ export default function GreetingMessagesPage() {
               </div>
             </div>
           )}
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

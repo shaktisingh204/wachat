@@ -124,11 +124,11 @@ export function TasksTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all tasks"
                                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
@@ -150,7 +150,7 @@ export function TasksTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={10}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -193,7 +193,7 @@ export function TasksTable({
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label={`Select task ${task.title}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
@@ -216,9 +216,9 @@ export function TasksTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
-                                        <ZoruBadge variant="secondary">
+                                        <Badge variant="secondary">
                                             {(task.type as string) || 'Follow-up'}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {linkedKey && linkedId ? (
@@ -296,7 +296,7 @@ export function TasksTable({
                                             : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
@@ -350,14 +350,14 @@ export function TasksTable({
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

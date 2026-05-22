@@ -53,12 +53,12 @@ export function ItemPrintView({
 
   return (
     <div className="space-y-4 print:space-y-0">
-      <ZoruCard className="p-4 print:hidden">
+      <Card className="p-4 print:hidden">
         <p className="text-[12.5px] text-zoru-ink-muted">
           Press <kbd>Ctrl/Cmd + P</kbd> to print. Use a 3×8 label sheet (24
           labels per page).
         </p>
-      </ZoruCard>
+      </Card>
 
       <div className="grid grid-cols-3 gap-2">
         {Array.from({ length: LABELS_PER_SHEET }).map((_, idx) => (

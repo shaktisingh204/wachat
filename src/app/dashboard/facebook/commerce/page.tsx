@@ -121,7 +121,7 @@ export default function FacebookCommercePage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<ShoppingBag />}
           title="No project selected"
           description="Pick a Facebook page / project to see its Commerce setup."
@@ -132,7 +132,7 @@ export default function FacebookCommercePage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -146,7 +146,7 @@ export default function FacebookCommercePage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Commerce</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header>
         <h1 className="text-2xl text-zoru-ink">Commerce</h1>
@@ -157,27 +157,27 @@ export default function FacebookCommercePage(): React.JSX.Element {
       </header>
 
       <div className="grid grid-cols-2 gap-3">
-        <ZoruCard className="p-4">
+        <Card className="p-4">
           <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
             Catalogs
           </p>
           <p className="mt-1 text-2xl text-zoru-ink">
             {catalogCount === null ? '—' : catalogCount}
           </p>
-        </ZoruCard>
-        <ZoruCard className="p-4">
+        </Card>
+        <Card className="p-4">
           <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
             Products
           </p>
           <p className="mt-1 text-2xl text-zoru-ink">
             {productCount === null ? '—' : productCount.toLocaleString()}
           </p>
-        </ZoruCard>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {TILES.map((t) => (
-          <ZoruCard key={t.key} className="flex flex-col gap-3 p-5">
+          <Card key={t.key} className="flex flex-col gap-3 p-5">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink-muted [&_svg]:size-4">
                 {t.icon}
@@ -188,15 +188,15 @@ export default function FacebookCommercePage(): React.JSX.Element {
             </div>
             <p className="text-xs text-zoru-ink-muted">{t.description}</p>
             <footer className="flex items-center justify-between border-t border-zoru-line pt-3">
-              <ZoruBadge variant="ghost">live</ZoruBadge>
-              <ZoruButton asChild variant="ghost" size="sm">
+              <Badge variant="ghost">live</Badge>
+              <Button asChild variant="ghost" size="sm">
                 <Link href={t.href} className="inline-flex items-center">
                   Open
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
-              </ZoruButton>
+              </Button>
             </footer>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     </div>

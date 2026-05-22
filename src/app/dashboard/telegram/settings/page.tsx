@@ -213,7 +213,7 @@ function ChipInput({ label, values, onChange, placeholder, validate }: ChipInput
     };
     return (
         <div className="space-y-2">
-            {label ? <ZoruLabel>{label}</ZoruLabel> : null}
+            {label ? <Label>{label}</Label> : null}
             <div className="flex flex-wrap items-center gap-1 rounded border border-zoru-line bg-zoru-bg px-2 py-1.5">
                 {values.map((v, i) => (
                     <span
@@ -270,7 +270,7 @@ function SwitchRow({
                     <div className="text-xs text-zoru-fg/60">{description}</div>
                 ) : null}
             </div>
-            <ZoruSwitch checked={value} onCheckedChange={onChange} />
+            <Switch checked={value} onCheckedChange={onChange} />
         </div>
     );
 }
@@ -290,8 +290,8 @@ function NumberRow({
 }) {
     return (
         <div className="space-y-1">
-            <ZoruLabel>{label}</ZoruLabel>
-            <ZoruInput
+            <Label>{label}</Label>
+            <Input
                 type="number"
                 value={value ?? 0}
                 min={min}
@@ -320,7 +320,7 @@ function SectionCard({
     extra?: React.ReactNode;
 }) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="space-y-5 p-6">
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
@@ -342,14 +342,14 @@ function SectionCard({
                 <div>{children}</div>
                 {onSave ? (
                     <div className="flex justify-end pt-2">
-                        <ZoruButton onClick={onSave} disabled={saving}>
+                        <Button onClick={onSave} disabled={saving}>
                             {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -616,7 +616,7 @@ export default function TelegramSettingsPage() {
     if (!projectId) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     title="Select a project"
                     description="Choose an active project to configure Telegram settings."
                 />
@@ -627,7 +627,7 @@ export default function TelegramSettingsPage() {
     return (
         <div className="space-y-6 p-6">
             <TelegramProjectGate />
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
                     <ZoruPageTitle className="flex items-center gap-2">
@@ -639,7 +639,7 @@ export default function TelegramSettingsPage() {
                         business hours, notifications, security and GDPR.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* Segmented section selector — no tab UI */}
             <div className="flex flex-wrap gap-2">
@@ -667,15 +667,15 @@ export default function TelegramSettingsPage() {
             </div>
 
             {error ? (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             ) : null}
 
             {loading ? (
                 <div className="space-y-3">
-                    <ZoruSkeleton className="h-32 w-full" />
-                    <ZoruSkeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
                 </div>
             ) : (
                 <>
@@ -770,7 +770,7 @@ export default function TelegramSettingsPage() {
                             irreversible once processed. Type <strong>DELETE</strong> to confirm.
                         </ZoruAlertDialogDescription>
                     </ZoruAlertDialogHeader>
-                    <ZoruInput
+                    <Input
                         value={gdprConfirm}
                         onChange={(e) => setGdprConfirm(e.target.value)}
                         placeholder="Type DELETE"
@@ -820,16 +820,16 @@ function DefaultsSection({
         >
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-1">
-                    <ZoruLabel>Default language</ZoruLabel>
-                    <ZoruInput
+                    <Label>Default language</Label>
+                    <Input
                         value={d.languageCode}
                         onChange={(e) => update('languageCode', e.target.value)}
                         placeholder="en"
                     />
                 </div>
                 <div className="space-y-1">
-                    <ZoruLabel>Parse mode</ZoruLabel>
-                    <ZoruSelect
+                    <Label>Parse mode</Label>
+                    <Select
                         value={d.parseMode}
                         onValueChange={(v) => update('parseMode', v)}
                     >
@@ -843,11 +843,11 @@ function DefaultsSection({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="space-y-1 md:col-span-2">
-                    <ZoruLabel>Signature line</ZoruLabel>
-                    <ZoruTextarea
+                    <Label>Signature line</Label>
+                    <Textarea
                         value={d.signatureLine ?? ''}
                         onChange={(e) => update('signatureLine', e.target.value)}
                         rows={2}
@@ -1018,8 +1018,8 @@ function BusinessHoursSection({
         >
             <div className="space-y-4">
                 <div className="space-y-1">
-                    <ZoruLabel>Timezone</ZoruLabel>
-                    <ZoruSelect
+                    <Label>Timezone</Label>
+                    <Select
                         value={bh.timezone}
                         onValueChange={(v) => update('timezone', v)}
                     >
@@ -1033,7 +1033,7 @@ function BusinessHoursSection({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -1043,12 +1043,12 @@ function BusinessHoursSection({
                             className="grid grid-cols-[60px,1fr,1fr] items-center gap-2"
                         >
                             <div className="text-sm font-medium">{WEEKDAYS[row.weekday]}</div>
-                            <ZoruInput
+                            <Input
                                 type="time"
                                 value={row.openHHMM}
                                 onChange={(e) => updateRow(idx, { openHHMM: e.target.value })}
                             />
-                            <ZoruInput
+                            <Input
                                 type="time"
                                 value={row.closeHHMM}
                                 onChange={(e) => updateRow(idx, { closeHHMM: e.target.value })}
@@ -1061,8 +1061,8 @@ function BusinessHoursSection({
                     <div className="text-sm font-semibold">Out-of-hours reply</div>
                     <div className="grid gap-3 md:grid-cols-3">
                         <div className="space-y-1">
-                            <ZoruLabel>Kind</ZoruLabel>
-                            <ZoruSelect
+                            <Label>Kind</Label>
+                            <Select
                                 value={reply.kind}
                                 onValueChange={(v) =>
                                     update('outOfHoursReply', { ...reply, kind: v })
@@ -1076,12 +1076,12 @@ function BusinessHoursSection({
                                     <ZoruSelectItem value="reply_text">Text reply</ZoruSelectItem>
                                     <ZoruSelectItem value="reply_media">Media reply</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         {reply.kind === 'reply_text' || reply.kind === 'reply_media' ? (
                             <div className="space-y-1 md:col-span-2">
-                                <ZoruLabel>Message</ZoruLabel>
-                                <ZoruTextarea
+                                <Label>Message</Label>
+                                <Textarea
                                     value={payloadValue}
                                     rows={2}
                                     onChange={(e) =>
@@ -1100,9 +1100,9 @@ function BusinessHoursSection({
                         ) : null}
                         {reply.kind === 'reply_media' ? (
                             <div className="space-y-1 md:col-span-3">
-                                <ZoruLabel className="flex items-center gap-1">
+                                <Label className="flex items-center gap-1">
                                     <ImageIcon className="h-3 w-3" /> Media
-                                </ZoruLabel>
+                                </Label>
                                 <SabFileUrlInput
                                     value={mediaUrlValue}
                                     accept="image"
@@ -1127,21 +1127,21 @@ function BusinessHoursSection({
                     <div className="text-sm font-semibold">Test business hours</div>
                     <div className="flex flex-wrap items-end gap-2">
                         <div className="space-y-1">
-                            <ZoruLabel>At</ZoruLabel>
-                            <ZoruInput
+                            <Label>At</Label>
+                            <Input
                                 type="datetime-local"
                                 value={testAt}
                                 onChange={(e) => setTestAt(e.target.value)}
                             />
                         </div>
-                        <ZoruButton variant="outline" onClick={runTest} disabled={testing}>
+                        <Button variant="outline" onClick={runTest} disabled={testing}>
                             {testing ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
                             Run
-                        </ZoruButton>
+                        </Button>
                         {testResult !== null ? (
-                            <ZoruBadge variant={testResult ? 'success' : 'warning'}>
+                            <Badge variant={testResult ? 'success' : 'warning'}>
                                 {testResult ? 'Within hours' : 'Out of hours'}
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
                     </div>
                 </div>
@@ -1194,8 +1194,8 @@ function NotificationsSection({
                     onChange={(v) => update('errorAlerts', v)}
                 />
                 <div className="space-y-1 md:col-span-2">
-                    <ZoruLabel>Slack webhook URL</ZoruLabel>
-                    <ZoruInput
+                    <Label>Slack webhook URL</Label>
+                    <Input
                         value={n.slackWebhook ?? ''}
                         onChange={(e) => update('slackWebhook', e.target.value)}
                         placeholder="https://hooks.slack.com/services/..."
@@ -1243,8 +1243,8 @@ function SecuritySection({
         >
             <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                    <ZoruLabel>Rotate webhook secret every (days)</ZoruLabel>
-                    <ZoruInput
+                    <Label>Rotate webhook secret every (days)</Label>
+                    <Input
                         type="number"
                         min={0}
                         value={s.rotateWebhookSecretEveryDays ?? 0}
@@ -1309,7 +1309,7 @@ function OverridesSection({
     if (bots.length === 0) {
         return (
             <SectionCard icon={UserCog} title="Per-bot Overrides">
-                <ZoruEmptyState
+                <EmptyState
                     title="No bots yet"
                     description="Add a bot in the Bots page first."
                 />
@@ -1337,7 +1337,7 @@ function OverridesSection({
             onSave={onSave}
             saving={false}
             extra={
-                <ZoruButton
+                <Button
                     variant="outline"
                     onClick={onClear}
                     disabled={!selectedBotId}
@@ -1345,13 +1345,13 @@ function OverridesSection({
                 >
                     <Trash2 className="h-3 w-3" />
                     Revert to defaults
-                </ZoruButton>
+                </Button>
             }
         >
             <div className="space-y-4">
                 <div className="space-y-1">
-                    <ZoruLabel>Bot</ZoruLabel>
-                    <ZoruSelect value={selectedBotId} onValueChange={setSelectedBotId}>
+                    <Label>Bot</Label>
+                    <Select value={selectedBotId} onValueChange={setSelectedBotId}>
                         <ZoruSelectTrigger>
                             <ZoruSelectValue placeholder="Select bot" />
                         </ZoruSelectTrigger>
@@ -1362,7 +1362,7 @@ function OverridesSection({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 {selectedBotId ? (
@@ -1382,8 +1382,8 @@ function OverridesSection({
                         >
                             <div className="grid gap-3 md:grid-cols-2">
                                 <div className="space-y-1">
-                                    <ZoruLabel>Parse mode</ZoruLabel>
-                                    <ZoruSelect
+                                    <Label>Parse mode</Label>
+                                    <Select
                                         value={overridesDefaults.parseMode}
                                         onValueChange={(v) =>
                                             setOverrides((o) => ({
@@ -1402,11 +1402,11 @@ function OverridesSection({
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                                 <div className="space-y-1">
-                                    <ZoruLabel>Signature line</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Signature line</Label>
+                                    <Input
                                         value={overridesDefaults.signatureLine ?? ''}
                                         onChange={(e) =>
                                             setOverrides((o) => ({
@@ -1436,8 +1436,8 @@ function OverridesSection({
                             }}
                         >
                             <div className="space-y-1">
-                                <ZoruLabel>Timezone</ZoruLabel>
-                                <ZoruSelect
+                                <Label>Timezone</Label>
+                                <Select
                                     value={overridesHours.timezone}
                                     onValueChange={(v) =>
                                         setOverrides((o) => ({
@@ -1456,7 +1456,7 @@ function OverridesSection({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </OverrideToggle>
 
@@ -1537,7 +1537,7 @@ function OverrideToggle({
         <div className="rounded border border-zoru-line bg-zoru-bg p-3">
             <label className="flex items-center justify-between gap-3 pb-2 text-sm font-medium">
                 <span>{label}</span>
-                <ZoruSwitch checked={on} onCheckedChange={onToggle} />
+                <Switch checked={on} onCheckedChange={onToggle} />
             </label>
             {on ? <div className="pt-2">{children}</div> : (
                 <div className="text-xs text-zoru-fg/60">Use project default.</div>
@@ -1594,11 +1594,11 @@ function GdprSection({
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    <ZoruButton onClick={onExport} disabled={busy} className="gap-1">
+                    <Button onClick={onExport} disabled={busy} className="gap-1">
                         <Download className="h-3 w-3" />
                         Request data export
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="destructive"
                         onClick={onDeleteOpen}
                         disabled={busy}
@@ -1606,7 +1606,7 @@ function GdprSection({
                     >
                         <Trash2 className="h-3 w-3" />
                         Request data deletion
-                    </ZoruButton>
+                    </Button>
                 </div>
 
                 <div>
@@ -1614,7 +1614,7 @@ function GdprSection({
                     {requests.length === 0 ? (
                         <p className="text-sm text-zoru-fg/60">No GDPR requests yet.</p>
                     ) : (
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Created</ZoruTableHead>
@@ -1629,7 +1629,7 @@ function GdprSection({
                                         <ZoruTableCell>{r.createdAt.slice(0, 19).replace('T', ' ')}</ZoruTableCell>
                                         <ZoruTableCell>{r.kind}</ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge
+                                            <Badge
                                                 variant={
                                                     r.status === 'done'
                                                         ? 'success'
@@ -1639,7 +1639,7 @@ function GdprSection({
                                                 }
                                             >
                                                 {r.status}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell className="font-mono text-xs">
                                             {r._id}
@@ -1647,7 +1647,7 @@ function GdprSection({
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     )}
                 </div>
             </div>
@@ -1673,13 +1673,13 @@ function AuditSection({
             description="Every successful settings save is recorded here."
         >
             {rows.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title="No audit entries yet"
                     description="Once you save changes here, diffs will appear in this list."
                 />
             ) : (
                 <>
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow>
                                 <ZoruTableHead>When</ZoruTableHead>
@@ -1716,15 +1716,15 @@ function AuditSection({
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                     {nextCursor ? (
                         <div className="flex justify-center pt-3">
-                            <ZoruButton variant="outline" onClick={onLoadMore} disabled={loading}>
+                            <Button variant="outline" onClick={onLoadMore} disabled={loading}>
                                 {loading ? (
                                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                                 ) : null}
                                 Load more
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null}
                 </>

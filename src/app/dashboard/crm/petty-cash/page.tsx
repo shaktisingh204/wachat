@@ -107,11 +107,11 @@ export default async function PettyCashPage() {
       title="Petty Cash"
       subtitle="Branch and employee cash floats with top-ups, spends and reconciliation."
       primaryAction={
-        <ZoruButton variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/crm/petty-cash/new">
             <Plus className="h-4 w-4" /> New float
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 

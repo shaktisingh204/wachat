@@ -36,7 +36,7 @@ interface RepeaterBlockRendererProps {
 }
 
 const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
-    <ZoruCard className="h-full flex flex-col">
+    <Card className="h-full flex flex-col">
         <ZoruCardHeader className="p-0">
             {item.imageUrl ? (
                 <div className="relative aspect-video">
@@ -56,12 +56,12 @@ const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
         </ZoruCardContent>
         {item.buttonText && item.buttonLink && (
             <ZoruCardFooter className="p-4 pt-0">
-                <ZoruButton asChild className="w-full">
+                <Button asChild className="w-full">
                     <Link href={item.buttonLink}>{item.buttonText}</Link>
-                </ZoruButton>
+                </Button>
             </ZoruCardFooter>
         )}
-    </ZoruCard>
+    </Card>
 );
 
 export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ settings }) => {

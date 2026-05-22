@@ -114,11 +114,11 @@ export function ContactsTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all contacts on this page"
                                 checked={
                                     allSelected ? true : someSelected ? 'indeterminate' : false
@@ -144,7 +144,7 @@ export function ContactsTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={12}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -179,7 +179,7 @@ export function ContactsTable({
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label={`Select contact ${name}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
@@ -262,9 +262,9 @@ export function ContactsTable({
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {source ? (
-                                            <ZoruBadge variant="secondary">
+                                            <Badge variant="secondary">
                                                 {source}
-                                            </ZoruBadge>
+                                            </Badge>
                                         ) : (
                                             <span className="text-[12px] text-zoru-ink-muted">—</span>
                                         )}
@@ -290,7 +290,7 @@ export function ContactsTable({
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {lifecycle ? (
-                                            <ZoruBadge variant="ghost">{lifecycle}</ZoruBadge>
+                                            <Badge variant="ghost">{lifecycle}</Badge>
                                         ) : (
                                             '—'
                                         )}
@@ -310,7 +310,7 @@ export function ContactsTable({
                                             : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
@@ -360,14 +360,14 @@ export function ContactsTable({
                                                     Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

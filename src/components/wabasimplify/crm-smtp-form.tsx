@@ -14,14 +14,14 @@ const initialState = { message: null, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       variant="obsidian"
       disabled={pending}
       leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
     >
       Save SMTP Configuration
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -48,38 +48,38 @@ export function CrmSmtpForm({ settings }: CrmSmtpFormProps) {
                 <div className="px-6 pb-6 space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="fromName" className="text-foreground">From Name</ZoruLabel>
-                            <ZoruInput id="fromName" name="fromName" defaultValue={settings?.fromName} placeholder="e.g. SabNode Support" required/>
+                            <Label htmlFor="fromName" className="text-foreground">From Name</Label>
+                            <Input id="fromName" name="fromName" defaultValue={settings?.fromName} placeholder="e.g. SabNode Support" required/>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="fromEmail" className="text-foreground">From Email</ZoruLabel>
-                            <ZoruInput id="fromEmail" name="fromEmail" type="email" defaultValue={settings?.fromEmail} placeholder="e.g. support@yourdomain.com" required/>
+                            <Label htmlFor="fromEmail" className="text-foreground">From Email</Label>
+                            <Input id="fromEmail" name="fromEmail" type="email" defaultValue={settings?.fromEmail} placeholder="e.g. support@yourdomain.com" required/>
                         </div>
                     </div>
-                    <ZoruSeparator className="bg-border" />
+                    <Separator className="bg-border" />
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="smtpHost" className="text-foreground">SMTP Host</ZoruLabel>
-                            <ZoruInput id="smtpHost" name="smtpHost" defaultValue={settings?.smtp?.host} placeholder="smtp.example.com" required/>
+                            <Label htmlFor="smtpHost" className="text-foreground">SMTP Host</Label>
+                            <Input id="smtpHost" name="smtpHost" defaultValue={settings?.smtp?.host} placeholder="smtp.example.com" required/>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="smtpPort" className="text-foreground">SMTP Port</ZoruLabel>
-                            <ZoruInput id="smtpPort" name="smtpPort" type="number" defaultValue={settings?.smtp?.port || 587} required />
+                            <Label htmlFor="smtpPort" className="text-foreground">SMTP Port</Label>
+                            <Input id="smtpPort" name="smtpPort" type="number" defaultValue={settings?.smtp?.port || 587} required />
                         </div>
                     </div>
                      <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="smtpUser" className="text-foreground">SMTP Username</ZoruLabel>
-                            <ZoruInput id="smtpUser" name="smtpUser" defaultValue={settings?.smtp?.user} required />
+                            <Label htmlFor="smtpUser" className="text-foreground">SMTP Username</Label>
+                            <Input id="smtpUser" name="smtpUser" defaultValue={settings?.smtp?.user} required />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="smtpPass" className="text-foreground">SMTP Password</ZoruLabel>
-                            <ZoruInput id="smtpPass" name="smtpPass" type="password" defaultValue={settings?.smtp?.pass} required />
+                            <Label htmlFor="smtpPass" className="text-foreground">SMTP Password</Label>
+                            <Input id="smtpPass" name="smtpPass" type="password" defaultValue={settings?.smtp?.pass} required />
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <ZoruSwitch id="smtpSecure" name="smtpSecure" defaultChecked={settings?.smtp?.secure !== false}/>
-                        <ZoruLabel htmlFor="smtpSecure" className="text-foreground">Use SSL/TLS Encryption</ZoruLabel>
+                        <Switch id="smtpSecure" name="smtpSecure" defaultChecked={settings?.smtp?.secure !== false}/>
+                        <Label htmlFor="smtpSecure" className="text-foreground">Use SSL/TLS Encryption</Label>
                     </div>
                 </div>
                 <div className="px-6 py-4 border-t border-border flex">

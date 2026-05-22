@@ -79,7 +79,7 @@ export function PayrollRunsFiltersRow({
           placeholder="All statuses"
         />
 
-        <ZoruSelect value={monthFilter} onValueChange={onMonthChange}>
+        <Select value={monthFilter} onValueChange={onMonthChange}>
           <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Month">
             <ZoruSelectValue placeholder="All months" />
           </ZoruSelectTrigger>
@@ -91,9 +91,9 @@ export function PayrollRunsFiltersRow({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruSelect value={yearFilter} onValueChange={onYearChange}>
+        <Select value={yearFilter} onValueChange={onYearChange}>
           <ZoruSelectTrigger className="h-9 w-[120px]" aria-label="Year">
             <ZoruSelectValue placeholder="Year" />
           </ZoruSelectTrigger>
@@ -105,9 +105,9 @@ export function PayrollRunsFiltersRow({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruButton
+        <Button
           type="button"
           variant="ghost"
           size="sm"
@@ -119,25 +119,25 @@ export function PayrollRunsFiltersRow({
             className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`}
           />{' '}
           Refresh
-        </ZoruButton>
+        </Button>
 
         {hasActiveFilters ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={onClear}
           >
             <XCircle className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <ZoruLabel className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-zoru-ink-muted">
             Department
-          </ZoruLabel>
+          </Label>
           <div className="mt-1">
             <EntityFormField
               entity="department"
@@ -149,9 +149,9 @@ export function PayrollRunsFiltersRow({
           </div>
         </div>
         <div>
-          <ZoruLabel className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-zoru-ink-muted">
             Employee
-          </ZoruLabel>
+          </Label>
           <div className="mt-1">
             <EntityFormField
               entity="employee"

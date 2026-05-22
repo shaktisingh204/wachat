@@ -250,10 +250,10 @@ export default function EmployeeProfilePage() {
       subtitle="View and edit detailed employee profile information."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="flex flex-col gap-1.5">
-          <ZoruLabel className="text-zoru-ink">Select Employee</ZoruLabel>
-          <ZoruSelect value={selectedEmpId} onValueChange={handleEmpChange}>
+          <Label className="text-zoru-ink">Select Employee</Label>
+          <Select value={selectedEmpId} onValueChange={handleEmpChange}>
             <ZoruSelectTrigger className="h-10 w-full max-w-sm rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
               <ZoruSelectValue placeholder="Choose an employee…" />
             </ZoruSelectTrigger>
@@ -264,9 +264,9 @@ export default function EmployeeProfilePage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
-      </ZoruCard>
+      </Card>
 
       {isLoading && (
         <div className="flex items-center justify-center py-10 text-[13px] text-zoru-ink-muted">
@@ -277,11 +277,11 @@ export default function EmployeeProfilePage() {
 
       {!isLoading && selectedEmpId && (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-4 text-[15px] text-zoru-ink">Personal Info</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="About Me" fullWidth>
-                <ZoruTextarea
+                <Textarea
                   rows={3}
                   value={form.about_me ?? ''}
                   onChange={(e) => set('about_me', e.target.value)}
@@ -335,7 +335,7 @@ export default function EmployeeProfilePage() {
               />
 
               <Field label="Hobbies" fullWidth>
-                <ZoruTextarea
+                <Textarea
                   rows={2}
                   value={form.hobbies ?? ''}
                   onChange={(e) => set('hobbies', e.target.value)}
@@ -344,7 +344,7 @@ export default function EmployeeProfilePage() {
               </Field>
 
               <Field label="Address" fullWidth>
-                <ZoruTextarea
+                <Textarea
                   rows={2}
                   value={form.address ?? ''}
                   onChange={(e) => set('address', e.target.value)}
@@ -358,9 +358,9 @@ export default function EmployeeProfilePage() {
                 onChange={(v) => set('marriage_anniversary_date', v)}
               />
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-4 text-[15px] text-zoru-ink">Employment</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <EnumSelectField
@@ -389,7 +389,7 @@ export default function EmployeeProfilePage() {
               />
 
               <Field label="Notice Period (days)">
-                <ZoruInput
+                <Input
                   type="number"
                   min="0"
                   value={form.notice_period ?? ''}
@@ -417,7 +417,7 @@ export default function EmployeeProfilePage() {
               />
 
               <Field label="Reporting To">
-                <ZoruSelect
+                <Select
                   value={form.reporting_to ?? '__none__'}
                   onValueChange={(v) => set('reporting_to', v === '__none__' ? '' : v)}
                 >
@@ -432,11 +432,11 @@ export default function EmployeeProfilePage() {
                         <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>
                       ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </Field>
 
               <Field label="Overtime Hourly Rate">
-                <ZoruInput
+                <Input
                   type="number"
                   min="0"
                   step="0.01"
@@ -449,7 +449,7 @@ export default function EmployeeProfilePage() {
               </Field>
 
               <Field label="Hourly Rate">
-                <ZoruInput
+                <Input
                   type="number"
                   min="0"
                   step="0.01"
@@ -477,9 +477,9 @@ export default function EmployeeProfilePage() {
                 ]}
               />
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-4 text-[15px] text-zoru-ink">Banking &amp; Tax</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <TextField
@@ -501,10 +501,10 @@ export default function EmployeeProfilePage() {
                 onChange={(v) => set('tax_regime', v)}
               />
             </div>
-          </ZoruCard>
+          </Card>
 
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               type="submit"
               disabled={isSaving}
             >
@@ -514,7 +514,7 @@ export default function EmployeeProfilePage() {
                 <Save className="h-4 w-4" />
               )}
               Save Profile
-            </ZoruButton>
+            </Button>
           </div>
         </form>
       )}
@@ -533,7 +533,7 @@ function Field({
 }) {
   return (
     <div className={fullWidth ? 'md:col-span-2' : ''}>
-      <ZoruLabel className="text-zoru-ink">{label}</ZoruLabel>
+      <Label className="text-zoru-ink">{label}</Label>
       <div className="mt-1.5">{children}</div>
     </div>
   );
@@ -552,7 +552,7 @@ function TextField({
 }) {
   return (
     <Field label={label} fullWidth={fullWidth}>
-      <ZoruInput
+      <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
@@ -572,7 +572,7 @@ function DateField({
 }) {
   return (
     <Field label={label}>
-      <ZoruInput
+      <Input
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -597,7 +597,7 @@ function SelectField({
 }) {
   return (
     <Field label={label} fullWidth={fullWidth}>
-      <ZoruSelect value={value || '__none__'} onValueChange={(v) => onChange(v === '__none__' ? '' : v)}>
+      <Select value={value || '__none__'} onValueChange={(v) => onChange(v === '__none__' ? '' : v)}>
         <ZoruSelectTrigger className="h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
           <ZoruSelectValue placeholder="Select…" />
         </ZoruSelectTrigger>
@@ -609,7 +609,7 @@ function SelectField({
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
     </Field>
   );
 }

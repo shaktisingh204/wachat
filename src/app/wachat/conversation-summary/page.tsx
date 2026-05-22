@@ -94,7 +94,7 @@ export default function ConversationSummaryPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -108,7 +108,7 @@ export default function ConversationSummaryPage() {
             <ZoruBreadcrumbPage>Conversation Summary</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -119,18 +119,18 @@ export default function ConversationSummaryPage() {
         </p>
       </div>
 
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h2 className="mb-3 text-[15px] text-zoru-ink">Select Contact</h2>
         <div className="mb-3 flex gap-3">
           <div className="flex-1">
-            <ZoruInput
+            <Input
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search by name or phone..."
             />
           </div>
-          <ZoruButton
+          <Button
             size="sm"
             variant="outline"
             onClick={handleSearch}
@@ -141,23 +141,23 @@ export default function ConversationSummaryPage() {
             ) : (
               <Search />
             )}
-          </ZoruButton>
+          </Button>
         </div>
         {contacts.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {contacts.slice(0, 10).map((c: any) => (
-              <ZoruButton
+              <Button
                 key={c._id}
                 variant={selectedId === c._id ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => loadTimeline(c._id)}
               >
                 {c.name || c.waId || 'Unknown'}
-              </ZoruButton>
+              </Button>
             ))}
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {isPending && selectedId && (
         <div className="flex h-32 items-center justify-center gap-3">
@@ -168,7 +168,7 @@ export default function ConversationSummaryPage() {
 
       {loaded && !isPending && (
         <>
-          <ZoruCard className="p-5">
+          <Card className="p-5">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <h2 className="text-[15px] text-zoru-ink">
@@ -205,35 +205,35 @@ export default function ConversationSummaryPage() {
                 </p>
               )}
             </div>
-          </ZoruCard>
+          </Card>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            <ZoruCard className="p-5 text-center">
+            <Card className="p-5 text-center">
               <div className="mb-1 text-[12px] text-zoru-ink-muted">Inbound</div>
               <div className="text-[28px] text-zoru-ink">{inbound.length}</div>
-              <ZoruBadge variant="info">Customer</ZoruBadge>
-            </ZoruCard>
-            <ZoruCard className="p-5 text-center">
+              <Badge variant="info">Customer</Badge>
+            </Card>
+            <Card className="p-5 text-center">
               <div className="mb-1 text-[12px] text-zoru-ink-muted">Outbound</div>
               <div className="text-[28px] text-zoru-ink">{outbound.length}</div>
-              <ZoruBadge variant="success">Agent</ZoruBadge>
-            </ZoruCard>
-            <ZoruCard className="p-5 text-center">
+              <Badge variant="success">Agent</Badge>
+            </Card>
+            <Card className="p-5 text-center">
               <div className="mb-1 text-[12px] text-zoru-ink-muted">Notes</div>
               <div className="text-[28px] text-zoru-ink">{notes.length}</div>
-              <ZoruBadge variant="warning">Internal</ZoruBadge>
-            </ZoruCard>
+              <Badge variant="warning">Internal</Badge>
+            </Card>
           </div>
 
           {events.length > 0 && (
-            <ZoruCard className="overflow-x-auto p-0">
+            <Card className="overflow-x-auto p-0">
               <div className="border-b border-zoru-line px-5 py-4">
                 <h2 className="text-[15px] text-zoru-ink">Recent Activity</h2>
               </div>
               <div className="divide-y divide-zoru-line">
                 {events.slice(0, 15).map((e: any, i: number) => (
                   <div key={i} className="flex items-start gap-3 px-5 py-3">
-                    <ZoruBadge
+                    <Badge
                       variant={
                         e.type === 'note'
                           ? 'warning'
@@ -247,7 +247,7 @@ export default function ConversationSummaryPage() {
                         : e.direction === 'in'
                           ? 'In'
                           : 'Out'}
-                    </ZoruBadge>
+                    </Badge>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[12.5px] text-zoru-ink">
                         {e.content || '--'}
@@ -259,13 +259,13 @@ export default function ConversationSummaryPage() {
                   </div>
                 ))}
               </div>
-            </ZoruCard>
+            </Card>
           )}
         </>
       )}
 
       {!loaded && !isPending && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleX />}
           title="Select a contact"
           description="Choose a contact above to generate a conversation summary."

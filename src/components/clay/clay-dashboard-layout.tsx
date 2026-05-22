@@ -2875,37 +2875,37 @@ export function ClayDashboardLayout({
           <>
             <BrandGlyph />
             <div className="ml-3 flex items-center gap-2">
-              <ZoruButton
+              <Button
                 variant="pill"
                 size="sm"
                 leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => setSearchOpen(true)}
               >
                 Search
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="pill"
                 size="sm"
                 leading={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => router.push('/dashboard/wachat/contacts')}
               >
                 Add contact
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="pill"
                 size="sm"
                 leading={<LuBell className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => router.push('/dashboard/notifications')}
               >
                 Notifications
-              </ZoruButton>
+              </Button>
 
               {/* More (…) dropdown — workspace shortcuts */}
-              <ZoruDropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                  <ZoruButton variant="outline" size="icon" aria-label="More">
+                  <Button variant="outline" size="icon" aria-label="More">
                     <LuEllipsis className="h-4 w-4" />
-                  </ZoruButton>
+                  </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="start" className="w-56">
                   <ZoruDropdownMenuLabel>Workspace</ZoruDropdownMenuLabel>
@@ -2938,22 +2938,22 @@ export function ClayDashboardLayout({
                     <LuLogOut className="mr-2 h-4 w-4" /> Log out
                   </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
+              </DropdownMenu>
             </div>
           </>
         }
         right={
           <>
             {/* Language dropdown (placeholder — real i18n not wired) */}
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton
+                <Button
                   variant="pill"
                   size="sm"
                   trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
                 >
                   En
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuLabel>
@@ -2973,10 +2973,10 @@ export function ClayDashboardLayout({
                   Français · French
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
 
             {/* Date pill — click to refresh server data */}
-            <ZoruButton
+            <Button
               variant="pill"
               size="sm"
               leading={<LuCalendar className="h-3.5 w-3.5" strokeWidth={2} />}
@@ -2985,7 +2985,7 @@ export function ClayDashboardLayout({
               aria-label="Refresh data"
             >
               {currentDate}
-            </ZoruButton>
+            </Button>
 
             {/* Plan badge — links to billing */}
             <button
@@ -3023,16 +3023,16 @@ export function ClayDashboardLayout({
             </button>
 
             {/* Create dropdown — one-click entry into every creator */}
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton
+                <Button
                   variant="obsidian"
                   size="md"
                   className="px-5"
                   trailing={<LuChevronDown className="h-3.5 w-3.5 opacity-70" />}
                 >
                   Create
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end" className="w-56">
                 <ZoruDropdownMenuLabel>Create new</ZoruDropdownMenuLabel>
@@ -3065,7 +3065,7 @@ export function ClayDashboardLayout({
                   <LuGlobe className="mr-2 h-4 w-4" /> SEO project
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </>
         }
       />
@@ -3472,7 +3472,7 @@ function ClayWachatBrand() {
       </button>
 
       {/* Project switcher */}
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -3536,7 +3536,7 @@ function ClayWachatBrand() {
             Browse all projects
           </ZoruDropdownMenuItem>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
     </div>
   );
 }

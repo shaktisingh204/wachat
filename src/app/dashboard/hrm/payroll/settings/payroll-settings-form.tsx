@@ -16,10 +16,10 @@ const initialState: { message?: string; error?: string } = {};
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -36,11 +36,11 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
     <form action={formAction} className="flex flex-col gap-6">
 
       {/* ── Pay Cycle ── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">Pay Cycle</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="payFrequency">Pay Frequency</ZoruLabel>
+            <Label htmlFor="payFrequency">Pay Frequency</Label>
             <EnumFormField
               name="payFrequency"
               enumName="payFrequency"
@@ -48,7 +48,7 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+            <Label htmlFor="currency">Currency</Label>
             <EnumFormField
               name="currency"
               enumName="payrollCurrency"
@@ -56,7 +56,7 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="taxRegime">Tax Regime</ZoruLabel>
+            <Label htmlFor="taxRegime">Tax Regime</Label>
             <EnumFormField
               name="taxRegime"
               enumName="taxRegime"
@@ -64,8 +64,8 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="workingDaysPerWeek">Working Days / Week</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="workingDaysPerWeek">Working Days / Week</Label>
+            <Input
               id="workingDaysPerWeek"
               name="workingDaysPerWeek"
               type="number"
@@ -74,7 +74,7 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="payslipTemplate">Payslip Template</ZoruLabel>
+            <Label htmlFor="payslipTemplate">Payslip Template</Label>
             <EnumFormField
               name="payslipTemplate"
               enumName="payslipTemplate"
@@ -82,10 +82,10 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ── Statutory Deductions ── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">Statutory Deductions</h2>
         <div className="space-y-6">
 
@@ -96,20 +96,20 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
                 <span className="text-[13px] font-medium text-zoru-ink">Provident Fund (PF)</span>
                 <p className="text-[11px] text-zoru-ink-muted">Employee + employer contribution under EPF Act</p>
               </div>
-              <ZoruSwitch name="pfEnabled" defaultChecked={settings.pfEnabled} aria-label="Enable PF" />
+              <Switch name="pfEnabled" defaultChecked={settings.pfEnabled} aria-label="Enable PF" />
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="pfEmployeeRate">Employee Rate (%)</ZoruLabel>
-                <ZoruInput id="pfEmployeeRate" name="pfEmployeeRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.pfEmployeeRate} />
+                <Label htmlFor="pfEmployeeRate">Employee Rate (%)</Label>
+                <Input id="pfEmployeeRate" name="pfEmployeeRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.pfEmployeeRate} />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="pfEmployerRate">Employer Rate (%)</ZoruLabel>
-                <ZoruInput id="pfEmployerRate" name="pfEmployerRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.pfEmployerRate} />
+                <Label htmlFor="pfEmployerRate">Employer Rate (%)</Label>
+                <Input id="pfEmployerRate" name="pfEmployerRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.pfEmployerRate} />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="pfWageCeiling">Wage Ceiling (₹)</ZoruLabel>
-                <ZoruInput id="pfWageCeiling" name="pfWageCeiling" type="number" min="0" defaultValue={settings.pfWageCeiling} />
+                <Label htmlFor="pfWageCeiling">Wage Ceiling (₹)</Label>
+                <Input id="pfWageCeiling" name="pfWageCeiling" type="number" min="0" defaultValue={settings.pfWageCeiling} />
               </div>
             </div>
           </div>
@@ -121,20 +121,20 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
                 <span className="text-[13px] font-medium text-zoru-ink">ESI (ESIC)</span>
                 <p className="text-[11px] text-zoru-ink-muted">Employees' State Insurance contribution</p>
               </div>
-              <ZoruSwitch name="esiEnabled" defaultChecked={settings.esiEnabled} aria-label="Enable ESI" />
+              <Switch name="esiEnabled" defaultChecked={settings.esiEnabled} aria-label="Enable ESI" />
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="esiEmployeeRate">Employee Rate (%)</ZoruLabel>
-                <ZoruInput id="esiEmployeeRate" name="esiEmployeeRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.esiEmployeeRate} />
+                <Label htmlFor="esiEmployeeRate">Employee Rate (%)</Label>
+                <Input id="esiEmployeeRate" name="esiEmployeeRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.esiEmployeeRate} />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="esiEmployerRate">Employer Rate (%)</ZoruLabel>
-                <ZoruInput id="esiEmployerRate" name="esiEmployerRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.esiEmployerRate} />
+                <Label htmlFor="esiEmployerRate">Employer Rate (%)</Label>
+                <Input id="esiEmployerRate" name="esiEmployerRate" type="number" min="0" max="100" step="0.01" defaultValue={settings.esiEmployerRate} />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="esiWageCeiling">Wage Ceiling (₹)</ZoruLabel>
-                <ZoruInput id="esiWageCeiling" name="esiWageCeiling" type="number" min="0" defaultValue={settings.esiWageCeiling} />
+                <Label htmlFor="esiWageCeiling">Wage Ceiling (₹)</Label>
+                <Input id="esiWageCeiling" name="esiWageCeiling" type="number" min="0" defaultValue={settings.esiWageCeiling} />
               </div>
             </div>
           </div>
@@ -146,26 +146,26 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
                 <div className="text-[13px] font-medium text-zoru-ink">Professional Tax (PT)</div>
                 <div className="text-[11px] text-zoru-ink-muted">State-level professional tax deduction</div>
               </div>
-              <ZoruSwitch name="ptEnabled" defaultChecked={settings.ptEnabled} aria-label="Enable PT" />
+              <Switch name="ptEnabled" defaultChecked={settings.ptEnabled} aria-label="Enable PT" />
             </div>
             <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
               <div>
                 <div className="text-[13px] font-medium text-zoru-ink">TDS (Section 192)</div>
                 <div className="text-[11px] text-zoru-ink-muted">Tax deducted at source on salary</div>
               </div>
-              <ZoruSwitch name="tdsEnabled" defaultChecked={settings.tdsEnabled} aria-label="Enable TDS" />
+              <Switch name="tdsEnabled" defaultChecked={settings.tdsEnabled} aria-label="Enable TDS" />
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ── Attendance & OT ── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">Attendance & Overtime</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="lateMarkingGraceMins">Late-marking Grace (minutes)</ZoruLabel>
-            <ZoruInput id="lateMarkingGraceMins" name="lateMarkingGraceMins" type="number" min="0" max="120" defaultValue={settings.lateMarkingGraceMins} />
+            <Label htmlFor="lateMarkingGraceMins">Late-marking Grace (minutes)</Label>
+            <Input id="lateMarkingGraceMins" name="lateMarkingGraceMins" type="number" min="0" max="120" defaultValue={settings.lateMarkingGraceMins} />
             <p className="text-[11px] text-zoru-ink-muted">Employees arriving within this window are not marked late.</p>
           </div>
           <div className="flex items-center gap-4 rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
@@ -173,13 +173,13 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
               <div className="text-[13px] font-medium text-zoru-ink">Overtime Tracking</div>
               <div className="text-[11px] text-zoru-ink-muted">Track and pay hours beyond the standard shift.</div>
             </div>
-            <ZoruSwitch name="overtimeEnabled" defaultChecked={settings.overtimeEnabled} aria-label="Enable overtime" />
+            <Switch name="overtimeEnabled" defaultChecked={settings.overtimeEnabled} aria-label="Enable overtime" />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ── Approvals & Notifications ── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">Approvals & Notifications</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
@@ -187,21 +187,21 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
               <div className="text-[13px] font-medium text-zoru-ink">Require payroll approval</div>
               <div className="text-[11px] text-zoru-ink-muted">Payroll runs must be approved before disbursement.</div>
             </div>
-            <ZoruSwitch name="approvalRequired" defaultChecked={settings.approvalRequired} aria-label="Require approval" />
+            <Switch name="approvalRequired" defaultChecked={settings.approvalRequired} aria-label="Require approval" />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="approverUserId">Approver User ID</ZoruLabel>
-            <ZoruInput id="approverUserId" name="approverUserId" defaultValue={settings.approverUserId} placeholder="User ObjectId (leave blank for owner)" />
+            <Label htmlFor="approverUserId">Approver User ID</Label>
+            <Input id="approverUserId" name="approverUserId" defaultValue={settings.approverUserId} placeholder="User ObjectId (leave blank for owner)" />
           </div>
           <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
             <div>
               <div className="text-[13px] font-medium text-zoru-ink">Notify employees on payslip generation</div>
               <div className="text-[11px] text-zoru-ink-muted">Send email / push when a payslip is locked.</div>
             </div>
-            <ZoruSwitch name="notifyOnPayslip" defaultChecked={settings.notifyOnPayslip} aria-label="Notify on payslip" />
+            <Switch name="notifyOnPayslip" defaultChecked={settings.notifyOnPayslip} aria-label="Notify on payslip" />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end">
         <SaveButton />

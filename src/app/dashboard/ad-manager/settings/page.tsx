@@ -28,7 +28,7 @@ export default function AdManagerSettingsPage() {
                     const Icon = i.icon;
                     return (
                         <Link key={i.href} href={i.href}>
-                            <ZoruCard className="hover:border-[#1877F2]/50 transition-colors cursor-pointer h-full">
+                            <Card className="hover:border-[#1877F2]/50 transition-colors cursor-pointer h-full">
                                 <ZoruCardContent className="p-4 flex gap-3">
                                     <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
                                         <Icon className="h-5 w-5" />
@@ -38,7 +38,7 @@ export default function AdManagerSettingsPage() {
                                         <div className="text-xs text-muted-foreground">{i.desc}</div>
                                     </div>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         </Link>
                     );
                 })}

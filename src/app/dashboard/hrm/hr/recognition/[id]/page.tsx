@@ -43,7 +43,7 @@ export default async function RecognitionDetailPage({
       deleteAction={deleteRecognition}
       entityId={id}
       rightRail={
-        <ZoruCard className="p-4">
+        <Card className="p-4">
           <div className="flex items-center gap-2 text-zoru-ink">
             <Award className="h-5 w-5 text-zoru-warning-ink" />
             <span className="text-sm font-medium">Celebration card</span>
@@ -61,7 +61,7 @@ export default async function RecognitionDetailPage({
               </p>
             ) : null}
           </div>
-        </ZoruCard>
+        </Card>
       }
       sections={[
         {

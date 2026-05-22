@@ -77,10 +77,10 @@ const verticals = [
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <Save />}
       {pending ? 'Saving…' : 'Save changes'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -148,7 +148,7 @@ export function EditPhoneNumberDialog({
   };
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-h-[85vh] max-w-[680px] overflow-hidden p-0">
         <form
           action={profileFormAction}
@@ -228,8 +228,8 @@ export function EditPhoneNumberDialog({
 
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="vertical">Business Category</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="vertical">Business Category</Label>
+                    <Select
                       name="vertical"
                       defaultValue={phone.profile?.vertical}
                     >
@@ -247,11 +247,11 @@ export function EditPhoneNumberDialog({
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="email">Business Email</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="email">Business Email</Label>
+                    <Input
                       id="email"
                       name="email"
                       type="email"
@@ -262,18 +262,18 @@ export function EditPhoneNumberDialog({
                 </div>
               </div>
 
-              <ZoruSeparator />
+              <Separator />
 
               {/* Middle: text fields */}
               <div className="grid gap-4">
                 <div className="flex flex-col gap-1.5">
                   <div className="flex justify-between">
-                    <ZoruLabel htmlFor="about">Status (About)</ZoruLabel>
+                    <Label htmlFor="about">Status (About)</Label>
                     <span className="text-[11px] text-zoru-ink-muted">
                       Max 139 chars
                     </span>
                   </div>
-                  <ZoruInput
+                  <Input
                     id="about"
                     name="about"
                     defaultValue={phone.profile?.about}
@@ -283,14 +283,14 @@ export function EditPhoneNumberDialog({
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <div className="flex justify-between">
-                    <ZoruLabel htmlFor="description">
+                    <Label htmlFor="description">
                       Business Description
-                    </ZoruLabel>
+                    </Label>
                     <span className="text-[11px] text-zoru-ink-muted">
                       Max 256 chars
                     </span>
                   </div>
-                  <ZoruTextarea
+                  <Textarea
                     id="description"
                     name="description"
                     defaultValue={phone.profile?.description}
@@ -301,13 +301,13 @@ export function EditPhoneNumberDialog({
                 </div>
               </div>
 
-              <ZoruSeparator />
+              <Separator />
 
               {/* Bottom: contact & socials */}
               <div className="grid gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="address">Business Address</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="address">Business Address</Label>
+                  <Input
                     id="address"
                     name="address"
                     defaultValue={phone.profile?.address}
@@ -315,14 +315,14 @@ export function EditPhoneNumberDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Websites</ZoruLabel>
+                  <Label>Websites</Label>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <ZoruInput
+                    <Input
                       name="websites"
                       placeholder="https://www.example.com"
                       defaultValue={phone.profile?.websites?.[0]}
                     />
-                    <ZoruInput
+                    <Input
                       name="websites"
                       placeholder="https://shop.example.com"
                       defaultValue={phone.profile?.websites?.[1]}
@@ -334,17 +334,17 @@ export function EditPhoneNumberDialog({
           </div>
 
           <ZoruDialogFooter className="gap-2 border-t border-zoru-line px-6 py-4 sm:justify-end">
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

@@ -72,7 +72,7 @@ export function InlineOwnerEdit({
     );
 
     return (
-        <ZoruPopover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen}>
             <ZoruPopoverTrigger asChild>
                 <button
                     type="button"
@@ -108,7 +108,7 @@ export function InlineOwnerEdit({
                     Unassign
                 </button>
             </ZoruPopoverContent>
-        </ZoruPopover>
+        </Popover>
     );
 }
 
@@ -155,7 +155,7 @@ export function InlineStageEdit({
     }, [draft, stage, leadId, onSaved, toast]);
 
     return (
-        <ZoruPopover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen}>
             <ZoruPopoverTrigger asChild>
                 <button
                     type="button"
@@ -175,7 +175,7 @@ export function InlineStageEdit({
                 <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Change stage
                 </p>
-                <ZoruInput
+                <Input
                     autoFocus
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
@@ -209,7 +209,7 @@ export function InlineStageEdit({
                     </button>
                 </div>
             </ZoruPopoverContent>
-        </ZoruPopover>
+        </Popover>
     );
 }
 
@@ -262,7 +262,7 @@ export function InlineStatusEdit({
 
     const current = status || 'New';
     return (
-        <ZoruPopover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen}>
             <ZoruPopoverTrigger asChild>
                 <button
                     type="button"
@@ -296,6 +296,6 @@ export function InlineStatusEdit({
                     </button>
                 ))}
             </ZoruPopoverContent>
-        </ZoruPopover>
+        </Popover>
     );
 }

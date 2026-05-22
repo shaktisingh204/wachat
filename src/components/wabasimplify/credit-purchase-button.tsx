@@ -12,10 +12,10 @@ import { useToast } from '@/hooks/use-toast';
 function SubmitButton({ children }: { children: React.ReactNode }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="w-full">
+        <Button type="submit" disabled={pending} className="w-full">
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {children}
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -36,8 +36,8 @@ export function CreditPurchaseButton({ credits, amount }: CreditPurchaseButtonPr
     }
 
     return (
-        <ZoruButton onClick={handleClick} className="w-full">
+        <Button onClick={handleClick} className="w-full">
             Buy Now
-        </ZoruButton>
+        </Button>
     );
 }

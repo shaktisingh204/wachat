@@ -367,17 +367,17 @@ export function SavedViewsBar({
             )}
 
             <div className="ml-auto">
-                <ZoruButton
+                <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={openSaveDialog}
                 >
                     <Plus className="h-3.5 w-3.5" /> Save current as view
-                </ZoruButton>
+                </Button>
             </div>
 
-            <ZoruDialog open={saveOpen} onOpenChange={setSaveOpen}>
+            <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
                 <ZoruDialogContent className="sm:max-w-[480px]">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Save current view</ZoruDialogTitle>
@@ -389,8 +389,8 @@ export function SavedViewsBar({
 
                     <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-1.5">
-                            <ZoruLabel htmlFor="savedview-name">Name</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="savedview-name">Name</Label>
+                            <Input
                                 id="savedview-name"
                                 value={saveName}
                                 onChange={(e) => setSaveName(e.target.value)}
@@ -400,8 +400,8 @@ export function SavedViewsBar({
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <ZoruLabel htmlFor="savedview-scope">Scope</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="savedview-scope">Scope</Label>
+                            <Select
                                 value={saveScope}
                                 onValueChange={(v) =>
                                     setSaveScope(
@@ -420,7 +420,7 @@ export function SavedViewsBar({
                                         Shared (everyone in this workspace)
                                     </ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
 
                         <label className="flex items-center gap-2 text-sm text-zoru-ink">
@@ -436,24 +436,24 @@ export function SavedViewsBar({
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             type="button"
                             onClick={() => setSaveOpen(false)}
                             disabled={savePending}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             onClick={handleSubmitSave}
                             disabled={savePending}
                         >
                             {savePending ? 'Saving…' : 'Save view'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

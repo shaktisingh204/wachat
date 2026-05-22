@@ -194,26 +194,26 @@ export function LeadsConversionView({
             className="h-9 w-28 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
-        <ZoruButton type="submit" size="sm" disabled={isPending}>
+        <Button type="submit" size="sm" disabled={isPending}>
           Apply
-        </ZoruButton>
+        </Button>
         <div className="ml-auto flex gap-2">
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={onCsv}
           >
             CSV
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={onXlsx}
           >
             XLSX
-          </ZoruButton>
+          </Button>
         </div>
       </form>
 
@@ -235,7 +235,7 @@ export function LeadsConversionView({
       </div>
 
       {/* Funnel bar chart */}
-      <ZoruCard>
+      <Card>
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">
             Funnel by stage
@@ -289,18 +289,18 @@ export function LeadsConversionView({
             </ResponsiveContainer>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Conversion rate by source table */}
       {bySource.length > 0 && (
-        <ZoruCard>
+        <Card>
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               Conversion by source
             </h2>
           </div>
           <div className="overflow-x-auto rounded-lg border border-border">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
                   <ZoruTableHead className="text-muted-foreground">
@@ -330,26 +330,26 @@ export function LeadsConversionView({
                       {fmtNumber(s.converted)}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] font-medium text-foreground">
-                      <ZoruBadge
+                      <Badge
                         variant={
                           s.conversionRate >= 20 ? 'default' : 'secondary'
                         }
                       >
                         {s.conversionRate.toFixed(1)}%
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Leads table */}
-      <ZoruCard>
+      <Card>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">
@@ -393,7 +393,7 @@ export function LeadsConversionView({
                       {l.company ?? '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge
+                      <Badge
                         variant={
                           l.status === 'Converted'
                             ? 'default'
@@ -403,7 +403,7 @@ export function LeadsConversionView({
                         }
                       >
                         {l.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-muted-foreground">
                       {l.source}
@@ -417,7 +417,7 @@ export function LeadsConversionView({
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
           <PaginationBar
             page={page}
             limit={limit}
@@ -425,7 +425,7 @@ export function LeadsConversionView({
             total={total}
           />
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -78,24 +78,24 @@ export default async function ProbationDetailPage({
             title={`Probation · ${employeeRef}`}
             subtitle="Evaluation criteria, scores and outcome."
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${probationId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {probation.recommendation ? (
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                             Recommendation: {probation.recommendation}
-                        </ZoruBadge>
+                        </Badge>
                     ) : null}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -142,10 +142,10 @@ export default async function ProbationDetailPage({
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Criteria */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Evaluation criteria
                 </div>
@@ -155,7 +155,7 @@ export default async function ProbationDetailPage({
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Criterion</ZoruTableHead>
@@ -176,13 +176,13 @@ export default async function ProbationDetailPage({
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Notes */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">Notes</div>
                 {probation.notes ? (
                     <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
@@ -193,7 +193,7 @@ export default async function ProbationDetailPage({
                         No notes recorded.
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

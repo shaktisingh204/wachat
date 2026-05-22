@@ -109,16 +109,16 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
 
     return (
         <>
-            <ZoruDropdownMenu>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                         aria-label={`Actions for ${userName}`}
                     >
                         <MoreHorizontal className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end" className="w-52">
                     <ZoruDropdownMenuLabel className="text-xs text-slate-500">
@@ -151,7 +151,7 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
                         Reset 2FA
                     </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
 
             <ZoruAlertDialog
                 open={pendingAction !== null}
@@ -166,7 +166,7 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
                     </ZoruAlertDialogHeader>
                     <ZoruAlertDialogFooter className="mt-4">
                         <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruButton
+                        <Button
                             variant={copy?.danger ? 'destructive' : 'default'}
                             disabled={isPending}
                             onClick={() => pendingAction && runAction(pendingAction)}
@@ -175,7 +175,7 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
                                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                             )}
                             {copy?.cta}
-                        </ZoruButton>
+                        </Button>
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
             </ZoruAlertDialog>

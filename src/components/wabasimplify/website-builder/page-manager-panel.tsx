@@ -92,36 +92,36 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
         <div className="space-y-4">
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Pages</h2>
-                <ZoruButton variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCreating(true)}>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCreating(true)}>
                     <Plus className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
             </div>
             {isCreating && (
                 <div className="space-y-2 p-2 border rounded-md">
-                    <ZoruInput
+                    <Input
                         placeholder="New page name..."
                         value={newPageName}
                         onChange={(e) => setNewPageName(e.target.value)}
                         autoFocus
                     />
                     <div className="flex justify-end gap-2">
-                        <ZoruButton variant="ghost" size="sm" onClick={() => setIsCreating(false)}>Cancel</ZoruButton>
-                        <ZoruButton size="sm" onClick={handleCreatePage}>Create</ZoruButton>
+                        <Button variant="ghost" size="sm" onClick={() => setIsCreating(false)}>Cancel</Button>
+                        <Button size="sm" onClick={handleCreatePage}>Create</Button>
                     </div>
                 </div>
             )}
             <div className="space-y-1">
                 {pages.map(page => (
                     <div key={page._id.toString()} className={cn("flex items-center group rounded-md transaction-all duration-200", activePageId === page._id.toString() ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50')}>
-                        <ZoruButton variant="ghost" className="flex-1 justify-start font-normal" onClick={() => onSelectPage(page._id.toString())}>
+                        <Button variant="ghost" className="flex-1 justify-start font-normal" onClick={() => onSelectPage(page._id.toString())}>
                             {page.isHomepage && <Home className="mr-2 h-4 w-4 text-primary" />}
                             <span className="truncate">{page.name}</span>
-                        </ZoruButton>
-                        <ZoruDropdownMenu>
+                        </Button>
+                        <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
+                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
                                     <MoreVertical className="h-4 w-4" />
-                                </ZoruButton>
+                                </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent>
                                 <ZoruDropdownMenuItem onSelect={() => handleSetHomepage(page._id.toString())}>Set as Homepage</ZoruDropdownMenuItem>
@@ -137,7 +137,7 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
                                     </ZoruAlertDialogContent>
                                 </ZoruAlertDialog>
                             </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                     </div>
                 ))}
             </div>

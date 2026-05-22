@@ -95,10 +95,10 @@ export function ChatContactList({
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
-            <ZoruSkeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="h-10 w-10 rounded-full" />
             <div className="flex-1 space-y-2">
-                <ZoruSkeleton className="h-4 w-3/4" />
-                <ZoruSkeleton className="h-3 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
             </div>
         </div>
     );
@@ -108,19 +108,19 @@ export function ChatContactList({
             <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
-                        <ZoruAvatar>
+                        <Avatar>
                             <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
                             <ZoruAvatarFallback>{sessionUser.name.charAt(0)}</ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <p className="font-semibold">{sessionUser.name}</p>
                     </div>
                 ) : (
                     <div className="flex items-center gap-3">
-                        <ZoruSkeleton className="h-10 w-10 rounded-full" />
-                        <div className="space-y-2"><ZoruSkeleton className="h-4 w-24" /><ZoruSkeleton className="h-3 w-16" /></div>
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
                     </div>
                 )}
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon"
                     onClick={(e) => {
@@ -133,19 +133,19 @@ export function ChatContactList({
                 >
                     <MessageSquarePlus className="h-5 w-5" />
                     <span className="sr-only">New Chat</span>
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <ZoruInput
+                    <Input
                         placeholder="Search or start new chat"
                         className="pl-8"
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                 </div>
-                <ZoruSelect value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
+                <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
                     <ZoruSelectTrigger id="phoneNumberId">
                         <ZoruSelectValue placeholder="Select a phone number..." />
                     </ZoruSelectTrigger>
@@ -156,7 +156,7 @@ export function ChatContactList({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             {/* All / Unread filter pills */}
@@ -187,7 +187,7 @@ export function ChatContactList({
                 </button>
             </div>
 
-            <ZoruScrollArea className="flex-1">
+            <ScrollArea className="flex-1">
                 {isLoading ? (
                     <div className="p-2 space-y-1">
                         {[...Array(8)].map((_, i) => <ContactSkeleton key={i} />)}
@@ -208,9 +208,9 @@ export function ChatContactList({
                                         selectedContactId === contact._id.toString() && "bg-accent shadow-sm"
                                     )}
                                 >
-                                    <ZoruAvatar>
+                                    <Avatar>
                                         <ZoruAvatarFallback>{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
-                                    </ZoruAvatar>
+                                    </Avatar>
                                     <div className="flex-1 min-w-0 pt-0.5">
                                         <div className="flex justify-between items-start">
                                             <span className={cn(
@@ -230,9 +230,9 @@ export function ChatContactList({
                                                 {lastMsgContent}
                                             </span>
                                             {unreadCount > 0 && (
-                                                <ZoruBadge variant="default" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] flex-shrink-0 ml-1.5">
+                                                <Badge variant="default" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] flex-shrink-0 ml-1.5">
                                                     {unreadCount}
-                                                </ZoruBadge>
+                                                </Badge>
                                             )}
                                         </div>
                                     </div>
@@ -250,13 +250,13 @@ export function ChatContactList({
                         </div>
                         <div>No contacts found{searchQuery ? ' for your search' : ' for this number'}.</div>
                         {!searchQuery && (
-                            <ZoruButton asChild variant="outline" size="sm" className="mt-2">
+                            <Button asChild variant="outline" size="sm" className="mt-2">
                                 <Link href="/wachat/contacts">Import or add contacts</Link>
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                 )}
-            </ZoruScrollArea>
+            </ScrollArea>
         </div>
     );
 }

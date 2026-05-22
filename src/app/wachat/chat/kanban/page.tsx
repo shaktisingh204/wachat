@@ -16,13 +16,13 @@ function KanbanPageSkeleton() {
   return (
     <div className="flex h-full flex-1 gap-4 overflow-x-auto p-4">
       <div className="w-80 shrink-0">
-        <ZoruSkeleton className="h-full w-full" />
+        <Skeleton className="h-full w-full" />
       </div>
       <div className="w-80 shrink-0">
-        <ZoruSkeleton className="h-full w-full" />
+        <Skeleton className="h-full w-full" />
       </div>
       <div className="w-80 shrink-0">
-        <ZoruSkeleton className="h-full w-full" />
+        <Skeleton className="h-full w-full" />
       </div>
     </div>
   );

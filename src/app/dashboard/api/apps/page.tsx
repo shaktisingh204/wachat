@@ -25,7 +25,7 @@ export default async function OAuthAppsPage(): Promise<JSX.Element> {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
@@ -35,9 +35,9 @@ export default async function OAuthAppsPage(): Promise<JSX.Element> {
             <ZoruBreadcrumbPage>OAuth apps</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>OAuth apps</ZoruPageTitle>
           <ZoruPageDescription>
@@ -45,13 +45,13 @@ export default async function OAuthAppsPage(): Promise<JSX.Element> {
             Code + PKCE flow. Token endpoint: <code className="font-mono">/api/v1/oauth/token</code>.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loadError ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>Failed to load apps: {loadError}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       <AppsClient initialApps={initial} />

@@ -74,14 +74,14 @@ function nameFromUrl(url: string): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create announcement'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -171,7 +171,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
             {/* Hidden input for SabFiles banner. */}
             <input type="hidden" name="bannerUrl" value={bannerUrl} />
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Announcement
                 </div>
@@ -179,8 +179,8 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                 <div className="flex flex-col gap-4">
                     {/* Title */}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Title *</Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -191,8 +191,8 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
                     {/* Body */}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="body">Body *</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="body">Body *</Label>
+                        <Textarea
                             id="body"
                             name="body"
                             rows={8}
@@ -205,7 +205,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                     {/* Category (TODO above) / Priority */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel>Category</ZoruLabel>
+                            <Label>Category</Label>
                             <EnumFormField
                                 enumName="announcementCategory"
                                 name="category"
@@ -220,7 +220,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel>Priority</ZoruLabel>
+                            <Label>Priority</Label>
                             <EnumFormField
                                 enumName="priority"
                                 name="priority"
@@ -236,16 +236,16 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Audience */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Audience
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Send to</ZoruLabel>
+                        <Label>Send to</Label>
                         <EnumFormField
                             enumName="announcementAudience"
                             name="audience"
@@ -260,14 +260,14 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                     </div>
                     {audienceNeedsIds ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="audienceIds">
+                            <Label htmlFor="audienceIds">
                                 {audience === 'department'
                                     ? 'Department IDs'
                                     : audience === 'team'
                                       ? 'Team IDs'
                                       : 'Role IDs'}
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="audienceIds"
                                 name="audienceIds"
                                 placeholder="comma, separated, ids"
@@ -279,17 +279,17 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Schedule + Status */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Schedule & status
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="publishAt">Publish at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="publishAt">Publish at</Label>
+                        <Input
                             id="publishAt"
                             name="publishAt"
                             type="datetime-local"
@@ -297,8 +297,8 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiresAt">Expires at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiresAt">Expires at</Label>
+                        <Input
                             id="expiresAt"
                             name="expiresAt"
                             type="datetime-local"
@@ -306,7 +306,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="announcementStatus"
                             name="status"
@@ -320,16 +320,16 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Flags */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Options
                 </div>
                 <div className="grid gap-3 sm:grid-cols-3">
                     <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="pinned"
                             name="pinned"
                             defaultChecked={!!initialData?.pinned}
@@ -337,7 +337,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         Pin to top of feed
                     </label>
                     <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="allowComments"
                             name="allowComments"
                             defaultChecked={!!initialData?.allowComments}
@@ -345,7 +345,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         Allow comments
                     </label>
                     <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="requireAcknowledgement"
                             name="requireAcknowledgement"
                             defaultChecked={!!initialData?.requireAcknowledgement}
@@ -353,10 +353,10 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         Require acknowledgement
                     </label>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Banner — SabFiles only */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-1 text-[14px] font-medium text-zoru-ink">
                     Banner image
                 </div>
@@ -376,7 +376,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                             <span className="max-w-[180px] truncate text-xs text-zoru-ink">
                                 {bannerName || 'Banner image'}
                             </span>
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon-sm"
@@ -384,7 +384,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                                 onClick={clearBanner}
                             >
                                 <X className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : (
                         <div className="flex h-12 w-20 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line text-zoru-ink-muted">
@@ -400,24 +400,24 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         {bannerUrl ? 'Change banner' : 'Pick from SabFiles'}
                     </SabFilePickerButton>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Tags */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="tags">Tags</Label>
+                    <Input
                         id="tags"
                         name="tags"
                         placeholder="comma, separated, tags"
                         defaultValue={tagsInitial}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-2">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link
                         href={
                             isEditing && initialData?._id
@@ -428,7 +428,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         <ArrowLeft className="mr-1.5 h-4 w-4" />
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton isEditing={isEditing} />
             </div>
         </form>

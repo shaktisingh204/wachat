@@ -35,7 +35,7 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
 
     return (
          <div className="container mx-auto px-4 py-12 flex justify-center">
-             <ZoruCard className="w-full max-w-2xl text-center">
+             <Card className="w-full max-w-2xl text-center">
                 <ZoruCardHeader>
                     <div className="mx-auto bg-green-100 text-green-700 rounded-full h-16 w-16 flex items-center justify-center mb-4">
                         <CheckCircle className="h-10 w-10" />
@@ -47,7 +47,7 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4 text-left">
                     <p className="font-semibold">Order ID: <span className="font-mono text-muted-foreground">{order._id.toString()}</span></p>
-                    <ZoruSeparator />
+                    <Separator />
                     <h3 className="font-semibold text-lg">Order Summary</h3>
                     <ul className="space-y-2">
                         {order.items.map(item => (
@@ -57,13 +57,13 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
                              </li>
                         ))}
                     </ul>
-                     <ZoruSeparator />
+                     <Separator />
                      <div className="space-y-2">
                         <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
                         <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
                     </div>
-                    <ZoruSeparator />
+                    <Separator />
                     <div>
                         <h3 className="font-semibold text-lg">Shipping to</h3>
                         <div className="text-muted-foreground">
@@ -73,12 +73,12 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
                         </div>
                     </div>
                     <div className="pt-4 flex justify-center">
-                         <ZoruButton asChild>
+                         <Button asChild>
                             <Link href={`/shop/${params.slug}`}>Continue Shopping</Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

@@ -172,7 +172,7 @@ export default function ApiKeysPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -186,7 +186,7 @@ export default function ApiKeysPage() {
             <ZoruBreadcrumbPage>API keys</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -204,7 +204,7 @@ export default function ApiKeysPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             asChild
             size="sm"
             variant="ghost"
@@ -214,8 +214,8 @@ export default function ApiKeysPage() {
               <Book className="h-4 w-4" />
               API docs
             </Link>
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => void load()}
@@ -228,13 +228,13 @@ export default function ApiKeysPage() {
               <RefreshCw className="h-4 w-4" />
             )}
             Refresh
-          </ZoruButton>
-          <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+          </Button>
+          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <ZoruDialogTrigger asChild>
-              <ZoruButton size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5">
                 <Plus className="h-4 w-4" />
                 Generate new key
-              </ZoruButton>
+              </Button>
             </ZoruDialogTrigger>
             <CreateApiKeyDialogContent
               projectId={activeProjectId}
@@ -244,7 +244,7 @@ export default function ApiKeysPage() {
                 await load();
               }}
             />
-          </ZoruDialog>
+          </Dialog>
         </div>
       </div>
 
@@ -252,7 +252,7 @@ export default function ApiKeysPage() {
         <KeyRevealCard apiKey={reveal} onDismiss={() => setReveal(null)} />
       ) : null}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Active keys</ZoruCardTitle>
           <ZoruCardDescription>
@@ -267,19 +267,19 @@ export default function ApiKeysPage() {
               title="No API keys yet"
               description="Generate a key to call the SabWa REST API from outside the dashboard."
               action={
-                <ZoruButton
+                <Button
                   size="sm"
                   onClick={() => setCreateOpen(true)}
                   className="gap-1.5"
                 >
                   <Plus className="h-4 w-4" />
                   Generate new key
-                </ZoruButton>
+                </Button>
               }
             />
           ) : (
             <div className="overflow-x-auto">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead>Prefix</ZoruTableHead>
@@ -302,20 +302,20 @@ export default function ApiKeysPage() {
                       <ZoruTableCell>
                         <div className="flex max-w-[260px] flex-wrap gap-1">
                           {row.scopes.map((s) => (
-                            <ZoruBadge
+                            <Badge
                               key={s}
                               variant="secondary"
                               className="text-[10px]"
                             >
                               {s}
-                            </ZoruBadge>
+                            </Badge>
                           ))}
                         </div>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={statusVariant(row.status)}>
+                        <Badge variant={statusVariant(row.status)}>
                           {row.status}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <span title={format(new Date(row.createdAt), 'PPpp')}>
@@ -349,7 +349,7 @@ export default function ApiKeysPage() {
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruButton
+                        <Button
                           size="sm"
                           variant="ghost"
                           className="gap-1.5 text-zoru-danger hover:text-zoru-danger"
@@ -358,16 +358,16 @@ export default function ApiKeysPage() {
                         >
                           <ShieldOff className="h-3.5 w-3.5" />
                           Revoke
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <ZoruAlertDialog
         open={pendingRevoke !== null}
@@ -467,15 +467,15 @@ function CreateApiKeyDialogContent({
       </ZoruDialogHeader>
       <div className="space-y-4">
         <div className="space-y-2">
-          <ZoruLabel>Scopes</ZoruLabel>
+          <Label>Scopes</Label>
           <div className="space-y-1.5">
             {ALL_SCOPES.map((s) => (
-              <ZoruLabel
+              <Label
                 key={s.value}
                 htmlFor={`scope-${s.value}`}
                 className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink hover:bg-zoru-surface"
               >
-                <ZoruCheckbox
+                <Checkbox
                   id={`scope-${s.value}`}
                   checked={scopes.includes(s.value)}
                   onCheckedChange={() => toggle(s.value)}
@@ -487,13 +487,13 @@ function CreateApiKeyDialogContent({
                     {s.description}
                   </span>
                 </div>
-              </ZoruLabel>
+              </Label>
             ))}
           </div>
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel>Expires at (optional)</ZoruLabel>
-          <ZoruDatePicker
+          <Label>Expires at (optional)</Label>
+          <DatePicker
             value={expiresAt}
             onChange={setExpiresAt}
             placeholder="No expiry"
@@ -501,12 +501,12 @@ function CreateApiKeyDialogContent({
         </div>
       </div>
       <ZoruDialogFooter>
-        <ZoruButton onClick={() => void submit()} disabled={submitting}>
+        <Button onClick={() => void submit()} disabled={submitting}>
           {submitting ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : null}
           Generate key
-        </ZoruButton>
+        </Button>
       </ZoruDialogFooter>
     </ZoruDialogContent>
   );
@@ -523,7 +523,7 @@ function KeyRevealCard({
 }) {
   const toast = useZoruToast();
   return (
-    <ZoruCard className="border-zoru-warning/40 bg-zoru-warning/5">
+    <Card className="border-zoru-warning/40 bg-zoru-warning/5">
       <ZoruCardHeader>
         <ZoruCardTitle className="flex items-center gap-2 text-base text-zoru-ink">
           <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
@@ -538,7 +538,7 @@ function KeyRevealCard({
         <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs text-zoru-ink">
           {apiKey}
         </code>
-        <ZoruButton
+        <Button
           size="sm"
           variant="outline"
           onClick={() => {
@@ -549,11 +549,11 @@ function KeyRevealCard({
         >
           <Copy className="h-3.5 w-3.5" />
           Copy
-        </ZoruButton>
-        <ZoruButton size="sm" variant="ghost" onClick={onDismiss}>
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onDismiss}>
           Dismiss
-        </ZoruButton>
+        </Button>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

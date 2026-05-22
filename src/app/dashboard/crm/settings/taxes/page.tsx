@@ -114,9 +114,9 @@ export default function TaxesPage() {
                     key: 'is_default',
                     label: 'Default',
                     render: (row) => (
-                        <ZoruBadge variant={row.is_default ? 'success' : 'ghost'}>
+                        <Badge variant={row.is_default ? 'success' : 'ghost'}>
                             {row.is_default ? 'Yes' : 'No'}
-                        </ZoruBadge>
+                        </Badge>
                     ),
                 },
             ]}

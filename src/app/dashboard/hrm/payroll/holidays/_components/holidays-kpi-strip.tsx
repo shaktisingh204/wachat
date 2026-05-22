@@ -46,7 +46,7 @@ export function HolidaysKpiStrip({
         onClick={() => onSelect('all-year')}
         ariaLabel="Show all holidays this year"
       >
-        <ZoruStatCard
+        <StatCard
           label="This year"
           value={kpi.totalThisYear.toLocaleString()}
           period="all holiday types"
@@ -58,7 +58,7 @@ export function HolidaysKpiStrip({
         onClick={() => onSelect('breakdown')}
         ariaLabel="Show holidays by type breakdown"
       >
-        <ZoruStatCard
+        <StatCard
           label="By type"
           value={`${kpi.byTypeNational}·${kpi.byTypeRegional}·${kpi.byTypeReligious}`}
           period="National · Regional · Religious"
@@ -70,7 +70,7 @@ export function HolidaysKpiStrip({
         onClick={() => onSelect('this-quarter')}
         ariaLabel="Show holidays in the current quarter"
       >
-        <ZoruStatCard
+        <StatCard
           label="This quarter"
           value={kpi.thisQuarter.toLocaleString()}
           period="upcoming + completed"
@@ -82,7 +82,7 @@ export function HolidaysKpiStrip({
         onClick={() => onSelect('recurring')}
         ariaLabel="Show recurring holidays"
       >
-        <ZoruStatCard
+        <StatCard
           label="Recurring"
           value={kpi.recurringCount.toLocaleString()}
           period="repeats yearly"

@@ -11,9 +11,9 @@ export default function NotFound() {
       <p className="mt-4 text-lg text-muted-foreground">
         Oops! The page you are looking for does not exist.
       </p>
-      <ZoruButton asChild className="mt-8">
+      <Button asChild className="mt-8">
         <Link href="/">Go back to the homepage</Link>
-      </ZoruButton>
+      </Button>
     </main>
   );
 }

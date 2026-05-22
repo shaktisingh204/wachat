@@ -323,12 +323,12 @@ export function RecurringExpensesListClient({
     <div className="flex w-full flex-col gap-5">
       <RecurringExpensesKpiStrip kpi={kpi} currency={defaultCurrency} />
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {/* Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
           <div className="relative w-full max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-            <ZoruInput
+            <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search name or vendor…"
@@ -336,17 +336,17 @@ export function RecurringExpensesListClient({
             />
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
+            <Button variant="outline" size="sm" onClick={exportCsv}>
               <Download className="h-3.5 w-3.5" /> CSV
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={exportXlsx}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportXlsx}>
               <Download className="h-3.5 w-3.5" /> XLSX
-            </ZoruButton>
-            <ZoruButton size="sm" asChild>
+            </Button>
+            <Button size="sm" asChild>
               <Link href="/dashboard/crm/purchases/recurring-expenses/new">
                 <Plus className="h-3.5 w-3.5" /> New schedule
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -357,7 +357,7 @@ export function RecurringExpensesListClient({
           </summary>
           <div className="grid gap-3 px-3 pb-3 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1">
-              <ZoruLabel>Status</ZoruLabel>
+              <Label>Status</Label>
               <EnumFilterField
                 enumName="recurringExpenseStatus"
                 value={statusFilter}
@@ -366,7 +366,7 @@ export function RecurringExpensesListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Frequency</ZoruLabel>
+              <Label>Frequency</Label>
               <EnumFilterField
                 enumName="recurringFrequency"
                 value={frequencyFilter}
@@ -375,16 +375,16 @@ export function RecurringExpensesListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Next run — from</ZoruLabel>
-              <ZoruInput
+              <Label>Next run — from</Label>
+              <Input
                 type="date"
                 value={nextFrom}
                 onChange={(e) => setNextFrom(e.target.value)}
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Next run — to</ZoruLabel>
-              <ZoruInput
+              <Label>Next run — to</Label>
+              <Input
                 type="date"
                 value={nextTo}
                 onChange={(e) => setNextTo(e.target.value)}
@@ -401,43 +401,43 @@ export function RecurringExpensesListClient({
               {selected.size} selected
             </div>
             <div className="flex flex-wrap items-center gap-1">
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={bulkPause}
                 disabled={pending}
               >
                 <Pause className="h-3.5 w-3.5" /> Pause
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={bulkResume}
                 disabled={pending}
               >
                 <Play className="h-3.5 w-3.5" /> Resume
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={exportXlsx}>
                 <Download className="h-3.5 w-3.5" /> XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setDeletePending(true)}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setSelected(new Set())}
                 aria-label="Clear selection"
               >
                 <X className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null}
@@ -524,13 +524,13 @@ export function RecurringExpensesListClient({
                       />
                     </td>
                     <td className="p-2 text-right align-middle">
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link
                           href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}
                         >
                           Open
                         </Link>
-                      </ZoruButton>
+                      </Button>
                     </td>
                   </tr>
                 ))
@@ -542,7 +542,7 @@ export function RecurringExpensesListClient({
         <div className="border-t border-zoru-line p-3">
           <PaginationBar page={page} limit={limit} hasMore={hasMore} />
         </div>
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={deletePending}

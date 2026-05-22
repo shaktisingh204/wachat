@@ -166,10 +166,10 @@ function FieldCell({
   const raw = initial ? initial[field.name] : undefined;
   return (
     <div className={field.fullWidth ? 'md:col-span-2' : ''}>
-      <ZoruLabel htmlFor={field.name}>
+      <Label htmlFor={field.name}>
         {field.label}
         {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
-      </ZoruLabel>
+      </Label>
       <div className="mt-1.5">{renderField(field, raw)}</div>
       {field.help ? (
         <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{field.help}</p>
@@ -213,11 +213,11 @@ function renderField(field: HrField, raw?: unknown) {
   };
 
   if (field.type === 'textarea') {
-    return <ZoruTextarea {...common} rows={4} />;
+    return <Textarea {...common} rows={4} />;
   }
   if (field.type === 'select') {
     return (
-      <ZoruSelect name={field.name} defaultValue={String(common.defaultValue || '')}>
+      <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
         <ZoruSelectTrigger id={field.name}>
           <ZoruSelectValue placeholder={field.placeholder || 'Select'} />
         </ZoruSelectTrigger>
@@ -228,11 +228,11 @@ function renderField(field: HrField, raw?: unknown) {
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
     );
   }
   return (
-    <ZoruInput
+    <Input
       {...common}
       type={field.type || 'text'}
       min={field.type === 'number' ? 0 : undefined}
@@ -313,8 +313,8 @@ function FieldArray({
                 if (s.type === 'select') {
                   return (
                     <div key={s.name} className="min-w-[120px] flex-1">
-                      <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
-                      <ZoruSelect
+                      <Label htmlFor={fieldId}>{s.label}</Label>
+                      <Select
                         value={row[s.name] || ''}
                         onValueChange={(v) =>
                           setRows((prev) =>
@@ -334,14 +334,14 @@ function FieldArray({
                             </ZoruSelectItem>
                           ))}
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </div>
                   );
                 }
                 return (
                   <div key={s.name} className="min-w-[120px] flex-1">
-                    <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor={fieldId}>{s.label}</Label>
+                    <Input
                       id={fieldId}
                       type={s.type || 'text'}
                       min={s.type === 'number' ? 0 : undefined}
@@ -359,7 +359,7 @@ function FieldArray({
                   </div>
                 );
               })}
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -370,13 +370,13 @@ function FieldArray({
                 }
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           ))}
         </div>
       )}
 
-      <ZoruButton
+      <Button
         type="button"
         variant="outline"
         size="sm"
@@ -384,7 +384,7 @@ function FieldArray({
       >
         <Plus className="mr-1.5 h-3.5 w-3.5" />
         {field.addLabel || 'Add row'}
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

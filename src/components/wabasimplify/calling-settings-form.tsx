@@ -50,10 +50,10 @@ const saveInitialState = { success: false, error: undefined };
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="lg" disabled={pending}>
+    <Button type="submit" size="lg" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Calling Settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -117,7 +117,7 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
     }, [saveState, toast, onSuccess, phone.display_phone_number]);
 
     if (isLoading) {
-        return <ZoruSkeleton className="h-96 w-full" />;
+        return <Skeleton className="h-96 w-full" />;
     }
 
     return (
@@ -127,62 +127,62 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
             <input type="hidden" name="weekly_operating_hours" value={JSON.stringify(weeklyHours)} />
             <input type="hidden" name="holiday_schedule" value={JSON.stringify(holidaySchedule)} />
             
-            <ZoruAccordion type="multiple" defaultValue={['general']} className="w-full space-y-4">
+            <Accordion type="multiple" defaultValue={['general']} className="w-full space-y-4">
                 <ZoruAccordionItem value="general">
                     <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-2">
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardContent className="pt-6 space-y-6">
-                                <div className="space-y-2"><ZoruLabel>Calling Status</ZoruLabel><ZoruSelect name="status" defaultValue={settings.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                <div className="space-y-2"><Label>Calling Status</Label><Select name="status" defaultValue={settings.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
                                 <div className="space-y-2">
-                                    <ZoruLabel>Call Icon Visibility</ZoruLabel>
-                                    <ZoruSelect name="call_icon_visibility" defaultValue={settings.call_icon_visibility || 'DEFAULT'}>
+                                    <Label>Call Icon Visibility</Label>
+                                    <Select name="call_icon_visibility" defaultValue={settings.call_icon_visibility || 'DEFAULT'}>
                                         <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
                                         <ZoruSelectContent>
                                             <ZoruSelectItem value="DEFAULT">Default (Visible to all)</ZoruSelectItem>
                                             <ZoruSelectItem value="DISABLE_ALL">Disable All (Hidden)</ZoruSelectItem>
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                                  <div className="space-y-2">
-                                    <ZoruLabel htmlFor="restrict_to_user_countries">Restrict to Countries (Optional)</ZoruLabel>
-                                    <ZoruInput id="restrict_to_user_countries" name="restrict_to_user_countries" defaultValue={settings.call_icons?.restrict_to_user_countries?.join(', ')} placeholder="e.g. US, BR, IN" />
+                                    <Label htmlFor="restrict_to_user_countries">Restrict to Countries (Optional)</Label>
+                                    <Input id="restrict_to_user_countries" name="restrict_to_user_countries" defaultValue={settings.call_icons?.restrict_to_user_countries?.join(', ')} placeholder="e.g. US, BR, IN" />
                                     <p className="text-xs text-muted-foreground">Comma-separated list of ISO 3166-1 alpha-2 country codes where the call icon should appear.</p>
                                 </div>
-                                <div className="space-y-2"><ZoruLabel>Callback Permission Prompt</ZoruLabel><ZoruSelect name="callback_permission_status" defaultValue={settings.callback_permission_status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled (Show Prompt)</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                <div className="space-y-2"><Label>Callback Permission Prompt</Label><Select name="callback_permission_status" defaultValue={settings.callback_permission_status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled (Show Prompt)</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
 
                  <ZoruAccordionItem value="hours">
                     <ZoruAccordionTrigger>Business Hours</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-2">
-                         <ZoruCard>
+                         <Card>
                              <ZoruCardContent className="pt-6 space-y-6">
-                                <div className="space-y-2"><ZoruLabel>Business Hours Status</ZoruLabel><ZoruSelect name="call_hours_status" defaultValue={settings.call_hours?.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                                <div className="space-y-2"><ZoruLabel>Timezone</ZoruLabel><ZoruSelect name="timezone_id" defaultValue={settings.call_hours?.timezone_id}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select a timezone..."/></ZoruSelectTrigger><ZoruSelectContent>{timezones.map(tz => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                                <div className="space-y-2"><Label>Business Hours Status</Label><Select name="call_hours_status" defaultValue={settings.call_hours?.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
+                                <div className="space-y-2"><Label>Timezone</Label><Select name="timezone_id" defaultValue={settings.call_hours?.timezone_id}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select a timezone..."/></ZoruSelectTrigger><ZoruSelectContent>{timezones.map(tz => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}</ZoruSelectContent></Select></div>
                                 <WeeklyHoursEditor hours={weeklyHours} onChange={setWeeklyHours} />
                                 <HolidayScheduleEditor schedule={holidaySchedule} onChange={setHolidaySchedule} />
                              </ZoruCardContent>
-                         </ZoruCard>
+                         </Card>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                 
                  <ZoruAccordionItem value="sip">
                     <ZoruAccordionTrigger>SIP Integration</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-2">
-                        <ZoruCard>
+                        <Card>
                              <ZoruCardContent className="pt-6 space-y-6">
-                                <div className="space-y-2"><ZoruLabel>SIP Status</ZoruLabel><ZoruSelect name="sip_status" defaultValue={settings.sip?.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                                <div className="space-y-2"><ZoruLabel>SIP Hostname</ZoruLabel><ZoruInput name="sip_hostname" defaultValue={settings.sip?.servers?.[0]?.hostname || ''}/></div>
-                                <div className="space-y-2"><ZoruLabel>SIP Port</ZoruLabel><ZoruInput type="number" name="sip_port" defaultValue={settings.sip?.servers?.[0]?.port || ''}/></div>
-                                <div className="space-y-2"><ZoruLabel>SIP URI Params (JSON)</ZoruLabel><ZoruTextarea name="sip_params" placeholder='{ "transport": "tcp" }' defaultValue={settings.sip?.servers?.[0]?.request_uri_user_params ? JSON.stringify(settings.sip.servers[0].request_uri_user_params, null, 2) : ''}/></div>
+                                <div className="space-y-2"><Label>SIP Status</Label><Select name="sip_status" defaultValue={settings.sip?.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
+                                <div className="space-y-2"><Label>SIP Hostname</Label><Input name="sip_hostname" defaultValue={settings.sip?.servers?.[0]?.hostname || ''}/></div>
+                                <div className="space-y-2"><Label>SIP Port</Label><Input type="number" name="sip_port" defaultValue={settings.sip?.servers?.[0]?.port || ''}/></div>
+                                <div className="space-y-2"><Label>SIP URI Params (JSON)</Label><Textarea name="sip_params" placeholder='{ "transport": "tcp" }' defaultValue={settings.sip?.servers?.[0]?.request_uri_user_params ? JSON.stringify(settings.sip.servers[0].request_uri_user_params, null, 2) : ''}/></div>
                              </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
             
             <div className="flex justify-end mt-8">
                 <SaveButton />

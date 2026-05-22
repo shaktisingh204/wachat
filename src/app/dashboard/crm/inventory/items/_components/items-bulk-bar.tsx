@@ -62,28 +62,28 @@ export function ItemsBulkBar({
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+        <Button size="sm" variant="outline" onClick={onArchive}>
           Archive
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
+        </Button>
         {onExportXlsx ? (
-          <ZoruButton size="sm" variant="outline" onClick={onExportXlsx}>
+          <Button size="sm" variant="outline" onClick={onExportXlsx}>
             <Download className="h-3.5 w-3.5" /> Export XLSX
-          </ZoruButton>
+          </Button>
         ) : null}
-        <ZoruButton size="sm" variant="outline" onClick={onAdjustStock}>
+        <Button size="sm" variant="outline" onClick={onAdjustStock}>
           <Warehouse className="h-3.5 w-3.5" /> Adjust stock
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onSyncPrice}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onSyncPrice}>
           <RefreshCw className="h-3.5 w-3.5" /> Sync price
-        </ZoruButton>
-        <ZoruDropdownMenu>
+        </Button>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton size="sm" variant="outline">
+            <Button size="sm" variant="outline">
               <Pencil className="h-3.5 w-3.5" /> Bulk edit
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent>
             {BULK_EDIT_OPTIONS.map((o) => (
@@ -95,18 +95,18 @@ export function ItemsBulkBar({
               </ZoruDropdownMenuItem>
             ))}
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
-        <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+        </DropdownMenu>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={onClear}
           aria-label="Clear selection"
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

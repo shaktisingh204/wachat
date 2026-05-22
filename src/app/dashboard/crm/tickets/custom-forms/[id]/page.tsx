@@ -63,16 +63,16 @@ export default async function CustomFormDetailPage({
       title={form.name}
       back={{ href: BASE, label: 'Custom Forms' }}
       actions={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href={`${BASE}/${id}/edit`}>
             <Pencil className="mr-2 h-4 w-4" />
             Edit
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
           <StatusPill label={status} tone={tone} />
@@ -114,9 +114,9 @@ export default async function CustomFormDetailPage({
             </div>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3 text-[15px] font-medium text-zoru-ink">
           Fields ({fields.length})
         </div>
@@ -126,7 +126,7 @@ export default async function CustomFormDetailPage({
           </div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="text-zoru-ink-muted">#</ZoruTableHead>
@@ -164,7 +164,7 @@ export default async function CustomFormDetailPage({
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {f.required ? (
-                        <ZoruBadge variant="warning">Required</ZoruBadge>
+                        <Badge variant="warning">Required</Badge>
                       ) : (
                         <span className="text-zoru-ink-muted">—</span>
                       )}
@@ -173,9 +173,9 @@ export default async function CustomFormDetailPage({
                       {Array.isArray(f.options) && f.options.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {f.options.map((o, i) => (
-                            <ZoruBadge key={`${o}-${i}`} variant="ghost">
+                            <Badge key={`${o}-${i}`} variant="ghost">
                               {o}
-                            </ZoruBadge>
+                            </Badge>
                           ))}
                         </div>
                       ) : (
@@ -185,10 +185,10 @@ export default async function CustomFormDetailPage({
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

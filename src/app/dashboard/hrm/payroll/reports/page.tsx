@@ -51,14 +51,14 @@ export default function HrReportsIndexPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
                 {REPORT_CATEGORIES.map(({ href, icon: Icon, title, description, color, bg }) => (
                     <Link key={href} href={href} className="group block focus-visible:outline-none">
-                        <ZoruCard className="h-full p-6 transition-shadow duration-150 group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-primary/30">
+                        <Card className="h-full p-6 transition-shadow duration-150 group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-primary/30">
                             <div className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg ${bg}`}>
                                 <Icon className={`h-5 w-5 ${color}`} strokeWidth={1.75} />
                             </div>
                             <h2 className="mb-1.5 text-[15px] text-zoru-ink">{title}</h2>
                             <p className="text-[12.5px] leading-relaxed text-zoru-ink-muted">{description}</p>
                             <p className={`mt-4 text-[12.5px] font-medium ${color}`}>View report →</p>
-                        </ZoruCard>
+                        </Card>
                     </Link>
                 ))}
             </div>

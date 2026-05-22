@@ -20,14 +20,14 @@ export default function BrandPage({ params }: { params: Promise<{ projectId: str
                     </h1>
                     <p className="text-zoru-ink-muted mt-1">Monitor sentiment and unlinked mentions across the web.</p>
                 </div>
-                <ZoruButton variant="outline">
+                <Button variant="outline">
                     <Bell className="mr-2 h-4 w-4" />
                     Configure Alerts
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Sentiment Score</ZoruCardTitle>
                         <ZoruCardDescription>AI Analysis of last 100 mentions</ZoruCardDescription>
@@ -36,8 +36,8 @@ export default function BrandPage({ params }: { params: Promise<{ projectId: str
                         <div className="text-4xl text-zoru-success">92%</div>
                         <p className="text-sm text-zoru-ink-muted mt-1">Positive Sentiment</p>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>New Mentions</ZoruCardTitle>
                         <ZoruCardDescription>Last 7 Days</ZoruCardDescription>
@@ -46,8 +46,8 @@ export default function BrandPage({ params }: { params: Promise<{ projectId: str
                         <div className="text-4xl text-zoru-ink">14</div>
                         <p className="text-sm text-zoru-ink-muted mt-1">+3 from previous week</p>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Share of Voice</ZoruCardTitle>
                         <ZoruCardDescription>vs Competitors</ZoruCardDescription>
@@ -56,10 +56,10 @@ export default function BrandPage({ params }: { params: Promise<{ projectId: str
                         <div className="text-4xl text-zoru-ink">18%</div>
                         <p className="text-sm text-zoru-ink-muted mt-1">Rank 3rd in niche</p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Recent Mentions</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -90,7 +90,7 @@ export default function BrandPage({ params }: { params: Promise<{ projectId: str
                         ))}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

@@ -27,14 +27,14 @@ const initialState: { message?: string; error?: string; newDepartment?: any } = 
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton
+        <Button
             type="submit"
             variant="obsidian"
             disabled={pending}
             leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
         >
             Save Department
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -69,7 +69,7 @@ export function AddDepartmentDialog({ open, onOpenChange, onDepartmentAdded, def
     }, [state, toast, onOpenChange, onDepartmentAdded]);
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-[425px]">
                 <ZoruDialogHeader>
                     <ZoruDialogTitle className="text-foreground">Add New Department</ZoruDialogTitle>
@@ -79,19 +79,19 @@ export function AddDepartmentDialog({ open, onOpenChange, onDepartmentAdded, def
                 </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <ZoruLabel htmlFor="name" className="text-foreground">Department Name</ZoruLabel>
-                        <ZoruInput id="name" name="name" defaultValue={defaultName} required />
+                        <Label htmlFor="name" className="text-foreground">Department Name</Label>
+                        <Input id="name" name="name" defaultValue={defaultName} required />
                     </div>
                     <div className="grid gap-2">
-                        <ZoruLabel htmlFor="description" className="text-foreground">Description</ZoruLabel>
-                        <ZoruInput id="description" name="description" />
+                        <Label htmlFor="description" className="text-foreground">Description</Label>
+                        <Input id="description" name="description" />
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

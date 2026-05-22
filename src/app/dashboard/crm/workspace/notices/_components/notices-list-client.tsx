@@ -342,15 +342,15 @@ export function NoticesListClient({
                     placeholder: 'Search heading or body…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/workspace/notices/new">
                             <Plus className="h-4 w-4" /> New notice
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <Select
                             value={priorityFilter}
                             onValueChange={(v) => setPriorityFilter(v as PriorityFilter)}
                         >
@@ -363,8 +363,8 @@ export function NoticesListClient({
                                 <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
                                 <ZoruSelectItem value="low">Low</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
@@ -376,8 +376,8 @@ export function NoticesListClient({
                                 <ZoruSelectItem value="active">Active</ZoruSelectItem>
                                 <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={filters.audience}
                             onValueChange={(v) =>
                                 updateFilter('audience', v as NoticesAudienceFilter)
@@ -392,15 +392,15 @@ export function NoticesListClient({
                                 <ZoruSelectItem value="department">Department</ZoruSelectItem>
                                 <ZoruSelectItem value="employee">Employees</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruInput
+                        </Select>
+                        <Input
                             type="date"
                             value={filters.fromIso}
                             onChange={(e) => updateFilter('fromIso', e.target.value)}
                             className="h-9 w-[150px]"
                             aria-label="From"
                         />
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={filters.toIso}
                             onChange={(e) => updateFilter('toIso', e.target.value)}
@@ -408,13 +408,13 @@ export function NoticesListClient({
                             aria-label="To"
                         />
                         {hasActiveFilters ? (
-                            <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                            <Button variant="ghost" size="sm" onClick={clearFilters}>
                                 <X className="h-3.5 w-3.5" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
-                        <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                        <Button variant="ghost" size="sm" onClick={exportCsv}>
                             Export CSV
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 bulkBar={
@@ -424,27 +424,27 @@ export function NoticesListClient({
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('expire')}
                                 >
                                     <Archive className="h-3.5 w-3.5" /> Expire
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('delete')}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setSelected(new Set())}
                                 >
                                     Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -458,11 +458,11 @@ export function NoticesListClient({
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Publish your first company-wide notice to keep everyone informed.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/workspace/notices/new">
                                     <Plus className="h-4 w-4" /> Create notice
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -471,22 +471,22 @@ export function NoticesListClient({
                 <div className="flex flex-col gap-4">
                     {/* KPI strip — uses server-prefetched kpis on first render */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total"
                             value={kpis.total || localKpis.total}
                             icon={<Megaphone className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Active"
                             value={kpis.active || localKpis.active}
                             icon={<BellRing className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Expired"
                             value={kpis.expired || localKpis.expired}
                             icon={<AlertTriangle className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Expiring in 7 days"
                             value={kpis.expiringIn7Days}
                             icon={<ShieldAlert className="h-4 w-4" />}
@@ -499,7 +499,7 @@ export function NoticesListClient({
                             <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                                 <tr>
                                     <th className="px-3 py-2">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label="Select all"
                                             checked={allSelected}
                                             onCheckedChange={(v) => toggleAll(!!v)}
@@ -542,7 +542,7 @@ export function NoticesListClient({
                                     return (
                                         <tr key={String(n._id)} className="hover:bg-zoru-surface">
                                             <td className="px-3 py-2">
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     aria-label={`Select ${n.heading}`}
                                                     checked={checked}
                                                     onCheckedChange={() =>
@@ -558,7 +558,7 @@ export function NoticesListClient({
                                             </td>
                                             <td className="px-3 py-2">
                                                 {/* Priority is not in WsNotice schema; render neutral badge */}
-                                                <ZoruBadge variant="ghost">—</ZoruBadge>
+                                                <Badge variant="ghost">—</Badge>
                                             </td>
                                             <td className="px-3 py-2 text-zoru-ink-muted">
                                                 —
@@ -577,11 +577,11 @@ export function NoticesListClient({
                                             </td>
                                             <td className="px-3 py-2">
                                                 {acked ? (
-                                                    <ZoruBadge variant="success">
+                                                    <Badge variant="success">
                                                         <CheckCircle2 className="h-3 w-3" /> Read
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 ) : (
-                                                    <ZoruBadge variant="ghost">Unread</ZoruBadge>
+                                                    <Badge variant="ghost">Unread</Badge>
                                                 )}
                                             </td>
                                             <td className="px-3 py-2 text-right">
@@ -589,7 +589,7 @@ export function NoticesListClient({
                                                     {n.pinned ? (
                                                         <Pin className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                                     ) : null}
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() =>
@@ -598,7 +598,7 @@ export function NoticesListClient({
                                                         aria-label={`Delete ${n.heading}`}
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>

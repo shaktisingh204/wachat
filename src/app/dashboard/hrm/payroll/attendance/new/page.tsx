@@ -168,11 +168,11 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
             subtitle="Pick a date, mark each employee's status, save once."
         >
 
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <div className="flex flex-wrap items-end gap-3">
                     <div>
-                        <ZoruLabel>Date</ZoruLabel>
-                        <ZoruInput
+                        <Label>Date</Label>
+                        <Input
                             type="date"
                             value={dateIso}
                             onChange={(e) => setDateIso(e.target.value)}
@@ -180,8 +180,8 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                         />
                     </div>
                     <div>
-                        <ZoruLabel>Department</ZoruLabel>
-                        <ZoruSelect value={departmentFilter} onValueChange={setDepartmentFilter}>
+                        <Label>Department</Label>
+                        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                             <ZoruSelectTrigger className="mt-1.5 h-10 w-[200px]">
                                 <ZoruSelectValue placeholder="All departments" />
                             </ZoruSelectTrigger>
@@ -193,11 +193,11 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="min-w-[200px] flex-1">
-                        <ZoruLabel>Search</ZoruLabel>
-                        <ZoruInput
+                        <Label>Search</Label>
+                        <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search employees…"
@@ -209,7 +209,7 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                     <span className="text-[12px] text-zoru-ink-muted">Apply to all visible:</span>
                     {STATUS_OPTIONS.map((s) => (
-                        <ZoruButton
+                        <Button
                             key={s}
                             type="button"
                             variant="outline"
@@ -217,13 +217,13 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                             onClick={() => applyAll(s)}
                         >
                             {s}
-                        </ZoruButton>
+                        </Button>
                     ))}
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                             <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
@@ -260,7 +260,7 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                                             {e.departmentId ?? '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruSelect
+                                            <Select
                                                 value={current}
                                                 onValueChange={(v) => updateOne(id, v as BulkStatus)}
                                             >
@@ -274,28 +274,28 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                                                         </ZoruSelectItem>
                                                     ))}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 );
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
 
             <div className="flex justify-end gap-2">
-                <ZoruButton variant="outline" asChild>
+                <Button variant="outline" asChild>
                     <Link href="/dashboard/hrm/payroll/attendance">Cancel</Link>
-                </ZoruButton>
-                <ZoruButton onClick={handleSave} disabled={isSaving || filtered.length === 0}>
+                </Button>
+                <Button onClick={handleSave} disabled={isSaving || filtered.length === 0}>
                     {isSaving ? (
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                         <Save className="mr-2 h-4 w-4" />
                     )}
                     Save attendance
-                </ZoruButton>
+                </Button>
             </div>
         </EntityListShell>
     );

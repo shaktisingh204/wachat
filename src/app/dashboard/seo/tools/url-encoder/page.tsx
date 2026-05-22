@@ -33,30 +33,30 @@ export default function UrlEncoderPage() {
   return (
     <ToolShell title="URL Encoder" description="Encode text or URLs using encodeURIComponent.">
       <div className="flex flex-col gap-3">
-        <ZoruLabel>Input text</ZoruLabel>
-        <ZoruTextarea
+        <Label>Input text</Label>
+        <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Paste text to encode…"
           className="min-h-[140px]"
         />
         <div>
-          <ZoruButton onClick={run} disabled={!input}>
+          <Button onClick={run} disabled={!input}>
             Encode
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {output && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
-            <ZoruLabel>Encoded output</ZoruLabel>
-            <ZoruTextarea readOnly value={output} className="min-h-[140px] font-mono text-sm" />
-            <ZoruButton variant="outline" onClick={copy}>
+            <Label>Encoded output</Label>
+            <Textarea readOnly value={output} className="min-h-[140px] font-mono text-sm" />
+            <Button variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

@@ -61,7 +61,7 @@ function PageSkeleton() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ZoruCard key={i} className="!p-0">
+          <Card key={i} className="!p-0">
             <div className="p-5">
               <div className="h-5 w-36 animate-pulse rounded bg-muted" />
               <div className="mt-2 h-3.5 w-28 animate-pulse rounded bg-muted" />
@@ -69,7 +69,7 @@ function PageSkeleton() {
             <div className="border-t border-border px-5 py-3">
               <div className="h-8 w-24 animate-pulse rounded-full bg-muted" />
             </div>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     </>
@@ -96,16 +96,16 @@ function DisconnectDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon"
           className="text-muted-foreground hover:text-destructive"
           aria-label={`Disconnect ${account.name}`}
         >
           <Trash2 className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-[420px]">
         <ZoruDialogHeader>
@@ -129,15 +129,15 @@ function DisconnectDialog({
         </div>
 
         <ZoruDialogFooter className="gap-2 sm:gap-0">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setOpen(false)}
             disabled={isDeleting}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="destructive"
             size="sm"
             onClick={handleConfirm}
@@ -147,10 +147,10 @@ function DisconnectDialog({
               <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
             ) : null}
             Disconnect
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -168,7 +168,7 @@ function AccountCard({
   onDisconnect: () => void;
 }) {
   return (
-    <ZoruCard
+    <Card
       className={cn(
         'group cursor-pointer p-0 transition-all duration-200',
         isActive
@@ -186,9 +186,9 @@ function AccountCard({
                 {account.name}
               </h3>
               {isActive && (
-                <ZoruBadge variant="info" className="shrink-0">
+                <Badge variant="info" className="shrink-0">
                   Active
-                </ZoruBadge>
+                </Badge>
               )}
             </div>
             <p className="mt-1.5 font-mono text-[11px] text-muted-foreground tracking-wide">
@@ -207,17 +207,17 @@ function AccountCard({
 
         {/* Meta tags */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <ZoruBadge variant="secondary">
+          <Badge variant="secondary">
             <ShieldCheck className="mr-0.5 h-3 w-3" />
             Connected
-          </ZoruBadge>
+          </Badge>
           {account.currency && (
-            <ZoruBadge variant="secondary">{account.currency}</ZoruBadge>
+            <Badge variant="secondary">{account.currency}</Badge>
           )}
           {/* Account health indicator */}
-          <ZoruBadge variant={account.account_status === 1 ? 'success' : 'secondary'}>
+          <Badge variant={account.account_status === 1 ? 'success' : 'secondary'}>
             {account.account_status === 1 ? 'Active' : account.account_status === 2 ? 'Disabled' : 'Unknown'}
-          </ZoruBadge>
+          </Badge>
         </div>
         {/* Last used timestamp */}
         {account.last_used_time && (
@@ -234,7 +234,7 @@ function AccountCard({
 
       {/* Card footer */}
       <div className="flex items-center justify-between border-t border-border px-5 py-3">
-        <ZoruButton
+        <Button
           variant={isActive ? 'default' : 'outline'}
           size="sm"
           onClick={(e) => {
@@ -244,7 +244,7 @@ function AccountCard({
         >
           <Megaphone className="h-3 w-3" />
           {isActive ? 'Manage campaigns' : 'Select account'}
-        </ZoruButton>
+        </Button>
 
         <div className="flex items-center gap-1">
           <a
@@ -253,21 +253,21 @@ function AccountCard({
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
           >
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon"
               className="text-muted-foreground hover:text-foreground"
               aria-label="View on Facebook"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </a>
           <div onClick={(e) => e.stopPropagation()}>
             <DisconnectDialog account={account} onDisconnect={onDisconnect} />
           </div>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -275,7 +275,7 @@ function AccountCard({
 
 function EmptyState() {
   return (
-    <ZoruCard
+    <Card
       className="flex flex-col items-center justify-center gap-5 border-2 border-dashed border-border py-16 text-center"
     >
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50">
@@ -291,12 +291,12 @@ function EmptyState() {
         </p>
       </div>
       <Link href="/api/auth/ad-manager/login">
-        <ZoruButton variant="default" size="md">
+        <Button variant="default" size="md">
           <Plus className="h-3.5 w-3.5" />
           Connect ad account
-        </ZoruButton>
+        </Button>
       </Link>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -304,7 +304,7 @@ function EmptyState() {
 
 function InfoCard() {
   return (
-    <ZoruCard className="!p-4">
+    <Card className="!p-4">
       <div className="flex items-start gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50">
           <Info className="h-4 w-4 text-indigo-600" />
@@ -330,7 +330,7 @@ function InfoCard() {
           </p>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -410,10 +410,10 @@ export default function AdAccountsPage() {
         description="Connect and manage your Meta ad accounts to run campaigns."
         actions={
           <Link href="/api/auth/ad-manager/login" className="shrink-0">
-            <ZoruButton variant="default" size="md">
+            <Button variant="default" size="md">
               <Plus className="h-3.5 w-3.5" />
               Connect account
-            </ZoruButton>
+            </Button>
           </Link>
         }
       />

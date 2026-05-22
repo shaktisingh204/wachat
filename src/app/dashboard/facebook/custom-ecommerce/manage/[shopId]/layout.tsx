@@ -61,16 +61,16 @@ const NAV_ITEMS: ShopSubNavItem[] = [
 function LayoutSkeleton() {
   return (
     <ShopPage>
-      <ZoruSkeleton className="h-3 w-72" />
+      <Skeleton className="h-3 w-72" />
       <div className="mt-5 flex items-end justify-between">
         <div className="space-y-2">
-          <ZoruSkeleton className="h-8 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-8 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <ZoruSkeleton className="h-9 w-44" />
+        <Skeleton className="h-9 w-44" />
       </div>
-      <ZoruSkeleton className="mt-6 h-10 w-full" />
-      <ZoruSkeleton className="mt-6 h-64 w-full" />
+      <Skeleton className="mt-6 h-10 w-full" />
+      <Skeleton className="mt-6 h-64 w-full" />
     </ShopPage>
   );
 }
@@ -112,20 +112,20 @@ export default function ShopManagementLayout({
   if (!shop) {
     return (
       <ShopPage>
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
           <ZoruAlertDescription>
             The requested shop could not be loaded.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
         <div className="mt-4">
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/facebook/custom-ecommerce">
               <ArrowLeft />
               Back to all shops
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       </ShopPage>
     );
@@ -183,13 +183,13 @@ export default function ShopManagementLayout({
         description="Manage your custom e-commerce shop."
         actions={
           <>
-            <ZoruButton variant="ghost" asChild>
+            <Button variant="ghost" asChild>
               <Link href="/dashboard/facebook/custom-ecommerce">
                 <ArrowLeft />
                 All shops
               </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               onClick={handleApplyTheme}
               disabled={isApplyingTheme}
@@ -200,7 +200,7 @@ export default function ShopManagementLayout({
                 <Wand />
               )}
               Apply default theme
-            </ZoruButton>
+            </Button>
           </>
         }
       />

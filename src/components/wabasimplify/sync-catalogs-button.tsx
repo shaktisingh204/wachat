@@ -36,9 +36,9 @@ export function SyncCatalogsButton({ projectId, onSyncComplete }: SyncCatalogsBu
   };
 
   return (
-    <ZoruButton onClick={onSync} variant="outline" disabled={isPending || !projectId}>
+    <Button onClick={onSync} variant="outline" disabled={isPending || !projectId}>
       {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
       Sync with Meta
-    </ZoruButton>
+    </Button>
   );
 }

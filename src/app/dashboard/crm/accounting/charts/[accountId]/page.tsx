@@ -80,39 +80,39 @@ export default async function ChartOfAccountDetailPage(props: {
             }}
             actions={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/charts/${accountIdStr}/edit`}>
                             <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/day-book?accountId=${accountIdStr}`}>
                             <FileText className="mr-1.5 h-3.5 w-3.5" /> View ledger
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/charts/${accountIdStr}?print=1`}>
                             <Printer className="mr-1.5 h-3.5 w-3.5" /> Print
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/charts/${accountIdStr}/activity`}>
                             <History className="mr-1.5 h-3.5 w-3.5" /> Activity
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
+                    </Button>
+                    <Button variant="outline" size="sm" disabled>
                         <Archive className="mr-1.5 h-3.5 w-3.5" /> Archive
-                    </ZoruButton>
-                    <ZoruButton asChild size="sm">
+                    </Button>
+                    <Button asChild size="sm">
                         <Link href="/dashboard/crm/accounting/vouchers/new?mode=entry">
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New voucher
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
             rightRail={
                 <div className="flex flex-col gap-4">
-                    <ZoruCard className="p-4">
+                    <Card className="p-4">
                         <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Snapshot
                         </p>
@@ -143,8 +143,8 @@ export default async function ChartOfAccountDetailPage(props: {
                                 <dd className="font-mono">{account.currency}</dd>
                             </div>
                         </dl>
-                    </ZoruCard>
-                    <ZoruCard className="p-4">
+                    </Card>
+                    <Card className="p-4">
                         <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Related
                         </p>
@@ -174,14 +174,14 @@ export default async function ChartOfAccountDetailPage(props: {
                                 </Link>
                             </li>
                         </ul>
-                    </ZoruCard>
+                    </Card>
                 </div>
             }
             audit={<EntityAuditTimeline entityKind="chart_of_account" entityId={accountIdStr} />}
         >
             <div className="flex flex-col gap-4">
                 {/* Balance summary */}
-                <ZoruCard>
+                <Card>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                         <SummaryCell label="Opening balance" value={account.openingBalance} type={account.balanceType} currency={account.currency} />
                         <SummaryCell label="Total debit" value={totalDebit} type="Dr" currency={account.currency} />
@@ -194,20 +194,20 @@ export default async function ChartOfAccountDetailPage(props: {
                             accent
                         />
                     </div>
-                </ZoruCard>
+                </Card>
 
                 {account.description ? (
-                    <ZoruCard>
+                    <Card>
                         <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Description
                         </p>
                         <p className="mt-1.5 whitespace-pre-wrap text-[13px] text-foreground">
                             {account.description}
                         </p>
-                    </ZoruCard>
+                    </Card>
                 ) : null}
 
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <div className="px-4 py-3">
                         <p className="text-[13px] font-semibold text-foreground">
                             Recent transactions ({recent.length})
@@ -217,7 +217,7 @@ export default async function ChartOfAccountDetailPage(props: {
                         </p>
                     </div>
                     <div className="overflow-x-auto border-t border-border">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-border hover:bg-transparent">
                                     <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
@@ -266,9 +266,9 @@ export default async function ChartOfAccountDetailPage(props: {
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
         </EntityDetailShell>
     );

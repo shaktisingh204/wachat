@@ -25,9 +25,9 @@ export function FeatureLockOverlay({ isAllowed, featureName }: { isAllowed: bool
             <Lock className="h-12 w-12 text-muted-foreground"/>
             <h3 className="text-xl font-bold">'{featureName}' is a Premium Feature</h3>
             <p className="text-muted-foreground">This feature is not included in your current plan.</p>
-            <ZoruButton asChild>
+            <Button asChild>
                 <Link href="/dashboard/user/billing#upgrade">Upgrade Plan</Link>
-            </ZoruButton>
+            </Button>
         </div>
     )
 }

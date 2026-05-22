@@ -103,19 +103,19 @@ function MatchedTable({ rows, period }: { rows: ItcReconciliationMatched[]; peri
                 </div>
                 {rows.length > 0 && (
                     <div className="flex gap-2">
-                        <ZoruButton size="sm" variant="outline" onClick={handleCsv}>
+                        <Button size="sm" variant="outline" onClick={handleCsv}>
                             <Download className="h-3.5 w-3.5" />
                             CSV
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="outline" onClick={handleXlsx}>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleXlsx}>
                             <Download className="h-3.5 w-3.5" />
                             XLSX
-                        </ZoruButton>
+                        </Button>
                     </div>
                 )}
             </div>
             <div className="overflow-x-auto rounded-lg border border-border">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow className="border-border hover:bg-transparent">
                             <ZoruTableHead className="text-muted-foreground">Supplier</ZoruTableHead>
@@ -180,7 +180,7 @@ function MatchedTable({ rows, period }: { rows: ItcReconciliationMatched[]; peri
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
         </div>
     );
@@ -288,14 +288,14 @@ function MismatchedTable({
                 </div>
                 {hasRows && (
                     <div className="flex gap-2">
-                        <ZoruButton size="sm" variant="outline" onClick={() => exportAll('csv')}>
+                        <Button size="sm" variant="outline" onClick={() => exportAll('csv')}>
                             <Download className="h-3.5 w-3.5" />
                             CSV
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="outline" onClick={() => exportAll('xlsx')}>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => exportAll('xlsx')}>
                             <Download className="h-3.5 w-3.5" />
                             XLSX
-                        </ZoruButton>
+                        </Button>
                     </div>
                 )}
             </div>
@@ -304,15 +304,15 @@ function MismatchedTable({
             {selected.size > 0 && (
                 <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-[13px]">
                     <span className="font-medium">{selected.size} row{selected.size !== 1 ? 's' : ''} selected (only-in-books)</span>
-                    <ZoruButton
+                    <Button
                         size="sm"
                         onClick={handleBulkReconcile}
                         disabled={reconciling}
                     >
                         {reconciling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                         Mark reconciled
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setSelected(new Set())}
@@ -320,7 +320,7 @@ function MismatchedTable({
                     >
                         <X className="h-3.5 w-3.5" />
                         Clear
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
@@ -332,11 +332,11 @@ function MismatchedTable({
             )}
 
             <div className="overflow-x-auto rounded-lg border border-border">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow className="border-border hover:bg-transparent">
                             <ZoruTableHead className="w-8">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                     onCheckedChange={toggleAll}
                                     aria-label="Select all only-in-books rows"
@@ -367,7 +367,7 @@ function MismatchedTable({
                                             className={`border-border ${selected.has(i) ? 'bg-muted/30' : ''}`}
                                         >
                                             <ZoruTableCell>
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     checked={selected.has(i)}
                                                     onCheckedChange={() => toggleRow(i)}
                                                     aria-label={`Select ${r.invoiceNumber}`}
@@ -442,7 +442,7 @@ function MismatchedTable({
                             </>
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
         </div>
     );
@@ -497,19 +497,19 @@ function BookItcTable({ rows, period }: { rows: BookItcResult['bySupplier']; per
                 </div>
                 {rows.length > 0 && (
                     <div className="flex gap-2">
-                        <ZoruButton size="sm" variant="outline" onClick={handleCsv}>
+                        <Button size="sm" variant="outline" onClick={handleCsv}>
                             <Download className="h-3.5 w-3.5" />
                             CSV
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="outline" onClick={handleXlsx}>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleXlsx}>
                             <Download className="h-3.5 w-3.5" />
                             XLSX
-                        </ZoruButton>
+                        </Button>
                     </div>
                 )}
             </div>
             <div className="overflow-x-auto rounded-lg border border-border">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow className="border-border hover:bg-transparent">
                             <ZoruTableHead className="text-muted-foreground">Supplier</ZoruTableHead>
@@ -558,7 +558,7 @@ function BookItcTable({ rows, period }: { rows: BookItcResult['bySupplier']; per
                             );
                         })}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
         </div>
     );

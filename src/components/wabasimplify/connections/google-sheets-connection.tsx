@@ -13,7 +13,7 @@ export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
             `}</style>
             <div>
                  <div className="space-y-2">
-                    <ZoruLabel className="text-base font-semibold">Webhook URL</ZoruLabel>
+                    <Label className="text-base font-semibold">Webhook URL</Label>
                     <p className="text-xs text-muted-foreground">Copy this URL and paste it into the SabFlow Webhooks add-on in your Google Sheet.</p>
                     <div style={{ overflow: 'scroll' }}>
                         <CodeBlock code={webhookUrl} />

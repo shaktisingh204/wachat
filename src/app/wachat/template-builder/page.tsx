@@ -125,7 +125,7 @@ export default function TemplateBuilderPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -145,9 +145,9 @@ export default function TemplateBuilderPage() {
             <ZoruBreadcrumbPage>Builder</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false}>
+      <PageHeader bordered={false}>
         <ZoruPageHeading>
           <ZoruPageTitle>Template builder</ZoruPageTitle>
           <ZoruPageDescription>
@@ -155,16 +155,16 @@ export default function TemplateBuilderPage() {
             payload to your clipboard for submission.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-4">
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-3 pt-6">
               <h2 className="text-[15px] font-semibold text-zoru-ink">
                 Category
               </h2>
-              <ZoruSelect value={category} onValueChange={setCategory}>
+              <Select value={category} onValueChange={setCategory}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -175,11 +175,11 @@ export default function TemplateBuilderPage() {
                     Authentication
                   </ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-3 pt-6">
               <h2 className="text-[15px] font-semibold text-zoru-ink">
                 Header
@@ -207,7 +207,7 @@ export default function TemplateBuilderPage() {
                 )}
               </div>
               {headerType === 'text' && (
-                <ZoruInput
+                <Input
                   placeholder="Header text"
                   value={headerText}
                   onChange={(e) => setHeaderText(e.target.value)}
@@ -221,12 +221,12 @@ export default function TemplateBuilderPage() {
                 </p>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-3 pt-6">
               <h2 className="text-[15px] font-semibold text-zoru-ink">Body</h2>
-              <ZoruTextarea
+              <Textarea
                 rows={4}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
@@ -246,35 +246,35 @@ export default function TemplateBuilderPage() {
                 ))}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-3 pt-6">
               <h2 className="text-[15px] font-semibold text-zoru-ink">
                 Footer
               </h2>
-              <ZoruInput
+              <Input
                 placeholder="Footer text (optional)"
                 value={footer}
                 onChange={(e) => setFooter(e.target.value)}
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-3 pt-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-[15px] font-semibold text-zoru-ink">
                   Buttons ({buttons.length}/3)
                 </h2>
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   onClick={addButton}
                   disabled={buttons.length >= 3}
                 >
                   <Plus /> Add
-                </ZoruButton>
+                </Button>
               </div>
               {buttons.map((btn, i) => (
                 <div
@@ -282,7 +282,7 @@ export default function TemplateBuilderPage() {
                   className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
                 >
                   <div className="min-w-[140px]">
-                    <ZoruSelect
+                    <Select
                       value={btn.type}
                       onValueChange={(v) =>
                         updateButton(i, { type: v as BtnType })
@@ -298,9 +298,9 @@ export default function TemplateBuilderPage() {
                         <ZoruSelectItem value="url">URL</ZoruSelectItem>
                         <ZoruSelectItem value="phone">Phone</ZoruSelectItem>
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
-                  <ZoruInput
+                  <Input
                     className="min-w-[120px] flex-1"
                     placeholder="Button label"
                     value={btn.text}
@@ -309,7 +309,7 @@ export default function TemplateBuilderPage() {
                     }
                   />
                   {btn.type !== 'quick_reply' && (
-                    <ZoruInput
+                    <Input
                       className="min-w-[120px] flex-1"
                       placeholder={
                         btn.type === 'url' ? 'https://…' : '+1234567890'
@@ -320,26 +320,26 @@ export default function TemplateBuilderPage() {
                       }
                     />
                   )}
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Remove button"
                     onClick={() => removeButton(i)}
                   >
                     <Trash2 />
-                  </ZoruButton>
+                  </Button>
                 </div>
               ))}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruButton onClick={() => setSaveOpen(true)}>
+          <Button onClick={() => setSaveOpen(true)}>
             <Copy /> Save template (copy JSON)
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="lg:sticky lg:top-6 lg:self-start">
-          <ZoruCard variant="elevated">
+          <Card variant="elevated">
             <ZoruCardContent className="space-y-3 pt-6">
               <h2 className="flex items-center gap-1.5 text-[15px] font-semibold text-zoru-ink">
                 <Eye className="h-4 w-4" /> Preview
@@ -379,17 +379,17 @@ export default function TemplateBuilderPage() {
                 </div>
               </div>
               {activeProject?.name && (
-                <ZoruLabel className="block text-[10px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="block text-[10px] uppercase tracking-wide text-zoru-ink-subtle">
                   Project: {activeProject.name}
-                </ZoruLabel>
+                </Label>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
       </div>
 
       {/* Save-template confirm dialog */}
-      <ZoruDialog open={saveOpen} onOpenChange={setSaveOpen}>
+      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Save template</ZoruDialogTitle>
@@ -400,15 +400,15 @@ export default function TemplateBuilderPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setSaveOpen(false)}>
+            <Button variant="ghost" onClick={() => setSaveOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSave}>
+            </Button>
+            <Button onClick={handleSave}>
               <Copy /> Copy JSON
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

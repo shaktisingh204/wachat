@@ -93,7 +93,7 @@ export function StepNode({
   const isTerminal = node.kind === "start" || node.kind === "exit";
 
   return (
-    <ZoruCard
+    <Card
       className={
         hasError
           ? "border-rose-300 bg-rose-50/50 transition"
@@ -114,13 +114,13 @@ export function StepNode({
           <span className="text-sm font-medium text-slate-800">
             {KIND_LABEL[node.kind]}
           </span>
-          <ZoruBadge variant="secondary" className="text-[10px]">
+          <Badge variant="secondary" className="text-[10px]">
             {node.id}
-          </ZoruBadge>
+          </Badge>
         </div>
         <div className="flex items-center gap-1">
           {onSuggest && !isTerminal && (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7"
@@ -129,15 +129,15 @@ export function StepNode({
               title="Suggest next step"
             >
               <Sparkles className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           )}
-          <ZoruButton asChild variant="ghost" size="icon" className="h-7 w-7" title="Analytics">
+          <Button asChild variant="ghost" size="icon" className="h-7 w-7" title="Analytics">
             <Link href={`/sabsms/analytics?dripId=${dripId}&stepId=${node.id}`}>
               <BarChart3 className="h-3.5 w-3.5" />
             </Link>
-          </ZoruButton>
+          </Button>
           {!isTerminal && (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7 text-rose-600 hover:text-rose-700"
@@ -146,7 +146,7 @@ export function StepNode({
               title="Delete"
             >
               <Trash2 className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           )}
         </div>
       </div>
@@ -154,10 +154,10 @@ export function StepNode({
       <ZoruCardContent className="space-y-3 p-4">
         {node.kind === "message" && (
           <div className="space-y-2">
-            <ZoruLabel htmlFor={`tpl-${node.id}`} className="text-xs font-medium text-slate-700">
+            <Label htmlFor={`tpl-${node.id}`} className="text-xs font-medium text-slate-700">
               Template
-            </ZoruLabel>
-            <ZoruSelect
+            </Label>
+            <Select
               value={node.templateId ?? ""}
               onValueChange={(v) => onChange({ ...node, templateId: v })}
             >
@@ -172,7 +172,7 @@ export function StepNode({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         )}
 
@@ -180,25 +180,25 @@ export function StepNode({
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               {/* Segmented buttons — no tab UI primitive. */}
-              <ZoruButton
+              <Button
                 size="sm"
                 variant={node.waitMode !== "absolute" ? "default" : "outline"}
                 onClick={() => onChange({ ...node, waitMode: "relative" })}
               >
                 Relative
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant={node.waitMode === "absolute" ? "default" : "outline"}
                 onClick={() => onChange({ ...node, waitMode: "absolute" })}
               >
                 Absolute
-              </ZoruButton>
+              </Button>
             </div>
             {node.waitMode === "absolute" ? (
               <div className="space-y-1.5">
-                <ZoruLabel className="text-xs">Wait until</ZoruLabel>
-                <ZoruInput
+                <Label className="text-xs">Wait until</Label>
+                <Input
                   type="datetime-local"
                   value={node.waitAbsoluteAt ?? ""}
                   onChange={(e) => onChange({ ...node, waitAbsoluteAt: e.target.value })}
@@ -206,8 +206,8 @@ export function StepNode({
               </div>
             ) : (
               <div className="space-y-1.5">
-                <ZoruLabel className="text-xs">Wait (seconds)</ZoruLabel>
-                <ZoruInput
+                <Label className="text-xs">Wait (seconds)</Label>
+                <Input
                   type="number"
                   min={0}
                   value={node.waitSeconds ?? 0}
@@ -225,8 +225,8 @@ export function StepNode({
 
         {node.kind === "branch" && (
           <div className="space-y-2">
-            <ZoruLabel className="text-xs">Branch on</ZoruLabel>
-            <ZoruSelect
+            <Label className="text-xs">Branch on</Label>
+            <Select
               value={node.branchOn ?? "replied"}
               onValueChange={(v) =>
                 onChange({ ...node, branchOn: v as DraftDripNode["branchOn"] })
@@ -240,9 +240,9 @@ export function StepNode({
                 <ZoruSelectItem value="clicked">Clicked a link</ZoruSelectItem>
                 <ZoruSelectItem value="opened">Opened (carrier read receipt)</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruLabel className="text-xs">Within (seconds)</ZoruLabel>
-            <ZoruInput
+            </Select>
+            <Label className="text-xs">Within (seconds)</Label>
+            <Input
               type="number"
               min={0}
               value={node.branchWithinSeconds ?? 86400}
@@ -262,7 +262,7 @@ export function StepNode({
 
         {!isTerminal && (
           <>
-            <ZoruSeparator />
+            <Separator />
             <details className="group">
               <summary className="flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-slate-600 hover:text-slate-800">
                 <Settings2 className="h-3 w-3" /> Advanced
@@ -270,8 +270,8 @@ export function StepNode({
               <div className="mt-3 space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <ZoruLabel className="text-[11px]">Quiet hours start</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-[11px]">Quiet hours start</Label>
+                    <Input
                       type="time"
                       value={node.quietHours?.start ?? ""}
                       onChange={(e) =>
@@ -286,8 +286,8 @@ export function StepNode({
                     />
                   </div>
                   <div>
-                    <ZoruLabel className="text-[11px]">Quiet hours end</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-[11px]">Quiet hours end</Label>
+                    <Input
                       type="time"
                       value={node.quietHours?.end ?? ""}
                       onChange={(e) =>
@@ -304,8 +304,8 @@ export function StepNode({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <ZoruLabel className="text-[11px]">Send window start</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-[11px]">Send window start</Label>
+                    <Input
                       type="time"
                       value={node.timeWindow?.start ?? ""}
                       onChange={(e) =>
@@ -320,8 +320,8 @@ export function StepNode({
                     />
                   </div>
                   <div>
-                    <ZoruLabel className="text-[11px]">Send window end</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-[11px]">Send window end</Label>
+                    <Input
                       type="time"
                       value={node.timeWindow?.end ?? ""}
                       onChange={(e) =>
@@ -338,16 +338,16 @@ export function StepNode({
                 </div>
                 <label className="flex items-center justify-between text-xs">
                   <span className="text-slate-700">Skip on weekends</span>
-                  <ZoruSwitch
+                  <Switch
                     checked={!!node.skipOnWeekend}
                     onCheckedChange={(v) => onChange({ ...node, skipOnWeekend: !!v })}
                   />
                 </label>
                 <div>
-                  <ZoruLabel className="text-[11px]">
+                  <Label className="text-[11px]">
                     <Zap className="mr-1 inline h-3 w-3" /> Throttle (msgs/sec)
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     type="number"
                     min={0}
                     value={node.throttlePerSecond ?? ""}
@@ -363,10 +363,10 @@ export function StepNode({
                   />
                 </div>
                 <div>
-                  <ZoruLabel className="text-[11px]">
+                  <Label className="text-[11px]">
                     <Bell className="mr-1 inline h-3 w-3" /> Provider override
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     value={node.providerOverride ?? ""}
                     onChange={(e) => onChange({ ...node, providerOverride: e.target.value || undefined })}
                     placeholder="twilio / msg91 / vonage…"
@@ -375,7 +375,7 @@ export function StepNode({
                 {node.kind === "message" && (
                   <div className="space-y-1.5 rounded-md border border-slate-100 bg-slate-50 p-2">
                     <div className="text-[11px] font-medium text-slate-700">A/B split</div>
-                    <ZoruInput
+                    <Input
                       placeholder="Variant B templateId"
                       value={node.abSplit?.variantBTemplateId ?? ""}
                       onChange={(e) =>
@@ -388,7 +388,7 @@ export function StepNode({
                         })
                       }
                     />
-                    <ZoruInput
+                    <Input
                       type="number"
                       min={0}
                       max={100}
@@ -422,6 +422,6 @@ export function StepNode({
           </div>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

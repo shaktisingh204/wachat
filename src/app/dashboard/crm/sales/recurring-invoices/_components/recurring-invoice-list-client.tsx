@@ -349,39 +349,39 @@ export function RecurringInvoiceListClient({
           placeholder: 'Search recurring invoices…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/recurring-invoices/new">
               <Plus className="h-4 w-4" /> New recurring
             </Link>
-          </ZoruButton>
+          </Button>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => bulkSetStatus('paused')}
                 disabled={busy}
               >
                 <PauseCircle className="h-3.5 w-3.5" /> Pause
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => bulkSetStatus('stopped')}
                 disabled={busy}
               >
                 <XCircle className="h-3.5 w-3.5" /> Cancel
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={bulkExport}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={bulkExportXlsx}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkExportXlsx}>
                 <Download className="h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 className="text-zoru-danger-ink"
@@ -389,10 +389,10 @@ export function RecurringInvoiceListClient({
                 disabled={busy}
               >
                 Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
                 Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -404,11 +404,11 @@ export function RecurringInvoiceListClient({
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Set up a recurring schedule to automatically generate invoices for repeat billing.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/recurring-invoices/new">
                   <Plus className="h-4 w-4" /> New recurring
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -430,7 +430,7 @@ export function RecurringInvoiceListClient({
             </div>
           ) : null}
 
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-2 border-b border-zoru-line px-3 py-2">
               <div className="w-44">
@@ -452,7 +452,7 @@ export function RecurringInvoiceListClient({
                 />
               </div>
               {filtersActive ? (
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => {
@@ -462,15 +462,15 @@ export function RecurringInvoiceListClient({
                   className="text-[12px] text-zoru-ink-muted"
                 >
                   Clear filters
-                </ZoruButton>
+                </Button>
               ) : null}
             </div>
 
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-[36px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
@@ -504,7 +504,7 @@ export function RecurringInvoiceListClient({
                     return (
                       <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${inv.title || id}`}
@@ -547,8 +547,8 @@ export function RecurringInvoiceListClient({
                   })
                 )}
               </ZoruTableBody>
-            </ZoruTable>
-          </ZoruCard>
+            </Table>
+          </Card>
         </div>
       </EntityListShell>
 

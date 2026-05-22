@@ -113,7 +113,7 @@ export default async function TicketActivityPage({
             back={{ href: `/dashboard/crm/tickets/${String(ticket._id)}`, label: 'Back to ticket' }}
         >
 
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 {entries.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-10 text-center">
                         <LifeBuoy className="h-6 w-6 text-zoru-ink-muted" />
@@ -129,7 +129,7 @@ export default async function TicketActivityPage({
                                 className="flex gap-3 rounded-md border border-zoru-line bg-zoru-surface-2/40 p-3"
                             >
                                 <div className="shrink-0">
-                                    <ZoruBadge variant={e.tone ?? 'ghost'}>{e.label}</ZoruBadge>
+                                    <Badge variant={e.tone ?? 'ghost'}>{e.label}</Badge>
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
@@ -151,7 +151,7 @@ export default async function TicketActivityPage({
                         ))}
                     </ol>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

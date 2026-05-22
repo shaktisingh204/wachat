@@ -85,30 +85,30 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
 
   return (
     <>
-      <ZoruCard className={cn("flex flex-col transition-transform hover:-translate-y-1", gradientClass)}>
+      <Card className={cn("flex flex-col transition-transform hover:-translate-y-1", gradientClass)}>
         <ZoruCardHeader>
           <div className="flex items-start justify-between gap-2">
             <ZoruCardTitle className="text-lg font-headline break-all">{template.name}</ZoruCardTitle>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
               {isProductCarousel ? (
-                <ZoruBadge variant="secondary" className="capitalize">
+                <Badge variant="secondary" className="capitalize">
                   <ShoppingCart className="mr-2 h-3 w-3" />
                   Product Catalog
-                </ZoruBadge>
+                </Badge>
               ) : isMarketingCarousel ? (
-                <ZoruBadge variant="secondary" className="capitalize">
+                <Badge variant="secondary" className="capitalize">
                   <View className="mr-2 h-3 w-3" />
                   Marketing Carousel
-                </ZoruBadge>
+                </Badge>
               ) : null}
 
-              <ZoruBadge variant={getStatusVariant(template.status)} className="capitalize">
+              <Badge variant={getStatusVariant(template.status)} className="capitalize">
                 {template.status?.replace(/_/g, ' ') || 'Unknown'}
-              </ZoruBadge>
+              </Badge>
               {template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
-                <ZoruBadge variant={getQualityVariant(template.qualityScore)} className="capitalize">
+                <Badge variant={getQualityVariant(template.qualityScore)} className="capitalize">
                   Quality: {template.qualityScore.toLowerCase()}
-                </ZoruBadge>
+                </Badge>
               )}
             </div>
             {(template as any).rejectedReason && (template.status?.toUpperCase() === 'REJECTED' || template.status?.toUpperCase() === 'DISABLED') && (
@@ -131,19 +131,19 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
           <p className="text-sm text-foreground/80 line-clamp-4">{template.body || template.components?.find(c => c.type === 'BODY')?.text}</p>
         </ZoruCardContent>
         <ZoruCardFooter className="flex justify-end gap-2 mt-auto">
-          <ZoruButton variant="ghost" onClick={() => setIsViewOpen(true)}>View</ZoruButton>
-          <ZoruButton variant="outline" onClick={() => handleAction('clone')}>
+          <Button variant="ghost" onClick={() => setIsViewOpen(true)}>View</Button>
+          <Button variant="outline" onClick={() => handleAction('clone')}>
             <FilePlus2 className="mr-2 h-4 w-4" />
             Clone
-          </ZoruButton>
-          <ZoruButton variant="secondary" onClick={() => handleAction('edit')}>
+          </Button>
+          <Button variant="secondary" onClick={() => handleAction('edit')}>
             <Edit className="mr-2 h-4 w-4" />
             Edit
-          </ZoruButton>
+          </Button>
         </ZoruCardFooter>
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <ZoruDialogContent className="sm:max-w-2xl">
           <ZoruDialogHeader>
             <ZoruDialogTitle>{template.name}</ZoruDialogTitle>
@@ -177,7 +177,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
             )}
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 });

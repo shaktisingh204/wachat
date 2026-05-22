@@ -107,7 +107,7 @@ export function PinButton({
   const Icon = pinned ? Pin : PinOff;
 
   return (
-    <ZoruButton
+    <Button
       type="button"
       variant="ghost"
       size={size}
@@ -127,6 +127,6 @@ export function PinButton({
         strokeWidth={1.75}
       />
       {!iconOnly && <span className="ml-1.5 text-[12px]">{label}</span>}
-    </ZoruButton>
+    </Button>
   );
 }

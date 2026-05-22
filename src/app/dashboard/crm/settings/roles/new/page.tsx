@@ -43,13 +43,13 @@ export default function NewRolePage() {
       title="New Role"
       back={{ href: '/dashboard/crm/settings/roles', label: 'Roles' }}
     >
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <form action={formAction} className="max-w-xl space-y-4 p-6">
           <div>
-            <ZoruLabel htmlFor="display_name">
+            <Label htmlFor="display_name">
               Display name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="display_name"
               name="display_name"
               required
@@ -58,8 +58,8 @@ export default function NewRolePage() {
           </div>
 
           <div>
-            <ZoruLabel htmlFor="name">Slug</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="name">Slug</Label>
+            <Input
               id="name"
               name="name"
               placeholder="auto-generated from display name"
@@ -70,30 +70,30 @@ export default function NewRolePage() {
           </div>
 
           <div>
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea id="description" name="description" rows={3} />
+            <Label htmlFor="description">Description</Label>
+            <Textarea id="description" name="description" rows={3} />
           </div>
 
           <div className="flex items-center gap-2">
-            <ZoruCheckbox id="is_admin" name="is_admin" value="true" />
-            <ZoruLabel htmlFor="is_admin" className="text-[13px] text-zoru-ink">
+            <Checkbox id="is_admin" name="is_admin" value="true" />
+            <Label htmlFor="is_admin" className="text-[13px] text-zoru-ink">
               Admin role — grants all permissions automatically
-            </ZoruLabel>
+            </Label>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <ZoruButton type="button" variant="outline" asChild>
+            <Button type="button" variant="outline" asChild>
               <Link href="/dashboard/crm/settings/roles">Cancel</Link>
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isPending}>
+            </Button>
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : null}
               Create Role
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

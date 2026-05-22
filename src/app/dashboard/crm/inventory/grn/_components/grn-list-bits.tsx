@@ -200,7 +200,7 @@ export function GrnFiltersBar({
         <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
             <div className="relative max-w-sm flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                <ZoruInput
+                <Input
                     value={filters.query}
                     onChange={(e) => onQueryChange(e.target.value)}
                     placeholder="Search by GRN #, PO ref, vehicle, driver…"
@@ -247,13 +247,13 @@ export function GrnFiltersBar({
             />
             <details className="relative">
                 <summary className="list-none">
-                    <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                    <Button variant="outline" size="sm" className="h-9 text-[12.5px]">
                         <CalendarRange className="h-3.5 w-3.5" /> Date range
-                    </ZoruButton>
+                    </Button>
                 </summary>
                 <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
                     <label className="text-[11px] text-zoru-ink-muted">Receipt date — from</label>
-                    <ZoruInput
+                    <Input
                         type="date"
                         value={filters.dateFrom}
                         onChange={(e) =>
@@ -262,7 +262,7 @@ export function GrnFiltersBar({
                         className="h-8 text-[12.5px]"
                     />
                     <label className="text-[11px] text-zoru-ink-muted">Receipt date — to</label>
-                    <ZoruInput
+                    <Input
                         type="date"
                         value={filters.dateTo}
                         onChange={(e) =>
@@ -273,14 +273,14 @@ export function GrnFiltersBar({
                 </div>
             </details>
             {hasActive ? (
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="sm"
                     onClick={onClear}
                     className="ml-auto text-[12px] text-zoru-ink-muted"
                 >
                     <X className="h-3.5 w-3.5" /> Clear
-                </ZoruButton>
+                </Button>
             ) : null}
         </div>
     );
@@ -308,29 +308,29 @@ export function GrnBulkBar({
     return (
         <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px]">
             <span className="font-medium text-zoru-ink">{count} selected</span>
-            <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+            <Button variant="ghost" size="sm" onClick={onClear}>
                 <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
             <span className="mx-1 h-4 w-px bg-zoru-line" />
-            <ZoruButton variant="outline" size="sm" onClick={onExport}>
+            <Button variant="outline" size="sm" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
+            </Button>
             {onExportXlsx ? (
-                <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+                <Button variant="outline" size="sm" onClick={onExportXlsx}>
                     <Download className="h-3.5 w-3.5" /> Export XLSX
-                </ZoruButton>
+                </Button>
             ) : null}
-            <ZoruButton variant="outline" size="sm" onClick={onConvertToBill}>
+            <Button variant="outline" size="sm" onClick={onConvertToBill}>
                 <ArrowRightCircle className="h-3.5 w-3.5" /> Convert to Bill
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={onDelete}
                 className="text-zoru-danger-ink"
             >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

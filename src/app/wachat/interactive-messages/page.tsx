@@ -178,7 +178,7 @@ export default function InteractiveMessagesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -192,9 +192,9 @@ export default function InteractiveMessagesPage() {
             <ZoruBreadcrumbPage>Interactive Messages</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>
             WaChat · {activeProject?.name ?? 'Project'}
@@ -205,21 +205,21 @@ export default function InteractiveMessagesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" onClick={handleCopy}>
+          <Button variant="outline" onClick={handleCopy}>
             <Copy /> Copy payload
-          </ZoruButton>
-          <ZoruButton onClick={() => setTestOpen(true)}>
+          </Button>
+          <Button onClick={() => setTestOpen(true)}>
             <Send /> Send test
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="flex flex-col gap-4">
-          <ZoruCard className="p-5">
+          <Card className="p-5">
             <div className="flex flex-col gap-3">
               <h2 className="text-[15px] text-zoru-ink">Message type</h2>
-              <ZoruRadioGroup
+              <RadioGroup
                 value={msgType}
                 onValueChange={(v) => setMsgType(v as MsgType)}
                 className="grid gap-2 sm:grid-cols-2"
@@ -232,14 +232,14 @@ export default function InteractiveMessagesPage() {
                     description={opt.desc}
                   />
                 ))}
-              </ZoruRadioGroup>
+              </RadioGroup>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-5">
+          <Card className="p-5">
             <div className="flex flex-col gap-3">
-              <ZoruLabel htmlFor="body-text">Body text</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="body-text">Body text</Label>
+              <Textarea
                 id="body-text"
                 rows={3}
                 value={body}
@@ -248,15 +248,15 @@ export default function InteractiveMessagesPage() {
                 className="min-h-[80px]"
               />
             </div>
-          </ZoruCard>
+          </Card>
 
           {msgType === 'buttons' && (
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex flex-col gap-3">
                 <h2 className="text-[15px] text-zoru-ink">Buttons (max 3)</h2>
                 <div className="flex flex-col gap-2">
                   {buttonLabels.map((label, i) => (
-                    <ZoruInput
+                    <Input
                       key={i}
                       placeholder={`Button ${i + 1} label`}
                       value={label}
@@ -265,16 +265,16 @@ export default function InteractiveMessagesPage() {
                   ))}
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
           )}
 
           {msgType === 'list' && (
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-[15px] text-zoru-ink">Sections</h2>
-                <ZoruButton variant="ghost" size="sm" onClick={addSection}>
+                <Button variant="ghost" size="sm" onClick={addSection}>
                   <Plus /> Section
-                </ZoruButton>
+                </Button>
               </div>
               <div className="flex flex-col gap-3">
                 {sections.map((sec, si) => (
@@ -283,24 +283,24 @@ export default function InteractiveMessagesPage() {
                     className="rounded-[var(--zoru-radius)] border border-zoru-line p-3"
                   >
                     <div className="mb-2 flex items-center gap-2">
-                      <ZoruInput
+                      <Input
                         placeholder="Section title"
                         value={sec.title}
                         onChange={(e) => updateSection(si, e.target.value)}
                       />
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         aria-label="Remove section"
                         onClick={() => removeSection(si)}
                       >
                         <Trash2 />
-                      </ZoruButton>
+                      </Button>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       {sec.rows.map((row, ri) => (
                         <div key={ri} className="flex items-center gap-2">
-                          <ZoruInput
+                          <Input
                             className="flex-1"
                             placeholder="Row title"
                             value={row.title}
@@ -308,7 +308,7 @@ export default function InteractiveMessagesPage() {
                               updateRow(si, ri, { title: e.target.value })
                             }
                           />
-                          <ZoruInput
+                          <Input
                             className="flex-1"
                             placeholder="Description"
                             value={row.description}
@@ -316,14 +316,14 @@ export default function InteractiveMessagesPage() {
                               updateRow(si, ri, { description: e.target.value })
                             }
                           />
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="icon-sm"
                             aria-label="Remove row"
                             onClick={() => removeRow(si, ri)}
                           >
                             <Trash2 />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -337,27 +337,27 @@ export default function InteractiveMessagesPage() {
                   </div>
                 ))}
               </div>
-            </ZoruCard>
+            </Card>
           )}
 
           {msgType === 'product' && (
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <p className="text-[13px] text-zoru-ink-muted">
                 Product messages use your connected catalog. Configure products
                 in the Catalog section.
               </p>
-            </ZoruCard>
+            </Card>
           )}
           {msgType === 'location_request' && (
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <p className="text-[13px] text-zoru-ink-muted">
                 This message will prompt the user to share their location.
               </p>
-            </ZoruCard>
+            </Card>
           )}
         </div>
 
-        <ZoruCard className="sticky top-6 self-start p-5">
+        <Card className="sticky top-6 self-start p-5">
           <div className="mb-3 flex items-center gap-2">
             <Eye className="h-4 w-4 text-zoru-ink-muted" />
             <h2 className="text-[15px] text-zoru-ink">Preview</h2>
@@ -391,11 +391,11 @@ export default function InteractiveMessagesPage() {
               )}
             </div>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Send-test dialog */}
-      <ZoruDialog open={testOpen} onOpenChange={setTestOpen}>
+      <Dialog open={testOpen} onOpenChange={setTestOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Send test message</ZoruDialogTitle>
@@ -406,8 +406,8 @@ export default function InteractiveMessagesPage() {
           </ZoruDialogHeader>
 
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="test-number">Phone number</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="test-number">Phone number</Label>
+            <Input
               id="test-number"
               value={testNumber}
               onChange={(e) => setTestNumber(e.target.value)}
@@ -416,15 +416,15 @@ export default function InteractiveMessagesPage() {
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setTestOpen(false)}>
+            <Button variant="outline" onClick={() => setTestOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSendTest}>
+            </Button>
+            <Button onClick={handleSendTest}>
               <Send /> Send test
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

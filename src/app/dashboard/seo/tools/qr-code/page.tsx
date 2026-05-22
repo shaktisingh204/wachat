@@ -27,15 +27,15 @@ export default function QrCodePage() {
   return (
     <ToolShell title="QR Code Generator" description="Generate a QR code locally (no third-party API).">
       <div className="flex gap-2">
-        <ZoruInput value={text} onChange={(e) => setText(e.target.value)} placeholder="Text or URL" />
-        <ZoruButton onClick={() => setSubmitted(text)}>Generate</ZoruButton>
+        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Text or URL" />
+        <Button onClick={() => setSubmitted(text)}>Generate</Button>
       </div>
       {submitted && (
         <div className="flex flex-col items-start gap-2">
           <div ref={wrapRef} className="p-4 bg-white border rounded">
             <QRCode value={submitted} size={256} />
           </div>
-          <ZoruButton variant="outline" onClick={download}>Download SVG</ZoruButton>
+          <Button variant="outline" onClick={download}>Download SVG</Button>
         </div>
       )}
     </ToolShell>

@@ -178,7 +178,7 @@ export function BuilderShell({
   return (
     <div className="flex h-screen flex-col bg-background">
       <header className="flex items-center gap-3 border-b border-border px-4 py-2.5">
-        <ZoruButton
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -186,16 +186,16 @@ export function BuilderShell({
           onClick={() => router.push('/dashboard/email/templates')}
         >
           <ArrowLeft className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
         <div className="flex flex-1 items-center gap-2">
-          <ZoruInput
+          <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Template name"
             className="max-w-xs"
             aria-label="Template name"
           />
-          <ZoruInput
+          <Input
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="Default subject (optional)"
@@ -204,27 +204,27 @@ export function BuilderShell({
           />
         </div>
         {warnings.length > 0 ? (
-          <ZoruBadge variant="outline" className="gap-1 text-amber-600">
+          <Badge variant="outline" className="gap-1 text-amber-600">
             <AlertTriangle className="h-3.5 w-3.5" />
             {warnings.length} warning{warnings.length === 1 ? '' : 's'}
-          </ZoruBadge>
+          </Badge>
         ) : null}
-        <ZoruButton
+        <Button
           type="button"
           variant="outline"
           onClick={handlePreview}
           disabled={previewPending}
         >
           <Eye /> {previewPending ? 'Rendering…' : 'Preview'}
-        </ZoruButton>
-        <ZoruButton type="button" onClick={handleSave} disabled={savePending}>
+        </Button>
+        <Button type="button" onClick={handleSave} disabled={savePending}>
           <Save /> {savePending ? 'Saving…' : 'Save'}
-        </ZoruButton>
+        </Button>
       </header>
 
       {warnings.length > 0 ? (
         <div className="border-b border-border bg-amber-50 px-4 py-2 dark:bg-amber-950/30">
-          <ZoruAlert variant="warning">
+          <Alert variant="warning">
             <AlertTriangle className="h-4 w-4" />
             <ZoruAlertTitle>Renderer warnings</ZoruAlertTitle>
             <ZoruAlertDescription>
@@ -234,13 +234,13 @@ export function BuilderShell({
                 ))}
               </ul>
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         </div>
       ) : null}
 
       <div className="flex min-h-0 flex-1">
         <BlockPalette onAdd={handleAddBlock} />
-        <ZoruSeparator orientation="vertical" />
+        <Separator orientation="vertical" />
         <div className="flex min-w-0 flex-1 flex-col">
           <BuilderCanvas
             doc={doc}
@@ -251,7 +251,7 @@ export function BuilderShell({
             onDelete={handleDelete}
           />
         </div>
-        <ZoruSeparator orientation="vertical" />
+        <Separator orientation="vertical" />
         <BlockInspector
           doc={doc}
           selected={selectedBlock}

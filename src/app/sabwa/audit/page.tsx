@@ -162,7 +162,7 @@ export default function AuditPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -176,7 +176,7 @@ export default function AuditPage() {
             <ZoruBreadcrumbPage>Audit log</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -194,7 +194,7 @@ export default function AuditPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={exportCsv}
@@ -203,8 +203,8 @@ export default function AuditPage() {
           >
             <Download className="h-4 w-4" />
             Export CSV
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => void load()}
@@ -217,11 +217,11 @@ export default function AuditPage() {
               <RefreshCw className="h-4 w-4" />
             )}
             Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Filters</ZoruCardTitle>
           <ZoruCardDescription>
@@ -231,55 +231,55 @@ export default function AuditPage() {
         <ZoruCardContent>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Session
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 placeholder="sessionId or blank for all"
                 value={sessionId}
                 onChange={(e) => setSessionId(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 From
-              </ZoruLabel>
-              <ZoruDatePicker
+              </Label>
+              <DatePicker
                 value={from}
                 onChange={setFrom}
                 placeholder="From"
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 To
-              </ZoruLabel>
-              <ZoruDatePicker
+              </Label>
+              <DatePicker
                 value={to}
                 onChange={setTo}
                 placeholder="To"
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Action prefix
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 placeholder="e.g. message.*"
                 value={actionPrefix}
                 onChange={(e) => setActionPrefix(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Search
-              </ZoruLabel>
+              </Label>
               <div className="relative">
                 <Search
                   className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted"
                   aria-hidden
                 />
-                <ZoruInput
+                <Input
                   placeholder="target or metadata text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -289,17 +289,17 @@ export default function AuditPage() {
             </div>
           </div>
           <div className="mt-3 flex items-center justify-end gap-2">
-            <ZoruButton variant="ghost" size="sm" onClick={reset}>
+            <Button variant="ghost" size="sm" onClick={reset}>
               Clear
-            </ZoruButton>
-            <ZoruButton size="sm" onClick={() => void load()} disabled={loading}>
+            </Button>
+            <Button size="sm" onClick={() => void load()} disabled={loading}>
               Apply filters
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Entries</ZoruCardTitle>
           <ZoruCardDescription>
@@ -315,7 +315,7 @@ export default function AuditPage() {
             />
           ) : (
             <div className="overflow-x-auto">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead className="w-6" />
@@ -355,12 +355,12 @@ export default function AuditPage() {
                             {row.actorEmail ?? row.actorId ?? '—'}
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruBadge
+                            <Badge
                               variant="secondary"
                               className="font-mono text-[10px]"
                             >
                               {row.action}
-                            </ZoruBadge>
+                            </Badge>
                           </ZoruTableCell>
                           <ZoruTableCell className="max-w-[220px] truncate text-xs">
                             {(() => {
@@ -420,11 +420,11 @@ export default function AuditPage() {
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

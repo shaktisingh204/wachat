@@ -48,14 +48,14 @@ const initialState: { message: string | null; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="animate-spin" />
       ) : (
         <Save />
       )}
       Save AI settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -82,7 +82,7 @@ export default function SabChatAiRepliesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -98,16 +98,16 @@ export default function SabChatAiRepliesPage() {
             <ZoruBreadcrumbPage>AI Replies</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>AI replies</ZoruPageTitle>
           <ZoruPageDescription>
             Configure the AI assistant for your chat.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <form action={formAction}>
         {/* Pass-through existing settings unrelated to this form. */}
@@ -127,7 +127,7 @@ export default function SabChatAiRepliesPage() {
           })}
         />
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted">
@@ -145,15 +145,15 @@ export default function SabChatAiRepliesPage() {
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-6">
             <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
-              <ZoruSwitch
+              <Switch
                 id="aiEnabled"
                 name="aiEnabled"
                 defaultChecked={settings.aiEnabled}
               />
               <div>
-                <ZoruLabel htmlFor="aiEnabled">
+                <Label htmlFor="aiEnabled">
                   Enable AI assistant
-                </ZoruLabel>
+                </Label>
                 <p className="text-xs text-zoru-ink-muted">
                   When enabled, the assistant will reply to visitors using the
                   context below.
@@ -162,8 +162,8 @@ export default function SabChatAiRepliesPage() {
             </div>
 
             <div className="space-y-2">
-              <ZoruLabel htmlFor="aiContext">Business context</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="aiContext">Business context</Label>
+              <Textarea
                 id="aiContext"
                 name="aiContext"
                 defaultValue={settings.aiContext || ""}
@@ -179,7 +179,7 @@ export default function SabChatAiRepliesPage() {
               <SubmitButton />
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </form>
     </div>
   );

@@ -62,7 +62,7 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                     title="POS terminal"
                     back={{ href: '/dashboard/crm/pos', label: 'POS' }}
                 >
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
                             <p className="text-sm font-medium text-zoru-ink">
                                 No open POS session
@@ -72,13 +72,13 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                                 ensures every transaction is auditable against
                                 a cashier shift.
                             </p>
-                            <ZoruButton size="sm" asChild>
+                            <Button size="sm" asChild>
                                 <Link href="/dashboard/crm/pos/sessions/new">
                                     <Plus className="h-4 w-4" /> Open session
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </EntityDetailShell>
             );
         }
@@ -89,11 +89,11 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                 title={`Live · ${activeSession.terminalId}`}
                 back={{ href: '/dashboard/crm/pos/terminal', label: 'Terminals' }}
                 actions={
-                    <ZoruButton size="sm" variant="outline" asChild>
+                    <Button size="sm" variant="outline" asChild>
                         <Link href={`/dashboard/crm/pos/sessions/${activeSession._id}`}>
                             View session
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
             >
                 <PosTerminalClient
@@ -202,23 +202,23 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
             subtitle="POS devices and their current status."
             primaryAction={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton size="sm" variant="outline" asChild>
+                    <Button size="sm" variant="outline" asChild>
                         <Link href="/dashboard/crm/pos/sessions/new">
                             <Plus className="h-4 w-4" /> New session
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton size="sm" asChild>
+                    </Button>
+                    <Button size="sm" asChild>
                         <Link href="/dashboard/crm/pos/terminal?live=1">
                             <ShoppingCart className="h-4 w-4" /> Open live
                             terminal
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
             {/* Manager KPIs */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -230,8 +230,8 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                         </div>
                         <Store className="h-4 w-4 text-zoru-ink-muted" />
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -243,8 +243,8 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                         </div>
                         <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500" />
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -256,8 +256,8 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                         </div>
                         <span className="inline-block h-2.5 w-2.5 rounded-full bg-zinc-400" />
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -271,7 +271,7 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                         </div>
                         <Store className="h-4 w-4 text-zoru-ink-muted" />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
 
             <PosTerminalManagerClient terminals={terminals} />

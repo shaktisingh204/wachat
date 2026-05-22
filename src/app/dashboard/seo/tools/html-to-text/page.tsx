@@ -14,9 +14,9 @@ export default function HtmlToTextPage() {
 
   return (
     <ToolShell title="HTML to Text" description="Strip HTML tags and get plain text.">
-      <ZoruTextarea value={html} onChange={(e) => setHtml(e.target.value)} placeholder="Paste HTML…" className="min-h-[220px] font-mono text-xs" />
+      <Textarea value={html} onChange={(e) => setHtml(e.target.value)} placeholder="Paste HTML…" className="min-h-[220px] font-mono text-xs" />
       <div className="text-sm font-semibold">Output text</div>
-      <ZoruTextarea readOnly value={text} className="min-h-[220px]" />
+      <Textarea readOnly value={text} className="min-h-[220px]" />
     </ToolShell>
   );
 }

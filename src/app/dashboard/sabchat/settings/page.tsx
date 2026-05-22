@@ -105,16 +105,16 @@ function SectionHeader({ title, description }: { title: string; description: str
 function PageSkeleton() {
     return (
         <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
-            <ZoruSkeleton className="h-3 w-56" />
+            <Skeleton className="h-3 w-56" />
             <div className="mt-5 flex flex-col gap-2">
-                <ZoruSkeleton className="h-3 w-24" />
-                <ZoruSkeleton className="h-7 w-72" />
-                <ZoruSkeleton className="h-3 w-96" />
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-7 w-72" />
+                <Skeleton className="h-3 w-96" />
             </div>
             <div className="mt-6 grid gap-4">
-                <ZoruSkeleton className="h-60 w-full" />
-                <ZoruSkeleton className="h-60 w-full" />
-                <ZoruSkeleton className="h-60 w-full" />
+                <Skeleton className="h-60 w-full" />
+                <Skeleton className="h-60 w-full" />
+                <Skeleton className="h-60 w-full" />
             </div>
         </div>
     );
@@ -162,11 +162,11 @@ export default function SabchatSettingsPage() {
     if (loadError) {
         return (
             <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle />
                     <ZoruAlertTitle>Could not load SabChat settings</ZoruAlertTitle>
                     <ZoruAlertDescription>{loadError}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -175,7 +175,7 @@ export default function SabchatSettingsPage() {
 
     return (
         <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -189,9 +189,9 @@ export default function SabchatSettingsPage() {
                         <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader className="mt-5" bordered={false}>
+            <PageHeader className="mt-5" bordered={false}>
                 <ZoruPageHeading>
                     {activeProject?.name ? (
                         <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
@@ -204,12 +204,12 @@ export default function SabchatSettingsPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <div className="flex items-center gap-2">
-                    <ZoruBadge variant="outline" className="gap-1.5">
+                    <Badge variant="outline" className="gap-1.5">
                         <span className="text-zoru-ink-subtle">Last saved:</span>
                         <span className="text-zoru-ink">{formatTimestamp(settings.updatedAt)}</span>
-                    </ZoruBadge>
+                    </Badge>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <div className="mt-6 flex flex-col gap-5">
                 <ChannelsSection
@@ -221,7 +221,7 @@ export default function SabchatSettingsPage() {
                     saving={savingSection === 'channels'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <WorkingHoursSection
                     value={settings.workingHours}
@@ -236,7 +236,7 @@ export default function SabchatSettingsPage() {
                     saving={savingSection === 'workingHours'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <AutoresponderSection
                     value={settings.autoresponder}
@@ -251,7 +251,7 @@ export default function SabchatSettingsPage() {
                     saving={savingSection === 'autoresponder'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <RoutingSection
                     value={settings.routing}
@@ -262,7 +262,7 @@ export default function SabchatSettingsPage() {
                     saving={savingSection === 'routing'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <WebhooksSection
                     value={settings.webhooks}
@@ -273,7 +273,7 @@ export default function SabchatSettingsPage() {
                     saving={savingSection === 'webhooks'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <NotificationsSection
                     value={settings.notifications}
@@ -316,20 +316,20 @@ function ChannelsSection({
     saving: boolean;
 }) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Channels"
                     description="Defaults applied to every connected channel."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="channels-defaultSender">Default sender name</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="channels-defaultSender">Default sender name</Label>
+                    <Input
                         id="channels-defaultSender"
                         placeholder="e.g. Support Team"
                         value={value.defaultSender}
@@ -341,14 +341,14 @@ function ChannelsSection({
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
                     <div>
-                        <ZoruLabel htmlFor="channels-autoTranslate" className="text-[13px]">
+                        <Label htmlFor="channels-autoTranslate" className="text-[13px]">
                             Auto-translate
-                        </ZoruLabel>
+                        </Label>
                         <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
                             Translate inbound messages into your workspace language.
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         id="channels-autoTranslate"
                         checked={value.autoTranslate}
                         onCheckedChange={(checked) =>
@@ -357,7 +357,7 @@ function ChannelsSection({
                     />
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -381,20 +381,20 @@ function WorkingHoursSection({
     }
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Working hours"
                     description="Used to flag conversations as out-of-hours and trigger autoresponders."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="wh-timezone">Timezone</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="wh-timezone">Timezone</Label>
+                    <Select
                         value={value.timezone}
                         onValueChange={(tz) => onChange({ ...value, timezone: tz })}
                     >
@@ -408,11 +408,11 @@ function WorkingHoursSection({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="wh-start">Start time</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-start">Start time</Label>
+                    <Input
                         id="wh-start"
                         type="time"
                         value={value.start}
@@ -420,8 +420,8 @@ function WorkingHoursSection({
                     />
                 </div>
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="wh-end">End time</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-end">End time</Label>
+                    <Input
                         id="wh-end"
                         type="time"
                         value={value.end}
@@ -430,9 +430,9 @@ function WorkingHoursSection({
                 </div>
             </div>
             <div className="mt-4">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Working days
-                </ZoruLabel>
+                </Label>
                 <div className="mt-2 flex flex-wrap gap-3">
                     {DAYS.map((day) => {
                         const id = `wh-day-${day}`;
@@ -443,7 +443,7 @@ function WorkingHoursSection({
                                 htmlFor={id}
                                 className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[12.5px] text-zoru-ink cursor-pointer"
                             >
-                                <ZoruCheckbox
+                                <Checkbox
                                     id={id}
                                     checked={checked}
                                     onCheckedChange={() => toggleDay(day)}
@@ -454,7 +454,7 @@ function WorkingHoursSection({
                     })}
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -470,34 +470,34 @@ function AutoresponderSection({
     saving: boolean;
 }) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Autoresponder"
                     description="Sent automatically when a message arrives outside working hours."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
                 <div>
-                    <ZoruLabel htmlFor="ar-enabled" className="text-[13px]">
+                    <Label htmlFor="ar-enabled" className="text-[13px]">
                         Enable autoresponder
-                    </ZoruLabel>
+                    </Label>
                     <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
                         Send the message below when an agent is unavailable.
                     </p>
                 </div>
-                <ZoruSwitch
+                <Switch
                     id="ar-enabled"
                     checked={value.enabled}
                     onCheckedChange={(checked) => onChange({ ...value, enabled: !!checked })}
                 />
             </div>
             <div className="mt-4 grid gap-1.5">
-                <ZoruLabel htmlFor="ar-message">Message</ZoruLabel>
-                <ZoruTextarea
+                <Label htmlFor="ar-message">Message</Label>
+                <Textarea
                     id="ar-message"
                     rows={4}
                     value={value.message}
@@ -505,7 +505,7 @@ function AutoresponderSection({
                     placeholder="Hi! We're currently offline. We'll get back to you soon."
                 />
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -521,20 +521,20 @@ function RoutingSection({
     saving: boolean;
 }) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Routing"
                     description="How new conversations are assigned to agents."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="rt-assignee">Default assignee</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="rt-assignee">Default assignee</Label>
+                    <Input
                         id="rt-assignee"
                         placeholder="unassigned"
                         value={value.defaultAssignee}
@@ -546,21 +546,21 @@ function RoutingSection({
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
                     <div>
-                        <ZoruLabel htmlFor="rt-roundRobin" className="text-[13px]">
+                        <Label htmlFor="rt-roundRobin" className="text-[13px]">
                             Round-robin
-                        </ZoruLabel>
+                        </Label>
                         <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
                             Distribute incoming chats across available agents.
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         id="rt-roundRobin"
                         checked={value.roundRobin}
                         onCheckedChange={(checked) => onChange({ ...value, roundRobin: !!checked })}
                     />
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -584,25 +584,25 @@ function WebhooksSection({
     }
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Webhooks"
                     description="Forward inbound messages and events to your own endpoint."
                 />
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={sendTest}>
+                    <Button variant="outline" size="sm" onClick={sendTest}>
                         <Send /> Send test
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                    </Button>
+                    <Button size="sm" onClick={onSave} disabled={saving}>
                         <Save /> {saving ? 'Saving…' : 'Save'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="wh-url">Webhook URL</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-url">Webhook URL</Label>
+                    <Input
                         id="wh-url"
                         type="url"
                         placeholder="https://example.com/webhooks/sabchat"
@@ -611,8 +611,8 @@ function WebhooksSection({
                     />
                 </div>
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="wh-secret">Signing secret</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-secret">Signing secret</Label>
+                    <Input
                         id="wh-secret"
                         type="password"
                         placeholder="••••••••"
@@ -621,7 +621,7 @@ function WebhooksSection({
                     />
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -659,15 +659,15 @@ function NotificationsSection({
     ];
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Notifications"
                     description="Control which events your agents are notified about."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 grid gap-2">
                 {rows.map((row) => (
@@ -676,14 +676,14 @@ function NotificationsSection({
                         className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3"
                     >
                         <div>
-                            <ZoruLabel htmlFor={`notif-${row.key}`} className="text-[13px]">
+                            <Label htmlFor={`notif-${row.key}`} className="text-[13px]">
                                 {row.label}
-                            </ZoruLabel>
+                            </Label>
                             <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
                                 {row.description}
                             </p>
                         </div>
-                        <ZoruSwitch
+                        <Switch
                             id={`notif-${row.key}`}
                             checked={value[row.key]}
                             onCheckedChange={(checked) =>
@@ -693,6 +693,6 @@ function NotificationsSection({
                     </div>
                 ))}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }

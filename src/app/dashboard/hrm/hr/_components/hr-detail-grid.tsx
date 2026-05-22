@@ -9,7 +9,7 @@ import { Card } from '@/components/zoruui';
  * <HrDetailGrid title="Overview">
  *   <HrDetailRow label="Employee">{e.employeeName}</HrDetailRow>
  *   <HrDetailRow label="Status">
- *     <ZoruBadge variant="success">{e.status}</ZoruBadge>
+ *     <Badge variant="success">{e.status}</Badge>
  *   </HrDetailRow>
  * </HrDetailGrid>
  * ```
@@ -26,7 +26,7 @@ export interface HrDetailGridProps {
 
 export function HrDetailGrid({ title, titleSlot, children }: HrDetailGridProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       {title || titleSlot ? (
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           {title ? (
@@ -38,7 +38,7 @@ export function HrDetailGrid({ title, titleSlot, children }: HrDetailGridProps) 
         </div>
       ) : null}
       <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">{children}</div>
-    </ZoruCard>
+    </Card>
   );
 }
 

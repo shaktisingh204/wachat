@@ -43,8 +43,8 @@ import * as React from 'react';
 function PageSkeleton() {
   return (
     <div className="flex flex-col gap-4">
-      <ZoruSkeleton className="h-64 w-full" />
-      <ZoruSkeleton className="h-48 w-full" />
+      <Skeleton className="h-64 w-full" />
+      <Skeleton className="h-48 w-full" />
     </div>
   );
 }
@@ -127,13 +127,13 @@ export default function WhatsAppPaySetupPage() {
 
   if (!project) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertDescription>
           No project selected. Please select a project to manage its payment
           settings.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
@@ -148,7 +148,7 @@ export default function WhatsAppPaySetupPage() {
       )}
 
       {/* Setup instructions */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h3 className="text-[15px] text-zoru-ink">WhatsApp Pay Setup</h3>
         <p className="mt-1 text-[13px] text-zoru-ink-muted">
           To enable WhatsApp Pay, configure a payment provider (like Razorpay
@@ -173,16 +173,16 @@ export default function WhatsAppPaySetupPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <ZoruButton size="sm">
+            <Button size="sm">
               Go to Commerce Manager
               <ExternalLink />
-            </ZoruButton>
+            </Button>
           </a>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Configurations list */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h3 className="text-[15px] text-zoru-ink">
@@ -193,7 +193,7 @@ export default function WhatsAppPaySetupPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => fetchData(true)}
@@ -205,24 +205,24 @@ export default function WhatsAppPaySetupPage() {
                 <RefreshCw />
               )}
               Refresh
-            </ZoruButton>
-            <ZoruButton size="sm" onClick={() => setIsCreateOpen(true)}>
+            </Button>
+            <Button size="sm" onClick={() => setIsCreateOpen(true)}>
               <CirclePlus />
               Create
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
         <div className="mt-5">
           {error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : configs.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {configs.map((config) => (
-                <ZoruCard
+                <Card
                   key={config.configuration_name}
                   variant="soft"
                   className="p-4"
@@ -245,9 +245,9 @@ export default function WhatsAppPaySetupPage() {
                     <InfoRow
                       label="Status"
                       value={
-                        <ZoruBadge variant={statusVariant(config.status)}>
+                        <Badge variant={statusVariant(config.status)}>
                           {config.status}
-                        </ZoruBadge>
+                        </Badge>
                       }
                     />
                     <InfoRow
@@ -278,24 +278,24 @@ export default function WhatsAppPaySetupPage() {
                       onSuccess={fetchData}
                     />
                   </div>
-                </ZoruCard>
+                </Card>
               ))}
             </div>
           ) : (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Settings />}
               title="No payment configurations"
               description="No payment providers are linked to this WABA yet. Create one to get started."
               action={
-                <ZoruButton size="sm" onClick={() => setIsCreateOpen(true)}>
+                <Button size="sm" onClick={() => setIsCreateOpen(true)}>
                   <CirclePlus />
                   Create configuration
-                </ZoruButton>
+                </Button>
               }
             />
           )}
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

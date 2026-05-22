@@ -52,30 +52,30 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({ hours, onC
             <div className="space-y-3">
                 {hours.map((entry, index) => (
                     <div key={index} className="p-3 border rounded-lg space-y-3 relative bg-muted/50">
-                         <ZoruButton variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemove(index)}><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+                         <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemove(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                         <div className="grid md:grid-cols-3 gap-4 items-end">
                             <div className="space-y-2">
-                                <ZoruLabel>Day of Week</ZoruLabel>
-                                <ZoruSelect value={entry.day_of_week} onValueChange={(val) => handleChange(index, 'day_of_week', val)}>
+                                <Label>Day of Week</Label>
+                                <Select value={entry.day_of_week} onValueChange={(val) => handleChange(index, 'day_of_week', val)}>
                                     <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {daysOfWeek.map(day => <ZoruSelectItem key={day} value={day}>{day}</ZoruSelectItem>)}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Open Time</ZoruLabel>
-                                <ZoruInput type="time" value={entry.open_time.slice(0,2) + ':' + entry.open_time.slice(2)} onChange={e => handleChange(index, 'open_time', e.target.value)} />
+                                <Label>Open Time</Label>
+                                <Input type="time" value={entry.open_time.slice(0,2) + ':' + entry.open_time.slice(2)} onChange={e => handleChange(index, 'open_time', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Close Time</ZoruLabel>
-                                <ZoruInput type="time" value={entry.close_time.slice(0,2) + ':' + entry.close_time.slice(2)} onChange={e => handleChange(index, 'close_time', e.target.value)} />
+                                <Label>Close Time</Label>
+                                <Input type="time" value={entry.close_time.slice(0,2) + ':' + entry.close_time.slice(2)} onChange={e => handleChange(index, 'close_time', e.target.value)} />
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
-            <ZoruButton type="button" variant="outline" onClick={handleAdd}><Plus className="mr-2 h-4 w-4"/>Add Time Slot</ZoruButton>
+            <Button type="button" variant="outline" onClick={handleAdd}><Plus className="mr-2 h-4 w-4"/>Add Time Slot</Button>
         </div>
     );
 };

@@ -77,16 +77,16 @@ export default async function TdsDetailPage({
             title={employeeName}
             back={{ href: BASE, label: 'TDS' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${id}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill label={status} tone={tone} />
@@ -131,10 +131,10 @@ export default async function TdsDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {fyView.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 flex items-center justify-between">
                         <div className="text-[14px] font-medium text-zoru-ink">
                             Quarterly view — {employeeName} · FY {financialYear}
@@ -198,7 +198,7 @@ export default async function TdsDetailPage({
                             </tbody>
                         </table>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

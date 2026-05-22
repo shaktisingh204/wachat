@@ -77,21 +77,21 @@ export default function ConversionFunnelPage() {
                 title="Conversion funnel"
                 description="Last 30 days funnel from impressions to purchases."
                 actions={
-                    <ZoruButton variant="outline" onClick={fetchData} disabled={loading}>
+                    <Button variant="outline" onClick={fetchData} disabled={loading}>
                         <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
-                    </ZoruButton>
+                    </Button>
                 }
             />
 
             {loading ? (
                 <div className="space-y-4">
-                    {Array.from({ length: 6 }).map((_, i) => <ZoruSkeleton key={i} className="h-14" />)}
+                    {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-14" />)}
                 </div>
             ) : !funnel ? (
-                <ZoruCard><ZoruCardContent className="p-8 text-center text-muted-foreground">No funnel data available.</ZoruCardContent></ZoruCard>
+                <Card><ZoruCardContent className="p-8 text-center text-muted-foreground">No funnel data available.</ZoruCardContent></Card>
             ) : (
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardContent className="p-4 flex items-center gap-3">
                             <DollarSign className="h-5 w-5 text-muted-foreground" />
                             <div>
@@ -99,9 +99,9 @@ export default function ConversionFunnelPage() {
                                 <div className="text-2xl font-bold tabular-nums">${funnel.spend.toFixed(2)}</div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader><ZoruCardTitle className="text-base">Funnel steps</ZoruCardTitle></ZoruCardHeader>
                         <ZoruCardContent className="space-y-4">
                             {STEPS.map((step, idx) => {
@@ -135,9 +135,9 @@ export default function ConversionFunnelPage() {
                                 );
                             })}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader><ZoruCardTitle className="text-base">Cost per step</ZoruCardTitle></ZoruCardHeader>
                         <ZoruCardContent>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -153,7 +153,7 @@ export default function ConversionFunnelPage() {
                                 })}
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             )}
         </div>

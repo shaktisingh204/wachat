@@ -301,7 +301,7 @@ export function ConnectClient() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 space-y-6 sm:px-6">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -315,7 +315,7 @@ export function ConnectClient() {
             <ZoruBreadcrumbPage>Connect</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Hero */}
       <header className="flex flex-wrap items-start justify-between gap-4">
@@ -328,10 +328,10 @@ export function ConnectClient() {
               <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
                 Connect WhatsApp
               </h1>
-              <ZoruBadge variant="ghost" className="gap-1 text-[10.5px]">
+              <Badge variant="ghost" className="gap-1 text-[10.5px]">
                 <ShieldCheck className="h-3 w-3" />
                 Linked Devices
-              </ZoruBadge>
+              </Badge>
             </div>
             <p className="mt-1 text-[13px] text-zoru-ink-muted max-w-2xl">
               Link your personal WhatsApp number to this SabNode project. Your
@@ -360,7 +360,7 @@ export function ConnectClient() {
 
       {/* Project guard banner — only when no project is selected. */}
       {!activeProjectId && (
-        <ZoruAlert variant="warning">
+        <Alert variant="warning">
           <AlertTriangle className="h-4 w-4" />
           <ZoruAlertTitle>Select a project first</ZoruAlertTitle>
           <ZoruAlertDescription>
@@ -370,11 +370,11 @@ export function ConnectClient() {
             </Link>{' '}
             to pick or create one before generating a pairing code.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {/* ToS warning banner */}
-      <ZoruAlert>
+      <Alert>
         <AlertTriangle className="h-4 w-4" />
         <ZoruAlertTitle>Use responsibly</ZoruAlertTitle>
         <ZoruAlertDescription>
@@ -382,13 +382,13 @@ export function ConnectClient() {
           increase ban risk. SabWa includes anti-ban controls but the risk is
           yours to manage.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
 
       {/* Step indicators */}
       <FlowStepper activeStepIndex={activeStepIndex} steps={STEPS} />
 
       {/* Main two-mode flow */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Choose how to link</ZoruCardTitle>
           <ZoruCardDescription>
@@ -408,14 +408,14 @@ export function ConnectClient() {
                 onPaired={handlePaired}
                 onRefresh={() => beginPairing(active.mode)}
               />
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={cancelPairing}
               >
                 Cancel
-              </ZoruButton>
+              </Button>
             </div>
           ) : (
             <div className="w-full">
@@ -425,7 +425,7 @@ export function ConnectClient() {
                 aria-label="Pairing method"
                 className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
               >
-                <ZoruButton
+                <Button
                   type="button"
                   variant={mode === 'qr' ? 'default' : 'ghost'}
                   size="sm"
@@ -434,8 +434,8 @@ export function ConnectClient() {
                 >
                   <QrCode />
                   QR code
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   type="button"
                   variant={mode === 'code' ? 'default' : 'ghost'}
                   size="sm"
@@ -444,7 +444,7 @@ export function ConnectClient() {
                 >
                   <Smartphone />
                   Phone number
-                </ZoruButton>
+                </Button>
               </div>
 
               {mode === 'qr' ? (
@@ -456,7 +456,7 @@ export function ConnectClient() {
                     </strong>{' '}
                     and scan it.
                   </p>
-                  <ZoruButton
+                  <Button
                     type="button"
                     size="lg"
                     disabled={!tosAcked || !activeProjectId || isPending}
@@ -469,7 +469,7 @@ export function ConnectClient() {
                       <QrCode />
                     )}
                     Generate QR code
-                  </ZoruButton>
+                  </Button>
                 </div>
               ) : (
                 <form
@@ -480,9 +480,9 @@ export function ConnectClient() {
                   }}
                 >
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="sabwa-phone">Phone number</ZoruLabel>
+                    <Label htmlFor="sabwa-phone">Phone number</Label>
                     <div className="flex gap-2">
-                      <ZoruSelect
+                      <Select
                         value={countryCode}
                         onValueChange={setCountryCode}
                       >
@@ -502,8 +502,8 @@ export function ConnectClient() {
                             </ZoruSelectItem>
                           ))}
                         </ZoruSelectContent>
-                      </ZoruSelect>
-                      <ZoruInput
+                      </Select>
+                      <Input
                         id="sabwa-phone"
                         type="tel"
                         inputMode="numeric"
@@ -525,7 +525,7 @@ export function ConnectClient() {
                       </p>
                     )}
                   </div>
-                  <ZoruButton
+                  <Button
                     type="submit"
                     size="lg"
                     disabled={
@@ -539,16 +539,16 @@ export function ConnectClient() {
                       <ArrowRight />
                     )}
                     Get pairing code
-                  </ZoruButton>
+                  </Button>
                 </form>
               )}
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* FAQ */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Frequently asked questions</ZoruCardTitle>
           <ZoruCardDescription>
@@ -556,7 +556,7 @@ export function ConnectClient() {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ZoruAccordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full">
             {FAQ.map((item, idx) => (
               <ZoruAccordionItem key={item.q} value={`faq-${idx}`}>
                 <ZoruAccordionTrigger className="text-left">
@@ -567,12 +567,12 @@ export function ConnectClient() {
                 </ZoruAccordionContent>
               </ZoruAccordionItem>
             ))}
-          </ZoruAccordion>
+          </Accordion>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* ToS acknowledgement modal — first time per project */}
-      <ZoruDialog
+      <Dialog
         open={tosOpen}
         onOpenChange={(o) => {
           if (!o && !tosAcked) return;
@@ -614,13 +614,13 @@ export function ConnectClient() {
             </li>
           </ul>
           <ZoruDialogFooter>
-            <ZoruButton type="button" onClick={acceptTos}>
+            <Button type="button" onClick={acceptTos}>
               I understand, continue
               <ChevronRight />
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

@@ -53,7 +53,7 @@ export function ModuleSidebar({ items, activeValue, onValueChange, title }: Modu
 
                 if (item.href) {
                     return (
-                        <ZoruButton
+                        <Button
                             key={item.href}
                             variant={isActive ? "secondary" : "ghost"}
                             className={cn("justify-start w-full", isActive && "bg-muted font-medium")}
@@ -62,19 +62,19 @@ export function ModuleSidebar({ items, activeValue, onValueChange, title }: Modu
                             <Link href={item.href}>
                                 {content}
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     );
                 }
 
                 return (
-                    <ZoruButton
+                    <Button
                         key={item.value}
                         variant={isActive ? "secondary" : "ghost"}
                         className={cn("justify-start w-full", isActive && "bg-muted font-medium")}
                         onClick={() => onValueChange?.(item.value!)}
                     >
                         {content}
-                    </ZoruButton>
+                    </Button>
                 );
             })}
         </nav>

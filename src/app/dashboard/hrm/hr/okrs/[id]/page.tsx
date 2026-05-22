@@ -89,24 +89,24 @@ export default async function OkrDetailPage({
             title={okr.objective}
             subtitle={okr.description || 'OKR detail'}
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${okrId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {tags.map((t) => (
-                        <ZoruBadge key={t} variant="ghost">
+                        <Badge key={t} variant="ghost">
                             {t}
-                        </ZoruBadge>
+                        </Badge>
                     ))}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -141,10 +141,10 @@ export default async function OkrDetailPage({
                         <div className="text-zoru-ink">{fmtDate(okr.endDate)}</div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Progress strip */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[14px] font-medium text-zoru-ink">
                     Progress
                 </div>
@@ -156,7 +156,7 @@ export default async function OkrDetailPage({
                                 {progress}%
                             </span>
                         </div>
-                        <ZoruProgress value={progress} />
+                        <Progress value={progress} />
                     </div>
                     {confidence != null ? (
                         <div>
@@ -166,14 +166,14 @@ export default async function OkrDetailPage({
                                     {confidence}%
                                 </span>
                             </div>
-                            <ZoruProgress value={confidence} />
+                            <Progress value={confidence} />
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Key results */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Key results ({krs.length})
                 </div>
@@ -222,7 +222,7 @@ export default async function OkrDetailPage({
                                             <div className="text-zoru-ink-muted">Progress</div>
                                             {krProgress != null ? (
                                                 <div className="flex items-center gap-2">
-                                                    <ZoruProgress
+                                                    <Progress
                                                         value={krProgress}
                                                         className="h-2 w-20"
                                                     />
@@ -240,7 +240,7 @@ export default async function OkrDetailPage({
                         })}
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

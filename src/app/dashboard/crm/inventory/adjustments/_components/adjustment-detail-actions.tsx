@@ -98,80 +98,80 @@ export function AdjustmentDetailActions({
     return (
         <>
             {status !== 'approved' ? (
-                <ZoruPopover open={approveOpen} onOpenChange={setApproveOpen}>
+                <Popover open={approveOpen} onOpenChange={setApproveOpen}>
                     <ZoruPopoverTrigger asChild>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             disabled={pending}
                         >
                             <BadgeCheck className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Approve
-                        </ZoruButton>
+                        </Button>
                     </ZoruPopoverTrigger>
                     <ZoruPopoverContent align="end" className="w-72 space-y-2">
-                        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                        <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                             Approval notes (optional)
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             value={approveNotes}
                             onChange={(e) => setApproveNotes(e.target.value)}
                             placeholder="e.g. matches stock take"
                         />
                         <div className="flex items-center justify-end gap-1.5">
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => setApproveOpen(false)}
                             >
                                 Cancel
-                            </ZoruButton>
-                            <ZoruButton size="sm" onClick={handleApprove}>
+                            </Button>
+                            <Button size="sm" onClick={handleApprove}>
                                 Confirm
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </ZoruPopoverContent>
-                </ZoruPopover>
+                </Popover>
             ) : null}
 
             {status !== 'rejected' ? (
-                <ZoruPopover open={rejectOpen} onOpenChange={setRejectOpen}>
+                <Popover open={rejectOpen} onOpenChange={setRejectOpen}>
                     <ZoruPopoverTrigger asChild>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             disabled={pending}
                         >
                             <CircleX className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Reject
-                        </ZoruButton>
+                        </Button>
                     </ZoruPopoverTrigger>
                     <ZoruPopoverContent align="end" className="w-72 space-y-2">
-                        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                        <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                             Rejection reason
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             value={rejectNotes}
                             onChange={(e) => setRejectNotes(e.target.value)}
                             placeholder="e.g. count error"
                         />
                         <div className="flex items-center justify-end gap-1.5">
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => setRejectOpen(false)}
                             >
                                 Cancel
-                            </ZoruButton>
-                            <ZoruButton size="sm" onClick={handleReject}>
+                            </Button>
+                            <Button size="sm" onClick={handleReject}>
                                 Confirm
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </ZoruPopoverContent>
-                </ZoruPopover>
+                </Popover>
             ) : null}
 
-            <ZoruButton
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setDeleteOpen(true)}
@@ -180,7 +180,7 @@ export function AdjustmentDetailActions({
             >
                 <Archive className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={deleteOpen}

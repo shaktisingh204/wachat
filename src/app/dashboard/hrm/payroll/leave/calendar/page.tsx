@@ -87,30 +87,30 @@ export default function LeaveCalendarPage() {
       subtitle="Monthly view of approved leaves across the organization."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={goPrev}
             >
               <ChevronLeft className="h-4 w-4" />
               Prev
-            </ZoruButton>
+            </Button>
             <div className="min-w-[180px] text-center text-[16px] text-zoru-ink">
               {monthLabel}
             </div>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={goNext}
             >
               <ChevronRight className="h-4 w-4" />
               Next
-            </ZoruButton>
+            </Button>
           </div>
-          <ZoruButton variant="outline" onClick={goToday}>
+          <Button variant="outline" onClick={goToday}>
             Today
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="grid grid-cols-7 gap-1">
@@ -174,7 +174,7 @@ export default function LeaveCalendarPage() {
         {isLoading ? (
           <p className="mt-4 text-center text-[12px] text-zoru-ink-muted">Loading…</p>
         ) : null}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

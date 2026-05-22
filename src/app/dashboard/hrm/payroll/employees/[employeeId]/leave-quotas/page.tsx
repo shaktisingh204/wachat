@@ -89,12 +89,12 @@ export default async function EmployeeLeaveQuotasSubPage({
             title={`Leave quotas · ${fullName}`}
             subtitle="Per-leave-type allotment, usage and carry-forward."
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={NEW_HREF}>
                         <Plus className="mr-2 h-4 w-4" />
                         Manage balances
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
@@ -141,7 +141,7 @@ export default async function EmployeeLeaveQuotasSubPage({
             </div>
 
             {balances.length === 0 ? (
-                <ZoruCard className="flex flex-col items-start gap-3 p-8">
+                <Card className="flex flex-col items-start gap-3 p-8">
                     <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                         <CalendarDays
                             className="h-5 w-5 text-zoru-ink-muted"
@@ -157,17 +157,17 @@ export default async function EmployeeLeaveQuotasSubPage({
                             for {fullName} in the Leave Balances page.
                         </p>
                     </div>
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href={NEW_HREF}>
                             <Plus className="mr-2 h-4 w-4" />
                             Manage balances
                         </Link>
-                    </ZoruButton>
-                </ZoruCard>
+                    </Button>
+                </Card>
             ) : (
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <div className="overflow-x-auto">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">
@@ -226,7 +226,7 @@ export default async function EmployeeLeaveQuotasSubPage({
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <ZoruProgress
+                                                    <Progress
                                                         value={pct(
                                                             b.used,
                                                             b.allotted,
@@ -242,9 +242,9 @@ export default async function EmployeeLeaveQuotasSubPage({
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
-                </ZoruCard>
+                </Card>
             )}
         </EntityListShell>
     );
@@ -266,14 +266,14 @@ function KpiTile({
         info: 'ghost',
     };
     return (
-        <ZoruCard className="p-4">
+        <Card className="p-4">
             <div className="flex items-start justify-between gap-2">
                 <p className="text-[12px] text-zoru-ink-muted">{label}</p>
-                <ZoruBadge variant={toneBadge[tone] ?? 'ghost'}>days</ZoruBadge>
+                <Badge variant={toneBadge[tone] ?? 'ghost'}>days</Badge>
             </div>
             <p className="mt-2 text-[22px] leading-none text-zoru-ink">
                 {value}
             </p>
-        </ZoruCard>
+        </Card>
     );
 }

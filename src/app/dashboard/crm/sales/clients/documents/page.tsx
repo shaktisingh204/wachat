@@ -393,24 +393,24 @@ export default function ClientDocumentsPage() {
       }}
       primaryAction={
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+          <Button variant="outline" size="sm" onClick={onExportCsv}>
             <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
             CSV
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={onExportXlsx}>
             <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />
             XLSX
-          </ZoruButton>
-          <ZoruButton onClick={openNew}>
+          </Button>
+          <Button onClick={openNew}>
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Document
-          </ZoruButton>
+          </Button>
         </div>
       }
       filters={
         <>
           <div className="w-40">
-            <ZoruSelect
+            <Select
               value={typeFilter}
               onValueChange={(v) =>
                 setTypeFilter(v as typeof typeFilter)
@@ -427,10 +427,10 @@ export default function ClientDocumentsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="w-56">
-            <ZoruSelect
+            <Select
               value={clientFilter || 'all'}
               onValueChange={(v) =>
                 setClientFilter(v === 'all' ? '' : v)
@@ -447,22 +447,22 @@ export default function ClientDocumentsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               className="h-9 w-[160px]"
             />
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
@@ -478,22 +478,22 @@ export default function ClientDocumentsPage() {
               {selected.size} selected
             </span>
             <div className="flex items-center gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={onExportCsv}
               >
                 <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Export CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkArchive' })}
@@ -501,8 +501,8 @@ export default function ClientDocumentsPage() {
               >
                 <Archive className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Archive
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkDelete' })}
@@ -513,7 +513,7 @@ export default function ClientDocumentsPage() {
                   strokeWidth={1.75}
                 />
                 Delete
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null
@@ -551,7 +551,7 @@ export default function ClientDocumentsPage() {
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           {isLoading && rows.length === 0 ? (
             <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
               Loading…
@@ -568,7 +568,7 @@ export default function ClientDocumentsPage() {
                 <thead>
                   <tr className="border-b border-zoru-line bg-zoru-surface-2">
                     <th className="w-10 px-3 py-3">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allOnPageSelected}
                         onCheckedChange={(c) =>
                           toggleAllOnPage(Boolean(c))
@@ -611,7 +611,7 @@ export default function ClientDocumentsPage() {
                         className="border-b border-zoru-line last:border-0"
                       >
                         <td className="px-3 py-3">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSel}
                             onCheckedChange={(c) => {
                               setSelected((s) => {
@@ -642,9 +642,9 @@ export default function ClientDocumentsPage() {
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <ZoruBadge variant="secondary">
+                          <Badge variant="secondary">
                             {r.doc_type ?? 'other'}
-                          </ZoruBadge>
+                          </Badge>
                         </td>
                         <td className="px-4 py-3 text-zoru-ink">
                           {formatBytes(r.size)}
@@ -672,7 +672,7 @@ export default function ClientDocumentsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openEdit(r)}
@@ -682,8 +682,8 @@ export default function ClientDocumentsPage() {
                                 strokeWidth={1.75}
                               />
                               Edit
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() =>
@@ -700,7 +700,7 @@ export default function ClientDocumentsPage() {
                                 strokeWidth={1.75}
                               />
                               Delete
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -717,15 +717,15 @@ export default function ClientDocumentsPage() {
                 Page {pageSafe} of {totalPages} · {filtered.length} documents
               </span>
               <div className="flex items-center gap-1">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe >= totalPages}
@@ -734,33 +734,33 @@ export default function ClientDocumentsPage() {
                   }
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Add/Edit modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <ZoruCard className="w-full max-w-xl p-6">
+          <Card className="w-full max-w-xl p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[16px] text-zoru-ink">
                 {editing ? 'Edit Document' : 'Add Document'}
               </h2>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setOpen(false)}
               >
                 <X className="h-4 w-4" strokeWidth={1.75} />
                 Close
-              </ZoruButton>
+              </Button>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="md:col-span-2">
-                <ZoruLabel>Client *</ZoruLabel>
+                <Label>Client *</Label>
                 <div className="mt-1.5">
                   <EntityFormField
                     entity="client"
@@ -774,8 +774,8 @@ export default function ClientDocumentsPage() {
                 </div>
               </div>
               <div className="md:col-span-2">
-                <ZoruLabel>Filename *</ZoruLabel>
-                <ZoruInput
+                <Label>Filename *</Label>
+                <Input
                   value={filename}
                   onChange={(e) => setFilename(e.target.value)}
                   className="mt-1.5"
@@ -783,8 +783,8 @@ export default function ClientDocumentsPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <ZoruLabel>File URL</ZoruLabel>
-                <ZoruInput
+                <Label>File URL</Label>
+                <Input
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className="mt-1.5"
@@ -792,8 +792,8 @@ export default function ClientDocumentsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Type</ZoruLabel>
-                <ZoruSelect
+                <Label>Type</Label>
+                <Select
                   value={docType}
                   onValueChange={(v) =>
                     setDocType(v as WsClientDocumentType)
@@ -809,11 +809,11 @@ export default function ClientDocumentsPage() {
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div>
-                <ZoruLabel>Size (bytes)</ZoruLabel>
-                <ZoruInput
+                <Label>Size (bytes)</Label>
+                <Input
                   type="number"
                   min="0"
                   value={size}
@@ -822,8 +822,8 @@ export default function ClientDocumentsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Uploaded At</ZoruLabel>
-                <ZoruInput
+                <Label>Uploaded At</Label>
+                <Input
                   type="date"
                   value={uploadedAt}
                   onChange={(e) => setUploadedAt(e.target.value)}
@@ -831,13 +831,13 @@ export default function ClientDocumentsPage() {
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2 md:col-span-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   onClick={handleSave}
                   disabled={
                     isMutating || !filename.trim() || !clientId
@@ -850,10 +850,10 @@ export default function ClientDocumentsPage() {
                     />
                   ) : null}
                   {editing ? 'Update' : 'Create'}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       )}
 
@@ -913,7 +913,7 @@ function KpiCard({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-2 text-zoru-ink-muted">
         {icon}
         <p className="text-[12.5px] font-medium">{label}</p>
@@ -929,6 +929,6 @@ function KpiCard({
           {hint}
         </p>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }

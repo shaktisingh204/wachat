@@ -41,11 +41,11 @@ export function VendorsBulkBar({
             </span>
             <span className="flex-1" />
 
-            <ZoruDropdownMenu>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton size="sm" variant="outline">
+                    <Button size="sm" variant="outline">
                         <Tag className="h-3.5 w-3.5" /> Set type
-                    </ZoruButton>
+                    </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
                     <ZoruDropdownMenuLabel>Set vendor type</ZoruDropdownMenuLabel>
@@ -63,13 +63,13 @@ export function VendorsBulkBar({
                         ))
                     )}
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
 
-            <ZoruDropdownMenu>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton size="sm" variant="outline">
+                    <Button size="sm" variant="outline">
                         <Download className="h-3.5 w-3.5" /> Export
-                    </ZoruButton>
+                    </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuItem onSelect={() => onExportCsv()}>
@@ -79,20 +79,20 @@ export function VendorsBulkBar({
                         Export selected as XLSX
                     </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
 
-            <ZoruButton
+            <Button
                 size="sm"
                 variant="outline"
                 onClick={onDelete}
                 className="text-zoru-danger-ink"
             >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
 
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

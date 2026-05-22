@@ -84,7 +84,7 @@ export default async function ClientProjectDetailPage({
                 ← Back to projects
             </Link>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
                         <ZoruCardTitle>{project.name}</ZoruCardTitle>
@@ -94,7 +94,7 @@ export default async function ClientProjectDetailPage({
                             </p>
                         ) : null}
                     </div>
-                    <ZoruBadge>{project.status}</ZoruBadge>
+                    <Badge>{project.status}</Badge>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
@@ -117,13 +117,13 @@ export default async function ClientProjectDetailPage({
                         <div className="col-span-2 sm:col-span-4">
                             <dt className="text-xs text-zoru-ink-muted">Progress</dt>
                             <dd className="mt-1 flex items-center gap-3">
-                                <ZoruProgress value={project.progress} className="max-w-md flex-1" />
+                                <Progress value={project.progress} className="max-w-md flex-1" />
                                 <span className="text-xs text-zoru-ink-muted">{project.progress}%</span>
                             </dd>
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Button-group tabs (NOT ZoruTabs) */}
             <div className="flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
@@ -147,22 +147,22 @@ export default async function ClientProjectDetailPage({
             </div>
 
             {tab === 'overview' && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="text-sm text-zoru-ink-muted">
                         {project.description ?? 'No additional details available.'}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {tab === 'tasks' && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
                         {tasks.length === 0 ? (
                             <div className="p-6 text-center text-sm text-zoru-ink-muted">
                                 No tasks yet.
                             </div>
                         ) : (
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead>Title</ZoruTableHead>
@@ -177,7 +177,7 @@ export default async function ClientProjectDetailPage({
                                         <ZoruTableRow key={t._id}>
                                             <ZoruTableCell>{t.title}</ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant="outline">{t.status}</ZoruBadge>
+                                                <Badge variant="outline">{t.status}</Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell>{t.priority ?? '—'}</ZoruTableCell>
                                             <ZoruTableCell>{fmtDate(t.dueDate)}</ZoruTableCell>
@@ -185,38 +185,38 @@ export default async function ClientProjectDetailPage({
                                         </ZoruTableRow>
                                     ))}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {tab === 'milestones' && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="text-sm text-zoru-ink-muted">
                         No milestones available for this project yet.
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {tab === 'files' && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="text-sm text-zoru-ink-muted">
                         Project files will appear here. Use the download link on each
                         file to save it locally.
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {tab === 'invoices' && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
                         {invoices.length === 0 ? (
                             <div className="p-6 text-center text-sm text-zoru-ink-muted">
                                 No invoices for this project.
                             </div>
                         ) : (
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead>Number</ZoruTableHead>
@@ -239,24 +239,24 @@ export default async function ClientProjectDetailPage({
                                             <ZoruTableCell>{fmtDate(inv.invoiceDate)}</ZoruTableCell>
                                             <ZoruTableCell>{fmtCurrency(inv.total, inv.currency)}</ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant="outline">{inv.status}</ZoruBadge>
+                                                <Badge variant="outline">{inv.status}</Badge>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ))}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {tab === 'rating' && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="text-sm text-zoru-ink-muted">
                         A rating link will appear here once your project manager
                         sends one. Check your email for the share link.
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

@@ -40,7 +40,7 @@ export default async function ClientTicketDetailPage({
                 ← Back to tickets
             </Link>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
                         <ZoruCardTitle>{ticket.subject}</ZoruCardTitle>
@@ -49,8 +49,8 @@ export default async function ClientTicketDetailPage({
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruBadge variant="outline">{ticket.priority}</ZoruBadge>
-                        <ZoruBadge>{ticket.status}</ZoruBadge>
+                        <Badge variant="outline">{ticket.priority}</Badge>
+                        <Badge>{ticket.status}</Badge>
                     </div>
                 </ZoruCardHeader>
                 {ticket.description ? (
@@ -58,9 +58,9 @@ export default async function ClientTicketDetailPage({
                         <p className="whitespace-pre-wrap text-sm text-zoru-ink">{ticket.description}</p>
                     </ZoruCardContent>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Conversation</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -87,23 +87,23 @@ export default async function ClientTicketDetailPage({
                         ))
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {!closed ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Add a reply</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <TicketReplyForm ticketId={ticket._id} />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="text-sm text-zoru-ink-muted">
                         This ticket is closed. Open a new ticket if you need further help.
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

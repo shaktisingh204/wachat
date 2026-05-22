@@ -28,14 +28,14 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       variant="obsidian"
       disabled={pending}
       leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
     >
       Import Contacts
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -62,12 +62,12 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
   }, [state, toast, onImported]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline">
+        <Button variant="outline">
           <Upload className="mr-2 h-4 w-4" />
           Import
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
@@ -80,17 +80,17 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="contactFile" className="text-foreground">File</ZoruLabel>
-                <ZoruInput id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
+                <Label htmlFor="contactFile" className="text-foreground">File</Label>
+                <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
               </div>
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

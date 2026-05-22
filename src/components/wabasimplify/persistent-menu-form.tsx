@@ -31,10 +31,10 @@ const initialState = { success: false, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Menu
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -96,7 +96,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
             <input type="hidden" name="shopId" value={shop._id.toString()} />
             <input type="hidden" name="menuItems" value={JSON.stringify(menuItems)} />
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2"><List className="h-5 w-5"/>Persistent Menu</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -106,42 +106,42 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                 <ZoruCardContent className="space-y-4">
                     {menuItems.map((item, index) => (
                         <div key={index} className="p-4 border rounded-lg space-y-3 relative">
-                            <ZoruButton variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem(index)}>
+                            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem(index)}>
                                 <Trash2 className="h-4 w-4 text-destructive"/>
-                            </ZoruButton>
+                            </Button>
                             <h4 className="font-medium">Menu Item {index + 1}</h4>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor={`title-${index}`}>Title</ZoruLabel>
-                                <ZoruInput id={`title-${index}`} value={item.title} onChange={e => handleItemChange(index, 'title', e.target.value)} maxLength={30} required/>
+                                <Label htmlFor={`title-${index}`}>Title</Label>
+                                <Input id={`title-${index}`} value={item.title} onChange={e => handleItemChange(index, 'title', e.target.value)} maxLength={30} required/>
                             </div>
-                            <ZoruRadioGroup value={item.type} onValueChange={(val) => handleItemChange(index, 'type', val)} className="flex gap-4">
-                                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="postback" id={`type-postback-${index}`} /><ZoruLabel htmlFor={`type-postback-${index}`} className="font-normal">Trigger Flow</ZoruLabel></div>
-                                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="web_url" id={`type-url-${index}`} /><ZoruLabel htmlFor={`type-url-${index}`} className="font-normal">Open Web URL</ZoruLabel></div>
-                            </ZoruRadioGroup>
+                            <RadioGroup value={item.type} onValueChange={(val) => handleItemChange(index, 'type', val)} className="flex gap-4">
+                                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="postback" id={`type-postback-${index}`} /><Label htmlFor={`type-postback-${index}`} className="font-normal">Trigger Flow</Label></div>
+                                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="web_url" id={`type-url-${index}`} /><Label htmlFor={`type-url-${index}`} className="font-normal">Open Web URL</Label></div>
+                            </RadioGroup>
                              {item.type === 'postback' ? (
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor={`payload-${index}`}>Payload (Trigger Keyword)</ZoruLabel>
-                                    <ZoruInput id={`payload-${index}`} value={item.payload || ''} onChange={e => handleItemChange(index, 'payload', e.target.value)} placeholder="e.g., MENU_BROWSE_PRODUCTS" required/>
+                                    <Label htmlFor={`payload-${index}`}>Payload (Trigger Keyword)</Label>
+                                    <Input id={`payload-${index}`} value={item.payload || ''} onChange={e => handleItemChange(index, 'payload', e.target.value)} placeholder="e.g., MENU_BROWSE_PRODUCTS" required/>
                                     <p className="text-xs text-muted-foreground">This keyword will trigger the corresponding flow.</p>
                                 </div>
                              ) : (
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor={`url-${index}`}>Website URL</ZoruLabel>
-                                    <ZoruInput id={`url-${index}`} type="url" value={item.url || ''} onChange={e => handleItemChange(index, 'url', e.target.value)} placeholder="https://example.com" required/>
+                                    <Label htmlFor={`url-${index}`}>Website URL</Label>
+                                    <Input id={`url-${index}`} type="url" value={item.url || ''} onChange={e => handleItemChange(index, 'url', e.target.value)} placeholder="https://example.com" required/>
                                 </div>
                              )}
                         </div>
                     ))}
                     {menuItems.length < 3 && (
-                        <ZoruButton type="button" variant="outline" className="w-full" onClick={handleAddItem}>
+                        <Button type="button" variant="outline" className="w-full" onClick={handleAddItem}>
                             <Plus className="mr-2 h-4 w-4" /> Add Menu Item
-                        </ZoruButton>
+                        </Button>
                     )}
                 </ZoruCardContent>
                 <ZoruCardFooter>
                     <SubmitButton />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     )
 }

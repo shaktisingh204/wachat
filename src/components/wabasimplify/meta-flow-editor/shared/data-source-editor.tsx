@@ -33,11 +33,11 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
 
     return (
         <div className="space-y-2 rounded-lg border p-4">
-            <ZoruLabel className="font-semibold">{label}</ZoruLabel>
+            <Label className="font-semibold">{label}</Label>
             <div className="space-y-3">
                 {dataSource.map(item => (
                     <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-muted/50">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             size="icon"
@@ -45,10 +45,10 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
                             onClick={() => handleRemoveItem(item.id)}
                         >
                             <Trash2 className="h-3 w-3 text-destructive" />
-                        </ZoruButton>
+                        </Button>
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor={`title-${item.id}`} className="text-xs">Title</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor={`title-${item.id}`} className="text-xs">Title</Label>
+                            <Input
                                 id={`title-${item.id}`}
                                 value={item.title}
                                 onChange={e => handleItemChange(item.id, 'title', e.target.value)}
@@ -57,8 +57,8 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
                             />
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor={`desc-${item.id}`} className="text-xs">Description (optional)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor={`desc-${item.id}`} className="text-xs">Description (optional)</Label>
+                            <Input
                                 id={`desc-${item.id}`}
                                 value={item.description || ''}
                                 onChange={e => handleItemChange(item.id, 'description', e.target.value)}
@@ -68,7 +68,7 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
                     </div>
                 ))}
             </div>
-             <ZoruButton
+             <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -77,7 +77,7 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
             >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Item
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

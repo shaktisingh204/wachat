@@ -36,20 +36,20 @@ export function HolidayDetailActions({ id, name }: Props): React.JSX.Element {
 
     return (
         <>
-            <ZoruButton asChild size="sm" variant="outline">
+            <Button asChild size="sm" variant="outline">
                 <Link href={`/dashboard/crm/hr-payroll/holidays/${id}/edit`}>
                     <Pencil className="h-4 w-4" />
                     Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setConfirmOpen(true)}
             >
                 <Trash2 className="h-4 w-4" />
                 Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={confirmOpen}

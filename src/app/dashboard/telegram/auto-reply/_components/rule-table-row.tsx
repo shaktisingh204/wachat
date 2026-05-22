@@ -104,14 +104,14 @@ export function RuleTableRow({
                         </span>
                     )}
                     {rule.actions.slice(0, 3).map((a, i) => (
-                        <ZoruBadge key={i} variant="secondary">
+                        <Badge key={i} variant="secondary">
                             {actionLabel(a.kind)}
-                        </ZoruBadge>
+                        </Badge>
                     ))}
                     {rule.actions.length > 3 && (
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                             +{rule.actions.length - 3}
-                        </ZoruBadge>
+                        </Badge>
                     )}
                 </div>
             </ZoruTableCell>
@@ -119,7 +119,7 @@ export function RuleTableRow({
                 {botName ?? <span className="text-muted-foreground">All bots</span>}
             </ZoruTableCell>
             <ZoruTableCell>
-                <ZoruSwitch
+                <Switch
                     checked={rule.status === 'enabled'}
                     onCheckedChange={(v) => onToggle(rule, v)}
                     aria-label={`Toggle ${rule.name}`}
@@ -135,38 +135,38 @@ export function RuleTableRow({
             </ZoruTableCell>
             <ZoruTableCell className="text-right">
                 <div className="flex justify-end gap-1">
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="icon"
                         title="Edit"
                         onClick={() => onEdit(rule)}
                     >
                         <Pencil className="h-4 w-4" />
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="ghost"
                         size="icon"
                         title="Duplicate"
                         onClick={() => onDuplicate(rule)}
                     >
                         <Copy className="h-4 w-4" />
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="ghost"
                         size="icon"
                         title="Test"
                         onClick={() => onTest(rule)}
                     >
                         <PlayCircle className="h-4 w-4" />
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="ghost"
                         size="icon"
                         title="Delete"
                         onClick={() => onDelete(rule)}
                     >
                         <Trash2 className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruTableCell>
         </ZoruTableRow>

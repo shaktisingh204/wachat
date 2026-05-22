@@ -372,12 +372,12 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         return (
             <div key={field.id} className={cn('space-y-2', widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
                 {field.labelPosition !== 'hidden' && (
-                    <ZoruLabel
+                    <Label
                         htmlFor={fieldName}
                         className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', (field.type === 'checkbox' || field.type === 'acceptance') && 'hidden')}
                     >
                         {field.label} {field.required && '*'}
-                    </ZoruLabel>
+                    </Label>
                 )}
                 <div className="w-full">
                     <Controller
@@ -389,56 +389,56 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
                             switch (field.type) {
                                 case 'textarea':
-                                    return <ZoruTextarea {...commonProps} />;
+                                    return <Textarea {...commonProps} />;
                                 case 'select':
                                     return (
-                                        <ZoruSelect onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''}>
+                                        <Select onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''}>
                                             <ZoruSelectTrigger className={cn('form-field', sizeClasses)}>
                                                 <ZoruSelectValue placeholder={field.placeholder || 'Select...'} />
                                             </ZoruSelectTrigger>
                                             <ZoruSelectContent>
                                                 {fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}
                                             </ZoruSelectContent>
-                                        </ZoruSelect>
+                                        </Select>
                                     );
                                 case 'checkbox':
                                     return (
                                         <div className="flex items-center gap-2 pt-2">
-                                            <ZoruCheckbox id={fieldName} checked={!!controllerField.value} onCheckedChange={controllerField.onChange} />
-                                            <ZoruLabel htmlFor={fieldName} className="font-normal">{field.label}</ZoruLabel>
+                                            <Checkbox id={fieldName} checked={!!controllerField.value} onCheckedChange={controllerField.onChange} />
+                                            <Label htmlFor={fieldName} className="font-normal">{field.label}</Label>
                                         </div>
                                     );
                                 case 'acceptance':
                                     return (
                                         <div className="flex items-center gap-2 pt-2">
-                                            <ZoruCheckbox id={fieldName} checked={!!controllerField.value} onCheckedChange={controllerField.onChange} />
-                                            <ZoruLabel htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</ZoruLabel>
+                                            <Checkbox id={fieldName} checked={!!controllerField.value} onCheckedChange={controllerField.onChange} />
+                                            <Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label>
                                         </div>
                                     );
                                 case 'radio':
                                     return (
-                                        <ZoruRadioGroup onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''} className="flex flex-col gap-2 pt-2">
+                                        <RadioGroup onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''} className="flex flex-col gap-2 pt-2">
                                             {fieldOptions.map(opt => (
                                                 <div key={opt} className="flex items-center space-x-2">
                                                     <ZoruRadioGroupItem value={opt} id={`${fieldName}-${opt}`} />
-                                                    <ZoruLabel htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</ZoruLabel>
+                                                    <Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label>
                                                 </div>
                                             ))}
-                                        </ZoruRadioGroup>
+                                        </RadioGroup>
                                     );
                                 case 'phone':
-                                    return <ZoruInput {...commonProps} type="tel" inputMode="tel" placeholder={field.placeholder || '+1 555 123 4567'} />;
+                                    return <Input {...commonProps} type="tel" inputMode="tel" placeholder={field.placeholder || '+1 555 123 4567'} />;
                                 case 'address': {
                                     const addr = (controllerField.value as AddressValue) || {};
                                     const setPart = (k: keyof AddressValue, v: string) => controllerField.onChange({ ...addr, [k]: v });
                                     return (
                                         <div className="grid grid-cols-2 gap-2">
-                                            <ZoruInput className="col-span-2 form-field" value={addr.line1 || ''} onChange={(e) => setPart('line1', e.target.value)} placeholder="Address line 1" />
-                                            <ZoruInput className="col-span-2 form-field" value={addr.line2 || ''} onChange={(e) => setPart('line2', e.target.value)} placeholder="Address line 2" />
-                                            <ZoruInput className="form-field" value={addr.city || ''} onChange={(e) => setPart('city', e.target.value)} placeholder="City" />
-                                            <ZoruInput className="form-field" value={addr.state || ''} onChange={(e) => setPart('state', e.target.value)} placeholder="State / Region" />
-                                            <ZoruInput className="form-field" value={addr.zip || ''} onChange={(e) => setPart('zip', e.target.value)} placeholder="ZIP / Postal code" />
-                                            <ZoruInput className="form-field" value={addr.country || ''} onChange={(e) => setPart('country', e.target.value)} placeholder="Country" />
+                                            <Input className="col-span-2 form-field" value={addr.line1 || ''} onChange={(e) => setPart('line1', e.target.value)} placeholder="Address line 1" />
+                                            <Input className="col-span-2 form-field" value={addr.line2 || ''} onChange={(e) => setPart('line2', e.target.value)} placeholder="Address line 2" />
+                                            <Input className="form-field" value={addr.city || ''} onChange={(e) => setPart('city', e.target.value)} placeholder="City" />
+                                            <Input className="form-field" value={addr.state || ''} onChange={(e) => setPart('state', e.target.value)} placeholder="State / Region" />
+                                            <Input className="form-field" value={addr.zip || ''} onChange={(e) => setPart('zip', e.target.value)} placeholder="ZIP / Postal code" />
+                                            <Input className="form-field" value={addr.country || ''} onChange={(e) => setPart('country', e.target.value)} placeholder="Country" />
                                         </div>
                                     );
                                 }
@@ -454,13 +454,13 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                     // Signature canvas requires `react-signature-canvas` (not in package.json).
                                     // Leave a typed placeholder so the field still submits; user can type their name.
                                     // TODO: when react-signature-canvas is added, swap to <SignatureCanvas/> and store dataURL.
-                                    return <ZoruInput {...commonProps} placeholder={field.placeholder || 'Type your name as signature'} />;
+                                    return <Input {...commonProps} placeholder={field.placeholder || 'Type your name as signature'} />;
                                 case 'file':
                                     // TODO: route to SabFiles public upload (no anonymous upload endpoint yet).
                                     // For now, anonymous embed uploads use the native input — submission posts metadata only.
-                                    return <ZoruInput {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
+                                    return <Input {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
                                 default:
-                                    return <ZoruInput {...commonProps} type={field.type} />;
+                                    return <Input {...commonProps} type={field.type} />;
                             }
                         }}
                     />
@@ -478,7 +478,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     return (
         <div ref={containerRef} className="p-2">
             <style>{dynamicStyles}</style>
-            <ZoruCard className="shadow-md w-full" id={uniqueId}>
+            <Card className="shadow-md w-full" id={uniqueId}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="text-center my-6 px-6">
                         {logoSrc && <Image src={logoSrc} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
@@ -519,22 +519,22 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
                     <div className="p-6 pt-0 flex items-center gap-2 justify-between">
                         {isMultiStep && currentPageIdx > 0 ? (
-                            <ZoruButton type="button" variant="outline" onClick={() => setCurrentPageIdx(idx => Math.max(0, idx - 1))}>
+                            <Button type="button" variant="outline" onClick={() => setCurrentPageIdx(idx => Math.max(0, idx - 1))}>
                                 Back
-                            </ZoruButton>
+                            </Button>
                         ) : <span />}
 
                         {isMultiStep && !isLastPage ? (
-                            <ZoruButton type="button" onClick={goToNextPage} className="submit-button">
+                            <Button type="button" onClick={goToNextPage} className="submit-button">
                                 Next
-                            </ZoruButton>
+                            </Button>
                         ) : (
-                            <ZoruButton type="submit" className="submit-button" disabled={isPending}>
+                            <Button type="submit" className="submit-button" disabled={isPending}>
                                 {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                                 {SubmitIcon && (settings.buttonIconPosition as string) === 'left' && <SubmitIcon className="mr-2 h-4 w-4" />}
                                 {(settings.submitButtonText as string) || 'Submit'}
                                 {SubmitIcon && (settings.buttonIconPosition as string) === 'right' && <SubmitIcon className="ml-2 h-4 w-4" />}
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                     {(settings.footerText as string) && (
@@ -543,7 +543,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                         </div>
                     )}
                 </form>
-            </ZoruCard>
+            </Card>
         </div>
     );
 };

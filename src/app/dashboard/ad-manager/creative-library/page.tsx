@@ -55,11 +55,11 @@ export default function CreativeLibraryPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Creative library" />
-                <ZoruAlert>
+                <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to view your creative library.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -73,27 +73,27 @@ export default function CreativeLibraryPage() {
             />
 
             <div className="inline-flex items-center gap-1 rounded-md border bg-muted/30 p-1">
-                <ZoruButton
+                <Button
                     variant={activeTab === 'images' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setActiveTab('images')}
                 >
                     Images ({images.length})
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant={activeTab === 'videos' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setActiveTab('videos')}
                 >
                     Videos ({videos.length})
-                </ZoruButton>
+                </Button>
             </div>
 
             {activeTab === 'images' && (
                 <div>
                     <div className="mb-3">
                         <label className="inline-flex">
-                            <ZoruButton variant="outline" asChild>
+                            <Button variant="outline" asChild>
                                 <span>
                                     <Upload className="h-4 w-4 mr-1" /> Upload image
                                     <input
@@ -103,19 +103,19 @@ export default function CreativeLibraryPage() {
                                         onChange={(e) => handleUpload(e, 'image')}
                                     />
                                 </span>
-                            </ZoruButton>
+                            </Button>
                         </label>
                     </div>
                     {loading ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             {Array.from({ length: 8 }).map((_, i) => (
-                                <ZoruSkeleton key={i} className="aspect-square rounded-lg" />
+                                <Skeleton key={i} className="aspect-square rounded-lg" />
                             ))}
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             {images.map((img) => (
-                                <ZoruCard key={img.hash} className="overflow-hidden group relative">
+                                <Card key={img.hash} className="overflow-hidden group relative">
                                     <div
                                         className="aspect-square bg-muted cursor-pointer"
                                         onClick={() => window.open(img.url, '_blank')}
@@ -134,7 +134,7 @@ export default function CreativeLibraryPage() {
                                                     {img.width}×{img.height}
                                                 </div>
                                             </div>
-                                            <ZoruButton
+                                            <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
@@ -145,10 +145,10 @@ export default function CreativeLibraryPage() {
                                                 }}
                                             >
                                                 <Trash2 className="h-3 w-3" />
-                                            </ZoruButton>
+                                            </Button>
                                         </div>
                                     </ZoruCardContent>
-                                </ZoruCard>
+                                </Card>
                             ))}
                         </div>
                     )}
@@ -159,7 +159,7 @@ export default function CreativeLibraryPage() {
                 <div>
                     <div className="mb-3">
                         <label className="inline-flex">
-                            <ZoruButton variant="outline" asChild>
+                            <Button variant="outline" asChild>
                                 <span>
                                     <Upload className="h-4 w-4 mr-1" /> Upload video
                                     <input
@@ -169,12 +169,12 @@ export default function CreativeLibraryPage() {
                                         onChange={(e) => handleUpload(e, 'video')}
                                     />
                                 </span>
-                            </ZoruButton>
+                            </Button>
                         </label>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                         {videos.map((v) => (
-                            <ZoruCard key={v.id} className="overflow-hidden group relative">
+                            <Card key={v.id} className="overflow-hidden group relative">
                                 <div
                                     className="aspect-video bg-muted relative cursor-pointer"
                                     onClick={() => v.source ? window.open(v.source, '_blank') : v.picture && window.open(v.picture, '_blank')}
@@ -188,7 +188,7 @@ export default function CreativeLibraryPage() {
                                 <ZoruCardContent className="p-2">
                                     <div className="flex items-center justify-between gap-1">
                                         <div className="text-xs font-medium truncate">{v.title || 'Untitled'}</div>
-                                        <ZoruButton
+                                        <Button
                                             variant="ghost"
                                             size="icon"
                                             className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
@@ -199,10 +199,10 @@ export default function CreativeLibraryPage() {
                                             }}
                                         >
                                             <Trash2 className="h-3 w-3" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ))}
                     </div>
                 </div>

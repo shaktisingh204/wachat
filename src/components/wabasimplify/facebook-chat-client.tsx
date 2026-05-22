@@ -168,26 +168,26 @@ export function FacebookChatClient() {
     }
 
     if (isLoading && !project) {
-        return <ZoruSkeleton className="h-full w-full rounded-xl" />
+        return <Skeleton className="h-full w-full rounded-xl" />
     }
 
     if (!projectId) {
         return (
             <div className="h-full flex items-center justify-center p-4">
-                <ZoruAlert variant="destructive" className="max-w-md">
+                <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
                     <ZoruAlertDescription>
                         Please select a project from the main dashboard to use the Facebook inbox.
                     </ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
 
     return (
         <>
-            <ZoruDialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+            <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Start a Conversation</ZoruDialogTitle>
@@ -196,10 +196,10 @@ export function FacebookChatClient() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton onClick={() => setShowInfoDialog(false)}>OK</ZoruButton>
+                        <Button onClick={() => setShowInfoDialog(false)}>OK</Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             <PermissionErrorDialog
                 isOpen={!!permissionError}
@@ -208,7 +208,7 @@ export function FacebookChatClient() {
                 project={project}
                 onSuccess={onSuccessfulReconnect}
             />
-            <ZoruCard className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
+            <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
                 <div className="flex flex-1 overflow-hidden">
                     <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
                         <FacebookConversationList
@@ -240,7 +240,7 @@ export function FacebookChatClient() {
                         )}
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </>
     );
 }

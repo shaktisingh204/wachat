@@ -95,29 +95,29 @@ export function PosSessionDetailActions({ sessionId, status }: Props) {
     return (
         <div className="flex gap-2">
             {status === 'open' ? (
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="outline"
                     disabled={pending}
                     onClick={onClose}
                 >
                     Close session
-                </ZoruButton>
+                </Button>
             ) : null}
             {status === 'closed' ? (
-                <ZoruButton size="sm" disabled={pending} onClick={onReconcile}>
+                <Button size="sm" disabled={pending} onClick={onReconcile}>
                     Reconcile
-                </ZoruButton>
+                </Button>
             ) : null}
             {(status === 'closed' || status === 'reconciled') ? (
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="ghost"
                     disabled={pending}
                     onClick={onArchive}
                 >
                     Archive
-                </ZoruButton>
+                </Button>
             ) : null}
         </div>
     );

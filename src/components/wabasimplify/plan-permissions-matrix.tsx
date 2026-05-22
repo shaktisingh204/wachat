@@ -155,7 +155,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <ZoruInput
+                        <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search module or category…"
@@ -163,14 +163,14 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruBadge
+                        <Badge
                             variant="outline"
                             className="rounded-full border-white/10 bg-white/5 font-normal"
                         >
                             <ShieldCheck className="h-3 w-3 mr-1 text-primary" />
                             {globalStats.enabled}/{globalStats.total}
-                        </ZoruBadge>
-                        <ZoruButton
+                        </Badge>
+                        <Button
                             type="button"
                             size="sm"
                             variant="outline"
@@ -178,8 +178,8 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                             onClick={() => setAllGlobal(true)}
                         >
                             <Check className="h-3.5 w-3.5" /> All
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             size="sm"
                             variant="outline"
@@ -187,7 +187,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                             onClick={() => setAllGlobal(false)}
                         >
                             <X className="h-3.5 w-3.5" /> None
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -224,7 +224,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                         )}
                                     />
                                     <span className="font-semibold text-sm">{category}</span>
-                                    <ZoruBadge
+                                    <Badge
                                         variant="outline"
                                         className={cn(
                                             'rounded-full text-[10px] font-normal border-white/10',
@@ -236,10 +236,10 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                         )}
                                     >
                                         {stats.enabled}/{stats.total}
-                                    </ZoruBadge>
+                                    </Badge>
                                 </button>
                                 <div className="flex items-center gap-1.5">
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         size="sm"
                                         variant="ghost"
@@ -247,8 +247,8 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                         onClick={() => setAllOnCategory(category, true)}
                                     >
                                         Enable all
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         type="button"
                                         size="sm"
                                         variant="ghost"
@@ -256,7 +256,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                         onClick={() => setAllOnCategory(category, false)}
                                     >
                                         Clear
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
 
@@ -279,7 +279,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                             >
                                                 {/* Left: module name + master switch */}
                                                 <div className="flex items-center gap-3 md:w-64 md:shrink-0">
-                                                    <ZoruSwitch
+                                                    <Switch
                                                         checked={allOn}
                                                         onCheckedChange={(c) =>
                                                             setAllOnModule(moduleKey, !!c)

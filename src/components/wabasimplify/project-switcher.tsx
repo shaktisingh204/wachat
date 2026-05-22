@@ -49,17 +49,17 @@ export function ProjectSwitcher() {
     }
 
     return (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="ghost" className="w-full justify-start h-auto p-2">
+                <Button variant="ghost" className="w-full justify-start h-auto p-2">
                     <div className="flex items-center gap-2 w-full">
-                        <ZoruAvatar className="h-8 w-8">
+                        <Avatar className="h-8 w-8">
                            <ZoruAvatarFallback><WhatsAppIcon className="h-5 w-5"/></ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <span className="truncate flex-1 text-left font-semibold">{activeProject.name}</span>
                         <ChevronsUpDown className="h-4 w-4 opacity-50 flex-shrink-0" />
                     </div>
-                </ZoruButton>
+                </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
                 <ZoruDropdownMenuLabel>Switch Project</ZoruDropdownMenuLabel>
@@ -72,6 +72,6 @@ export function ProjectSwitcher() {
                     </ZoruDropdownMenuItem>
                 ))}
             </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
     );
 }

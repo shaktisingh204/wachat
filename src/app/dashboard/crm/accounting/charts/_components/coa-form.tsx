@@ -103,8 +103,8 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="code">Account code</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="code">Account code</Label>
+                                <Input
                                     id="code"
                                     name="code"
                                     placeholder="e.g. 1100"
@@ -115,8 +115,8 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                 </p>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="name">Account name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="name">Account name *</Label>
+                                <Input
                                     id="name"
                                     name="name"
                                     placeholder="e.g. Bank — HDFC Current"
@@ -125,11 +125,11 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                 />
                             </div>
                             <div className="space-y-2 md:col-span-2">
-                                <ZoruLabel htmlFor="accountGroupId">Parent group *</ZoruLabel>
+                                <Label htmlFor="accountGroupId">Parent group *</Label>
                                 {/* TODO(§1E): Account groups need their own EntityKey before this can move
                                     to <EntityFormField>. Keeping the SSR-passed `groups` array bound to
                                     the in-page state for now so the parent dropdown stays functional. */}
-                                <ZoruSelect value={groupId} onValueChange={setGroupId}>
+                                <Select value={groupId} onValueChange={setGroupId}>
                                     <ZoruSelectTrigger id="accountGroupId">
                                         <ZoruSelectValue placeholder="Select an account group" />
                                     </ZoruSelectTrigger>
@@ -146,7 +146,7 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                             ))
                                         )}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                                 {selectedNature ? (
                                     <p className="text-[11.5px] text-muted-foreground">
                                         Nature: <strong>{selectedNature}</strong> ·{' '}
@@ -165,8 +165,8 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="openingBalance">Opening balance</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="openingBalance">Opening balance</Label>
+                                <Input
                                     id="openingBalance"
                                     name="openingBalance"
                                     type="number"
@@ -177,8 +177,8 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Balance type</ZoruLabel>
-                                <ZoruRadioGroup
+                                <Label>Balance type</Label>
+                                <RadioGroup
                                     name="balanceType"
                                     defaultValue={initial?.balanceType ?? 'Dr'}
                                     className="flex items-center gap-4 pt-1"
@@ -191,17 +191,17 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                         <ZoruRadioGroupItem value="Cr" id="balanceType-cr" />
                                         <span className="text-[13px]">Credit</span>
                                     </label>
-                                </ZoruRadioGroup>
+                                </RadioGroup>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>As of</ZoruLabel>
-                                <ZoruDatePicker
+                                <Label>As of</Label>
+                                <DatePicker
                                     value={openingBalanceDate}
                                     onChange={setOpeningBalanceDate}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+                                <Label htmlFor="currency">Currency</Label>
                                 <EntityFormField
                                     entity="currency"
                                     name="currency"
@@ -219,7 +219,7 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel>Tax behavior</ZoruLabel>
+                                <Label>Tax behavior</Label>
                                 <EnumFormField
                                     name="taxBehavior"
                                     enumName="accountTaxBehavior"
@@ -235,7 +235,7 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                         Include this account in COGS / gross-profit calculations.
                                     </p>
                                 </div>
-                                <ZoruSwitch
+                                <Switch
                                     name="affectsGrossProfit"
                                     defaultChecked={
                                         (initial as { affectsGrossProfit?: boolean } | null | undefined)
@@ -253,8 +253,8 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                     children: (
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
                                     id="description"
                                     name="description"
                                     rows={3}
@@ -269,7 +269,7 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                         Inactive accounts stay in your history but hide from pickers.
                                     </p>
                                 </div>
-                                <ZoruSwitch
+                                <Switch
                                     name="status"
                                     defaultChecked={initial ? initial.status === 'Active' : true}
                                 />

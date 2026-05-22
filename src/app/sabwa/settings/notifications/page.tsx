@@ -203,7 +203,7 @@ export default function NotificationsSettingsPage() {
       <SettingsTabs />
 
       {/* Desktop notifications */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <Monitor className="h-4 w-4" />
@@ -215,18 +215,18 @@ export default function NotificationsSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <ZoruSwitch
+            <Switch
               checked={prefs.desktop.enabled}
               onCheckedChange={(v) => setPrefs((p) => ({ ...p, desktop: { ...p.desktop, enabled: v } }))}
               disabled={loading || pending}
               aria-label="Toggle desktop notifications"
             />
-            <ZoruLabel className="text-sm">Show desktop notifications</ZoruLabel>
+            <Label className="text-sm">Show desktop notifications</Label>
           </div>
           <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end max-w-md">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="desktop-sound">Notification sound</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="desktop-sound">Notification sound</Label>
+              <Select
                 value={prefs.desktop.sound}
                 onValueChange={(v) => setPrefs((p) => ({ ...p, desktop: { ...p.desktop, sound: v } }))}
                 disabled={!prefs.desktop.enabled || loading || pending}
@@ -241,23 +241,23 @@ export default function NotificationsSettingsPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
-            <ZoruButton variant="outline" onClick={previewSound} disabled={!prefs.desktop.enabled}>
+            <Button variant="outline" onClick={previewSound} disabled={!prefs.desktop.enabled}>
               <Play className="mr-2 h-4 w-4" />
               Preview
-            </ZoruButton>
+            </Button>
           </div>
           <div className="flex justify-end">
-            <ZoruButton size="sm" onClick={() => persist({ desktop: prefs.desktop }, 'Desktop notifications')} disabled={pending}>
+            <Button size="sm" onClick={() => persist({ desktop: prefs.desktop }, 'Desktop notifications')} disabled={pending}>
               Save
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Email digests */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
@@ -267,18 +267,18 @@ export default function NotificationsSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <ZoruSwitch
+            <Switch
               checked={prefs.email.enabled}
               onCheckedChange={(v) => setPrefs((p) => ({ ...p, email: { ...p.email, enabled: v } }))}
               disabled={loading || pending}
               aria-label="Toggle email digests"
             />
-            <ZoruLabel className="text-sm">Send email digests</ZoruLabel>
+            <Label className="text-sm">Send email digests</Label>
           </div>
 
           <div className="space-y-1.5 max-w-xs">
-            <ZoruLabel htmlFor="digest-freq">Frequency</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="digest-freq">Frequency</Label>
+            <Select
               value={prefs.email.frequency}
               onValueChange={(v) =>
                 setPrefs((p) => ({ ...p, email: { ...p.email, frequency: v as SabwaDigestFrequency } }))
@@ -292,14 +292,14 @@ export default function NotificationsSettingsPage() {
                 <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
                 <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="digest-recipient">Recipients</ZoruLabel>
+            <Label htmlFor="digest-recipient">Recipients</Label>
             <div className="flex flex-wrap gap-2">
               {prefs.email.recipients.map((r) => (
-                <ZoruBadge key={r} variant="secondary" className="gap-1.5">
+                <Badge key={r} variant="secondary" className="gap-1.5">
                   {r}
                   <button
                     type="button"
@@ -309,11 +309,11 @@ export default function NotificationsSettingsPage() {
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
             <div className="flex gap-2 max-w-md">
-              <ZoruInput
+              <Input
                 id="digest-recipient"
                 type="email"
                 value={recipientDraft}
@@ -327,32 +327,32 @@ export default function NotificationsSettingsPage() {
                   }
                 }}
               />
-              <ZoruButton
+              <Button
                 variant="outline"
                 onClick={addRecipient}
                 disabled={!prefs.email.enabled || loading || pending}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add
-              </ZoruButton>
+              </Button>
             </div>
           </div>
 
           <div className="flex justify-end">
-            <ZoruButton size="sm" onClick={() => persist({ email: prefs.email }, 'Email digests')} disabled={pending}>
+            <Button size="sm" onClick={() => persist({ email: prefs.email }, 'Email digests')} disabled={pending}>
               Save
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Push (mobile) — coming soon */}
-      <ZoruCard className="opacity-70">
+      <Card className="opacity-70">
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <Smartphone className="h-4 w-4" />
             Push (mobile app)
-            <ZoruBadge variant="secondary">Coming soon</ZoruBadge>
+            <Badge variant="secondary">Coming soon</Badge>
           </ZoruCardTitle>
           <ZoruCardDescription>
             Native push notifications via the SabNode iOS and Android apps.
@@ -360,14 +360,14 @@ export default function NotificationsSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           <div className="flex items-center gap-3">
-            <ZoruSwitch checked={prefs.push.enabled} disabled aria-label="Toggle push notifications" />
-            <ZoruLabel className="text-sm text-muted-foreground">Enable mobile push</ZoruLabel>
+            <Switch checked={prefs.push.enabled} disabled aria-label="Toggle push notifications" />
+            <Label className="text-sm text-muted-foreground">Enable mobile push</Label>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Sound for incoming */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <Volume2 className="h-4 w-4" />
@@ -377,8 +377,8 @@ export default function NotificationsSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           <div className="space-y-1.5 max-w-xs">
-            <ZoruLabel htmlFor="incoming-sound">Preset</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="incoming-sound">Preset</Label>
+            <Select
               value={prefs.incomingSound}
               onValueChange={(v) => setPrefs((p) => ({ ...p, incomingSound: v }))}
               disabled={loading || pending}
@@ -393,22 +393,22 @@ export default function NotificationsSettingsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               size="sm"
               onClick={() => persist({ incomingSound: prefs.incomingSound }, 'Incoming sound')}
               disabled={pending}
             >
               Save
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Mute schedules */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-row items-start justify-between gap-3 flex-wrap">
           <div>
             <ZoruCardTitle>Mute schedules</ZoruCardTitle>
@@ -416,16 +416,16 @@ export default function NotificationsSettingsPage() {
               Time windows during which SabWa silences notifications. Useful for quiet hours and weekends.
             </ZoruCardDescription>
           </div>
-          <ZoruButton size="sm" onClick={addMuteWindow} disabled={pending}>
+          <Button size="sm" onClick={addMuteWindow} disabled={pending}>
             <Plus className="mr-2 h-4 w-4" />
             Add window
-          </ZoruButton>
+          </Button>
         </ZoruCardHeader>
         <ZoruCardContent>
           {prefs.muteSchedules.length === 0 ? (
             <p className="text-sm text-muted-foreground">No mute schedules — notifications are always on.</p>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Label</ZoruTableHead>
@@ -439,14 +439,14 @@ export default function NotificationsSettingsPage() {
                 {prefs.muteSchedules.map((w) => (
                   <ZoruTableRow key={w.id}>
                     <ZoruTableCell>
-                      <ZoruInput
+                      <Input
                         value={w.label ?? ''}
                         onChange={(e) => updateMuteWindow(w.id, { label: e.target.value })}
                         className="max-w-40"
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruInput
+                      <Input
                         type="time"
                         value={w.start}
                         onChange={(e) => updateMuteWindow(w.id, { start: e.target.value })}
@@ -454,7 +454,7 @@ export default function NotificationsSettingsPage() {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruInput
+                      <Input
                         type="time"
                         value={w.end}
                         onChange={(e) => updateMuteWindow(w.id, { end: e.target.value })}
@@ -483,34 +483,34 @@ export default function NotificationsSettingsPage() {
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => removeMuteWindow(w.id)}
                         aria-label={`Remove ${w.label || 'mute window'}`}
                       >
                         <Trash2 className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div className="flex justify-end">
-        <ZoruButton
+        <Button
           onClick={() =>
             persist({ muteSchedules: prefs.muteSchedules }, 'Mute schedules')
           }
           disabled={pending}
         >
           Save mute schedules
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

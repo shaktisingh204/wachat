@@ -19,14 +19,14 @@ export function FaqBlockRenderer({ settings }: { settings: any }) {
         <div className="text-center mb-8">
             <h2 className="text-3xl font-bold">{settings.title || 'Frequently Asked Questions'}</h2>
         </div>
-        <ZoruAccordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full">
             {(settings.faqItems || []).map((item: any, index: number) => (
                 <ZoruAccordionItem value={`item-${item.id || index}`} key={item.id || index}>
                     <ZoruAccordionTrigger>{item.question}</ZoruAccordionTrigger>
                     <ZoruAccordionContent>{item.answer}</ZoruAccordionContent>
                 </ZoruAccordionItem>
             ))}
-        </ZoruAccordion>
+        </Accordion>
     </div>
 );
 }

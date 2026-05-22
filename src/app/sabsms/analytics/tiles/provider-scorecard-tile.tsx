@@ -37,7 +37,7 @@ export function ProviderScorecardTile({
   const title = numberHealth ? "Number health" : "Provider scorecard";
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>{title}</ZoruCardTitle>
@@ -66,7 +66,7 @@ export function ProviderScorecardTile({
             No data yet.
           </p>
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>
@@ -88,18 +88,18 @@ export function ProviderScorecardTile({
                     {r.total.toLocaleString()}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right text-xs">
-                    <ZoruBadge
+                    <Badge
                       variant={r.dlrRate >= 95 ? "default" : "secondary"}
                     >
                       {r.dlrRate}%
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right text-xs">
-                    <ZoruBadge
+                    <Badge
                       variant={r.errorRate > 5 ? "destructive" : "secondary"}
                     >
                       {r.errorRate}%
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right text-xs text-zoru-ink-muted">
                     {r.latencyP95Ms.toLocaleString()}
@@ -107,9 +107,9 @@ export function ProviderScorecardTile({
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

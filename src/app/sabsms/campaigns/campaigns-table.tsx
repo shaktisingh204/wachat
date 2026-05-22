@@ -238,7 +238,7 @@ export function CampaignsTable({
       id: "status",
       header: "Status",
       render: (row) => (
-        <ZoruBadge variant={statusVariant(row.status)}>{row.status}</ZoruBadge>
+        <Badge variant={statusVariant(row.status)}>{row.status}</Badge>
       ),
     },
     {
@@ -265,7 +265,7 @@ export function CampaignsTable({
       width: "160px",
       render: (row) => (
         <div className="flex flex-col gap-1">
-          <ZoruProgress value={row.progressPct} className="h-1.5" />
+          <Progress value={row.progressPct} className="h-1.5" />
           <span className="text-[10px] text-zoru-ink-muted">
             {row.progressPct}% · ETA {formatEta(row.estimatedFinishAt)}
           </span>
@@ -312,9 +312,9 @@ export function CampaignsTable({
         ) : (
           <div className="flex flex-wrap gap-1">
             {row.tags.slice(0, 3).map((t) => (
-              <ZoruBadge key={t} variant="outline" className="text-[10px]">
+              <Badge key={t} variant="outline" className="text-[10px]">
                 {t}
-              </ZoruBadge>
+              </Badge>
             ))}
           </div>
         ),
@@ -328,10 +328,10 @@ export function CampaignsTable({
           // Rust engine will expose `/v1/campaigns/:id/events` once
           // Phase 11 lands; until then the badge just hints that the
           // tail-stream is wired but not yet plumbed through.
-          <ZoruBadge variant="secondary" className="gap-1">
+          <Badge variant="secondary" className="gap-1">
             <Activity className="h-3 w-3" />
             tail
-          </ZoruBadge>
+          </Badge>
         ) : (
           <span className="text-xs text-zoru-ink-muted">—</span>
         ),
@@ -481,21 +481,21 @@ export function CampaignsTable({
     <div className="space-y-4">
       {/* Roll-up totals card row — feature §B.2 #19 */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-        <ZoruStatCard label="Campaigns" value={rollup.total.toLocaleString()} />
-        <ZoruStatCard label="Running" value={rollup.running.toLocaleString()} />
-        <ZoruStatCard
+        <StatCard label="Campaigns" value={rollup.total.toLocaleString()} />
+        <StatCard label="Running" value={rollup.running.toLocaleString()} />
+        <StatCard
           label="Scheduled"
           value={rollup.scheduled.toLocaleString()}
         />
-        <ZoruStatCard
+        <StatCard
           label="Completed"
           value={rollup.completed.toLocaleString()}
         />
-        <ZoruStatCard
+        <StatCard
           label="Audience"
           value={rollup.audience.toLocaleString()}
         />
-        <ZoruStatCard
+        <StatCard
           label="Delivered"
           value={rollup.delivered.toLocaleString()}
         />
@@ -503,7 +503,7 @@ export function CampaignsTable({
 
       {/* Inline filter chart — feature §B.2 #20 */}
       {chartSeries.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Created over time</ZoruCardTitle>
             <ZoruCardDescription>
@@ -542,7 +542,7 @@ export function CampaignsTable({
               </ZoruChart.BarChart>
             </ZoruChartContainer>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       <SabsmsFilterBar
@@ -594,7 +594,7 @@ export function CampaignsTable({
 
       {/* Compare result — inline card driven by the bulk action */}
       {comparison && (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Compare</ZoruCardTitle>
             <ZoruCardDescription>
@@ -616,20 +616,20 @@ export function CampaignsTable({
               ))}
             </div>
             <div className="mt-3 flex justify-end">
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setComparison(null)}
               >
                 Close
-              </ZoruButton>
+              </Button>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Tag dialog — feature §B.2 #18 */}
-      <ZoruDialog
+      <Dialog
         open={!!tagDialog}
         onOpenChange={(open) => !open && setTagDialog(null)}
       >
@@ -641,8 +641,8 @@ export function CampaignsTable({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="sabsms-tag">Tag</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sabsms-tag">Tag</Label>
+            <Input
               id="sabsms-tag"
               value={tagDialog?.tag ?? ""}
               onChange={(e) =>
@@ -653,10 +653,10 @@ export function CampaignsTable({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setTagDialog(null)}>
+            <Button variant="outline" onClick={() => setTagDialog(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               disabled={!tagDialog?.tag.trim() || busy === "tag"}
               onClick={() =>
                 tagDialog &&
@@ -671,13 +671,13 @@ export function CampaignsTable({
               }
             >
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Test send dialog — feature §B.2 #14 */}
-      <ZoruDialog
+      <Dialog
         open={!!testDialog}
         onOpenChange={(open) => !open && setTestDialog(null)}
       >
@@ -690,8 +690,8 @@ export function CampaignsTable({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="sabsms-test-to">Recipient (E.164)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sabsms-test-to">Recipient (E.164)</Label>
+            <Input
               id="sabsms-test-to"
               value={testDialog?.to ?? ""}
               onChange={(e) =>
@@ -702,10 +702,10 @@ export function CampaignsTable({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setTestDialog(null)}>
+            <Button variant="outline" onClick={() => setTestDialog(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               disabled={!testDialog?.to.trim() || busy === "test-send"}
               onClick={() =>
                 testDialog &&
@@ -720,10 +720,10 @@ export function CampaignsTable({
               }
             >
               Send
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

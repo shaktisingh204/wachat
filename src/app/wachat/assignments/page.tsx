@@ -95,7 +95,7 @@ export default function AssignmentsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -109,7 +109,7 @@ export default function AssignmentsPage() {
             <ZoruBreadcrumbPage>Assignments</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-center justify-between">
         <div>
@@ -120,7 +120,7 @@ export default function AssignmentsPage() {
             Assign unassigned conversations to agents for follow-up.
           </p>
         </div>
-        <ZoruButton
+        <Button
           size="sm"
           variant="ghost"
           onClick={fetchData}
@@ -128,17 +128,17 @@ export default function AssignmentsPage() {
         >
           <RefreshCw className={isPending ? 'animate-spin' : ''} />
           Refresh
-        </ZoruButton>
+        </Button>
       </div>
 
-      <ZoruCard className="w-fit p-5">
+      <Card className="w-fit p-5">
         <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
           Unassigned Conversations
         </div>
         <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
           {contacts.length}
         </div>
-      </ZoruCard>
+      </Card>
 
       {isPending && contacts.length === 0 && (
         <div className="flex h-20 items-center justify-center">
@@ -147,8 +147,8 @@ export default function AssignmentsPage() {
       )}
 
       {contacts.length > 0 ? (
-        <ZoruCard className="overflow-x-auto p-0">
-          <ZoruTable>
+        <Card className="overflow-x-auto p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Contact</ZoruTableHead>
@@ -182,7 +182,7 @@ export default function AssignmentsPage() {
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex items-center gap-2">
-                      <ZoruInput
+                      <Input
                         value={agentInputs[c._id] || ''}
                         onChange={(e) =>
                           setAgentInputs((p) => ({
@@ -193,23 +193,23 @@ export default function AssignmentsPage() {
                         placeholder="Agent ID"
                         className="h-8 w-[140px] text-xs"
                       />
-                      <ZoruButton
+                      <Button
                         size="sm"
                         onClick={() => handleAssign(c._id)}
                         disabled={isPending}
                       >
                         <UserPlus /> Assign
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       ) : (
         !isPending && (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Inbox />}
             title="All caught up"
             description="All conversations are currently assigned."

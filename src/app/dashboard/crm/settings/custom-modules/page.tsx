@@ -359,7 +359,7 @@ export default function CustomModulesPage() {
       title="Custom Modules"
       subtitle="Define bespoke modules with role-scoped view/create/edit/delete permissions."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -367,7 +367,7 @@ export default function CustomModulesPage() {
         >
           <Plus className="h-4 w-4" />
           Add Custom Module
-        </ZoruButton>
+        </Button>
       }
       search={{
         value: search,
@@ -376,10 +376,10 @@ export default function CustomModulesPage() {
       }}
       filters={
         <div className="flex items-center gap-2">
-          <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+          <Label className="text-[12px] text-zoru-ink-muted">
             Entity kind
-          </ZoruLabel>
-          <ZoruSelect
+          </Label>
+          <Select
             value={kindFilter}
             onValueChange={(v) => {
               setKindFilter(v);
@@ -397,7 +397,7 @@ export default function CustomModulesPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       }
       bulkBar={
@@ -407,7 +407,7 @@ export default function CustomModulesPage() {
               {selected.size} selected
             </span>
             <span className="text-zoru-ink-muted">·</span>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
@@ -415,32 +415,32 @@ export default function CustomModulesPage() {
             >
               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
               Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('csv')}
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('xlsx')}
             >
               <FileSpreadsheet className="h-3.5 w-3.5" />
               Export XLSX
-            </ZoruButton>
+            </Button>
             <span className="ml-auto" />
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelected(new Set())}
             >
               <X className="h-3.5 w-3.5" />
               Clear
-            </ZoruButton>
+            </Button>
           </div>
         ) : null
       }
@@ -448,12 +448,12 @@ export default function CustomModulesPage() {
     >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Total modules"
             value={kpis.total}
             icon={<Boxes className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Entity kinds"
             value={Object.keys(kpis.by_entity_kind).length}
             period={
@@ -463,25 +463,25 @@ export default function CustomModulesPage() {
             }
             icon={<Layers className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Avg fields / module"
             value={kpis.avg_fields_per_module}
             icon={<Sigma className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Last updated"
             value={formatRelative(kpis.last_updated_at)}
             icon={<Clock className="h-4 w-4" />}
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="w-[40px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
@@ -527,7 +527,7 @@ export default function CustomModulesPage() {
                   pageRows.map((row) => (
                     <ZoruTableRow key={row._id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(row._id)}
                           onCheckedChange={() => toggleOne(row._id)}
                           aria-label={`Select ${row.name}`}
@@ -574,7 +574,7 @@ export default function CustomModulesPage() {
                               <div>{row.description || '—'}</div>
                             </div>
                             <div className="pt-2">
-                              <ZoruButton
+                              <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
@@ -584,15 +584,15 @@ export default function CustomModulesPage() {
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                                 Edit
-                              </ZoruButton>
+                              </Button>
                             </div>
                           </div>
                         </RowDrawer>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                           <code>{row.name}</code>
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                         {row.table || '—'}
@@ -602,7 +602,7 @@ export default function CustomModulesPage() {
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
@@ -612,22 +612,22 @@ export default function CustomModulesPage() {
                             aria-label="Edit"
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setDeletingId(row._id)}
                             aria-label="Delete"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
           <PaginationBar
             page={page}
@@ -641,10 +641,10 @@ export default function CustomModulesPage() {
               },
             }}
           />
-        </ZoruCard>
+        </Card>
 
         {rows.length > 0 && roles.length > 0 ? (
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="border-b border-zoru-line p-5">
               <h2 className="text-[15px] text-zoru-ink">Permission matrix</h2>
               <p className="text-[13px] text-zoru-ink-muted">
@@ -655,7 +655,7 @@ export default function CustomModulesPage() {
               </p>
             </div>
             <div className="overflow-x-auto p-5">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="hover:bg-transparent">
                     <ZoruTableHead className="text-zoru-ink-muted">
@@ -717,13 +717,13 @@ export default function CustomModulesPage() {
                     }),
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         ) : null}
       </div>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
             <ZoruDialogTitle>
@@ -740,10 +740,10 @@ export default function CustomModulesPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <ZoruLabel htmlFor="display_name">
+              <Label htmlFor="display_name">
                 Display name <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="display_name"
                 name="display_name"
                 required
@@ -751,21 +751,21 @@ export default function CustomModulesPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="name">Slug</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="name">Slug</Label>
+              <Input
                 id="name"
                 name="name"
                 defaultValue={editing?.name || ''}
               />
             </div>
             <div>
-              <ZoruLabel>Icon</ZoruLabel>
+              <Label>Icon</Label>
               <input type="hidden" name="icon" value={icon} />
               <ZoruIconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
-              <ZoruLabel htmlFor="table">Table / collection</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="table">Table / collection</Label>
+              <Input
                 id="table"
                 name="table"
                 defaultValue={editing?.table || ''}
@@ -773,8 +773,8 @@ export default function CustomModulesPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="description">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="description">Description</Label>
+              <Textarea
                 id="description"
                 name="description"
                 rows={2}
@@ -782,23 +782,23 @@ export default function CustomModulesPage() {
               />
             </div>
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingId !== null}

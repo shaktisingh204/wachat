@@ -64,14 +64,14 @@ function emptyMethod(): MethodRow {
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="sm" disabled={pending}>
+        <Button type="submit" size="sm" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {pending ? 'Saving…' : label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -166,7 +166,7 @@ export function ShippingZoneForm({
     }
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-5">
                 {zoneId ? (
                     <input type="hidden" name="zoneId" value={zoneId} />
@@ -183,10 +183,10 @@ export function ShippingZoneForm({
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel>
+                        <Label>
                             Storefront <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             value={storefrontId}
                             onChange={(e) => setStorefrontId(e.target.value)}
                             placeholder="Storefront id"
@@ -194,10 +194,10 @@ export function ShippingZoneForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="name">
+                        <Label htmlFor="name">
                             Name <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="name"
                             name="name"
                             type="text"
@@ -207,8 +207,8 @@ export function ShippingZoneForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="countriesField">Countries</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="countriesField">Countries</Label>
+                        <Input
                             id="countriesField"
                             value={countriesText}
                             onChange={(e) => setCountriesText(e.target.value)}
@@ -219,8 +219,8 @@ export function ShippingZoneForm({
                         </p>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="statesField">States (optional)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="statesField">States (optional)</Label>
+                        <Input
                             id="statesField"
                             value={statesText}
                             onChange={(e) => setStatesText(e.target.value)}
@@ -228,8 +228,8 @@ export function ShippingZoneForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="status-select">Status</ZoruLabel>
-                        <ZoruSelect value={status} onValueChange={setStatus}>
+                        <Label htmlFor="status-select">Status</Label>
+                        <Select value={status} onValueChange={setStatus}>
                             <ZoruSelectTrigger
                                 id="status-select"
                                 className="max-w-xs"
@@ -246,14 +246,14 @@ export function ShippingZoneForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Methods</ZoruLabel>
-                        <ZoruButton
+                        <Label>Methods</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -263,7 +263,7 @@ export function ShippingZoneForm({
                         >
                             <Plus className="h-3.5 w-3.5" />
                             Add method
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="flex flex-col gap-3">
                         {methods.map((m, i) => (
@@ -271,14 +271,14 @@ export function ShippingZoneForm({
                                 key={i}
                                 className="grid grid-cols-1 gap-2 rounded-md border border-zoru-line p-3 md:grid-cols-[2fr_1fr_1fr_1fr_auto]"
                             >
-                                <ZoruInput
+                                <Input
                                     placeholder="Method name"
                                     value={m.name}
                                     onChange={(e) =>
                                         updateMethod(i, { name: e.target.value })
                                     }
                                 />
-                                <ZoruSelect
+                                <Select
                                     value={m.kind}
                                     onValueChange={(v) =>
                                         updateMethod(i, { kind: v })
@@ -297,8 +297,8 @@ export function ShippingZoneForm({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
-                                <ZoruInput
+                                </Select>
+                                <Input
                                     type="number"
                                     min="0"
                                     step="0.01"
@@ -308,7 +308,7 @@ export function ShippingZoneForm({
                                         updateMethod(i, { rate: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     type="number"
                                     min="0"
                                     step="0.01"
@@ -320,7 +320,7 @@ export function ShippingZoneForm({
                                         })
                                     }
                                 />
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
@@ -332,7 +332,7 @@ export function ShippingZoneForm({
                                     aria-label="Remove method"
                                 >
                                     <Trash2 className="h-4 w-4" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ))}
                         {methods.length === 0 ? (
@@ -352,7 +352,7 @@ export function ShippingZoneForm({
                     <SubmitButton
                         label={zoneId ? 'Save changes' : 'Create zone'}
                     />
-                    <ZoruButton variant="ghost" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={
                                 zoneId
@@ -363,9 +363,9 @@ export function ShippingZoneForm({
                             <ArrowLeft className="h-4 w-4" />
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

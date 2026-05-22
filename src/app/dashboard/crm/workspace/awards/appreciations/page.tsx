@@ -340,15 +340,15 @@ export default function AppreciationsPage(): React.JSX.Element {
           placeholder: 'Search appreciations…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/workspace/awards/appreciations/new">
               <Plus className="h-4 w-4" /> New appreciation
             </Link>
-          </ZoruButton>
+          </Button>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <Select
               value={filters.awardId}
               onValueChange={(v) => setFilters((p) => ({ ...p, awardId: v }))}
             >
@@ -363,8 +363,8 @@ export default function AppreciationsPage(): React.JSX.Element {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={filters.recipient}
               onValueChange={(v) => setFilters((p) => ({ ...p, recipient: v }))}
             >
@@ -379,8 +379,8 @@ export default function AppreciationsPage(): React.JSX.Element {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={filters.giver}
               onValueChange={(v) => setFilters((p) => ({ ...p, giver: v }))}
             >
@@ -395,15 +395,15 @@ export default function AppreciationsPage(): React.JSX.Element {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruInput
+            </Select>
+            <Input
               type="date"
               value={filters.from}
               onChange={(e) => setFilters((p) => ({ ...p, from: e.target.value }))}
               className="h-9 w-[150px]"
               aria-label="From"
             />
-            <ZoruInput
+            <Input
               type="date"
               value={filters.to}
               onChange={(e) => setFilters((p) => ({ ...p, to: e.target.value }))}
@@ -411,17 +411,17 @@ export default function AppreciationsPage(): React.JSX.Element {
               aria-label="To"
             />
             {filtersActive ? (
-              <ZoruButton variant="ghost" size="sm" onClick={() => setFilters(INITIAL)}>
+              <Button variant="ghost" size="sm" onClick={() => setFilters(INITIAL)}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
             <div className="ml-auto flex gap-1">
-              <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+              <Button variant="ghost" size="sm" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="sm" onClick={exportXlsx}>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exportXlsx}>
                 <Download className="h-3.5 w-3.5" /> XLSX
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         }
@@ -432,20 +432,20 @@ export default function AppreciationsPage(): React.JSX.Element {
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelected(new Set())}
                 >
                   Clear
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => setBulkConfirm(true)}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Delete
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -465,22 +465,22 @@ export default function AppreciationsPage(): React.JSX.Element {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="This month"
               value={kpis.thisMonth}
               icon={<Heart className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Top recipient"
               value={kpis.topRecipient}
               icon={<Trophy className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Top giver"
               value={kpis.topGiver}
               icon={<Users className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="By award type"
               value={typeBreakdown}
               icon={<AwardIcon className="h-4 w-4" />}
@@ -494,7 +494,7 @@ export default function AppreciationsPage(): React.JSX.Element {
               onClick={toggleAll}
               className="inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1 hover:text-zoru-ink"
             >
-              <ZoruCheckbox
+              <Checkbox
                 checked={
                   allSelected ? true : someSelected ? 'indeterminate' : false
                 }
@@ -513,33 +513,33 @@ export default function AppreciationsPage(): React.JSX.Element {
           {/* Feed */}
           <div className="flex flex-col gap-3">
             {visible.length === 0 ? (
-              <ZoruCard className="flex min-h-[120px] items-center justify-center text-sm text-zoru-ink-muted">
+              <Card className="flex min-h-[120px] items-center justify-center text-sm text-zoru-ink-muted">
                 No appreciations match the current filters.
-              </ZoruCard>
+              </Card>
             ) : null}
 
             {visible.map((a) => {
               const award = awardById.get(a.award_id);
               const isSelected = selected.has(a._id);
               return (
-                <ZoruCard
+                <Card
                   key={a._id}
                   className={`flex flex-col gap-2 p-4 ${
                     isSelected ? 'ring-2 ring-zoru-primary' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => toggleOne(a._id)}
                       aria-label="Select appreciation"
                       className="mt-1"
                     />
-                    <ZoruAvatar className="h-9 w-9">
+                    <Avatar className="h-9 w-9">
                       <ZoruAvatarFallback>
                         {initials(a.given_to_user_name, a.given_to_user_id)}
                       </ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                         <EntityRowLink
@@ -567,9 +567,9 @@ export default function AppreciationsPage(): React.JSX.Element {
                           }
                         />
                         {award?.frequency ? (
-                          <ZoruBadge variant="warning" className="capitalize">
+                          <Badge variant="warning" className="capitalize">
                             {award.frequency}
-                          </ZoruBadge>
+                          </Badge>
                         ) : null}
                         <span className="ml-auto inline-flex items-center gap-1 text-[12px] text-zoru-ink-muted">
                           <Calendar className="h-3 w-3" /> {fmtDate(a.given_on)}
@@ -581,16 +581,16 @@ export default function AppreciationsPage(): React.JSX.Element {
                         </p>
                       ) : null}
                     </div>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setDeleteId(a._id)}
                       aria-label="Delete"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                   </div>
-                </ZoruCard>
+                </Card>
               );
             })}
           </div>

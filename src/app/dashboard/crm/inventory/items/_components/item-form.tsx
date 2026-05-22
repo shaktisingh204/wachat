@@ -11,7 +11,7 @@ import { LoaderCircle } from 'lucide-react';
  * <ItemForm> — canonical create + edit form for CRM items per
  * CRM_REBUILD_PLAN §1D.3.
  *
- * Sections (each a `<ZoruCard>`):
+ * Sections (each a `<Card>`):
  *   1. Basic — type, name, SKU, barcode, variant-of, HSN/GST, units,
  *      brand, categories, manufacturer, MPN, country of origin.
  *   2. Description — short/long descriptions, features, key-value specs,
@@ -82,7 +82,7 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       disabled={pending}
       onClick={() => setIntent(intent)}
@@ -92,7 +92,7 @@ function SubmitButton({
         <LoaderCircle className="h-4 w-4 animate-spin" />
       ) : null}
       {label}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -292,7 +292,7 @@ export function ItemForm({ initial }: ItemFormProps) {
       />
 
       <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               f.editing
@@ -302,7 +302,7 @@ export function ItemForm({ initial }: ItemFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton
           label={f.editing ? 'Save changes' : 'Save'}
           intent="save"

@@ -33,7 +33,7 @@ export function TeamGrid({ members, onTaskAssigned }: TeamGridProps) {
     return (
         <>
             {members.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     icon={<Users className="h-8 w-8" />}
                     title="No direct reports"
                     description="You have no direct reports linked to your profile yet."
@@ -41,7 +41,7 @@ export function TeamGrid({ members, onTaskAssigned }: TeamGridProps) {
             ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {members.map((member) => (
-                        <ZoruCard
+                        <Card
                             key={member._id}
                             className="flex flex-col gap-3 p-5"
                             variant="soft"
@@ -51,9 +51,9 @@ export function TeamGrid({ members, onTaskAssigned }: TeamGridProps) {
                                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zoru-primary/10 text-[15px] font-semibold text-zoru-primary">
                                     {initials(member.firstName, member.lastName)}
                                 </div>
-                                <ZoruBadge variant={statusVariant(member.status)} className="text-[11px]">
+                                <Badge variant={statusVariant(member.status)} className="text-[11px]">
                                     {member.status}
-                                </ZoruBadge>
+                                </Badge>
                             </div>
 
                             {/* Name + designation */}
@@ -73,7 +73,7 @@ export function TeamGrid({ members, onTaskAssigned }: TeamGridProps) {
                                 )}
                             </div>
 
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 variant="outline"
                                 className="mt-auto w-full gap-1.5 text-[12.5px]"
@@ -81,8 +81,8 @@ export function TeamGrid({ members, onTaskAssigned }: TeamGridProps) {
                             >
                                 <ClipboardPlus className="h-3.5 w-3.5" />
                                 Assign Task
-                            </ZoruButton>
-                        </ZoruCard>
+                            </Button>
+                        </Card>
                     ))}
                 </div>
             )}

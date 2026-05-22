@@ -87,14 +87,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create debit note'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -192,7 +192,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
     const subTotal = items.reduce((s, it) => s + (it.total || 0), 0);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="debitNoteId" value={initialData!._id} />
@@ -204,8 +204,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="debitNoteNumber">Debit note number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="debitNoteNumber">Debit note number</Label>
+                        <Input
                             id="debitNoteNumber"
                             name="debitNoteNumber"
                             placeholder="DN-…"
@@ -213,7 +213,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <Label htmlFor="status-trigger">Status</Label>
                         <EnumFormField
                             enumName="debitNoteStatusV2"
                             name="__status_picker"
@@ -226,8 +226,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="vendor_id">Vendor id *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="vendor_id">Vendor id *</Label>
+                        <Input
                             id="vendor_id"
                             name="vendor_id"
                             required
@@ -236,8 +236,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="billNumber">Bill number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="billNumber">Bill number</Label>
+                        <Input
                             id="billNumber"
                             name="billNumber"
                             placeholder="Linked bill id"
@@ -245,8 +245,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="date">Date *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="date">Date *</Label>
+                        <Input
                             id="date"
                             name="date"
                             type="date"
@@ -258,7 +258,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="reason-trigger">Reason</ZoruLabel>
+                        <Label htmlFor="reason-trigger">Reason</Label>
                         <EnumFormField
                             enumName="debitNoteReason"
                             name="__reason_picker"
@@ -268,7 +268,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="refundMode-trigger">Refund mode</ZoruLabel>
+                        <Label htmlFor="refundMode-trigger">Refund mode</Label>
                         <EnumFormField
                             enumName="debitNoteRefundMode"
                             name="__refundMode_picker"
@@ -278,8 +278,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -289,8 +289,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="reasonText">Reason detail</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="reasonText">Reason detail</Label>
+                    <Textarea
                         id="reasonText"
                         name="reasonText"
                         rows={2}
@@ -301,15 +301,15 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                 {/* Line items */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Line items *</ZoruLabel>
-                        <ZoruButton
+                        <Label>Line items *</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={addRow}
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add row
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="rounded-lg border border-zoru-line">
                         <div className="grid grid-cols-12 gap-2 border-b border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] font-medium text-zoru-ink-muted">
@@ -326,7 +326,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                 key={i}
                                 className="grid grid-cols-12 gap-2 border-b border-zoru-line px-3 py-2 last:border-b-0"
                             >
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     placeholder="id"
                                     value={row.itemId}
@@ -334,7 +334,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                         updateRow(i, { itemId: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-3"
                                     placeholder="Optional"
                                     value={row.description}
@@ -342,7 +342,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                         updateRow(i, { description: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-1"
                                     type="number"
                                     min={0}
@@ -351,7 +351,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                         updateRow(i, { qty: Number(e.target.value) || 0 })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-1"
                                     placeholder="ea"
                                     value={row.unit}
@@ -359,7 +359,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                         updateRow(i, { unit: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     type="number"
                                     min={0}
@@ -369,7 +369,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                         updateRow(i, { rate: Number(e.target.value) || 0 })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     type="number"
                                     min={0}
@@ -380,7 +380,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                     }
                                 />
                                 <div className="col-span-1 flex items-center justify-end">
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -388,7 +388,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                         disabled={items.length === 1}
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -397,8 +397,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="totalAmount">Total amount</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="totalAmount">Total amount</Label>
+                        <Input
                             id="totalAmount"
                             name="totalAmount"
                             type="number"
@@ -411,8 +411,8 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -423,7 +423,7 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
 
                 {/* Attachments */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Attachments</ZoruLabel>
+                    <Label>Attachments</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton onPick={onAttach}>
                             <FileUp className="mr-1.5 h-4 w-4" />
@@ -450,14 +450,14 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                                     >
                                         {a.name ?? a.fileId ?? a.url}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => removeAttachment(i)}
                                     >
                                         Remove
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -465,15 +465,15 @@ export function DebitNoteForm({ initialData }: DebitNoteFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to debit notes
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -89,9 +89,9 @@ const TYPE_LABEL: Record<PostType, string> = {
 
 function PostStatusBadge({ post }: { post: FacebookPost }) {
   if (post.is_published === false || post.scheduled_publish_time) {
-    return <ZoruBadge variant="warning">Scheduled</ZoruBadge>;
+    return <Badge variant="warning">Scheduled</Badge>;
   }
-  return <ZoruBadge variant="success">Published</ZoruBadge>;
+  return <Badge variant="success">Published</Badge>;
 }
 
 function TypeBadge({ type }: { type: PostType }) {
@@ -104,10 +104,10 @@ function TypeBadge({ type }: { type: PostType }) {
       <Newspaper />
     );
   return (
-    <ZoruBadge variant="ghost">
+    <Badge variant="ghost">
       {icon}
       {TYPE_LABEL[type]}
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -116,20 +116,20 @@ function TypeBadge({ type }: { type: PostType }) {
 function PostsPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-end justify-between">
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-8 w-56" />
-          <ZoruSkeleton className="h-4 w-72" />
+          <Skeleton className="h-8 w-56" />
+          <Skeleton className="h-4 w-72" />
         </div>
-        <ZoruSkeleton className="h-9 w-28" />
+        <Skeleton className="h-9 w-28" />
       </div>
       <div className="mt-6 flex flex-col gap-2">
-        <ZoruSkeleton className="h-10 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </div>
     </div>
   );
@@ -175,7 +175,7 @@ function RowActions({
         projectId={projectId}
         onPostUpdated={onActionComplete}
       />
-      <ZoruButton
+      <Button
         variant="ghost"
         size="icon-sm"
         aria-label="Like"
@@ -183,17 +183,17 @@ function RowActions({
         disabled={isLiking}
       >
         <ThumbsUp />
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="ghost"
         size="icon-sm"
         aria-label="Edit"
         onClick={() => setIsUpdateOpen(true)}
       >
         <Edit />
-      </ZoruButton>
+      </Button>
       {post.permalink_url && (
-        <ZoruButton variant="ghost" size="icon-sm" aria-label="Open" asChild>
+        <Button variant="ghost" size="icon-sm" aria-label="Open" asChild>
           <a
             href={post.permalink_url}
             target="_blank"
@@ -201,7 +201,7 @@ function RowActions({
           >
             <ExternalLink />
           </a>
-        </ZoruButton>
+        </Button>
       )}
       <DeletePostButton
         postId={post.id}
@@ -358,7 +358,7 @@ export default function FacebookPostsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -374,9 +374,9 @@ export default function FacebookPostsPage() {
             <ZoruBreadcrumbPage>Posts</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false} className="mt-5">
+      <PageHeader bordered={false} className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
           <ZoruPageTitle>Page posts</ZoruPageTitle>
@@ -385,13 +385,13 @@ export default function FacebookPostsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 {typeFilter === "all"
                   ? "All types"
                   : TYPE_LABEL[typeFilter as PostType]}
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end" className="w-48">
               <ZoruDropdownMenuLabel>Filter by type</ZoruDropdownMenuLabel>
@@ -414,36 +414,36 @@ export default function FacebookPostsPage() {
                 </ZoruDropdownMenuRadioItem>
               </ZoruDropdownMenuRadioGroup>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
-          <ZoruButton variant="outline" size="sm" onClick={fetchPosts}>
+          </DropdownMenu>
+          <Button variant="outline" size="sm" onClick={fetchPosts}>
             <RefreshCw /> Refresh
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6">
         {!projectId ? (
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <ZoruAlertTitle>No project selected</ZoruAlertTitle>
             <ZoruAlertDescription>
               Please select a project from the main dashboard to view its posts.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : error ? (
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <ZoruAlertTitle>Could not fetch posts</ZoruAlertTitle>
             <ZoruAlertDescription>{error}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : filtered.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Newspaper />}
             title="No posts yet"
             description="We couldn't find any posts on your connected Facebook Page. Create your first one to get started."
           />
         ) : (
-          <ZoruDataTable
+          <DataTable
             columns={columns}
             data={filtered}
             filterColumn="post"

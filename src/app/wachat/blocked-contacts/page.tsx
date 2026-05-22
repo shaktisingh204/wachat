@@ -125,7 +125,7 @@ export default function BlockedContactsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -145,7 +145,7 @@ export default function BlockedContactsPage() {
             <ZoruBreadcrumbPage>Blocked</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-end justify-between gap-6">
         <div>
@@ -156,11 +156,11 @@ export default function BlockedContactsPage() {
             Manage contacts blocked from sending messages to this project.
           </p>
         </div>
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
           <ZoruDialogTrigger asChild>
-            <ZoruButton size="sm">
+            <Button size="sm">
               <Plus /> Block contact
-            </ZoruButton>
+            </Button>
           </ZoruDialogTrigger>
           <ZoruDialogContent>
             <ZoruDialogHeader>
@@ -171,10 +171,10 @@ export default function BlockedContactsPage() {
             </ZoruDialogHeader>
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="block-phone" required>
+                <Label htmlFor="block-phone" required>
                   Phone number
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="block-phone"
                   type="text"
                   value={phone}
@@ -183,8 +183,8 @@ export default function BlockedContactsPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="block-reason">Reason (optional)</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="block-reason">Reason (optional)</Label>
+                <Input
                   id="block-reason"
                   type="text"
                   value={reason}
@@ -194,30 +194,30 @@ export default function BlockedContactsPage() {
               </div>
             </div>
             <ZoruDialogFooter>
-              <ZoruButton variant="outline" onClick={() => setOpen(false)}>
+              <Button variant="outline" onClick={() => setOpen(false)}>
                 Cancel
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="destructive"
                 onClick={handleBlock}
                 disabled={isPending || !phone.trim()}
               >
                 {isPending ? <Loader2 className="animate-spin" /> : <Ban />}
                 Block
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
       </div>
 
       {isLoadingInitial ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-12 w-full" />
+            <Skeleton key={i} className="h-12 w-full" />
           ))}
         </div>
       ) : contacts.length > 0 ? (
-        <ZoruCard className="overflow-x-auto p-0">
+        <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -244,13 +244,13 @@ export default function BlockedContactsPage() {
                   <td className="px-5 py-3 text-right">
                     <ZoruAlertDialog>
                       <ZoruAlertDialogTrigger asChild>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           disabled={isPending}
                         >
                           <ShieldOff /> Unblock
-                        </ZoruButton>
+                        </Button>
                       </ZoruAlertDialogTrigger>
                       <ZoruAlertDialogContent>
                         <ZoruAlertDialogHeader>
@@ -278,9 +278,9 @@ export default function BlockedContactsPage() {
               ))}
             </tbody>
           </table>
-        </ZoruCard>
+        </Card>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Ban />}
           title="No blocked contacts"
           description="Use the Block contact button above to block a phone number from contacting your project."

@@ -193,7 +193,7 @@ export default function FacebookRoadmapPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -209,10 +209,10 @@ export default function FacebookRoadmapPage() {
             <ZoruBreadcrumbPage>Roadmap</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Page header */}
-      <ZoruPageHeader className="mt-4">
+      <PageHeader className="mt-4">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite · What&apos;s next</ZoruPageEyebrow>
           <ZoruPageTitle>Roadmap</ZoruPageTitle>
@@ -221,7 +221,7 @@ export default function FacebookRoadmapPage() {
             what&apos;s coming next for the Meta Suite. Subject to change.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Stat strip */}
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -236,9 +236,9 @@ export default function FacebookRoadmapPage() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
                   <Icon />
                 </span>
-                <ZoruBadge variant={STATUS_BADGE[status]}>
+                <Badge variant={STATUS_BADGE[status]}>
                   {STATUS_LABELS[status]}
-                </ZoruBadge>
+                </Badge>
               </div>
               <p className="mt-3 text-[22px] tracking-tight text-zoru-ink leading-none">
                 {grouped[status].length}
@@ -270,16 +270,16 @@ export default function FacebookRoadmapPage() {
                     {items.length} item{items.length === 1 ? '' : 's'}
                   </p>
                 </div>
-                <ZoruBadge variant={STATUS_BADGE[status]}>
+                <Badge variant={STATUS_BADGE[status]}>
                   {STATUS_LABELS[status]}
-                </ZoruBadge>
+                </Badge>
               </div>
 
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {items.map((item) => {
                   const ItemIcon = item.icon;
                   return (
-                    <ZoruCard
+                    <Card
                       key={item.title}
                       className="flex flex-col gap-3 p-5"
                     >
@@ -287,9 +287,9 @@ export default function FacebookRoadmapPage() {
                         <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
                           <ItemIcon />
                         </span>
-                        <ZoruBadge variant={STATUS_BADGE[item.status]}>
+                        <Badge variant={STATUS_BADGE[item.status]}>
                           {STATUS_LABELS[item.status]}
-                        </ZoruBadge>
+                        </Badge>
                       </div>
                       <div className="flex flex-col gap-1">
                         <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -308,7 +308,7 @@ export default function FacebookRoadmapPage() {
                           ETA · {item.eta}
                         </p>
                       )}
-                    </ZoruCard>
+                    </Card>
                   );
                 })}
               </div>

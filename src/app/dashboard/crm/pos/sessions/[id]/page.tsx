@@ -215,7 +215,7 @@ export default async function PosSessionDetailPage({
             }
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Totals</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -242,8 +242,8 @@ export default async function PosSessionDetailPage({
                                 value={fmtDuration(sessionDuration)}
                             />
                         </ZoruCardContent>
-                    </ZoruCard>
-                    <ZoruCard>
+                    </Card>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Terminal</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -269,15 +269,15 @@ export default async function PosSessionDetailPage({
                                 label="Closed"
                                 value={fmtDateTime(session.closedAt)}
                             />
-                            <ZoruButton size="sm" variant="outline" asChild>
+                            <Button size="sm" variant="outline" asChild>
                                 <Link
                                     href={`/dashboard/crm/pos/terminal?sessionId=${session._id}`}
                                 >
                                     Open terminal
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
         >
@@ -288,7 +288,7 @@ export default async function PosSessionDetailPage({
                 <>
                     {/* Mini KPI strip */}
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardContent className="flex items-start justify-between p-3.5">
                                 <div>
                                     <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -300,8 +300,8 @@ export default async function PosSessionDetailPage({
                                 </div>
                                 <Banknote className="h-4 w-4 text-zoru-ink-muted" />
                             </ZoruCardContent>
-                        </ZoruCard>
-                        <ZoruCard>
+                        </Card>
+                        <Card>
                             <ZoruCardContent className="flex items-start justify-between p-3.5">
                                 <div>
                                     <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -313,8 +313,8 @@ export default async function PosSessionDetailPage({
                                 </div>
                                 <Receipt className="h-4 w-4 text-zoru-ink-muted" />
                             </ZoruCardContent>
-                        </ZoruCard>
-                        <ZoruCard>
+                        </Card>
+                        <Card>
                             <ZoruCardContent className="flex items-start justify-between p-3.5">
                                 <div>
                                     <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -326,8 +326,8 @@ export default async function PosSessionDetailPage({
                                 </div>
                                 <Receipt className="h-4 w-4 text-zoru-ink-muted" />
                             </ZoruCardContent>
-                        </ZoruCard>
-                        <ZoruCard>
+                        </Card>
+                        <Card>
                             <ZoruCardContent className="flex items-start justify-between p-3.5">
                                 <div>
                                     <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -339,10 +339,10 @@ export default async function PosSessionDetailPage({
                                 </div>
                                 <RefreshCcw className="h-4 w-4 text-zoru-ink-muted" />
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </div>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Session details</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -402,20 +402,20 @@ export default async function PosSessionDetailPage({
                                 </div>
                             ) : null}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             ) : null}
 
             {/* TRANSACTIONS TAB */}
             {tab === 'transactions' ? (
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <ZoruCardHeader>
                         <ZoruCardTitle>
                             Transactions ({transactions.length})
                         </ZoruCardTitle>
                     </ZoruCardHeader>
                     <div className="overflow-x-auto">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead>Number</ZoruTableHead>
@@ -469,15 +469,15 @@ export default async function PosSessionDetailPage({
                                     ))
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* RECONCILIATION TAB */}
             {tab === 'reconciliation' ? (
                 <div className="flex flex-col gap-3">
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Cash reconciliation</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -530,14 +530,14 @@ export default async function PosSessionDetailPage({
                                 value={fmtMoney(refundTotal)}
                             />
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard className="p-0">
+                    <Card className="p-0">
                         <ZoruCardHeader>
                             <ZoruCardTitle>Refunds this session</ZoruCardTitle>
                         </ZoruCardHeader>
                         <div className="overflow-x-auto">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         <ZoruTableHead>Original txn</ZoruTableHead>
@@ -577,9 +577,9 @@ export default async function PosSessionDetailPage({
                                                     {fmtMoney(r.refundTotal)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant="default">
+                                                    <Badge variant="default">
                                                         {r.status}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     {fmtDateTime(r.processedAt)}
@@ -588,9 +588,9 @@ export default async function PosSessionDetailPage({
                                         ))
                                     )}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
 
                     {transactions.length > 0 ? (
                         <p className="text-[12px] text-zoru-ink-muted">
@@ -609,7 +609,7 @@ export default async function PosSessionDetailPage({
 
             {/* ACTIVITY TAB */}
             {tab === 'activity' ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Activity</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -620,7 +620,7 @@ export default async function PosSessionDetailPage({
                             limit={100}
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

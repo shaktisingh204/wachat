@@ -59,30 +59,30 @@ export default async function EmailTemplateDetailPage({
             status={{ label: status, tone }}
             back={{ href: BASE, label: 'Email Templates' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${templateId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
                     <StatusPill label={status} tone={tone} />
                     {template.isActive ? (
-                        <ZoruBadge variant="success">In picker</ZoruBadge>
+                        <Badge variant="success">In picker</Badge>
                     ) : (
-                        <ZoruBadge variant="ghost">Hidden</ZoruBadge>
+                        <Badge variant="ghost">Hidden</Badge>
                     )}
                     {template.category ? (
-                        <ZoruBadge variant="outline" className="capitalize">
+                        <Badge variant="outline" className="capitalize">
                             {template.category}
-                        </ZoruBadge>
+                        </Badge>
                     ) : null}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -95,44 +95,44 @@ export default async function EmailTemplateDetailPage({
                         <div className="text-zoru-ink">{fmtDate(template.updatedAt)}</div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Variables */}
             {variables.length > 0 ? (
-                <ZoruCard className="p-4">
+                <Card className="p-4">
                     <div className="mb-2 text-[13px] font-medium text-zoru-ink">
                         Merge variables
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {variables.map((v) => (
-                            <ZoruBadge key={v} variant="outline" className="font-mono">
+                            <Badge key={v} variant="outline" className="font-mono">
                                 {`{{${v}}}`}
-                            </ZoruBadge>
+                            </Badge>
                         ))}
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* HTML body preview */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Body (HTML source)
                 </div>
                 <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-mono text-[12.5px] text-zoru-ink">
                     {template.body}
                 </pre>
-            </ZoruCard>
+            </Card>
 
             {/* Plain text fallback */}
             {template.textBody ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Plain-text fallback
                     </div>
                     <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 text-[12.5px] text-zoru-ink">
                         {template.textBody}
                     </pre>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

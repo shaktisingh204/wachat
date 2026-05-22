@@ -23,15 +23,15 @@ export default function ReverseImageSearchPage() {
   return (
     <ToolShell title="Reverse Image Search" description="Search for an image across multiple reverse-image engines.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
-        <ZoruButton onClick={() => setSubmitted(url)}>Search</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
+        <Button onClick={() => setSubmitted(url)}>Search</Button>
       </div>
       {links.length > 0 && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-2">
+        <Card><ZoruCardContent className="p-4 space-y-2">
           {links.map((l) => (
             <a key={l.name} className="block text-sm text-blue-600 hover:underline" target="_blank" rel="noopener" href={l.href}>🔗 Search on {l.name}</a>
           ))}
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

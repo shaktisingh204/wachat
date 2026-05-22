@@ -340,11 +340,11 @@ function FlowBuilder({ flowId }: { flowId: string }) {
   if (!activeProjectId) {
     return (
       <div className="flex h-full w-full items-center justify-center p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<LuCircleAlert className="h-10 w-10" />}
           title="No project selected"
           description="Please select a project from the main dashboard to use the flow builder."
-          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
       </div>
     );
@@ -365,7 +365,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             Back
           </Link>
           <div className="h-6 w-px bg-border" />
-          <ZoruInput
+          <Input
             value={flowName}
             onChange={(e) => setFlowName(e.target.value)}
             className="h-9 w-[260px] rounded-[10px] border-border bg-card font-semibold text-foreground"
@@ -382,7 +382,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
               <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {isPaused ? 'Paused' : 'Active'}
               </span>
-              <ZoruSwitch
+              <Switch
                 checked={!isPaused}
                 onCheckedChange={(checked) =>
                   setCurrentFlow({
@@ -396,30 +396,30 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => window.open('/wachat/flow-builder/docs', '_blank')}
           >
             <LuBookOpen className="h-3.5 w-3.5" />
             Docs
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setIsSettingsOpen(true)}
           >
             <LuSettings2 className="h-3.5 w-3.5" />
             Settings
-          </ZoruButton>
-          <ZoruButton onClick={handleSave} disabled={isSaving}>
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
               <LuLoader className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <LuSave className="h-3.5 w-3.5" />
             )}
             {isSaving ? 'Saving…' : 'Save flow'}
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
@@ -469,7 +469,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
 
             {/* Floating Add-Block FAB (top-left) */}
             <Panel position="top-left" className="m-4">
-              <ZoruPopover>
+              <Popover>
                 <ZoruPopoverTrigger asChild>
                   <button
                     type="button"
@@ -492,13 +492,13 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                       Drag a block onto the canvas to add it to your flow.
                     </p>
                   </div>
-                  <ZoruScrollArea className="h-[460px]">
+                  <ScrollArea className="h-[460px]">
                     <div className="p-4">
                       <Sidebar className="w-full" />
                     </div>
-                  </ZoruScrollArea>
+                  </ScrollArea>
                 </ZoruPopoverContent>
-              </ZoruPopover>
+              </Popover>
             </Panel>
 
             {/* Flow status footer — shown when empty or just start node */}
@@ -531,7 +531,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
 
       {/* Properties panel — mobile sheet (only rendered below md breakpoint) */}
       <div className="md:hidden">
-        <ZoruSheet open={isPropsOpen && !!selectedNode} onOpenChange={setIsPropsOpen}>
+        <Sheet open={isPropsOpen && !!selectedNode} onOpenChange={setIsPropsOpen}>
           <ZoruSheetContent
             side="right"
             className="w-full p-0 sm:max-w-md"
@@ -548,7 +548,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
               />
             ) : null}
           </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
       </div>
     </div>
   );
@@ -604,7 +604,7 @@ function FlowSettingsDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-[480px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
         <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
@@ -623,13 +623,13 @@ function FlowSettingsDialog({
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-5 px-6 py-5">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel
+              <Label
                 htmlFor="flow-name"
                 className="text-[11.5px] font-semibold text-muted-foreground"
               >
                 Flow name <span className="ml-1 text-destructive">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="flow-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -639,13 +639,13 @@ function FlowSettingsDialog({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel
+              <Label
                 htmlFor="flow-keywords"
                 className="text-[11.5px] font-semibold text-muted-foreground"
               >
                 Trigger keywords
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="flow-keywords"
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
@@ -659,17 +659,17 @@ function FlowSettingsDialog({
           </div>
 
           <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit">Save changes</ZoruButton>
+            </Button>
+            <Button type="submit">Save changes</Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

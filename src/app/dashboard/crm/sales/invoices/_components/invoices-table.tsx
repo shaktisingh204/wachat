@@ -220,15 +220,15 @@ export function InvoicesTable({
                     {fmtDate(inv.createdAt)}
                   </td>
                   <td className={`${cell} text-right align-middle`}>
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton
+                        <Button
                           size="sm"
                           variant="ghost"
                           aria-label="Row actions"
                         >
                           <MoreHorizontal className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruDropdownMenuTrigger>
                       <ZoruDropdownMenuContent>
                         <ZoruDropdownMenuItem asChild>
@@ -266,7 +266,7 @@ export function InvoicesTable({
                           </Link>
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                   </td>
                 </tr>
               );

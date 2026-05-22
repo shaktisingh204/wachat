@@ -91,10 +91,10 @@ export function CrmProductCard({ product, currency, onEdit, onDelete, shopSlug }
                 </div>
             </div>
             <div className="p-4 flex justify-end gap-2 border-t border-border">
-                <ZoruButton variant="outline" size="sm" onClick={onEdit} leading={<Edit className="h-4 w-4" />}>Edit</ZoruButton>
+                <Button variant="outline" size="sm" onClick={onEdit} leading={<Edit className="h-4 w-4" />}>Edit</Button>
                 <ZoruAlertDialog>
                     <ZoruAlertDialogTrigger asChild>
-                        <ZoruButton size="sm" leading={<Trash2 className="h-4 w-4" />}>Delete</ZoruButton>
+                        <Button size="sm" leading={<Trash2 className="h-4 w-4" />}>Delete</Button>
                     </ZoruAlertDialogTrigger>
                     <ZoruAlertDialogContent>
                         <ZoruAlertDialogHeader><ZoruAlertDialogTitle className="text-foreground">Delete Product?</ZoruAlertDialogTitle><ZoruAlertDialogDescription className="text-muted-foreground">This will permanently delete "{product.name}".</ZoruAlertDialogDescription></ZoruAlertDialogHeader>

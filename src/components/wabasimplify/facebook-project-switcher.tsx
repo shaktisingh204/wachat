@@ -49,31 +49,31 @@ export function FacebookProjectSwitcher({ projects, activeProject }: FacebookPro
     }
 
     return (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="ghost" className="flex items-center gap-2">
-                    <ZoruAvatar className="h-8 w-8">
+                <Button variant="ghost" className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
                         <ZoruAvatarImage src={`https://graph.facebook.com/${activeProject.facebookPageId}/picture?type=square`} alt={activeProject.name} />
                         <ZoruAvatarFallback>{activeProject.name.charAt(0)}</ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <span className="hidden md:inline font-semibold">{activeProject.name}</span>
                     <ChevronsUpDown className="h-4 w-4 opacity-50" />
-                </ZoruButton>
+                </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start">
                 <ZoruDropdownMenuLabel>Switch Project</ZoruDropdownMenuLabel>
                 <ZoruDropdownMenuSeparator />
                 {projects.map(project => (
                     <ZoruDropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
-                        <ZoruAvatar className="h-6 w-6 mr-2">
+                        <Avatar className="h-6 w-6 mr-2">
                             <ZoruAvatarImage src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=square`} alt={project.name} />
                             <ZoruAvatarFallback>{project.name.charAt(0)}</ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <span>{project.name}</span>
                         {project._id.toString() === activeProject._id.toString() && <Check className="ml-auto h-4 w-4" />}
                     </ZoruDropdownMenuItem>
                 ))}
             </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
     );
 }

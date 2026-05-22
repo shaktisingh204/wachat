@@ -123,12 +123,12 @@ export function PayoutFiltersRow(props: PayoutFiltersRowProps) {
                     />
                 </div>
                 {props.hasActiveFilters ? (
-                    <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                    <Button variant="ghost" size="sm" onClick={props.onClear}>
                         <X className="h-3.5 w-3.5" /> Clear
-                    </ZoruButton>
+                    </Button>
                 ) : null}
                 {props.hasActiveFilters ? (
-                    <ZoruBadge variant="secondary">Filters active</ZoruBadge>
+                    <Badge variant="secondary">Filters active</Badge>
                 ) : null}
             </div>
         </div>

@@ -108,11 +108,11 @@ export default async function PayoutDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this payout — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/purchases/payouts">
               <ArrowLeft className="h-4 w-4" /> Back to Payouts
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -136,23 +136,23 @@ export default async function PayoutDetailPage({
       back={{ href: '/dashboard/crm/purchases/payouts', label: 'All payouts' }}
       actions={
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruButton variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href={`/dashboard/crm/purchases/payouts/${id}/activity`}>
               <Activity className="h-4 w-4" /> Activity
             </Link>
-          </ZoruButton>
+          </Button>
           <PayoutDetailActions id={id} currentStatus={status} />
-          <ZoruButton variant="outline" size="sm" disabled title="Coming soon">
+          <Button variant="outline" size="sm" disabled title="Coming soon">
             <Printer className="h-4 w-4" /> Print
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" disabled title="Coming soon">
+          </Button>
+          <Button variant="outline" size="sm" disabled title="Coming soon">
             <Mail className="h-4 w-4" /> Email
-          </ZoruButton>
-          <ZoruButton size="sm" asChild>
+          </Button>
+          <Button size="sm" asChild>
             <Link href={`/dashboard/crm/purchases/payouts/${id}/edit`}>
               <Pencil className="h-4 w-4" /> Edit
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       }
       rightRail={
@@ -174,7 +174,7 @@ export default async function PayoutDetailPage({
             }
           />
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Money summary</ZoruCardTitle>
             </ZoruCardHeader>
@@ -200,20 +200,20 @@ export default async function PayoutDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link href={`/dashboard/crm/purchases/payouts/${id}/activity`}>
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={<EntityAuditTimeline entityKind="payout" entityId={id} />}
     >
       {/* Header card */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Header</ZoruCardTitle>
         </ZoruCardHeader>
@@ -245,10 +245,10 @@ export default async function PayoutDetailPage({
             <Field label="Reference">{payout.reference || '—'}</Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Applied bills */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>
             Applied to bills ({payout.applyTo?.length ?? 0})
@@ -280,10 +280,10 @@ export default async function PayoutDetailPage({
             </p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Deductions + notes */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Deductions &amp; notes</ZoruCardTitle>
         </ZoruCardHeader>
@@ -313,7 +313,7 @@ export default async function PayoutDetailPage({
             </div>
           ) : null}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(payout.createdAt || payout.audit?.createdAt)} ·

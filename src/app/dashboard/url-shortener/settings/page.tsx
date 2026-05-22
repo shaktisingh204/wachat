@@ -118,11 +118,11 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
 function ContinueButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending} className="gap-2">
+    <Button type="submit" disabled={pending} className="gap-2">
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       Continue
       {!pending && <ArrowRight className="h-4 w-4" />}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -153,7 +153,7 @@ function DnsRecordCard({
           <p className="text-sm font-mono text-zoru-ink break-all">{value}</p>
         </div>
         <div className="px-3 py-2 flex items-center justify-center bg-zoru-bg">
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon"
             type="button"
@@ -161,7 +161,7 @@ function DnsRecordCard({
             className="h-7 w-7"
           >
             <Copy className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
       <div className="px-3 py-1.5 border-t border-zoru-line bg-zoru-surface-2">
@@ -188,10 +188,10 @@ function VerifyButton({ domainId, onActionComplete }: { domainId: string; onActi
   };
 
   return (
-    <ZoruButton onClick={onVerify} size="sm" disabled={isPending}>
+    <Button onClick={onVerify} size="sm" disabled={isPending}>
       {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
       Verify DNS
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -212,9 +212,9 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string; onActi
   };
 
   return (
-    <ZoruButton variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>
+    <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>
       {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-zoru-danger-ink" />}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -299,7 +299,7 @@ export default function UrlShortenerSettingsPage() {
         <p className="text-zoru-ink-muted">Configure custom domains and developer settings for your short links.</p>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" /> Custom Domains
@@ -319,13 +319,13 @@ export default function UrlShortenerSettingsPage() {
                 <p className="text-base font-medium text-zoru-ink">Connect a custom domain</p>
                 <p className="text-sm text-zoru-ink-muted mt-1">Use your own domain for branded short links</p>
               </div>
-              <ZoruButton
+              <Button
                 type="button"
                 onClick={() => setStepper({ step: 1, hostname: '' })}
                 className="mt-1 gap-2"
               >
                 Add Domain <ArrowRight className="h-4 w-4" />
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
@@ -350,8 +350,8 @@ export default function UrlShortenerSettingsPage() {
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <ZoruLabel htmlFor="hostname-stepper">Domain</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="hostname-stepper">Domain</Label>
+                    <Input
                       id="hostname-stepper"
                       name="hostname"
                       placeholder="links.yourbrand.com"
@@ -372,14 +372,14 @@ export default function UrlShortenerSettingsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 pt-1">
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       onClick={resetStepper}
                       className="gap-1.5"
                     >
                       Cancel
-                    </ZoruButton>
+                    </Button>
                     <ContinueButton />
                   </div>
                 </form>
@@ -427,24 +427,24 @@ export default function UrlShortenerSettingsPage() {
                     )}
                   </div>
 
-                  <ZoruAlert className="border-blue-500/30 bg-blue-500/10">
+                  <Alert className="border-blue-500/30 bg-blue-500/10">
                     <AlertTriangle className="h-4 w-4 text-blue-400" />
                     <ZoruAlertTitle className="text-blue-300">DNS Propagation</ZoruAlertTitle>
                     <ZoruAlertDescription className="text-blue-300/80">
                       DNS changes typically propagate within 5–30 minutes. You can verify once the records are live.
                     </ZoruAlertDescription>
-                  </ZoruAlert>
+                  </Alert>
 
                   <div className="flex items-center gap-3 pt-1">
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       onClick={() => setStepper({ step: 1, hostname: stepper.hostname })}
                       className="gap-1.5"
                     >
                       <ArrowLeft className="h-4 w-4" /> Back
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       type="button"
                       onClick={() =>
                         setStepper({
@@ -457,7 +457,7 @@ export default function UrlShortenerSettingsPage() {
                       className="gap-2"
                     >
                       I've added the records <ArrowRight className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -482,9 +482,9 @@ export default function UrlShortenerSettingsPage() {
                           {stepper.hostname} is now active and ready for short links.
                         </p>
                       </div>
-                      <ZoruButton type="button" onClick={resetStepper} className="mt-1">
+                      <Button type="button" onClick={resetStepper} className="mt-1">
                         Done
-                      </ZoruButton>
+                      </Button>
                     </div>
                   ) : (
                     <>
@@ -501,17 +501,17 @@ export default function UrlShortenerSettingsPage() {
                       </div>
 
                       {stepper.verifyError && (
-                        <ZoruAlert className="border-zoru-danger/40 bg-zoru-danger/10">
+                        <Alert className="border-zoru-danger/40 bg-zoru-danger/10">
                           <AlertTriangle className="h-4 w-4 text-zoru-danger-ink" />
                           <ZoruAlertTitle className="text-zoru-danger-ink">Verification failed</ZoruAlertTitle>
                           <ZoruAlertDescription className="text-zoru-danger-ink/80">
                             DNS records may not have propagated yet. Wait a few minutes and try again.
                           </ZoruAlertDescription>
-                        </ZoruAlert>
+                        </Alert>
                       )}
 
                       <div className="flex items-center gap-3 pt-1">
-                        <ZoruButton
+                        <Button
                           type="button"
                           variant="ghost"
                           onClick={() =>
@@ -525,8 +525,8 @@ export default function UrlShortenerSettingsPage() {
                           className="gap-1.5"
                         >
                           <ArrowLeft className="h-4 w-4" /> Back to DNS Instructions
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           type="button"
                           onClick={handleVerify}
                           disabled={isVerifying}
@@ -534,7 +534,7 @@ export default function UrlShortenerSettingsPage() {
                         >
                           {isVerifying && <LoaderCircle className="h-4 w-4 animate-spin" />}
                           Verify Domain
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </>
                   )}
@@ -543,11 +543,11 @@ export default function UrlShortenerSettingsPage() {
             </div>
           )}
 
-          <ZoruSeparator />
+          <Separator />
           <div className="space-y-4">
             <h4 className="text-zoru-ink">Your Domains</h4>
             {isLoading ? (
-              <ZoruSkeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
             ) : domains.length > 0 ? (
               domains.map((domain) => (
                 <div
@@ -558,31 +558,31 @@ export default function UrlShortenerSettingsPage() {
                     <div className="flex items-center gap-2">
                       <p className="text-lg text-zoru-ink">{domain.hostname}</p>
                       {domain.verified ? (
-                        <ZoruBadge variant="success">
+                        <Badge variant="success">
                           <CheckCircle className="mr-1 h-3 w-3" /> Verified
-                        </ZoruBadge>
+                        </Badge>
                       ) : (
-                        <ZoruBadge variant="danger">Unverified</ZoruBadge>
+                        <Badge variant="danger">Unverified</Badge>
                       )}
                     </div>
                     <DeleteButton domainId={domain._id.toString()} onActionComplete={fetchData} />
                   </div>
 
                   {!domain.verified && (
-                    <ZoruAlert className="border-zoru-warning/40 bg-zoru-warning/10">
+                    <Alert className="border-zoru-warning/40 bg-zoru-warning/10">
                       <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
                       <ZoruAlertTitle className="text-zoru-warning-ink">Action Required: Verify Domain Ownership</ZoruAlertTitle>
                       <ZoruAlertDescription className="text-zoru-warning-ink mt-2">
                         Please add a <strong>TXT record</strong> to your DNS configuration to verify you own this domain.
                         <div className="mt-3 p-3 bg-zoru-bg rounded border border-zoru-warning/40 flex items-center justify-between gap-4">
                           <code className="font-mono text-xs">{domain.verificationCode}</code>
-                          <ZoruButton variant="ghost" size="sm" onClick={() => copy(domain.verificationCode)}>
+                          <Button variant="ghost" size="sm" onClick={() => copy(domain.verificationCode)}>
                             <Copy className="h-3 w-3" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                         <p className="text-xs mt-2">After adding the record, click 'Verify DNS'. Record propagation usually takes a few minutes.</p>
                       </ZoruAlertDescription>
-                    </ZoruAlert>
+                    </Alert>
                   )}
 
                   {domain.verified ? (
@@ -609,9 +609,9 @@ export default function UrlShortenerSettingsPage() {
             )}
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" /> Developer Options
@@ -620,22 +620,22 @@ export default function UrlShortenerSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="apiKey">API Key (Read-only)</ZoruLabel>
+            <Label htmlFor="apiKey">API Key (Read-only)</Label>
             <div className="flex gap-2">
-              <ZoruInput id="apiKey" name="apiKey" value="sk_live_********************************" disabled />
-              <ZoruButton type="button" variant="outline" disabled>
+              <Input id="apiKey" name="apiKey" value="sk_live_********************************" disabled />
+              <Button type="button" variant="outline" disabled>
                 Regenerate
-              </ZoruButton>
+              </Button>
             </div>
             <p className="text-xs text-zoru-ink-muted">API access for creating short links is currently in closed beta.</p>
           </div>
         </ZoruCardContent>
         <ZoruCardFooter>
-          <ZoruButton type="button" variant="outline" disabled>
+          <Button type="button" variant="outline" disabled>
             <BookOpen className="mr-2 h-4 w-4" /> View API Docs
-          </ZoruButton>
+          </Button>
         </ZoruCardFooter>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

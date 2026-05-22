@@ -95,7 +95,7 @@ export function ZoruFilePicker({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-3xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>{title}</ZoruDialogTitle>
@@ -124,7 +124,7 @@ export function ZoruFilePicker({
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative flex-1 min-w-[180px]">
-                <ZoruInput
+                <Input
                   placeholder="Search by name…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -134,14 +134,14 @@ export function ZoruFilePicker({
               <div className="flex flex-wrap gap-1.5">
                 {TAGS.filter((t) => accept === "all" || t.id === "all" || t.id === accept).map(
                   (t) => (
-                    <ZoruButton
+                    <Button
                       key={t.id}
                       size="sm"
                       variant={tag === t.id ? "default" : "outline"}
                       onClick={() => setTag(t.id)}
                     >
                       {t.label}
-                    </ZoruButton>
+                    </Button>
                   ),
                 )}
               </div>
@@ -209,12 +209,12 @@ export function ZoruFilePicker({
         )}
 
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -273,7 +273,7 @@ function UploadDropzone({
           e.target.value = "";
         }}
       />
-      <ZoruButton
+      <Button
         size="sm"
         variant="default"
         onClick={() => inputRef.current?.click()}
@@ -287,7 +287,7 @@ function UploadDropzone({
         ) : (
           "Choose file"
         )}
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

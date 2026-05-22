@@ -6,7 +6,7 @@ import { JourneysClient } from '@/components/email/journeys/journeys-client';
 export default function EmailJourneysPage() {
   return (
     <EmailSuiteLayout>
-      <Suspense fallback={<ZoruSkeleton className="h-96 w-full" />}>
+      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
         <JourneysClient />
       </Suspense>
     </EmailSuiteLayout>

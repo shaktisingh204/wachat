@@ -58,14 +58,14 @@ const STATUSES = [
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="sm" disabled={pending}>
+        <Button type="submit" size="sm" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {pending ? 'Saving…' : label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -153,7 +153,7 @@ export function ProductForm({
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-5">
                 {productId ? (
                     <input
@@ -184,10 +184,10 @@ export function ProductForm({
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel>
+                        <Label>
                             Storefront <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             value={storefrontId}
                             onChange={(e) => setStorefrontId(e.target.value)}
                             placeholder="Storefront id"
@@ -199,7 +199,7 @@ export function ProductForm({
                         </p>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel>Linked CRM item</ZoruLabel>
+                        <Label>Linked CRM item</Label>
                         <EntityFormField
                             entity="item"
                             name="itemId_picker"
@@ -209,8 +209,8 @@ export function ProductForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="sku">SKU</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="sku">SKU</Label>
+                        <Input
                             id="sku"
                             name="sku"
                             type="text"
@@ -219,10 +219,10 @@ export function ProductForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="title">
+                        <Label htmlFor="title">
                             Title <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="title"
                             name="title"
                             type="text"
@@ -234,8 +234,8 @@ export function ProductForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={4}
@@ -245,7 +245,7 @@ export function ProductForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel>Images</ZoruLabel>
+                    <Label>Images</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="image"
@@ -288,8 +288,8 @@ export function ProductForm({
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="price">Price</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="price">Price</Label>
+                        <Input
                             id="price"
                             name="price"
                             type="number"
@@ -302,10 +302,10 @@ export function ProductForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="compareAtPrice">
+                        <Label htmlFor="compareAtPrice">
                             Compare-at price
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="compareAtPrice"
                             name="compareAtPrice"
                             type="number"
@@ -319,8 +319,8 @@ export function ProductForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="currency-select">Currency</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="currency-select">Currency</Label>
+                        <Select
                             value={currency}
                             onValueChange={setCurrency}
                         >
@@ -334,30 +334,30 @@ export function ProductForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <ZoruCheckbox
+                    <Checkbox
                         id="inventoryTracked"
                         checked={inventoryTracked}
                         onCheckedChange={(checked) =>
                             setInventoryTracked(Boolean(checked))
                         }
                     />
-                    <ZoruLabel
+                    <Label
                         htmlFor="inventoryTracked"
                         className="cursor-pointer"
                     >
                         Track inventory for this product
-                    </ZoruLabel>
+                    </Label>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="categoriesField">Categories</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="categoriesField">Categories</Label>
+                        <Input
                             id="categoriesField"
                             value={categoriesText}
                             onChange={(e) =>
@@ -370,8 +370,8 @@ export function ProductForm({
                         </p>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
                             id="tags"
                             name="tags"
                             type="text"
@@ -385,8 +385,8 @@ export function ProductForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="status-select">Status</ZoruLabel>
-                    <ZoruSelect value={status} onValueChange={setStatus}>
+                    <Label htmlFor="status-select">Status</Label>
+                    <Select value={status} onValueChange={setStatus}>
                         <ZoruSelectTrigger
                             id="status-select"
                             className="max-w-xs"
@@ -400,7 +400,7 @@ export function ProductForm({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 {state.error ? (
@@ -411,7 +411,7 @@ export function ProductForm({
                     <SubmitButton
                         label={productId ? 'Save changes' : 'Create product'}
                     />
-                    <ZoruButton variant="ghost" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={
                                 productId
@@ -422,9 +422,9 @@ export function ProductForm({
                             <ArrowLeft className="h-4 w-4" />
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

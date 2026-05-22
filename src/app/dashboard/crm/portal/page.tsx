@@ -95,10 +95,10 @@ export default async function CustomerPortalPage() {
       subtitle="Self-service portal where customers see invoices, tickets and documents."
       primaryAction={
         <Link href="/dashboard/crm/portal/new">
-          <ZoruButton variant="outline">
+          <Button variant="outline">
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             New portal user
-          </ZoruButton>
+          </Button>
         </Link>
       }
     >

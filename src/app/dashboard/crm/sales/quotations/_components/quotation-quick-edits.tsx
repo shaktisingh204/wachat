@@ -128,7 +128,7 @@ export function QuotationQuickEdits({
         <div className="flex items-center justify-between gap-2">
           <dt className="text-zoru-ink-muted">Status</dt>
           <dd>
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
                 <button
                   type="button"
@@ -145,18 +145,18 @@ export function QuotationQuickEdits({
                   </ZoruDropdownMenuItem>
                 ))}
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </dd>
         </div>
       </dl>
 
-      <ZoruDialog open={agentDialogOpen} onOpenChange={setAgentDialogOpen}>
+      <Dialog open={agentDialogOpen} onOpenChange={setAgentDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Change sales agent</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="space-y-2 py-2">
-            <ZoruLabel>Sales agent</ZoruLabel>
+            <Label>Sales agent</Label>
             <EntityFormField
               entity="user"
               name="_agent"
@@ -165,13 +165,13 @@ export function QuotationQuickEdits({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setAgentDialogOpen(false)}>
+            <Button variant="ghost" onClick={() => setAgentDialogOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={() => void commitAgent()}>Save</ZoruButton>
+            </Button>
+            <Button onClick={() => void commitAgent()}>Save</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }

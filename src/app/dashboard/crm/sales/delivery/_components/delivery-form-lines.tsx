@@ -47,9 +47,9 @@ export function DcLineItemsTable({
         <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Line items
         </h3>
-        <ZoruButton type="button" variant="outline" size="sm" onClick={onAdd}>
+        <Button type="button" variant="outline" size="sm" onClick={onAdd}>
           <Plus className="h-3.5 w-3.5" /> Add line
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="overflow-x-auto rounded-md border border-zoru-line">
@@ -95,7 +95,7 @@ export function DcLineItemsTable({
                       });
                     }}
                   />
-                  <ZoruInput
+                  <Input
                     value={row.name}
                     onChange={(e) => onPatch(row.id, { name: e.target.value })}
                     placeholder="Item description"
@@ -104,7 +104,7 @@ export function DcLineItemsTable({
                   />
                 </td>
                 <td className="p-2">
-                  <ZoruInput
+                  <Input
                     value={row.hsnCode ?? ''}
                     onChange={(e) => onPatch(row.id, { hsnCode: e.target.value })}
                     placeholder="e.g. 998314"
@@ -113,7 +113,7 @@ export function DcLineItemsTable({
                   />
                 </td>
                 <td className="p-2">
-                  <ZoruInput
+                  <Input
                     type="number"
                     min={0}
                     step="any"
@@ -134,7 +134,7 @@ export function DcLineItemsTable({
                   />
                 </td>
                 <td className="p-2">
-                  <ZoruInput
+                  <Input
                     value={row.batch ?? ''}
                     onChange={(e) => onPatch(row.id, { batch: e.target.value })}
                     placeholder="Batch #"
@@ -143,7 +143,7 @@ export function DcLineItemsTable({
                   />
                 </td>
                 <td className="p-2">
-                  <ZoruInput
+                  <Input
                     type="date"
                     value={row.expiry ?? ''}
                     onChange={(e) => onPatch(row.id, { expiry: e.target.value })}
@@ -151,7 +151,7 @@ export function DcLineItemsTable({
                   />
                 </td>
                 <td className="p-2">
-                  <ZoruTextarea
+                  <Textarea
                     rows={2}
                     value={row.serialNumbersText ?? ''}
                     onChange={(e) =>
@@ -162,7 +162,7 @@ export function DcLineItemsTable({
                   />
                 </td>
                 <td className="p-2 text-right">
-                  <ZoruButton
+                  <Button
                     type="button"
                     size="sm"
                     variant="ghost"
@@ -171,7 +171,7 @@ export function DcLineItemsTable({
                     className="text-zoru-danger-ink"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                  </ZoruButton>
+                  </Button>
                 </td>
               </tr>
             ))}

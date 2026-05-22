@@ -52,7 +52,7 @@ export function EmailListsClient() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -64,19 +64,19 @@ export function EmailListsClient() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             onClick={() => { setEditing(null); setDrawerOpen(true); }}
           >
             <Plus className="h-4 w-4" /> New list
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loading ? (
         <div className="space-y-2">
-          <ZoruSkeleton className="h-12 w-full" />
-          <ZoruSkeleton className="h-12 w-full" />
-          <ZoruSkeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
       ) : (
         <EmailListTable

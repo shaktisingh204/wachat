@@ -109,7 +109,7 @@ export function RfqDetailActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Status pill → status-change dropdown */}
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -126,37 +126,37 @@ export function RfqDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/purchases/rfqs/${rfqId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={sendToVendors}>
+      <Button size="sm" variant="outline" onClick={sendToVendors}>
         <Send className="h-3.5 w-3.5" /> Send to vendors
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={closeRfq}>
+      <Button size="sm" variant="outline" onClick={closeRfq}>
         <Lock className="h-3.5 w-3.5" /> Close
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setAwardOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setAwardOpen(true)}>
         <Award className="h-3.5 w-3.5" /> Award
-      </ZoruButton>
+      </Button>
 
       {isAwarded ? (
-        <ZoruButton size="sm" variant="default" asChild>
+        <Button size="sm" variant="default" asChild>
           <Link
             href={`/dashboard/crm/purchases/orders/new?fromKind=rfq&fromId=${rfqId}`}
           >
             <ArrowRight className="h-3.5 w-3.5" /> Convert to PO
           </Link>
-        </ZoruButton>
+        </Button>
       ) : null}
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/purchases/rfqs/${rfqId}?print=1`}
           target="_blank"
@@ -164,17 +164,17 @@ export function RfqDetailActions({
         >
           <Printer className="h-3.5 w-3.5" /> Print
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/purchases/rfqs/${rfqId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <ConfirmDialog
         open={archiveOpen}

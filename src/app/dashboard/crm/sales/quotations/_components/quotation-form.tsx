@@ -101,7 +101,7 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       onClick={() => onIntent('save')}
       disabled={pending}
@@ -109,7 +109,7 @@ function SubmitButton({
     >
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create quotation'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -344,7 +344,7 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
       />
 
       {/* ─── Section 4: Line items ─────────────────────────────── */}
-      <ZoruCard className="space-y-4 p-6">
+      <Card className="space-y-4 p-6">
         <QuotationLineItemsEditor
           rows={rows}
           onAdd={addRow}
@@ -352,7 +352,7 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
           onRemove={removeRow}
           fmtMoney={fmtMoney}
         />
-      </ZoruCard>
+      </Card>
 
       {/* ─── Section 5: Summary ────────────────────────────────── */}
       <QuotationSummarySection
@@ -406,7 +406,7 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
 
       {/* Custom fields */}
       {customFields.length > 0 ? (
-        <ZoruCard className="space-y-4 p-6">
+        <Card className="space-y-4 p-6">
           <div>
             <h2 className="text-[15px] font-semibold text-zoru-ink">Custom fields</h2>
           </div>
@@ -420,7 +420,7 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
               />
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Inline error */}
@@ -433,7 +433,7 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
       {/* Sticky action bar */}
       <div className="sticky bottom-0 z-10 border-t border-zoru-line bg-zoru-bg py-3">
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <ZoruButton variant="ghost" asChild>
+          <Button variant="ghost" asChild>
             <Link
               href={
                 editing
@@ -443,8 +443,8 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
             >
               Cancel
             </Link>
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="outline"
             onClick={() => setIntent('save_new')}
@@ -452,8 +452,8 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
             value="save_new"
           >
             Save &amp; new
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="outline"
             onClick={() => setIntent('save_send')}
@@ -461,8 +461,8 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
             value="save_send"
           >
             Save &amp; send
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="outline"
             onClick={() => setIntent('save_convert')}
@@ -470,7 +470,7 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
             value="save_convert"
           >
             Save &amp; convert to invoice
-          </ZoruButton>
+          </Button>
           <SubmitButton editing={editing} intent={intent} onIntent={setIntent} />
         </div>
       </div>

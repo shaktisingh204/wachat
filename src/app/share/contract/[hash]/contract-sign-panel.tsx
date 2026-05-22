@@ -48,16 +48,16 @@ export function ContractSignPanel({ hash, signed, signedBy }: Props) {
 
   if (signed) {
     return (
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Contract signed</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3 text-sm">
-          <ZoruAlert>
+          <Alert>
             <ZoruAlertDescription>
               Thank you. This contract has been digitally signed.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
           {signedBy ? (
             <div className="space-y-2">
               <p>
@@ -76,7 +76,7 @@ export function ContractSignPanel({ hash, signed, signedBy }: Props) {
             </div>
           ) : null}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -113,21 +113,21 @@ export function ContractSignPanel({ hash, signed, signedBy }: Props) {
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>Sign this contract</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
         {banner ? (
-          <ZoruAlert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+          <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
             <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="contract-name">Full name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="contract-name">Full name</Label>
+            <Input
               id="contract-name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -135,8 +135,8 @@ export function ContractSignPanel({ hash, signed, signedBy }: Props) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="contract-email">Email</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="contract-email">Email</Label>
+            <Input
               id="contract-email"
               type="email"
               value={email}
@@ -145,8 +145,8 @@ export function ContractSignPanel({ hash, signed, signedBy }: Props) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="contract-place">Place</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="contract-place">Place</Label>
+            <Input
               id="contract-place"
               value={place}
               onChange={(e) => setPlace(e.target.value)}
@@ -154,17 +154,17 @@ export function ContractSignPanel({ hash, signed, signedBy }: Props) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="contract-date">Date</ZoruLabel>
-            <ZoruInput id="contract-date" type="date" defaultValue={todayIso()} readOnly />
+            <Label htmlFor="contract-date">Date</Label>
+            <Input id="contract-date" type="date" defaultValue={todayIso()} readOnly />
           </div>
         </div>
 
         <SignaturePad onChange={setSignatureData} />
 
-        <ZoruButton onClick={handleSign} disabled={pending}>
+        <Button onClick={handleSign} disabled={pending}>
           {pending ? 'Signing…' : 'Sign contract'}
-        </ZoruButton>
+        </Button>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

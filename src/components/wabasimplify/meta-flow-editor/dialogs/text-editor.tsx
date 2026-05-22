@@ -38,10 +38,10 @@ export function TextEditor({ component, updateField }: TextEditorProps) {
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="text">
+                <Label htmlFor="text">
                     {isRich ? 'Markdown content' : 'Text content'}
-                </ZoruLabel>
-                <ZoruTextarea
+                </Label>
+                <Textarea
                     id="text"
                     value={typeof component.text === 'string' ? component.text : Array.isArray(component.text) ? component.text.join('\n') : ''}
                     onChange={(e) => updateField('text', e.target.value)}
@@ -59,8 +59,8 @@ export function TextEditor({ component, updateField }: TextEditorProps) {
             {isBody ? (
                 <>
                     <div className="space-y-2">
-                        <ZoruLabel>Font weight</ZoruLabel>
-                        <ZoruSelect
+                        <Label>Font weight</Label>
+                        <Select
                             value={component['font-weight'] ?? 'normal'}
                             onValueChange={(val) => updateField('font-weight', val === 'normal' ? undefined : val)}
                         >
@@ -70,7 +70,7 @@ export function TextEditor({ component, updateField }: TextEditorProps) {
                                     <ZoruSelectItem key={w.value} value={w.value}>{w.label}</ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
 
                     <DynamicBooleanInput

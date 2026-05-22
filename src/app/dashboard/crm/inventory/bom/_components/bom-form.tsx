@@ -89,14 +89,14 @@ function toDateInput(value: string | undefined): string {
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -222,7 +222,7 @@ export function BomForm({ initial }: BomFormProps) {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                         <Link
                             href={
                                 editing
@@ -232,21 +232,21 @@ export function BomForm({ initial }: BomFormProps) {
                         >
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton label={editing ? 'Save changes' : 'Create BOM'} />
                 </div>
             </header>
 
             {/* Section 1 — Header */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Header</ZoruCardTitle>
                     <ZoruCardDescription>Core identifiers and lifecycle dates.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="bomNo">BOM code</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="bomNo">BOM code</Label>
+                        <Input
                             id="bomNo"
                             name="bomNo"
                             defaultValue={initial?.bomNo ?? ''}
@@ -256,7 +256,7 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="finishedGoodId">Finished good *</ZoruLabel>
+                        <Label htmlFor="finishedGoodId">Finished good *</Label>
                         <EntityFormField
                             entity="item"
                             name="finishedGoodId"
@@ -268,8 +268,8 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="outputQty">Output qty</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="outputQty">Output qty</Label>
+                        <Input
                             id="outputQty"
                             name="outputQty"
                             type="number"
@@ -280,7 +280,7 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="unit">Output unit</ZoruLabel>
+                        <Label htmlFor="unit">Output unit</Label>
                         <EntityFormField
                             entity="unit"
                             name="unit"
@@ -290,8 +290,8 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="version">Version</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="version">Version</Label>
+                        <Input
                             id="version"
                             name="version"
                             defaultValue={initial?.version || '1.0'}
@@ -300,8 +300,8 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="effectiveDate">Effective date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="effectiveDate">Effective date</Label>
+                        <Input
                             id="effectiveDate"
                             name="effectiveDate"
                             type="date"
@@ -310,7 +310,7 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                        <Label htmlFor="status">Status</Label>
                         <EnumFormField
                             enumName="bomStatus"
                             name="status"
@@ -319,8 +319,8 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
 
                     <div className="space-y-1 md:col-span-2">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             defaultValue={initial?.notes ?? ''}
@@ -329,10 +329,10 @@ export function BomForm({ initial }: BomFormProps) {
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Section 2 — Components */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <div className="flex items-center justify-between">
                         <div>
@@ -341,9 +341,9 @@ export function BomForm({ initial }: BomFormProps) {
                                 Each raw material or sub-assembly needed to produce the finished good.
                             </ZoruCardDescription>
                         </div>
-                        <ZoruButton type="button" variant="outline" size="sm" onClick={addRow}>
+                        <Button type="button" variant="outline" size="sm" onClick={addRow}>
                             <Plus className="h-4 w-4" /> Add component
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardHeader>
                 <ZoruCardContent className="p-0">
@@ -400,7 +400,7 @@ export function BomForm({ initial }: BomFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="any"
@@ -431,7 +431,7 @@ export function BomForm({ initial }: BomFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 max={100}
@@ -448,7 +448,7 @@ export function BomForm({ initial }: BomFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="any"
@@ -464,7 +464,7 @@ export function BomForm({ initial }: BomFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={row.optional}
                                                 onCheckedChange={(c) =>
                                                     updateRow(row.id, 'optional', c === true)
@@ -473,7 +473,7 @@ export function BomForm({ initial }: BomFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2">
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
@@ -482,7 +482,7 @@ export function BomForm({ initial }: BomFormProps) {
                                                 disabled={components.length === 1}
                                             >
                                                 <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                                            </ZoruButton>
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
@@ -490,10 +490,10 @@ export function BomForm({ initial }: BomFormProps) {
                         </table>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Section 3 — Costs */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Cost rollup</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -502,7 +502,7 @@ export function BomForm({ initial }: BomFormProps) {
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div className="space-y-1">
-                        <ZoruLabel>Material cost</ZoruLabel>
+                        <Label>Material cost</Label>
                         <div className="font-mono text-[14px] text-zoru-ink">
                             {materialCost.toLocaleString('en-IN', {
                                 style: 'currency',
@@ -512,8 +512,8 @@ export function BomForm({ initial }: BomFormProps) {
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="labourCost">Labour cost</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="labourCost">Labour cost</Label>
+                        <Input
                             id="labourCost"
                             type="number"
                             min={0}
@@ -523,8 +523,8 @@ export function BomForm({ initial }: BomFormProps) {
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel htmlFor="overheadCost">Overhead cost</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="overheadCost">Overhead cost</Label>
+                        <Input
                             id="overheadCost"
                             type="number"
                             min={0}
@@ -534,7 +534,7 @@ export function BomForm({ initial }: BomFormProps) {
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel>Total cost</ZoruLabel>
+                        <Label>Total cost</Label>
                         <div className="font-mono text-[14px] font-semibold text-zoru-ink">
                             {totalCost.toLocaleString('en-IN', {
                                 style: 'currency',
@@ -544,10 +544,10 @@ export function BomForm({ initial }: BomFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="sticky bottom-0 flex justify-end gap-2 border-t border-zoru-line bg-zoru-bg py-3">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link
                         href={
                             editing
@@ -557,7 +557,7 @@ export function BomForm({ initial }: BomFormProps) {
                     >
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton label={editing ? 'Save changes' : 'Create BOM'} />
             </div>
         </form>

@@ -147,7 +147,7 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
                 </div>
               ) : (
                 rows.map((deal) => (
-                  <ZoruCard
+                  <Card
                     key={deal._id}
                     draggable
                     onDragStart={(e) => {
@@ -180,7 +180,7 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
                           : '—'}
                       </span>
                       {typeof deal.probability === 'number' ? (
-                        <ZoruBadge variant="outline">{deal.probability}%</ZoruBadge>
+                        <Badge variant="outline">{deal.probability}%</Badge>
                       ) : null}
                     </div>
                     {deal.ownerId ? (
@@ -188,14 +188,14 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
                         <EntityPickerChip entity="user" id={deal.ownerId} />
                       </div>
                     ) : null}
-                  </ZoruCard>
+                  </Card>
                 ))
               )}
             </div>
 
             {/* Empty + add hint */}
             {rows.length > 0 ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 asChild
@@ -204,7 +204,7 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
                 <Link href={`/dashboard/crm/sales-crm/deals/new?stage=${encodeURIComponent(stage)}`}>
                   <Trophy className="h-3 w-3" /> Add to {stage}
                 </Link>
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         );

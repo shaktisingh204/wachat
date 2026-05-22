@@ -388,8 +388,8 @@ function PickStep({
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-2">
-                <ZoruLabel htmlFor="import-entity">What are you importing?</ZoruLabel>
-                <ZoruSelect value={entityType} onValueChange={onEntityTypeChange}>
+                <Label htmlFor="import-entity">What are you importing?</Label>
+                <Select value={entityType} onValueChange={onEntityTypeChange}>
                     <ZoruSelectTrigger id="import-entity">
                         <ZoruSelectValue placeholder="Pick an entity" />
                     </ZoruSelectTrigger>
@@ -400,7 +400,7 @@ function PickStep({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 {schema && (
                     <p className="text-[12.5px] text-zoru-ink-muted">
                         {schema.description}
@@ -408,7 +408,7 @@ function PickStep({
                 )}
             </div>
 
-            <ZoruCard className="flex flex-col items-start gap-3 p-4">
+            <Card className="flex flex-col items-start gap-3 p-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-zoru-ink">
                     <UploadCloud className="h-4 w-4 text-zoru-accent" />
                     Upload a CSV or Excel file
@@ -417,7 +417,7 @@ function PickStep({
                     First row should be a header. Max 5 MB. Supported formats:
                     .csv, .xlsx, .xls.
                 </p>
-                <ZoruInput
+                <Input
                     type="file"
                     accept=".csv,.xlsx,.xls"
                     onChange={onFileChange}
@@ -435,33 +435,33 @@ function PickStep({
                         Parsing file…
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {schema && (
-                <ZoruCard className="p-4">
+                <Card className="p-4">
                     <p className="text-[12.5px] font-medium text-zoru-ink">
                         Expected fields for {schema.label}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                         {schema.fields.map((f) => (
-                            <ZoruBadge
+                            <Badge
                                 key={f.name}
                                 variant={f.required ? 'default' : 'secondary'}
                             >
                                 {f.label}
                                 {f.required ? ' *' : ''}
-                            </ZoruBadge>
+                            </Badge>
                         ))}
                     </div>
-                </ZoruCard>
+                </Card>
             )}
 
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Could not parse file</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             )}
         </div>
     );
@@ -509,14 +509,14 @@ function MapStep({
                         {mappedCount}/{schema.fields.length} fields mapped
                     </p>
                 </div>
-                <ZoruButton variant="outline" size="sm" onClick={onAutoDetect}>
+                <Button variant="outline" size="sm" onClick={onAutoDetect}>
                     <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                     Auto-detect
-                </ZoruButton>
+                </Button>
             </div>
 
-            <ZoruCard className="overflow-hidden">
-                <ZoruTable>
+            <Card className="overflow-hidden">
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead className="w-[40%]">Field</ZoruTableHead>
@@ -537,17 +537,17 @@ function MapStep({
                             />
                         ))}
                     </ZoruTableBody>
-                </ZoruTable>
-            </ZoruCard>
+                </Table>
+            </Card>
 
             {sampleRows.length > 0 && (
-                <ZoruCard className="overflow-hidden">
+                <Card className="overflow-hidden">
                     <div className="border-b border-zoru-line bg-zoru-surface-2 px-4 py-2 text-[12.5px] font-medium text-zoru-ink">
                         Preview (first {Math.min(sampleRows.length, 5)} rows after
                         mapping)
                     </div>
                     <div className="overflow-x-auto">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     {schema.fields
@@ -579,25 +579,25 @@ function MapStep({
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
-                </ZoruCard>
+                </Card>
             )}
 
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Cannot start import</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             )}
 
             <div className="flex items-center justify-between">
-                <ZoruButton variant="outline" onClick={onBack} disabled={isSubmitting}>
+                <Button variant="outline" onClick={onBack} disabled={isSubmitting}>
                     <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                     Back
-                </ZoruButton>
-                <ZoruButton onClick={onSubmit} disabled={isSubmitting}>
+                </Button>
+                <Button onClick={onSubmit} disabled={isSubmitting}>
                     {isSubmitting ? (
                         <>
                             <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
@@ -606,7 +606,7 @@ function MapStep({
                     ) : (
                         <>Start import</>
                     )}
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -640,7 +640,7 @@ function FieldMappingRow({
                 </div>
             </ZoruTableCell>
             <ZoruTableCell>
-                <ZoruSelect value={value} onValueChange={onChange}>
+                <Select value={value} onValueChange={onChange}>
                     <ZoruSelectTrigger className="h-8">
                         <ZoruSelectValue placeholder="— skip —" />
                     </ZoruSelectTrigger>
@@ -652,12 +652,12 @@ function FieldMappingRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </ZoruTableCell>
             <ZoruTableCell>
-                <ZoruBadge variant="outline" className="text-[10.5px]">
+                <Badge variant="outline" className="text-[10.5px]">
                     {field.type}
-                </ZoruBadge>
+                </Badge>
             </ZoruTableCell>
         </ZoruTableRow>
     );
@@ -699,7 +699,7 @@ function ProgressStep({
 
     return (
         <div className="flex flex-col gap-4">
-            <ZoruCard className="flex flex-col gap-3 p-4">
+            <Card className="flex flex-col gap-3 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         {isDone ? (
@@ -722,12 +722,12 @@ function ProgressStep({
                             </p>
                         </div>
                     </div>
-                    <ZoruBadge variant={isDone ? 'default' : isFailed ? 'destructive' : 'secondary'}>
+                    <Badge variant={isDone ? 'default' : isFailed ? 'destructive' : 'secondary'}>
                         {jobStatus.status}
-                    </ZoruBadge>
+                    </Badge>
                 </div>
 
-                <ZoruProgress value={pct} />
+                <Progress value={pct} />
 
                 <div className="grid grid-cols-3 gap-3 text-[12.5px]">
                     <div>
@@ -756,10 +756,10 @@ function ProgressStep({
                         </p>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {jobStatus.errors.length > 0 && (
-                <ZoruCard className="overflow-hidden">
+                <Card className="overflow-hidden">
                     <button
                         type="button"
                         onClick={onToggleErrors}
@@ -773,7 +773,7 @@ function ProgressStep({
                             {showAllErrors ? 'Show less' : 'Show all'}
                         </span>
                     </button>
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow>
                                 <ZoruTableHead className="w-24">Row</ZoruTableHead>
@@ -792,18 +792,18 @@ function ProgressStep({
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>
-                    </ZoruTable>
-                </ZoruCard>
+                    </Table>
+                </Card>
             )}
 
             <div className="flex items-center justify-end gap-2">
                 {!isDone && !isFailed && (
-                    <ZoruButton variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={onClose}>
                         Run in background
-                    </ZoruButton>
+                    </Button>
                 )}
                 {(isDone || isFailed) && (
-                    <ZoruButton onClick={onClose}>Close</ZoruButton>
+                    <Button onClick={onClose}>Close</Button>
                 )}
             </div>
         </div>

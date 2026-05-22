@@ -112,30 +112,30 @@ export default function EstimateRequestsPage() {
       title="Estimate Requests"
       subtitle="Incoming estimate requests from clients and leads."
       primaryAction={
-        <ZoruButton onClick={() => setShowForm((v) => !v)}>
+        <Button onClick={() => setShowForm((v) => !v)}>
           <Plus className="h-4 w-4" />
           {showForm ? 'Close' : 'New Request'}
-        </ZoruButton>
+        </Button>
       }
     >
 
       {showForm ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-3 text-[16px] text-zoru-ink">
             New Estimate Request
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel className="text-zoru-ink">Requester Name</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Requester Name</Label>
+              <Input
                 value={requesterName}
                 onChange={(e) => setRequesterName(e.target.value)}
                 className="mt-1.5"
               />
             </div>
             <div>
-              <ZoruLabel className="text-zoru-ink">Requester Email</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Requester Email</Label>
+              <Input
                 type="email"
                 value={requesterEmail}
                 onChange={(e) => setRequesterEmail(e.target.value)}
@@ -143,8 +143,8 @@ export default function EstimateRequestsPage() {
               />
             </div>
             <div className="md:col-span-2">
-              <ZoruLabel className="text-zoru-ink">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label className="text-zoru-ink">Description</Label>
+              <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
@@ -153,8 +153,8 @@ export default function EstimateRequestsPage() {
               />
             </div>
             <div>
-              <ZoruLabel className="text-zoru-ink">Desired Date</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Desired Date</Label>
+              <Input
                 type="date"
                 value={desiredDate}
                 onChange={(e) => setDesiredDate(e.target.value)}
@@ -163,25 +163,25 @@ export default function EstimateRequestsPage() {
             </div>
           </div>
           <div className="mt-4 flex justify-end gap-2">
-            <ZoruButton variant="outline" onClick={() => setShowForm(false)}>
+            <Button variant="outline" onClick={() => setShowForm(false)}>
               <ArrowLeft className="h-4 w-4" />
               Cancel
-            </ZoruButton>
-            <ZoruButton disabled={isSaving} onClick={handleSave}>
+            </Button>
+            <Button disabled={isSaving} onClick={handleSave}>
               {isSaving ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
                 <Save className="h-4 w-4" />
               )}
               Save
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Description</ZoruTableHead>
@@ -235,9 +235,9 @@ export default function EstimateRequestsPage() {
                       {fmtDate(r.desired_date)}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={STATUS_VARIANT[r.status] || 'ghost'}>
+                      <Badge variant={STATUS_VARIANT[r.status] || 'ghost'}>
                         {r.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink">
                       {fmtDate(r.createdAt)}
@@ -246,9 +246,9 @@ export default function EstimateRequestsPage() {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

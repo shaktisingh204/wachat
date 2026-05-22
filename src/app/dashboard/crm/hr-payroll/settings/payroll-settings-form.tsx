@@ -65,7 +65,7 @@ function Field({
 }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <ZoruLabel className="text-[13px] text-zoru-ink">{label}</ZoruLabel>
+            <Label className="text-[13px] text-zoru-ink">{label}</Label>
             {description ? (
                 <p className="text-[11.5px] text-zoru-ink-muted">{description}</p>
             ) : null}
@@ -93,7 +93,7 @@ function SwitchRow({
                     <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">{description}</p>
                 ) : null}
             </div>
-            <ZoruSwitch name={name} defaultChecked={defaultChecked} value="true" />
+            <Switch name={name} defaultChecked={defaultChecked} value="true" />
         </div>
     );
 }
@@ -122,14 +122,14 @@ export function PayrollSettingsForm({
     return (
         <form action={formAction} className="flex flex-col gap-4">
             {/* Pay cycle */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     title="Pay cycle"
                     description="How frequently payroll is processed and in which currency."
                 />
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field label="Pay frequency">
-                        <ZoruSelect name="payFrequency" defaultValue={settings.payFrequency}>
+                        <Select name="payFrequency" defaultValue={settings.payFrequency}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -140,10 +140,10 @@ export function PayrollSettingsForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Currency">
-                        <ZoruSelect name="currency" defaultValue={settings.currency}>
+                        <Select name="currency" defaultValue={settings.currency}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -154,10 +154,10 @@ export function PayrollSettingsForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Working days per week">
-                        <ZoruInput
+                        <Input
                             name="workingDaysPerWeek"
                             type="number"
                             min={1}
@@ -166,17 +166,17 @@ export function PayrollSettingsForm({
                         />
                     </Field>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Tax configuration */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     title="Tax configuration"
                     description="Income tax regime and statutory deduction settings for India."
                 />
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="Tax regime">
-                        <ZoruSelect name="taxRegime" defaultValue={settings.taxRegime}>
+                        <Select name="taxRegime" defaultValue={settings.taxRegime}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -187,7 +187,7 @@ export function PayrollSettingsForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                 </div>
                 <div className="mt-4 flex flex-col gap-3">
@@ -204,10 +204,10 @@ export function PayrollSettingsForm({
                         description="State-level professional tax on salary income."
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Statutory deductions — PF */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     title="Provident Fund (PF)"
                     description="Employee and employer contribution rates and wage ceiling."
@@ -221,7 +221,7 @@ export function PayrollSettingsForm({
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field label="Employee rate (%)">
-                        <ZoruInput
+                        <Input
                             name="pfEmployeeRate"
                             type="number"
                             min={0}
@@ -231,7 +231,7 @@ export function PayrollSettingsForm({
                         />
                     </Field>
                     <Field label="Employer rate (%)">
-                        <ZoruInput
+                        <Input
                             name="pfEmployerRate"
                             type="number"
                             min={0}
@@ -244,7 +244,7 @@ export function PayrollSettingsForm({
                         label="Wage ceiling"
                         description="PF contribution is capped at this basic wage."
                     >
-                        <ZoruInput
+                        <Input
                             name="pfWageCeiling"
                             type="number"
                             min={0}
@@ -252,10 +252,10 @@ export function PayrollSettingsForm({
                         />
                     </Field>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* ESI */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     title="Employee State Insurance (ESI)"
                     description="Contribution rates and eligibility wage ceiling."
@@ -269,7 +269,7 @@ export function PayrollSettingsForm({
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field label="Employee rate (%)">
-                        <ZoruInput
+                        <Input
                             name="esiEmployeeRate"
                             type="number"
                             min={0}
@@ -279,7 +279,7 @@ export function PayrollSettingsForm({
                         />
                     </Field>
                     <Field label="Employer rate (%)">
-                        <ZoruInput
+                        <Input
                             name="esiEmployerRate"
                             type="number"
                             min={0}
@@ -292,7 +292,7 @@ export function PayrollSettingsForm({
                         label="Wage ceiling"
                         description="Employees earning above this are excluded from ESI."
                     >
-                        <ZoruInput
+                        <Input
                             name="esiWageCeiling"
                             type="number"
                             min={0}
@@ -300,10 +300,10 @@ export function PayrollSettingsForm({
                         />
                     </Field>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Attendance & late marking */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     title="Attendance & overtime"
                     description="How attendance exceptions and overtime are handled during pay processing."
@@ -313,7 +313,7 @@ export function PayrollSettingsForm({
                         label="Late-marking grace (minutes)"
                         description="Arrivals within this window are not marked late."
                     >
-                        <ZoruInput
+                        <Input
                             name="lateMarkingGraceMins"
                             type="number"
                             min={0}
@@ -327,10 +327,10 @@ export function PayrollSettingsForm({
                     defaultChecked={settings.overtimeEnabled}
                     description="Hours beyond the working-day cap are eligible for overtime pay."
                 />
-            </ZoruCard>
+            </Card>
 
             {/* Approvals & notifications */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     title="Approvals & notifications"
                     description="Payroll run approval workflow and payslip notification settings."
@@ -347,7 +347,7 @@ export function PayrollSettingsForm({
                             label="Approver user id"
                             description="Leave blank to use the account owner."
                         >
-                            <ZoruInput
+                            <Input
                                 name="approverUserId"
                                 defaultValue={settings.approverUserId}
                                 placeholder="User id or email"
@@ -364,16 +364,16 @@ export function PayrollSettingsForm({
                         description="Sends an email/in-app notification when payslips are published."
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Payslip template */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     title="Payslip template"
                     description="Layout used when generating PDF payslips."
                 />
                 <div className="max-w-xs">
-                    <ZoruSelect name="payslipTemplate" defaultValue={settings.payslipTemplate}>
+                    <Select name="payslipTemplate" defaultValue={settings.payslipTemplate}>
                         <ZoruSelectTrigger>
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
@@ -384,9 +384,9 @@ export function PayrollSettingsForm({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Save bar */}
             <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3">
@@ -397,14 +397,14 @@ export function PayrollSettingsForm({
                 ) : (
                     <span />
                 )}
-                <ZoruButton type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending}>
                     {isPending ? (
                         <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
                     ) : (
                         <Save className="h-4 w-4" strokeWidth={1.75} />
                     )}
                     Save settings
-                </ZoruButton>
+                </Button>
             </div>
         </form>
     );

@@ -19,7 +19,7 @@ export function ContactMessageContent({ contacts }: ContactMessageContentProps) 
 
   return (
     <div className="w-64">
-      <ZoruCard className="shadow-none border-0 bg-transparent">
+      <Card className="shadow-none border-0 bg-transparent">
         <ZoruCardHeader className="p-2">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
@@ -32,11 +32,11 @@ export function ContactMessageContent({ contacts }: ContactMessageContentProps) 
             <p className="flex items-center gap-2"><Phone className="h-4 w-4" /> {phone}</p>
             <p className="flex items-center gap-2"><Briefcase className="h-4 w-4" /> {org}</p>
           </div>
-          <ZoruButton variant="outline" size="sm" className="w-full mt-2">
+          <Button variant="outline" size="sm" className="w-full mt-2">
             View Contact
-          </ZoruButton>
+          </Button>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

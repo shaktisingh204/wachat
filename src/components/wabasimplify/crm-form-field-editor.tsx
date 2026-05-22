@@ -73,47 +73,47 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <ZoruLabel>Field Type</ZoruLabel>
-                <ZoruSelect value={field.type} onValueChange={(val) => handleUpdate('type', val as FormField['type'])}>
+                <Label>Field Type</Label>
+                <Select value={field.type} onValueChange={(val) => handleUpdate('type', val as FormField['type'])}>
                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                     <ZoruSelectContent>
                         {FIELD_TYPE_OPTIONS.map(opt => (
                             <ZoruSelectItem key={opt.value} value={opt.value}>{opt.label}</ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="field-label">Label</ZoruLabel>
-                <ZoruInput id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
+                <Label htmlFor="field-label">Label</Label>
+                <Input id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="field-id">Field ID</ZoruLabel>
-                <ZoruInput id="field-id" value={field.fieldId || ''} onChange={(e) => handleUpdate('fieldId', e.target.value)} placeholder="e.g., user_name"/>
+                <Label htmlFor="field-id">Field ID</Label>
+                <Input id="field-id" value={field.fieldId || ''} onChange={(e) => handleUpdate('fieldId', e.target.value)} placeholder="e.g., user_name"/>
                 <p className="text-xs text-muted-foreground">A unique ID used for the form data (no spaces).</p>
             </div>
             {field.type !== 'html' && field.type !== 'hidden' && (
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="field-placeholder">Placeholder</ZoruLabel>
-                    <ZoruInput id="field-placeholder" value={field.placeholder || ''} onChange={(e) => handleUpdate('placeholder', e.target.value)} />
+                    <Label htmlFor="field-placeholder">Placeholder</Label>
+                    <Input id="field-placeholder" value={field.placeholder || ''} onChange={(e) => handleUpdate('placeholder', e.target.value)} />
                 </div>
             )}
             <div className="space-y-2">
-                <ZoruLabel htmlFor="field-description">Description</ZoruLabel>
-                <ZoruInput id="field-description" value={field.description || ''} onChange={(e) => handleUpdate('description', e.target.value)} />
+                <Label htmlFor="field-description">Description</Label>
+                <Input id="field-description" value={field.description || ''} onChange={(e) => handleUpdate('description', e.target.value)} />
             </div>
 
             {(field.type === 'select' || field.type === 'radio') && (
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="field-options">Options (one per line)</ZoruLabel>
-                    <ZoruTextarea id="field-options" value={field.options || ''} onChange={(e) => handleUpdate('options', e.target.value)} />
+                    <Label htmlFor="field-options">Options (one per line)</Label>
+                    <Textarea id="field-options" value={field.options || ''} onChange={(e) => handleUpdate('options', e.target.value)} />
                 </div>
             )}
 
             {field.type === 'rating' && (
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="field-max-rating">Max stars</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="field-max-rating">Max stars</Label>
+                    <Input
                         id="field-max-rating"
                         type="number"
                         min={3}
@@ -125,27 +125,27 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
             )}
 
             <div className="flex items-center space-x-2">
-                <ZoruSwitch id="field-required" checked={!!field.required} onCheckedChange={(val) => handleUpdate('required', val)} />
-                <ZoruLabel htmlFor="field-required">Required</ZoruLabel>
+                <Switch id="field-required" checked={!!field.required} onCheckedChange={(val) => handleUpdate('required', val)} />
+                <Label htmlFor="field-required">Required</Label>
             </div>
 
-            <ZoruAccordion type="single" collapsible>
+            <Accordion type="single" collapsible>
                 <ZoruAccordionItem value="validation">
                     <ZoruAccordionTrigger>Validation rules</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-3 pt-2">
                         {isStringy && (
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1">
-                                    <ZoruLabel>Min length</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Min length</Label>
+                                    <Input
                                         type="number"
                                         value={validation.minLength ?? ''}
                                         onChange={(e) => updateValidation({ minLength: e.target.value === '' ? undefined : Number(e.target.value) })}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <ZoruLabel>Max length</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Max length</Label>
+                                    <Input
                                         type="number"
                                         value={validation.maxLength ?? ''}
                                         onChange={(e) => updateValidation({ maxLength: e.target.value === '' ? undefined : Number(e.target.value) })}
@@ -156,16 +156,16 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                         {isNumeric && (
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1">
-                                    <ZoruLabel>Min</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Min</Label>
+                                    <Input
                                         type="number"
                                         value={validation.min ?? ''}
                                         onChange={(e) => updateValidation({ min: e.target.value === '' ? undefined : Number(e.target.value) })}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <ZoruLabel>Max</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Max</Label>
+                                    <Input
                                         type="number"
                                         value={validation.max ?? ''}
                                         onChange={(e) => updateValidation({ max: e.target.value === '' ? undefined : Number(e.target.value) })}
@@ -176,16 +176,16 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                         {isStringy && (
                             <>
                                 <div className="space-y-1">
-                                    <ZoruLabel>Pattern (regex)</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Pattern (regex)</Label>
+                                    <Input
                                         value={validation.pattern ?? ''}
                                         onChange={(e) => updateValidation({ pattern: e.target.value || undefined })}
                                         placeholder="e.g. ^[A-Z]{2}\\d{4}$"
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <ZoruLabel>Error message</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Error message</Label>
+                                    <Input
                                         value={validation.errorMessage ?? ''}
                                         onChange={(e) => updateValidation({ errorMessage: e.target.value || undefined })}
                                     />
@@ -193,8 +193,8 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                             </>
                         )}
                         <div className="space-y-2 pt-2 border-t border-border">
-                            <ZoruLabel>Require only if (cross-field)</ZoruLabel>
-                            <ZoruSelect
+                            <Label>Require only if (cross-field)</Label>
+                            <Select
                                 value={validation.requireIf?.fieldId || '__none__'}
                                 onValueChange={(val) => updateValidation({
                                     requireIf: val === '__none__'
@@ -209,10 +209,10 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                         <ZoruSelectItem key={f.id} value={f.fieldId || f.id}>{f.label || f.fieldId || f.id}</ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             {validation.requireIf && (
                                 <div className="grid grid-cols-2 gap-2">
-                                    <ZoruSelect
+                                    <Select
                                         value={validation.requireIf.operator}
                                         onValueChange={(val) => updateValidation({ requireIf: { ...validation.requireIf!, operator: val as 'equals' | 'notEquals' | 'isFilled' } })}
                                     >
@@ -222,9 +222,9 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                             <ZoruSelectItem value="equals">equals</ZoruSelectItem>
                                             <ZoruSelectItem value="notEquals">not equals</ZoruSelectItem>
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                     {validation.requireIf.operator !== 'isFilled' && (
-                                        <ZoruInput
+                                        <Input
                                             placeholder="value"
                                             value={validation.requireIf.value ?? ''}
                                             onChange={(e) => updateValidation({ requireIf: { ...validation.requireIf!, value: e.target.value } })}
@@ -235,11 +235,11 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
 
-            <ZoruButton variant="destructive" onClick={onRemove} className="w-full">
+            <Button variant="destructive" onClick={onRemove} className="w-full">
                 Delete Field
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

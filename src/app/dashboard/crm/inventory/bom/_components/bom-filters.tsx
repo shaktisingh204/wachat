@@ -47,12 +47,12 @@ export interface BomFiltersRowProps {
 
 export function BomFiltersRow(props: BomFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-5">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="bomStatus"
                         value={props.status}
@@ -62,9 +62,9 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Finished good
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="item"
                         name="finishedGoodFilter"
@@ -75,16 +75,16 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Version
-                    </ZoruLabel>
+                    </Label>
                     <div className="flex items-center gap-1">
-                        <ZoruInput
+                        <Input
                             placeholder="Min"
                             value={props.versionMin}
                             onChange={(e) => props.onVersionMinChange(e.target.value)}
                         />
-                        <ZoruInput
+                        <Input
                             placeholder="Max"
                             value={props.versionMax}
                             onChange={(e) => props.onVersionMaxChange(e.target.value)}
@@ -93,16 +93,16 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Effective date
-                    </ZoruLabel>
+                    </Label>
                     <div className="flex items-center gap-1">
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={props.effectiveFrom}
                             onChange={(e) => props.onEffectiveFromChange(e.target.value)}
                         />
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={props.effectiveTo}
                             onChange={(e) => props.onEffectiveToChange(e.target.value)}
@@ -111,10 +111,10 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Active flag
-                    </ZoruLabel>
-                    <ZoruButton
+                    </Label>
+                    <Button
                         variant={props.activeOnly ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => props.onActiveOnlyChange(!props.activeOnly)}
@@ -126,18 +126,18 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                             <ToggleLeft className="h-3.5 w-3.5" />
                         )}
                         {props.activeOnly ? 'Active only' : 'Include all'}
-                    </ZoruButton>
+                    </Button>
                 </div>
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-5">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -164,25 +164,25 @@ export function BomBulkBar({
 }: BomBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="info">{count} selected</ZoruBadge>
-            <ZoruButton size="sm" variant="outline" onClick={onActivate}>
+            <Badge variant="info">{count} selected</Badge>
+            <Button size="sm" variant="outline" onClick={onActivate}>
                 <ToggleRight className="h-3.5 w-3.5" /> Activate
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onDeactivate}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onDeactivate}>
                 <ToggleLeft className="h-3.5 w-3.5" /> Deactivate
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> Archive
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+            </Button>
+            <Button size="sm" variant="destructive" onClick={onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

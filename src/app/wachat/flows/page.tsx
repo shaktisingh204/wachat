@@ -116,7 +116,7 @@ export default function MetaFlowsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -130,10 +130,10 @@ export default function MetaFlowsPage() {
             <ZoruBreadcrumbPage>Meta Flows</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Meta Flows</ZoruPageTitle>
             <ZoruPageDescription>
@@ -141,20 +141,20 @@ export default function MetaFlowsPage() {
               directly from SabNode.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
         <div className="flex items-center gap-2">
           <SyncMetaFlowsButton projectId={activeProjectId} onSyncComplete={fetchFlows} />
-          <ZoruButton variant="outline" onClick={() => router.push('/wachat/flows/docs')}>
+          <Button variant="outline" onClick={() => router.push('/wachat/flows/docs')}>
             <BookOpen className="h-3.5 w-3.5" />
             API docs
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={() => router.push('/wachat/flows/create')}
             disabled={!activeProjectId}
           >
             <CirclePlus className="h-3.5 w-3.5" />
             New flow
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -174,27 +174,27 @@ export default function MetaFlowsPage() {
       </div>
 
       {!activeProjectId ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert className="h-10 w-10" />}
           title="No project selected"
           description="Please select a project from the main dashboard to manage Meta Flows."
-          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
       ) : (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="min-w-[260px] flex-1">
-              <ZoruInput
+              <Input
                 placeholder="Search flows by name or Meta ID…"
                 leadingSlot={<Search />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <ZoruButton variant="outline" size="sm" onClick={fetchFlows} disabled={isLoading}>
+            <Button variant="outline" size="sm" onClick={fetchFlows} disabled={isLoading}>
               <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
               {isLoading ? 'Refreshing…' : 'Refresh'}
-            </ZoruButton>
+            </Button>
             <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
               {filteredFlows.length} / {flows.length} flows
             </span>
@@ -203,10 +203,10 @@ export default function MetaFlowsPage() {
           <div className="mt-5 overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
             {isLoading && flows.length === 0 ? (
               <div className="p-4">
-                <ZoruSkeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
               </div>
             ) : filteredFlows.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<ServerCog className="h-10 w-10" />}
                 title={searchQuery ? 'No matching flows' : 'No Meta Flows yet'}
                 description={
@@ -216,10 +216,10 @@ export default function MetaFlowsPage() {
                 }
                 action={
                   !searchQuery ? (
-                    <ZoruButton size="sm" onClick={() => router.push('/wachat/flows/create')}>
+                    <Button size="sm" onClick={() => router.push('/wachat/flows/create')}>
                       <CirclePlus className="h-3.5 w-3.5" />
                       Create your first flow
-                    </ZoruButton>
+                    </Button>
                   ) : undefined
                 }
               />
@@ -247,23 +247,23 @@ export default function MetaFlowsPage() {
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
                           {flow.categories?.map((cat) => (
-                            <ZoruBadge key={cat} variant="ghost">
+                            <Badge key={cat} variant="ghost">
                               {cat}
-                            </ZoruBadge>
+                            </Badge>
                           ))}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <ZoruBadge variant={statusVariant(flow.status)}>
+                        <Badge variant={statusVariant(flow.status)}>
                           {flow.status || 'Draft'}
-                        </ZoruBadge>
+                        </Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                           <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton variant="ghost" size="icon-sm" aria-label="Open menu">
+                            <Button variant="ghost" size="icon-sm" aria-label="Open menu">
                               <MoreHorizontal className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                           </ZoruDropdownMenuTrigger>
                           <ZoruDropdownMenuContent align="end">
                             <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
@@ -283,7 +283,7 @@ export default function MetaFlowsPage() {
                               Delete
                             </ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                       </td>
                     </tr>
                   ))}
@@ -291,7 +291,7 @@ export default function MetaFlowsPage() {
               </table>
             )}
           </div>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );
@@ -309,7 +309,7 @@ function Stat({
   tint?: 'neutral' | 'success';
 }) {
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">{label}</div>
       <div className="mt-2 flex items-baseline gap-2">
         <div
@@ -322,6 +322,6 @@ function Stat({
         </div>
       </div>
       {hint && <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">{hint}</div>}
-    </ZoruCard>
+    </Card>
   );
 }

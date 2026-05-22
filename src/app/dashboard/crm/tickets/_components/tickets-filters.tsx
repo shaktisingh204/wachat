@@ -102,7 +102,7 @@ export interface TicketsFiltersRowProps {
 
 export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-4 lg:grid-cols-8">
                 <FilterField label="Status">
                     <EnumFilterField
@@ -180,13 +180,13 @@ export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-4 lg:col-span-8">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -199,9 +199,9 @@ function FilterField({
 }) {
     return (
         <div className="space-y-1">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                 {label}
-            </ZoruLabel>
+            </Label>
             {children}
         </div>
     );
@@ -233,9 +233,9 @@ export function TicketsBulkBar({
     const [assignOpen, setAssignOpen] = React.useState(false);
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="info">{count} selected</ZoruBadge>
+            <Badge variant="info">{count} selected</Badge>
 
-            <ZoruSelect onValueChange={onStatus}>
+            <Select onValueChange={onStatus}>
                 <ZoruSelectTrigger className="h-8 w-[150px]">
                     <ZoruSelectValue placeholder="Set status…" />
                 </ZoruSelectTrigger>
@@ -246,9 +246,9 @@ export function TicketsBulkBar({
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
-            <ZoruSelect onValueChange={onPriority}>
+            <Select onValueChange={onPriority}>
                 <ZoruSelectTrigger className="h-8 w-[150px]">
                     <ZoruSelectValue placeholder="Set priority…" />
                 </ZoruSelectTrigger>
@@ -259,13 +259,13 @@ export function TicketsBulkBar({
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
-            <ZoruPopover open={assignOpen} onOpenChange={setAssignOpen}>
+            <Popover open={assignOpen} onOpenChange={setAssignOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <ZoruButton size="sm" variant="outline">
+                    <Button size="sm" variant="outline">
                         <UserPlus className="h-3.5 w-3.5" /> Assign…
-                    </ZoruButton>
+                    </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="start" className="w-72 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -292,20 +292,20 @@ export function TicketsBulkBar({
                         Unassign
                     </button>
                 </ZoruPopoverContent>
-            </ZoruPopover>
+            </Popover>
 
-            <ZoruButton size="sm" variant="outline" onClick={onMerge}>
+            <Button size="sm" variant="outline" onClick={onMerge}>
                 Merge
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onExport}>
                 Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+            </Button>
+            <Button size="sm" variant="destructive" onClick={onDelete}>
                 Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -425,12 +425,12 @@ export function TicketsViewsMenu({ activePresetId, onSelect }: TicketsViewsMenuP
         TICKETS_VIEW_PRESETS.find((p) => p.id === activePresetId) ??
         TICKETS_VIEW_PRESETS[0];
     return (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                     <ListChecks className="h-3.5 w-3.5" /> {active.label}
                     <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-subtle" />
-                </ZoruButton>
+                </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start" className="w-64">
                 <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
@@ -451,6 +451,6 @@ export function TicketsViewsMenu({ activePresetId, onSelect }: TicketsViewsMenuP
                     </ZoruDropdownMenuItem>
                 ))}
             </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
     );
 }

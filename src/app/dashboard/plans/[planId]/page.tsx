@@ -44,14 +44,14 @@ const initialState = { message: null, error: null };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} size="lg">
+        <Button type="submit" disabled={pending} size="lg">
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             Save Plan
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -99,9 +99,9 @@ export default function PlanEditorPage() {
     if (loading) {
         return (
             <div className="space-y-4">
-                <ZoruSkeleton className="h-10 w-48" />
-                <ZoruSkeleton className="h-96 w-full" />
-                <ZoruSkeleton className="h-64 w-full" />
+                <Skeleton className="h-10 w-48" />
+                <Skeleton className="h-96 w-full" />
+                <Skeleton className="h-64 w-full" />
             </div>
         );
     }
@@ -110,31 +110,31 @@ export default function PlanEditorPage() {
         <form action={formAction} className="space-y-4">
             <input type="hidden" name="planId" value={plan?._id.toString() || 'new'} />
             <div>
-                <ZoruButton variant="ghost" asChild className="mb-2 -ml-4">
+                <Button variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/admin/dashboard/plans">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Plans
                     </Link>
-                </ZoruButton>
+                </Button>
                 <h1 className="text-3xl text-zoru-ink">
                     {isNew ? 'Create New Plan' : `Edit Plan: ${plan?.name}`}
                 </h1>
                 <p className="text-zoru-ink-muted">Configure the details, limits, and features for this plan.</p>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Basic Details</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="name">Plan Name</ZoruLabel>
-                            <ZoruInput id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
+                            <Label htmlFor="name">Plan Name</Label>
+                            <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="appCategory">Plan Category</ZoruLabel>
-                            <ZoruSelect name="appCategory" defaultValue={plan?.appCategory}>
+                            <Label htmlFor="appCategory">Plan Category</Label>
+                            <Select name="appCategory" defaultValue={plan?.appCategory}>
                                 <ZoruSelectTrigger id="appCategory">
                                     <ZoruSelectValue placeholder="Select a category..." />
                                 </ZoruSelectTrigger>
@@ -149,11 +149,11 @@ export default function PlanEditorPage() {
                                     <ZoruSelectItem value="URL Shortener">URL Shortener</ZoruSelectItem>
                                     <ZoruSelectItem value="QR Code Generator">QR Code Generator</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="price">Price (per month)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="price">Price (per month)</Label>
+                            <Input
                                 id="price"
                                 name="price"
                                 type="number"
@@ -164,8 +164,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                            <ZoruSelect name="currency" defaultValue={plan?.currency || 'INR'} required>
+                            <Label htmlFor="currency">Currency</Label>
+                            <Select name="currency" defaultValue={plan?.currency || 'INR'} required>
                                 <ZoruSelectTrigger id="currency">
                                     <ZoruSelectValue />
                                 </ZoruSelectTrigger>
@@ -174,13 +174,13 @@ export default function PlanEditorPage() {
                                     <ZoruSelectItem value="USD">USD (US Dollar)</ZoruSelectItem>
                                     <ZoruSelectItem value="EUR">EUR (Euro)</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="signupCredits">Signup Credits</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="signupCredits">Signup Credits</Label>
+                            <Input
                                 id="signupCredits"
                                 name="signupCredits"
                                 type="number"
@@ -193,13 +193,13 @@ export default function PlanEditorPage() {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel className="text-base">Per-Message Costs</ZoruLabel>
+                        <Label className="text-base">Per-Message Costs</Label>
                         <div className="mt-2 grid gap-4 rounded-[var(--zoru-radius)] border border-zoru-line p-3 md:grid-cols-3">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="cost_marketing" className="text-sm">
+                                <Label htmlFor="cost_marketing" className="text-sm">
                                     Marketing
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="cost_marketing"
                                     name="cost_marketing"
                                     type="number"
@@ -210,10 +210,10 @@ export default function PlanEditorPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="cost_utility" className="text-sm">
+                                <Label htmlFor="cost_utility" className="text-sm">
                                     Utility
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="cost_utility"
                                     name="cost_utility"
                                     type="number"
@@ -224,10 +224,10 @@ export default function PlanEditorPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="cost_authentication" className="text-sm">
+                                <Label htmlFor="cost_authentication" className="text-sm">
                                     Authentication
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="cost_authentication"
                                     name="cost_authentication"
                                     type="number"
@@ -242,26 +242,26 @@ export default function PlanEditorPage() {
                 </ZoruCardContent>
                 <ZoruCardFooter className="flex flex-wrap gap-x-8 gap-y-4">
                     <div className="flex items-center space-x-2">
-                        <ZoruSwitch id="isPublic" name="isPublic" defaultChecked={plan?.isPublic ?? false} />
-                        <ZoruLabel htmlFor="isPublic">Publicly Visible</ZoruLabel>
+                        <Switch id="isPublic" name="isPublic" defaultChecked={plan?.isPublic ?? false} />
+                        <Label htmlFor="isPublic">Publicly Visible</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <ZoruSwitch id="isDefault" name="isDefault" defaultChecked={plan?.isDefault ?? false} />
-                        <ZoruLabel htmlFor="isDefault">Default for New Signups</ZoruLabel>
+                        <Switch id="isDefault" name="isDefault" defaultChecked={plan?.isDefault ?? false} />
+                        <Label htmlFor="isDefault">Default for New Signups</Label>
                     </div>
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Feature Limits</ZoruCardTitle>
                         <ZoruCardDescription>Set to 0 for unlimited.</ZoruCardDescription>
                     </ZoruCardHeader>
                     <ZoruCardContent className="space-y-3">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="projectLimit">Project Limit</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="projectLimit">Project Limit</Label>
+                            <Input
                                 id="projectLimit"
                                 name="projectLimit"
                                 type="number"
@@ -271,8 +271,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="agentLimit">Agent Limit (per project)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="agentLimit">Agent Limit (per project)</Label>
+                            <Input
                                 id="agentLimit"
                                 name="agentLimit"
                                 type="number"
@@ -282,8 +282,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="attributeLimit">Custom Attribute Limit</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="attributeLimit">Custom Attribute Limit</Label>
+                            <Input
                                 id="attributeLimit"
                                 name="attributeLimit"
                                 type="number"
@@ -293,8 +293,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="templateLimit">Template Limit</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="templateLimit">Template Limit</Label>
+                            <Input
                                 id="templateLimit"
                                 name="templateLimit"
                                 type="number"
@@ -304,8 +304,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="flowLimit">Flow Builder Limit</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="flowLimit">Flow Builder Limit</Label>
+                            <Input
                                 id="flowLimit"
                                 name="flowLimit"
                                 type="number"
@@ -315,8 +315,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="metaFlowLimit">Meta Flows Limit</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="metaFlowLimit">Meta Flows Limit</Label>
+                            <Input
                                 id="metaFlowLimit"
                                 name="metaFlowLimit"
                                 type="number"
@@ -326,8 +326,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="cannedMessageLimit">Canned Messages Limit</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="cannedMessageLimit">Canned Messages Limit</Label>
+                            <Input
                                 id="cannedMessageLimit"
                                 name="cannedMessageLimit"
                                 type="number"
@@ -337,8 +337,8 @@ export default function PlanEditorPage() {
                             />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Enabled Apps & Features</ZoruCardTitle>
                         <ZoruCardDescription>
@@ -352,25 +352,25 @@ export default function PlanEditorPage() {
                                     key={feature.id}
                                     className="flex items-center space-x-3 rounded-[var(--zoru-radius)] border border-zoru-line p-3 hover:bg-zoru-surface-2"
                                 >
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         id={feature.id}
                                         name={feature.id}
                                         defaultChecked={(plan?.features as any)?.[feature.id] ?? true}
                                     />
                                     <div className="space-y-1 leading-none">
-                                        <ZoruLabel htmlFor={feature.id} className="flex items-center gap-2">
+                                        <Label htmlFor={feature.id} className="flex items-center gap-2">
                                             <feature.icon className="h-4 w-4" />
                                             {feature.name}
-                                        </ZoruLabel>
+                                        </Label>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruSeparator />
+            <Separator />
 
             <div className="flex justify-end">
                 <SubmitButton />

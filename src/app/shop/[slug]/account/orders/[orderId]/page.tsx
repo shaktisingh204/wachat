@@ -26,12 +26,12 @@ export default function OrderDetailsPage() {
 
     return (
         <div className="space-y-4">
-             <ZoruButton asChild variant="ghost" className="-ml-4">
+             <Button asChild variant="ghost" className="-ml-4">
                  <Link href={`/shop/${params.slug}/account/orders`}>
                     &larr; Back to Order History
                 </Link>
-            </ZoruButton>
-            <ZoruCard>
+            </Button>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-2xl">Order Details</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -58,7 +58,7 @@ export default function OrderDetailsPage() {
                             </p>
                         </div>
                     </div>
-                     <ZoruSeparator />
+                     <Separator />
                     <div>
                         <h3 className="font-semibold text-lg mb-2">Order Items</h3>
                         <ul className="space-y-3">
@@ -70,14 +70,14 @@ export default function OrderDetailsPage() {
                             ))}
                         </ul>
                     </div>
-                     <ZoruSeparator />
+                     <Separator />
                      <div className="space-y-2">
                         <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
                         <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

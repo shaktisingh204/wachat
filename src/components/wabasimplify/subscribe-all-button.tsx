@@ -38,7 +38,7 @@ export function SubscribeAllButton() {
   };
 
   return (
-    <ZoruButton onClick={onSubscribe} variant="outline" disabled={isPending}>
+    <Button onClick={onSubscribe} variant="outline" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -50,6 +50,6 @@ export function SubscribeAllButton() {
           Subscribe All to Webhooks
         </>
       )}
-    </ZoruButton>
+    </Button>
   );
 }

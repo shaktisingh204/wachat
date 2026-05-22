@@ -76,8 +76,8 @@ function CategoryEditForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <input type="hidden" name="_id" value={row._id} />
       <div className="space-y-1.5">
-        <ZoruLabel htmlFor="cat-name">Category Name</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="cat-name">Category Name</Label>
+        <Input
           id="cat-name"
           name="category_name"
           defaultValue={row.category_name}
@@ -85,8 +85,8 @@ function CategoryEditForm({
         />
       </div>
       <div className="space-y-1.5">
-        <ZoruLabel htmlFor="cat-default">Default</ZoruLabel>
-        <ZoruSelect name="is_default" defaultValue={row.is_default ? 'yes' : 'no'}>
+        <Label htmlFor="cat-default">Default</Label>
+        <Select name="is_default" defaultValue={row.is_default ? 'yes' : 'no'}>
           <ZoruSelectTrigger id="cat-default">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -94,11 +94,11 @@ function CategoryEditForm({
             <ZoruSelectItem value="no">No</ZoruSelectItem>
             <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
-      <ZoruButton type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? 'Saving…' : 'Save Changes'}
-      </ZoruButton>
+      </Button>
     </form>
   );
 }
@@ -181,15 +181,15 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
           {selected.size} selected
         </div>
         <div className="flex items-center gap-1">
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
-          <ZoruButton size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isPending}>
+          </Button>
+          <Button size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isPending}>
             <Trash2 className="h-3.5 w-3.5" /> Delete
-          </ZoruButton>
-          <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())} aria-label="Clear selection">
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())} aria-label="Clear selection">
             <X className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     ) : null;
@@ -208,10 +208,10 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
     <div className="space-y-5">
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ZoruStatCard label="Total Categories" value={kpi.total} icon={<Tags />} />
-        <ZoruStatCard label="With Deals" value={kpi.withDeals} />
-        <ZoruStatCard label="With Leads" value={kpi.withLeads} />
-        <ZoruStatCard label="Most Used" value={kpi.mostUsed} />
+        <StatCard label="Total Categories" value={kpi.total} icon={<Tags />} />
+        <StatCard label="With Deals" value={kpi.withDeals} />
+        <StatCard label="With Leads" value={kpi.withLeads} />
+        <StatCard label="Most Used" value={kpi.mostUsed} />
       </div>
 
       <EntityListShell
@@ -219,16 +219,16 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
         subtitle="Group leads by line-of-business or product family."
         search={{ value: search, onChange: setSearch, placeholder: 'Search categories…' }}
         primaryAction={
-          <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+          <Button variant="outline" size="sm" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5 mr-1" /> Export CSV
-          </ZoruButton>
+          </Button>
         }
         bulkBar={bulkBar}
         empty={empty}
         loading={false}
       >
         <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-8">
@@ -289,7 +289,7 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                     {fmtDate(row.createdAt)}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleDelete(row._id)}
@@ -297,12 +297,12 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                       aria-label={`Delete ${row.category_name}`}
                     >
                       <Trash2 className="h-3.5 w-3.5 text-zoru-danger" />
-                    </ZoruButton>
+                    </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
       </EntityListShell>
     </div>

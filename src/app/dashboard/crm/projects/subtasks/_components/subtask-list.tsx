@@ -162,7 +162,7 @@ export function SubtaskList({
     const totalCount = rows.length;
 
     return (
-        <ZoruCard className="p-4">
+        <Card className="p-4">
             <header className="mb-3 flex items-center justify-between">
                 <div>
                     <h3 className="text-[14px] font-semibold text-zoru-ink">
@@ -258,7 +258,7 @@ export function SubtaskList({
                     onAdded={refresh}
                 />
             ) : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -273,14 +273,14 @@ interface AddSubtaskInlineProps {
 function AddSubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="sm" disabled={pending}>
+        <Button type="submit" size="sm" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" />
             ) : (
                 <Plus className="mr-1.5 h-3.5 w-3.5" />
             )}
             Add
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -330,10 +330,10 @@ function AddSubtaskInline({
             <input type="hidden" name="parentId" value={parentId} />
             <input type="hidden" name="parentKind" value={parentKind} />
             <div>
-                <ZoruLabel htmlFor="subtask-title" className="sr-only">
+                <Label htmlFor="subtask-title" className="sr-only">
                     Title
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                     id="subtask-title"
                     name="title"
                     placeholder="Subtask title"
@@ -342,13 +342,13 @@ function AddSubtaskInline({
                 />
             </div>
             <div className="grid grid-cols-2 gap-2">
-                <ZoruInput
+                <Input
                     name="dueDate"
                     type="date"
                     aria-label="Due date"
                     className="h-9 text-[12.5px]"
                 />
-                <ZoruSelect name="status" defaultValue="todo">
+                <Select name="status" defaultValue="todo">
                     <ZoruSelectTrigger className="h-9 text-[12.5px]">
                         <ZoruSelectValue placeholder="Status" />
                     </ZoruSelectTrigger>
@@ -359,23 +359,23 @@ function AddSubtaskInline({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
-            <ZoruTextarea
+            <Textarea
                 name="description"
                 rows={2}
                 placeholder="Description (optional)"
                 className="text-[12.5px]"
             />
             <div className="flex items-center justify-end gap-2">
-                <ZoruButton
+                <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => setExpanded(false)}
                 >
                     Cancel
-                </ZoruButton>
+                </Button>
                 <AddSubmitButton />
             </div>
         </form>

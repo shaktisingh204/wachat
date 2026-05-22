@@ -22,14 +22,14 @@ export default function NewEWayBillPage() {
             title="Generate e-way bill"
             back={{ href: BASE, label: 'E-way bills' }}
         >
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Consignment details</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <NewEWayBillForm />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

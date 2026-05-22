@@ -55,14 +55,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create template'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -118,7 +118,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -133,8 +133,8 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -146,7 +146,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                 {/* Row 2: Category + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Category</ZoruLabel>
+                        <Label>Category</Label>
                         <EnumFormField
                             name="category-picker"
                             enumName="documentTemplateCategory"
@@ -157,7 +157,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="documentTemplateStatus"
@@ -173,8 +173,8 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
 
                 {/* Row 3: Body (markdown) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="body">Body (markdown)</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="body">Body (markdown)</Label>
+                    <Textarea
                         id="body"
                         name="body"
                         rows={12}
@@ -191,8 +191,8 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
 
                 {/* Row 4: Variables */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="variables">Variables</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="variables">Variables</Label>
+                    <Input
                         id="variables"
                         name="variables"
                         placeholder="employeeName, role, startDate, salary"
@@ -205,7 +205,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
 
                 {/* Row 5: Template file (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Template file (optional)</ZoruLabel>
+                    <Label>Template file (optional)</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -227,14 +227,14 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                                 >
                                     {templateFileName || templateFileUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearTemplate}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -246,26 +246,26 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
 
                 {/* Row 6: Active flag */}
                 <div className="flex items-center gap-2 pb-1.5">
-                    <ZoruCheckbox
+                    <Checkbox
                         id="isActive"
                         name="isActive"
                         defaultChecked={initialData?.isActive ?? true}
                     />
-                    <ZoruLabel htmlFor="isActive" className="cursor-pointer">
+                    <Label htmlFor="isActive" className="cursor-pointer">
                         Active — available for new document generation
-                    </ZoruLabel>
+                    </Label>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to templates
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

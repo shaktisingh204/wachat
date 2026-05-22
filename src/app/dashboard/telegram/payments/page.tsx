@@ -206,7 +206,7 @@ function StatusBadge({ status }: { status: string }) {
               : status === 'failed'
                 ? 'danger'
                 : 'secondary';
-    return <ZoruBadge variant={tone}>{status || '—'}</ZoruBadge>;
+    return <Badge variant={tone}>{status || '—'}</Badge>;
 }
 
 // ---------------------------------------------------------------------------
@@ -440,7 +440,7 @@ export default function TelegramPaymentsPage() {
     if (!projectId) {
         return (
             <div className="px-6 py-12">
-                <ZoruEmptyState
+                <EmptyState
                     title="No project selected"
                     description="Pick a project from the sidebar to manage Telegram payments."
                 />
@@ -452,7 +452,7 @@ export default function TelegramPaymentsPage() {
         <div className="flex flex-col gap-6 px-6 py-6">
             <TelegramProjectGate />
             {/* Breadcrumbs */}
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -466,10 +466,10 @@ export default function TelegramPaymentsPage() {
                         <ZoruBreadcrumbPage>Payments</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             {/* Header */}
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
                     <ZoruPageTitle>
@@ -487,7 +487,7 @@ export default function TelegramPaymentsPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="outline"
                         onClick={reloadAll}
@@ -497,13 +497,13 @@ export default function TelegramPaymentsPage() {
                             className={cn('h-4 w-4', isLoading && 'animate-spin')}
                         />
                         Refresh
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* KPI strip + primary-currency picker */}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label={`Revenue (${primaryCurrency})`}
                     value={
                         analytics
@@ -512,17 +512,17 @@ export default function TelegramPaymentsPage() {
                     }
                     icon={<DollarSign />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Successful"
                     value={String(kpi.successful)}
                     icon={<CheckCircle2 />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Pending"
                     value={String(kpi.pending)}
                     icon={<Clock3 />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Refunded"
                     value={String(kpi.refunded)}
                     icon={<Undo2 />}
@@ -532,10 +532,10 @@ export default function TelegramPaymentsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <ViewSwitcher view={view} onChange={setView} />
                 <div className="flex items-center gap-2">
-                    <ZoruLabel className="text-xs text-muted-foreground">
+                    <Label className="text-xs text-muted-foreground">
                         Display currency
-                    </ZoruLabel>
-                    <ZoruSelect
+                    </Label>
+                    <Select
                         value={primaryCurrency}
                         onValueChange={(v) => setPrimaryCurrency(v)}
                     >
@@ -549,7 +549,7 @@ export default function TelegramPaymentsPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
             </div>
 
@@ -680,7 +680,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
     return (
         <div className="flex flex-col gap-4">
             {/* Mini analytics chart */}
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <div className="mb-3 flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium">Daily volume</div>
@@ -726,15 +726,15 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         </div>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Filters */}
-            <ZoruCard className="flex flex-wrap items-end gap-3 p-3">
+            <Card className="flex flex-wrap items-end gap-3 p-3">
                 <div className="flex min-w-[200px] flex-1 flex-col gap-1">
-                    <ZoruLabel className="text-xs">Search</ZoruLabel>
+                    <Label className="text-xs">Search</Label>
                     <div className="relative">
                         <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-                        <ZoruInput
+                        <Input
                             placeholder="chat id, user id, or charge id"
                             value={props.search}
                             onChange={(e) => props.onSearch(e.target.value)}
@@ -743,8 +743,8 @@ function PaymentsSection(props: PaymentsSectionProps) {
                     </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <ZoruLabel className="text-xs">Status</ZoruLabel>
-                    <ZoruSelect
+                    <Label className="text-xs">Status</Label>
+                    <Select
                         value={props.statusFilter}
                         onValueChange={props.onStatusFilter}
                     >
@@ -758,11 +758,11 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <ZoruLabel className="text-xs">Currency</ZoruLabel>
-                    <ZoruSelect
+                    <Label className="text-xs">Currency</Label>
+                    <Select
                         value={props.currencyFilter}
                         onValueChange={props.onCurrencyFilter}
                     >
@@ -777,11 +777,11 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <ZoruLabel className="text-xs">From</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-xs">From</Label>
+                    <Input
                         type="date"
                         value={props.from.slice(0, 10)}
                         onChange={(e) =>
@@ -792,8 +792,8 @@ function PaymentsSection(props: PaymentsSectionProps) {
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <ZoruLabel className="text-xs">To</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-xs">To</Label>
+                    <Input
                         type="date"
                         value={props.to.slice(0, 10)}
                         onChange={(e) =>
@@ -803,22 +803,22 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         }
                     />
                 </div>
-                <ZoruButton type="button" onClick={props.onApply}>
+                <Button type="button" onClick={props.onApply}>
                     Apply
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     type="button"
                     variant="outline"
                     onClick={props.onCsvExport}
                 >
                     <Download className="h-4 w-4" />
                     Export CSV
-                </ZoruButton>
-            </ZoruCard>
+                </Button>
+            </Card>
 
             {/* Table */}
-            <ZoruCard className="overflow-hidden">
-                <ZoruTable>
+            <Card className="overflow-hidden">
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead>Chat / User</ZoruTableHead>
@@ -860,35 +860,35 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                 </ZoruTableCell>
                                 <ZoruTableCell>{fmtDate(p.createdAt)}</ZoruTableCell>
                                 <ZoruTableCell className="text-right">
-                                    <ZoruButton
+                                    <Button
                                         size="icon-sm"
                                         variant="ghost"
                                         aria-label="View"
                                         onClick={() => openDetail(p)}
                                     >
                                         <Eye className="h-4 w-4" />
-                                    </ZoruButton>
+                                    </Button>
                                     {p.status === 'succeeded' && (
-                                        <ZoruButton
+                                        <Button
                                             size="icon-sm"
                                             variant="ghost"
                                             aria-label="Refund"
                                             onClick={() => setRefundTarget(p)}
                                         >
                                             <Undo2 className="h-4 w-4" />
-                                        </ZoruButton>
+                                        </Button>
                                     )}
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
                 <div className="flex items-center justify-between border-t border-zoru-line px-3 py-2 text-xs">
                     <div className="text-muted-foreground">
                         Page {props.page} of {totalPages} • {props.paymentsTotal} total
                     </div>
                     <div className="flex gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             size="sm"
                             variant="outline"
@@ -896,8 +896,8 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             onClick={() => props.onPageChange(props.page - 1)}
                         >
                             Previous
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             size="sm"
                             variant="outline"
@@ -905,13 +905,13 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             onClick={() => props.onPageChange(props.page + 1)}
                         >
                             Next
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Detail dialog */}
-            <ZoruDialog
+            <Dialog
                 open={!!detail}
                 onOpenChange={(v) => !v && setDetail(null)}
             >
@@ -926,33 +926,33 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         <div className="grid gap-3 text-sm">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <ZoruLabel className="text-xs">Amount</ZoruLabel>
+                                    <Label className="text-xs">Amount</Label>
                                     <div>{fmtCurrency(detail.amount, detail.currency)}</div>
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-xs">Status</ZoruLabel>
+                                    <Label className="text-xs">Status</Label>
                                     <StatusBadge status={detail.status} />
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-xs">Chat ID</ZoruLabel>
+                                    <Label className="text-xs">Chat ID</Label>
                                     <div className="font-mono text-xs">
                                         {detail.chatId ?? '—'}
                                     </div>
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-xs">User ID</ZoruLabel>
+                                    <Label className="text-xs">User ID</Label>
                                     <div className="font-mono text-xs">
                                         {detail.userId ?? '—'}
                                     </div>
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-xs">Telegram charge id</ZoruLabel>
+                                    <Label className="text-xs">Telegram charge id</Label>
                                     <div className="break-all font-mono text-xs">
                                         {detail.telegramPaymentChargeId ?? '—'}
                                     </div>
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-xs">Provider charge id</ZoruLabel>
+                                    <Label className="text-xs">Provider charge id</Label>
                                     <div className="break-all font-mono text-xs">
                                         {detail.providerPaymentChargeId ?? '—'}
                                     </div>
@@ -960,7 +960,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             </div>
                             {detail.orderInfo ? (
                                 <div>
-                                    <ZoruLabel className="text-xs">Order info</ZoruLabel>
+                                    <Label className="text-xs">Order info</Label>
                                     <pre className="max-h-40 overflow-auto rounded bg-secondary/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.orderInfo, null, 2)}
                                     </pre>
@@ -968,7 +968,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             ) : null}
                             {detail.shippingAddress ? (
                                 <div>
-                                    <ZoruLabel className="text-xs">Shipping address</ZoruLabel>
+                                    <Label className="text-xs">Shipping address</Label>
                                     <pre className="max-h-40 overflow-auto rounded bg-secondary/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.shippingAddress, null, 2)}
                                     </pre>
@@ -977,12 +977,12 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         </div>
                     )}
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => setDetail(null)}>
+                        <Button variant="outline" onClick={() => setDetail(null)}>
                             Close
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Refund confirm */}
             <ZoruAlertDialog
@@ -1036,8 +1036,8 @@ function InvoicesSection({
     }, [templates]);
 
     return (
-        <ZoruCard className="overflow-hidden">
-            <ZoruTable>
+        <Card className="overflow-hidden">
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow>
                         <ZoruTableHead>Template</ZoruTableHead>
@@ -1094,8 +1094,8 @@ function InvoicesSection({
                         </ZoruTableRow>
                     ))}
                 </ZoruTableBody>
-            </ZoruTable>
-        </ZoruCard>
+            </Table>
+        </Card>
     );
 }
 
@@ -1132,15 +1132,15 @@ function TemplatesSection({
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-sm font-medium">Invoice templates</h2>
-                <ZoruButton
+                <Button
                     onClick={() => setDrawer({ open: true, editing: null })}
                 >
                     <Plus className="h-4 w-4" />
                     New template
-                </ZoruButton>
+                </Button>
             </div>
-            <ZoruCard className="overflow-hidden">
-                <ZoruTable>
+            <Card className="overflow-hidden">
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead>Name</ZoruTableHead>
@@ -1174,15 +1174,15 @@ function TemplatesSection({
                                         {fmtCurrency(total, t.currency)}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruButton
+                                        <Button
                                             size="icon-sm"
                                             variant="ghost"
                                             onClick={() => setSendDialog(t)}
                                             aria-label="Send invoice"
                                         >
                                             <Send className="h-4 w-4" />
-                                        </ZoruButton>
-                                        <ZoruButton
+                                        </Button>
+                                        <Button
                                             size="icon-sm"
                                             variant="ghost"
                                             onClick={() =>
@@ -1191,22 +1191,22 @@ function TemplatesSection({
                                             aria-label="Edit"
                                         >
                                             <Pencil className="h-4 w-4" />
-                                        </ZoruButton>
-                                        <ZoruButton
+                                        </Button>
+                                        <Button
                                             size="icon-sm"
                                             variant="ghost"
                                             onClick={() => setDeleteTarget(t)}
                                             aria-label="Delete"
                                         >
                                             <Trash2 className="h-4 w-4" />
-                                        </ZoruButton>
+                                        </Button>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })}
                     </ZoruTableBody>
-                </ZoruTable>
-            </ZoruCard>
+                </Table>
+            </Card>
 
             {drawer.open && (
                 <TemplateDrawer
@@ -1370,7 +1370,7 @@ function TemplateDrawer({
     };
 
     return (
-        <ZoruSheet open={open} onOpenChange={(v) => !v && onClose()}>
+        <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
             <ZoruSheetContent className="w-full sm:max-w-xl">
                 <ZoruSheetHeader>
                     <ZoruSheetTitle>
@@ -1385,17 +1385,17 @@ function TemplateDrawer({
 
                 <div className="flex flex-col gap-3 py-4">
                     <Field label="Name (internal)">
-                        <ZoruInput value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input value={name} onChange={(e) => setName(e.target.value)} />
                     </Field>
                     <Field label="Title (buyer-visible)">
-                        <ZoruInput
+                        <Input
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             maxLength={32}
                         />
                     </Field>
                     <Field label="Description">
-                        <ZoruTextarea
+                        <Textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             maxLength={255}
@@ -1403,7 +1403,7 @@ function TemplateDrawer({
                         />
                     </Field>
                     <Field label="Payload (echoed back in webhooks)">
-                        <ZoruInput
+                        <Input
                             value={payload}
                             onChange={(e) => setPayload(e.target.value)}
                             maxLength={128}
@@ -1412,7 +1412,7 @@ function TemplateDrawer({
 
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Currency">
-                            <ZoruSelect value={currency} onValueChange={setCurrency}>
+                            <Select value={currency} onValueChange={setCurrency}>
                                 <ZoruSelectTrigger>
                                     <ZoruSelectValue />
                                 </ZoruSelectTrigger>
@@ -1423,10 +1423,10 @@ function TemplateDrawer({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Provider (non-XTR only)">
-                            <ZoruSelect
+                            <Select
                                 value={providerId || 'none'}
                                 onValueChange={(v) =>
                                     setProviderId(v === 'none' ? '' : v)
@@ -1444,7 +1444,7 @@ function TemplateDrawer({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                     </div>
 
@@ -1460,8 +1460,8 @@ function TemplateDrawer({
                     {/* Prices */}
                     <div className="rounded-md border border-zoru-line p-3">
                         <div className="mb-2 flex items-center justify-between">
-                            <ZoruLabel>Price lines</ZoruLabel>
-                            <ZoruButton
+                            <Label>Price lines</Label>
+                            <Button
                                 type="button"
                                 size="sm"
                                 variant="outline"
@@ -1469,12 +1469,12 @@ function TemplateDrawer({
                             >
                                 <Plus className="h-3.5 w-3.5" />
                                 Add line
-                            </ZoruButton>
+                            </Button>
                         </div>
                         <div className="flex flex-col gap-2">
                             {prices.map((p, i) => (
                                 <div key={i} className="flex items-center gap-2">
-                                    <ZoruInput
+                                    <Input
                                         placeholder="Label"
                                         value={p.label}
                                         onChange={(e) =>
@@ -1482,7 +1482,7 @@ function TemplateDrawer({
                                         }
                                         className="flex-1"
                                     />
-                                    <ZoruInput
+                                    <Input
                                         placeholder={
                                             currency === 'XTR'
                                                 ? 'Amount (XTR)'
@@ -1497,7 +1497,7 @@ function TemplateDrawer({
                                         }
                                         className="w-40"
                                     />
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         size="icon-sm"
                                         variant="ghost"
@@ -1505,7 +1505,7 @@ function TemplateDrawer({
                                         aria-label="Remove line"
                                     >
                                         <Trash2 className="h-4 w-4" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -1530,23 +1530,23 @@ function TemplateDrawer({
                 </div>
 
                 <ZoruSheetFooter>
-                    <ZoruButton variant="outline" onClick={onClose} disabled={saving}>
+                    <Button variant="outline" onClick={onClose} disabled={saving}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={handleSave} disabled={saving}>
+                    </Button>
+                    <Button onClick={handleSave} disabled={saving}>
                         {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                         {editing ? 'Save changes' : 'Create template'}
-                    </ZoruButton>
+                    </Button>
                 </ZoruSheetFooter>
             </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
     );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex flex-col gap-1">
-            <ZoruLabel className="text-xs">{label}</ZoruLabel>
+            <Label className="text-xs">{label}</Label>
             {children}
         </div>
     );
@@ -1564,7 +1564,7 @@ function ToggleRow({
     return (
         <label className="flex items-center justify-between gap-2 rounded border border-zoru-line bg-zoru-bg px-3 py-2 text-sm">
             <span>{label}</span>
-            <ZoruSwitch checked={value} onCheckedChange={onChange} />
+            <Switch checked={value} onCheckedChange={onChange} />
         </label>
     );
 }
@@ -1633,7 +1633,7 @@ function SendInvoiceDialog({
     };
 
     return (
-        <ZoruDialog open onOpenChange={(v) => !v && onClose()}>
+        <Dialog open onOpenChange={(v) => !v && onClose()}>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>Send / link invoice</ZoruDialogTitle>
@@ -1669,7 +1669,7 @@ function SendInvoiceDialog({
                 </div>
                 <div className="flex flex-col gap-3">
                     <Field label="Bot">
-                        <ZoruSelect
+                        <Select
                             value={botId}
                             onValueChange={setBotId}
                             disabled={bots.length === 0}
@@ -1684,11 +1684,11 @@ function SendInvoiceDialog({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     {mode === 'send' ? (
                         <Field label="Chat ID">
-                            <ZoruInput
+                            <Input
                                 placeholder="-100… or numeric user id"
                                 value={chatId}
                                 onChange={(e) => setChatId(e.target.value)}
@@ -1710,26 +1710,26 @@ function SendInvoiceDialog({
                     ) : null}
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton variant="outline" onClick={onClose} disabled={busy}>
+                    <Button variant="outline" onClick={onClose} disabled={busy}>
                         Close
-                    </ZoruButton>
+                    </Button>
                     {mode === 'send' ? (
-                        <ZoruButton
+                        <Button
                             onClick={doSend}
                             disabled={busy || !botId || !chatId.trim()}
                         >
                             {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                             Send invoice
-                        </ZoruButton>
+                        </Button>
                     ) : (
-                        <ZoruButton onClick={doLink} disabled={busy}>
+                        <Button onClick={doLink} disabled={busy}>
                             {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                             Create link
-                        </ZoruButton>
+                        </Button>
                     )}
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -1777,22 +1777,22 @@ function ProvidersSection({
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-sm font-medium">Provider tokens</h2>
-                <ZoruButton
+                <Button
                     onClick={() => setDrawer({ open: true, editing: null })}
                     disabled={bots.length === 0}
                 >
                     <Plus className="h-4 w-4" />
                     Add provider
-                </ZoruButton>
+                </Button>
             </div>
             {bots.length === 0 && (
-                <ZoruCard className="p-4 text-sm text-muted-foreground">
+                <Card className="p-4 text-sm text-muted-foreground">
                     Connect a Telegram bot to this project first — provider tokens
                     are attached to a specific bot.
-                </ZoruCard>
+                </Card>
             )}
-            <ZoruCard className="overflow-hidden">
-                <ZoruTable>
+            <Card className="overflow-hidden">
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead>Label</ZoruTableHead>
@@ -1828,12 +1828,12 @@ function ProvidersSection({
                                     </ZoruTableCell>
                                     <ZoruTableCell>{p.currency}</ZoruTableCell>
                                     <ZoruTableCell>
-                                        <ZoruBadge variant={p.testMode ? 'warning' : 'success'}>
+                                        <Badge variant={p.testMode ? 'warning' : 'success'}>
                                             {p.testMode ? 'Test' : 'Live'}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruButton
+                                        <Button
                                             size="icon-sm"
                                             variant="ghost"
                                             disabled={testingId === p._id}
@@ -1845,8 +1845,8 @@ function ProvidersSection({
                                             ) : (
                                                 <TestTube className="h-4 w-4" />
                                             )}
-                                        </ZoruButton>
-                                        <ZoruButton
+                                        </Button>
+                                        <Button
                                             size="icon-sm"
                                             variant="ghost"
                                             onClick={() =>
@@ -1855,22 +1855,22 @@ function ProvidersSection({
                                             aria-label="Edit"
                                         >
                                             <Pencil className="h-4 w-4" />
-                                        </ZoruButton>
-                                        <ZoruButton
+                                        </Button>
+                                        <Button
                                             size="icon-sm"
                                             variant="ghost"
                                             onClick={() => setDeleteTarget(p)}
                                             aria-label="Delete"
                                         >
                                             <Trash2 className="h-4 w-4" />
-                                        </ZoruButton>
+                                        </Button>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })}
                     </ZoruTableBody>
-                </ZoruTable>
-            </ZoruCard>
+                </Table>
+            </Card>
 
             {drawer.open && (
                 <ProviderDrawer
@@ -1988,7 +1988,7 @@ function ProviderDrawer({
     };
 
     return (
-        <ZoruSheet open={open} onOpenChange={(v) => !v && onClose()}>
+        <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
             <ZoruSheetContent className="w-full sm:max-w-md">
                 <ZoruSheetHeader>
                     <ZoruSheetTitle>
@@ -2002,7 +2002,7 @@ function ProviderDrawer({
                 </ZoruSheetHeader>
                 <div className="flex flex-col gap-3 py-4">
                     <Field label="Label">
-                        <ZoruInput
+                        <Input
                             placeholder="e.g. Stripe — USD"
                             value={label}
                             onChange={(e) => setLabel(e.target.value)}
@@ -2010,7 +2010,7 @@ function ProviderDrawer({
                     </Field>
                     {!editing && (
                         <Field label="Bot">
-                            <ZoruSelect
+                            <Select
                                 value={botId}
                                 onValueChange={setBotId}
                                 disabled={bots.length === 0}
@@ -2025,7 +2025,7 @@ function ProviderDrawer({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                     )}
                     <Field
@@ -2035,7 +2035,7 @@ function ProviderDrawer({
                                 : 'Provider token'
                         }
                     >
-                        <ZoruInput
+                        <Input
                             type="password"
                             value={providerToken}
                             onChange={(e) => setProviderToken(e.target.value)}
@@ -2044,7 +2044,7 @@ function ProviderDrawer({
                         />
                     </Field>
                     <Field label="Currency">
-                        <ZoruSelect value={currency} onValueChange={setCurrency}>
+                        <Select value={currency} onValueChange={setCurrency}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -2057,7 +2057,7 @@ function ProviderDrawer({
                                     ),
                                 )}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <ToggleRow
                         label="Test mode"
@@ -2066,15 +2066,15 @@ function ProviderDrawer({
                     />
                 </div>
                 <ZoruSheetFooter>
-                    <ZoruButton variant="outline" onClick={onClose} disabled={busy}>
+                    <Button variant="outline" onClick={onClose} disabled={busy}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={handleSave} disabled={busy}>
+                    </Button>
+                    <Button onClick={handleSave} disabled={busy}>
                         {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                         Save
-                    </ZoruButton>
+                    </Button>
                 </ZoruSheetFooter>
             </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
     );
 }

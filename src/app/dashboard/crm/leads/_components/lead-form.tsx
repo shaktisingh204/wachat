@@ -44,10 +44,10 @@ interface LeadFormProps {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create lead'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -102,14 +102,14 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
         value={JSON.stringify(customFieldValues)}
       />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Identity
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="firstName">First name <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="firstName">First name <span className="text-zoru-danger-ink">*</span></Label>
+            <Input
               id="firstName"
               name="firstName"
               required
@@ -118,8 +118,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="lastName">Last name <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lastName">Last name <span className="text-zoru-danger-ink">*</span></Label>
+            <Input
               id="lastName"
               name="lastName"
               required
@@ -128,8 +128,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="email">Email</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="email">Email</Label>
+            <Input
               id="email"
               name="email"
               type="email"
@@ -138,8 +138,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="phone">Phone</Label>
+            <Input
               id="phone"
               name="phone"
               type="tel"
@@ -148,8 +148,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="company">Company</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="company">Company</Label>
+            <Input
               id="company"
               name="company"
               defaultValue={initial?.company ?? ''}
@@ -158,7 +158,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Job title</ZoruLabel>
+            <Label>Job title</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="jobTitle"
@@ -168,15 +168,15 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Source</ZoruLabel>
+            <Label>Source</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="leadSource"
@@ -186,8 +186,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="subSource">Sub-source</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="subSource">Sub-source</Label>
+            <Input
               id="subSource"
               name="subSource"
               defaultValue={initial?.subSource ?? ''}
@@ -196,7 +196,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Status</ZoruLabel>
+            <Label>Status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="leadStatus"
@@ -207,8 +207,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="leadScore">Lead score (0–100)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="leadScore">Lead score (0–100)</Label>
+            <Input
               id="leadScore"
               name="leadScore"
               type="number"
@@ -219,7 +219,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Owner (SDR)</ZoruLabel>
+            <Label>Owner (SDR)</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -229,7 +229,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Assigned to (AE)</ZoruLabel>
+            <Label>Assigned to (AE)</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -239,7 +239,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Industry</ZoruLabel>
+            <Label>Industry</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="industry"
@@ -249,16 +249,16 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Value & Forecast
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="estimatedValue">Estimated value</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="estimatedValue">Estimated value</Label>
+            <Input
               id="estimatedValue"
               name="estimatedValue"
               type="number"
@@ -269,7 +269,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Currency</ZoruLabel>
+            <Label>Currency</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="currency"
@@ -279,8 +279,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="probabilityPct">Probability % (0–100)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="probabilityPct">Probability % (0–100)</Label>
+            <Input
               id="probabilityPct"
               name="probabilityPct"
               type="number"
@@ -291,8 +291,8 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="expectedClose">Expected close date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="expectedClose">Expected close date</Label>
+            <Input
               id="expectedClose"
               name="expectedClose"
               type="date"
@@ -305,10 +305,10 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {customFields.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Custom fields
           </h3>
@@ -322,15 +322,15 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
               />
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href={editing ? `/dashboard/crm/leads/${String(initial!._id)}` : '/dashboard/crm/leads'}>
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

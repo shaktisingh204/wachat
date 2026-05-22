@@ -61,7 +61,7 @@ export function ZoruColorPicker({
   };
 
   return (
-    <ZoruPopover>
+    <Popover>
       <ZoruPopoverTrigger asChild>
         <button
           type="button"
@@ -106,7 +106,7 @@ export function ZoruColorPicker({
             />
             <Pipette className="pointer-events-none absolute inset-0 m-auto h-3.5 w-3.5 mix-blend-difference text-white" />
           </label>
-          <ZoruInput
+          <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={() => commit(draft)}
@@ -135,11 +135,11 @@ export function ZoruColorPicker({
           ))}
         </div>
         <div className="flex justify-end">
-          <ZoruButton size="sm" onClick={() => commit(draft)}>
+          <Button size="sm" onClick={() => commit(draft)}>
             Done
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

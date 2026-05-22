@@ -40,7 +40,7 @@ export default function RazorpayIntegrationPage() {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -58,18 +58,18 @@ export default function RazorpayIntegrationPage() {
             <ZoruBreadcrumbPage>Razorpay</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex-1">
         {isLoading ? (
-          <ZoruSkeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
         ) : !project ? (
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <ZoruAlertTitle>No project selected</ZoruAlertTitle>
             <ZoruAlertDescription>
               Please select a project from the main dashboard.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : (
           <div className="max-w-2xl">
             <RazorpaySettingsForm project={project} />

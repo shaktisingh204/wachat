@@ -21,14 +21,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Save case
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -53,12 +53,12 @@ export default function NewDisciplinaryCasePage() {
       subtitle="Open a confidential disciplinary case for an employee."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Row 1: Employee Name */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="employeeName">Employee Name *</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="employeeName">Employee Name *</Label>
+            <Input
               id="employeeName"
               name="employeeName"
               placeholder="Full name of the employee"
@@ -69,7 +69,7 @@ export default function NewDisciplinaryCasePage() {
           {/* Row 2: Case Type + Severity */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="caseType">Case Type</ZoruLabel>
+              <Label htmlFor="caseType">Case Type</Label>
               <select
                 id="caseType"
                 name="caseType"
@@ -85,7 +85,7 @@ export default function NewDisciplinaryCasePage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="severity">Severity</ZoruLabel>
+              <Label htmlFor="severity">Severity</Label>
               <select
                 id="severity"
                 name="severity"
@@ -103,23 +103,23 @@ export default function NewDisciplinaryCasePage() {
           {/* Row 3: Raised By + Incident Date */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="raisedBy">Raised By</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="raisedBy">Raised By</Label>
+              <Input
                 id="raisedBy"
                 name="raisedBy"
                 placeholder="Manager or HR officer name"
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="incidentDate">Incident Date</ZoruLabel>
-              <ZoruInput id="incidentDate" name="incidentDate" type="date" />
+              <Label htmlFor="incidentDate">Incident Date</Label>
+              <Input id="incidentDate" name="incidentDate" type="date" />
             </div>
           </div>
 
           {/* Row 4: Description */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               placeholder="Describe the incident or issue in detail"
@@ -129,8 +129,8 @@ export default function NewDisciplinaryCasePage() {
 
           {/* Row 5: Notes */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="notes">Initial Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Initial Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               placeholder="Any initial observations or action items"
@@ -142,7 +142,7 @@ export default function NewDisciplinaryCasePage() {
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

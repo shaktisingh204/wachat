@@ -83,8 +83,8 @@ export function SabsmsDebugSendForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <ZoruLabel htmlFor="sabsms-debug-to">Destination (E.164)</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="sabsms-debug-to">Destination (E.164)</Label>
+        <Input
           id="sabsms-debug-to"
           required
           placeholder="+15551234567"
@@ -95,8 +95,8 @@ export function SabsmsDebugSendForm() {
       </div>
 
       <div className="space-y-2">
-        <ZoruLabel htmlFor="sabsms-debug-body">Body</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="sabsms-debug-body">Body</Label>
+        <Textarea
           id="sabsms-debug-body"
           required
           rows={3}
@@ -109,11 +109,11 @@ export function SabsmsDebugSendForm() {
       </div>
 
       <div className="flex items-center gap-3">
-        <ZoruButton type="submit" disabled={submitting || !to || !body}>
+        <Button type="submit" disabled={submitting || !to || !body}>
           {submitting ? 'Sending…' : 'Send debug SMS'}
-        </ZoruButton>
+        </Button>
         {status && (
-          <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+          <Badge variant={statusVariant(status)}>{status}</Badge>
         )}
         {messageId && (
           <code className="rounded bg-slate-100 px-2 py-1 text-xs">

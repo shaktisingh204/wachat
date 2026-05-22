@@ -107,48 +107,48 @@ export default async function AwardsPage() {
       title="Awards & Recognition Programs"
       subtitle="Celebrate top performers with structured awards and peer nominations."
       primaryAction={
-        <ZoruButton variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/hrm/hr/awards/new">
             <Plus className="h-4 w-4" /> New program
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <ZoruCard className="p-3">
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Total programs
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
             {programs.length}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Active
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-success-ink">
             {activePrograms}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Total nominations
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
             {totalNominations}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Total winners
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
             {totalWinners}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Top program
           </div>
@@ -158,10 +158,10 @@ export default async function AwardsPage() {
           <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
             {topProgram.count} nominations
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4">
           <h2 className="text-[16px] text-zoru-ink">All programs</h2>
           <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -169,7 +169,7 @@ export default async function AwardsPage() {
           </p>
         </div>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Program name</ZoruTableHead>
@@ -217,9 +217,9 @@ export default async function AwardsPage() {
                       <ZoruTableCell className="text-zoru-ink">{nominations}</ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">{winners}</ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={getStatusVariant(program.status)}>
+                        <Badge variant={getStatusVariant(program.status)}>
                           {program.status || 'draft'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
@@ -235,9 +235,9 @@ export default async function AwardsPage() {
                 </ZoruTableRow>
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

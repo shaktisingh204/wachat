@@ -79,12 +79,12 @@ const saveInitialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
             {isEditing ? 'Save changes' : 'Create type'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -131,7 +131,7 @@ function ContractTypeDialog({
     }, [state, toast, onSaved, onOpenChange]);
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent>
                 <form action={formAction}>
                     {isEditing ? (
@@ -152,8 +152,8 @@ function ContractTypeDialog({
                     <div className="space-y-4 py-4">
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="name">Name *</Label>
+                                <Input
                                     id="name"
                                     name="name"
                                     required
@@ -162,8 +162,8 @@ function ContractTypeDialog({
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="code">Code *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="code">Code *</Label>
+                                <Input
                                     id="code"
                                     name="code"
                                     required
@@ -174,10 +174,10 @@ function ContractTypeDialog({
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="description">
+                            <Label htmlFor="description">
                                 Description
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="description"
                                 name="description"
                                 rows={2}
@@ -187,10 +187,10 @@ function ContractTypeDialog({
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="defaultTermMonths">
+                                <Label htmlFor="defaultTermMonths">
                                     Default term (months)
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="defaultTermMonths"
                                     name="defaultTermMonths"
                                     type="number"
@@ -203,10 +203,10 @@ function ContractTypeDialog({
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="defaultTemplateId">
+                                <Label htmlFor="defaultTemplateId">
                                     Default template id
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="defaultTemplateId"
                                     name="defaultTemplateId"
                                     placeholder="Optional template _id"
@@ -218,7 +218,7 @@ function ContractTypeDialog({
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="space-y-1.5">
-                                <ZoruLabel>Status</ZoruLabel>
+                                <Label>Status</Label>
                                 <EnumFormField
                                     enumName="contractTypeStatus"
                                     name="__status_picker"
@@ -229,36 +229,36 @@ function ContractTypeDialog({
                                 />
                             </div>
                             <div className="flex items-center gap-2 self-end pb-1.5">
-                                <ZoruCheckbox
+                                <Checkbox
                                     id="isActive"
                                     name="isActive"
                                     defaultChecked={
                                         initialData?.isActive !== false
                                     }
                                 />
-                                <ZoruLabel
+                                <Label
                                     htmlFor="isActive"
                                     className="cursor-pointer"
                                 >
                                     Available for selection
-                                </ZoruLabel>
+                                </Label>
                             </div>
                         </div>
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                         >
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -410,9 +410,9 @@ export default function ContractTypesPage() {
                     title="Contract types"
                     subtitle="Categorise contracts (Service, MSA, NDA…) with default term length and template."
                     primaryAction={
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                        <Button onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New type
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -433,20 +433,20 @@ export default function ContractTypesPage() {
                         selected.size > 0 ? (
                             <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
                                 <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-                                <ZoruButton size="sm" variant="ghost" onClick={exportCsv}>
+                                <Button size="sm" variant="ghost" onClick={exportCsv}>
                                     <Download className="h-3.5 w-3.5" /> Export CSV
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     size="sm"
                                     variant="destructive"
                                     onClick={() => setPendingBulkDelete(true)}
                                     disabled={deletePending}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
-                                <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+                                </Button>
+                                <Button size="sm" variant="ghost" onClick={clearSelection}>
                                     <X className="h-3.5 w-3.5" /> Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ) : null
                     }
@@ -454,7 +454,7 @@ export default function ContractTypesPage() {
                 >
                     {/* KPI strip */}
                     <div className="mb-4 grid grid-cols-3 gap-3">
-                        <ZoruCard className="p-0">
+                        <Card className="p-0">
                             <ZoruCardHeader className="pb-1 pt-3 px-4">
                                 <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
                                     Total
@@ -465,8 +465,8 @@ export default function ContractTypesPage() {
                                     {kpi.total}
                                 </span>
                             </ZoruCardContent>
-                        </ZoruCard>
-                        <ZoruCard className="p-0 border-emerald-500/30">
+                        </Card>
+                        <Card className="p-0 border-emerald-500/30">
                             <ZoruCardHeader className="pb-1 pt-3 px-4">
                                 <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
                                     Active
@@ -477,8 +477,8 @@ export default function ContractTypesPage() {
                                     {kpi.active}
                                 </span>
                             </ZoruCardContent>
-                        </ZoruCard>
-                        <ZoruCard className="p-0 border-zoru-line">
+                        </Card>
+                        <Card className="p-0 border-zoru-line">
                             <ZoruCardHeader className="pb-1 pt-3 px-4">
                                 <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
                                     Archived
@@ -489,15 +489,15 @@ export default function ContractTypesPage() {
                                     {kpi.archived}
                                 </span>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="w-[36px]">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={allSelected}
                                             onCheckedChange={toggleAll}
                                             aria-label="Select all"
@@ -557,7 +557,7 @@ export default function ContractTypesPage() {
                                                 data-state={isSelected ? 'selected' : undefined}
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={isSelected}
                                                         onCheckedChange={() => toggleRow(row._id)}
                                                         aria-label={`Select ${row.name}`}
@@ -584,7 +584,7 @@ export default function ContractTypesPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() =>
@@ -594,8 +594,8 @@ export default function ContractTypesPage() {
                                                         }
                                                     >
                                                         <Edit className="h-4 w-4" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() =>
@@ -605,14 +605,14 @@ export default function ContractTypesPage() {
                                                         }
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 </EntityListShell>
 

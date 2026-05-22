@@ -107,17 +107,17 @@ export function AddBrandDialog({
                         </div>
                     </div>
                     <DialogFooter>
-                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="submit"
                             variant="obsidian"
                             disabled={isSubmitting}
                             leading={isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
                         >
                             Save
-                        </ZoruButton>
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

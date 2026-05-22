@@ -29,7 +29,7 @@ export function CountryBarTile({
   queryString,
 }: CountryBarTileProps) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>Top countries</ZoruCardTitle>
@@ -91,6 +91,6 @@ export function CountryBarTile({
           </ZoruChartContainer>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

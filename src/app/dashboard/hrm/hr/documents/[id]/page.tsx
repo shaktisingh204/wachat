@@ -68,31 +68,31 @@ export default async function DocumentDetailPage({
             title={doc.name}
             subtitle={doc.description || 'Document detail'}
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${documentId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {doc.isConfidential ? (
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                             <ShieldAlert className="mr-1 h-3 w-3" />
                             Confidential
-                        </ZoruBadge>
+                        </Badge>
                     ) : null}
                     {tags.map((t) => (
-                        <ZoruBadge key={t} variant="ghost">
+                        <Badge key={t} variant="ghost">
                             {t}
-                        </ZoruBadge>
+                        </Badge>
                     ))}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -145,10 +145,10 @@ export default async function DocumentDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {doc.fileUrl ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
                         <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                         Attached file
@@ -161,7 +161,7 @@ export default async function DocumentDetailPage({
                     >
                         {doc.fileUrl}
                     </a>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityListShell>
     );

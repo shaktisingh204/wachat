@@ -207,7 +207,7 @@ export function InboxShell() {
   return (
     <div className="flex h-full min-h-0 w-full flex-col bg-zoru-bg">
       <div className="shrink-0 border-b border-zoru-line px-4 py-2">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -221,7 +221,7 @@ export function InboxShell() {
               <ZoruBreadcrumbPage>Inbox</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
       </div>
       {showOfflineBanner ? (
         <div className="flex shrink-0 items-center gap-3 border-b border-zoru-line bg-zoru-warning/10 px-3 py-2 text-xs">
@@ -230,7 +230,7 @@ export function InboxShell() {
             This session isn&apos;t connected. New messages will queue until you
             reconnect.
           </span>
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -238,7 +238,7 @@ export function InboxShell() {
             onClick={() => router.push('/sabwa/connect')}
           >
             Reconnect
-          </ZoruButton>
+          </Button>
         </div>
       ) : null}
 
@@ -279,7 +279,7 @@ export function InboxShell() {
             />
           ) : (
             <div className="hidden flex-1 items-center justify-center p-6 md:flex">
-              <ZoruEmptyState
+              <EmptyState
                 icon={<MessageSquare />}
                 title="Pick a chat"
                 description="Choose a conversation from the list to start messaging."

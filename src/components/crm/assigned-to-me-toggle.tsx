@@ -65,7 +65,7 @@ export function AssignedToMeToggle({
   if (resolved && !myId) return null;
 
   return (
-    <ZoruButton
+    <Button
       type="button"
       variant={active ? 'default' : 'outline'}
       size="sm"
@@ -76,11 +76,11 @@ export function AssignedToMeToggle({
       <UserCheck className="mr-1.5 h-3.5 w-3.5" />
       Assigned to me
       {active && typeof count === 'number' ? (
-        <ZoruBadge variant="ghost" className="ml-2">
+        <Badge variant="ghost" className="ml-2">
           {count}
-        </ZoruBadge>
+        </Badge>
       ) : null}
-    </ZoruButton>
+    </Button>
   );
 }
 

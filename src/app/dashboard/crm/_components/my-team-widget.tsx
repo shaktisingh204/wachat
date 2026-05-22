@@ -56,7 +56,7 @@ export async function MyTeamWidget() {
   );
 
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <ZoruCardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <ZoruCardTitle className="flex items-center gap-2 text-[14px] text-zoru-ink">
@@ -65,7 +65,7 @@ export async function MyTeamWidget() {
             </span>
             My team
           </ZoruCardTitle>
-          <ZoruBadge variant="ghost">{reports.length}</ZoruBadge>
+          <Badge variant="ghost">{reports.length}</Badge>
         </div>
       </ZoruCardHeader>
       <ZoruCardContent className="pt-2">
@@ -77,11 +77,11 @@ export async function MyTeamWidget() {
                 key={r._id}
                 className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 hover:bg-zoru-surface-2"
               >
-                <ZoruAvatar className="h-8 w-8">
+                <Avatar className="h-8 w-8">
                   <ZoruAvatarFallback>
                     {initialsFromName(first ?? '', rest.join(' '))}
                   </ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-[13px] font-medium text-zoru-ink">
                     {r.name}
@@ -90,9 +90,9 @@ export async function MyTeamWidget() {
                     {r.designation ?? r.status}
                   </span>
                 </div>
-                <ZoruBadge variant="ghost">
+                <Badge variant="ghost">
                   {r.openTasks} {r.openTasks === 1 ? 'task' : 'tasks'}
-                </ZoruBadge>
+                </Badge>
               </li>
             );
           })}
@@ -106,7 +106,7 @@ export async function MyTeamWidget() {
           Open team portal
         </Link>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 

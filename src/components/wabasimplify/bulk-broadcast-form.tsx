@@ -32,10 +32,10 @@ const initialState = {
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending || disabled}>
+    <Button type="submit" disabled={pending || disabled}>
       {pending && <LoaderCircle className="h-4 w-4 animate-spin" />}
       Distribute &amp; send
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -66,7 +66,7 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
   }, [state, toast]);
 
   return (
-    <ZoruCard>
+    <Card>
       <form action={formAction} ref={formRef}>
         <input
           type="hidden"
@@ -83,8 +83,8 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="templateName">Template name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="templateName">Template name</Label>
+            <Input
               id="templateName"
               name="templateName"
               required
@@ -95,8 +95,8 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
             </p>
           </div>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="language">Language code</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="language">Language code</Label>
+            <Input
               id="language"
               name="language"
               required
@@ -105,8 +105,8 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="contactFile">Contact file</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="contactFile">Contact file</Label>
+            <Input
               id="contactFile"
               name="contactFile"
               type="file"
@@ -123,6 +123,6 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
           <SubmitButton disabled={!file} />
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

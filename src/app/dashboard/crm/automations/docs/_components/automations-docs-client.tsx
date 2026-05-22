@@ -349,10 +349,10 @@ export function AutomationsDocsClient({
     <div className="flex flex-col gap-5">
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <ZoruStatCard label="Total rules" value={String(kpis.total)} />
-        <ZoruStatCard label="Active rules" value={String(kpis.active)} />
-        <ZoruStatCard label="Triggers fired today" value={String(kpis.executionsToday)} />
-        <ZoruStatCard
+        <StatCard label="Total rules" value={String(kpis.total)} />
+        <StatCard label="Active rules" value={String(kpis.active)} />
+        <StatCard label="Triggers fired today" value={String(kpis.executionsToday)} />
+        <StatCard
           label="Actions executed today"
           value={String(kpis.executionsToday)}
         />
@@ -372,14 +372,14 @@ export function AutomationsDocsClient({
               {total.toLocaleString()} automation{total !== 1 ? 's' : ''}
             </span>
             <div className="flex gap-2">
-              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              <Button size="sm" variant="outline" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" asChild>
+              </Button>
+              <Button size="sm" asChild>
                 <Link href="/dashboard/crm/automations/new">
                   <Plus className="h-3.5 w-3.5" /> New automation
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           </div>
 
@@ -387,37 +387,37 @@ export function AutomationsDocsClient({
           {selected.size > 0 && (
             <div className="flex flex-wrap items-center gap-2 rounded border border-zoru-line bg-zoru-surface-2 px-3 py-2">
               <span className="text-[12.5px] text-zoru-ink">{selected.size} selected</span>
-              <ZoruButton
+              <Button
                 size="sm"
                 onClick={() => void handleBulk('activate')}
                 disabled={bulkWorking}
               >
                 {bulkWorking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
                 Enable
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => void handleBulk('pause')}
                 disabled={bulkWorking}
               >
                 <Pause className="h-3.5 w-3.5" /> Pause
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => void handleBulk('delete')}
                 disabled={bulkWorking}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             {loading ? (
               <div className="flex items-center justify-center p-10">
                 <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
@@ -436,7 +436,7 @@ export function AutomationsDocsClient({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="hover:bg-transparent">
                       <ZoruTableHead className="w-8">
@@ -485,9 +485,9 @@ export function AutomationsDocsClient({
                         </ZoruTableCell>
                         <ZoruTableCell>
                           {a.isActive ? (
-                            <ZoruBadge variant="success" className="text-[11px]">Active</ZoruBadge>
+                            <Badge variant="success" className="text-[11px]">Active</Badge>
                           ) : (
-                            <ZoruBadge variant="secondary" className="text-[11px]">Paused</ZoruBadge>
+                            <Badge variant="secondary" className="text-[11px]">Paused</Badge>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
@@ -499,17 +499,17 @@ export function AutomationsDocsClient({
                           {a.runCount ?? 0}
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <ZoruButton size="sm" variant="outline" asChild>
+                          <Button size="sm" variant="outline" asChild>
                             <Link href={`/dashboard/crm/automations/${a._id}/edit`}>Edit</Link>
-                          </ZoruButton>
+                          </Button>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
             )}
-          </ZoruCard>
+          </Card>
 
           {totalPages > 1 && (
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -517,22 +517,22 @@ export function AutomationsDocsClient({
                 Page {page} of {totalPages}
               </span>
               <div className="flex gap-1">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={page <= 1}
                   onClick={() => void loadPage(page - 1)}
                 >
                   Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={page >= totalPages}
                   onClick={() => void loadPage(page + 1)}
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           )}
@@ -541,15 +541,15 @@ export function AutomationsDocsClient({
         {/* ── Documentation tab ───────────────────────────────────────── */}
         <TabsContent value="docs" className="mt-4 space-y-6">
           {/* Variables section */}
-          <ZoruCard>
+          <Card>
             <div className="mb-4">
               <h2 className="text-[16px] font-semibold text-foreground">Using Variables</h2>
               <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                 Variables let you personalise automations using live CRM data. Use double
                 curly braces:{' '}
-                <ZoruBadge variant="ghost" className="font-mono">
+                <Badge variant="ghost" className="font-mono">
                   {'{{contact.name}}'}
-                </ZoruBadge>
+                </Badge>
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -561,18 +561,18 @@ export function AutomationsDocsClient({
                   <ul className="space-y-1">
                     {fields.map((f) => (
                       <li key={f}>
-                        <ZoruBadge variant="ghost" className="font-mono text-[11px]">
+                        <Badge variant="ghost" className="font-mono text-[11px]">
                           {`{{${ns}.${f}}}`}
-                        </ZoruBadge>
+                        </Badge>
                       </li>
                     ))}
                   </ul>
                 </div>
               ))}
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div>
             <h2 className="text-[18px] font-bold text-foreground">Automation Blocks</h2>
@@ -584,7 +584,7 @@ export function AutomationsDocsClient({
           {/* Triggers */}
           <div>
             <h3 className="mb-2 text-[14px] font-semibold text-foreground">Triggers</h3>
-            <ZoruAccordion type="multiple" className="w-full">
+            <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Trigger').map((doc, idx) => (
                 <ZoruAccordionItem value={`trigger-${idx}`} key={idx}>
                   <ZoruAccordionTrigger className="text-[14px] font-semibold">
@@ -615,13 +615,13 @@ export function AutomationsDocsClient({
                   </ZoruAccordionContent>
                 </ZoruAccordionItem>
               ))}
-            </ZoruAccordion>
+            </Accordion>
           </div>
 
           {/* Actions */}
           <div>
             <h3 className="mb-2 text-[14px] font-semibold text-foreground">Actions</h3>
-            <ZoruAccordion type="multiple" className="w-full">
+            <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Action').map((doc, idx) => (
                 <ZoruAccordionItem value={`action-${idx}`} key={idx}>
                   <ZoruAccordionTrigger className="text-[14px] font-semibold">
@@ -644,13 +644,13 @@ export function AutomationsDocsClient({
                   </ZoruAccordionContent>
                 </ZoruAccordionItem>
               ))}
-            </ZoruAccordion>
+            </Accordion>
           </div>
 
           {/* Logic */}
           <div>
             <h3 className="mb-2 text-[14px] font-semibold text-foreground">Logic</h3>
-            <ZoruAccordion type="multiple" className="w-full">
+            <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Logic').map((doc, idx) => (
                 <ZoruAccordionItem value={`logic-${idx}`} key={idx}>
                   <ZoruAccordionTrigger className="text-[14px] font-semibold">
@@ -681,7 +681,7 @@ export function AutomationsDocsClient({
                   </ZoruAccordionContent>
                 </ZoruAccordionItem>
               ))}
-            </ZoruAccordion>
+            </Accordion>
           </div>
         </TabsContent>
 
@@ -695,30 +695,30 @@ export function AutomationsDocsClient({
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {TEMPLATES.map((tpl) => (
-              <ZoruCard key={tpl.id} className="flex flex-col gap-3 p-4">
+              <Card key={tpl.id} className="flex flex-col gap-3 p-4">
                 <div className="flex-1">
                   <h3 className="text-[14px] font-semibold text-foreground">{tpl.title}</h3>
                   <p className="mt-1 text-[12.5px] text-muted-foreground">{tpl.description}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-1">
-                  <ZoruBadge variant="outline" className="text-[11px]">
+                  <Badge variant="outline" className="text-[11px]">
                     Trigger: {tpl.trigger}
-                  </ZoruBadge>
-                  <ZoruBadge variant="secondary" className="text-[11px]">
+                  </Badge>
+                  <Badge variant="secondary" className="text-[11px]">
                     {tpl.actionsCount} action{tpl.actionsCount !== 1 ? 's' : ''}
-                  </ZoruBadge>
+                  </Badge>
                   {tpl.tags.map((tag) => (
-                    <ZoruBadge key={tag} variant="ghost" className="text-[11px]">
+                    <Badge key={tag} variant="ghost" className="text-[11px]">
                       {tag}
-                    </ZoruBadge>
+                    </Badge>
                   ))}
                 </div>
-                <ZoruButton size="sm" asChild>
+                <Button size="sm" asChild>
                   <Link href={`/dashboard/crm/automations/new?template=${tpl.id}`}>
                     Use template
                   </Link>
-                </ZoruButton>
-              </ZoruCard>
+                </Button>
+              </Card>
             ))}
           </div>
         </TabsContent>

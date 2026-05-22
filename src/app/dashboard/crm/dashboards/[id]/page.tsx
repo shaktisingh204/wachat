@@ -60,12 +60,12 @@ export default async function DashboardDetailPage({ params }: PageProps) {
             back={{ href: '/dashboard/crm/dashboards', label: 'All dashboards' }}
             actions={
                 <Link href={`/dashboard/crm/dashboards/${id}/edit`}>
-                    <ZoruButton size="sm">Edit dashboard</ZoruButton>
+                    <Button size="sm">Edit dashboard</Button>
                 </Link>
             }
             audit={<EntityAuditTimeline entityKind="dashboard" entityId={id} />}
         >
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="space-y-2 p-6 text-sm">
                     <Row label="Description" value={d.description} />
                     <Row label="Layout" value={d.layout} />
@@ -76,18 +76,18 @@ export default async function DashboardDetailPage({ params }: PageProps) {
                     />
                     <Row label="Widgets" value={String(widgets.length)} />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {widgets.length === 0 ? (
-                <ZoruCard className="mt-4">
+                <Card className="mt-4">
                     <ZoruCardContent className="p-10 text-center text-[13px] text-zoru-ink-muted">
                         No widgets yet. Click <span className="text-zoru-ink">Edit dashboard</span> to add some.
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : (
                 <div className="mt-4 grid grid-cols-12 gap-3">
                     {widgets.map((w, i) => (
-                        <ZoruCard
+                        <Card
                             key={w.id}
                             className="overflow-hidden p-0"
                             style={{
@@ -104,7 +104,7 @@ export default async function DashboardDetailPage({ params }: PageProps) {
                             <div className="h-[calc(100%-33px)] min-h-[80px]">
                                 <WidgetRenderer widget={w} data={resolved[i]} />
                             </div>
-                        </ZoruCard>
+                        </Card>
                     ))}
                 </div>
             )}

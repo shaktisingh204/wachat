@@ -41,10 +41,10 @@ function SubmitButton({ app }: { app: any }) {
     }
 
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Connect
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -77,13 +77,13 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                 return (
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="connectionName">Connection Name</ZoruLabel>
-                            <ZoruInput id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
+                            <Label htmlFor="connectionName">Connection Name</Label>
+                            <Input id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
                         </div>
                         {(app.credentials || []).map((cred: any) => (
                             <div className="space-y-2" key={cred.name}>
-                                <ZoruLabel htmlFor={cred.name}>{cred.label}</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor={cred.name}>{cred.label}</Label>
+                                <Input
                                     id={cred.name}
                                     name={cred.name}
                                     type={cred.type || 'text'}
@@ -98,7 +98,7 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                 return (
                     <div className="text-center space-y-4">
                         <p className="text-sm text-muted-foreground">To connect {app.name}, you'll be redirected to their authorization page.</p>
-                        <ZoruButton type="button" disabled>Connect via {app.name}</ZoruButton>
+                        <Button type="button" disabled>Connect via {app.name}</Button>
                     </div>
                 );
             default:
@@ -107,7 +107,7 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
     }
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {app && <input type="hidden" name="appId" value={app.appId} />}
@@ -130,11 +130,11 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                         {renderFormFields()}
                     </div>
                     <ZoruDialogFooter className="px-6 pb-6 pt-2">
-                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton app={app} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

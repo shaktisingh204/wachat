@@ -129,27 +129,27 @@ export default function NewCrmApiTokenPage() {
     if (issuedToken) {
         return (
             <div className="flex min-h-full flex-col gap-6">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <KeyRound className="size-5" />
                         <ZoruPageTitle>Token created</ZoruPageTitle>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
+                </PageHeader>
 
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <ZoruAlertTitle>Copy this token now</ZoruAlertTitle>
                     <ZoruAlertDescription>
                         This is the only time the full token will be displayed. Once you
                         leave this page, it cannot be retrieved.
                     </ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
 
-                <ZoruCard className="p-4">
+                <Card className="p-4">
                     <div className="font-mono text-sm break-all rounded-md bg-muted p-3">
                         {issuedToken}
                     </div>
                     <div className="mt-3 flex gap-2">
-                        <ZoruButton onClick={handleCopy}>
+                        <Button onClick={handleCopy}>
                             {copied ? (
                                 <>
                                     <Check className="mr-2 size-4" />
@@ -161,22 +161,22 @@ export default function NewCrmApiTokenPage() {
                                     Copy
                                 </>
                             )}
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             onClick={() => router.push('/dashboard/crm/settings/api-tokens')}
                         >
                             I&apos;ve saved it
-                        </ZoruButton>
+                        </Button>
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
         );
     }
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/crm/settings/api-tokens">
@@ -188,9 +188,9 @@ export default function NewCrmApiTokenPage() {
                         <ZoruBreadcrumbPage>New</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <KeyRound className="size-5" />
                     <ZoruPageTitle>New API Token</ZoruPageTitle>
@@ -198,13 +198,13 @@ export default function NewCrmApiTokenPage() {
                 <ZoruPageDescription>
                     Tokens grant programmatic access to the CRM public REST API.
                 </ZoruPageDescription>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
-                <ZoruCard className="space-y-4 p-4">
+                <Card className="space-y-4 p-4">
                     <div>
-                        <ZoruLabel htmlFor="token-name">Name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="token-name">Name</Label>
+                        <Input
                             id="token-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -213,7 +213,7 @@ export default function NewCrmApiTokenPage() {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="expiry">Expiry</ZoruLabel>
+                        <Label htmlFor="expiry">Expiry</Label>
                         <EnumFormField
                             name="__expiry"
                             enumName="tokenExpiry"
@@ -221,11 +221,11 @@ export default function NewCrmApiTokenPage() {
                             onChange={(id) => setExpiry(id ?? '30')}
                         />
                     </div>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard className="p-4">
+                <Card className="p-4">
                     <div className="mb-3 flex items-center justify-between">
-                        <ZoruLabel>Scopes</ZoruLabel>
+                        <Label>Scopes</Label>
                         <span className="text-sm text-muted-foreground">
                             {selectedScopes.size} selected
                         </span>
@@ -240,7 +240,7 @@ export default function NewCrmApiTokenPage() {
                                         {entity.replace('-', ' ')}
                                     </div>
                                     <label className="flex items-center gap-2 text-sm">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={selectedScopes.has(read)}
                                             onCheckedChange={() => toggleScope(read)}
                                             disabled={submitting}
@@ -248,7 +248,7 @@ export default function NewCrmApiTokenPage() {
                                         <span className="font-mono text-xs">{read}</span>
                                     </label>
                                     <label className="flex items-center gap-2 text-sm">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={selectedScopes.has(write)}
                                             onCheckedChange={() => toggleScope(write)}
                                             disabled={submitting}
@@ -259,19 +259,19 @@ export default function NewCrmApiTokenPage() {
                             );
                         })}
                     </div>
-                </ZoruCard>
+                </Card>
 
                 <div className="flex gap-2">
-                    <ZoruButton type="submit" disabled={submitting}>
+                    <Button type="submit" disabled={submitting}>
                         {submitting && (
                             <LoaderCircle className="mr-2 size-4 animate-spin" />
                         )}
                         Generate token
-                    </ZoruButton>
+                    </Button>
                     <Link href="/dashboard/crm/settings/api-tokens">
-                        <ZoruButton type="button" variant="outline" disabled={submitting}>
+                        <Button type="button" variant="outline" disabled={submitting}>
                             Cancel
-                        </ZoruButton>
+                        </Button>
                     </Link>
                 </div>
 

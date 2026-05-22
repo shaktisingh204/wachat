@@ -356,7 +356,7 @@ function Step1Audience({
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Audience</ZoruCardTitle>
         <ZoruCardDescription>
@@ -372,7 +372,7 @@ function Step1Audience({
           className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
         >
           {AUDIENCE_OPTIONS.map((opt) => (
-            <ZoruButton
+            <Button
               key={opt.value}
               type="button"
               variant={state.source === opt.value ? 'default' : 'ghost'}
@@ -381,14 +381,14 @@ function Step1Audience({
               onClick={() => onChange({ ...state, source: opt.value })}
             >
               {opt.label}
-            </ZoruButton>
+            </Button>
           ))}
         </div>
 
         {state.source === 'paste' && (
           <div className="space-y-2">
-            <ZoruLabel htmlFor="paste-numbers">Phone numbers</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="paste-numbers">Phone numbers</Label>
+            <Textarea
               id="paste-numbers"
               placeholder={
                 'One per line, or comma-separated\n919876543210\n919811112222'
@@ -416,7 +416,7 @@ function Step1Audience({
                 }}
                 className="hidden"
               />
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -427,9 +427,9 @@ function Step1Audience({
                 {state.csv.rows.length > 0
                   ? `${state.csv.rows.length} rows loaded`
                   : 'Choose CSV'}
-              </ZoruButton>
+              </Button>
               {state.csv.rows.length > 0 && (
-                <ZoruButton
+                <Button
                   type="button"
                   variant="ghost"
                   size="sm"
@@ -448,15 +448,15 @@ function Step1Audience({
                   }
                 >
                   Clear
-                </ZoruButton>
+                </Button>
               )}
             </div>
             {state.csv.headers.length > 0 && (
               <div className="space-y-3">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
-                    <ZoruLabel className="text-xs">Phone column</ZoruLabel>
-                    <ZoruSelect
+                    <Label className="text-xs">Phone column</Label>
+                    <Select
                       value={state.csv.phoneColumn ?? ''}
                       onValueChange={(v) =>
                         onChange({
@@ -475,11 +475,11 @@ function Step1Audience({
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
                   <div className="space-y-1">
-                    <ZoruLabel className="text-xs">First-name column</ZoruLabel>
-                    <ZoruSelect
+                    <Label className="text-xs">First-name column</Label>
+                    <Select
                       value={state.csv.firstNameColumn ?? '__none__'}
                       onValueChange={(v) =>
                         onChange({
@@ -502,7 +502,7 @@ function Step1Audience({
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
                 </div>
 
@@ -511,7 +511,7 @@ function Step1Audience({
                     Preview — first 5 rows
                   </div>
                   <div className="overflow-x-auto">
-                    <ZoruTable>
+                    <Table>
                       <ZoruTableHeader>
                         <ZoruTableRow>
                           {state.csv.headers.map((h) => (
@@ -535,7 +535,7 @@ function Step1Audience({
                           </ZoruTableRow>
                         ))}
                       </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                   </div>
                 </div>
               </div>
@@ -545,8 +545,8 @@ function Step1Audience({
 
         {state.source === 'label' && (
           <div className="space-y-1">
-            <ZoruLabel>Label</ZoruLabel>
-            <ZoruSelect
+            <Label>Label</Label>
+            <Select
               value={state.label ?? ''}
               onValueChange={(v) => onChange({ ...state, label: v })}
             >
@@ -558,14 +558,14 @@ function Step1Audience({
                 <ZoruSelectItem value="leads">Leads</ZoruSelectItem>
                 <ZoruSelectItem value="vip">VIP</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         )}
 
         {state.source === 'group' && (
           <div className="space-y-1">
-            <ZoruLabel>Group</ZoruLabel>
-            <ZoruSelect
+            <Label>Group</Label>
+            <Select
               value={state.groupJid ?? ''}
               onValueChange={(v) => onChange({ ...state, groupJid: v })}
             >
@@ -583,7 +583,7 @@ function Step1Audience({
                   Customer support
                 </ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <p className="text-xs text-zoru-ink-muted">
               Members are messaged 1:1 — the group itself receives nothing.
             </p>
@@ -592,8 +592,8 @@ function Step1Audience({
 
         {state.source === 'tag' && (
           <div className="space-y-1">
-            <ZoruLabel>Contact tag</ZoruLabel>
-            <ZoruInput
+            <Label>Contact tag</Label>
+            <Input
               placeholder="e.g. newsletter"
               value={state.tag ?? ''}
               onChange={(e) => onChange({ ...state, tag: e.target.value })}
@@ -601,13 +601,13 @@ function Step1Audience({
           </div>
         )}
 
-        <ZoruSeparator />
+        <Separator />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <ZoruBadge variant={exceeded ? 'danger' : 'secondary'}>
+            <Badge variant={exceeded ? 'danger' : 'secondary'}>
               {recipientCount.toLocaleString()} recipient
               {recipientCount === 1 ? '' : 's'}
-            </ZoruBadge>
+            </Badge>
             <span className="text-xs text-zoru-ink-muted">
               cap {maxRecipients.toLocaleString()}
             </span>
@@ -619,7 +619,7 @@ function Step1Audience({
           )}
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -649,7 +649,7 @@ function Step2Compose({
     : null;
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Compose</ZoruCardTitle>
         <ZoruCardDescription>
@@ -663,8 +663,8 @@ function Step2Compose({
       <ZoruCardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <ZoruLabel className="text-xs">Start from a template</ZoruLabel>
-            <ZoruSelect
+            <Label className="text-xs">Start from a template</Label>
+            <Select
               value={state.templateId ?? '__none__'}
               onValueChange={(v) => {
                 if (v === '__none__') {
@@ -693,13 +693,13 @@ function Step2Compose({
                   );
                 })}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs">Insert variable</ZoruLabel>
+            <Label className="text-xs">Insert variable</Label>
             <div className="flex flex-wrap gap-1">
               {availableVars.map((v) => (
-                <ZoruButton
+                <Button
                   key={v}
                   type="button"
                   variant="outline"
@@ -709,15 +709,15 @@ function Step2Compose({
                 >
                   <Plus className="h-3 w-3" />
                   {v}
-                </ZoruButton>
+                </Button>
               ))}
             </div>
           </div>
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel htmlFor="body">Message body</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="body">Message body</Label>
+          <Textarea
             id="body"
             value={state.body}
             onChange={(e) => onChange({ ...state, body: e.target.value })}
@@ -728,7 +728,7 @@ function Step2Compose({
 
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1">
-            <ZoruLabel className="text-xs">Live preview</ZoruLabel>
+            <Label className="text-xs">Live preview</Label>
             <div className="min-h-[88px] whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-sm text-zoru-ink">
               {preview || (
                 <span className="text-zoru-ink-muted">
@@ -738,7 +738,7 @@ function Step2Compose({
             </div>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs">Media (SabFiles only)</ZoruLabel>
+            <Label className="text-xs">Media (SabFiles only)</Label>
             <div className="flex items-center gap-2">
               <SabFilePickerButton
                 accept="all"
@@ -768,18 +768,18 @@ function Step2Compose({
           </div>
         </div>
 
-        <ZoruSeparator />
+        <Separator />
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div>
-              <ZoruLabel className="text-sm">A/B variant</ZoruLabel>
+              <Label className="text-sm">A/B variant</Label>
               <p className="text-xs text-zoru-ink-muted">
                 Split-test a second body — recipients are randomly assigned.
               </p>
             </div>
             {state.variantBody === null ? (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -788,9 +788,9 @@ function Step2Compose({
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add variant
-              </ZoruButton>
+              </Button>
             ) : (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -799,12 +799,12 @@ function Step2Compose({
               >
                 <X className="h-3.5 w-3.5" />
                 Remove
-              </ZoruButton>
+              </Button>
             )}
           </div>
           {state.variantBody !== null && (
             <>
-              <ZoruTextarea
+              <Textarea
                 value={state.variantBody}
                 onChange={(e) =>
                   onChange({ ...state, variantBody: e.target.value })
@@ -821,7 +821,7 @@ function Step2Compose({
           )}
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -868,7 +868,7 @@ function Step3Review({
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Review</ZoruCardTitle>
         <ZoruCardDescription>
@@ -903,7 +903,7 @@ function Step3Review({
         </div>
 
         {warnings.length > 0 && (
-          <ZoruAlert variant="warning">
+          <Alert variant="warning">
             <AlertTriangle className="h-4 w-4" />
             <ZoruAlertTitle>Anti-ban warnings</ZoruAlertTitle>
             <ZoruAlertDescription>
@@ -913,14 +913,14 @@ function Step3Review({
                 ))}
               </ul>
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         )}
 
         <div className="space-y-2">
-          <ZoruLabel className="text-sm">Send rate</ZoruLabel>
+          <Label className="text-sm">Send rate</Label>
           <div className="flex flex-wrap gap-2">
             {(['safe', 'normal', 'aggressive'] as RatePreset[]).map((p) => (
-              <ZoruButton
+              <Button
                 key={p}
                 type="button"
                 variant={ratePreset === p ? 'default' : 'outline'}
@@ -929,7 +929,7 @@ function Step3Review({
                 onClick={() => setPreset(p)}
               >
                 {RATE_PRESETS[p].label}
-              </ZoruButton>
+              </Button>
             ))}
           </div>
           <div className="flex items-center gap-3">
@@ -951,7 +951,7 @@ function Step3Review({
         </div>
 
         <div className="space-y-2">
-          <ZoruLabel className="text-sm">Humanization jitter</ZoruLabel>
+          <Label className="text-sm">Humanization jitter</Label>
           <div className="flex items-center gap-3">
             <Slider
               min={2}
@@ -970,11 +970,11 @@ function Step3Review({
         </div>
 
         <div className="space-y-2">
-          <ZoruLabel className="text-sm">Send-window (hour of day)</ZoruLabel>
+          <Label className="text-sm">Send-window (hour of day)</Label>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1">
-              <ZoruLabel className="text-xs">Start</ZoruLabel>
-              <ZoruSelect
+              <Label className="text-xs">Start</Label>
+              <Select
                 value={String(settings.windowStartHour)}
                 onValueChange={(v) =>
                   onChange({ ...settings, windowStartHour: Number(v) })
@@ -990,11 +990,11 @@ function Step3Review({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="space-y-1">
-              <ZoruLabel className="text-xs">End</ZoruLabel>
-              <ZoruSelect
+              <Label className="text-xs">End</Label>
+              <Select
                 value={String(settings.windowEndHour)}
                 onValueChange={(v) =>
                   onChange({ ...settings, windowEndHour: Number(v) })
@@ -1010,11 +1010,11 @@ function Step3Review({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="space-y-1">
-              <ZoruLabel className="text-xs">Timezone</ZoruLabel>
-              <ZoruInput
+              <Label className="text-xs">Timezone</Label>
+              <Input
                 value={settings.timezone}
                 onChange={(e) =>
                   onChange({ ...settings, timezone: e.target.value })
@@ -1026,7 +1026,7 @@ function Step3Review({
         </div>
 
         <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
-          <ZoruCheckbox
+          <Checkbox
             id="first-contact"
             checked={settings.firstContactOnly}
             onCheckedChange={(v) =>
@@ -1034,9 +1034,9 @@ function Step3Review({
             }
           />
           <div className="space-y-0.5">
-            <ZoruLabel htmlFor="first-contact" className="cursor-pointer text-sm">
+            <Label htmlFor="first-contact" className="cursor-pointer text-sm">
               Skip first-contact recipients
-            </ZoruLabel>
+            </Label>
             <p className="text-xs text-zoru-ink-muted">
               Don&apos;t bulk-message contacts who have never messaged you.
               Strongly recommended.
@@ -1045,7 +1045,7 @@ function Step3Review({
         </div>
 
         <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-danger/40 bg-zoru-danger/5 p-3">
-          <ZoruCheckbox
+          <Checkbox
             id="accept-tos"
             checked={settings.acceptedToS}
             onCheckedChange={(v) =>
@@ -1053,10 +1053,10 @@ function Step3Review({
             }
           />
           <div className="space-y-0.5">
-            <ZoruLabel htmlFor="accept-tos" className="cursor-pointer text-sm">
+            <Label htmlFor="accept-tos" className="cursor-pointer text-sm">
               I understand WhatsApp ToS risk and accept that my account may be
               banned.
-            </ZoruLabel>
+            </Label>
             <p className="text-xs text-zoru-ink-muted">
               Submit is disabled until this is checked. Bulk sending on a
               personal account is explicitly against WhatsApp&apos;s ToS.
@@ -1064,7 +1064,7 @@ function Step3Review({
           </div>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -1136,13 +1136,13 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
   );
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="flex items-center justify-between gap-2 text-base">
           <span>Run</span>
-          <ZoruBadge variant={campaignStatusBadgeVariant(run.status)}>
+          <Badge variant={campaignStatusBadgeVariant(run.status)}>
             {run.status}
-          </ZoruBadge>
+          </Badge>
         </ZoruCardTitle>
         <ZoruCardDescription>
           Live progress for campaign{' '}
@@ -1157,11 +1157,11 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
             </span>
             <span>ETA {fmtDuration(etaSec)}</span>
           </div>
-          <ZoruProgress value={progress} />
+          <Progress value={progress} />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
@@ -1171,8 +1171,8 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
           >
             <Pause className="h-3.5 w-3.5" />
             Pause
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant="outline"
@@ -1182,8 +1182,8 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
           >
             <Play className="h-3.5 w-3.5" />
             Resume
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant="destructive"
@@ -1193,7 +1193,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
           >
             <Square className="h-3.5 w-3.5" />
             Abort
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -1212,8 +1212,8 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <ZoruLabel className="text-xs">Filter</ZoruLabel>
-            <ZoruSelect
+            <Label className="text-xs">Filter</Label>
+            <Select
               value={filter}
               onValueChange={(v) =>
                 setFilter(v as 'all' | RecipientRunStatus)
@@ -1229,10 +1229,10 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
                 <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
                 <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="max-h-64 overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Recipient</ZoruTableHead>
@@ -1261,12 +1261,12 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
                         </div>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-xs capitalize">
-                        <ZoruBadge
+                        <Badge
                           variant={recipientStatusBadgeVariant(r.status)}
                           className="text-[10px]"
                         >
                           {r.status}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
@@ -1282,11 +1282,11 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
                   </ZoruTableRow>
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -1302,7 +1302,7 @@ interface PastCampaign {
 
 function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Past campaigns</ZoruCardTitle>
         <ZoruCardDescription>
@@ -1315,7 +1315,7 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
             No campaigns yet.
           </div>
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Name</ZoruTableHead>
@@ -1334,9 +1334,9 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
                     {c.recipients.toLocaleString()}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge variant={campaignStatusBadgeVariant(c.status)}>
+                    <Badge variant={campaignStatusBadgeVariant(c.status)}>
                       {c.status}
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-xs text-zoru-ink-muted">
                     {c.startedAt.toLocaleString()}
@@ -1344,10 +1344,10 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -1611,13 +1611,13 @@ export default function BulkSenderPage() {
   if (!bulkEnabled) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Sparkles />}
           title="Upgrade required"
           description="Bulk sender is a Pro feature. Upgrade to unlock 2,000+ daily sends with anti-ban controls."
           action={
             <Link href="/dashboard/plans">
-              <ZoruButton size="md">View plans</ZoruButton>
+              <Button size="md">View plans</Button>
             </Link>
           }
         />
@@ -1628,7 +1628,7 @@ export default function BulkSenderPage() {
   return (
     <ZoruTooltipProvider>
       <div className="space-y-4 bg-zoru-bg p-3 md:p-6">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -1642,7 +1642,7 @@ export default function BulkSenderPage() {
               <ZoruBreadcrumbPage>Bulk sender</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
 
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
@@ -1661,7 +1661,7 @@ export default function BulkSenderPage() {
         </div>
 
         {bannerOpen && (
-          <ZoruAlert variant="warning">
+          <Alert variant="warning">
             <AlertTriangle className="h-4 w-4" />
             <ZoruAlertTitle className="flex items-center justify-between gap-2">
               <span>Anti-ban notice</span>
@@ -1681,7 +1681,7 @@ export default function BulkSenderPage() {
               expects you. The campaign auto-pauses on presence drop or three
               consecutive send failures.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         )}
 
         <Stepper
@@ -1719,18 +1719,18 @@ export default function BulkSenderPage() {
           <Step4Run run={run} onControl={handleControl} resolve={resolve} />
         )}
         {stepIdx === 3 && !run && (
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-base">Run</ZoruCardTitle>
               <ZoruCardDescription>
                 No active campaign — head back to Review and submit.
               </ZoruCardDescription>
             </ZoruCardHeader>
-          </ZoruCard>
+          </Card>
         )}
 
         <div className="flex items-center justify-between gap-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             onClick={goBack}
@@ -1739,9 +1739,9 @@ export default function BulkSenderPage() {
           >
             <ArrowLeft className="h-4 w-4" />
             Back
-          </ZoruButton>
+          </Button>
           {stepIdx < 2 && (
-            <ZoruButton
+            <Button
               type="button"
               onClick={goNext}
               disabled={stepIdx === 0 && recipientCount === 0}
@@ -1749,13 +1749,13 @@ export default function BulkSenderPage() {
             >
               Next
               <ArrowRight className="h-4 w-4" />
-            </ZoruButton>
+            </Button>
           )}
           {stepIdx === 2 && (
-            <ZoruTooltip>
+            <Tooltip>
               <ZoruTooltipTrigger asChild>
                 <span>
-                  <ZoruButton
+                  <Button
                     type="button"
                     onClick={startCampaign}
                     disabled={!canSubmit}
@@ -1763,7 +1763,7 @@ export default function BulkSenderPage() {
                   >
                     Start campaign
                     <ArrowRight className="h-4 w-4" />
-                  </ZoruButton>
+                  </Button>
                 </span>
               </ZoruTooltipTrigger>
               {!canSubmit && (
@@ -1779,10 +1779,10 @@ export default function BulkSenderPage() {
                           : 'Resolve warnings above.'}
                 </ZoruTooltipContent>
               )}
-            </ZoruTooltip>
+            </Tooltip>
           )}
           {stepIdx === 3 && (
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => {
@@ -1792,7 +1792,7 @@ export default function BulkSenderPage() {
               }}
             >
               New campaign
-            </ZoruButton>
+            </Button>
           )}
         </div>
 

@@ -83,10 +83,10 @@ const saveInitial: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isEditing ? 'Save changes' : 'Create shift'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -158,7 +158,7 @@ function ShiftDialog({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-[560px]">
                 <form action={formAction} className="flex flex-col gap-4">
                     {isEditing ? (
@@ -190,8 +190,8 @@ function ShiftDialog({
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5 sm:col-span-2">
-                            <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="name">Name *</Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 required
@@ -200,8 +200,8 @@ function ShiftDialog({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="code">Code</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="code">Code</Label>
+                            <Input
                                 id="code"
                                 name="code"
                                 placeholder="MORN"
@@ -209,7 +209,7 @@ function ShiftDialog({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="color-trigger">Color</ZoruLabel>
+                            <Label htmlFor="color-trigger">Color</Label>
                             <div className="flex items-center gap-2">
                                 <input
                                     id="color-trigger"
@@ -219,7 +219,7 @@ function ShiftDialog({
                                     className="h-9 w-12 cursor-pointer rounded-md border border-zoru-line bg-transparent p-1"
                                     aria-label="Pick shift color"
                                 />
-                                <ZoruInput
+                                <Input
                                     value={color}
                                     onChange={(e) => setColor(e.target.value)}
                                     placeholder="#EAB308"
@@ -227,8 +227,8 @@ function ShiftDialog({
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="startTime">Start time *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="startTime">Start time *</Label>
+                            <Input
                                 id="startTime"
                                 name="startTime"
                                 type="time"
@@ -237,8 +237,8 @@ function ShiftDialog({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="endTime">End time *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="endTime">End time *</Label>
+                            <Input
                                 id="endTime"
                                 name="endTime"
                                 type="time"
@@ -247,8 +247,8 @@ function ShiftDialog({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="breakMinutes">Break (minutes)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="breakMinutes">Break (minutes)</Label>
+                            <Input
                                 id="breakMinutes"
                                 name="breakMinutes"
                                 type="number"
@@ -258,8 +258,8 @@ function ShiftDialog({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="graceMinutes">Grace (minutes)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="graceMinutes">Grace (minutes)</Label>
+                            <Input
                                 id="graceMinutes"
                                 name="graceMinutes"
                                 type="number"
@@ -271,7 +271,7 @@ function ShiftDialog({
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel>Working days</ZoruLabel>
+                        <Label>Working days</Label>
                         <div className="flex flex-wrap gap-2">
                             {WEEKDAYS.map((d) => {
                                 const checked = days.includes(d.value);
@@ -280,7 +280,7 @@ function ShiftDialog({
                                         key={d.value}
                                         className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-[12.5px] text-zoru-ink"
                                     >
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={checked}
                                             onCheckedChange={(v) =>
                                                 toggleDay(d.value, Boolean(v))
@@ -294,10 +294,10 @@ function ShiftDialog({
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="departmentIds">
+                        <Label htmlFor="departmentIds">
                             Department IDs (comma-separated)
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="departmentIds"
                             name="departmentIds"
                             placeholder="Optional — leave blank for all departments"
@@ -306,8 +306,8 @@ function ShiftDialog({
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
                             id="description"
                             name="description"
                             rows={2}
@@ -318,14 +318,14 @@ function ShiftDialog({
 
                     <div className="flex flex-wrap items-center gap-4">
                         <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={isNight}
                                 onCheckedChange={(v) => setIsNight(Boolean(v))}
                             />
                             Night shift (crosses midnight)
                         </label>
                         <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={isDefault}
                                 onCheckedChange={(v) => setIsDefault(Boolean(v))}
                             />
@@ -333,9 +333,9 @@ function ShiftDialog({
                         </label>
                         {isEditing ? (
                             <div className="ml-auto flex items-center gap-2">
-                                <ZoruLabel className="text-[12.5px]">
+                                <Label className="text-[12.5px]">
                                     Status
-                                </ZoruLabel>
+                                </Label>
                                 <EnumFormField
                                     enumName="activeArchived"
                                     name="__status_picker"
@@ -347,18 +347,18 @@ function ShiftDialog({
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                         >
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -368,14 +368,14 @@ function dayBadges(days: string[] | undefined): React.ReactNode {
         return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
     }
     if (list.length === 7) {
-        return <ZoruBadge variant="info">All days</ZoruBadge>;
+        return <Badge variant="info">All days</Badge>;
     }
     return (
         <div className="flex flex-wrap gap-1">
             {list.map((d) => (
-                <ZoruBadge key={d} variant="info">
+                <Badge key={d} variant="info">
                     {d.slice(0, 3)}
-                </ZoruBadge>
+                </Badge>
             ))}
         </div>
     );
@@ -454,9 +454,9 @@ export default function ShiftsListPage() {
                     title="Shifts"
                     subtitle="Master shift definitions used across attendance, payroll and rotations."
                     primaryAction={
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                        <Button onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New shift
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -476,7 +476,7 @@ export default function ShiftsListPage() {
                     loading={isLoading && shifts.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">
@@ -533,10 +533,10 @@ export default function ShiftsListPage() {
                                                         />
                                                         <span>{s.name}</span>
                                                         {s.isDefault ? (
-                                                            <ZoruBadge variant="info">default</ZoruBadge>
+                                                            <Badge variant="info">default</Badge>
                                                         ) : null}
                                                         {s.isNightShift ? (
-                                                            <ZoruBadge variant="secondary">night</ZoruBadge>
+                                                            <Badge variant="secondary">night</Badge>
                                                         ) : null}
                                                     </div>
                                                 </ZoruTableCell>
@@ -554,29 +554,29 @@ export default function ShiftsListPage() {
                                                     <StatusPill label={status} tone={tone} />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => handleOpenDialog(s)}
                                                         aria-label="Edit shift"
                                                     >
                                                         <Edit className="h-4 w-4" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setPendingDelete(s)}
                                                         aria-label="Delete shift"
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
             </EntityListShell>
 

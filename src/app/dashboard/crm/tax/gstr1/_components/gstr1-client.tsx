@@ -127,7 +127,7 @@ function SectionCard({
 }: SectionCardProps) {
   const [open, setOpen] = React.useState(false);
   return (
-    <ZoruCard>
+    <Card>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -166,7 +166,7 @@ function SectionCard({
       {open ? (
         <div className="mt-4 border-t border-border pt-4">{children}</div>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -213,22 +213,22 @@ function computeKpis(raw: Gstr1Return): Gstr1Kpis {
 function KpiStrip({ kpis }: { kpis: Gstr1Kpis }) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <ZoruStatCard
+      <StatCard
         label="Total invoices"
         value={kpis.invoiceCount.toLocaleString()}
         icon={<FileText className="h-4 w-4" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Taxable value"
         value={fmtInr(kpis.taxableValue)}
         icon={<TrendingUp className="h-4 w-4" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Total tax (IGST+CGST+SGST)"
         value={fmtInr(kpis.totalTax)}
         icon={<ListChecks className="h-4 w-4" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Period status"
         value="Pending"
         icon={<FileCheck2 className="h-4 w-4 text-amber-500" />}
@@ -310,20 +310,20 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
       {selected.size > 0 ? (
         <div className="flex items-center gap-2">
           <span className="text-[12.5px] text-zoru-ink">{selected.size} selected</span>
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> CSV
-          </ZoruButton>
-          <ZoruButton size="sm" variant="outline" onClick={() => void handleExportXlsx()}>
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => void handleExportXlsx()}>
             <Download className="h-3.5 w-3.5" /> XLSX
-          </ZoruButton>
+          </Button>
         </div>
       ) : null}
       <div className="overflow-x-auto rounded-lg border border-border">
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow className="border-border hover:bg-transparent">
               <ZoruTableHead className="w-10">
-                <ZoruCheckbox
+                <Checkbox
                   checked={allChecked}
                   onCheckedChange={(c) => toggleAll(Boolean(c))}
                   aria-label="Select all B2B rows"
@@ -351,7 +351,7 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
                 data-state={selected.has(i) ? 'selected' : undefined}
               >
                 <ZoruTableCell>
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={selected.has(i)}
                     onCheckedChange={() => toggle(i)}
                     aria-label={`Select invoice ${r.invoiceNumber ?? i}`}
@@ -387,7 +387,7 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
               </ZoruTableRow>
             ))}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
       </div>
     </div>
   );
@@ -472,13 +472,13 @@ export function Gstr1Client() {
   return (
     <div className="flex flex-col gap-5">
       {/* Period + actions toolbar */}
-      <ZoruCard>
+      <Card>
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="mb-1 block text-[12px] text-muted-foreground">
               Month
             </label>
-            <ZoruSelect
+            <Select
               value={String(period.month)}
               onValueChange={(v) =>
                 setPeriod((p) => ({ ...p, month: Number(v) }))
@@ -494,13 +494,13 @@ export function Gstr1Client() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
             <label className="mb-1 block text-[12px] text-muted-foreground">
               Year
             </label>
-            <ZoruInput
+            <Input
               type="number"
               value={period.year}
               onChange={(e) =>
@@ -514,34 +514,34 @@ export function Gstr1Client() {
               max={2099}
             />
           </div>
-          <ZoruButton onClick={() => void handleGenerate()} disabled={loading}>
+          <Button onClick={() => void handleGenerate()} disabled={loading}>
             {loading ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : null}
             Generate
-          </ZoruButton>
+          </Button>
           {raw ? (
             <>
-              <ZoruButton variant="outline" onClick={handleDownloadJson}>
+              <Button variant="outline" onClick={handleDownloadJson}>
                 <Download className="h-4 w-4" /> Raw JSON
-              </ZoruButton>
-              <ZoruButton variant="outline" onClick={() => void handleDownloadGstn()}>
+              </Button>
+              <Button variant="outline" onClick={() => void handleDownloadGstn()}>
                 <Download className="h-4 w-4" /> GSTN JSON
-              </ZoruButton>
-              <ZoruButton variant="outline" onClick={handleExportAllCsv}>
+              </Button>
+              <Button variant="outline" onClick={handleExportAllCsv}>
                 <Download className="h-4 w-4" /> Export CSV
-              </ZoruButton>
+              </Button>
             </>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
       {!raw && !loading ? (
-        <ZoruCard>
+        <Card>
           <p className="text-[13px] text-muted-foreground">
             Pick a period and click Generate to build this month&apos;s GSTR-1.
           </p>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {raw && kpis ? (
@@ -551,7 +551,7 @@ export function Gstr1Client() {
 
           {/* Summary box */}
           {summary ? (
-            <ZoruCard>
+            <Card>
               <h2 className="text-[15px] font-semibold text-foreground">Summary</h2>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
                 Period: {String(period.month).padStart(2, '0')}/{period.year}
@@ -579,7 +579,7 @@ export function Gstr1Client() {
                   </div>
                 ))}
               </div>
-            </ZoruCard>
+            </Card>
           ) : null}
 
           {/* B2B invoice table */}

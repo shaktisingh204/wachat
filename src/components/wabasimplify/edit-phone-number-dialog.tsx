@@ -50,7 +50,7 @@ const verticals = [
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       variant="rose"
       size="md"
@@ -64,7 +64,7 @@ function SubmitButton() {
       }
     >
       {pending ? 'Saving…' : 'Save changes'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -117,7 +117,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
   };
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-border bg-card shadow-lg">
         <form
           action={profileFormAction}
@@ -170,7 +170,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                     >
                       Change
                     </label>
-                    <ZoruInput
+                    <Input
                       ref={profilePictureInputRef}
                       id="profilePicture"
                       name="profilePicture"
@@ -200,56 +200,56 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <ZoruLabel htmlFor="vertical">Business Category</ZoruLabel>
-                    <ZoruSelect name="vertical" defaultValue={phone.profile?.vertical}>
+                    <Label htmlFor="vertical">Business Category</Label>
+                    <Select name="vertical" defaultValue={phone.profile?.vertical}>
                       <ZoruSelectTrigger>
                         <ZoruSelectValue placeholder="Select a category..." />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
                         {verticals.map(v => <ZoruSelectItem key={v} value={v} className="capitalize">{v.replace(/_/g, ' ').toLowerCase()}</ZoruSelectItem>)}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
                   <div className="space-y-2">
-                    <ZoruLabel htmlFor="email">Business Email</ZoruLabel>
-                    <ZoruInput id="email" name="email" type="email" placeholder="contact@example.com" defaultValue={phone.profile?.email} />
+                    <Label htmlFor="email">Business Email</Label>
+                    <Input id="email" name="email" type="email" placeholder="contact@example.com" defaultValue={phone.profile?.email} />
                   </div>
                 </div>
               </div>
 
-              <ZoruSeparator />
+              <Separator />
 
               {/* Middle Section: Text Fields */}
               <div className="grid gap-4">
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <ZoruLabel htmlFor="about">Status (About)</ZoruLabel>
+                    <Label htmlFor="about">Status (About)</Label>
                     <span className="text-xs text-muted-foreground">Max 139 chars</span>
                   </div>
-                  <ZoruInput id="about" name="about" defaultValue={phone.profile?.about} maxLength={139} placeholder="Hey there! I am using WhatsApp." />
+                  <Input id="about" name="about" defaultValue={phone.profile?.about} maxLength={139} placeholder="Hey there! I am using WhatsApp." />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <ZoruLabel htmlFor="description">Business Description</ZoruLabel>
+                    <Label htmlFor="description">Business Description</Label>
                     <span className="text-xs text-muted-foreground">Max 256 chars</span>
                   </div>
-                  <ZoruTextarea id="description" name="description" defaultValue={phone.profile?.description} maxLength={256} className="h-24 resize-none" placeholder="Tell your customers about your business..." />
+                  <Textarea id="description" name="description" defaultValue={phone.profile?.description} maxLength={256} className="h-24 resize-none" placeholder="Tell your customers about your business..." />
                 </div>
               </div>
 
-              <ZoruSeparator />
+              <Separator />
 
               {/* Bottom Section: Contact & Socials */}
               <div className="grid gap-4">
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="address">Business Address</ZoruLabel>
-                  <ZoruInput id="address" name="address" defaultValue={phone.profile?.address} placeholder="1234 Main St, City, Country" />
+                  <Label htmlFor="address">Business Address</Label>
+                  <Input id="address" name="address" defaultValue={phone.profile?.address} placeholder="1234 Main St, City, Country" />
                 </div>
                 <div className="space-y-2">
-                  <ZoruLabel>Websites</ZoruLabel>
+                  <Label>Websites</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <ZoruInput name="websites" placeholder="https://www.example.com" defaultValue={phone.profile?.websites?.[0]} />
-                    <ZoruInput name="websites" placeholder="https://shop.example.com" defaultValue={phone.profile?.websites?.[1]} />
+                    <Input name="websites" placeholder="https://www.example.com" defaultValue={phone.profile?.websites?.[0]} />
+                    <Input name="websites" placeholder="https://shop.example.com" defaultValue={phone.profile?.websites?.[1]} />
                   </div>
                 </div>
               </div>
@@ -257,18 +257,18 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
           </div>
 
           <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="pill"
               size="md"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

@@ -53,14 +53,14 @@ const initialState: { message: string | null; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="animate-spin" />
       ) : (
         <Save />
       )}
       Save auto-reply settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -90,7 +90,7 @@ export default function SabChatAutoReplyPage() {
   // but visualise both with a single header switch + accordion.
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -106,16 +106,16 @@ export default function SabChatAutoReplyPage() {
             <ZoruBreadcrumbPage>Auto Reply</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Auto reply</ZoruPageTitle>
           <ZoruPageDescription>
             Automated messages sent to visitors based on triggers.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <form action={formAction}>
         {/* Pass-through existing settings unrelated to this form. */}
@@ -135,7 +135,7 @@ export default function SabChatAutoReplyPage() {
           })}
         />
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted">
@@ -151,7 +151,7 @@ export default function SabChatAutoReplyPage() {
             </div>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ZoruAccordion
+            <Accordion
               type="multiple"
               defaultValue={["welcome", "away"]}
               className="w-full"
@@ -169,16 +169,16 @@ export default function SabChatAutoReplyPage() {
                 <ZoruAccordionContent>
                   <div className="space-y-3 pt-1">
                     <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
-                      <ZoruSwitch
+                      <Switch
                         id="welcomeEnabled"
                         name="welcomeEnabled"
                         defaultChecked={settings.welcomeEnabled}
                       />
-                      <ZoruLabel htmlFor="welcomeEnabled">
+                      <Label htmlFor="welcomeEnabled">
                         Send welcome message
-                      </ZoruLabel>
+                      </Label>
                     </div>
-                    <ZoruTextarea
+                    <Textarea
                       name="welcomeMessage"
                       defaultValue={
                         settings.welcomeMessage ||
@@ -205,16 +205,16 @@ export default function SabChatAutoReplyPage() {
                 <ZoruAccordionContent>
                   <div className="space-y-3 pt-1">
                     <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
-                      <ZoruSwitch
+                      <Switch
                         id="awayMessageEnabled"
                         name="awayMessageEnabled"
                         defaultChecked={settings.awayMessageEnabled}
                       />
-                      <ZoruLabel htmlFor="awayMessageEnabled">
+                      <Label htmlFor="awayMessageEnabled">
                         Send away message
-                      </ZoruLabel>
+                      </Label>
                     </div>
-                    <ZoruTextarea
+                    <Textarea
                       name="awayMessage"
                       defaultValue={
                         settings.awayMessage ||
@@ -226,13 +226,13 @@ export default function SabChatAutoReplyPage() {
                   </div>
                 </ZoruAccordionContent>
               </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
 
             <div className="mt-6 flex justify-end">
               <SubmitButton />
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </form>
     </div>
   );

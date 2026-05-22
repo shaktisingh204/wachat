@@ -284,14 +284,14 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                     </div>
 
                     {/* B. FAB (Floating Action ZoruButton) - Absolute Overlay */}
-                    <ZoruDropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
+                    <DropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
                         <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton
+                            <Button
                                 size="icon"
                                 className="absolute bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl z-50 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:shadow-primary/25 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10"
                             >
                                 <Plus className="h-7 w-7" />
-                            </ZoruButton>
+                            </Button>
                         </ZoruDropdownMenuTrigger>
                         <ZoruDropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
                             <div className="p-4 border-b sticky top-0 bg-background/80 backdrop-blur-md z-10">
@@ -299,12 +299,12 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                             </div>
                             <div className="p-4">
                                 <BlockPalette onAddBlock={(type) => { handleAddBlock(type); setIsBlockPaletteOpen(false); }} />
-                                <ZoruSeparator className="my-4" />
+                                <Separator className="my-4" />
                                 <div className="text-xs font-semibold text-muted-foreground mb-2">PAGES & LAYOUT</div>
                                 <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
                             </div>
                         </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
 
                     {/* C. Properties Panel (Overlay Sidebar) */}
                     {/* Fixed position relative to Main Content Area, high Z-index */}
@@ -317,9 +317,9 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                     >
                         <div className="flex items-center justify-between p-4 border-b bg-transparent sticky top-0 z-10">
                             <h3 className="font-semibold text-sm">Properties</h3>
-                            <ZoruButton variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
                                 <X className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                             {selectedBlock ? (

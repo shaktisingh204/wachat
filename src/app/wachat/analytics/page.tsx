@@ -128,7 +128,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -142,17 +142,17 @@ export default function AnalyticsPage() {
             <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Message analytics</ZoruPageTitle>
             <ZoruPageDescription>
               Track your messaging performance, delivery rates, and broadcast metrics.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
 
         <div className="flex items-center gap-2">
           <div className="flex overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line text-xs">
@@ -171,17 +171,17 @@ export default function AnalyticsPage() {
               </button>
             ))}
           </div>
-          <ZoruButton size="sm" variant="outline" onClick={fetchAnalytics} disabled={isPending}>
+          <Button size="sm" variant="outline" onClick={fetchAnalytics} disabled={isPending}>
             <RefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} />
             Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {statCards.map((stat) => (
-          <ZoruCard key={stat.label} className="p-4">
+          <Card key={stat.label} className="p-4">
             <div className="mb-2 flex items-center gap-2">
               <stat.Icon className="h-4 w-4 text-zoru-ink-muted" />
               <span className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
@@ -189,13 +189,13 @@ export default function AnalyticsPage() {
               </span>
             </div>
             <p className="text-2xl tabular-nums text-zoru-ink">{stat.value.toLocaleString()}</p>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
 
       {/* Delivery rate */}
       {analytics && analytics.totalSent > 0 && (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-sm text-zoru-ink">Delivery performance</h2>
           <div className="grid grid-cols-3 gap-6">
             {[
@@ -223,12 +223,12 @@ export default function AnalyticsPage() {
               </div>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Daily trend chart */}
       {analytics && analytics.dailyBreakdown.length > 0 && (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-sm text-zoru-ink">Daily trend</h2>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -245,12 +245,12 @@ export default function AnalyticsPage() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Daily breakdown table */}
       {analytics && analytics.dailyBreakdown.length > 0 && (
-        <ZoruCard>
+        <Card>
           <div className="border-b border-zoru-line p-4">
             <h2 className="text-sm text-zoru-ink">Daily breakdown</h2>
           </div>
@@ -286,12 +286,12 @@ export default function AnalyticsPage() {
               </tbody>
             </table>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Broadcast performance */}
       {broadcastData && broadcastData.totalBroadcasts > 0 && (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-sm text-zoru-ink">Broadcast performance</h2>
           <div className="grid grid-cols-4 gap-6">
             {[
@@ -320,11 +320,11 @@ export default function AnalyticsPage() {
               </div>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {!analytics && !isPending && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Activity className="h-12 w-12" />}
           title="No analytics yet"
           description="Select a project to view analytics."

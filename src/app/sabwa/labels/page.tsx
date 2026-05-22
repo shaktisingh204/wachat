@@ -147,13 +147,13 @@ export default function SabWaLabelsPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -163,7 +163,7 @@ export default function SabWaLabelsPage() {
 
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -177,7 +177,7 @@ export default function SabWaLabelsPage() {
             <ZoruBreadcrumbPage>Labels</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -192,9 +192,9 @@ export default function SabWaLabelsPage() {
               <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
                 Labels
               </h1>
-              <ZoruBadge variant="ghost" className="text-[10.5px]">
+              <Badge variant="ghost" className="text-[10.5px]">
                 {labels.length} total
-              </ZoruBadge>
+              </Badge>
             </div>
             <p className="mt-1 text-[13px] text-zoru-ink-muted">
               Group chats with named, colour-coded labels. Bulk-apply from
@@ -202,13 +202,13 @@ export default function SabWaLabelsPage() {
             </p>
           </div>
         </div>
-        <ZoruButton
+        <Button
           type="button"
           onClick={() => setEditor({ open: true })}
           className="shrink-0"
         >
           <Plus className="mr-1.5 h-4 w-4" /> New label
-        </ZoruButton>
+        </Button>
       </header>
 
       {error ? (
@@ -286,7 +286,7 @@ interface LabelCardProps {
 function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
   const count = label.chatCount ?? 0;
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="flex items-start gap-3 p-4">
         <span
           aria-hidden
@@ -299,9 +299,9 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
             {count} chat{count === 1 ? "" : "s"}
           </p>
         </div>
-        <ZoruDropdownMenu>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               size="icon-sm"
@@ -309,7 +309,7 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
               aria-label="Label actions"
             >
               <MoreHorizontal className="h-4 w-4" />
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent align="end">
             <ZoruDropdownMenuItem onSelect={onEdit}>
@@ -322,9 +322,9 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
               <Trash2 className="mr-2 h-4 w-4" /> Delete
             </ZoruDropdownMenuItem>
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -399,7 +399,7 @@ function LabelEditorDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>{isEdit ? "Edit label" : "New label"}</ZoruDialogTitle>
@@ -412,7 +412,7 @@ function LabelEditorDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <ZoruUiLabel htmlFor="label-name">Name</ZoruUiLabel>
-            <ZoruInput
+            <Input
               id="label-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -458,21 +458,21 @@ function LabelEditorDialog({
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={saving}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={saving}>
+            </Button>
+            <Button type="submit" disabled={saving}>
               {saving ? "Saving…" : isEdit ? "Save changes" : "Create label"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -481,15 +481,15 @@ function LabelGridSkeleton() {
     <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 6 }).map((_, i) => (
         <li key={i}>
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 p-4">
-              <ZoruSkeleton className="h-8 w-8 rounded-[var(--zoru-radius)]" />
+              <Skeleton className="h-8 w-8 rounded-[var(--zoru-radius)]" />
               <div className="flex-1 space-y-2">
-                <ZoruSkeleton className="h-3 w-2/3" />
-                <ZoruSkeleton className="h-3 w-1/3" />
+                <Skeleton className="h-3 w-2/3" />
+                <Skeleton className="h-3 w-1/3" />
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </li>
       ))}
     </ul>
@@ -504,7 +504,7 @@ function LabelsEmptyState({
   onRetry?: () => void;
 }) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
         <div
           aria-hidden
@@ -518,16 +518,16 @@ function LabelsEmptyState({
           colour swatch.
         </p>
         <div className="flex items-center gap-2">
-          <ZoruButton type="button" onClick={onCreate}>
+          <Button type="button" onClick={onCreate}>
             <Plus className="mr-1.5 h-4 w-4" /> New label
-          </ZoruButton>
+          </Button>
           {onRetry && (
-            <ZoruButton type="button" variant="outline" onClick={onRetry}>
+            <Button type="button" variant="outline" onClick={onRetry}>
               Reload
-            </ZoruButton>
+            </Button>
           )}
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

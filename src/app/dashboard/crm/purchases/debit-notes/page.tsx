@@ -271,11 +271,11 @@ export default function DebitNotesPage() {
                     placeholder: 'Search by DN #, notes, txn id…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/purchases/debit-notes/new">
                             <Plus className="h-4 w-4" /> New debit note
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <DebitNoteFiltersRow
@@ -330,11 +330,11 @@ export default function DebitNotesPage() {
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Adjust a vendor bill downward for a return or discount.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/purchases/debit-notes/new">
                                     <Plus className="h-4 w-4" /> Add debit note
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

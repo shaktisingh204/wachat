@@ -488,7 +488,7 @@ export function AdPreviewSwitcher({
     return (
         <div className="space-y-3">
             {/* Channel pills */}
-            <ZoruScrollArea className="w-full">
+            <ScrollArea className="w-full">
                 <div className="flex gap-1 pb-2 min-w-max">
                     {Object.entries(byPlatform).map(([platform, variants]) => {
                         if (variants.length === 0) return null;
@@ -522,21 +522,21 @@ export function AdPreviewSwitcher({
                     })}
                 </div>
                 <ZoruScrollBar orientation="horizontal" />
-            </ZoruScrollArea>
+            </ScrollArea>
 
             {/* Active variant */}
             <div className="flex items-center justify-between">
-                <ZoruBadge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-[10px]">
                     {currentIdx + 1} / {PREVIEW_VARIANTS.length}
-                </ZoruBadge>
+                </Badge>
                 <div className="text-xs font-medium">{activeVariant.label}</div>
                 <div className="flex gap-1">
-                    <ZoruButton variant="outline" size="icon" className="h-6 w-6" onClick={prev}>
+                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={prev}>
                         <ChevronLeft className="h-3 w-3" />
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="icon" className="h-6 w-6" onClick={next}>
+                    </Button>
+                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={next}>
                         <ChevronRight className="h-3 w-3" />
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 

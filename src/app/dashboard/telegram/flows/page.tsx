@@ -227,7 +227,7 @@ export default function TelegramFlowsPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
         <TelegramProjectGate />
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
           <ZoruPageTitle style={{ color: ACCENT }} className="flex items-center gap-2">
@@ -240,23 +240,23 @@ export default function TelegramFlowsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={handleCreate} disabled={isMutating || !activeProjectId}>
+          <Button onClick={handleCreate} disabled={isMutating || !activeProjectId}>
             {isMutating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             New flow
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <ZoruStatCard label="Total flows" value={kpis.total.toLocaleString()} />
-        <ZoruStatCard
+        <StatCard label="Total flows" value={kpis.total.toLocaleString()} />
+        <StatCard
           label="Published"
           value={kpis.published.toLocaleString()}
           icon={<CheckCircle2 className="h-4 w-4" style={{ color: ACCENT }} />}
         />
-        <ZoruStatCard label="Total runs" value={kpis.runs.toLocaleString()} />
-        <ZoruStatCard
+        <StatCard label="Total runs" value={kpis.runs.toLocaleString()} />
+        <StatCard
           label="Error rate"
           value={`${kpis.errorRate}%`}
           invertDelta
@@ -265,17 +265,17 @@ export default function TelegramFlowsPage() {
       </div>
 
       {/* Filter bar */}
-      <ZoruCard className="flex flex-col gap-3 p-4 md:flex-row md:items-center">
+      <Card className="flex flex-col gap-3 p-4 md:flex-row md:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <ZoruInput
+          <Input
             placeholder="Search flows by name…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
           />
         </div>
-        <ZoruSelect
+        <Select
           value={statusFilter || 'all'}
           onValueChange={(v) => setStatusFilter(v === 'all' ? '' : (v as FlowStatus))}
         >
@@ -288,28 +288,28 @@ export default function TelegramFlowsPage() {
             <ZoruSelectItem value="published">Published</ZoruSelectItem>
             <ZoruSelectItem value="disabled">Disabled</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
-      </ZoruCard>
+        </Select>
+      </Card>
 
       {/* Table */}
-      <ZoruCard className="overflow-hidden">
+      <Card className="overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Loading flows…
           </div>
         ) : flows.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Workflow className="h-8 w-8" style={{ color: ACCENT }} />}
             title="No flows yet"
             description="Create your first Telegram flow to automate replies, branching, and external API calls."
             action={
-              <ZoruButton onClick={handleCreate} disabled={!activeProjectId}>
+              <Button onClick={handleCreate} disabled={!activeProjectId}>
                 <Plus className="h-4 w-4" /> New flow
-              </ZoruButton>
+              </Button>
             }
           />
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Name</ZoruTableHead>
@@ -338,7 +338,7 @@ export default function TelegramFlowsPage() {
                     ) : null}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge variant={statusVariant(f.status)}>{f.status}</ZoruBadge>
+                    <Badge variant={statusVariant(f.status)}>{f.status}</Badge>
                   </ZoruTableCell>
                   <ZoruTableCell>
                     v{f.version}
@@ -355,11 +355,11 @@ export default function TelegramFlowsPage() {
                     {relativeTime(f.lastRunAt)}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="ghost" size="icon" aria-label="Actions">
+                        <Button variant="ghost" size="icon" aria-label="Actions">
                           <MoreHorizontal className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruDropdownMenuTrigger>
                       <ZoruDropdownMenuContent align="end">
                         <ZoruDropdownMenuItem
@@ -423,14 +423,14 @@ export default function TelegramFlowsPage() {
                           <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
-      </ZoruCard>
+      </Card>
 
       <ZoruAlertDialog
         open={confirmDeleteId !== null}

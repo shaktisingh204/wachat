@@ -201,7 +201,7 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Radar />}
           title="No project selected"
           description="Pick a Facebook page / project to track competitors."
@@ -212,7 +212,7 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -226,7 +226,7 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Competitors</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -236,41 +236,41 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
-          <ZoruButton onClick={() => setDialogOpen(true)}>
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Track competitor
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load competitors</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="pt-6">
           {loading && competitors.length === 0 ? (
             <div className="flex flex-col gap-2">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : competitors.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Radar />}
               title="No competitors tracked"
               description='Add a competitor by Page URL or numeric ID. Use "Track competitor" above.'
             />
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Name</ZoruTableHead>
@@ -302,7 +302,7 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
                             <ExternalLink className="h-3 w-3" />
                           </a>
                         ) : c.pageId ? (
-                          <ZoruBadge variant="outline">{c.pageId}</ZoruBadge>
+                          <Badge variant="outline">{c.pageId}</Badge>
                         ) : (
                           '—'
                         )}
@@ -318,7 +318,7 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="inline-flex items-center gap-1">
-                          <ZoruButton
+                          <Button
                             size="icon-sm"
                             variant="ghost"
                             onClick={() => handleSync(c)}
@@ -330,27 +330,27 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
                                 isSyncing ? 'h-3.5 w-3.5 animate-spin' : 'h-3.5 w-3.5'
                               }
                             />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             size="icon-sm"
                             variant="ghost"
                             onClick={() => setConfirmRemove(c)}
                             aria-label="Remove"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Track a competitor</ZoruDialogTitle>
@@ -360,8 +360,8 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
           </ZoruDialogHeader>
           <div className="flex flex-col gap-3 py-2">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="comp-name">Display name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="comp-name">Display name</Label>
+              <Input
                 id="comp-name"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
@@ -369,8 +369,8 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="comp-url">Page URL or ID</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="comp-url">Page URL or ID</Label>
+              <Input
                 id="comp-url"
                 value={formUrl}
                 onChange={(e) => setFormUrl(e.target.value)}
@@ -379,19 +379,19 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setDialogOpen(false)}
               disabled={saving}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleAdd} disabled={saving}>
+            </Button>
+            <Button onClick={handleAdd} disabled={saving}>
               {saving ? 'Adding...' : 'Track'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={!!confirmRemove}

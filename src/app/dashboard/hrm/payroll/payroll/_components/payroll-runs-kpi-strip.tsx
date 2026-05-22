@@ -57,7 +57,7 @@ export function PayrollRunsKpiStrip({
         onClick={() => onSelect('drafts')}
         ariaLabel="Show draft payroll runs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Drafts"
           value={kpi.drafts.toLocaleString()}
           period="not yet processed"
@@ -69,7 +69,7 @@ export function PayrollRunsKpiStrip({
         onClick={() => onSelect('processing')}
         ariaLabel="Show processing payroll runs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Processing"
           value={kpi.processing.toLocaleString()}
           period="computed, awaiting review"
@@ -81,7 +81,7 @@ export function PayrollRunsKpiStrip({
         onClick={() => onSelect('approved')}
         ariaLabel="Show approved payroll runs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Approved"
           value={kpi.approved.toLocaleString()}
           period="ready to disburse"
@@ -93,7 +93,7 @@ export function PayrollRunsKpiStrip({
         onClick={() => onSelect('disbursed')}
         ariaLabel="Show disbursed payroll runs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Disbursed"
           value={kpi.disbursed.toLocaleString()}
           period="bank file generated"
@@ -105,7 +105,7 @@ export function PayrollRunsKpiStrip({
         onClick={() => onSelect('payout')}
         ariaLabel="Show payout totals"
       >
-        <ZoruStatCard
+        <StatCard
           label="Total payout"
           value={fmtMoney(kpi.totalNetPayout, kpi.currency)}
           period="net · all periods"

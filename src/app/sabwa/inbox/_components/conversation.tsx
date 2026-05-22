@@ -411,7 +411,7 @@ export function Conversation({
         )}
 
         {showJumpToBottom ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="secondary"
             size="icon"
@@ -420,7 +420,7 @@ export function Conversation({
             aria-label="Jump to latest"
           >
             <ChevronDown className="h-5 w-5" />
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 

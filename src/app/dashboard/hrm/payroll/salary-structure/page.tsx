@@ -50,10 +50,10 @@ const saveInitialState = { success: false, error: undefined };
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {isEditing ? 'Save Structure' : 'Create Structure'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -105,10 +105,10 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
                     <h4 className="text-[13px] text-zoru-ink capitalize">{type}s</h4>
-                    <ZoruButton type="button" variant="outline" size="sm" onClick={() => addComponent(type)}>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addComponent(type)}>
                         <Plus className="h-3.5 w-3.5" />
                         Add {type}
-                    </ZoruButton>
+                    </Button>
                 </div>
                 {filtered.length === 0 && (
                     <p className="rounded-lg border border-dashed border-zoru-line p-3 text-center text-[12.5px] text-zoru-ink-muted">
@@ -118,8 +118,8 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                 {filtered.map(comp => (
                     <div key={comp.originalIndex} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                         <div className="space-y-1">
-                            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">Component Name</ZoruLabel>
-                            <ZoruInput
+                            <Label className="text-[11.5px] text-zoru-ink-muted">Component Name</Label>
+                            <Input
                                 placeholder={type === 'earning' ? 'e.g. Basic Pay' : 'e.g. Prof. Tax'}
                                 value={comp.name}
                                 onChange={e => updateComponent(comp.originalIndex, 'name', e.target.value)}
@@ -127,8 +127,8 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                             />
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">Calc. Type</ZoruLabel>
-                            <ZoruRadioGroup
+                            <Label className="text-[11.5px] text-zoru-ink-muted">Calc. Type</Label>
+                            <RadioGroup
                                 value={comp.calculationType}
                                 onValueChange={val => updateComponent(comp.originalIndex, 'calculationType', val)}
                                 className="flex h-9 items-center gap-3"
@@ -139,13 +139,13 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                                 <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-zoru-ink">
                                     <ZoruRadioGroupItem value="percentage" /> %
                                 </label>
-                            </ZoruRadioGroup>
+                            </RadioGroup>
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">
+                            <Label className="text-[11.5px] text-zoru-ink-muted">
                                 {comp.calculationType === 'percentage' ? 'Rate (%)' : 'Amount (₹)'}
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 type="number"
                                 value={comp.value}
                                 onChange={e => updateComponent(comp.originalIndex, 'value', Number(e.target.value))}
@@ -153,7 +153,7 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                             />
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">Taxable</ZoruLabel>
+                            <Label className="text-[11.5px] text-zoru-ink-muted">Taxable</Label>
                             <button
                                 type="button"
                                 onClick={() => updateComponent(comp.originalIndex, 'taxable', !comp.taxable)}
@@ -165,7 +165,7 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                                 }
                             </button>
                         </div>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             size="icon"
@@ -173,7 +173,7 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                             className="text-zoru-danger-ink hover:text-zoru-danger-ink"
                         >
                             <Trash2 className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ))}
             </div>
@@ -181,7 +181,7 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
     };
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="max-w-2xl">
                 <form action={formAction}>
                     <input type="hidden" name="id" value={structure?._id.toString()} />
@@ -192,12 +192,12 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                     <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Structure Name <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-                                <ZoruInput name="name" defaultValue={structure?.name} required className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                                <Label>Structure Name <span className="text-zoru-danger-ink">*</span></Label>
+                                <Input name="name" defaultValue={structure?.name} required className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Description</ZoruLabel>
-                                <ZoruInput name="description" defaultValue={structure?.description} className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                                <Label>Description</Label>
+                                <Input name="description" defaultValue={structure?.description} className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                             </div>
                         </div>
                         <div className="rounded-lg border border-zoru-line bg-zoru-bg p-4 space-y-4">
@@ -208,12 +208,12 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                         </div>
                     </div>
                     <ZoruDialogFooter className="pt-2">
-                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -260,13 +260,13 @@ export default function SalaryStructurePage() {
                 title="Salary Structures"
                 subtitle="Define salary templates with earnings and deductions for different employee roles or grades."
                 primaryAction={
-                    <ZoruButton onClick={() => handleEdit(null)}>
+                    <Button onClick={() => handleEdit(null)}>
                         <Plus className="h-4 w-4" />
                         Create New Structure
-                    </ZoruButton>
+                    </Button>
                 }
             >
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-4">
                         <h2 className="text-[16px] text-zoru-ink">Your Structures</h2>
                         <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{structures.length} structure{structures.length !== 1 ? 's' : ''} defined.</p>
@@ -299,31 +299,31 @@ export default function SalaryStructurePage() {
                                                 <td className="px-4 py-3 font-medium text-zoru-ink">{s.name}</td>
                                                 <td className="px-4 py-3 text-zoru-ink-muted">{s.description ?? '—'}</td>
                                                 <td className="px-4 py-3 text-center">
-                                                    <ZoruBadge variant="success">{earnings.length} earning{earnings.length !== 1 ? 's' : ''}</ZoruBadge>
+                                                    <Badge variant="success">{earnings.length} earning{earnings.length !== 1 ? 's' : ''}</Badge>
                                                 </td>
                                                 <td className="px-4 py-3 text-center">
-                                                    <ZoruBadge variant="danger">{deductions.length} deduction{deductions.length !== 1 ? 's' : ''}</ZoruBadge>
+                                                    <Badge variant="danger">{deductions.length} deduction{deductions.length !== 1 ? 's' : ''}</Badge>
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex flex-wrap gap-1">
                                                         {(s.components ?? []).slice(0, 3).map((c, i) => (
-                                                            <ZoruBadge key={i} variant="secondary">{c.name}</ZoruBadge>
+                                                            <Badge key={i} variant="secondary">{c.name}</Badge>
                                                         ))}
                                                         {(s.components?.length ?? 0) > 3 && (
-                                                            <ZoruBadge variant="secondary">+{(s.components?.length ?? 0) - 3} more</ZoruBadge>
+                                                            <Badge variant="secondary">+{(s.components?.length ?? 0) - 3} more</Badge>
                                                         )}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        <ZoruButton variant="ghost" size="icon" onClick={() => handleEdit(s)}>
+                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(s)}>
                                                             <Edit className="h-4 w-4" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                         <ZoruAlertDialog>
                                                             <ZoruAlertDialogTrigger asChild>
-                                                                <ZoruButton variant="ghost" size="icon" className="text-zoru-danger-ink hover:text-zoru-danger-ink">
+                                                                <Button variant="ghost" size="icon" className="text-zoru-danger-ink hover:text-zoru-danger-ink">
                                                                     <Trash2 className="h-4 w-4" />
-                                                                </ZoruButton>
+                                                                </Button>
                                                             </ZoruAlertDialogTrigger>
                                                             <ZoruAlertDialogContent>
                                                                 <ZoruAlertDialogHeader>
@@ -353,7 +353,7 @@ export default function SalaryStructurePage() {
                             </tbody>
                         </table>
                     </div>
-                </ZoruCard>
+                </Card>
             </EntityListShell>
         </>
     );

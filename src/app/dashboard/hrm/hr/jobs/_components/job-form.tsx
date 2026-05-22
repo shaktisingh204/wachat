@@ -50,14 +50,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create job'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -98,7 +98,7 @@ export function JobForm({ initialData }: JobFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="jobId" value={initialData!._id} />
@@ -107,8 +107,8 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 1: Title + Openings */}
                 <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Title *</Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -117,8 +117,8 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="openings">Openings</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="openings">Openings</Label>
+                        <Input
                             id="openings"
                             name="openings"
                             type="number"
@@ -136,7 +136,7 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 2: Department + Location */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Department</ZoruLabel>
+                        <Label>Department</Label>
                         <EntityFormField
                             entity="department"
                             name="departmentId"
@@ -148,8 +148,8 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="location">Location</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="location">Location</Label>
+                        <Input
                             id="location"
                             name="location"
                             placeholder="e.g. Bengaluru, IN"
@@ -161,7 +161,7 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 3: Employment type + Work mode + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Employment type</ZoruLabel>
+                        <Label>Employment type</Label>
                         <EnumFormField
                             enumName="jobEmploymentType"
                             name="employmentType"
@@ -175,7 +175,7 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Work mode</ZoruLabel>
+                        <Label>Work mode</Label>
                         <EnumFormField
                             enumName="jobWorkMode"
                             name="remotePolicy"
@@ -189,7 +189,7 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="jobStatus"
                             name="status"
@@ -205,8 +205,8 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 4: Experience range */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="experienceMin">Experience min (yrs)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="experienceMin">Experience min (yrs)</Label>
+                        <Input
                             id="experienceMin"
                             name="experienceMin"
                             type="number"
@@ -220,8 +220,8 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="experienceMax">Experience max (yrs)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="experienceMax">Experience max (yrs)</Label>
+                        <Input
                             id="experienceMax"
                             name="experienceMax"
                             type="number"
@@ -239,8 +239,8 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 5: Salary range + Currency */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="salaryMin">Salary min</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="salaryMin">Salary min</Label>
+                        <Input
                             id="salaryMin"
                             name="salaryMin"
                             type="number"
@@ -254,8 +254,8 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="salaryMax">Salary max</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="salaryMax">Salary max</Label>
+                        <Input
                             id="salaryMax"
                             name="salaryMax"
                             type="number"
@@ -269,7 +269,7 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -282,8 +282,8 @@ export function JobForm({ initialData }: JobFormProps) {
 
                 {/* Row 6: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={4}
@@ -294,8 +294,8 @@ export function JobForm({ initialData }: JobFormProps) {
 
                 {/* Row 7: Responsibilities */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="responsibilities">Responsibilities</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="responsibilities">Responsibilities</Label>
+                    <Textarea
                         id="responsibilities"
                         name="responsibilities"
                         rows={5}
@@ -306,8 +306,8 @@ export function JobForm({ initialData }: JobFormProps) {
 
                 {/* Row 8: Requirements */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="requirements">Requirements</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="requirements">Requirements</Label>
+                    <Textarea
                         id="requirements"
                         name="requirements"
                         rows={5}
@@ -319,8 +319,8 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 9: Dates + Hiring manager */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="publishAt">Publish at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="publishAt">Publish at</Label>
+                        <Input
                             id="publishAt"
                             name="publishAt"
                             type="date"
@@ -328,8 +328,8 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="closeAt">Close at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="closeAt">Close at</Label>
+                        <Input
                             id="closeAt"
                             name="closeAt"
                             type="date"
@@ -337,7 +337,7 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Hiring manager</ZoruLabel>
+                        <Label>Hiring manager</Label>
                         <EntityFormField
                             entity="employee"
                             name="hiringManagerId"
@@ -351,8 +351,8 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 10: Publish URL + Filled (edit only) + Tags */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="publishUrl">Public posting URL</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="publishUrl">Public posting URL</Label>
+                        <Input
                             id="publishUrl"
                             name="publishUrl"
                             placeholder="https://careers.example.com/jobs/…"
@@ -361,8 +361,8 @@ export function JobForm({ initialData }: JobFormProps) {
                     </div>
                     {isEditing ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="filled">Filled</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="filled">Filled</Label>
+                            <Input
                                 id="filled"
                                 name="filled"
                                 type="number"
@@ -376,8 +376,8 @@ export function JobForm({ initialData }: JobFormProps) {
                         </div>
                     ) : (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="tags">Tags</Label>
+                            <Input
                                 id="tags"
                                 name="tags"
                                 placeholder="comma, separated, tags"
@@ -389,8 +389,8 @@ export function JobForm({ initialData }: JobFormProps) {
 
                 {isEditing ? (
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
                             id="tags"
                             name="tags"
                             placeholder="comma, separated, tags"
@@ -401,15 +401,15 @@ export function JobForm({ initialData }: JobFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to jobs
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

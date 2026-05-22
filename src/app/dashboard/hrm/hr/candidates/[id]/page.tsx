@@ -239,11 +239,11 @@ export default async function CandidateDetailPage({ params }: PageProps) {
           Inline note composer coming next — wires into recruitment audit
           stream.
         </p>
-        <ZoruButton variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/hrm/hr/candidates/${id}/edit`}>
             Edit candidate to update notes
           </Link>
-        </ZoruButton>
+        </Button>
       </DetailCard>
     </RecruitmentDetailShell>
   );

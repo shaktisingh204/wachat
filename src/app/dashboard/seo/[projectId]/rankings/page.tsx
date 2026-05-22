@@ -30,7 +30,7 @@ export default function RankingsPage({ params }: { params: Promise<{ projectId: 
 
     const handleRefresh = () => loadData();
 
-    if (loading && keywords.length === 0) return <ZoruSkeleton className="h-[400px] w-full" />;
+    if (loading && keywords.length === 0) return <Skeleton className="h-[400px] w-full" />;
 
     const trackedCount = keywords.length;
     const top3 = keywords.filter((k) => k.currentRank > 0 && k.currentRank <= 3).length;
@@ -49,39 +49,39 @@ export default function RankingsPage({ params }: { params: Promise<{ projectId: 
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
+                    <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </ZoruButton>
+                    </Button>
                     <AddKeywordDialog projectId={projectId} onAdded={loadData} />
                 </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader className="pb-2">
                         <ZoruCardTitle className="text-sm">Tracked Keywords</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="text-2xl text-zoru-ink">{trackedCount}</div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader className="pb-2">
                         <ZoruCardTitle className="text-sm">Top 3 Rankings</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="text-2xl text-zoru-success">{top3}</div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader className="pb-2">
                         <ZoruCardTitle className="text-sm">Top 10 Rankings</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="text-2xl text-zoru-success">{top10}</div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader className="pb-2">
                         <ZoruCardTitle className="text-sm">Avg. Visibility</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -90,17 +90,17 @@ export default function RankingsPage({ params }: { params: Promise<{ projectId: 
                             {trackedCount > 0 ? Math.round((top10 / trackedCount) * 100) : 0}%
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Keyword Positions</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <RankingsTable keywords={keywords} onRefresh={loadData} />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

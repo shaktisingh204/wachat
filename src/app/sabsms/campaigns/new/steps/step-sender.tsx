@@ -41,7 +41,7 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
 
   return (
     <div className="space-y-5">
-      <ZoruRadioGroup
+      <RadioGroup
         value={draft.senderStrategy}
         onValueChange={(v) =>
           onChange({ senderStrategy: v as SenderStrategy })
@@ -63,9 +63,9 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
           label="Sticky per recipient"
           description="Each contact always sees the same from-number — best for conversational tone."
         />
-      </ZoruRadioGroup>
+      </RadioGroup>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Sender numbers</ZoruCardTitle>
           <ZoruCardDescription>
@@ -88,7 +88,7 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
                     key={n.id}
                     className="flex cursor-pointer items-center gap-3 rounded border border-slate-200 p-3 hover:border-slate-400"
                   >
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={checked}
                       onCheckedChange={(v) => {
                         if (draft.senderStrategy === "single") {
@@ -101,8 +101,8 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
                     <div className="flex flex-1 items-center justify-between">
                       <code className="text-sm text-slate-700">{n.e164}</code>
                       <div className="flex items-center gap-2">
-                        <ZoruBadge variant="outline">{n.country}</ZoruBadge>
-                        <ZoruBadge variant="secondary">{n.type}</ZoruBadge>
+                        <Badge variant="outline">{n.country}</Badge>
+                        <Badge variant="secondary">{n.type}</Badge>
                       </div>
                     </div>
                   </label>
@@ -111,7 +111,7 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

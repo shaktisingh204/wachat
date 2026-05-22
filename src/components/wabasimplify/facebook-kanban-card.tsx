@@ -43,14 +43,14 @@ export function FacebookKanbanCard({ conversation, index }: FacebookKanbanCardPr
 
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-            <ZoruCard
+            <Card
                 className="cursor-grab active:cursor-grabbing bg-card"
             >
                 <ZoruCardHeader className="flex-row items-center gap-3 p-3">
-                    <ZoruAvatar>
+                    <Avatar>
                         <ZoruAvatarImage src={`https://graph.facebook.com/${conversation.psid}/picture`} alt={conversation.name} data-ai-hint="person avatar"/>
                         <ZoruAvatarFallback>{conversation.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <div>
                          <ZoruCardTitle className="text-sm font-semibold">{conversation.name}</ZoruCardTitle>
                          <ZoruCardDescription className="text-xs font-mono">{conversation.psid}</ZoruCardDescription>
@@ -62,12 +62,12 @@ export function FacebookKanbanCard({ conversation, index }: FacebookKanbanCardPr
                     </p>
                 </ZoruCardContent>
                 <ZoruCardFooter className="p-3 pt-0">
-                     <ZoruButton variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
+                     <Button variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
                         <MessageSquare className="mr-2 h-4 w-4" />
                         View Conversation
-                     </ZoruButton>
+                     </Button>
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

@@ -143,7 +143,7 @@ export function PosRefundForm({ original }: Props) {
     };
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div className="flex flex-col gap-1">
@@ -181,7 +181,7 @@ export function PosRefundForm({ original }: Props) {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead>Line</ZoruTableHead>
@@ -210,7 +210,7 @@ export function PosRefundForm({ original }: Props) {
                                         {fmtMoney(l.rate)}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruInput
+                                        <Input
                                             type="number"
                                             min={0}
                                             max={l.maxQty}
@@ -230,7 +230,7 @@ export function PosRefundForm({ original }: Props) {
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruInput
+                                        <Input
                                             type="number"
                                             min={0}
                                             step="0.01"
@@ -250,13 +250,13 @@ export function PosRefundForm({ original }: Props) {
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="flex flex-col gap-2">
-                        <ZoruLabel htmlFor="reason">Refund reason</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="reason">Refund reason</Label>
+                        <Textarea
                             id="reason"
                             rows={3}
                             value={reason}
@@ -266,10 +266,10 @@ export function PosRefundForm({ original }: Props) {
                         />
                     </div>
                     <div className="flex flex-col gap-2">
-                        <ZoruLabel htmlFor="refundMethod">
+                        <Label htmlFor="refundMethod">
                             Refund method
-                        </ZoruLabel>
-                        <ZoruSelect
+                        </Label>
+                        <Select
                             value={method}
                             onValueChange={(v) =>
                                 setMethod(v as PosPaymentMethod)
@@ -284,7 +284,7 @@ export function PosRefundForm({ original }: Props) {
                                 <ZoruSelectItem value="upi">UPI</ZoruSelectItem>
                                 <ZoruSelectItem value="other">Other</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                         <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[13px]">
                             <span className="text-zoru-ink-muted">
                                 Refund total
@@ -297,22 +297,22 @@ export function PosRefundForm({ original }: Props) {
                 </div>
 
                 <div className="flex justify-end gap-2">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={() => router.back()}
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         type="button"
                         disabled={submitting || total <= 0}
                         onClick={onSubmit}
                     >
                         {submitting ? 'Processing…' : 'Issue refund'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

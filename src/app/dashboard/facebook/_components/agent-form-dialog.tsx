@@ -41,10 +41,10 @@ const initialFormState = { message: "", error: "" };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <Plus />}
       {pending ? "Creating…" : "Create agent"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -82,7 +82,7 @@ export function AgentFormDialog({
   }, [formState.message, onOpenChange, onCreated, toast]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
           <ZoruDialogHeader>
@@ -96,15 +96,15 @@ export function AgentFormDialog({
           <input type="hidden" name="projectId" value={projectId} />
 
           {formState.error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <ZoruAlertDescription>{formState.error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
 
           <div className="grid gap-4">
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="name">Name</Label>
+              <Input
                 id="name"
                 name="name"
                 required
@@ -112,8 +112,8 @@ export function AgentFormDialog({
               />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="personality">Personality</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="personality">Personality</Label>
+              <Textarea
                 id="personality"
                 name="personality"
                 placeholder="friendly and helpful"
@@ -121,8 +121,8 @@ export function AgentFormDialog({
               />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="welcomeMessage">Welcome message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="welcomeMessage">Welcome message</Label>
+              <Textarea
                 id="welcomeMessage"
                 name="welcomeMessage"
                 placeholder="Hi! How can I help you today?"
@@ -130,8 +130,8 @@ export function AgentFormDialog({
               />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="fallbackMessage">Fallback message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="fallbackMessage">Fallback message</Label>
+              <Textarea
                 id="fallbackMessage"
                 name="fallbackMessage"
                 placeholder="Let me connect you with a human agent."
@@ -139,23 +139,23 @@ export function AgentFormDialog({
               />
             </div>
             <div className="flex items-center gap-3">
-              <ZoruSwitch id="isActive" name="isActive" />
-              <ZoruLabel htmlFor="isActive">Active on creation</ZoruLabel>
+              <Switch id="isActive" name="isActive" />
+              <Label htmlFor="isActive">Active on creation</Label>
             </div>
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

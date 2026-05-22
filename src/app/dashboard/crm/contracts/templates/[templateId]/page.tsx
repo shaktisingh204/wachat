@@ -91,11 +91,11 @@ export default async function ContractTemplateDetailPage(props: {
         <p className="text-[14px] text-zoru-ink">
           Couldn&apos;t load this template.
         </p>
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/dashboard/crm/contracts/templates">
             <ArrowLeft className="h-4 w-4" /> Back to Templates
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     );
   }
@@ -126,7 +126,7 @@ export default async function ContractTemplateDetailPage(props: {
       }
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Status</ZoruCardTitle>
             </ZoruCardHeader>
@@ -134,7 +134,7 @@ export default async function ContractTemplateDetailPage(props: {
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">State</span>
-                  <ZoruBadge variant="outline">{status}</ZoruBadge>
+                  <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Variables</span>
@@ -150,9 +150,9 @@ export default async function ContractTemplateDetailPage(props: {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Quick actions</ZoruCardTitle>
             </ZoruCardHeader>
@@ -172,9 +172,9 @@ export default async function ContractTemplateDetailPage(props: {
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Lifecycle</ZoruCardTitle>
             </ZoruCardHeader>
@@ -190,11 +190,11 @@ export default async function ContractTemplateDetailPage(props: {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -202,7 +202,7 @@ export default async function ContractTemplateDetailPage(props: {
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Template name">{tpl.name || '—'}</Field>
             <Field label="Status">
-              <ZoruBadge variant="outline">{status}</ZoruBadge>
+              <Badge variant="outline">{status}</Badge>
             </Field>
           </div>
           <div className="mt-4">
@@ -213,18 +213,18 @@ export default async function ContractTemplateDetailPage(props: {
             </Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Preview</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
           <TemplatePreview body={body} variables={variables} />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Variables</ZoruCardTitle>
         </ZoruCardHeader>
@@ -248,9 +248,9 @@ export default async function ContractTemplateDetailPage(props: {
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Linked contracts</ZoruCardTitle>
         </ZoruCardHeader>
@@ -268,7 +268,7 @@ export default async function ContractTemplateDetailPage(props: {
             </Link>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <p className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(tpl.createdAt)} · Updated {fmtDate(tpl.updatedAt)}

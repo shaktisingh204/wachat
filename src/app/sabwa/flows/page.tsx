@@ -189,13 +189,13 @@ export default function SabWaFlowsPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -206,7 +206,7 @@ export default function SabWaFlowsPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -220,7 +220,7 @@ export default function SabWaFlowsPage() {
             <ZoruBreadcrumbPage>Chatbot flows</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* ── Header ───────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-start gap-3">
@@ -235,7 +235,7 @@ export default function SabWaFlowsPage() {
             <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
               Chatbot Flows
             </h1>
-            <ZoruBadge variant="secondary">SabFlow-powered</ZoruBadge>
+            <Badge variant="secondary">SabFlow-powered</Badge>
           </div>
           <p className="mt-1 max-w-2xl text-[13px] text-zoru-ink-muted">
             Chatbot flows for your personal WhatsApp use{" "}
@@ -245,7 +245,7 @@ export default function SabWaFlowsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -258,13 +258,13 @@ export default function SabWaFlowsPage() {
               <RefreshCw className="h-4 w-4" />
             )}
             <span className="ml-2 hidden sm:inline">Refresh</span>
-          </ZoruButton>
-          <ZoruButton asChild type="button">
+          </Button>
+          <Button asChild type="button">
             <Link href={newFlowHref} target="_blank" rel="noopener noreferrer">
               <Plus className="h-4 w-4" />
               <span className="ml-2">New flow</span>
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -277,20 +277,20 @@ export default function SabWaFlowsPage() {
         {loading && (
           <div className="grid gap-3 md:grid-cols-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-28 w-full rounded-[var(--zoru-radius-lg)]" />
+              <Skeleton key={i} className="h-28 w-full rounded-[var(--zoru-radius-lg)]" />
             ))}
           </div>
         )}
 
         {!loading && error && (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex flex-col items-start gap-2 p-4 text-[13px]">
               <div className="flex items-center gap-2 text-zoru-danger">
                 <CircleSlash className="h-4 w-4" />
                 <span className="font-medium">Couldn&apos;t load flows</span>
               </div>
               <p className="text-zoru-ink-muted">{error}</p>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -300,13 +300,13 @@ export default function SabWaFlowsPage() {
                 }}
               >
                 <RefreshCw className="mr-2 h-4 w-4" /> Try again
-              </ZoruButton>
+              </Button>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
 
         {!loading && !error && flows.length === 0 && (
-          <ZoruCard className="border-dashed">
+          <Card className="border-dashed">
             <ZoruCardContent className="flex flex-col items-center gap-3 p-8 text-center">
               <div
                 aria-hidden
@@ -322,7 +322,7 @@ export default function SabWaFlowsPage() {
                 opens scoped to SabWa — only triggers and actions that work
                 on personal WhatsApp accounts are shown.
               </p>
-              <ZoruButton asChild type="button">
+              <Button asChild type="button">
                 <Link
                   href={newFlowHref}
                   target="_blank"
@@ -330,9 +330,9 @@ export default function SabWaFlowsPage() {
                 >
                   <Plus className="mr-2 h-4 w-4" /> Create your first flow
                 </Link>
-              </ZoruButton>
+              </Button>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
 
         {!loading && !error && flows.length > 0 && (
@@ -340,7 +340,7 @@ export default function SabWaFlowsPage() {
             {flows.map((flow) => {
               const isActive = flow.status === "active";
               return (
-                <ZoruCard
+                <Card
                   key={flow._id}
                   className="transition hover:shadow-[var(--zoru-shadow-md)]"
                 >
@@ -354,12 +354,12 @@ export default function SabWaFlowsPage() {
                           Trigger: {triggerSummary(flow)}
                         </p>
                       </div>
-                      <ZoruBadge
+                      <Badge
                         variant={isActive ? "success" : "secondary"}
                         className="shrink-0"
                       >
                         {isActive ? "Active" : "Inactive"}
-                      </ZoruBadge>
+                      </Badge>
                     </div>
                     <dl className="grid grid-cols-2 gap-2 text-[11.5px] text-zoru-ink-muted">
                       <div>
@@ -374,7 +374,7 @@ export default function SabWaFlowsPage() {
                       </div>
                     </dl>
                     <div className="flex justify-end gap-2 pt-2">
-                      <ZoruButton asChild size="sm" variant="outline">
+                      <Button asChild size="sm" variant="outline">
                         <Link
                           href={`/dashboard/sabflow/flow-builder/${flow._id}?context=sabwa`}
                           target="_blank"
@@ -383,10 +383,10 @@ export default function SabWaFlowsPage() {
                           <Play className="h-3.5 w-3.5" />
                           <span className="ml-2">Open in builder</span>
                         </Link>
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruCardContent>
-                </ZoruCard>
+                </Card>
               );
             })}
           </div>
@@ -407,7 +407,7 @@ export default function SabWaFlowsPage() {
         </p>
 
         <ZoruCollapsible defaultOpen>
-          <ZoruCard>
+          <Card>
             <ZoruCollapsibleTrigger asChild>
               <button
                 type="button"
@@ -447,11 +447,11 @@ export default function SabWaFlowsPage() {
                 ))}
               </ZoruCardContent>
             </ZoruCollapsibleContent>
-          </ZoruCard>
+          </Card>
         </ZoruCollapsible>
 
         <ZoruCollapsible defaultOpen>
-          <ZoruCard>
+          <Card>
             <ZoruCollapsibleTrigger asChild>
               <button
                 type="button"
@@ -491,7 +491,7 @@ export default function SabWaFlowsPage() {
                 ))}
               </ZoruCardContent>
             </ZoruCollapsibleContent>
-          </ZoruCard>
+          </Card>
         </ZoruCollapsible>
       </section>
     </div>

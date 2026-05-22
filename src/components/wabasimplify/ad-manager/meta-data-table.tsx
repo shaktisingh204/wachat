@@ -142,11 +142,11 @@ export function MetaDataTable({
     return (
         <div className="relative border rounded-lg bg-background overflow-hidden">
             <div className="overflow-x-auto">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader className="bg-muted/60 sticky top-0 z-[1]">
                         <ZoruTableRow className="h-10">
                             <ZoruTableHead className="w-10">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={allSelected ? true : indeterminate ? 'indeterminate' : false}
                                     onCheckedChange={toggleAll}
                                 />
@@ -194,11 +194,11 @@ export function MetaDataTable({
                                         )}
                                     >
                                         <ZoruTableCell onClick={(e) => e.stopPropagation()}>
-                                            <ZoruCheckbox checked={selected} onCheckedChange={() => toggleOne(row.id)} />
+                                            <Checkbox checked={selected} onCheckedChange={() => toggleOne(row.id)} />
                                         </ZoruTableCell>
                                         <ZoruTableCell onClick={(e) => e.stopPropagation()} className="py-2">
                                             <div className="flex items-center gap-2">
-                                                <ZoruSwitch
+                                                <Switch
                                                     checked={active}
                                                     onCheckedChange={(val) => onToggle(row.id, val)}
                                                     className="data-[state=checked]:bg-[#1877F2]"
@@ -279,11 +279,11 @@ export function MetaDataTable({
                                             {row.frequency != null ? Number(row.frequency).toFixed(2) : '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell onClick={(e) => e.stopPropagation()}>
-                                            <ZoruDropdownMenu>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
-                                                    <ZoruButton variant="ghost" size="icon" className="h-7 w-7 opacity-60 hover:opacity-100">
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-60 hover:opacity-100">
                                                         <MoreHorizontal className="h-4 w-4" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruDropdownMenuTrigger>
                                                 <ZoruDropdownMenuContent align="end">
                                                     <ZoruDropdownMenuItem onClick={() => onEdit?.(row.id)}>
@@ -307,14 +307,14 @@ export function MetaDataTable({
                                                         <Trash2 className="mr-2 h-4 w-4" /> Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 );
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
         </div>
     );

@@ -167,8 +167,8 @@ export default function ContactDetailPage() {
     if (isPending && !contact) {
         return (
             <div className="flex w-full flex-col gap-6">
-                <ZoruSkeleton className="h-10 w-72" />
-                <ZoruSkeleton className="h-[500px] w-full" />
+                <Skeleton className="h-10 w-72" />
+                <Skeleton className="h-[500px] w-full" />
             </div>
         );
     }
@@ -181,11 +181,11 @@ export default function ContactDetailPage() {
                     The contact you&apos;re looking for has been removed or you
                     don&apos;t have access.
                 </p>
-                <ZoruButton asChild variant="outline" className="w-fit">
+                <Button asChild variant="outline" className="w-fit">
                     <Link href="/dashboard/crm/sales-crm/contacts">
                         Back to contacts
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -225,7 +225,7 @@ export default function ContactDetailPage() {
                 rightRail={
                     <>
                         {/* Linked & owner */}
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Links</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -288,10 +288,10 @@ export default function ContactDetailPage() {
                                     </div>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
                         {/* Lifetime stats */}
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Activity stats</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -338,10 +338,10 @@ export default function ContactDetailPage() {
                                     value={contact.leadScore ?? '—'}
                                 />
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
                         {/* Related entities */}
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Related</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -364,7 +364,7 @@ export default function ContactDetailPage() {
                                 />
                                 {/* TODO 1D.2: live counts on related entities deferred — no aggregator endpoint yet. */}
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </>
                 }
             >

@@ -77,12 +77,12 @@ export interface LeadsFiltersRowProps {
 
 export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="leadStatusListFilter"
                         value={props.statusFilter}
@@ -92,9 +92,9 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Source
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="leadSource"
                         name="sourceFilter"
@@ -105,9 +105,9 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Pipeline
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="pipeline"
                         name="pipelineFilter"
@@ -118,9 +118,9 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Owner
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="user"
                         name="ownerFilter"
@@ -131,9 +131,9 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Created
-                    </ZoruLabel>
+                    </Label>
                     <ZoruDateRangePicker
                         value={props.dateRange}
                         onChange={(r) => props.onDateRangeChange(r)}
@@ -141,18 +141,18 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Value
-                    </ZoruLabel>
+                    </Label>
                     <div className="flex items-center gap-1">
-                        <ZoruInput
+                        <Input
                             type="number"
                             min={0}
                             placeholder="Min"
                             value={props.minValue}
                             onChange={(e) => props.onMinChange(e.target.value)}
                         />
-                        <ZoruInput
+                        <Input
                             type="number"
                             min={0}
                             placeholder="Max"
@@ -164,13 +164,13 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-6">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -202,7 +202,7 @@ export function LeadsBulkBar({
 
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="info">{count} selected</ZoruBadge>
+            <Badge variant="info">{count} selected</Badge>
 
             <EnumFormField
                 enumName="leadStatus"
@@ -211,11 +211,11 @@ export function LeadsBulkBar({
             />
 
             {/* Bulk assign owner */}
-            <ZoruPopover open={assignOpen} onOpenChange={setAssignOpen}>
+            <Popover open={assignOpen} onOpenChange={setAssignOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <ZoruButton size="sm" variant="outline">
+                    <Button size="sm" variant="outline">
                         <UserPlus className="h-3.5 w-3.5" /> Assign…
-                    </ZoruButton>
+                    </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="start" className="w-72 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -242,14 +242,14 @@ export function LeadsBulkBar({
                         Unassign
                     </button>
                 </ZoruPopoverContent>
-            </ZoruPopover>
+            </Popover>
 
             {/* Bulk add tag */}
-            <ZoruPopover open={tagsOpen} onOpenChange={setTagsOpen}>
+            <Popover open={tagsOpen} onOpenChange={setTagsOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <ZoruButton size="sm" variant="outline">
+                    <Button size="sm" variant="outline">
                         <Tag className="h-3.5 w-3.5" /> Add tag…
-                    </ZoruButton>
+                    </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="start" className="w-80 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -263,20 +263,20 @@ export function LeadsBulkBar({
                         onCancel={() => setTagsOpen(false)}
                     />
                 </ZoruPopoverContent>
-            </ZoruPopover>
+            </Popover>
 
-            <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+            <Button size="sm" variant="outline" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> Archive
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onExport}>
                 Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+            </Button>
+            <Button size="sm" variant="destructive" onClick={onDelete}>
                 Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -304,16 +304,16 @@ function BulkTagPicker({
                 onChange={setIds}
             />
             <div className="flex items-center justify-end gap-1.5 pt-1">
-                <ZoruButton size="sm" variant="ghost" onClick={onCancel}>
+                <Button size="sm" variant="ghost" onClick={onCancel}>
                     Cancel
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     size="sm"
                     onClick={() => onApply(ids)}
                     disabled={ids.length === 0}
                 >
                     Apply
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -424,12 +424,12 @@ export interface LeadsViewsMenuProps {
 export function LeadsViewsMenu({ activePresetId, onSelect }: LeadsViewsMenuProps) {
     const active = LEADS_VIEW_PRESETS.find((p) => p.id === activePresetId) ?? LEADS_VIEW_PRESETS[0];
     return (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                     <ListChecks className="h-3.5 w-3.5" /> {active.label}
                     <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-subtle" />
-                </ZoruButton>
+                </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start" className="w-64">
                 <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
@@ -450,6 +450,6 @@ export function LeadsViewsMenu({ activePresetId, onSelect }: LeadsViewsMenuProps
                     </ZoruDropdownMenuItem>
                 ))}
             </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
     );
 }

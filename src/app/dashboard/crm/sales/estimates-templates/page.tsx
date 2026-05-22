@@ -205,29 +205,29 @@ export default function EstimateTemplatesPage() {
         subtitle="Reusable estimate templates for quick quoting."
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton asChild variant="outline">
+            <Button asChild variant="outline">
               <Link href="/dashboard/crm/sales/proposals/templates">
                 Proposal Templates
               </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
+            </Button>
+            <Button asChild>
               <Link href="/dashboard/crm/sales/estimates-templates/new">
                 <Plus className="h-4 w-4" /> New Template
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-              <ZoruButton size="sm" variant="outline" onClick={bulkArchive} disabled={busy}>
+              <Button size="sm" variant="outline" onClick={bulkArchive} disabled={busy}>
                 <Archive className="h-3.5 w-3.5" /> Archive
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={bulkExportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkExportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 className="text-zoru-danger-ink"
@@ -235,27 +235,27 @@ export default function EstimateTemplatesPage() {
                 disabled={busy}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
       >
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           {/* Filter bar */}
           <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
             <div className="relative max-w-sm flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-              <ZoruInput
+              <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name or title…"
                 className="h-9 pl-9 text-[13px]"
               />
             </div>
-            <ZoruSelect
+            <Select
               value={statusFilter || '__all'}
               onValueChange={(v) => setStatusFilter(v === '__all' ? '' : v)}
             >
@@ -269,24 +269,24 @@ export default function EstimateTemplatesPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {hasActive ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setStatusFilter('')}
                 className="text-[12px] text-zoru-ink-muted"
               >
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
 
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-[36px]">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected}
                     onCheckedChange={toggleAll}
                     aria-label="Select all"
@@ -329,7 +329,7 @@ export default function EstimateTemplatesPage() {
                       data-state={isSelected ? 'selected' : undefined}
                     >
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(t._id)}
                           aria-label={`Select ${t.name}`}
@@ -352,7 +352,7 @@ export default function EstimateTemplatesPage() {
                       </ZoruTableCell>
                       <ZoruTableCell>
                         {statusValue ? (
-                          <ZoruBadge
+                          <Badge
                             variant={
                               statusValue === 'archived'
                                 ? 'ghost'
@@ -363,24 +363,24 @@ export default function EstimateTemplatesPage() {
                             className="capitalize"
                           >
                             {statusValue}
-                          </ZoruBadge>
+                          </Badge>
                         ) : null}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton size="sm" variant="ghost" asChild>
+                          <Button size="sm" variant="ghost" asChild>
                             <Link href={`/dashboard/crm/sales/estimates-templates/${t._id}/edit`}>
                               Edit
                             </Link>
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             size="sm"
                             variant="ghost"
                             className="text-zoru-danger-ink"
                             onClick={() => setPendingDelete(t)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -388,8 +388,8 @@ export default function EstimateTemplatesPage() {
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       </EntityListShell>
 
       {/* Single delete */}

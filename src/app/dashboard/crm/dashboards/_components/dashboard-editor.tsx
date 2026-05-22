@@ -134,41 +134,41 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <ZoruButton variant="outline" onClick={() => setIsAddOpen(true)}>
+                    <Button variant="outline" onClick={() => setIsAddOpen(true)}>
                         <Plus className="h-4 w-4" />
                         Add widget
-                    </ZoruButton>
+                    </Button>
                     <Link href={`/dashboard/crm/dashboards/${dashboardId}`}>
-                        <ZoruButton variant="outline">Cancel</ZoruButton>
+                        <Button variant="outline">Cancel</Button>
                     </Link>
-                    <ZoruButton onClick={handleSave} disabled={isSaving}>
+                    <Button onClick={handleSave} disabled={isSaving}>
                         {isSaving ? (
                             <LoaderCircle className="h-4 w-4 animate-spin" />
                         ) : (
                             <Save className="h-4 w-4" />
                         )}
                         Save layout
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             {widgets.length === 0 ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
                         <p className="text-[14px] text-zoru-ink">No widgets yet.</p>
                         <p className="text-[12.5px] text-zoru-ink-muted">
                             Add your first widget — a metric, chart, or table — to start building this board.
                         </p>
-                        <ZoruButton className="mt-2" onClick={() => setIsAddOpen(true)}>
+                        <Button className="mt-2" onClick={() => setIsAddOpen(true)}>
                             <Plus className="h-4 w-4" />
                             Add widget
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : (
                 <div className="grid grid-cols-12 gap-3">
                     {widgets.map((w, idx) => (
-                        <ZoruCard
+                        <Card
                             key={w.id}
                             className="p-3"
                             style={{
@@ -179,14 +179,14 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                             }}
                         >
                             <div className="mb-2 flex items-center justify-between gap-2">
-                                <ZoruInput
+                                <Input
                                     value={w.title}
                                     onChange={(e) => patchWidget(w.id, { title: e.target.value })}
                                     className="h-8 flex-1 text-[13px]"
                                     aria-label="Widget title"
                                 />
                                 <div className="flex shrink-0 gap-1">
-                                    <ZoruButton
+                                    <Button
                                         size="sm"
                                         variant="ghost"
                                         onClick={() => move(w.id, -1)}
@@ -194,8 +194,8 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                                         aria-label="Move up"
                                     >
                                         <ArrowUp className="h-4 w-4" />
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         size="sm"
                                         variant="ghost"
                                         onClick={() => move(w.id, 1)}
@@ -203,22 +203,22 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                                         aria-label="Move down"
                                     >
                                         <ArrowDown className="h-4 w-4" />
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         size="sm"
                                         variant="ghost"
                                         onClick={() => removeWidget(w.id)}
                                         aria-label="Remove widget"
                                     >
                                         <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                    <ZoruLabel className="text-[11px]">Kind</ZoruLabel>
-                                    <ZoruSelect
+                                    <Label className="text-[11px]">Kind</Label>
+                                    <Select
                                         value={w.kind}
                                         onValueChange={(v) => patchWidget(w.id, { kind: v as WidgetKind })}
                                     >
@@ -232,11 +232,11 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-[11px]">Data source</ZoruLabel>
-                                    <ZoruSelect
+                                    <Label className="text-[11px]">Data source</Label>
+                                    <Select
                                         value={w.dataSource.type}
                                         onValueChange={(v) =>
                                             patchDataSource(w.id, { type: v as WidgetDataSourceType })
@@ -252,13 +252,13 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                                 <div className="col-span-2">
-                                    <ZoruLabel className="text-[11px]">
+                                    <Label className="text-[11px]">
                                         {w.dataSource.type === 'metric_query' ? 'Metric slug' : 'Reference ID'}
-                                    </ZoruLabel>
-                                    <ZoruInput
+                                    </Label>
+                                    <Input
                                         value={w.dataSource.ref}
                                         onChange={(e) => patchDataSource(w.id, { ref: e.target.value })}
                                         className="h-8 text-[12.5px]"
@@ -270,8 +270,8 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                                     />
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-[11px]">Width (1-12)</ZoruLabel>
-                                    <ZoruInput
+                                    <Label className="text-[11px]">Width (1-12)</Label>
+                                    <Input
                                         type="number"
                                         min={1}
                                         max={12}
@@ -283,8 +283,8 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                                     />
                                 </div>
                                 <div>
-                                    <ZoruLabel className="text-[11px]">Height (1-6)</ZoruLabel>
-                                    <ZoruInput
+                                    <Label className="text-[11px]">Height (1-6)</Label>
+                                    <Input
                                         type="number"
                                         min={1}
                                         max={6}
@@ -302,7 +302,7 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                                     Reports engine not wired yet — see §6.8.
                                 </p>
                             ) : null}
-                        </ZoruCard>
+                        </Card>
                     ))}
                 </div>
             )}

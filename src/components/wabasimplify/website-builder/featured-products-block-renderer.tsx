@@ -47,7 +47,7 @@ export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: 
             </div>
              {settings.showViewAllButton && (
                 <div className="mt-8 text-center">
-                    <ZoruButton variant="outline" size="lg">View All Products</ZoruButton>
+                    <Button variant="outline" size="lg">View All Products</Button>
                 </div>
             )}
         </div>

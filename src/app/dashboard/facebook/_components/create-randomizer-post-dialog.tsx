@@ -45,10 +45,10 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <PlusCircle />}
       Add to pool
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -99,7 +99,7 @@ export function CreateRandomizerPostDialog({
   };
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-0">
           <input
@@ -116,8 +116,8 @@ export function CreateRandomizerPostDialog({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="message">Message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="message">Message</Label>
+              <Textarea
                 id="message"
                 name="message"
                 placeholder="What's on your mind?"
@@ -126,7 +126,7 @@ export function CreateRandomizerPostDialog({
               />
             </div>
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="imageUrl">Image URL (optional)</ZoruLabel>
+              <Label htmlFor="imageUrl">Image URL (optional)</Label>
               <SabFileUrlInput
                 id="imageUrl"
                 name="imageUrl"
@@ -142,17 +142,17 @@ export function CreateRandomizerPostDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

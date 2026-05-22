@@ -167,7 +167,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
             <input type="hidden" name="nextFollowUp" value={followUp?.toISOString() ?? ''} />
 
             {/* ─── Contact ────────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Contact</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -176,8 +176,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2 md:col-span-2">
-                        <ZoruLabel htmlFor="title">Lead Title *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Lead Title *</Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -186,8 +186,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="contactName">Contact Name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="contactName">Contact Name *</Label>
+                        <Input
                             id="contactName"
                             name="contactName"
                             required
@@ -196,8 +196,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="email">Email</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="email">Email</Label>
+                        <Input
                             id="email"
                             type="email"
                             name="email"
@@ -206,8 +206,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="phone">Phone</Label>
+                        <Input
                             id="phone"
                             name="phone"
                             defaultValue={initial?.phone ?? prefill?.phone ?? ''}
@@ -215,8 +215,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="company">Company</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="company">Company</Label>
+                        <Input
                             id="company"
                             name="company"
                             defaultValue={initial?.company ?? prefill?.company ?? ''}
@@ -224,8 +224,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="website">Website</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="website">Website</Label>
+                        <Input
                             id="website"
                             name="website"
                             type="url"
@@ -234,10 +234,10 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Workflow ───────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Workflow</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -246,7 +246,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="leadStatusLegacy"
                             name="status"
@@ -254,7 +254,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="source">Lead Source</ZoruLabel>
+                        <Label htmlFor="source">Lead Source</Label>
                         <EntityFormField
                             entity="leadSource"
                             name="source"
@@ -263,7 +263,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="pipelineId">Sales Pipeline</ZoruLabel>
+                        <Label htmlFor="pipelineId">Sales Pipeline</Label>
                         <EntityFormField
                             entity="pipeline"
                             name="pipelineId"
@@ -277,7 +277,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="stage">Pipeline Stage</ZoruLabel>
+                        <Label htmlFor="stage">Pipeline Stage</Label>
                         <EntityFormField
                             entity="stage"
                             name="stage"
@@ -292,7 +292,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="assignedTo">Owner</ZoruLabel>
+                        <Label htmlFor="assignedTo">Owner</Label>
                         <EntityFormField
                             entity="user"
                             name="assignedTo"
@@ -305,8 +305,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="leadScore">Lead Score</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="leadScore">Lead Score</Label>
+                        <Input
                             id="leadScore"
                             name="leadScore"
                             type="number"
@@ -320,10 +320,10 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Money ─────────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Money</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -332,8 +332,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="value">Estimated Value</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="value">Estimated Value</Label>
+                        <Input
                             id="value"
                             name="value"
                             type="number"
@@ -344,7 +344,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+                        <Label htmlFor="currency">Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -353,8 +353,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="probabilityPct">Probability %</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="probabilityPct">Probability %</Label>
+                        <Input
                             id="probabilityPct"
                             name="probabilityPct"
                             type="number"
@@ -368,8 +368,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Next Follow-up</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label>Next Follow-up</Label>
+                        <DatePicker
                             value={followUp}
                             onChange={(d) => {
                                 setFollowUp(d);
@@ -379,10 +379,10 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Address ───────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Address</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -391,7 +391,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="country">Country</ZoruLabel>
+                        <Label htmlFor="country">Country</Label>
                         <EntityFormField
                             entity="country"
                             name="country"
@@ -404,7 +404,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="state">State</ZoruLabel>
+                        <Label htmlFor="state">State</Label>
                         <EntityFormField
                             entity="state"
                             name="state"
@@ -418,7 +418,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="city">City</ZoruLabel>
+                        <Label htmlFor="city">City</Label>
                         <EntityFormField
                             entity="city"
                             name="city"
@@ -428,10 +428,10 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Profile ───────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Profile</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -440,7 +440,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="industry">Industry</ZoruLabel>
+                        <Label htmlFor="industry">Industry</Label>
                         <EntityFormField
                             entity="industry"
                             name="industry"
@@ -449,8 +449,8 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                        <ZoruLabel htmlFor="description">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="description">Notes</Label>
+                        <Textarea
                             id="description"
                             name="description"
                             rows={4}
@@ -459,29 +459,29 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Sticky action bar ─────────────────────────────────── */}
             <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-zoru-line bg-zoru-bg/95 px-4 py-3 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={() => router.push('/dashboard/crm/sales-crm/all-leads')}
                         disabled={pending}
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         type="button"
                         variant="outline"
                         onClick={() => void submit('save_new')}
                         disabled={pending}
                     >
                         Save &amp; New
-                    </ZoruButton>
+                    </Button>
                     {showConvert ? (
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => void submit('save_convert')}
@@ -489,16 +489,16 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             title="Save and convert this lead into an account"
                         >
                             Save &amp; Convert
-                        </ZoruButton>
+                        </Button>
                     ) : null}
-                    <ZoruButton type="submit" disabled={pending}>
+                    <Button type="submit" disabled={pending}>
                         {pending ? (
                             <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
                         ) : (
                             <Save className="h-4 w-4" aria-hidden="true" />
                         )}
                         {mode === 'edit' ? 'Save changes' : 'Save lead'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
         </form>

@@ -153,17 +153,17 @@ export function BusinessStep({
     return (
         <form onSubmit={submit} className="space-y-6" noValidate>
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Tell us a bit more</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             )}
 
             <div className="grid gap-5 sm:grid-cols-3">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="industry">Industry *</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="industry">Industry *</Label>
+                    <Select
                         value={industry}
                         onValueChange={setIndustry}
                         disabled={isPending}
@@ -178,12 +178,12 @@ export function BusinessStep({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="teamSize">Team size *</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="teamSize">Team size *</Label>
+                    <Select
                         value={teamSize}
                         onValueChange={setTeamSize}
                         disabled={isPending}
@@ -198,12 +198,12 @@ export function BusinessStep({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="volume">Monthly volume *</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="volume">Monthly volume *</Label>
+                    <Select
                         value={volume}
                         onValueChange={setVolume}
                         disabled={isPending}
@@ -218,12 +218,12 @@ export function BusinessStep({
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
             </div>
 
             <div className="space-y-3">
-                <ZoruLabel>How will you use SabNode? (pick all that apply)</ZoruLabel>
+                <Label>How will you use SabNode? (pick all that apply)</Label>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {USE_CASES.map((uc) => {
                         const active = useCases.includes(uc.id);
@@ -269,15 +269,15 @@ export function BusinessStep({
             </div>
 
             <div className="flex justify-between pt-2">
-                <ZoruButton
+                <Button
                     type="button"
                     variant="ghost"
                     onClick={onBack}
                     disabled={isPending}
                 >
                     Back
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     type="submit"
                     className="h-11 px-6 text-base"
                     disabled={isPending}
@@ -286,7 +286,7 @@ export function BusinessStep({
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Continue
-                </ZoruButton>
+                </Button>
             </div>
         </form>
     );

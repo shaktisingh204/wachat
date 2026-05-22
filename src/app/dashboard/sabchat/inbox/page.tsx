@@ -30,8 +30,8 @@ import { Inbox } from "lucide-react";
 function InboxSkeleton() {
   return (
     <div className="flex h-[calc(100vh-220px)] w-full gap-3">
-      <ZoruSkeleton className="h-full w-[320px] shrink-0" />
-      <ZoruSkeleton className="h-full flex-1" />
+      <Skeleton className="h-full w-[320px] shrink-0" />
+      <Skeleton className="h-full flex-1" />
     </div>
   );
 }
@@ -39,7 +39,7 @@ function InboxSkeleton() {
 export default function SabChatInboxPage() {
   return (
     <div className="mx-auto flex h-full w-full max-w-[1480px] flex-col gap-4 px-6 pt-6 pb-4">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -55,16 +55,16 @@ export default function SabChatInboxPage() {
             <ZoruBreadcrumbPage>Inbox</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Live chat inbox</ZoruPageTitle>
           <ZoruPageDescription>
             Reply to website visitors in real time.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="min-h-0 flex-1">
         <Suspense fallback={<InboxSkeleton />}>

@@ -186,7 +186,7 @@ export default function FlowBuilderDocsPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -208,10 +208,10 @@ export default function FlowBuilderDocsPage() {
             <ZoruBreadcrumbPage>Documentation</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Page header */}
-      <ZoruPageHeader className="mt-4">
+      <PageHeader className="mt-4">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite · Reference</ZoruPageEyebrow>
           <ZoruPageTitle>Flow Builder Documentation</ZoruPageTitle>
@@ -221,18 +221,18 @@ export default function FlowBuilderDocsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => router.push(backHref)}
           >
             <ArrowLeft /> Back to Flow Builder
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Variables intro */}
-      <ZoruCard className="mt-6 p-5">
+      <Card className="mt-6 p-5">
         <div className="flex items-start gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
             <BookOpen />
@@ -250,37 +250,37 @@ export default function FlowBuilderDocsPage() {
             user&apos;s name or their answer to a question. In the Flow
             Builder, you use double curly braces to insert a variable, like
             this:{' '}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {'{{name}}'}
-            </ZoruBadge>
+            </Badge>
             .
           </p>
           <p>
             The &ldquo;Get User Input&rdquo; block is the primary way to
             create custom variables. When you configure it to save an answer
             to a variable named{' '}
-            <ZoruBadge variant="outline">color</ZoruBadge>, you can later use
+            <Badge variant="outline">color</Badge>, you can later use
             the user&apos;s answer by writing{' '}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {'{{color}}'}
-            </ZoruBadge>{' '}
+            </Badge>{' '}
             in a &ldquo;Send Message&rdquo; block.
           </p>
           <p>
             There are also pre-defined variables you can use:{' '}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {'{{name}}'}
-            </ZoruBadge>{' '}
+            </Badge>{' '}
             (the user&apos;s Messenger profile name) and{' '}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {'{{psid}}'}
-            </ZoruBadge>{' '}
+            </Badge>{' '}
             (the user&apos;s unique Page-Scoped ID).
           </p>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator className="my-8" />
+      <Separator className="my-8" />
 
       {/* Blocks reference */}
       <div>
@@ -292,8 +292,8 @@ export default function FlowBuilderDocsPage() {
         </p>
       </div>
 
-      <ZoruCard className="mt-4 px-4">
-        <ZoruAccordion type="single" collapsible className="w-full">
+      <Card className="mt-4 px-4">
+        <Accordion type="single" collapsible className="w-full">
           {blockDocs.map((doc, index) => (
             <ZoruAccordionItem value={`item-${index}`} key={doc.title}>
               <ZoruAccordionTrigger className="text-[14px]">
@@ -353,8 +353,8 @@ export default function FlowBuilderDocsPage() {
               </ZoruAccordionContent>
             </ZoruAccordionItem>
           ))}
-        </ZoruAccordion>
-      </ZoruCard>
+        </Accordion>
+      </Card>
     </div>
   );
 }

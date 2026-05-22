@@ -91,23 +91,23 @@ export function TicketDetailActions({
 
     return (
         <div className="flex flex-wrap items-center gap-1.5">
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/crm/tickets/${id}/edit`}>
                     <Pencil className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={onReplyClick}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onReplyClick}>
                 <Reply className="h-3.5 w-3.5" /> Reply
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={onForwardClick}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onForwardClick}>
                 <Forward className="h-3.5 w-3.5" /> Forward
-            </ZoruButton>
+            </Button>
 
-            <ZoruPopover open={assignOpen} onOpenChange={setAssignOpen}>
+            <Popover open={assignOpen} onOpenChange={setAssignOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <ZoruButton variant="outline" size="sm">
+                    <Button variant="outline" size="sm">
                         <UserPlus className="h-3.5 w-3.5" /> Assign
-                    </ZoruButton>
+                    </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="end" className="w-72 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -128,43 +128,43 @@ export function TicketDetailActions({
                         Unassign
                     </button>
                 </ZoruPopoverContent>
-            </ZoruPopover>
+            </Popover>
 
-            <ZoruButton variant="outline" size="sm" onClick={onMergeClick}>
+            <Button variant="outline" size="sm" onClick={onMergeClick}>
                 <Combine className="h-3.5 w-3.5" /> Merge
-            </ZoruButton>
+            </Button>
 
             {!resolvedish ? (
-                <ZoruButton
+                <Button
                     size="sm"
                     onClick={() => runStatusChange('resolved', 'Resolved')}
                     disabled={pending}
                 >
                     <CheckCircle2 className="h-3.5 w-3.5" /> Resolve
-                </ZoruButton>
+                </Button>
             ) : null}
             {status !== 'closed' ? (
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={() => runStatusChange('closed', 'Closed')}
                     disabled={pending}
                 >
                     <Lock className="h-3.5 w-3.5" /> Close
-                </ZoruButton>
+                </Button>
             ) : null}
             {resolvedish ? (
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={() => runStatusChange('reopened', 'Re-opened')}
                     disabled={pending}
                 >
                     <RotateCcw className="h-3.5 w-3.5" /> Re-open
-                </ZoruButton>
+                </Button>
             ) : null}
 
-            <ZoruButton
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
@@ -172,16 +172,16 @@ export function TicketDetailActions({
                 }}
             >
                 <Printer className="h-3.5 w-3.5" /> Print
-            </ZoruButton>
+            </Button>
 
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/crm/tickets/${id}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
+            </Button>
 
             {ticket.requesterId ? (
-                <ZoruButton variant="ghost" size="sm" asChild>
+                <Button variant="ghost" size="sm" asChild>
                     <Link
                         href={`mailto:?subject=${encodeURIComponent(
                             `Re: ${ticket.subject ?? ''}`,
@@ -189,7 +189,7 @@ export function TicketDetailActions({
                     >
                         <Mail className="h-3.5 w-3.5" /> Email
                     </Link>
-                </ZoruButton>
+                </Button>
             ) : null}
         </div>
     );

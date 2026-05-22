@@ -87,19 +87,19 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
             actions={
                 <>
                     <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <ArrowLeft className="h-4 w-4" /> Back
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
+                        <Button size="sm">
                             <Pencil className="h-4 w-4" /> Edit
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <a href={`${BASE}/${id}?print=1`} target="_blank" rel="noopener noreferrer">
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <Printer className="h-4 w-4" /> Print
-                        </ZoruButton>
+                        </Button>
                     </a>
                     <HrActionButtons
                         actions={[
@@ -175,9 +175,9 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
                     {String(c.reimbursed) === 'true' || c.reimbursed === true ? 'Yes' : 'No'}
                 </HrDetailRow>
                 <HrDetailRow label="Status">
-                    <ZoruBadge variant={status === 'approved' || status === 'reimbursed' ? 'success' : 'warning'}>
+                    <Badge variant={status === 'approved' || status === 'reimbursed' ? 'success' : 'warning'}>
                         {status}
-                    </ZoruBadge>
+                    </Badge>
                 </HrDetailRow>
                 {c.description ? (
                     <HrDetailRow label="Description" fullWidth>
@@ -191,7 +191,7 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
                 ) : null}
             </HrDetailGrid>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[15px] font-medium text-zoru-ink">Claim lines</div>
                 {lines.length === 0 ? (
                     <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -199,7 +199,7 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Date</ZoruTableHead>
@@ -224,10 +224,10 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             <Wallet className="hidden" />
         </EntityDetailShell>

@@ -48,9 +48,9 @@ export function FeatureLockOverlay({
           This feature is not included in your current plan.
         </p>
       </div>
-      <ZoruButton asChild>
+      <Button asChild>
         <Link href="/dashboard/user/billing#upgrade">Upgrade plan</Link>
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

@@ -36,7 +36,7 @@ export default async function PortalEditPage({ params }: PageProps) {
             }}
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Identity</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -64,8 +64,8 @@ export default async function PortalEditPage({ params }: PageProps) {
                                 ) : null}
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
-                    <ZoruCard>
+                    </Card>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Access</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -88,7 +88,7 @@ export default async function PortalEditPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
             audit={<EntityAuditTimeline entityKind="portal_user" entityId={id} />}

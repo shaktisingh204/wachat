@@ -188,13 +188,13 @@ export default function SubTasksPage() {
           placeholder: 'Search title, description, assignee…',
         }}
         primaryAction={
-          <ZoruButton onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New subtask
-          </ZoruButton>
+          </Button>
         }
         filters={
           <>
-            <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -206,15 +206,15 @@ export default function SubTasksPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruInput
+            </Select>
+            <Input
               value={parentTaskFilter}
               onChange={(e) => setParentTaskFilter(e.target.value)}
               placeholder="Parent task id"
               className="h-9 w-[200px] text-[13px]"
             />
             {hasActiveFilters ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -223,7 +223,7 @@ export default function SubTasksPage() {
                 }}
               >
                 Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
           </>
         }
@@ -236,9 +236,9 @@ export default function SubTasksPage() {
                 Break a task down into smaller actionable items so the team can
                 pick them up independently.
               </p>
-              <ZoruButton onClick={() => setCreateOpen(true)}>
+              <Button onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4" /> New subtask
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -252,7 +252,7 @@ export default function SubTasksPage() {
               onClick={() => setStatusFilter('all')}
               className="text-left"
             >
-              <ZoruStatCard
+              <StatCard
                 label="Open"
                 value={kpis.open.toLocaleString()}
                 icon={<ListChecks className="h-4 w-4" />}
@@ -263,14 +263,14 @@ export default function SubTasksPage() {
               onClick={() => setStatusFilter('completed')}
               className="text-left"
             >
-              <ZoruStatCard
+              <StatCard
                 label="Completed"
                 value={kpis.completed.toLocaleString()}
                 icon={<CheckCircle2 className="h-4 w-4" />}
               />
             </button>
             <button type="button" className="text-left">
-              <ZoruStatCard
+              <StatCard
                 label="Overdue"
                 value={kpis.overdue.toLocaleString()}
                 icon={<AlertTriangle className="h-4 w-4" />}
@@ -280,7 +280,7 @@ export default function SubTasksPage() {
 
           {filtered.length === 0 && !loading ? null : (
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead>Title</ZoruTableHead>
@@ -347,7 +347,7 @@ export default function SubTasksPage() {
                           />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
-                          <ZoruDropdownMenu>
+                          <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
                               <button
                                 type="button"
@@ -375,13 +375,13 @@ export default function SubTasksPage() {
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                               </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                          </ZoruDropdownMenu>
+                          </DropdownMenu>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
           )}
         </div>
@@ -449,7 +449,7 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
   );
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -464,10 +464,10 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
             <input type="hidden" name="_id" defaultValue={initial._id} />
           ) : null}
           <div>
-            <ZoruLabel htmlFor="title">
+            <Label htmlFor="title">
               Title <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="title"
               name="title"
               defaultValue={initial?.title ?? ''}
@@ -475,9 +475,9 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="taskId">
+            <Label htmlFor="taskId">
               Parent task <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="task"
               name="taskId"
@@ -488,7 +488,7 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
             />
           </div>
           <div>
-            <ZoruLabel>Project</ZoruLabel>
+            <Label>Project</Label>
             <EntityFormField
               entity="project"
               name="projectId"
@@ -498,7 +498,7 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
             />
           </div>
           <div>
-            <ZoruLabel>Assignee</ZoruLabel>
+            <Label>Assignee</Label>
             <EntityFormField
               entity="employee"
               name="assignedTo"
@@ -509,8 +509,8 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <ZoruLabel htmlFor="startDate">Start</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="startDate">Start</Label>
+              <Input
                 id="startDate"
                 name="startDate"
                 type="date"
@@ -524,8 +524,8 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="dueDate">Due</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="dueDate">Due</Label>
+              <Input
                 id="dueDate"
                 name="dueDate"
                 type="date"
@@ -540,8 +540,8 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruSelect name="status" defaultValue={initial?.status ?? 'incomplete'}>
+            <Label htmlFor="status">Status</Label>
+            <Select name="status" defaultValue={initial?.status ?? 'incomplete'}>
               <ZoruSelectTrigger id="status">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -552,11 +552,11 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               defaultValue={initial?.description ?? ''}
@@ -567,19 +567,19 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
             <p className="text-sm text-zoru-danger-ink">{state.error}</p>
           ) : null}
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit">
+            </Button>
+            <Button type="submit">
               {initial?._id ? 'Save changes' : 'Create subtask'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

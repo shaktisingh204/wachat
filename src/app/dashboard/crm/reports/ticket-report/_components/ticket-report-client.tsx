@@ -197,7 +197,7 @@ export function TicketReportClient({
         <>
             {/* Charts */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <ZoruCard className="lg:col-span-2">
+                <Card className="lg:col-span-2">
                     <div className="mb-3">
                         <h2 className="text-[16px] font-semibold text-foreground">
                             Tickets opened vs closed
@@ -245,9 +245,9 @@ export function TicketReportClient({
                             </ResponsiveContainer>
                         )}
                     </div>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <div className="mb-3">
                         <h2 className="text-[16px] font-semibold text-foreground">
                             By priority
@@ -282,10 +282,10 @@ export function TicketReportClient({
                             </ResponsiveContainer>
                         )}
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <div className="mb-3">
                     <h2 className="text-[16px] font-semibold text-foreground">
                         By category
@@ -316,7 +316,7 @@ export function TicketReportClient({
                         </ResponsiveContainer>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Table toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -328,12 +328,12 @@ export function TicketReportClient({
                 <div className="flex gap-2">
                     {/* Export selected */}
                     {selected.size > 0 && (
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="outline" size="sm">
+                                <Button variant="outline" size="sm">
                                     <Download className="mr-1.5 h-3.5 w-3.5" />
                                     Export selected ({selected.size})
-                                </ZoruButton>
+                                </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
                                 <ZoruDropdownMenuItem onClick={() => handleExportSelected('csv')}>
@@ -343,16 +343,16 @@ export function TicketReportClient({
                                     <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
                                 </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                     )}
 
                     {/* Export all (current page) */}
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                         <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton variant="outline" size="sm">
+                            <Button variant="outline" size="sm">
                                 <Download className="mr-1.5 h-3.5 w-3.5" />
                                 Export all
-                            </ZoruButton>
+                            </Button>
                         </ZoruDropdownMenuTrigger>
                         <ZoruDropdownMenuContent align="end">
                             <ZoruDropdownMenuItem onClick={() => handleExportAll('csv')}>
@@ -362,12 +362,12 @@ export function TicketReportClient({
                                 <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
                             </ZoruDropdownMenuItem>
                         </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                 </div>
             </div>
 
             {/* Table */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-3">
                     <h2 className="text-[16px] font-semibold text-foreground">
                         Tickets
@@ -377,7 +377,7 @@ export function TicketReportClient({
                     </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
@@ -445,18 +445,18 @@ export function TicketReportClient({
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge
+                                            <Badge
                                                 variant={STATUS_VARIANT[r.status] ?? 'secondary'}
                                             >
                                                 {r.status}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge
+                                            <Badge
                                                 variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}
                                             >
                                                 {r.priority}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-[13px] text-foreground">
                                             {r.channel}
@@ -473,7 +473,7 @@ export function TicketReportClient({
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
                 <PaginationBar
                     page={page}
@@ -481,7 +481,7 @@ export function TicketReportClient({
                     total={total}
                     hasMore={hasMore}
                 />
-            </ZoruCard>
+            </Card>
         </>
     );
 }

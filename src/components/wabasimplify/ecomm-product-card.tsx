@@ -61,7 +61,7 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
     }
 
     return (
-        <ZoruCard className="flex flex-col">
+        <Card className="flex flex-col">
            <CardContentWrapper>
                 <ZoruCardHeader className="p-0">
                     <div className="relative aspect-[4/5] bg-muted">
@@ -75,16 +75,16 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
                     <p className="text-sm text-muted-foreground line-clamp-2 h-10">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
                         <p className="text-lg font-semibold">{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(product.price)}</p>
-                        <ZoruBadge variant={product.stock && product.stock > 0 ? 'default' : 'destructive'}>
+                        <Badge variant={product.stock && product.stock > 0 ? 'default' : 'destructive'}>
                             {product.stock && product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                        </ZoruBadge>
+                        </Badge>
                     </div>
                 </ZoruCardContent>
             </CardContentWrapper>
             <ZoruCardFooter className="p-4 flex justify-end gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={onEdit}><Edit className="mr-2 h-4 w-4"/>Edit</ZoruButton>
+                <Button variant="outline" size="sm" onClick={onEdit}><Edit className="mr-2 h-4 w-4"/>Edit</Button>
                 <ZoruAlertDialog>
-                    <ZoruAlertDialogTrigger asChild><ZoruButton variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4"/>Delete</ZoruButton></ZoruAlertDialogTrigger>
+                    <ZoruAlertDialogTrigger asChild><Button variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4"/>Delete</Button></ZoruAlertDialogTrigger>
                     <ZoruAlertDialogContent>
                         <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Delete Product?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete "{product.name}".</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
                         <ZoruAlertDialogFooter>
@@ -94,6 +94,6 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
                     </ZoruAlertDialogContent>
                 </ZoruAlertDialog>
             </ZoruCardFooter>
-        </ZoruCard>
+        </Card>
     );
 }

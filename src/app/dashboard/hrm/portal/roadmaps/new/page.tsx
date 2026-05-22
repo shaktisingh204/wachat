@@ -98,11 +98,11 @@ export default function NewRoadmapPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Basic info */}
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="flex flex-col gap-4 pt-5">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel required>Title</ZoruLabel>
-              <ZoruInput
+              <Label required>Title</Label>
+              <Input
                 placeholder="e.g. Q3 Product Launch"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -111,8 +111,8 @@ export default function NewRoadmapPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Description</ZoruLabel>
-              <ZoruTextarea
+              <Label>Description</Label>
+              <Textarea
                 placeholder="What is this roadmap about?"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -121,8 +121,8 @@ export default function NewRoadmapPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Status</ZoruLabel>
-              <ZoruSelect
+              <Label>Status</Label>
+              <Select
                 value={status}
                 onValueChange={(v) => setStatus(v as 'draft' | 'active')}
               >
@@ -133,21 +133,21 @@ export default function NewRoadmapPage() {
                   <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                   <ZoruSelectItem value="active">Active</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Start Date</ZoruLabel>
-                <ZoruInput
+                <Label>Start Date</Label>
+                <Input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>End Date</ZoruLabel>
-                <ZoruInput
+                <Label>End Date</Label>
+                <Input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
@@ -155,17 +155,17 @@ export default function NewRoadmapPage() {
               </div>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         {/* Phases */}
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="flex flex-col gap-4 pt-5">
             <div className="flex items-center justify-between">
-              <ZoruLabel>Initial Phases</ZoruLabel>
-              <ZoruButton type="button" variant="outline" size="sm" onClick={addPhase}>
+              <Label>Initial Phases</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addPhase}>
                 <Plus />
                 Add Phase
-              </ZoruButton>
+              </Button>
             </div>
 
             {phases.length === 0 ? (
@@ -179,13 +179,13 @@ export default function NewRoadmapPage() {
                     <span className="w-5 text-xs text-zoru-ink-subtle tabular-nums">
                       {idx + 1}.
                     </span>
-                    <ZoruInput
+                    <Input
                       placeholder={`Phase ${idx + 1} name`}
                       value={phase.name}
                       onChange={(e) => updatePhaseName(phase.id, e.target.value)}
                       className="flex-1"
                     />
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon-sm"
@@ -193,13 +193,13 @@ export default function NewRoadmapPage() {
                       disabled={phases.length === 1}
                     >
                       <Trash2 className="h-4 w-4 text-zoru-ink-muted" />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 ))}
               </div>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         {/* Error */}
         {error && (
@@ -208,17 +208,17 @@ export default function NewRoadmapPage() {
 
         {/* Submit */}
         <div className="flex justify-end gap-3">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             onClick={() => router.back()}
             disabled={isPending}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton type="submit" disabled={isPending}>
+          </Button>
+          <Button type="submit" disabled={isPending}>
             {isPending ? 'Creating…' : 'Create Roadmap'}
-          </ZoruButton>
+          </Button>
         </div>
       </form>
     </div>

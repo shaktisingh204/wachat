@@ -35,7 +35,7 @@ export function TicketReplyForm({ ticketId }: { ticketId: string }) {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-            <ZoruTextarea
+            <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
@@ -48,9 +48,9 @@ export function TicketReplyForm({ ticketId }: { ticketId: string }) {
                 </div>
             ) : null}
             <div className="flex justify-end">
-                <ZoruButton type="submit" disabled={submitting || !message.trim()}>
+                <Button type="submit" disabled={submitting || !message.trim()}>
                     {submitting ? 'Sending…' : 'Send reply'}
-                </ZoruButton>
+                </Button>
             </div>
         </form>
     );

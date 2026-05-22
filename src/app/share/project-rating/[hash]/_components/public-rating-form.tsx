@@ -97,9 +97,9 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
   return (
     <form className="space-y-5" onSubmit={handleSubmit} noValidate>
       <section>
-        <ZoruLabel className="text-sm font-semibold text-zinc-900">
+        <Label className="text-sm font-semibold text-zinc-900">
           Overall experience
-        </ZoruLabel>
+        </Label>
         <p className="mt-0.5 text-xs text-zinc-500">
           How would you rate this project overall?
         </p>
@@ -119,7 +119,7 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
             key={c.key}
             className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
           >
-            <ZoruLabel className="text-sm text-zinc-700">{c.label}</ZoruLabel>
+            <Label className="text-sm text-zinc-700">{c.label}</Label>
             <StarRow
               name={`cat-${c.key}`}
               value={categories[c.key]}
@@ -132,10 +132,10 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
 
       <section className="grid gap-3 sm:grid-cols-2">
         <div>
-          <ZoruLabel className="text-sm text-zinc-700">
+          <Label className="text-sm text-zinc-700">
             Your name (optional)
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             type="text"
             value={raterName}
             onChange={(e) => setRaterName(e.target.value)}
@@ -145,10 +145,10 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
           />
         </div>
         <div>
-          <ZoruLabel className="text-sm text-zinc-700">
+          <Label className="text-sm text-zinc-700">
             Email (optional)
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             type="email"
             value={raterEmail}
             onChange={(e) => setRaterEmail(e.target.value)}
@@ -160,10 +160,10 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
       </section>
 
       <section>
-        <ZoruLabel className="text-sm text-zinc-700">
+        <Label className="text-sm text-zinc-700">
           Comments (optional)
-        </ZoruLabel>
-        <ZoruTextarea
+        </Label>
+        <Textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
@@ -179,9 +179,9 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
         </div>
       ) : null}
 
-      <ZoruButton type="submit" disabled={isPending} className="w-full sm:w-auto">
+      <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
         {isPending ? 'Submitting…' : 'Submit feedback'}
-      </ZoruButton>
+      </Button>
     </form>
   );
 }

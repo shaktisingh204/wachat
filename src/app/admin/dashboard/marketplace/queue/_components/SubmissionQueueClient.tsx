@@ -33,34 +33,34 @@ interface Props {
 function StatusBadge({ status }: { status: string }) {
   if (status === 'approved') {
     return (
-      <ZoruBadge
+      <Badge
         variant="secondary"
         className="gap-1 bg-green-100 text-green-700 border-green-200"
       >
         <CheckCircle className="h-3 w-3" />
         Approved
-      </ZoruBadge>
+      </Badge>
     );
   }
   if (status === 'rejected') {
     return (
-      <ZoruBadge
+      <Badge
         variant="secondary"
         className="gap-1 bg-red-100 text-red-700 border-red-200"
       >
         <XCircle className="h-3 w-3" />
         Rejected
-      </ZoruBadge>
+      </Badge>
     );
   }
   return (
-    <ZoruBadge
+    <Badge
       variant="secondary"
       className="gap-1 bg-amber-100 text-amber-700 border-amber-200"
     >
       <Clock className="h-3 w-3" />
       Pending
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -106,10 +106,10 @@ function RejectModal({
           />
         </div>
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-200">
-          <ZoruButton variant="outline" size="sm" onClick={onClose} disabled={isPending}>
+          <Button variant="outline" size="sm" onClick={onClose} disabled={isPending}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             className="bg-red-600 hover:bg-red-500 text-white"
             disabled={!reason.trim() || isPending}
@@ -123,7 +123,7 @@ function RejectModal({
             ) : (
               'Reject'
             )}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     </div>
@@ -284,7 +284,7 @@ export function SubmissionQueueClient({
                   <td className="px-5 py-4">
                     {row.status === 'pending' ? (
                       <div className="flex items-center justify-end gap-2">
-                        <ZoruButton
+                        <Button
                           size="sm"
                           className="bg-green-600 hover:bg-green-500 text-white"
                           onClick={() => handleApprove(row.id)}
@@ -292,8 +292,8 @@ export function SubmissionQueueClient({
                         >
                           <CheckCircle className="mr-1 h-3.5 w-3.5" />
                           Approve
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           size="sm"
                           variant="outline"
                           className="border-red-300 text-red-600 hover:bg-red-50"
@@ -302,7 +302,7 @@ export function SubmissionQueueClient({
                         >
                           <XCircle className="mr-1 h-3.5 w-3.5" />
                           Reject
-                        </ZoruButton>
+                        </Button>
                       </div>
                     ) : (
                       <span className="block text-right text-xs text-slate-400">—</span>
@@ -323,25 +323,25 @@ export function SubmissionQueueClient({
             <div className="flex gap-1">
               {currentPage > 1 ? (
                 <Link href={pageHref(currentPage - 1)}>
-                  <ZoruButton variant="outline" size="sm">
+                  <Button variant="outline" size="sm">
                     <ChevronLeft className="h-4 w-4" />
-                  </ZoruButton>
+                  </Button>
                 </Link>
               ) : (
-                <ZoruButton variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" disabled>
                   <ChevronLeft className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
               )}
               {currentPage < totalPages ? (
                 <Link href={pageHref(currentPage + 1)}>
-                  <ZoruButton variant="outline" size="sm">
+                  <Button variant="outline" size="sm">
                     <ChevronRight className="h-4 w-4" />
-                  </ZoruButton>
+                  </Button>
                 </Link>
               ) : (
-                <ZoruButton variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" disabled>
                   <ChevronRight className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
               )}
             </div>
           </div>

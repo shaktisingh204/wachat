@@ -124,12 +124,12 @@ export default function GdprSettingsPage() {
       subtitle="EU compliance controls, cookie banner, and data-controller details."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading && !config ? (
           <div className="space-y-4">
-            <ZoruSkeleton className="h-10 w-full" />
-            <ZoruSkeleton className="h-24 w-full" />
-            <ZoruSkeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-10 w-full" />
           </div>
         ) : (
           <form action={saveFormAction} className="space-y-6">
@@ -142,9 +142,9 @@ export default function GdprSettingsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 {BOOL_FIELDS.map((f) => (
                   <div key={String(f.key)}>
-                    <ZoruLabel htmlFor={String(f.key)}>{f.label}</ZoruLabel>
+                    <Label htmlFor={String(f.key)}>{f.label}</Label>
                     <div className="mt-1.5">
-                      <ZoruSelect
+                      <Select
                         name={String(f.key)}
                         defaultValue={boolValue(f.key)}
                       >
@@ -155,7 +155,7 @@ export default function GdprSettingsPage() {
                           <ZoruSelectItem value="yes">Enabled</ZoruSelectItem>
                           <ZoruSelectItem value="no">Disabled</ZoruSelectItem>
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </div>
                     {f.hint ? (
                       <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
@@ -171,9 +171,9 @@ export default function GdprSettingsPage() {
               <h2 className="text-[14px] text-zoru-ink">Cookie banner</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <ZoruLabel htmlFor="cookie_message">Cookie message</ZoruLabel>
+                  <Label htmlFor="cookie_message">Cookie message</Label>
                   <div className="mt-1.5">
-                    <ZoruTextarea
+                    <Textarea
                       id="cookie_message"
                       name="cookie_message"
                       rows={3}
@@ -183,9 +183,9 @@ export default function GdprSettingsPage() {
                 </div>
 
                 <div>
-                  <ZoruLabel htmlFor="accept_cookie_btn_text">Accept button text</ZoruLabel>
+                  <Label htmlFor="accept_cookie_btn_text">Accept button text</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="accept_cookie_btn_text"
                       name="accept_cookie_btn_text"
                       defaultValue={value('accept_cookie_btn_text')}
@@ -195,9 +195,9 @@ export default function GdprSettingsPage() {
                 </div>
 
                 <div>
-                  <ZoruLabel htmlFor="decline_cookie_btn_text">Decline button text</ZoruLabel>
+                  <Label htmlFor="decline_cookie_btn_text">Decline button text</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="decline_cookie_btn_text"
                       name="decline_cookie_btn_text"
                       defaultValue={value('decline_cookie_btn_text')}
@@ -207,9 +207,9 @@ export default function GdprSettingsPage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <ZoruLabel htmlFor="privacy_policy_url">Privacy policy URL</ZoruLabel>
+                  <Label htmlFor="privacy_policy_url">Privacy policy URL</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="privacy_policy_url"
                       name="privacy_policy_url"
                       type="url"
@@ -225,9 +225,9 @@ export default function GdprSettingsPage() {
               <h2 className="text-[14px] text-zoru-ink">Data controller</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <ZoruLabel htmlFor="data_controller_name">Controller name</ZoruLabel>
+                  <Label htmlFor="data_controller_name">Controller name</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="data_controller_name"
                       name="data_controller_name"
                       defaultValue={value('data_controller_name')}
@@ -236,9 +236,9 @@ export default function GdprSettingsPage() {
                 </div>
 
                 <div>
-                  <ZoruLabel htmlFor="data_controller_email">Controller email</ZoruLabel>
+                  <Label htmlFor="data_controller_email">Controller email</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="data_controller_email"
                       name="data_controller_email"
                       type="email"
@@ -248,9 +248,9 @@ export default function GdprSettingsPage() {
                 </div>
 
                 <div>
-                  <ZoruLabel htmlFor="retention_period_days">Retention period (days)</ZoruLabel>
+                  <Label htmlFor="retention_period_days">Retention period (days)</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="retention_period_days"
                       name="retention_period_days"
                       type="number"
@@ -264,14 +264,14 @@ export default function GdprSettingsPage() {
             </section>
 
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

@@ -87,39 +87,39 @@ export function BankTransactionStatusActions({
 
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruButton
+            <Button
                 size="sm"
                 variant={current === 'cleared' ? 'default' : 'outline'}
                 onClick={() => moveTo('cleared')}
                 disabled={isPending || current === 'cleared'}
             >
                 <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Cleared
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 size="sm"
                 variant={current === 'reconciled' ? 'default' : 'outline'}
                 onClick={() => moveTo('reconciled')}
                 disabled={isPending || current === 'reconciled'}
             >
                 <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Reconciled
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 size="sm"
                 variant="outline"
                 onClick={() => moveTo('pending')}
                 disabled={isPending || current === 'pending'}
             >
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reopen
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 size="sm"
                 variant="outline"
                 onClick={() => moveTo('archived')}
                 disabled={isPending || current === 'archived'}
             >
                 <Archive className="mr-1.5 h-3.5 w-3.5" /> Archive
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setConfirmDelete(true)}
@@ -131,7 +131,7 @@ export function BankTransactionStatusActions({
                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                 )}
                 Delete
-            </ZoruButton>
+            </Button>
 
             <ZoruAlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
                 <ZoruAlertDialogContent>

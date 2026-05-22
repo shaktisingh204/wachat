@@ -85,21 +85,21 @@ export function EWayBillRowActions({ id, status }: { id: string; status: string 
 
     return (
         <div className="flex items-center justify-end gap-1">
-            <ZoruButton asChild size="sm" variant="outline">
+            <Button asChild size="sm" variant="outline">
                 <Link href={`/dashboard/crm/tax/eway-bills/${id}`}>View</Link>
-            </ZoruButton>
+            </Button>
             {isActive ? (
                 <>
-                    <ZoruButton size="sm" variant="outline" disabled={pending} onClick={onUpdateVehicle}>
+                    <Button size="sm" variant="outline" disabled={pending} onClick={onUpdateVehicle}>
                         {pending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                         Update vehicle
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" disabled={pending} onClick={onExtend}>
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={pending} onClick={onExtend}>
                         Extend
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" disabled={pending} onClick={onCancel}>
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={pending} onClick={onCancel}>
                         Cancel
-                    </ZoruButton>
+                    </Button>
                 </>
             ) : null}
         </div>

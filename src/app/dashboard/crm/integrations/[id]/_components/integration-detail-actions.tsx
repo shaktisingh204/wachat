@@ -49,7 +49,7 @@ export function IntegrationConnectButton({
   const { toast } = useZoruToast();
 
   return (
-    <ZoruButton
+    <Button
       variant={isActive ? 'outline' : 'default'}
       disabled={pending}
       onClick={() =>
@@ -76,7 +76,7 @@ export function IntegrationConnectButton({
         <PlugZap className="mr-2 h-4 w-4" />
       )}
       {isActive ? 'Disconnect' : 'Connect'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -94,10 +94,10 @@ export function IntegrationDeleteButton({
 
   return (
     <>
-      <ZoruButton variant="outline" onClick={() => setOpen(true)}>
+      <Button variant="outline" onClick={() => setOpen(true)}>
         <Trash2 className="mr-2 h-4 w-4 text-zoru-danger-ink" />
         Delete
-      </ZoruButton>
+      </Button>
       <ZoruAlertDialog open={open} onOpenChange={setOpen}>
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>

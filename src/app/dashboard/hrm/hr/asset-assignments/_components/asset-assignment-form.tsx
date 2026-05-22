@@ -49,14 +49,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create assignment'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -94,7 +94,7 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
     const prefilledAssetName = searchParams?.get('assetName') ?? '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="assignmentId" value={initialData!._id} />
@@ -102,7 +102,7 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
 
                 {/* Row 1: Asset (entity picker dual-writes asset_name for legacy callers) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Asset *</ZoruLabel>
+                    <Label>Asset *</Label>
                     <EntityFormField
                         entity="asset"
                         name="asset_id"
@@ -119,7 +119,7 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
 
                 {/* Row 2: Employee (entity picker dual-writes employee_name) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Employee *</ZoruLabel>
+                    <Label>Employee *</Label>
                     <EntityFormField
                         entity="employee"
                         name="employee_id"
@@ -135,8 +135,8 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
                 {/* Row 3: Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="assigned_at">Assigned at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="assigned_at">Assigned at</Label>
+                        <Input
                             id="assigned_at"
                             name="assigned_at"
                             type="date"
@@ -144,8 +144,8 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="returned_at">Returned at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="returned_at">Returned at</Label>
+                        <Input
                             id="returned_at"
                             name="returned_at"
                             type="date"
@@ -157,7 +157,7 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
                 {/* Row 4: Conditions */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Condition at assign</ZoruLabel>
+                        <Label>Condition at assign</Label>
                         <EnumFormField
                             enumName="assetCondition"
                             name="condition_at_assign"
@@ -167,7 +167,7 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Condition at return</ZoruLabel>
+                        <Label>Condition at return</Label>
                         <EnumFormField
                             enumName="assetCondition"
                             name="condition_at_return"
@@ -181,7 +181,7 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
                 {/* Row 5: Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         {/* TODO 1E.sweep: catalogued assetAssignmentStatus has 'active'+'pending' but this form uses 'assigned' — bridge or extend before enabling inline-create. */}
                         <EnumFormField
                             enumName="assetAssignmentStatus"
@@ -201,8 +201,8 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
 
                 {/* Row 6: Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -212,15 +212,15 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to assignments
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -48,12 +48,12 @@ export default async function BookingsPage({
       title="Bookings"
       subtitle="Reserve resources, rooms, or staff slots for your customers."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/bookings/new">
             <Plus className="h-4 w-4" />
             New booking
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       <BookingListClient

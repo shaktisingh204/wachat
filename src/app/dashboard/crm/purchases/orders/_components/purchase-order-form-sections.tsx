@@ -38,16 +38,16 @@ export function HeaderSection({
   onCurrencyChange,
 }: HeaderSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Header
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel htmlFor="poNo">
+          <Label htmlFor="poNo">
             PO number <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="poNo"
             name="poNo"
             required={!editing}
@@ -63,10 +63,10 @@ export function HeaderSection({
           ) : null}
         </div>
         <div>
-          <ZoruLabel htmlFor="date">
+          <Label htmlFor="date">
             PO date <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="date"
             name="date"
             type="date"
@@ -76,8 +76,8 @@ export function HeaderSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="expectedDelivery">Expected delivery</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="expectedDelivery">Expected delivery</Label>
+          <Input
             id="expectedDelivery"
             name="expectedDelivery"
             type="date"
@@ -86,8 +86,8 @@ export function HeaderSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="paymentTerms">Payment terms</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="paymentTerms">Payment terms</Label>
+          <Input
             id="paymentTerms"
             name="paymentTerms"
             defaultValue={defaultPaymentTerms ?? ''}
@@ -96,7 +96,7 @@ export function HeaderSection({
           />
         </div>
         <div>
-          <ZoruLabel>Currency</ZoruLabel>
+          <Label>Currency</Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="currency"
@@ -107,7 +107,7 @@ export function HeaderSection({
           </div>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -131,15 +131,15 @@ export function VendorSection({
   initialWarehouseId,
 }: VendorSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Vendor
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel>
+          <Label>
             Vendor <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
+          </Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="vendor"
@@ -150,8 +150,8 @@ export function VendorSection({
           </div>
         </div>
         <div>
-          <ZoruLabel htmlFor="referenceNo">Vendor reference no</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="referenceNo">Vendor reference no</Label>
+          <Input
             id="referenceNo"
             value={referenceNo}
             onChange={(e) => onReferenceNo(e.target.value)}
@@ -160,7 +160,7 @@ export function VendorSection({
           />
         </div>
         <div>
-          <ZoruLabel>Buyer / Owner</ZoruLabel>
+          <Label>Buyer / Owner</Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="user"
@@ -171,7 +171,7 @@ export function VendorSection({
           </div>
         </div>
         <div>
-          <ZoruLabel>Billing branch</ZoruLabel>
+          <Label>Billing branch</Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="branch"
@@ -181,7 +181,7 @@ export function VendorSection({
           </div>
         </div>
         <div className="md:col-span-2">
-          <ZoruLabel>Ship-to warehouse</ZoruLabel>
+          <Label>Ship-to warehouse</Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="warehouse"
@@ -191,7 +191,7 @@ export function VendorSection({
           </div>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -211,7 +211,7 @@ export function ApprovalSection({
   onApprovalNote,
 }: ApprovalSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Approval workflow
       </h3>
@@ -222,7 +222,7 @@ export function ApprovalSection({
       </p>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel>Requested by</ZoruLabel>
+          <Label>Requested by</Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="user"
@@ -233,7 +233,7 @@ export function ApprovalSection({
           </div>
         </div>
         <div>
-          <ZoruLabel>Approver</ZoruLabel>
+          <Label>Approver</Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="user"
@@ -244,8 +244,8 @@ export function ApprovalSection({
           </div>
         </div>
         <div className="md:col-span-2">
-          <ZoruLabel htmlFor="approvalNote">Approval notes</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="approvalNote">Approval notes</Label>
+          <Textarea
             id="approvalNote"
             rows={2}
             value={approvalNote}
@@ -255,7 +255,7 @@ export function ApprovalSection({
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -276,16 +276,16 @@ export function NotesSection({
 }: NotesSectionProps) {
   const [attachment, setAttachment] = React.useState<SabFilePick | null>(null);
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Notes &amp; Terms
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <ZoruLabel htmlFor="termsAndConditions">
+          <Label htmlFor="termsAndConditions">
             Terms &amp; conditions
-          </ZoruLabel>
-          <ZoruTextarea
+          </Label>
+          <Textarea
             id="termsAndConditions"
             name="termsAndConditions"
             defaultValue={defaultTermsAndConditions ?? ''}
@@ -294,8 +294,8 @@ export function NotesSection({
           />
         </div>
         <div className="md:col-span-2">
-          <ZoruLabel htmlFor="notes">Internal notes</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="notes">Internal notes</Label>
+          <Textarea
             id="notes"
             name="notes"
             defaultValue={defaultNotes ?? ''}
@@ -304,7 +304,7 @@ export function NotesSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="status">Status</ZoruLabel>
+          <Label htmlFor="status">Status</Label>
           <div className="mt-1.5">
             <EnumFormField
               enumName="purchaseOrderStatusV2"
@@ -315,7 +315,7 @@ export function NotesSection({
           </div>
         </div>
         <div>
-          <ZoruLabel>Attachments</ZoruLabel>
+          <Label>Attachments</Label>
           <input type="hidden" name="attachmentsFileId" value={attachment?.id ?? ''} />
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <SabFilePickerButton
@@ -346,6 +346,6 @@ export function NotesSection({
           </p>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

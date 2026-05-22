@@ -26,14 +26,14 @@ export function EmailQuickActions({ accountId }: EmailQuickActionsProps) {
   ];
 
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <ZoruCardHeader>
         <ZoruCardTitle>Quick actions</ZoruCardTitle>
         <ZoruCardDescription>Jump straight to what you want to do.</ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="grid gap-2">
         {actions.map((a) => (
-          <ZoruButton
+          <Button
             key={a.href}
             asChild
             variant="outline"
@@ -43,9 +43,9 @@ export function EmailQuickActions({ accountId }: EmailQuickActionsProps) {
               <a.icon className="h-4 w-4" />
               {a.label}
             </Link>
-          </ZoruButton>
+          </Button>
         ))}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

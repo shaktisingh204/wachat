@@ -289,22 +289,22 @@ export default function ProposalDetailPage(props: {
   if (isLoading && !data) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!proposal || !data) {
     return (
-      <ZoruCard className="border-dashed p-6">
+      <Card className="border-dashed p-6">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <p className="text-[13px] text-zoru-ink-muted">Proposal not found.</p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/proposals">Back to Proposals</Link>
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -319,14 +319,14 @@ export default function ProposalDetailPage(props: {
       back={{ href: '/dashboard/crm/sales/proposals', label: 'All proposals' }}
       actions={
         <>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href={`/dashboard/crm/sales/proposals/${proposalId}/edit`}>
               <Pencil className="h-4 w-4" /> Edit
             </Link>
-          </ZoruButton>
+          </Button>
           <SharePublicLinkButton resourceType="proposal" resourceId={proposalId} />
           {proposal.status === 'draft' ? (
-            <ZoruButton
+            <Button
               variant="outline"
               disabled={isUpdatingStatus}
               onClick={markSent}
@@ -337,20 +337,20 @@ export default function ProposalDetailPage(props: {
                 <Send className="h-4 w-4" />
               )}
               Mark as Sent
-            </ZoruButton>
+            </Button>
           ) : null}
           {isAccepted ? (
-            <ZoruButton disabled={isConverting} onClick={convertToInvoice}>
+            <Button disabled={isConverting} onClick={convertToInvoice}>
               {isConverting ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
                 <ReceiptText className="h-4 w-4" />
               )}
               Convert to Invoice
-            </ZoruButton>
+            </Button>
           ) : null}
           {isAccepted ? (
-            <ZoruButton
+            <Button
               variant="outline"
               disabled={isConvertingContract}
               onClick={convertToContract}
@@ -361,19 +361,19 @@ export default function ProposalDetailPage(props: {
                 <FileCheck2 className="h-4 w-4" />
               )}
               Create Contract
-            </ZoruButton>
+            </Button>
           ) : null}
         </>
       }
     >
       {/* Summary card */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex items-center gap-2">
-          <ZoruBadge variant={STATUS_VARIANT[proposal.status] || 'ghost'}>
+          <Badge variant={STATUS_VARIANT[proposal.status] || 'ghost'}>
             {proposal.status}
-          </ZoruBadge>
+          </Badge>
           {proposal.signature_required ? (
-            <ZoruBadge variant="ghost">Signature required</ZoruBadge>
+            <Badge variant="ghost">Signature required</Badge>
           ) : null}
         </div>
         <div className="grid gap-4 md:grid-cols-4">
@@ -418,10 +418,10 @@ export default function ProposalDetailPage(props: {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">Line Items</h2>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-[13px]">
@@ -523,11 +523,11 @@ export default function ProposalDetailPage(props: {
             ) : null}
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
       {/* Signature / accepted section */}
       {isAccepted ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
             <h2 className="text-[16px] text-zoru-ink">Accepted &amp; Signed</h2>
@@ -560,17 +560,17 @@ export default function ProposalDetailPage(props: {
               ))}
             </div>
           )}
-        </ZoruCard>
+        </Card>
       ) : proposal.signature_required ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-4 flex items-center gap-2">
             <FileSignature className="h-5 w-5 text-zoru-ink" />
             <h2 className="text-[16px] text-zoru-ink">Sign this proposal</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel className="text-zoru-ink">Full Name</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Full Name</Label>
+              <Input
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Jane Doe"
@@ -578,8 +578,8 @@ export default function ProposalDetailPage(props: {
               />
             </div>
             <div>
-              <ZoruLabel className="text-zoru-ink">Email</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Email</Label>
+              <Input
                 type="email"
                 value={signerEmail}
                 onChange={(e) => setSignerEmail(e.target.value)}
@@ -589,7 +589,7 @@ export default function ProposalDetailPage(props: {
             </div>
           </div>
           <div className="mt-4">
-            <ZoruLabel className="text-zoru-ink">Signature</ZoruLabel>
+            <Label className="text-zoru-ink">Signature</Label>
             <div className="mt-1.5 rounded-lg border border-zoru-line bg-white p-2">
               <canvas
                 ref={canvasRef}
@@ -607,19 +607,19 @@ export default function ProposalDetailPage(props: {
             </p>
           </div>
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <ZoruButton variant="outline" onClick={clearCanvas} disabled={isSubmitting}>
+            <Button variant="outline" onClick={clearCanvas} disabled={isSubmitting}>
               <Eraser className="h-4 w-4" /> Clear
-            </ZoruButton>
-            <ZoruButton onClick={handleSign} disabled={isSubmitting}>
+            </Button>
+            <Button onClick={handleSign} disabled={isSubmitting}>
               {isSubmitting ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
               Sign &amp; Accept
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

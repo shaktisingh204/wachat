@@ -2,7 +2,7 @@
 
 /**
  * <EnumFormField> — drop-in replacement for raw `<select>` /
- * `<ZoruSelect>` dropdowns whose values come from one of the catalogued
+ * `<Select>` dropdowns whose values come from one of the catalogued
  * named enums in `src/data/reference/crm-enums.ts`.
  *
  * Renders an `<EntityFormField entity="enum" filter={{ enumName }} />`
@@ -11,13 +11,13 @@
  * a real chip with the human label, and dual-write of `idName` ↔
  * `labelName` into FormData.
  *
- * Migration pattern from a `<ZoruSelect>`:
+ * Migration pattern from a `<Select>`:
  *
- *   <ZoruSelect value={status} onChange={setStatus}>
+ *   <Select value={status} onChange={setStatus}>
  *     <option value="draft">Draft</option>
  *     <option value="sent">Sent</option>
  *     …
- *   </ZoruSelect>
+ *   </Select>
  *
  * becomes
  *

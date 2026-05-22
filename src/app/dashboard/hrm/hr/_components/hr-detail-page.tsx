@@ -78,12 +78,12 @@ export function HrDetailPage({
   const actions = (
     <>
       {extraActions}
-      <ZoruButton asChild variant="outline" size="sm">
+      <Button asChild variant="outline" size="sm">
         <Link href={editHref}>
           <Pencil className="h-3.5 w-3.5" />
           Edit
         </Link>
-      </ZoruButton>
+      </Button>
       <HrDeleteButton
         entityId={entityId}
         listHref={listHref}
@@ -119,7 +119,7 @@ export function HrDetailPage({
       audit={auditNode}
     >
       {sections.map((sec) => (
-        <ZoruCard key={sec.title}>
+        <Card key={sec.title}>
           <ZoruCardHeader>
             <ZoruCardTitle>{sec.title}</ZoruCardTitle>
           </ZoruCardHeader>
@@ -142,7 +142,7 @@ export function HrDetailPage({
               ))}
             </dl>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ))}
     </EntityDetailShell>
   );

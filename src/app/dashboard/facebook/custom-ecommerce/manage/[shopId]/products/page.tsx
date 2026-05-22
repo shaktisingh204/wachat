@@ -36,12 +36,12 @@ function PageSkeleton() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <ZoruSkeleton className="h-8 w-48" />
-        <ZoruSkeleton className="h-9 w-40" />
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-9 w-40" />
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-80 w-full" />
+          <Skeleton key={i} className="h-80 w-full" />
         ))}
       </div>
     </div>
@@ -85,13 +85,13 @@ export default function ProductsPage() {
 
   if (!shop) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
         <ZoruAlertDescription>
           Please select a valid shop to manage its products.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
@@ -122,10 +122,10 @@ export default function ProductsPage() {
                 shopId={shop._id.toString()}
               />
             ) : null}
-            <ZoruButton onClick={() => handleOpenDialog(null)}>
+            <Button onClick={() => handleOpenDialog(null)}>
               <PlusCircle />
               Add product
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -142,7 +142,7 @@ export default function ProductsPage() {
             ))}
           </div>
         ) : (
-          <ZoruEmptyState
+          <EmptyState
             icon={<ShoppingBag />}
             title="No products yet"
             description='Click "Add product" to get started.'

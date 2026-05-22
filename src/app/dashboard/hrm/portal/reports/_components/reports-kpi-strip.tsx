@@ -31,12 +31,12 @@ export function ReportsKpiStrip({ kpis, loading }: ReportsKpiStripProps) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <ZoruCard key={i} variant="soft">
+          <Card key={i} variant="soft">
             <ZoruCardContent className="p-4">
-              <ZoruSkeleton className="mb-2 h-4 w-20" />
-              <ZoruSkeleton className="h-7 w-12" />
+              <Skeleton className="mb-2 h-4 w-20" />
+              <Skeleton className="h-7 w-12" />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     );
@@ -45,7 +45,7 @@ export function ReportsKpiStrip({ kpis, loading }: ReportsKpiStripProps) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {kpis.map((kpi, i) => (
-        <ZoruCard key={kpi.label} variant="soft">
+        <Card key={kpi.label} variant="soft">
           <ZoruCardContent className="p-4">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[12px] font-medium text-zoru-ink-muted uppercase tracking-wide">
@@ -66,7 +66,7 @@ export function ReportsKpiStrip({ kpis, loading }: ReportsKpiStripProps) {
               <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{kpi.hint}</p>
             ) : null}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );

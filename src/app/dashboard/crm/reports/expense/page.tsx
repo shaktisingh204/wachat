@@ -139,7 +139,7 @@ export default async function ExpenseReportPage(props: {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-zoru-ink">
               Monthly trend
@@ -159,8 +159,8 @@ export default async function ExpenseReportPage(props: {
               label="Expense"
             />
           )}
-        </ZoruCard>
-        <ZoruCard className="p-6">
+        </Card>
+        <Card className="p-6">
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-zoru-ink">
               By category
@@ -176,12 +176,12 @@ export default async function ExpenseReportPage(props: {
           ) : (
             <CategoryPie data={byCategory} label="Category" />
           )}
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">
@@ -242,17 +242,17 @@ export default async function ExpenseReportPage(props: {
                       {fmtMoney(r.taxAmount)}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant="secondary">
+                      <Badge variant="secondary">
                         {r.status || '—'}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

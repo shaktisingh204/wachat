@@ -35,7 +35,7 @@ export function PurchaseOrdersKpiStrip({
         onClick={() => onSelect('drafts')}
         ariaLabel="Show draft purchase orders"
       >
-        <ZoruStatCard
+        <StatCard
           label="Draft"
           value={kpi.draftCount.toLocaleString()}
           period="not yet submitted"
@@ -47,7 +47,7 @@ export function PurchaseOrdersKpiStrip({
         onClick={() => onSelect('my-pending-approval')}
         ariaLabel="Show POs awaiting approval"
       >
-        <ZoruStatCard
+        <StatCard
           label="Awaiting approval"
           value={kpi.awaitingApprovalCount.toLocaleString()}
           period="pending review"
@@ -59,7 +59,7 @@ export function PurchaseOrdersKpiStrip({
         onClick={() => onSelect('all-open')}
         ariaLabel="Show approved POs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Approved"
           value={kpi.approvedCount.toLocaleString()}
           period="approved / sent"
@@ -71,7 +71,7 @@ export function PurchaseOrdersKpiStrip({
         onClick={() => onSelect('all-open')}
         ariaLabel="Show partially received POs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Partial received"
           value={kpi.partialCount.toLocaleString()}
           period="some lines received"
@@ -83,7 +83,7 @@ export function PurchaseOrdersKpiStrip({
         onClick={() => onSelect('closed-30d')}
         ariaLabel="Show closed purchase orders"
       >
-        <ZoruStatCard
+        <StatCard
           label="Closed"
           value={kpi.closedCount.toLocaleString()}
           period="received / closed"

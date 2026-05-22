@@ -48,7 +48,7 @@ export function BuilderCanvas({
   );
 
   return (
-    <ZoruScrollArea
+    <ScrollArea
       className="flex-1"
       onClick={() => onSelect(null)}
     >
@@ -64,7 +64,7 @@ export function BuilderCanvas({
         >
           {doc.blocks.length === 0 ? (
             <div className="p-8">
-              <ZoruEmptyState
+              <EmptyState
                 title="No blocks yet"
                 description="Pick a block from the left rail to start building."
               />
@@ -86,7 +86,7 @@ export function BuilderCanvas({
           )}
         </div>
       </div>
-    </ZoruScrollArea>
+    </ScrollArea>
   );
 }
 
@@ -142,7 +142,7 @@ function BlockRow({
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <ZoruButton
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -151,8 +151,8 @@ function BlockRow({
           onClick={() => onMove(block.id, 'up')}
         >
           <ArrowUp className="h-3.5 w-3.5" />
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -161,8 +161,8 @@ function BlockRow({
           onClick={() => onMove(block.id, 'down')}
         >
           <ArrowDown className="h-3.5 w-3.5" />
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -170,8 +170,8 @@ function BlockRow({
           onClick={() => onDuplicate(block.id)}
         >
           <Copy className="h-3.5 w-3.5" />
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -180,7 +180,7 @@ function BlockRow({
           className="text-zoru-danger"
         >
           <Trash2 className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
       <BlockPreview block={block} />
     </div>

@@ -130,7 +130,7 @@ export default async function ProfitLossPage(props: {
         />
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-zoru-ink">
             {isQuarterly ? 'Quarterly' : 'Monthly'} stacked
@@ -146,11 +146,11 @@ export default async function ProfitLossPage(props: {
         ) : (
           <ProfitLossStackedBar data={monthly} />
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">
@@ -215,9 +215,9 @@ export default async function ProfitLossPage(props: {
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

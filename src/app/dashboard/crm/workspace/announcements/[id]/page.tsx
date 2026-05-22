@@ -57,18 +57,18 @@ export default async function AnnouncementDetailPage({
                 }}
                 actions={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="ghost" asChild>
+                        <Button variant="ghost" asChild>
                             <Link href="/dashboard/crm/workspace/announcements">
                                 <ArrowLeft className="h-4 w-4" /> Back
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link
                                 href={`/dashboard/crm/workspace/announcements/${announcement._id}/edit`}
                             >
                                 <Pencil className="h-4 w-4" /> Edit
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 audit={
@@ -78,7 +78,7 @@ export default async function AnnouncementDetailPage({
                     />
                 }
                 rightRail={
-                    <ZoruCard>
+                    <Card>
                         <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">
                             Reach
                         </h3>
@@ -108,37 +108,37 @@ export default async function AnnouncementDetailPage({
                                 </dd>
                             </div>
                         </dl>
-                    </ZoruCard>
+                    </Card>
                 }
             >
-                <ZoruCard>
+                <Card>
                     <div className="mb-3 flex flex-wrap items-center gap-2">
                         <StatusPill label={announcement.status} tone={tone} />
-                        <ZoruBadge variant="ghost" className="capitalize">
+                        <Badge variant="ghost" className="capitalize">
                             Audience: {announcement.audience ?? 'all'}
-                        </ZoruBadge>
+                        </Badge>
                         {announcement.category ? (
-                            <ZoruBadge variant="secondary" className="capitalize">
+                            <Badge variant="secondary" className="capitalize">
                                 {String(announcement.category)}
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
                         {announcement.priority ? (
-                            <ZoruBadge variant="ghost" className="capitalize">
+                            <Badge variant="ghost" className="capitalize">
                                 Priority: {String(announcement.priority)}
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
                         {announcement.pinned ? (
-                            <ZoruBadge variant="warning">
+                            <Badge variant="warning">
                                 <Pin className="h-3 w-3" /> Pinned
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
-                        <ZoruBadge variant="secondary">
+                        <Badge variant="secondary">
                             Publish: {fmtDate(announcement.publishAt)}
-                        </ZoruBadge>
+                        </Badge>
                         {announcement.expiresAt ? (
-                            <ZoruBadge variant="secondary">
+                            <Badge variant="secondary">
                                 Expires: {fmtDate(announcement.expiresAt)}
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
                     </div>
                     {announcement.bannerUrl ? (
@@ -155,13 +155,13 @@ export default async function AnnouncementDetailPage({
                     {announcement.tags && announcement.tags.length > 0 ? (
                         <div className="mt-4 flex flex-wrap gap-1.5">
                             {announcement.tags.map((t) => (
-                                <ZoruBadge key={t} variant="ghost">
+                                <Badge key={t} variant="ghost">
                                     {t}
-                                </ZoruBadge>
+                                </Badge>
                             ))}
                         </div>
                     ) : null}
-                </ZoruCard>
+                </Card>
             </EntityDetailShell>
         </div>
     );

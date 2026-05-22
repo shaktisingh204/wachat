@@ -45,7 +45,7 @@ export function CoaKpiStrip({ kpi, currency, active, onSelect }: CoaKpiStripProp
     return (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <KpiButton active={active === 'all'} onClick={() => onSelect('all')} ariaLabel="Show all accounts">
-                <ZoruStatCard
+                <StatCard
                     label="Total accounts"
                     value={kpi.totalAccounts.toLocaleString()}
                     period="across all natures"
@@ -53,7 +53,7 @@ export function CoaKpiStrip({ kpi, currency, active, onSelect }: CoaKpiStripProp
                 />
             </KpiButton>
             <KpiButton active={active === 'Asset'} onClick={() => onSelect('Asset')} ariaLabel="Show asset accounts">
-                <ZoruStatCard
+                <StatCard
                     label="Assets"
                     value={fmtMoney(kpi.assetsTotal, currency)}
                     period="current balance"
@@ -61,7 +61,7 @@ export function CoaKpiStrip({ kpi, currency, active, onSelect }: CoaKpiStripProp
                 />
             </KpiButton>
             <KpiButton active={active === 'Liability'} onClick={() => onSelect('Liability')} ariaLabel="Show liability accounts">
-                <ZoruStatCard
+                <StatCard
                     label="Liabilities"
                     value={fmtMoney(kpi.liabilitiesTotal, currency)}
                     period="current balance"
@@ -69,7 +69,7 @@ export function CoaKpiStrip({ kpi, currency, active, onSelect }: CoaKpiStripProp
                 />
             </KpiButton>
             <KpiButton active={active === 'Income'} onClick={() => onSelect('Income')} ariaLabel="Show income accounts">
-                <ZoruStatCard
+                <StatCard
                     label="Income YTD"
                     value={fmtMoney(kpi.incomeYtd, currency)}
                     period="this fiscal year"
@@ -77,7 +77,7 @@ export function CoaKpiStrip({ kpi, currency, active, onSelect }: CoaKpiStripProp
                 />
             </KpiButton>
             <KpiButton active={active === 'Expense'} onClick={() => onSelect('Expense')} ariaLabel="Show expense accounts">
-                <ZoruStatCard
+                <StatCard
                     label="Expense YTD"
                     value={fmtMoney(kpi.expenseYtd, currency)}
                     period="this fiscal year"

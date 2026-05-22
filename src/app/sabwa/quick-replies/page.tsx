@@ -186,7 +186,7 @@ export default function Page() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -200,14 +200,14 @@ export default function Page() {
               <ZoruBreadcrumbPage>Quick replies</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
-        <ZoruEmptyState
+        </Breadcrumb>
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -218,7 +218,7 @@ export default function Page() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -232,7 +232,7 @@ export default function Page() {
             <ZoruBreadcrumbPage>Quick replies</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -250,16 +250,16 @@ export default function Page() {
             </p>
           </div>
         </div>
-        <ZoruButton onClick={openNew}>
+        <Button onClick={openNew}>
           <Plus className="mr-2 h-4 w-4" /> New quick reply
-        </ZoruButton>
+        </Button>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-            <ZoruInput
+            <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search shortcuts or body…"
@@ -269,7 +269,7 @@ export default function Page() {
           </div>
         </ZoruCardHeader>
         <ZoruCardContent className="p-0">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-20">On</ZoruTableHead>
@@ -285,14 +285,14 @@ export default function Page() {
                 Array.from({ length: 6 }).map((_, i) => (
                   <ZoruTableRow key={`qr-skeleton-${i}`}>
                     <ZoruTableCell colSpan={6} className="py-2">
-                      <ZoruSkeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                      <Skeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               {!loading && filtered.length === 0 && (
                 <ZoruTableRow>
                   <ZoruTableCell colSpan={6} className="py-8">
-                    <ZoruEmptyState
+                    <EmptyState
                       icon={<MessageSquareReply />}
                       title={
                         search
@@ -306,17 +306,17 @@ export default function Page() {
                       }
                       action={
                         search ? (
-                          <ZoruButton
+                          <Button
                             variant="outline"
                             onClick={() => setSearch('')}
                           >
                             Clear search
-                          </ZoruButton>
+                          </Button>
                         ) : (
-                          <ZoruButton onClick={openNew}>
+                          <Button onClick={openNew}>
                             <Plus className="mr-1.5 h-4 w-4" />
                             New quick reply
-                          </ZoruButton>
+                          </Button>
                         )
                       }
                     />
@@ -326,7 +326,7 @@ export default function Page() {
               {filtered.map((r) => (
                 <ZoruTableRow key={r.id}>
                   <ZoruTableCell>
-                    <ZoruSwitch
+                    <Switch
                       checked={r.enabled}
                       onCheckedChange={(v) => void onToggleEnabled(r, v)}
                       aria-label={`Toggle ${r.shortcut}`}
@@ -337,9 +337,9 @@ export default function Page() {
                       {r.shortcut}
                     </code>
                     {r.mediaSabFileId && (
-                      <ZoruBadge variant="outline" className="ml-2 text-[10px]">
+                      <Badge variant="outline" className="ml-2 text-[10px]">
                         Media
-                      </ZoruBadge>
+                      </Badge>
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell className="max-w-md">
@@ -352,15 +352,15 @@ export default function Page() {
                     {formatRelative(r.lastUsedAt)}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruPopover>
+                    <Popover>
                       <ZoruPopoverTrigger asChild>
-                        <ZoruButton
+                        <Button
                           size="icon"
                           variant="ghost"
                           aria-label={`Actions for ${r.shortcut}`}
                         >
                           <MoreHorizontal className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruPopoverTrigger>
                       <ZoruPopoverContent align="end" className="w-40 p-1">
                         <button
@@ -378,14 +378,14 @@ export default function Page() {
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </button>
                       </ZoruPopoverContent>
-                    </ZoruPopover>
+                    </Popover>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <QuickReplyDialog
         sessionId={sessionId}
@@ -459,7 +459,7 @@ function QuickReplyDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-2xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -473,8 +473,8 @@ function QuickReplyDialog({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="qr-shortcut">Shortcut</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="qr-shortcut">Shortcut</Label>
+            <Input
               id="qr-shortcut"
               value={shortcut}
               onChange={(e) => setShortcut(e.target.value)}
@@ -493,7 +493,7 @@ function QuickReplyDialog({
             )}
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Attached media</ZoruLabel>
+            <Label>Attached media</Label>
             <div className="flex items-center gap-2">
               <SabFilePickerButton
                 accept="all"
@@ -507,7 +507,7 @@ function QuickReplyDialog({
                 {mediaSabFileId ? 'Replace' : 'Attach'}
               </SabFilePickerButton>
               {mediaSabFileId && (
-                <ZoruBadge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1">
                   {mediaName || 'Media attached'}
                   <button
                     type="button"
@@ -519,15 +519,15 @@ function QuickReplyDialog({
                   >
                     <X className="h-3 w-3" />
                   </button>
-                </ZoruBadge>
+                </Badge>
               )}
             </div>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="qr-body">Body</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="qr-body">Body</Label>
+          <Textarea
             id="qr-body"
             rows={5}
             value={body}
@@ -565,18 +565,18 @@ function QuickReplyDialog({
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={() => void onSubmit()} disabled={!valid || saving}>
+          </Button>
+          <Button onClick={() => void onSubmit()} disabled={!valid || saving}>
             {saving
               ? 'Saving…'
               : initial
                 ? 'Save changes'
                 : 'Create quick reply'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

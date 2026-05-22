@@ -347,12 +347,12 @@ export function KbListClient() {
                 subtitle="Publish help articles for customers and your support agents."
                 viewSwitcher={
                     <div className="flex items-center gap-2">
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="outline" size="sm">
+                                <Button variant="outline" size="sm">
                                     <ListChecks className="h-3.5 w-3.5" /> {activePreset.label}
                                     <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-subtle" />
-                                </ZoruButton>
+                                </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="start" className="w-64">
                                 <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
@@ -375,7 +375,7 @@ export function KbListClient() {
                                     </ZoruDropdownMenuItem>
                                 ))}
                             </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                         <div className="inline-flex rounded-md border border-zoru-line p-0.5">
                             <button
                                 type="button"
@@ -412,11 +412,11 @@ export function KbListClient() {
                     placeholder: 'Search title, slug, body, tags…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/tickets/knowledge-base/new">
                             <Plus className="h-4 w-4" /> New article
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <KbFiltersRow
@@ -476,11 +476,11 @@ export function KbListClient() {
                                 Author your first help article to deflect common tickets and
                                 empower your support agents.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/tickets/knowledge-base/new">
                                     <Plus className="h-4 w-4" /> Add your first article
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

@@ -130,11 +130,11 @@ export default function CustomConversionsPage() {
                     title="Custom conversions"
                     description="Define URL-based or rule-based conversion events without code changes."
                 />
-                <ZoruAlert>
+                <Alert>
                     <CircleAlert className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to view custom conversions.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -147,12 +147,12 @@ export default function CustomConversionsPage() {
                 description="Define URL-based or rule-based conversion events without code changes."
                 actions={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" size="icon" onClick={fetchData} disabled={loading}>
+                        <Button variant="outline" size="icon" onClick={fetchData} disabled={loading}>
                             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                        </ZoruButton>
-                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
+                        </Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
                             <Plus className="h-4 w-4 mr-1" /> New custom conversion
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
             />
@@ -162,14 +162,14 @@ export default function CustomConversionsPage() {
                 <span>Conversions for {activeAccount.name || activeAccount.account_id}</span>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
-                            {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-10" />)}
+                            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
                         </div>
                     ) : (
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Name</ZoruTableHead>
@@ -196,7 +196,7 @@ export default function CustomConversionsPage() {
                                                 )}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant="outline">{c.custom_event_type || 'OTHER'}</ZoruBadge>
+                                                <Badge variant="outline">{c.custom_event_type || 'OTHER'}</Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-xs text-muted-foreground">
                                                 {c.last_fired_time
@@ -207,26 +207,26 @@ export default function CustomConversionsPage() {
                                                 {c.default_conversion_value || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-destructive hover:text-destructive"
                                                     onClick={() => setDeleteId(c.id)}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ))
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Create dialog */}
-            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm(); } else setDialogOpen(true); }}>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm(); } else setDialogOpen(true); }}>
                 <ZoruDialogContent className="max-w-lg">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>New custom conversion</ZoruDialogTitle>
@@ -234,62 +234,62 @@ export default function CustomConversionsPage() {
                     </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Name *</ZoruLabel>
-                            <ZoruInput placeholder="e.g. Thank-you page purchase" value={name} onChange={e => setName(e.target.value)} />
+                            <Label>Name *</Label>
+                            <Input placeholder="e.g. Thank-you page purchase" value={name} onChange={e => setName(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Pixel *</ZoruLabel>
-                            <ZoruSelect value={pixelId} onValueChange={setPixelId}>
+                            <Label>Pixel *</Label>
+                            <Select value={pixelId} onValueChange={setPixelId}>
                                 <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a pixel" /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     {pixels.map(p => (
                                         <ZoruSelectItem key={p.id} value={p.id}>{p.name} ({p.id})</ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Event type</ZoruLabel>
-                            <ZoruSelect value={eventName} onValueChange={setEventName}>
+                            <Label>Event type</Label>
+                            <Select value={eventName} onValueChange={setEventName}>
                                 <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     {EVENT_TYPES.map(e => (
                                         <ZoruSelectItem key={e} value={e}>{e.replace(/_/g, ' ')}</ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>URL rule (contains)</ZoruLabel>
-                            <ZoruInput placeholder="e.g. /thank-you" value={urlRule} onChange={e => setUrlRule(e.target.value)} />
+                            <Label>URL rule (contains)</Label>
+                            <Input placeholder="e.g. /thank-you" value={urlRule} onChange={e => setUrlRule(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Default conversion value</ZoruLabel>
-                            <ZoruInput type="number" placeholder="0" value={defaultValue} onChange={e => setDefaultValue(e.target.value)} />
+                            <Label>Default conversion value</Label>
+                            <Input type="number" placeholder="0" value={defaultValue} onChange={e => setDefaultValue(e.target.value)} />
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</ZoruButton>
-                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting}>
+                        <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting}>
                             {submitting ? 'Creating…' : 'Create'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Delete confirmation */}
-            <ZoruDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+            <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete custom conversion?</ZoruDialogTitle>
                         <ZoruDialogDescription>This action cannot be undone.</ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => setDeleteId(null)}>Cancel</ZoruButton>
-                        <ZoruButton variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</ZoruButton>
+                        <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
+                        <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

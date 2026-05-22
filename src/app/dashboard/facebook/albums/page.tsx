@@ -119,7 +119,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<ImageIcon />}
           title="No project selected"
           description="Pick a Facebook page / project to see its albums."
@@ -130,7 +130,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -144,7 +144,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Albums</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -154,28 +154,28 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
             <code>wachat-facebook-content</code>.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+        <Button variant="ghost" onClick={refresh} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load albums</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {loading && albums.length === 0 ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          <ZoruSkeleton className="h-40 w-full" />
-          <ZoruSkeleton className="h-40 w-full" />
-          <ZoruSkeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
         </div>
       ) : albums.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<ImageIcon />}
           title="No albums"
           description="This Page doesn't have any photo albums yet."
@@ -187,7 +187,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
             const photos = photosByAlbum[a.id] ?? [];
             return (
               <li key={a.id}>
-                <ZoruCard className="flex flex-col gap-3 p-4">
+                <Card className="flex flex-col gap-3 p-4">
                   <button
                     type="button"
                     onClick={() => onExpand(a.id)}
@@ -213,7 +213,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                         </p>
                       ) : null}
                       <div className="mt-1 flex items-center gap-2 text-[11px] text-zoru-ink-muted">
-                        <ZoruBadge variant="ghost">{a.count ?? 0} photos</ZoruBadge>
+                        <Badge variant="ghost">{a.count ?? 0} photos</Badge>
                         {a.privacy ? <span>{a.privacy}</span> : null}
                         <span>{safeDate(a.updated_time ?? a.created_time)}</span>
                       </div>
@@ -229,9 +229,9 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                     <div className="border-t border-zoru-line pt-3">
                       {photoLoading && photos.length === 0 ? (
                         <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
-                          <ZoruSkeleton className="aspect-square w-full" />
-                          <ZoruSkeleton className="aspect-square w-full" />
-                          <ZoruSkeleton className="aspect-square w-full" />
+                          <Skeleton className="aspect-square w-full" />
+                          <Skeleton className="aspect-square w-full" />
+                          <Skeleton className="aspect-square w-full" />
                         </div>
                       ) : photos.length === 0 ? (
                         <p className="text-xs text-zoru-ink-muted">No photos.</p>
@@ -259,7 +259,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                       )}
                     </div>
                   ) : null}
-                </ZoruCard>
+                </Card>
               </li>
             );
           })}

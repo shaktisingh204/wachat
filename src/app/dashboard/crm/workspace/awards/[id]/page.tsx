@@ -56,28 +56,28 @@ export default async function AwardDetailPage({
                 back={{ href: '/dashboard/crm/workspace/awards', label: 'Back to awards' }}
                 actions={
                     <>
-                        <ZoruButton asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm">
                             <Link href={`/dashboard/crm/workspace/awards/${a._id}/edit`}>
                                 <Pencil className="h-3.5 w-3.5" /> Edit
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild variant="outline" size="sm">
+                        </Button>
+                        <Button asChild variant="outline" size="sm">
                             <Link
                                 href={`/dashboard/crm/workspace/awards/appreciations?award=${a._id}`}
                             >
                                 <Plus className="h-3.5 w-3.5" /> Add appreciation
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild variant="ghost" size="sm">
+                        </Button>
+                        <Button asChild variant="ghost" size="sm">
                             <Link href={`/dashboard/crm/workspace/awards/${a._id}/activity`}>
                                 <Activity className="h-3.5 w-3.5" /> Activity
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </>
                 }
                 audit={<EntityAuditTimeline entityKind="award" entityId={String(a._id)} />}
                 rightRail={
-                    <ZoruCard>
+                    <Card>
                         <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">
                             Program details
                         </h3>
@@ -93,10 +93,10 @@ export default async function AwardDetailPage({
                             <dt className="text-zoru-ink-muted">Prize</dt>
                             <dd className="text-zoru-ink">{a.prize || '—'}</dd>
                         </dl>
-                    </ZoruCard>
+                    </Card>
                 }
             >
-                <ZoruCard>
+                <Card>
                     <h3 className="mb-2 flex items-center gap-2 text-[14px] font-semibold text-zoru-ink">
                         <Trophy className="h-4 w-4" /> About this program
                     </h3>
@@ -115,9 +115,9 @@ export default async function AwardDetailPage({
                             </p>
                         </div>
                     ) : null}
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <h3 className="mb-3 text-[14px] font-semibold text-zoru-ink">
                         Nominations & winners ({linked.length})
                     </h3>
@@ -142,9 +142,9 @@ export default async function AwardDetailPage({
                                     {linked.map((ap: any) => (
                                         <tr key={String(ap._id)}>
                                             <td className="px-2 py-1.5">
-                                                <ZoruBadge variant="success">
+                                                <Badge variant="success">
                                                     {ap.given_to_user_name || ap.given_to_user_id}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </td>
                                             <td className="px-2 py-1.5 text-zoru-ink-muted">
                                                 {ap.given_by_user_name || ap.given_by_user_id}
@@ -161,7 +161,7 @@ export default async function AwardDetailPage({
                             </table>
                         </div>
                     )}
-                </ZoruCard>
+                </Card>
             </EntityDetailShell>
         </div>
     );

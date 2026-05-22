@@ -29,7 +29,7 @@ export function TimeSeriesTile({
   queryString,
 }: TimeSeriesTileProps) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>Volume over time</ZoruCardTitle>
@@ -109,6 +109,6 @@ export function TimeSeriesTile({
           </ZoruChartContainer>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

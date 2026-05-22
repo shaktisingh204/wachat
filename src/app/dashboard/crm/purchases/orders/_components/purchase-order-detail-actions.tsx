@@ -128,7 +128,7 @@ export function PurchaseOrderDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -151,45 +151,45 @@ export function PurchaseOrderDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/purchases/orders/${poId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
       {showApprove ? (
-        <ZoruButton size="sm" onClick={() => setApproveOpen(true)}>
+        <Button size="sm" onClick={() => setApproveOpen(true)}>
           <CheckCheck className="h-3.5 w-3.5" /> Approve
-        </ZoruButton>
+        </Button>
       ) : null}
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
         <Mail className="h-3.5 w-3.5" /> Send
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/inventory/grn/new?fromKind=purchaseOrder&fromId=${poId}`}
         >
           <PackageCheck className="h-3.5 w-3.5" /> Convert to GRN
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/purchases/bills/new?fromKind=purchaseOrder&fromId=${poId}`}
         >
           <FileText className="h-3.5 w-3.5" /> Convert to bill
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setWhatsAppOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setWhatsAppOpen(true)}>
         <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/purchases/orders/${poId}?print=1`}
           target="_blank"
@@ -197,29 +197,29 @@ export function PurchaseOrderDetailActions({
         >
           <Printer className="h-3.5 w-3.5" /> Print
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/purchases/orders/new?fromKind=purchaseOrder&fromId=${poId}`}
         >
           <Copy className="h-3.5 w-3.5" /> Duplicate
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}>
+      <Button size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}>
         <Trash2 className="h-3.5 w-3.5" /> Delete
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/purchases/orders/${poId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <PurchaseOrderEmailDialog
         open={emailOpen}

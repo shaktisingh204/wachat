@@ -64,7 +64,7 @@ const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, 
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <ZoruCard>
+            <Card>
                 <div className="flex justify-between items-center">
                     <h2 className="text-[16px] font-semibold text-foreground">Summary</h2>
                     <p className="text-[12.5px] text-muted-foreground">
@@ -77,25 +77,25 @@ const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, 
                     <StatCard title="Expense" value={`₹${summary.totalExpense.toFixed(2)}`} percentage={`${summary.totalIncome > 0 ? ((summary.totalExpense / summary.totalIncome) * 100).toFixed(0) : 0}% of Income`} />
                     <StatCard title="Net Profit" value={`₹${summary.netProfit.toFixed(2)}`} percentage={`${summary.totalIncome > 0 ? ((summary.netProfit / summary.totalIncome) * 100).toFixed(0) : 0}% of Income`} isProfit={true}/>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <div className="flex justify-end mb-4">
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                         <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton variant="outline">
+                            <Button variant="outline">
                                 Download As
-                            </ZoruButton>
+                            </Button>
                         </ZoruDropdownMenuTrigger>
                         <ZoruDropdownMenuContent>
                             <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
                             <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
                             <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
                         </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Accounts</ZoruTableHead>
@@ -112,9 +112,9 @@ const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, 
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     )
 }
@@ -157,29 +157,29 @@ export default function PnlPage() {
             title="Profit & Loss"
             subtitle="An overview of your business's profitability."
             primaryAction={
-                <ZoruPopover>
+                <Popover>
                     <ZoruPopoverTrigger asChild>
-                        <ZoruButton variant="outline">
+                        <Button variant="outline">
                             Filters
-                        </ZoruButton>
+                        </Button>
                     </ZoruPopoverTrigger>
                     <ZoruPopoverContent className="w-96 space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Start Date</ZoruLabel>
-                            <ZoruDatePicker value={startDate} onChange={setStartDate} />
+                            <Label>Start Date</Label>
+                            <DatePicker value={startDate} onChange={setStartDate} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>End Date</ZoruLabel>
-                            <ZoruDatePicker value={endDate} onChange={setEndDate} />
+                            <Label>End Date</Label>
+                            <DatePicker value={endDate} onChange={setEndDate} />
                         </div>
                         <div className="flex justify-end">
-                            <ZoruButton onClick={fetchData} disabled={isLoading}>
+                            <Button onClick={fetchData} disabled={isLoading}>
                                 {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                                 Apply
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </ZoruPopoverContent>
-                </ZoruPopover>
+                </Popover>
             }
         >
             <PnlClient data={data} startDate={startDate} endDate={endDate} />

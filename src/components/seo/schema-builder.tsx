@@ -39,14 +39,14 @@ export default function SchemaBuilder() {
 
     return (
         <div className="grid gap-6 md:grid-cols-2">
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Configure Schema</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <ZoruLabel>Schema Type</ZoruLabel>
-                        <ZoruSelect value={type} onValueChange={setType}>
+                        <Label>Schema Type</Label>
+                        <Select value={type} onValueChange={setType}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -56,25 +56,25 @@ export default function SchemaBuilder() {
                                 <ZoruSelectItem value="Person">Person</ZoruSelectItem>
                                 <ZoruSelectItem value="Product">Product</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
 
                     <div className="space-y-2">
-                        <ZoruLabel>Name</ZoruLabel>
-                        <ZoruInput placeholder="Business Name" value={data.name} onChange={(e) => handleChange('name', e.target.value)} />
+                        <Label>Name</Label>
+                        <Input placeholder="Business Name" value={data.name} onChange={(e) => handleChange('name', e.target.value)} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Image URL</ZoruLabel>
-                        <ZoruInput placeholder="https://..." value={data.image} onChange={(e) => handleChange('image', e.target.value)} />
+                        <Label>Image URL</Label>
+                        <Input placeholder="https://..." value={data.image} onChange={(e) => handleChange('image', e.target.value)} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Telephone</ZoruLabel>
-                        <ZoruInput placeholder="+1..." value={data.telephone} onChange={(e) => handleChange('telephone', e.target.value)} />
+                        <Label>Telephone</Label>
+                        <Input placeholder="+1..." value={data.telephone} onChange={(e) => handleChange('telephone', e.target.value)} />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>JSON-LD Preview</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -83,16 +83,16 @@ export default function SchemaBuilder() {
                         <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg overflow-auto text-xs min-h-[300px]">
                             {jsonLd}
                         </pre>
-                        <ZoruButton
+                        <Button
                             className="absolute top-2 right-2"
                             size="sm"
                             onClick={() => navigator.clipboard.writeText(`<script type="application/ld+json">\n${jsonLd}\n</script>`)}
                         >
                             Copy Script
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

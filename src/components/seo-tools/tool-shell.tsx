@@ -17,11 +17,11 @@ export function ToolShell({ title, description, children }: ToolShellProps) {
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <ZoruButton variant="ghost" size="sm" asChild className="-ml-2 mb-2">
+          <Button variant="ghost" size="sm" asChild className="-ml-2 mb-2">
             <Link href="/dashboard/seo/tools">
               <ArrowLeft className="mr-2 h-4 w-4" /> All SEO Tools
             </Link>
-          </ZoruButton>
+          </Button>
           <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
             <Wrench className="h-7 w-7 text-primary" />
             {title}

@@ -74,10 +74,10 @@ const PAGE_SIZE = 20;
 function SubmitBtn({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
       {isEditing ? 'Save changes' : 'Create'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -102,7 +102,7 @@ function EditDialog({
   }, [state, toast, onSaved, onOpenChange]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-xl">
         <form action={formAction}>
           {isEditing && <input type="hidden" name="_id" value={initial!._id} />}
@@ -111,21 +111,21 @@ function EditDialog({
           </ZoruDialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="name">Name <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruInput id="name" name="name" required defaultValue={initial?.name ?? ''} placeholder="Cash / Cheque / UPI" />
+              <Label htmlFor="name">Name <span className="text-zoru-danger-ink">*</span></Label>
+              <Input id="name" name="name" required defaultValue={initial?.name ?? ''} placeholder="Cash / Cheque / UPI" />
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="is_active">Status</ZoruLabel>
-              <ZoruSelect name="is_active" defaultValue={initial ? (initial.is_active ? 'true' : 'false') : 'true'}>
+              <Label htmlFor="is_active">Status</Label>
+              <Select name="is_active" defaultValue={initial ? (initial.is_active ? 'true' : 'false') : 'true'}>
                 <ZoruSelectTrigger id="is_active"><ZoruSelectValue /></ZoruSelectTrigger>
                 <ZoruSelectContent>
                   <ZoruSelectItem value="true">Enabled</ZoruSelectItem>
                   <ZoruSelectItem value="false">Disabled</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <ZoruLabel htmlFor="description">Description</ZoruLabel>
+              <Label htmlFor="description">Description</Label>
               <textarea
                 id="description"
                 name="description"
@@ -136,12 +136,12 @@ function EditDialog({
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitBtn isEditing={isEditing} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -282,25 +282,25 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
         title="Offline Payment Methods"
         subtitle="Cash, cheque, UPI, bank transfer and other non-gateway methods."
         primaryAction={
-          <ZoruButton onClick={() => { setEditing(null); setDialogOpen(true); }}>
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
             <Wallet className="mr-1.5 h-3.5 w-3.5" /> New Method
-          </ZoruButton>
+          </Button>
         }
         search={{ value: search, onChange: setSearch, placeholder: 'Search by name or description…' }}
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
               <ZoruSelectTrigger className="h-9 w-[150px]"><ZoruSelectValue placeholder="Status" /></ZoruSelectTrigger>
               <ZoruSelectContent>
                 <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
                 <ZoruSelectItem value="enabled">Enabled</ZoruSelectItem>
                 <ZoruSelectItem value="disabled">Disabled</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {(search || statusFilter !== 'all') && (
-              <ZoruButton variant="ghost" size="sm" onClick={() => { setSearch(''); setStatusFilter('all'); }}>
+              <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatusFilter('all'); }}>
                 <X className="mr-1 h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             )}
           </div>
         }
@@ -308,21 +308,21 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[12.5px]">
-                <ZoruBadge variant="default">{selected.size} selected</ZoruBadge>
+                <Badge variant="default">{selected.size} selected</Badge>
                 <button type="button" onClick={() => setSelected(new Set())} className="text-zoru-ink-muted hover:text-zoru-ink">Clear</button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</ZoruButton>
-                <ZoruButton variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</ZoruButton>
-                <ZoruButton variant="outline" size="sm" disabled={bulkPending} onClick={() => setPendingBulk('enable')}>
+                <Button variant="outline" size="sm" onClick={handleExportCsv}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</Button>
+                <Button variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</Button>
+                <Button variant="outline" size="sm" disabled={bulkPending} onClick={() => setPendingBulk('enable')}>
                   <ToggleRight className="mr-1 h-3.5 w-3.5" /> Enable
-                </ZoruButton>
-                <ZoruButton variant="outline" size="sm" disabled={bulkPending} onClick={() => setPendingBulk('disable')}>
+                </Button>
+                <Button variant="outline" size="sm" disabled={bulkPending} onClick={() => setPendingBulk('disable')}>
                   <ToggleLeft className="mr-1 h-3.5 w-3.5" /> Disable
-                </ZoruButton>
-                <ZoruButton variant="destructive" size="sm" disabled={bulkPending} onClick={() => setPendingBulk('delete')}>
+                </Button>
+                <Button variant="destructive" size="sm" disabled={bulkPending} onClick={() => setPendingBulk('delete')}>
                   <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete {selected.size}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -338,26 +338,26 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
         <div className="flex flex-col gap-4">
           {/* KPI strip */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard label="Total methods" value={kpis.total.toLocaleString()} />
-            <ZoruStatCard label="Enabled" value={kpis.enabled.toLocaleString()} />
-            <ZoruStatCard label="Disabled" value={kpis.disabled.toLocaleString()} />
-            <ZoruStatCard label="First active" value={kpis.defaultName} icon={<Wallet className="h-4 w-4" />} />
+            <StatCard label="Total methods" value={kpis.total.toLocaleString()} />
+            <StatCard label="Enabled" value={kpis.enabled.toLocaleString()} />
+            <StatCard label="Disabled" value={kpis.disabled.toLocaleString()} />
+            <StatCard label="First active" value={kpis.defaultName} icon={<Wallet className="h-4 w-4" />} />
           </div>
 
           {selected.size === 0 && (
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <ZoruButton variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={filtered.length === 0}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</ZoruButton>
+              <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</Button>
+              <Button variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={filtered.length === 0}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</Button>
             </div>
           )}
 
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
-                      <ZoruCheckbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
+                      <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
                     </ZoruTableHead>
                     <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
                     <ZoruTableHead className="text-zoru-ink-muted">Description</ZoruTableHead>
@@ -368,7 +368,7 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
                 <ZoruTableBody>
                   {loading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruTableRow key={i}><ZoruTableCell colSpan={5}><ZoruSkeleton className="h-8 w-full" /></ZoruTableCell></ZoruTableRow>
+                      <ZoruTableRow key={i}><ZoruTableCell colSpan={5}><Skeleton className="h-8 w-full" /></ZoruTableCell></ZoruTableRow>
                     ))
                   ) : pageRows.length === 0 ? (
                     <ZoruTableRow>
@@ -378,36 +378,36 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
                     pageRows.map((row) => (
                       <ZoruTableRow key={row._id} className="border-zoru-line">
                         <ZoruTableCell>
-                          <ZoruCheckbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.name}`} />
+                          <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.name}`} />
                         </ZoruTableCell>
                         <ZoruTableCell className="font-medium text-foreground">
                           <RowDrawer label={row.name} title={`Payment Method · ${row.name}`} description="Method details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
                               <div><div className="text-xs text-muted-foreground">Name</div><div>{row.name}</div></div>
                               <div><div className="text-xs text-muted-foreground">Description</div><div>{row.description || '—'}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Status</div><ZoruBadge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</ZoruBadge></div>
+                              <div><div className="text-xs text-muted-foreground">Status</div><Badge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</Badge></div>
                             </div>
                           </RowDrawer>
                         </ZoruTableCell>
                         <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-zoru-ink-muted">{row.description || '—'}</ZoruTableCell>
                         <ZoruTableCell className="text-[13px]">
-                          <ZoruBadge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</ZoruBadge>
+                          <Badge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</Badge>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.name}`}>Edit</ZoruButton>
-                            <ZoruButton variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.name}`}>
+                            <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.name}`}>Edit</Button>
+                            <Button variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.name}`}>
                               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

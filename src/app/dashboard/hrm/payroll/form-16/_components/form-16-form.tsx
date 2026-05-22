@@ -73,14 +73,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create Form 16'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -137,7 +137,7 @@ export function Form16Form({ initialData }: Form16FormProps) {
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -153,8 +153,8 @@ export function Form16Form({ initialData }: Form16FormProps) {
                 {/* Row 1: Employee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name *</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             required
@@ -163,8 +163,8 @@ export function Form16Form({ initialData }: Form16FormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="Internal employee id"
@@ -176,9 +176,9 @@ export function Form16Form({ initialData }: Form16FormProps) {
                 {/* Row 2: FY + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="fy-trigger">Financial year</ZoruLabel>
+                        <Label htmlFor="fy-trigger">Financial year</Label>
                         {/* TODO 1E.sweep: dynamic list — needs <EnumFieldYearRange> variant (rolling 6-FY window) */}
-                        <ZoruSelect value={financialYear} onValueChange={setFinancialYear}>
+                        <Select value={financialYear} onValueChange={setFinancialYear}>
                             <ZoruSelectTrigger id="fy-trigger">
                                 <ZoruSelectValue placeholder="Select FY" />
                             </ZoruSelectTrigger>
@@ -189,10 +189,10 @@ export function Form16Form({ initialData }: Form16FormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="form16Status"
@@ -209,8 +209,8 @@ export function Form16Form({ initialData }: Form16FormProps) {
                 {/* Row 3: PAN + TAN */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="pan">PAN</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="pan">PAN</Label>
+                        <Input
                             id="pan"
                             name="pan"
                             placeholder="ABCDE1234F"
@@ -220,8 +220,8 @@ export function Form16Form({ initialData }: Form16FormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tanOfEmployer">TAN of employer</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tanOfEmployer">TAN of employer</Label>
+                        <Input
                             id="tanOfEmployer"
                             name="tanOfEmployer"
                             placeholder="ABCD12345E"
@@ -235,8 +235,8 @@ export function Form16Form({ initialData }: Form16FormProps) {
                 {/* Row 4: Totals */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="totalIncome">Total income (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="totalIncome">Total income (₹)</Label>
+                        <Input
                             id="totalIncome"
                             name="totalIncome"
                             type="number"
@@ -251,8 +251,8 @@ export function Form16Form({ initialData }: Form16FormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="taxDeducted">Tax deducted (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="taxDeducted">Tax deducted (₹)</Label>
+                        <Input
                             id="taxDeducted"
                             name="taxDeducted"
                             type="number"
@@ -270,7 +270,7 @@ export function Form16Form({ initialData }: Form16FormProps) {
 
                 {/* Row 5: Document (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Form 16 document</ZoruLabel>
+                    <Label>Form 16 document</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -290,14 +290,14 @@ export function Form16Form({ initialData }: Form16FormProps) {
                                 >
                                     {documentName || documentUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearDocument}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -312,15 +312,15 @@ export function Form16Form({ initialData }: Form16FormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Form 16 list
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

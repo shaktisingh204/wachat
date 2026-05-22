@@ -45,14 +45,14 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="sm" disabled={pending}>
+    <Button type="submit" size="sm" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
       ) : (
         <Save className="h-4 w-4" />
       )}
       {pending ? 'Saving…' : 'Save coupon'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -83,17 +83,17 @@ export default function NewCouponPage() {
       back={{ href: '/dashboard/crm/sales/coupons', label: 'Coupons' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Hidden type field for Select (controlled) */}
           <input type="hidden" name="type" value={couponType} />
 
           {/* Coupon Code */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="code">
+            <Label htmlFor="code">
               Coupon Code <span className="text-red-500">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="code"
               name="code"
               type="text"
@@ -108,7 +108,7 @@ export default function NewCouponPage() {
 
           {/* Type */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Type</ZoruLabel>
+            <Label>Type</Label>
             <div className="w-full max-w-xs">
               <EnumFormField
                 enumName="couponType"
@@ -123,8 +123,8 @@ export default function NewCouponPage() {
           {/* Value — only shown for percent / flat */}
           {showValueField && (
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="value">{valueLabel}</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="value">{valueLabel}</Label>
+              <Input
                 id="value"
                 name="value"
                 type="number"
@@ -138,8 +138,8 @@ export default function NewCouponPage() {
 
           {/* Min Cart Value */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="minCart">Min Cart Value (₹)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="minCart">Min Cart Value (₹)</Label>
+            <Input
               id="minCart"
               name="minCart"
               type="number"
@@ -152,8 +152,8 @@ export default function NewCouponPage() {
 
           {/* Max Total Uses */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="maxUses">Max Total Uses</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="maxUses">Max Total Uses</Label>
+            <Input
               id="maxUses"
               name="maxUses"
               type="number"
@@ -166,8 +166,8 @@ export default function NewCouponPage() {
 
           {/* Per Customer Limit */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="perCustomerLimit">Per Customer Limit</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="perCustomerLimit">Per Customer Limit</Label>
+            <Input
               id="perCustomerLimit"
               name="perCustomerLimit"
               type="number"
@@ -180,7 +180,7 @@ export default function NewCouponPage() {
 
           {/* Valid From */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="validFrom">Valid From</ZoruLabel>
+            <Label htmlFor="validFrom">Valid From</Label>
             <input
               id="validFrom"
               name="validFrom"
@@ -191,7 +191,7 @@ export default function NewCouponPage() {
 
           {/* Valid To */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="validTo">Valid To</ZoruLabel>
+            <Label htmlFor="validTo">Valid To</Label>
             <input
               id="validTo"
               name="validTo"
@@ -202,8 +202,8 @@ export default function NewCouponPage() {
 
           {/* Notes */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               rows={3}
@@ -218,12 +218,12 @@ export default function NewCouponPage() {
 
           <div className="flex items-center gap-3">
             <SubmitButton />
-            <ZoruButton variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/crm/sales/coupons">Cancel</Link>
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

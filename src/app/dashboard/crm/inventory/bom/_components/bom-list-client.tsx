@@ -315,16 +315,16 @@ export function BomListClient({ initialBoms, initialKpis }: BomListClientProps) 
                 }}
                 primaryAction={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="ghost" size="sm" asChild>
+                        <Button variant="ghost" size="sm" asChild>
                             <Link href="/dashboard/crm/inventory/production-orders">
                                 <Factory className="h-4 w-4" /> Production orders
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link href="/dashboard/crm/inventory/bom/new">
                                 <Plus className="h-4 w-4" /> New BOM
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
@@ -369,11 +369,11 @@ export function BomListClient({ initialBoms, initialKpis }: BomListClientProps) 
                                 Define a Bill of Materials to start manufacturing planned outputs from
                                 raw components.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/inventory/bom/new">
                                     <Plus className="h-4 w-4" /> Create your first BOM
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

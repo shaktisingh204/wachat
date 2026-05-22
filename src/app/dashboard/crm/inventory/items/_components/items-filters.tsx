@@ -95,9 +95,9 @@ export function ItemsFilters({
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant (sentinel 'all' + clearable) */}
-          <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
+          <Select value={statusFilter} onValueChange={onStatusFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -108,12 +108,12 @@ export function ItemsFilters({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Type</ZoruLabel>
+          <Label>Type</Label>
           {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant */}
-          <ZoruSelect value={typeFilter} onValueChange={onTypeFilter}>
+          <Select value={typeFilter} onValueChange={onTypeFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -124,10 +124,10 @@ export function ItemsFilters({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Category</ZoruLabel>
+          <Label>Category</Label>
           <EntityFormField
             entity="category"
             name="_filter_category"
@@ -136,7 +136,7 @@ export function ItemsFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Brand</ZoruLabel>
+          <Label>Brand</Label>
           <EntityFormField
             entity="brand"
             name="_filter_brand"
@@ -145,7 +145,7 @@ export function ItemsFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Vendor</ZoruLabel>
+          <Label>Vendor</Label>
           <EntityFormField
             entity="vendor"
             name="_filter_vendor"
@@ -154,7 +154,7 @@ export function ItemsFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Tax rate</ZoruLabel>
+          <Label>Tax rate</Label>
           <EntityFormField
             entity="taxRate"
             name="_filter_taxRate"
@@ -163,7 +163,7 @@ export function ItemsFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Unit</ZoruLabel>
+          <Label>Unit</Label>
           <EntityFormField
             entity="unit"
             name="_filter_unit"
@@ -172,9 +172,9 @@ export function ItemsFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Inventory tracking</ZoruLabel>
+          <Label>Inventory tracking</Label>
           {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant */}
-          <ZoruSelect value={trackFilter} onValueChange={onTrackFilter}>
+          <Select value={trackFilter} onValueChange={onTrackFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -185,7 +185,7 @@ export function ItemsFilters({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       </div>
     </details>

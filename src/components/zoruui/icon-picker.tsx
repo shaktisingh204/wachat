@@ -84,7 +84,7 @@ export function ZoruIconPicker({
   const swatchColor = color || "currentColor";
 
   return (
-    <ZoruPopover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <ZoruPopoverTrigger asChild>
         <button
           type="button"
@@ -111,7 +111,7 @@ export function ZoruIconPicker({
       <ZoruPopoverContent align={align} className="w-72 space-y-2 p-2">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search icons…"
@@ -162,6 +162,6 @@ export function ZoruIconPicker({
           <span className="text-[11px] text-zoru-ink-muted">{entries.length} icons</span>
         </div>
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

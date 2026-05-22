@@ -81,17 +81,17 @@ type SubscriberRow = WithId<FacebookSubscriber>;
 function PageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-center justify-between">
-        <ZoruSkeleton className="h-9 w-72" />
-        <ZoruSkeleton className="h-9 w-36" />
+        <Skeleton className="h-9 w-72" />
+        <Skeleton className="h-9 w-36" />
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <ZoruSkeleton className="h-28" />
-        <ZoruSkeleton className="h-28" />
-        <ZoruSkeleton className="h-28" />
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
       </div>
-      <ZoruSkeleton className="mt-6 h-72" />
+      <Skeleton className="mt-6 h-72" />
     </div>
   );
 }
@@ -132,7 +132,7 @@ export default function SubscribersPage() {
       {
         id: 'select',
         header: ({ table }) => (
-          <ZoruCheckbox
+          <Checkbox
             checked={
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && 'indeterminate')
@@ -142,7 +142,7 @@ export default function SubscribersPage() {
           />
         ),
         cell: ({ row }) => (
-          <ZoruCheckbox
+          <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(v) => row.toggleSelected(!!v)}
             aria-label="Select row"
@@ -158,7 +158,7 @@ export default function SubscribersPage() {
           const sub = row.original;
           return (
             <div className="flex items-center gap-3">
-              <ZoruAvatar className="h-8 w-8">
+              <Avatar className="h-8 w-8">
                 <ZoruAvatarImage
                   src={`https://graph.facebook.com/${sub.psid}/picture`}
                   alt={sub.name}
@@ -166,7 +166,7 @@ export default function SubscribersPage() {
                 <ZoruAvatarFallback>
                   {sub.name?.charAt(0)?.toUpperCase() || '?'}
                 </ZoruAvatarFallback>
-              </ZoruAvatar>
+              </Avatar>
               <span className="text-[13px] text-zoru-ink">{sub.name}</span>
             </div>
           );
@@ -186,7 +186,7 @@ export default function SubscribersPage() {
         header: 'Status',
         cell: ({ row }) =>
           row.original.status ? (
-            <ZoruBadge variant="outline">{row.original.status}</ZoruBadge>
+            <Badge variant="outline">{row.original.status}</Badge>
           ) : (
             <span className="text-[11.5px] text-zoru-ink-subtle">—</span>
           ),
@@ -209,11 +209,11 @@ export default function SubscribersPage() {
         cell: ({ row }) => {
           const sub = row.original;
           return (
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="ghost" size="icon-sm" aria-label="Row actions">
+                <Button variant="ghost" size="icon-sm" aria-label="Row actions">
                   <MoreHorizontal />
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end" className="w-40">
                 <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
@@ -236,7 +236,7 @@ export default function SubscribersPage() {
                   <MessageSquare /> Open thread
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           );
         },
         enableSorting: false,
@@ -284,7 +284,7 @@ export default function SubscribersPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -300,9 +300,9 @@ export default function SubscribersPage() {
             <ZoruBreadcrumbPage>Subscribers</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Audience</ZoruPageEyebrow>
           <ZoruPageTitle>Messenger subscribers</ZoruPageTitle>
@@ -312,45 +312,45 @@ export default function SubscribersPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" size="sm" onClick={fetchData}>
+          <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh
-          </ZoruButton>
-          <ZoruButton size="sm" onClick={() => setAddOpen(true)}>
+          </Button>
+          <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus /> Add subscriber
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!projectId ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>No project selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Select a project from the dashboard to view its subscribers.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : error ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Could not load subscribers</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : (
         <>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
-            <ZoruStatCard
+            <StatCard
               label="Total subscribers"
               value={subscribers.length.toLocaleString()}
               period="All Messenger threads"
               icon={<Users />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Selected"
               value={selectedRows.length.toLocaleString()}
               period="Ready for bulk action"
               icon={<Users />}
             />
-            <ZoruStatCard
+            <StatCard
               label="With status"
               value={subscribers
                 .filter((s) => !!s.status)
@@ -361,14 +361,14 @@ export default function SubscribersPage() {
           </div>
 
           <div className="mt-6">
-            <ZoruDataTable
+            <DataTable
               columns={columns}
               data={subscribers}
               filterColumn="name"
               filterPlaceholder="Search by name…"
               onRowSelectionChange={setSelectedRows}
               empty={
-                <ZoruEmptyState
+                <EmptyState
                   compact
                   icon={<Users />}
                   title="No subscribers yet"
@@ -376,11 +376,11 @@ export default function SubscribersPage() {
                 />
               }
               toolbar={
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                   <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton variant="outline" size="sm">
+                    <Button variant="outline" size="sm">
                       <MoreHorizontal /> Bulk actions
-                    </ZoruButton>
+                    </Button>
                   </ZoruDropdownMenuTrigger>
                   <ZoruDropdownMenuContent align="end" className="w-52">
                     <ZoruDropdownMenuLabel>
@@ -415,7 +415,7 @@ export default function SubscribersPage() {
                       <Trash2 /> Remove
                     </ZoruDropdownMenuItem>
                   </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
               }
             />
           </div>
@@ -423,7 +423,7 @@ export default function SubscribersPage() {
       )}
 
       {/* ── Add subscriber dialog (manual PSID, informational) ── */}
-      <ZoruDialog open={addOpen} onOpenChange={setAddOpen}>
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Add subscriber</ZoruDialogTitle>
@@ -435,19 +435,19 @@ export default function SubscribersPage() {
           </ZoruDialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="manual-name">Display name</ZoruLabel>
-              <ZoruInput id="manual-name" placeholder="Jane Doe" />
+              <Label htmlFor="manual-name">Display name</Label>
+              <Input id="manual-name" placeholder="Jane Doe" />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="manual-psid">Page-Scoped ID</ZoruLabel>
-              <ZoruInput id="manual-psid" placeholder="123456789" />
+              <Label htmlFor="manual-psid">Page-Scoped ID</Label>
+              <Input id="manual-psid" placeholder="123456789" />
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setAddOpen(false)}>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Saved locally',
@@ -458,10 +458,10 @@ export default function SubscribersPage() {
               }}
             >
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

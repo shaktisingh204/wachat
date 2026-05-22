@@ -86,11 +86,11 @@ export default function CustomerListsPage() {
     if (!activeAccount) {
         return (
             <div>
-                <ZoruAlert>
+                <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to upload customer lists.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -101,7 +101,7 @@ export default function CustomerListsPage() {
             <div>
                 <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                     <UserPlus className="h-6 w-6" /> Customer list uploader
-                    <ZoruBadge variant="success">Privacy-safe</ZoruBadge>
+                    <Badge variant="success">Privacy-safe</Badge>
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                     Upload emails to create a Custom Audience. Everything is SHA-256 hashed in your browser before
@@ -109,27 +109,27 @@ export default function CustomerListsPage() {
                 </p>
             </div>
 
-            <ZoruAlert>
+            <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Hashing happens on your device</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Raw emails never leave your browser. Only hashed values are sent to Meta — Meta rehashes on their
                     end to match against their user graph without ever seeing the plaintext.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-base">Upload</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-3">
                     <div className="space-y-2">
-                        <ZoruLabel>Audience name</ZoruLabel>
-                        <ZoruInput value={name} onChange={(e) => setName(e.target.value)} />
+                        <Label>Audience name</Label>
+                        <Input value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Emails (one per line)</ZoruLabel>
-                        <ZoruTextarea
+                        <Label>Emails (one per line)</Label>
+                        <Textarea
                             value={csv}
                             onChange={(e) => setCsv(e.target.value)}
                             placeholder={'jane@example.com\njohn@example.com\n…'}
@@ -139,22 +139,22 @@ export default function CustomerListsPage() {
                     {/* Valid email count display */}
                     {allLines.length > 0 && (
                         <div className="flex items-center gap-3 text-sm">
-                            <ZoruBadge variant="success">{validEmails.length} valid email{validEmails.length !== 1 ? 's' : ''} ready to upload</ZoruBadge>
+                            <Badge variant="success">{validEmails.length} valid email{validEmails.length !== 1 ? 's' : ''} ready to upload</Badge>
                             {invalidCount > 0 && (
-                                <ZoruBadge variant="danger">{invalidCount} invalid</ZoruBadge>
+                                <Badge variant="danger">{invalidCount} invalid</Badge>
                             )}
                         </div>
                     )}
-                    <ZoruButton
+                    <Button
                         className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                         onClick={upload}
                         disabled={uploading || validEmails.length === 0}
                     >
                         <Upload className="h-4 w-4 mr-1" />
                         {uploading ? 'Hashing & uploading…' : `Hash & upload${validEmails.length > 0 ? ` (${validEmails.length})` : ''}`}
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

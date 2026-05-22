@@ -33,14 +33,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             Save changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -74,14 +74,14 @@ export function EditContractForm({
     }, [state, toast, router, contractId]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 <input type="hidden" name="contractId" value={contractId} />
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="title">Contract Title</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Contract Title</Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -89,7 +89,7 @@ export function EditContractForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="type">Contract Type</ZoruLabel>
+                        <Label htmlFor="type">Contract Type</Label>
                         <EnumFormField
                             enumName="contractTypeExtended"
                             name="type"
@@ -101,7 +101,7 @@ export function EditContractForm({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Counter-party</ZoruLabel>
+                        <Label>Counter-party</Label>
                         <EntityFormField
                             entity="client"
                             name="clientId"
@@ -112,8 +112,8 @@ export function EditContractForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="partyEmail">Counter-party Email</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="partyEmail">Counter-party Email</Label>
+                        <Input
                             id="partyEmail"
                             name="partyEmail"
                             type="email"
@@ -124,8 +124,8 @@ export function EditContractForm({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="effectiveDate">Effective Date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="effectiveDate">Effective Date</Label>
+                        <Input
                             id="effectiveDate"
                             name="effectiveDate"
                             type="date"
@@ -133,8 +133,8 @@ export function EditContractForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiryDate">Expiry Date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiryDate">Expiry Date</Label>
+                        <Input
                             id="expiryDate"
                             name="expiryDate"
                             type="date"
@@ -145,8 +145,8 @@ export function EditContractForm({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="value">Contract Value (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="value">Contract Value (₹)</Label>
+                        <Input
                             id="value"
                             name="value"
                             type="number"
@@ -156,7 +156,7 @@ export function EditContractForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="esignProvider">E-Signature Provider</ZoruLabel>
+                        <Label htmlFor="esignProvider">E-Signature Provider</Label>
                         <EnumFormField
                             enumName="esignProviderExtended"
                             name="esignProvider"
@@ -176,16 +176,16 @@ export function EditContractForm({
                             checked={autoRenew}
                             onChange={(e) => setAutoRenew(e.target.checked)}
                         />
-                        <ZoruLabel htmlFor="autoRenew" className="cursor-pointer">
+                        <Label htmlFor="autoRenew" className="cursor-pointer">
                             Auto-renew
-                        </ZoruLabel>
+                        </Label>
                     </div>
                     {autoRenew ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="renewalNoticeDays">
+                            <Label htmlFor="renewalNoticeDays">
                                 Renewal Notice (days before expiry)
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="renewalNoticeDays"
                                 name="renewalNoticeDays"
                                 type="number"
@@ -199,7 +199,7 @@ export function EditContractForm({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="contractStatus"
                             name="status"
@@ -209,8 +209,8 @@ export function EditContractForm({
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -219,15 +219,15 @@ export function EditContractForm({
                 </div>
 
                 <div className="flex justify-end gap-3">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={`/dashboard/crm/sales/contracts/${contractId}`}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SaveButton />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

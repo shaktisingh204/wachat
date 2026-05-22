@@ -43,12 +43,12 @@ export function KanbanCard({ contact, index }: KanbanCardProps) {
 
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-            <ZoruCard className="cursor-grab active:cursor-grabbing bg-card">
+            <Card className="cursor-grab active:cursor-grabbing bg-card">
                 <ZoruCardHeader>
                     <div className="flex justify-between items-start">
                         <ZoruCardTitle className="text-sm font-semibold">{contact.name}</ZoruCardTitle>
                         {contact.unreadCount && contact.unreadCount > 0 && (
-                            <ZoruBadge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</ZoruBadge>
+                            <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
                         )}
                     </div>
                     <ZoruCardDescription className="text-xs">{contact.waId}</ZoruCardDescription>
@@ -59,12 +59,12 @@ export function KanbanCard({ contact, index }: KanbanCardProps) {
                     </p>
                 </ZoruCardContent>
                 <ZoruCardFooter>
-                    <ZoruButton variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
+                    <Button variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
                         <MessageSquare className="mr-2 h-4 w-4" />
                         Open Chat
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

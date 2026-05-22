@@ -105,7 +105,7 @@ function NoAccountState() {
         Pick an ad account to view and manage your audiences.
       </p>
       <Link href="/dashboard/ad-manager/ad-accounts">
-        <ZoruButton variant="default">Go to Ad Accounts</ZoruButton>
+        <Button variant="default">Go to Ad Accounts</Button>
       </Link>
     </div>
   );
@@ -160,7 +160,7 @@ function AudienceRow({
         </div>
 
         {/* badge */}
-        <ZoruBadge variant={badgeVariant}>{subtype}</ZoruBadge>
+        <Badge variant={badgeVariant}>{subtype}</Badge>
 
         {/* approximate count */}
         <span className="text-[13px] text-foreground tabular-nums min-w-[72px] text-right">
@@ -170,18 +170,18 @@ function AudienceRow({
         </span>
 
         {/* delete */}
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon"
           className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
           onClick={() => setConfirmOpen(true)}
         >
           <Trash2 className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* delete confirmation dialog */}
-      <ZoruDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <ZoruDialogContent className="max-w-sm">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-[15px]">Delete audience</ZoruDialogTitle>
@@ -190,10 +190,10 @@ function AudienceRow({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter className="gap-2 sm:gap-0">
-            <ZoruButton variant="outline" size="sm" onClick={() => setConfirmOpen(false)}>
+            <Button variant="outline" size="sm" onClick={() => setConfirmOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="destructive"
               size="sm"
               onClick={() => {
@@ -202,10 +202,10 @@ function AudienceRow({
               }}
             >
               Delete
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }
@@ -316,7 +316,7 @@ function CreateAudienceSheet({
       : lookOrigin.length > 0;
 
   return (
-    <ZoruSheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <ZoruSheetContent side="right" className="w-full sm:max-w-md bg-background overflow-y-auto">
         <ZoruSheetHeader className="mb-6">
           <ZoruSheetTitle className="text-[18px] font-semibold text-foreground">Create audience</ZoruSheetTitle>
@@ -338,10 +338,10 @@ function CreateAudienceSheet({
         {type === 'custom' ? (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Name
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 placeholder="e.g. Website visitors — last 30 days"
@@ -349,10 +349,10 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Description
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 value={customDesc}
                 onChange={(e) => setCustomDesc(e.target.value)}
                 placeholder="Optional description"
@@ -360,10 +360,10 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Source type
-              </ZoruLabel>
-              <ZoruSelect value={customSubtype} onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}>
+              </Label>
+              <Select value={customSubtype} onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}>
                 <ZoruSelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px] text-foreground">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -372,16 +372,16 @@ function CreateAudienceSheet({
                   <ZoruSelectItem value="ENGAGEMENT">Engagement</ZoruSelectItem>
                   <ZoruSelectItem value="CUSTOM">Customer list</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Source audience
-              </ZoruLabel>
-              <ZoruSelect value={lookOrigin} onValueChange={setLookOrigin}>
+              </Label>
+              <Select value={lookOrigin} onValueChange={setLookOrigin}>
                 <ZoruSelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px] text-foreground">
                   <ZoruSelectValue placeholder="Select a source audience" />
                 </ZoruSelectTrigger>
@@ -392,14 +392,14 @@ function CreateAudienceSheet({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Country
-              </ZoruLabel>
-              <ZoruSelect value={lookCountry} onValueChange={setLookCountry}>
+              </Label>
+              <Select value={lookCountry} onValueChange={setLookCountry}>
                 <ZoruSelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px] text-foreground">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -410,14 +410,14 @@ function CreateAudienceSheet({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <ZoruLabel className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                   Similarity ratio
-                </ZoruLabel>
+                </Label>
                 <span className="text-[13px] font-semibold text-foreground tabular-nums">{lookRatio}%</span>
               </div>
               <input
@@ -439,24 +439,24 @@ function CreateAudienceSheet({
 
         {/* actions */}
         <div className="flex gap-3 mt-8 pt-5 border-t border-border">
-          <ZoruButton
+          <Button
             variant="outline"
             className="flex-1"
             onClick={() => onOpenChange(false)}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="default"
             className="flex-1"
             onClick={submit}
             disabled={submitting || !canSubmit}
           >
             {submitting ? 'Creating...' : 'Create audience'}
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }
 
@@ -527,17 +527,17 @@ export default function AudiencesPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-[26px] font-semibold tracking-tight text-foreground">Audiences</h1>
-          <ZoruBadge variant="secondary">
+          <Badge variant="secondary">
             <span className="tabular-nums">{audiences.length}</span>
-          </ZoruBadge>
+          </Badge>
         </div>
-        <ZoruButton
+        <Button
           variant="default"
           onClick={() => setSheetOpen(true)}
         >
           <Plus className="h-4 w-4" />
           Create audience
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* tab pills + search */}
@@ -553,7 +553,7 @@ export default function AudiencesPage() {
           </TabPill>
         </div>
 
-        <ZoruInput
+        <Input
           leadingSlot={<Search className="h-3.5 w-3.5" />}
           placeholder="Search audiences..."
           value={search}
@@ -563,7 +563,7 @@ export default function AudiencesPage() {
       </div>
 
       {/* audience list */}
-      <ZoruCard className="p-0 overflow-hidden">
+      <Card className="p-0 overflow-hidden">
         {/* column header */}
         <div className="flex items-center gap-4 px-5 py-2.5 border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
           <div className="w-9 shrink-0" />
@@ -587,7 +587,7 @@ export default function AudiencesPage() {
             <AudienceRow key={a.id} audience={a} onDelete={handleDelete} />
           ))
         )}
-      </ZoruCard>
+      </Card>
 
       {/* create sheet */}
       <CreateAudienceSheet

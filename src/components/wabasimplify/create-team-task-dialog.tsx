@@ -36,10 +36,10 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Create Task
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -69,12 +69,12 @@ export function CreateTeamTaskDialog({ onTaskCreated, teamMembers }: CreateTeamT
     }, [state, toast, onTaskCreated]);
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton>
+                <Button>
                     <Plus className="mr-2 h-4 w-4" />
                     Create Task
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
@@ -87,16 +87,16 @@ export function CreateTeamTaskDialog({ onTaskCreated, teamMembers }: CreateTeamT
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="grid gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="title">Title</ZoruLabel>
-                                <ZoruInput id="title" name="title" required placeholder="e.g., Prepare Monthly Report" />
+                                <Label htmlFor="title">Title</Label>
+                                <Input id="title" name="title" required placeholder="e.g., Prepare Monthly Report" />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="description">Description (Optional)</ZoruLabel>
-                                <ZoruTextarea id="description" name="description" placeholder="Add more details..." />
+                                <Label htmlFor="description">Description (Optional)</Label>
+                                <Textarea id="description" name="description" placeholder="Add more details..." />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="assignedTo">Assign To</ZoruLabel>
-                                <ZoruSelect name="assignedTo">
+                                <Label htmlFor="assignedTo">Assign To</Label>
+                                <Select name="assignedTo">
                                     <ZoruSelectTrigger id="assignedTo"><ZoruSelectValue placeholder="Select team member" /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {teamMembers.map(member => (
@@ -105,33 +105,33 @@ export function CreateTeamTaskDialog({ onTaskCreated, teamMembers }: CreateTeamT
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <ZoruLabel>Due Date</ZoruLabel>
+                                    <Label>Due Date</Label>
                                     <DatePicker date={dueDate} setDate={setDueDate} />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="priority">Priority</ZoruLabel>
-                                    <ZoruSelect name="priority" defaultValue="Medium">
+                                    <Label htmlFor="priority">Priority</Label>
+                                    <Select name="priority" defaultValue="Medium">
                                         <ZoruSelectTrigger id="priority"><ZoruSelectValue /></ZoruSelectTrigger>
                                         <ZoruSelectContent>
                                             <ZoruSelectItem value="High">High</ZoruSelectItem>
                                             <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
                                             <ZoruSelectItem value="Low">Low</ZoruSelectItem>
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <ZoruDialogFooter className="px-6 pb-6 pt-2">
-                        <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                         <SubmitButton />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

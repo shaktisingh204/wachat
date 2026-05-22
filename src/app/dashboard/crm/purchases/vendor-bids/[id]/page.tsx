@@ -123,11 +123,11 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this vendor bid — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/purchases/vendor-bids">
               <ArrowLeft className="h-4 w-4" /> Back to Vendor Bids
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -161,7 +161,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
       rightRail={
         <>
           {/* Status flow visualizer */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Status flow</ZoruCardTitle>
             </ZoruCardHeader>
@@ -175,10 +175,10 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                 ) : null}
               </ol>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* At-a-glance */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>At a glance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -204,7 +204,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           <LineageRail
             current={{
@@ -216,14 +216,14 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             lineage={bid.rfqId ? [{ kind: 'rfq', id: bid.rfqId }] : []}
           />
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link
               href={`/dashboard/crm/purchases/vendor-bids/${bidId}/activity`}
             >
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={<EntityAuditTimeline entityKind="vendorBid" entityId={bidId} />}
@@ -233,7 +233,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
       </p>
 
       {/* Overview */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -241,7 +241,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <DetailField label="Bid label">{bidLabel}</DetailField>
             <DetailField label="Status">
-              <ZoruBadge variant="secondary">{status}</ZoruBadge>
+              <Badge variant="secondary">{status}</Badge>
             </DetailField>
             <DetailField label="Vendor">
               {bid.vendorId ? (
@@ -268,10 +268,10 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             <DetailField label="Currency">{currency}</DetailField>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Line items</ZoruCardTitle>
         </ZoruCardHeader>
@@ -331,10 +331,10 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Pricing summary */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Pricing summary</ZoruCardTitle>
         </ZoruCardHeader>
@@ -354,11 +354,11 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             </div>
           </dl>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Terms */}
       {bid.terms ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Terms</ZoruCardTitle>
           </ZoruCardHeader>
@@ -367,12 +367,12 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
               {bid.terms}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Attachments */}
       {attachments.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Attachments</ZoruCardTitle>
           </ZoruCardHeader>
@@ -400,7 +400,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
               ))}
             </ul>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

@@ -91,7 +91,7 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {tiles.map((t) => (
-        <ZoruCard key={t.label} className={t.wide ? 'col-span-2 sm:col-span-1' : ''}>
+        <Card key={t.label} className={t.wide ? 'col-span-2 sm:col-span-1' : ''}>
           <ZoruCardHeader className="pb-1 pt-4">
             <ZoruCardTitle className="text-[12px] font-medium text-zoru-ink-muted">
               {t.label}
@@ -106,7 +106,7 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
               </p>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );
@@ -129,7 +129,7 @@ function BulkBar({ selectedIds, onActivate, onDeactivate, onDelete, busy }: Bulk
       <span className="text-sm font-medium text-zoru-ink">
         {n} selected
       </span>
-      <ZoruButton
+      <Button
         variant="outline"
         size="sm"
         onClick={onActivate}
@@ -137,8 +137,8 @@ function BulkBar({ selectedIds, onActivate, onDeactivate, onDelete, busy }: Bulk
       >
         <ToggleRight className="mr-1.5 h-3.5 w-3.5" />
         Activate
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="outline"
         size="sm"
         onClick={onDeactivate}
@@ -146,8 +146,8 @@ function BulkBar({ selectedIds, onActivate, onDeactivate, onDelete, busy }: Bulk
       >
         <ToggleLeft className="mr-1.5 h-3.5 w-3.5" />
         Deactivate
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="destructive"
         size="sm"
         onClick={onDelete}
@@ -155,7 +155,7 @@ function BulkBar({ selectedIds, onActivate, onDeactivate, onDelete, busy }: Bulk
       >
         <Trash2 className="mr-1.5 h-3.5 w-3.5" />
         Delete
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -338,28 +338,28 @@ export default function TicketReplyTemplatesPage() {
       subtitle="Canned responses agents can paste into ticket replies."
       primaryAction={
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="mr-1.5 h-3.5 w-3.5" />
             Export CSV
-          </ZoruButton>
-          <ZoruButton asChild>
+          </Button>
+          <Button asChild>
             <Link href={`${BASE}/new`}>
               <Plus className="mr-1.5 h-4 w-4" strokeWidth={1.75} />
               New template
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       }
       filters={
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruInput
+          <Input
             type="search"
             placeholder="Search by name or content…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-56"
           />
-          <ZoruSelect value={categoryFilter} onValueChange={setCategoryFilter}>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <ZoruSelectTrigger className="w-44">
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -370,8 +370,8 @@ export default function TicketReplyTemplatesPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <ZoruSelectTrigger className="w-36">
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -382,7 +382,7 @@ export default function TicketReplyTemplatesPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       }
       bulkBar={
@@ -419,13 +419,13 @@ export default function TicketReplyTemplatesPage() {
       ) : null}
 
       {/* Table */}
-      <ZoruCard>
+      <Card>
         <div className="overflow-x-auto">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allChecked || (someChecked ? 'indeterminate' : false)}
                     onCheckedChange={toggleAll}
                     aria-label="Select all visible"
@@ -472,7 +472,7 @@ export default function TicketReplyTemplatesPage() {
                 filtered.map((t) => (
                   <ZoruTableRow key={t._id} className="border-zoru-line">
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(t._id)}
                         onCheckedChange={() => toggleOne(t._id)}
                         aria-label={`Select ${t.name}`}
@@ -487,7 +487,7 @@ export default function TicketReplyTemplatesPage() {
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {t.category ? (
-                        <ZoruBadge variant="secondary">{t.category}</ZoruBadge>
+                        <Badge variant="secondary">{t.category}</Badge>
                       ) : (
                         <span className="text-zoru-ink-muted">—</span>
                       )}
@@ -506,17 +506,17 @@ export default function TicketReplyTemplatesPage() {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruButton variant="ghost" size="sm" asChild>
+                      <Button variant="ghost" size="sm" asChild>
                         <Link href={`${BASE}/${t._id}/edit`}>Edit</Link>
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

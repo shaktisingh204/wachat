@@ -172,12 +172,12 @@ function LevelTabs({
                         <Icon className="h-4 w-4" />
                         {meta.label}
                         {counts[l] != null && (
-                            <ZoruBadge
+                            <Badge
                                 variant={active ? 'secondary' : 'outline'}
                                 className={active ? 'bg-white/20 text-white border-0' : ''}
                             >
                                 {counts[l]}
-                            </ZoruBadge>
+                            </Badge>
                         )}
                     </button>
                 );
@@ -363,14 +363,14 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
         return (
             <div className="py-12 flex flex-col items-center justify-center gap-4 text-center">
                 <Megaphone className="h-16 w-16 text-muted-foreground" />
-                <ZoruAlert className="max-w-md">
+                <Alert className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to start managing campaigns.</ZoruAlertDescription>
-                </ZoruAlert>
-                <ZoruButton asChild>
+                </Alert>
+                <Button asChild>
                     <Link href="/dashboard/ad-manager/ad-accounts">Go to Ad accounts</Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -381,28 +381,28 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
             <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-background px-3 py-2 shadow-sm">
                 <LevelTabs level={level} setLevel={setLevel} counts={counts} />
                 <div className="flex-1" />
-                <ZoruButton
+                <Button
                     size="sm"
                     className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                     onClick={() => router.push('/dashboard/ad-manager/create')}
                 >
                     <Plus className="h-4 w-4 mr-1" /> Create
-                </ZoruButton>
+                </Button>
                 {selectedIds.size > 0 && (
                     <>
                         <div className="h-6 w-px bg-border mx-1" />
                         <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
-                        <ZoruButton variant="outline" size="sm" onClick={() => handleBulk('ACTIVE')}>Activate</ZoruButton>
-                        <ZoruButton variant="outline" size="sm" onClick={() => handleBulk('PAUSED')}>Pause</ZoruButton>
-                        <ZoruButton variant="outline" size="sm" onClick={() => handleBulk('DELETED')}>Delete</ZoruButton>
+                        <Button variant="outline" size="sm" onClick={() => handleBulk('ACTIVE')}>Activate</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleBulk('PAUSED')}>Pause</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleBulk('DELETED')}>Delete</Button>
                     </>
                 )}
                 <div className="h-6 w-px bg-border mx-1" />
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <Filter className="h-4 w-4 mr-1" /> Filters
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent>
                         <ZoruDropdownMenuLabel>Effective status</ZoruDropdownMenuLabel>
@@ -421,12 +421,12 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                             </ZoruDropdownMenuCheckboxItem>
                         ))}
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
-                <ZoruDropdownMenu>
+                </DropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <Columns3 className="h-4 w-4 mr-1" /> Columns: {columnPreset}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent>
                         <ZoruDropdownMenuLabel>Column presets</ZoruDropdownMenuLabel>
@@ -437,13 +437,13 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                             ))}
                         </ZoruDropdownMenuRadioGroup>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
-                <ZoruDropdownMenu>
+                </DropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <SlidersHorizontal className="h-4 w-4 mr-1" />
                             Breakdown{breakdown !== 'none' && `: ${BREAKDOWNS.find((b) => b.id === breakdown)?.label}`}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent>
                         <ZoruDropdownMenuLabel>Breakdown</ZoruDropdownMenuLabel>
@@ -454,29 +454,29 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                             ))}
                         </ZoruDropdownMenuRadioGroup>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
-                <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+                </DropdownMenu>
+                <Button variant="outline" size="sm" onClick={handleExport}>
                     <Download className="h-4 w-4 mr-1" /> Export
-                </ZoruButton>
-                <ZoruButton variant="ghost" size="icon" className="h-8 w-8" onClick={refresh} disabled={refreshing}>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={refresh} disabled={refreshing}>
                     <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                </ZoruButton>
+                </Button>
             </div>
 
             {/* Content */}
             <div>
                 {error && (
-                    <ZoruAlert variant="destructive" className="mb-4">
+                    <Alert variant="destructive" className="mb-4">
                         <AlertCircle className="h-4 w-4" />
                         <ZoruAlertTitle>Error</ZoruAlertTitle>
                         <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                    </ZoruAlert>
+                    </Alert>
                 )}
                 {loading ? (
                     <div className="space-y-2">
-                        <ZoruSkeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-14 w-full" />
+                            <Skeleton key={i} className="h-14 w-full" />
                         ))}
                     </div>
                 ) : (
@@ -495,7 +495,7 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
             </div>
 
             {/* Edit drawer */}
-            <ZoruSheet open={!!editingId} onOpenChange={(open) => !open && setEditingId(null)}>
+            <Sheet open={!!editingId} onOpenChange={(open) => !open && setEditingId(null)}>
                 <ZoruSheetContent side="right" className="w-full sm:max-w-md">
                     <ZoruSheetHeader>
                         <ZoruSheetTitle>Edit {LEVEL_META[level].label.slice(0, -1)}</ZoruSheetTitle>
@@ -505,13 +505,13 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                     </ZoruSheetHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Name</ZoruLabel>
-                            <ZoruInput value={editingName} onChange={(e) => setEditingName(e.target.value)} />
+                            <Label>Name</Label>
+                            <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} />
                         </div>
                         {level !== 'ad' && (
                             <div className="space-y-2">
-                                <ZoruLabel>Daily budget</ZoruLabel>
-                                <ZoruInput
+                                <Label>Daily budget</Label>
+                                <Input
                                     type="number"
                                     value={editingBudget}
                                     onChange={(e) => setEditingBudget(e.target.value)}
@@ -524,17 +524,17 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                         )}
                     </div>
                     <ZoruSheetFooter>
-                        <ZoruButton variant="outline" onClick={() => setEditingId(null)}>Cancel</ZoruButton>
-                        <ZoruButton
+                        <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
+                        <Button
                             className="bg-[#1877F2] hover:bg-[#1877F2]/90"
                             onClick={saveEdit}
                             disabled={savingEdit}
                         >
                             {savingEdit ? 'Saving…' : 'Save changes'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruSheetFooter>
                 </ZoruSheetContent>
-            </ZoruSheet>
+            </Sheet>
         </div>
     );
 }

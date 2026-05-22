@@ -109,58 +109,58 @@ export default async function DisciplinaryPage() {
       title="Disciplinary Cases"
       subtitle="Record warnings, investigations and outcomes of disciplinary action."
       primaryAction={
-        <ZoruButton variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/hrm/hr/disciplinary/new">
             <Plus className="h-4 w-4" /> New case
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <ZoruCard className="p-3">
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Open
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-warning-ink">
             {open}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Under review
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
             {underReview}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Closed
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-success-ink">
             {closed}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Critical / high
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-danger-ink">
             {critical}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-3">
+        </Card>
+        <Card className="p-3">
           <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Avg resolution
           </div>
           <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
             {avgResolutionDays === '—' ? '—' : `${avgResolutionDays}d`}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4">
           <h2 className="text-[16px] text-zoru-ink">All cases</h2>
           <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -168,7 +168,7 @@ export default async function DisciplinaryPage() {
           </p>
         </div>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Case no.</ZoruTableHead>
@@ -221,9 +221,9 @@ export default async function DisciplinaryPage() {
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">{employee}</ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={getStatusVariant(c.severity)}>
+                        <Badge variant={getStatusVariant(c.severity)}>
                           {c.severity || 'minor'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">{c.type || '—'}</ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">{raisedBy}</ZoruTableCell>
@@ -231,9 +231,9 @@ export default async function DisciplinaryPage() {
                         {c.decision || '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={getStatusVariant(c.status)}>
+                        <Badge variant={getStatusVariant(c.status)}>
                           {c.status || 'open'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
@@ -249,9 +249,9 @@ export default async function DisciplinaryPage() {
                 </ZoruTableRow>
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

@@ -30,14 +30,14 @@ const initialState: { message?: string; error?: string } = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Update yield
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -63,14 +63,14 @@ export default function UpdateYieldPage() {
       title="Update yield"
       back={{ href: `/dashboard/crm/inventory/production-orders/${orderId}`, label: 'Back to order' }}
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           <input type="hidden" name="orderId" value={orderId} />
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="actualYield">Actual yield *</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="actualYield">Actual yield *</Label>
+              <Input
                 id="actualYield"
                 name="actualYield"
                 type="number"
@@ -81,8 +81,8 @@ export default function UpdateYieldPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="scrap">Scrap</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="scrap">Scrap</Label>
+              <Input
                 id="scrap"
                 name="scrap"
                 type="number"
@@ -94,7 +94,7 @@ export default function UpdateYieldPage() {
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
+            <Label htmlFor="status">Status</Label>
             <EnumFormField
               enumName="productionOrderStatus"
               name="status"
@@ -104,8 +104,8 @@ export default function UpdateYieldPage() {
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               placeholder="Downtime reasons, scrap notes, quality remarks…"
@@ -117,7 +117,7 @@ export default function UpdateYieldPage() {
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

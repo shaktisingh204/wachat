@@ -122,7 +122,7 @@ export default function TimeTrackingReportsPage() {
       title="Time Report"
       subtitle="Group logged time by employee, project, or date. Export as CSV."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() =>
             downloadCsv(
               `time-report-${group}-${new Date().toISOString().slice(0, 10)}.csv`,
@@ -133,27 +133,27 @@ export default function TimeTrackingReportsPage() {
         >
           <Download className="h-4 w-4" strokeWidth={1.75} />
           Export CSV
-        </ZoruButton>
+        </Button>
       }
     >
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ZoruStatCard
+        <StatCard
           label="Total hours"
           value={fmtDuration(grandMinutes)}
           icon={<Clock className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Total entries"
           value={totalEntries}
           icon={<ClipboardList className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Avg per entry"
           value={totalEntries > 0 ? fmtDuration(avgPerEntry) : '—'}
           icon={<Timer className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="This week"
           value={fmtDuration(weekMinutes)}
           icon={<Clock className="h-4 w-4" />}
@@ -161,13 +161,13 @@ export default function TimeTrackingReportsPage() {
       </div>
 
       {/* Filter bar */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[180px] flex-1">
-            <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
               Group by
-            </ZoruLabel>
-            <ZoruSelect value={group} onValueChange={(v) => setGroup(v as Group)}>
+            </Label>
+            <Select value={group} onValueChange={(v) => setGroup(v as Group)}>
               <ZoruSelectTrigger className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -176,13 +176,13 @@ export default function TimeTrackingReportsPage() {
                 <ZoruSelectItem value="project">Project</ZoruSelectItem>
                 <ZoruSelectItem value="date">Date</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="min-w-[140px] flex-1">
-            <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
@@ -190,21 +190,21 @@ export default function TimeTrackingReportsPage() {
             />
           </div>
           <div className="min-w-[140px] flex-1">
-            <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
               className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             />
           </div>
-          <ZoruButton variant="outline" onClick={refresh}>
+          <Button variant="outline" onClick={refresh}>
             <Filter className="h-4 w-4" strokeWidth={1.75} />
             Apply
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             onClick={() => {
               setGroup('project');
@@ -214,14 +214,14 @@ export default function TimeTrackingReportsPage() {
           >
             <RotateCcw className="h-4 w-4" strokeWidth={1.75} />
             Reset
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Results table */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">{groupLabel}</ZoruTableHead>
@@ -234,7 +234,7 @@ export default function TimeTrackingReportsPage() {
                 [0, 1, 2].map((i) => (
                   <ZoruTableRow key={i} className="border-zoru-line">
                     <ZoruTableCell colSpan={3}>
-                      <ZoruSkeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
@@ -267,7 +267,7 @@ export default function TimeTrackingReportsPage() {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
           {rows.length > 0 ? (
             <div className="flex items-center justify-between border-t border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[13px]">
               <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
@@ -280,7 +280,7 @@ export default function TimeTrackingReportsPage() {
             </div>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

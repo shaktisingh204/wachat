@@ -61,48 +61,48 @@ export function TimesheetDetailActions({ id, status }: Props): React.JSX.Element
     return (
         <>
             {status === 'draft' ? (
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="outline"
                     onClick={() => move('submitted', 'Submitted for approval')}
                 >
                     <Send className="h-4 w-4" />
                     Submit
-                </ZoruButton>
+                </Button>
             ) : null}
             {status === 'submitted' ? (
                 <>
-                    <ZoruButton
+                    <Button
                         size="sm"
                         onClick={() => move('approved', 'Timesheet approved')}
                     >
                         <Check className="h-4 w-4" />
                         Approve
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={() => move('rejected', 'Timesheet rejected')}
                     >
                         <X className="h-4 w-4" />
                         Reject
-                    </ZoruButton>
+                    </Button>
                 </>
             ) : null}
-            <ZoruButton asChild size="sm" variant="outline">
+            <Button asChild size="sm" variant="outline">
                 <Link href={`/dashboard/crm/hr/timesheets/${id}/edit`}>
                     <Pencil className="h-4 w-4" />
                     Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setConfirmDelete(true)}
             >
                 <Trash2 className="h-4 w-4" />
                 Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={confirmDelete}

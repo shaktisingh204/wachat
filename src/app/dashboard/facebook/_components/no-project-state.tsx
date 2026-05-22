@@ -13,22 +13,22 @@ import * as React from "react";
 
 export function NoProjectState() {
   return (
-    <ZoruAlert variant="warning">
+    <Alert variant="warning">
       <AlertCircle />
       <ZoruAlertTitle>No project selected</ZoruAlertTitle>
       <ZoruAlertDescription>
         Pick a project from the main dashboard to use this Meta Suite tool.
       </ZoruAlertDescription>
-    </ZoruAlert>
+    </Alert>
   );
 }
 
 export function ErrorState({ message }: { message: string }) {
   return (
-    <ZoruAlert variant="destructive">
+    <Alert variant="destructive">
       <AlertCircle />
       <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
       <ZoruAlertDescription>{message}</ZoruAlertDescription>
-    </ZoruAlert>
+    </Alert>
   );
 }

@@ -26,7 +26,7 @@ import { ArrowLeft,
  *
  * Binds to the `saveGoal` server action via `useActionState`. The form
  * is a flat field set — no nested arrays — so it submits as plain
- * FormData with hidden inputs for the controlled `<ZoruSelect>` values.
+ * FormData with hidden inputs for the controlled `<Select>` values.
  */
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
@@ -44,14 +44,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create goal'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -86,7 +86,7 @@ export function GoalForm({ initialData }: GoalFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="goalId" value={initialData!._id} />
@@ -95,8 +95,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
 
                 {/* Row 1: Title */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
                         id="title"
                         name="title"
                         required
@@ -107,8 +107,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
 
                 {/* Row 2: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={3}
@@ -120,8 +120,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                 {/* Row 3: Employee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee id</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="Optional"
@@ -129,8 +129,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             placeholder="Display name"
@@ -142,8 +142,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                 {/* Row 4: Period + KPI */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="period">Period</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="period">Period</Label>
+                        <Input
                             id="period"
                             name="period"
                             placeholder="e.g. 2026-Q2 / FY 25-26"
@@ -151,8 +151,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="kpi">Linked KPI</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="kpi">Linked KPI</Label>
+                        <Input
                             id="kpi"
                             name="kpi"
                             placeholder="Optional — KPI id or name"
@@ -164,8 +164,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                 {/* Row 5: Target + Achieved */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="target">Target</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="target">Target</Label>
+                        <Input
                             id="target"
                             name="target"
                             placeholder="e.g. NPS 80"
@@ -173,8 +173,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="achieved">Achieved</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="achieved">Achieved</Label>
+                        <Input
                             id="achieved"
                             name="achieved"
                             placeholder="e.g. NPS 62"
@@ -186,8 +186,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                 {/* Row 6: Progress + Weight + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="progress">Progress %</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="progress">Progress %</Label>
+                        <Input
                             id="progress"
                             name="progress"
                             type="number"
@@ -203,8 +203,8 @@ export function GoalForm({ initialData }: GoalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="weight">Weight %</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="weight">Weight %</Label>
+                        <Input
                             id="weight"
                             name="weight"
                             type="number"
@@ -220,7 +220,7 @@ export function GoalForm({ initialData }: GoalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="goalFormStatus"
@@ -234,15 +234,15 @@ export function GoalForm({ initialData }: GoalFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to goals
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

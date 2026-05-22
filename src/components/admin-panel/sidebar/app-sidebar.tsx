@@ -123,12 +123,12 @@ const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
             <span className="flex-1 truncate">{item.label}</span>
 
             {item.new && (
-                <ZoruBadge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-foreground text-background border-0">
+                <Badge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-foreground text-background border-0">
                     New
-                </ZoruBadge>
+                </Badge>
             )}
             {item.beta && (
-                <ZoruBadge variant="secondary" className="ml-auto text-[10px] h-4 px-1.5">Beta</ZoruBadge>
+                <Badge variant="secondary" className="ml-auto text-[10px] h-4 px-1.5">Beta</Badge>
             )}
         </Link>
     );
@@ -203,7 +203,7 @@ function InlineProjectSwitcher() {
 
     return (
         <div className="px-2 py-2">
-            <ZoruDropdownMenu>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
                     <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-secondary group border border-border bg-card">
                         <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 bg-foreground text-background text-[10px] font-bold">
@@ -245,7 +245,7 @@ function InlineProjectSwitcher() {
                         </Link>
                     </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
         </div>
     );
 }
@@ -394,11 +394,11 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
             {showProjectSwitcher && <InlineProjectSwitcher />}
 
             {/* Menu items */}
-            <ZoruScrollArea className="flex-1">
+            <ScrollArea className="flex-1">
                 <div className="px-2 pb-4 flex flex-col gap-0.5">
                     {renderMenu()}
                 </div>
-            </ZoruScrollArea>
+            </ScrollArea>
         </div>
     );
 }

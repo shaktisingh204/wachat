@@ -245,7 +245,7 @@ export default function BulkCreatePage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -261,9 +261,9 @@ export default function BulkCreatePage() {
             <ZoruBreadcrumbPage>Bulk create</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Tools</ZoruPageEyebrow>
           <ZoruPageTitle>Bulk post creator</ZoruPageTitle>
@@ -273,10 +273,10 @@ export default function BulkCreatePage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" size="sm" onClick={addRow}>
+          <Button variant="outline" size="sm" onClick={addRow}>
             <Plus /> Add row
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             disabled={validCount === 0 || isPublishing}
             onClick={() => setConfirmOpen(true)}
@@ -287,22 +287,22 @@ export default function BulkCreatePage() {
               <Send />
             )}
             Publish {validCount > 0 ? `${validCount} post${validCount === 1 ? '' : 's'}` : ''}
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!projectId ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>No project selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Select a project from the dashboard to use bulk create.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : (
         <>
           {result ? (
-            <ZoruAlert
+            <Alert
               variant={result.failCount === 0 ? 'success' : 'warning'}
               className="mt-6"
             >
@@ -311,23 +311,23 @@ export default function BulkCreatePage() {
               <ZoruAlertDescription>
                 {result.successCount} succeeded, {result.failCount} failed.
               </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
 
           <div className="mt-6 grid gap-3 md:grid-cols-3">
-            <ZoruStatCard
+            <StatCard
               label="Rows"
               value={rows.length.toLocaleString()}
               period="In editor"
               icon={<FileUp />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Valid posts"
               value={validCount.toLocaleString()}
               period="With message text"
               icon={<CheckCircle2 />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Scheduled"
               value={scheduledCount.toLocaleString()}
               period="With future time"
@@ -336,7 +336,7 @@ export default function BulkCreatePage() {
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <ZoruCard className="p-0">
+            <Card className="p-0">
               <ZoruCardHeader>
                 <ZoruCardTitle className="text-base">
                   Upload CSV
@@ -354,9 +354,9 @@ export default function BulkCreatePage() {
                   hint="Drop a .csv file or click to browse"
                 />
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-0">
+            <Card className="p-0">
               <ZoruCardHeader>
                 <ZoruCardTitle className="text-base">
                   Manual entry
@@ -368,35 +368,35 @@ export default function BulkCreatePage() {
                   message; image URL and schedule are optional.
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <ZoruButton size="sm" variant="outline" onClick={addRow}>
+                  <Button size="sm" variant="outline" onClick={addRow}>
                     <Plus /> Add row
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setRows([blankRow()])}
                   >
                     <Trash2 /> Reset rows
-                  </ZoruButton>
+                  </Button>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </div>
 
-          <ZoruCard className="mt-6 p-0">
+          <Card className="mt-6 p-0">
             <ZoruCardHeader>
               <ZoruCardTitle className="flex items-center justify-between gap-2 text-base">
                 <span className="inline-flex items-center gap-2">
                   Posts preview
-                  <ZoruBadge variant="outline">
+                  <Badge variant="outline">
                     {validCount} valid / {rows.length} rows
-                  </ZoruBadge>
+                  </Badge>
                 </span>
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
               {rows.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                   compact
                   icon={<Upload />}
                   title="No rows"
@@ -404,7 +404,7 @@ export default function BulkCreatePage() {
                 />
               ) : (
                 <div className="overflow-x-auto">
-                  <ZoruTable>
+                  <Table>
                     <ZoruTableHeader>
                       <ZoruTableRow>
                         <ZoruTableHead className="w-8">#</ZoruTableHead>
@@ -425,7 +425,7 @@ export default function BulkCreatePage() {
                             {i + 1}
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruTextarea
+                            <Textarea
                               value={row.message}
                               onChange={(e) =>
                                 updateRow(i, 'message', e.target.value)
@@ -444,7 +444,7 @@ export default function BulkCreatePage() {
                             />
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruInput
+                            <Input
                               type="datetime-local"
                               value={row.scheduledTime}
                               onChange={(e) =>
@@ -453,7 +453,7 @@ export default function BulkCreatePage() {
                             />
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="icon-sm"
                               onClick={() => removeRow(i)}
@@ -461,16 +461,16 @@ export default function BulkCreatePage() {
                               aria-label="Remove row"
                             >
                               <Trash2 />
-                            </ZoruButton>
+                            </Button>
                           </ZoruTableCell>
                         </ZoruTableRow>
                       ))}
                     </ZoruTableBody>
-                  </ZoruTable>
+                  </Table>
                 </div>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       )}
 

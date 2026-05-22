@@ -156,11 +156,11 @@ export default function JobsListPage() {
                     title="Jobs"
                     subtitle="Open requisitions and hiring pipelines."
                     primaryAction={
-                        <ZoruButton asChild>
+                        <Button asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New job
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -169,7 +169,7 @@ export default function JobsListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <Select
                                 value={statusFilter}
                                 onValueChange={(v) =>
                                     setStatusFilter(v as CrmJobStatus | 'all')
@@ -185,8 +185,8 @@ export default function JobsListPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                            </Select>
+                            <Select
                                 value={typeFilter}
                                 onValueChange={(v) =>
                                     setTypeFilter(
@@ -204,8 +204,8 @@ export default function JobsListPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruInput
+                            </Select>
+                            <Input
                                 value={departmentFilter}
                                 onChange={(e) =>
                                     setDepartmentFilter(e.target.value)
@@ -218,7 +218,7 @@ export default function JobsListPage() {
                     loading={isLoading && jobs.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
@@ -274,25 +274,25 @@ export default function JobsListPage() {
                                                     <StatusPill label={pretty(status)} tone={tone} />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton variant="ghost" size="icon" asChild>
+                                                    <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${j._id}/edit`}>
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setPendingDelete(j)}
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
             </EntityListShell>
 

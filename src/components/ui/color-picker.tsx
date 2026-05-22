@@ -18,9 +18,9 @@ export function ColorPicker({ value, onChange, className, id }: ColorPickerProps
     const [open, setOpen] = useState(false);
 
     return (
-        <ZoruPopover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen}>
             <ZoruPopoverTrigger asChild>
-                <ZoruButton
+                <Button
                     id={id}
                     variant="outline"
                     className={cn("w-full justify-start text-left font-normal px-3", className)}
@@ -30,7 +30,7 @@ export function ColorPicker({ value, onChange, className, id }: ColorPickerProps
                         style={{ backgroundColor: value }}
                     />
                     {value}
-                </ZoruButton>
+                </Button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent className="w-auto p-0 border-none" align="start">
                 <SketchPicker
@@ -40,6 +40,6 @@ export function ColorPicker({ value, onChange, className, id }: ColorPickerProps
                     presetColors={['#25D366', '#128C7E', '#075E54', '#34B7F1', '#ECE5DD', '#FFFFFF', '#000000']}
                 />
             </ZoruPopoverContent>
-        </ZoruPopover>
+        </Popover>
     );
 }

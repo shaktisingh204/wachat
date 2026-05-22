@@ -46,10 +46,10 @@ export function SabChatConversationList({
 
     const ConversationSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
-            <ZoruSkeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="h-10 w-10 rounded-full" />
             <div className="flex-1 space-y-2">
-                <ZoruSkeleton className="h-4 w-3/4" />
-                <ZoruSkeleton className="h-3 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
             </div>
         </div>
     );
@@ -60,14 +60,14 @@ export function SabChatConversationList({
                 <div className="p-3 border-b flex-shrink-0">
                      <div className="relative">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <ZoruInput 
+                        <Input 
                             placeholder="Search by email or message..." 
                             className="pl-10" 
                             onChange={(e) => handleSearch(e.target.value)}
                         />
                     </div>
                 </div>
-                <ZoruScrollArea className="flex-1">
+                <ScrollArea className="flex-1">
                     {isLoading ? (
                         <div className="p-2 space-y-1">
                             {[...Array(8)].map((_, i) => <ConversationSkeleton key={i} />)}
@@ -85,9 +85,9 @@ export function SabChatConversationList({
                                             selectedConversationId === convo._id.toString() && "bg-accent"
                                         )}
                                     >
-                                        <ZoruAvatar>
+                                        <Avatar>
                                             <ZoruAvatarFallback>{convo.visitorInfo?.email?.charAt(0).toUpperCase() || 'V'}</ZoruAvatarFallback>
-                                        </ZoruAvatar>
+                                        </Avatar>
                                         <div className="flex-1 overflow-hidden">
                                             <div className="flex items-center justify-between">
                                                 <p className="font-semibold truncate">{convo.visitorInfo?.email || 'New Visitor'}</p>
@@ -106,7 +106,7 @@ export function SabChatConversationList({
                             No conversations found.
                         </div>
                     )}
-                </ZoruScrollArea>
+                </ScrollArea>
             </div>
         </>
     );

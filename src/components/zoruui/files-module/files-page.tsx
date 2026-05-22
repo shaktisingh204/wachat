@@ -109,7 +109,7 @@ export function ZoruFilesPage({
 
       {/* Single shared row-action menu — anchored off-screen and
           re-positioned by Radix relative to the file the user clicked. */}
-      <ZoruDropdownMenu
+      <DropdownMenu
         open={menuOpen}
         onOpenChange={(open) => {
           setMenuOpen(open);
@@ -155,7 +155,7 @@ export function ZoruFilesPage({
             <Trash2 /> Delete
           </ZoruDropdownMenuItem>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
       <ZoruFilePreviewDialog
         file={previewFile}

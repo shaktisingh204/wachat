@@ -116,17 +116,17 @@ export function TicketSlaBadge({ ticketId, dueBy, status }: TicketSlaBadgeProps)
     const lowered = String(status ?? '').toLowerCase();
     if (lowered === 'resolved' || lowered === 'closed') {
         return (
-            <ZoruBadge variant="success">
+            <Badge variant="success">
                 <CheckCircle2 className="h-3 w-3" /> SLA closed
-            </ZoruBadge>
+            </Badge>
         );
     }
 
     if (sla.loading) {
         return (
-            <ZoruBadge variant="ghost">
+            <Badge variant="ghost">
                 <Loader2 className="h-3 w-3 animate-spin" /> SLA…
-            </ZoruBadge>
+            </Badge>
         );
     }
 
@@ -140,7 +140,7 @@ export function TicketSlaBadge({ ticketId, dueBy, status }: TicketSlaBadgeProps)
         const totalMins = useFirstResponse ? sla.firstResponseMinutes : sla.resolutionMinutes;
         const label = useFirstResponse ? 'First response' : 'Resolution';
 
-        if (!dueAt) return <ZoruBadge variant="ghost">No SLA target</ZoruBadge>;
+        if (!dueAt) return <Badge variant="ghost">No SLA target</Badge>;
 
         const delta = dueAt - now;
         const overdue = delta < 0;
@@ -152,7 +152,7 @@ export function TicketSlaBadge({ ticketId, dueBy, status }: TicketSlaBadgeProps)
         else if (totalMins && delta < totalMins * 60_000 * 0.5) tone = 'warning';
 
         return (
-            <ZoruBadge variant={tone}>
+            <Badge variant={tone}>
                 {overdue ? (
                     <AlertTriangle className="h-3 w-3" />
                 ) : (
@@ -161,17 +161,17 @@ export function TicketSlaBadge({ ticketId, dueBy, status }: TicketSlaBadgeProps)
                 {overdue
                     ? `${label} overdue by ${relTime(delta)}`
                     : `${label} due in ${relTime(delta)}`}
-            </ZoruBadge>
+            </Badge>
         );
     }
 
     // Legacy/no-rule fallback: free-text `dueBy`.
     if (!dueBy) {
-        return <ZoruBadge variant="ghost">No due-by</ZoruBadge>;
+        return <Badge variant="ghost">No due-by</Badge>;
     }
     const dueMs = new Date(dueBy).getTime();
     if (!Number.isFinite(dueMs)) {
-        return <ZoruBadge variant="ghost">No due-by</ZoruBadge>;
+        return <Badge variant="ghost">No due-by</Badge>;
     }
     const delta = dueMs - now;
     const overdue = delta < 0;
@@ -182,14 +182,14 @@ export function TicketSlaBadge({ ticketId, dueBy, status }: TicketSlaBadgeProps)
         : 'success';
 
     return (
-        <ZoruBadge variant={tone}>
+        <Badge variant={tone}>
             {overdue ? (
                 <AlertTriangle className="h-3 w-3" />
             ) : (
                 <Clock className="h-3 w-3" />
             )}
             {overdue ? `Overdue by ${relTime(delta)}` : `Due in ${relTime(delta)}`}
-        </ZoruBadge>
+        </Badge>
     );
 }
 

@@ -110,7 +110,7 @@ export default function FlowBuilderListPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -124,10 +124,10 @@ export default function FlowBuilderListPage() {
             <ZoruBreadcrumbPage>Flow builder</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Bot flows</ZoruPageTitle>
             <ZoruPageDescription>
@@ -135,14 +135,14 @@ export default function FlowBuilderListPage() {
               input, and hand off to a human when needed.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton
+        </PageHeader>
+        <Button
           onClick={() => router.push('/wachat/flow-builder/new')}
           disabled={!activeProjectId}
         >
           <CirclePlus className="h-3.5 w-3.5" />
           Create new flow
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -173,27 +173,27 @@ export default function FlowBuilderListPage() {
       </div>
 
       {!activeProjectId ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert className="h-10 w-10" />}
           title="No project selected"
           description="Please select a project from the main dashboard to manage bot flows."
-          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
       ) : (
-        <ZoruCard className="flex min-h-[480px] flex-1 flex-col p-6">
+        <Card className="flex min-h-[480px] flex-1 flex-col p-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="min-w-[260px] flex-1">
-              <ZoruInput
+              <Input
                 placeholder="Search flows by name or keyword…"
                 leadingSlot={<Search />}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <ZoruButton variant="outline" size="sm" onClick={fetchFlows} disabled={isLoading}>
+            <Button variant="outline" size="sm" onClick={fetchFlows} disabled={isLoading}>
               <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
               {isLoading ? 'Refreshing…' : 'Refresh'}
-            </ZoruButton>
+            </Button>
             <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
               {filtered.length} / {flows.length} flows
             </span>
@@ -203,11 +203,11 @@ export default function FlowBuilderListPage() {
             {isLoading && flows.length === 0 ? (
               <div className="flex flex-col gap-0 divide-y divide-zoru-line p-2">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <ZoruSkeleton key={i} className="my-1 h-10 w-full" />
+                  <Skeleton key={i} className="my-1 h-10 w-full" />
                 ))}
               </div>
             ) : filtered.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<ServerCog className="h-10 w-10" />}
                 title={query ? 'No matching flows' : 'No bot flows yet'}
                 description={
@@ -217,17 +217,17 @@ export default function FlowBuilderListPage() {
                 }
                 action={
                   query ? (
-                    <ZoruButton size="sm" variant="outline" onClick={() => setQuery('')}>
+                    <Button size="sm" variant="outline" onClick={() => setQuery('')}>
                       Clear search
-                    </ZoruButton>
+                    </Button>
                   ) : (
-                    <ZoruButton
+                    <Button
                       size="sm"
                       onClick={() => router.push('/wachat/flow-builder/new')}
                     >
                       <CirclePlus className="h-3.5 w-3.5" />
                       Create your first flow
-                    </ZoruButton>
+                    </Button>
                   )
                 }
               />
@@ -259,17 +259,17 @@ export default function FlowBuilderListPage() {
                           </Link>
                         </td>
                         <td className="px-4 py-3">
-                          <ZoruBadge variant={paused ? 'warning' : 'success'}>
+                          <Badge variant={paused ? 'warning' : 'success'}>
                             {paused ? 'Paused' : 'Active'}
-                          </ZoruBadge>
+                          </Badge>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
                             {(flow.triggerKeywords || []).length > 0 ? (
                               (flow.triggerKeywords || []).map((k, i) => (
-                                <ZoruBadge key={`${k}-${i}`} variant="ghost">
+                                <Badge key={`${k}-${i}`} variant="ghost">
                                   {k}
-                                </ZoruBadge>
+                                </Badge>
                               ))
                             ) : (
                               <span className="text-[11.5px] italic text-zoru-ink-muted">
@@ -284,11 +284,11 @@ export default function FlowBuilderListPage() {
                             : 'N/A'}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <ZoruDropdownMenu>
+                          <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                              <ZoruButton variant="ghost" size="icon-sm" aria-label="Open menu">
+                              <Button variant="ghost" size="icon-sm" aria-label="Open menu">
                                 <MoreHorizontal className="h-4 w-4" />
-                              </ZoruButton>
+                              </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
                               <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
@@ -308,7 +308,7 @@ export default function FlowBuilderListPage() {
                                 Delete
                               </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                          </ZoruDropdownMenu>
+                          </DropdownMenu>
                         </td>
                       </tr>
                     );
@@ -317,7 +317,7 @@ export default function FlowBuilderListPage() {
               </table>
             )}
           </div>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );
@@ -342,7 +342,7 @@ function Stat({
     warning: 'bg-zoru-warning/15 text-zoru-warning-ink',
   }[tint];
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className={cn('flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)]', chip)}>
         {icon}
       </div>
@@ -357,6 +357,6 @@ function Stat({
           {hint}
         </div>
       )}
-    </ZoruCard>
+    </Card>
   );
 }

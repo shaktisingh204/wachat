@@ -111,14 +111,14 @@ export default function AutoReplyPage() {
   if (isLoadingProject) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruSkeleton className="h-3 w-52" />
+        <Skeleton className="h-3 w-52" />
         <div className="mt-5 flex items-end justify-between">
-          <ZoruSkeleton className="h-9 w-56" />
-          <ZoruSkeleton className="h-9 w-32 rounded-full" />
+          <Skeleton className="h-9 w-56" />
+          <Skeleton className="h-9 w-32 rounded-full" />
         </div>
         <div className="mt-6 space-y-4">
-          <ZoruSkeleton className="h-[120px]" />
-          <ZoruSkeleton className="h-[420px]" />
+          <Skeleton className="h-[120px]" />
+          <Skeleton className="h-[420px]" />
         </div>
       </div>
     );
@@ -127,7 +127,7 @@ export default function AutoReplyPage() {
   if (!activeProject) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -141,16 +141,16 @@ export default function AutoReplyPage() {
               <ZoruBreadcrumbPage>Auto Reply</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<CircleAlert />}
             title="No project selected"
             description="Pick a WaChat project to configure auto-reply behaviour."
             action={
-              <ZoruButton onClick={() => router.push('/wachat')}>
+              <Button onClick={() => router.push('/wachat')}>
                 Choose a project
-              </ZoruButton>
+              </Button>
             }
           />
         </div>
@@ -160,7 +160,7 @@ export default function AutoReplyPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -174,9 +174,9 @@ export default function AutoReplyPage() {
             <ZoruBreadcrumbPage>Auto Reply</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageTitle>Auto Reply</ZoruPageTitle>
           <ZoruPageDescription>
@@ -185,18 +185,18 @@ export default function AutoReplyPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => router.push('/wachat/auto-reply-rules')}
           >
             <ListFilter /> Advanced rules
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Master switch */}
-      <ZoruCard className="mt-6 p-5">
+      <Card className="mt-6 p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <h2 className="text-[15px] text-zoru-ink">Master auto-reply switch</h2>
@@ -208,7 +208,7 @@ export default function AutoReplyPage() {
             {isSwitchPending && (
               <Loader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
             )}
-            <ZoruSwitch
+            <Switch
               checked={masterEnabled}
               onCheckedChange={onMasterSwitchChange}
               disabled={isSwitchPending}
@@ -216,13 +216,13 @@ export default function AutoReplyPage() {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator className="my-6" />
+      <Separator className="my-6" />
 
       {/* Per rule-type accordion */}
-      <ZoruCard className="p-0">
-        <ZoruAccordion type="multiple" defaultValue={['welcomeMessage']}>
+      <Card className="p-0">
+        <Accordion type="multiple" defaultValue={['welcomeMessage']}>
           {RULE_TYPES.map(({ key, label, description, icon: Icon }) => (
             <ZoruAccordionItem key={key} value={key} className="px-5">
               <ZoruAccordionTrigger>
@@ -248,15 +248,15 @@ export default function AutoReplyPage() {
               </ZoruAccordionContent>
             </ZoruAccordionItem>
           ))}
-        </ZoruAccordion>
-      </ZoruCard>
+        </Accordion>
+      </Card>
 
-      <ZoruSeparator className="my-6" />
+      <Separator className="my-6" />
 
       {/* Opt-in / opt-out — separate concern */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <OptInOutForm project={activeProject} />
-      </ZoruCard>
+      </Card>
 
       <div className="h-6" />
     </div>

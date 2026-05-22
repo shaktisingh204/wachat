@@ -18,7 +18,7 @@ export function ShopHeader({ shopName }: { shopName: string }) {
                     {shopName}
                 </Link>
                 <nav>
-                    <ZoruButton asChild variant="ghost">
+                    <Button asChild variant="ghost">
                         <Link href={`/shop/${params.slug}/cart`}>
                             <ShoppingCart className="h-5 w-5" />
                             {itemCount > 0 && (
@@ -27,7 +27,7 @@ export function ShopHeader({ shopName }: { shopName: string }) {
                                 </span>
                             )}
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </nav>
             </div>
         </header>

@@ -43,7 +43,7 @@ export default function TwoLineSidebarDemoPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -57,7 +57,7 @@ export default function TwoLineSidebarDemoPage() {
             <ZoruBreadcrumbPage>Two-line</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
@@ -72,16 +72,16 @@ export default function TwoLineSidebarDemoPage() {
         </div>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-            <ZoruSwitch
+            <Switch
               checked={enabled}
               onCheckedChange={setEnabled}
               aria-label="Two-line preview"
             />
             {enabled ? 'Preview on' : 'Preview off'}
           </span>
-          <ZoruButton onClick={() => setActivateOpen(true)}>
+          <Button onClick={() => setActivateOpen(true)}>
             Activate two-line <ArrowRight />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export default function TwoLineSidebarDemoPage() {
         />
       </div>
 
-      <ZoruCard className="mt-6 overflow-hidden p-0">
+      <Card className="mt-6 overflow-hidden p-0">
         <div className="border-b border-zoru-line px-5 py-3">
           <p className="text-[12px] uppercase tracking-wide text-zoru-ink-muted">
             Live preview
@@ -112,9 +112,9 @@ export default function TwoLineSidebarDemoPage() {
         <div className="p-6">
           <TwoLinePreview />
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={activateOpen} onOpenChange={setActivateOpen}>
+      <Dialog open={activateOpen} onOpenChange={setActivateOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Activate two-line workspace?</ZoruDialogTitle>
@@ -125,10 +125,10 @@ export default function TwoLineSidebarDemoPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setActivateOpen(false)}>
+            <Button variant="ghost" onClick={() => setActivateOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Two-line activated',
@@ -139,10 +139,10 @@ export default function TwoLineSidebarDemoPage() {
               }}
             >
               Activate
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>
@@ -159,7 +159,7 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
         {icon}
       </span>
@@ -167,7 +167,7 @@ function FeatureCard({
       <p className="mt-1 text-[12.5px] text-zoru-ink-muted leading-relaxed">
         {description}
       </p>
-    </ZoruCard>
+    </Card>
   );
 }
 

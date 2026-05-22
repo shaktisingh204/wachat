@@ -109,14 +109,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -201,17 +201,17 @@ export function ExitForm({ exit }: ExitFormProps) {
             />
 
             {/* ── Employee ─────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Employee</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                            <ZoruLabel htmlFor="employeeId">
+                            <Label htmlFor="employeeId">
                                 Employee{' '}
                                 <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
+                            </Label>
                             <div className="mt-1.5">
                                 <EntityFormField
                                     entity="employee"
@@ -230,9 +230,9 @@ export function ExitForm({ exit }: ExitFormProps) {
                             </div>
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="reportingManagerId">
+                            <Label htmlFor="reportingManagerId">
                                 Reporting manager
-                            </ZoruLabel>
+                            </Label>
                             <div className="mt-1.5">
                                 <EntityFormField
                                     entity="employee"
@@ -250,7 +250,7 @@ export function ExitForm({ exit }: ExitFormProps) {
                             </div>
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="type">Exit type</ZoruLabel>
+                            <Label htmlFor="type">Exit type</Label>
                             <select
                                 id="type"
                                 name="type"
@@ -268,7 +268,7 @@ export function ExitForm({ exit }: ExitFormProps) {
                             </select>
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                            <Label htmlFor="status">Status</Label>
                             <select
                                 id="status"
                                 name="status"
@@ -288,10 +288,10 @@ export function ExitForm({ exit }: ExitFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Workflow ─────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Workflow</ZoruCardTitle>
                     <p className="text-[12px] text-zoru-ink-muted">
@@ -301,10 +301,10 @@ export function ExitForm({ exit }: ExitFormProps) {
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                            <ZoruLabel htmlFor="noticeStart">
+                            <Label htmlFor="noticeStart">
                                 Notice start
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="noticeStart"
                                 name="noticeStart"
                                 type="date"
@@ -313,10 +313,10 @@ export function ExitForm({ exit }: ExitFormProps) {
                             />
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="lastDay">
+                            <Label htmlFor="lastDay">
                                 Last working day
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="lastDay"
                                 name="lastDay"
                                 type="date"
@@ -325,8 +325,8 @@ export function ExitForm({ exit }: ExitFormProps) {
                             />
                         </div>
                         <div className="md:col-span-2">
-                            <ZoruLabel htmlFor="reason">Reason</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="reason">Reason</Label>
+                            <Input
                                 id="reason"
                                 name="reason"
                                 defaultValue={exit?.reason ?? ''}
@@ -336,10 +336,10 @@ export function ExitForm({ exit }: ExitFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Settlement calculator ────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Settlement</ZoruCardTitle>
                     <p className="text-[12px] text-zoru-ink-muted">
@@ -349,8 +349,8 @@ export function ExitForm({ exit }: ExitFormProps) {
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-3">
                         <div>
-                            <ZoruLabel htmlFor="grossPay">Gross pay</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="grossPay">Gross pay</Label>
+                            <Input
                                 id="grossPay"
                                 name="grossPay"
                                 type="number"
@@ -364,8 +364,8 @@ export function ExitForm({ exit }: ExitFormProps) {
                             />
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="bonuses">Bonuses</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="bonuses">Bonuses</Label>
+                            <Input
                                 id="bonuses"
                                 name="bonuses"
                                 type="number"
@@ -379,10 +379,10 @@ export function ExitForm({ exit }: ExitFormProps) {
                             />
                         </div>
                         <div>
-                            <ZoruLabel htmlFor="deductions">
+                            <Label htmlFor="deductions">
                                 Deductions
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="deductions"
                                 name="deductions"
                                 type="number"
@@ -404,22 +404,22 @@ export function ExitForm({ exit }: ExitFormProps) {
                                 <span className="text-[12px] uppercase tracking-wide text-zoru-ink-muted">
                                     Final settlement
                                 </span>
-                                <ZoruBadge variant="secondary">
+                                <Badge variant="secondary">
                                     <span className="font-mono tabular-nums text-[13px]">
                                         {settlement.toLocaleString(undefined, {
                                             minimumFractionDigits: 2,
                                             maximumFractionDigits: 2,
                                         })}
                                     </span>
-                                </ZoruBadge>
+                                </Badge>
                             </div>
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Checklist ────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Exit checklist</ZoruCardTitle>
                     <p className="text-[12px] text-zoru-ink-muted">
@@ -453,9 +453,9 @@ export function ExitForm({ exit }: ExitFormProps) {
                             },
                         ].map((row) => (
                             <div key={row.name}>
-                                <ZoruLabel htmlFor={row.name}>
+                                <Label htmlFor={row.name}>
                                     {row.label}
-                                </ZoruLabel>
+                                </Label>
                                 <select
                                     id={row.name}
                                     name={row.name}
@@ -475,10 +475,10 @@ export function ExitForm({ exit }: ExitFormProps) {
                         ))}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Documents ────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
                         <ZoruCardTitle>Exit documents</ZoruCardTitle>
@@ -522,7 +522,7 @@ export function ExitForm({ exit }: ExitFormProps) {
                                     <span className="truncate text-zoru-ink">
                                         {d.name}
                                     </span>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -530,25 +530,25 @@ export function ExitForm({ exit }: ExitFormProps) {
                                         aria-label={`Remove ${d.name}`}
                                     >
                                         <X className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Notes ────────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Exit interview & notes</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-4">
                     <div>
-                        <ZoruLabel htmlFor="exitInterviewNotes">
+                        <Label htmlFor="exitInterviewNotes">
                             Exit interview notes
-                        </ZoruLabel>
-                        <ZoruTextarea
+                        </Label>
+                        <Textarea
                             id="exitInterviewNotes"
                             name="exitInterviewNotes"
                             rows={4}
@@ -557,8 +557,8 @@ export function ExitForm({ exit }: ExitFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="notes">Internal notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Internal notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={3}
@@ -567,7 +567,7 @@ export function ExitForm({ exit }: ExitFormProps) {
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {state?.error ? (
                 <p
@@ -580,11 +580,11 @@ export function ExitForm({ exit }: ExitFormProps) {
 
             {/* ── Sticky footer ────────────────────────────────────── */}
             <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link href={BASE}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton
                     label={isEditing ? 'Save changes' : 'Create exit'}
                 />

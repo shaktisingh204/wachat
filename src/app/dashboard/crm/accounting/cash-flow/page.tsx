@@ -181,7 +181,7 @@ export default function CashFlowPage(): React.JSX.Element {
 
     const filters = (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect value={fyChoice} onValueChange={handleFyChange}>
+            <Select value={fyChoice} onValueChange={handleFyChange}>
                 <ZoruSelectTrigger className="w-[180px]">
                     <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -190,8 +190,8 @@ export default function CashFlowPage(): React.JSX.Element {
                     <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
                     <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
+            </Select>
+            <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
                 <ZoruSelectTrigger className="w-[150px]">
                     <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -199,7 +199,7 @@ export default function CashFlowPage(): React.JSX.Element {
                     <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
                     <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
         </div>
     );
 
@@ -238,7 +238,7 @@ export default function CashFlowPage(): React.JSX.Element {
     );
 
     const table = (
-        <ZoruTable>
+        <Table>
             <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
                     <ZoruTableHead className="text-muted-foreground">Period</ZoruTableHead>
@@ -285,7 +285,7 @@ export default function CashFlowPage(): React.JSX.Element {
                     ))
                 )}
             </ZoruTableBody>
-        </ZoruTable>
+        </Table>
     );
 
     return (

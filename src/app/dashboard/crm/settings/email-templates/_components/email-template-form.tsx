@@ -36,14 +36,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create template'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -86,7 +86,7 @@ export function EmailTemplateForm({
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -104,8 +104,8 @@ export function EmailTemplateForm({
                 {/* Row 1: Name + Category */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -114,7 +114,7 @@ export function EmailTemplateForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
+                        <Label htmlFor="category-trigger">Category</Label>
                         <EnumFormField
                             name="category"
                             enumName="emailTemplateCategory"
@@ -127,8 +127,8 @@ export function EmailTemplateForm({
 
                 {/* Row 2: Subject */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="subject">Subject *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="subject">Subject *</Label>
+                    <Input
                         id="subject"
                         name="subject"
                         required
@@ -139,8 +139,8 @@ export function EmailTemplateForm({
 
                 {/* Row 3: HTML body */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="body">Body (HTML) *</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="body">Body (HTML) *</Label>
+                    <Textarea
                         id="body"
                         name="body"
                         rows={12}
@@ -161,8 +161,8 @@ export function EmailTemplateForm({
 
                 {/* Row 4: Plain-text body */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="textBody">Plain-text fallback</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="textBody">Plain-text fallback</Label>
+                    <Textarea
                         id="textBody"
                         name="textBody"
                         rows={5}
@@ -174,8 +174,8 @@ export function EmailTemplateForm({
                 {/* Row 5: Variables + Status + Active */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="variables">Variables</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="variables">Variables</Label>
+                        <Input
                             id="variables"
                             name="variables"
                             placeholder="contact.name, contact.email"
@@ -186,7 +186,7 @@ export function EmailTemplateForm({
                         </p>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <Label htmlFor="status-trigger">Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="emailTemplateStatus"
@@ -198,30 +198,30 @@ export function EmailTemplateForm({
                         />
                     </div>
                     <div className="flex items-end gap-2 pb-1">
-                        <ZoruSwitch
+                        <Switch
                             id="isActive-toggle"
                             checked={isActive}
                             onCheckedChange={(v) => setIsActive(v === true)}
                         />
-                        <ZoruLabel
+                        <Label
                             htmlFor="isActive-toggle"
                             className="cursor-pointer pb-2"
                         >
                             Available in template picker
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to templates
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

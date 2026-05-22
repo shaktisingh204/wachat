@@ -136,7 +136,7 @@ export function ConfirmDialog({
   const confirmVariant = confirmTone === 'danger' ? 'destructive' : 'default';
 
   return (
-    <ZoruDialog open={open} onOpenChange={(next) => (isPending ? null : onOpenChange(next))}>
+    <Dialog open={open} onOpenChange={(next) => (isPending ? null : onOpenChange(next))}>
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>{title}</ZoruDialogTitle>
@@ -147,12 +147,12 @@ export function ConfirmDialog({
 
         {needsTyped ? (
           <div className="flex flex-col gap-2">
-            <ZoruLabel htmlFor="confirm-dialog-typed">
+            <Label htmlFor="confirm-dialog-typed">
               Type{' '}
               <span className="font-mono text-zoru-ink">{requireTyped}</span>{' '}
               to confirm
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="confirm-dialog-typed"
               autoFocus
               autoComplete="off"
@@ -167,15 +167,15 @@ export function ConfirmDialog({
         ) : null}
 
         <ZoruDialogFooter>
-          <ZoruButton
+          <Button
             type="button"
             variant="secondary"
             onClick={handleCancel}
             disabled={isPending}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant={confirmVariant}
             onClick={() => {
@@ -192,9 +192,9 @@ export function ConfirmDialog({
             ) : (
               confirmLabel
             )}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

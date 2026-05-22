@@ -72,9 +72,9 @@ class BlockEditorErrorBoundary extends React.Component<{ children: React.ReactNo
                 <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm">
                     <p className="font-semibold">Something went wrong.</p>
                     <p>This block editor crashed. Try removing and re-adding the block.</p>
-                    <ZoruButton variant="outline" size="sm" className="mt-2" onClick={() => this.setState({ hasError: false })}>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => this.setState({ hasError: false })}>
                         Try Again
-                    </ZoruButton>
+                    </Button>
                 </div>
             );
         }
@@ -143,7 +143,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
     };
 
     return (
-        <ZoruCard className="h-full flex flex-col border-0 shadow-none bg-transparent">
+        <Card className="h-full flex flex-col border-0 shadow-none bg-transparent">
             <ZoruCardHeader className="pb-4 border-b">
                 <ZoruCardTitle className="text-lg">Block Properties</ZoruCardTitle>
                 <ZoruCardDescription>Editing: <span className="font-semibold text-primary capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></ZoruCardDescription>
@@ -154,11 +154,11 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
                 </BlockEditorErrorBoundary>
             </ZoruCardContent>
             <ZoruCardFooter className="border-t pt-4 mt-auto">
-                <ZoruButton variant="destructive" className="w-full shadow-sm hover:shadow-md transition-all" onClick={() => onRemove(selectedBlock.id)}>
+                <Button variant="destructive" className="w-full shadow-sm hover:shadow-md transition-all" onClick={() => onRemove(selectedBlock.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Block
-                </ZoruButton>
+                </Button>
             </ZoruCardFooter>
-        </ZoruCard>
+        </Card>
     );
 }

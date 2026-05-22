@@ -176,8 +176,8 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-80 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-80 w-full" />
       </div>
     );
   }
@@ -194,31 +194,31 @@ export default function CartPage() {
         <input type="hidden" name="discount" value={String(discount)} />
         <input type="hidden" name="items" value={hiddenItems} />
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1.5 md:col-span-2">
-              <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Client</Label>
+              <Input
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 placeholder="Client name"
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Currency</Label>
+              <Input
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                 maxLength={5}
               />
             </div>
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6 mt-6">
+        <Card className="p-6 mt-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] text-zoru-ink">Items</h2>
-            <ZoruButton
+            <Button
               type="button"
               size="sm"
               variant="outline"
@@ -226,7 +226,7 @@ export default function CartPage() {
             >
               <Plus className="h-3.5 w-3.5" />
               Add line
-            </ZoruButton>
+            </Button>
           </div>
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-sm">
@@ -245,14 +245,14 @@ export default function CartPage() {
                 {items.map((row) => (
                   <tr key={row.id} className="border-b border-zoru-line">
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         value={row.name}
                         onChange={(e) => updateRow(row.id, { name: e.target.value })}
                         placeholder="Name"
                       />
                     </td>
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         value={row.description}
                         onChange={(e) =>
                           updateRow(row.id, { description: e.target.value })
@@ -261,7 +261,7 @@ export default function CartPage() {
                       />
                     </td>
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         type="number"
                         value={row.quantity}
                         onChange={(e) =>
@@ -271,7 +271,7 @@ export default function CartPage() {
                       />
                     </td>
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         type="number"
                         step="0.01"
                         value={row.unit_price}
@@ -282,7 +282,7 @@ export default function CartPage() {
                       />
                     </td>
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         type="number"
                         step="0.01"
                         value={row.tax_rate || 0}
@@ -332,7 +332,7 @@ export default function CartPage() {
                     Discount
                   </td>
                   <td className="p-3 text-right">
-                    <ZoruInput
+                    <Input
                       type="number"
                       step="0.01"
                       value={discount}
@@ -357,20 +357,20 @@ export default function CartPage() {
               </tfoot>
             </table>
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6 mt-6">
-          <ZoruLabel className="text-zoru-ink">Notes</ZoruLabel>
-          <ZoruTextarea
+        <Card className="p-6 mt-6">
+          <Label className="text-zoru-ink">Notes</Label>
+          <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any special instructions..."
             rows={3}
           />
-        </ZoruCard>
+        </Card>
 
         <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             onClick={handleClear}
@@ -378,8 +378,8 @@ export default function CartPage() {
           >
             <Eraser className="h-4 w-4" />
             Clear cart
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="outline"
             disabled={isSaving}
@@ -390,8 +390,8 @@ export default function CartPage() {
               <Save className="h-4 w-4" />
             )}
             Save draft
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
@@ -402,7 +402,7 @@ export default function CartPage() {
               <Send className="h-4 w-4" />
             )}
             Submit order
-          </ZoruButton>
+          </Button>
         </div>
       </form>
     </EntityListShell>

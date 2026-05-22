@@ -30,7 +30,7 @@ interface EmailListTableProps {
 export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps) {
   if (lists.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Users />}
         title="No lists yet"
         description="Create your first audience list to start collecting subscribers."
@@ -39,8 +39,8 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
   }
 
   return (
-    <ZoruCard className="p-0 overflow-hidden">
-      <ZoruTable>
+    <Card className="p-0 overflow-hidden">
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Name</ZoruTableHead>
@@ -67,7 +67,7 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
                 ) : null}
               </ZoruTableCell>
               <ZoruTableCell>
-                <ZoruBadge variant="outline">{list.subscriberCount ?? 0}</ZoruBadge>
+                <Badge variant="outline">{list.subscriberCount ?? 0}</Badge>
               </ZoruTableCell>
               <ZoruTableCell className="text-zoru-ink-muted text-sm">
                 {list.defaultFromEmail ?? '—'}
@@ -78,11 +78,11 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
                   : '—'}
               </ZoruTableCell>
               <ZoruTableCell>
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                   <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon">
                       <MoreHorizontal className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                   </ZoruDropdownMenuTrigger>
                   <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuItem onSelect={() => onEdit(list)}>
@@ -95,12 +95,12 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
                       <Archive className="h-4 w-4" /> Archive
                     </ZoruDropdownMenuItem>
                   </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
               </ZoruTableCell>
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
-      </ZoruTable>
-    </ZoruCard>
+      </Table>
+    </Card>
   );
 }

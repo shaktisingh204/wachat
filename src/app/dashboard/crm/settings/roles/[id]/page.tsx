@@ -214,9 +214,9 @@ export default function RoleDetailPage() {
         title="Role not found"
         back={{ href: '/dashboard/crm/settings/roles', label: 'Roles' }}
       >
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/dashboard/crm/settings/roles">Back to roles</Link>
-        </ZoruButton>
+        </Button>
       </EntityDetailShell>
     );
   }
@@ -229,7 +229,7 @@ export default function RoleDetailPage() {
     >
 
       {/* Members */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="border-b border-zoru-line p-5">
           <h2 className="text-[15px] text-zoru-ink">Members</h2>
           <p className="text-[13px] text-zoru-ink-muted">
@@ -240,8 +240,8 @@ export default function RoleDetailPage() {
         <div className="space-y-3 p-5">
           <div className="flex flex-wrap items-end gap-2">
             <div className="min-w-[180px] flex-1">
-              <ZoruLabel htmlFor="newMemberName">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="newMemberName">Name</Label>
+              <Input
                 id="newMemberName"
                 value={newMemberName}
                 onChange={(e) => setNewMemberName(e.target.value)}
@@ -249,18 +249,18 @@ export default function RoleDetailPage() {
               />
             </div>
             <div className="min-w-[220px] flex-1">
-              <ZoruLabel htmlFor="newMemberEmail">Email / user id</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="newMemberEmail">Email / user id</Label>
+              <Input
                 id="newMemberEmail"
                 value={newMemberEmail}
                 onChange={(e) => setNewMemberEmail(e.target.value)}
                 placeholder="alex@example.com"
               />
             </div>
-            <ZoruButton onClick={addMember}>
+            <Button onClick={addMember}>
               <UserPlus className="h-4 w-4" />
               Add
-            </ZoruButton>
+            </Button>
           </div>
 
           {members.length === 0 ? (
@@ -277,11 +277,11 @@ export default function RoleDetailPage() {
                     className="flex items-center justify-between gap-3 p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <ZoruAvatar className="h-9 w-9">
+                      <Avatar className="h-9 w-9">
                         <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
                           {initials(label)}
                         </ZoruAvatarFallback>
-                      </ZoruAvatar>
+                      </Avatar>
                       <div>
                         <div className="text-[13px] text-zoru-ink">{label}</div>
                         {m.user_email && m.user_name ? (
@@ -291,24 +291,24 @@ export default function RoleDetailPage() {
                         ) : null}
                       </div>
                     </div>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeMember(m.user_id)}
                       aria-label="Remove member"
                     >
                       <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                    </ZoruButton>
+                    </Button>
                   </li>
                 );
               })}
             </ul>
           )}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Permission matrix */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="border-b border-zoru-line p-5">
           <h2 className="text-[15px] text-zoru-ink">Permission matrix</h2>
           <p className="text-[13px] text-zoru-ink-muted">
@@ -333,7 +333,7 @@ export default function RoleDetailPage() {
               .
             </div>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="text-zoru-ink-muted">Permission</ZoruTableHead>
@@ -401,7 +401,7 @@ export default function RoleDetailPage() {
                   </React.Fragment>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </div>
 
@@ -413,13 +413,13 @@ export default function RoleDetailPage() {
             const type = types.find((t) => String(t._id) === typeId);
             if (!perm || !type) return null;
             return (
-              <ZoruBadge key={permId} variant="success">
+              <Badge key={permId} variant="success">
                 {perm.name} · {type.name}
-              </ZoruBadge>
+              </Badge>
             );
           })}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Avoid unused-import noise when router is only used conditionally above. */}
       <span className="hidden">{String(!!router)}</span>

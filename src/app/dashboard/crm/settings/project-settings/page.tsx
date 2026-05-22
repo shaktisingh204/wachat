@@ -36,14 +36,14 @@ function ToggleRow({
   return (
     <div className="flex items-start justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
       <div className="flex-1">
-        <ZoruLabel htmlFor={name} className="text-[13px] text-zoru-ink">
+        <Label htmlFor={name} className="text-[13px] text-zoru-ink">
           {label}
-        </ZoruLabel>
+        </Label>
         {description ? (
           <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{description}</p>
         ) : null}
       </div>
-      <ZoruSwitch id={name} checked={checked} onCheckedChange={setChecked} />
+      <Switch id={name} checked={checked} onCheckedChange={setChecked} />
       <input type="hidden" name={name} value={checked ? 'yes' : 'no'} />
     </div>
   );
@@ -90,22 +90,22 @@ export default function ProjectSettingsPage() {
     >
       {settings ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Milestones"
             value={settings.enable_milestones ? 'Enabled' : 'Disabled'}
             icon={<Milestone className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Time tracking"
             value={settings.enable_time_tracking ? 'Enabled' : 'Disabled'}
             icon={<CheckCircle2 className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Kanban"
             value={settings.enable_kanban ? 'Enabled' : 'Disabled'}
             icon={<LayoutDashboard className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Client portal"
             value={settings.enable_client_portal ? 'Enabled' : 'Disabled'}
             icon={<CheckCircle2 className="h-4 w-4" />}
@@ -113,11 +113,11 @@ export default function ProjectSettingsPage() {
         </div>
       ) : null}
       {isLoading && !settings ? (
-        <ZoruCard className="p-6">
-          <ZoruSkeleton className="h-[420px] w-full" />
-        </ZoruCard>
+        <Card className="p-6">
+          <Skeleton className="h-[420px] w-full" />
+        </Card>
       ) : (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <form action={formAction} className="space-y-6">
             <section className="space-y-3">
               <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
@@ -169,9 +169,9 @@ export default function ProjectSettingsPage() {
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <ZoruLabel htmlFor="default_status" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="default_status" className="text-[13px] text-zoru-ink">
                     Default Status
-                  </ZoruLabel>
+                  </Label>
                   <div className="mt-1.5">
                     <EnumFormField
                       name="default_status"
@@ -181,9 +181,9 @@ export default function ProjectSettingsPage() {
                   </div>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="default_priority" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="default_priority" className="text-[13px] text-zoru-ink">
                     Default Priority
-                  </ZoruLabel>
+                  </Label>
                   <div className="mt-1.5">
                     <EnumFormField
                       name="default_priority"
@@ -196,13 +196,13 @@ export default function ProjectSettingsPage() {
             </section>
 
             <div className="flex justify-end">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save Project Settings
-              </ZoruButton>
+              </Button>
             </div>
           </form>
-        </ZoruCard>
+        </Card>
       )}
     </EntityListShell>
   );

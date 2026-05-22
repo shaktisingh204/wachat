@@ -74,12 +74,12 @@ export default async function CustomFieldDetailPage({
         back={{ href: BASE, label: 'Back to Custom Fields' }}
         actions={
           <>
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href={`${BASE}/${id}/edit`}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </Link>
-            </ZoruButton>
+            </Button>
             <CustomFieldFlagToggle
               fieldId={String(field._id)}
               required={field.required}
@@ -98,20 +98,20 @@ export default async function CustomFieldDetailPage({
         }
       >
         {/* Summary */}
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
-            <ZoruBadge variant="outline" className="capitalize">
+            <Badge variant="outline" className="capitalize">
               {field.fieldType}
-            </ZoruBadge>
+            </Badge>
             {field.required ? (
-              <ZoruBadge variant="warning">Required</ZoruBadge>
+              <Badge variant="warning">Required</Badge>
             ) : null}
             {field.unique ? (
-              <ZoruBadge variant="info">Unique</ZoruBadge>
+              <Badge variant="info">Unique</Badge>
             ) : null}
             {field.section ? (
-              <ZoruBadge variant="ghost">{field.section}</ZoruBadge>
+              <Badge variant="ghost">{field.section}</Badge>
             ) : null}
           </div>
 
@@ -147,10 +147,10 @@ export default async function CustomFieldDetailPage({
               <div className="text-zoru-ink">{fmtDate(field.createdAt)}</div>
             </div>
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Flags */}
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 text-[14px] font-medium text-zoru-ink">
             Display flags
           </div>
@@ -162,17 +162,17 @@ export default async function CustomFieldDetailPage({
             <FlagLine label="Editable in form" value={field.editableInForm} />
             <FlagLine label="Active" value={field.isActive} />
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Options */}
         {field.options && field.options.length > 0 ? (
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-3 text-[14px] font-medium text-zoru-ink">
               Options
             </div>
             <div className="flex flex-wrap gap-2">
               {field.options.map((opt) => (
-                <ZoruBadge
+                <Badge
                   key={opt.value}
                   variant="outline"
                   style={
@@ -185,10 +185,10 @@ export default async function CustomFieldDetailPage({
                   }
                 >
                   {opt.label}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         {/* Validation */}
@@ -196,7 +196,7 @@ export default async function CustomFieldDetailPage({
         (field.validation.min !== undefined ||
           field.validation.max !== undefined ||
           typeof field.validation.pattern === 'string') ? (
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-3 text-[14px] font-medium text-zoru-ink">
               Validation
             </div>
@@ -220,7 +220,7 @@ export default async function CustomFieldDetailPage({
                 </div>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         ) : null}
   </EntityDetailShell>
   );

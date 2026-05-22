@@ -88,14 +88,14 @@ function nameFromUrl(url: string): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Send recognition'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -169,16 +169,16 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
             <input type="hidden" name="badgeUrl" value={badgeUrl} />
 
             {/* Recipient */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Recipient
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="toEmployeeName">
+                        <Label htmlFor="toEmployeeName">
                             Recipient name *
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="toEmployeeName"
                             name="toEmployeeName"
                             required
@@ -187,10 +187,10 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="toEmployeeId">
+                        <Label htmlFor="toEmployeeId">
                             Recipient employee ID
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="toEmployeeId"
                             name="toEmployeeId"
                             placeholder="Optional internal id"
@@ -198,19 +198,19 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* From */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     From
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="fromEmployeeName">
+                        <Label htmlFor="fromEmployeeName">
                             Recognized by
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="fromEmployeeName"
                             name="fromEmployeeName"
                             placeholder="Person sending the recognition"
@@ -218,10 +218,10 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="fromEmployeeId">
+                        <Label htmlFor="fromEmployeeId">
                             Sender employee ID
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="fromEmployeeId"
                             name="fromEmployeeId"
                             placeholder="Optional internal id"
@@ -229,20 +229,20 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Recognition body */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Recognition
                 </div>
                 <div className="flex flex-col gap-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="category-trigger">
+                            <Label htmlFor="category-trigger">
                                 Category
-                            </ZoruLabel>
-                            <ZoruSelect
+                            </Label>
+                            <Select
                                 value={category}
                                 onValueChange={(v) =>
                                     setCategory(v as CrmRecognitionCategory)
@@ -261,11 +261,11 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="points">Points</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="points">Points</Label>
+                            <Input
                                 id="points"
                                 name="points"
                                 type="number"
@@ -277,8 +277,8 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="message">Message *</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="message">Message *</Label>
+                        <Textarea
                             id="message"
                             name="message"
                             rows={6}
@@ -289,10 +289,10 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="awardProgramId">
+                        <Label htmlFor="awardProgramId">
                             Award program ID
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="awardProgramId"
                             name="awardProgramId"
                             placeholder="Optional — link to an award programme"
@@ -300,10 +300,10 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Badge — SabFiles only */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-1 text-[14px] font-medium text-zoru-ink">
                     Badge image
                 </div>
@@ -323,7 +323,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                             <span className="max-w-[180px] truncate text-xs text-zoru-ink">
                                 {badgeName || 'Badge image'}
                             </span>
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon-sm"
@@ -331,7 +331,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                                 onClick={clearBadge}
                             >
                                 <X className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : (
                         <div className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line text-zoru-ink-muted">
@@ -347,16 +347,16 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         {badgeUrl ? 'Change badge' : 'Pick from SabFiles'}
                     </SabFilePickerButton>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Visibility + status */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Visibility & status
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <label className="flex items-center gap-2 pt-7 text-[13px] text-zoru-ink">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isPublic"
                             name="isPublic"
                             defaultChecked={!!initialData?.isPublic}
@@ -364,8 +364,8 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         Publish to the company feed
                     </label>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) =>
                                 setStatus(v as CrmRecognitionStatus)
@@ -384,14 +384,14 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-2">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link
                         href={
                             isEditing && initialData?._id
@@ -402,7 +402,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                         <ArrowLeft className="mr-1.5 h-4 w-4" />
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton isEditing={isEditing} />
             </div>
         </form>

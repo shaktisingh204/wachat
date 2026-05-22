@@ -119,12 +119,12 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                     : 'Workplace event'
             }
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`/dashboard/hrm/hr/events/${eventId}/edit`}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             {event.bannerUrl ? (
@@ -138,7 +138,7 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                 </div>
             ) : null}
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center justify-between gap-3">
                         <span>Event overview</span>
@@ -206,10 +206,10 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                         ) : null}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {event.description ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Agenda / description</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -218,7 +218,7 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                             {event.description}
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityListShell>
     );

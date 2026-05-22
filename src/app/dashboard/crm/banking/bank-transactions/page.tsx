@@ -59,12 +59,12 @@ export default async function BankTransactionsPage({
       title="Bank Transactions"
       subtitle="Extended ledger — deposits, withdrawals, transfers. Auto-populated by payments and refunds."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/banking/bank-transactions/new">
             <Plus className="h-4 w-4" />
             Add transaction
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       <BankTransactionsListClient

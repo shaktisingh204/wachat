@@ -35,7 +35,7 @@ export function ClayNotificationCard({
       onClick={onClick}
       className={cn('group block w-full text-left', className)}
     >
-      <ZoruCard
+      <Card
         variant="default"
         className={cn(
           'flex w-full items-center gap-2.5 rounded-[12px] px-3 py-2.5 transition-colors',
@@ -66,7 +66,7 @@ export function ClayNotificationCard({
           )}
           strokeWidth={2}
         />
-      </ZoruCard>
+      </Card>
     </button>
   );
 }

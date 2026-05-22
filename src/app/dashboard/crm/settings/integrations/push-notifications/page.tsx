@@ -240,8 +240,8 @@ export default function PushNotificationsIntegrationPage() {
         >
           {!doc && !docId ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-32 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-32 w-full" />
             </div>
           ) : null}
 
@@ -262,7 +262,7 @@ export default function PushNotificationsIntegrationPage() {
                   Deliver realtime notifications via FCM.
                 </div>
               </div>
-              <ZoruSwitch
+              <Switch
                 checked={enabled}
                 onCheckedChange={setEnabled}
                 aria-label="Push notifications enabled"
@@ -270,11 +270,11 @@ export default function PushNotificationsIntegrationPage() {
             </div>
 
             <div>
-              <ZoruLabel htmlFor="firebase_config">
+              <Label htmlFor="firebase_config">
                 Firebase config (JSON)
-              </ZoruLabel>
+              </Label>
               <div className="mt-1.5">
-                <ZoruTextarea
+                <Textarea
                   id="firebase_config"
                   name="firebase_config"
                   rows={10}
@@ -291,18 +291,18 @@ export default function PushNotificationsIntegrationPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -314,7 +314,7 @@ export default function PushNotificationsIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <IntegrationActivityFeed

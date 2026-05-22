@@ -70,9 +70,9 @@ export default async function SabsmsContactDetailPage({ params }: PageProps) {
             have been deleted, or the phone has not yet exchanged any
             messages with this workspace.
           </p>
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/sabsms/contacts">Back to contacts</Link>
-          </ZoruButton>
+          </Button>
         </div>
       </SabsmsPageShell>
     );

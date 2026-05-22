@@ -113,11 +113,11 @@ export default async function SubscriptionDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this subscription — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/subscriptions">
               <ArrowLeft className="h-4 w-4" /> Back to Subscriptions
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -136,16 +136,16 @@ export default async function SubscriptionDetailPage({
       title={`Subscription ${String(subscription._id).slice(-6)}`}
       back={{ href: '/dashboard/crm/sales/subscriptions', label: 'Subscriptions' }}
       actions={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href={`/dashboard/crm/sales/subscriptions/${id}/edit`}>
             <Pencil className="h-4 w-4" /> Edit
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <ZoruCard className="p-6 lg:col-span-2">
+        <Card className="p-6 lg:col-span-2">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Customer & Plan
           </h3>
@@ -192,17 +192,17 @@ export default async function SubscriptionDetailPage({
             </Field>
             <Field label="Trial ends">{fmtDate(subscription.trialUntil)}</Field>
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Lifecycle
           </h3>
           <div className="flex flex-col gap-4">
             <Field label="Status">
-              <ZoruBadge variant={statusVariant(subscription.status)}>
+              <Badge variant={statusVariant(subscription.status)}>
                 {subscription.status}
-              </ZoruBadge>
+              </Badge>
             </Field>
             <Field label="Started">{fmtDate(subscription.startedAt)}</Field>
             <Field label="Next billing">
@@ -215,7 +215,7 @@ export default async function SubscriptionDetailPage({
               {fmtDate(subscription.cancelledAt)}
             </Field>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
       <div className="text-[11px] text-zoru-ink-muted">

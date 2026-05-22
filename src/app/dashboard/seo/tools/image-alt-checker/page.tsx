@@ -35,24 +35,24 @@ export default function ImageAltCheckerPage() {
 
   return (
     <ToolShell title="Image Alt Checker" description="Audit a page for images missing descriptive alt text.">
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <ZoruLabel>Page URL</ZoruLabel>
-            <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+            <Label>Page URL</Label>
+            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
           </div>
-          <ZoruButton onClick={run} disabled={loading || !url.trim()}>
+          <Button onClick={run} disabled={loading || !url.trim()}>
             {loading ? 'Checking…' : 'Check'}
-          </ZoruButton>
+          </Button>
           {err && <div className="text-sm text-destructive">{err}</div>}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
       {images.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="text-sm">
-              <ZoruBadge variant="secondary">{images.length} images</ZoruBadge>{' '}
-              <ZoruBadge variant={missing ? 'destructive' : 'default'}>{missing} missing alt</ZoruBadge>
+              <Badge variant="secondary">{images.length} images</Badge>{' '}
+              <Badge variant={missing ? 'destructive' : 'default'}>{missing} missing alt</Badge>
             </div>
             <div className="space-y-2">
               {images.map((img, i) => {
@@ -69,7 +69,7 @@ export default function ImageAltCheckerPage() {
               })}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

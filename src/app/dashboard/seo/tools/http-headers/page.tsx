@@ -26,12 +26,12 @@ export default function HttpHeadersPage() {
   return (
     <ToolShell title="HTTP Headers Checker" description="View HTTP response headers for any URL.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {data && (
-        <ZoruCard><ZoruCardContent className="p-4">
+        <Card><ZoruCardContent className="p-4">
           <div className="text-sm mb-3"><span className="font-semibold">Status:</span> {data.status}</div>
           <table className="w-full text-xs">
             <tbody>
@@ -40,7 +40,7 @@ export default function HttpHeadersPage() {
               ))}
             </tbody>
           </table>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

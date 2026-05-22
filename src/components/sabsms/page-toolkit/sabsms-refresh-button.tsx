@@ -65,7 +65,7 @@ export function SabsmsRefreshButton({
 
   return (
     <div className="flex items-center">
-      <ZoruButton
+      <Button
         variant="outline"
         size="sm"
         onClick={manualRefresh}
@@ -74,17 +74,17 @@ export function SabsmsRefreshButton({
       >
         <RefreshCcw className={`mr-1.5 h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} />
         Refresh
-      </ZoruButton>
-      <ZoruDropdownMenu>
+      </Button>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             className="rounded-l-none px-1.5"
             aria-label="Auto-refresh interval"
           >
             ▾
-          </ZoruButton>
+          </Button>
         </ZoruDropdownMenuTrigger>
         <ZoruDropdownMenuContent align="end">
           <ZoruDropdownMenuLabel>Auto-refresh</ZoruDropdownMenuLabel>
@@ -100,7 +100,7 @@ export function SabsmsRefreshButton({
             ))}
           </ZoruDropdownMenuRadioGroup>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
     </div>
   );
 }

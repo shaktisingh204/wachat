@@ -76,35 +76,35 @@ export default async function ClientInvoicesPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-4">
                         <div className="text-xs text-zoru-ink-muted">Total Outstanding</div>
                         <div className="mt-1 text-2xl font-semibold text-zoru-ink">{fmtCurrency(outstanding, currency)}</div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardContent className="p-4">
                         <div className="text-xs text-zoru-ink-muted">Paid YTD</div>
                         <div className="mt-1 text-2xl font-semibold text-zoru-ink">{fmtCurrency(paidYtd, currency)}</div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardContent className="p-4">
                         <div className="text-xs text-zoru-ink-muted">Overdue</div>
                         <div className="mt-1 text-2xl font-semibold text-zoru-ink">{overdueCount}</div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
 
             {invoices.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title="No invoices yet"
                     description="Invoices issued to you will appear here."
                 />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Number</ZoruTableHead>
@@ -132,26 +132,26 @@ export default async function ClientInvoicesPage() {
                                             <ZoruTableCell>{fmtDate(inv.dueDate)}</ZoruTableCell>
                                             <ZoruTableCell>{fmtCurrency(inv.total, inv.currency)}</ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant={statusVariant(inv.status)}>{inv.status}</ZoruBadge>
+                                                <Badge variant={statusVariant(inv.status)}>{inv.status}</Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
                                                 {isUnpaid && inv.publicHash ? (
-                                                    <ZoruButton asChild size="sm">
+                                                    <Button asChild size="sm">
                                                         <a href={`/share/invoice/${inv.publicHash}`}>Pay Now</a>
-                                                    </ZoruButton>
+                                                    </Button>
                                                 ) : (
-                                                    <ZoruButton asChild size="sm" variant="outline">
+                                                    <Button asChild size="sm" variant="outline">
                                                         <Link href={`/portal/client/invoices/${inv._id}`}>View</Link>
-                                                    </ZoruButton>
+                                                    </Button>
                                                 )}
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

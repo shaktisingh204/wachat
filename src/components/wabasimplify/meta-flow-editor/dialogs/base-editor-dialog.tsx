@@ -11,21 +11,21 @@ interface BaseEditorDialogProps {
 
 export function BaseEditorDialog({ isOpen, onOpenChange, onSave, componentType, children }: BaseEditorDialogProps) {
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-2xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Edit Component: {componentType}</ZoruDialogTitle>
         </ZoruDialogHeader>
-        <ZoruScrollArea className="max-h-[60vh] -mx-6 px-6">
+        <ScrollArea className="max-h-[60vh] -mx-6 px-6">
           <div className="py-6 space-y-6">
             {children}
           </div>
-        </ZoruScrollArea>
+        </ScrollArea>
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
-          <ZoruButton onClick={onSave}>Apply</ZoruButton>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={onSave}>Apply</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

@@ -128,7 +128,7 @@ export function FyReportToolbar({
     >
       <label className="flex flex-col gap-1">
         <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">FY</span>
-        <ZoruSelect value={matchedFy?.anchor ?? ''} onValueChange={onFyChange}>
+        <Select value={matchedFy?.anchor ?? ''} onValueChange={onFyChange}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Custom range" />
           </ZoruSelectTrigger>
@@ -139,7 +139,7 @@ export function FyReportToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </label>
 
       <label className="flex flex-col gap-1">
@@ -162,21 +162,21 @@ export function FyReportToolbar({
         />
       </label>
 
-      <ZoruButton type="submit" size="sm" disabled={isPending}>
+      <Button type="submit" size="sm" disabled={isPending}>
         Apply
-      </ZoruButton>
-      <ZoruButton type="button" size="sm" variant="outline" onClick={onRefresh} disabled={isPending} aria-label="Refresh">
+      </Button>
+      <Button type="button" size="sm" variant="outline" onClick={onRefresh} disabled={isPending} aria-label="Refresh">
         <RefreshCcw className="h-3.5 w-3.5" />
         Refresh
-      </ZoruButton>
-      <ZoruButton type="button" size="sm" variant="outline" onClick={onCsv} aria-label="Export CSV">
+      </Button>
+      <Button type="button" size="sm" variant="outline" onClick={onCsv} aria-label="Export CSV">
         <FileDown className="h-3.5 w-3.5" />
         CSV
-      </ZoruButton>
-      <ZoruButton type="button" size="sm" variant="outline" onClick={onXlsx} aria-label="Export XLSX">
+      </Button>
+      <Button type="button" size="sm" variant="outline" onClick={onXlsx} aria-label="Export XLSX">
         <FileSpreadsheet className="h-3.5 w-3.5" />
         XLSX
-      </ZoruButton>
+      </Button>
     </form>
   );
 }

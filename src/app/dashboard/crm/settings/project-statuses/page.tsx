@@ -148,18 +148,18 @@ export default function ProjectStatusesPage() {
                     key: 'is_final',
                     label: 'Final',
                     render: (row) => (
-                        <ZoruBadge variant={row.is_final ? 'warning' : 'ghost'}>
+                        <Badge variant={row.is_final ? 'warning' : 'ghost'}>
                             {row.is_final ? 'Yes' : 'No'}
-                        </ZoruBadge>
+                        </Badge>
                     ),
                 },
                 {
                     key: 'is_default',
                     label: 'Default',
                     render: (row) => (
-                        <ZoruBadge variant={row.is_default ? 'success' : 'ghost'}>
+                        <Badge variant={row.is_default ? 'success' : 'ghost'}>
                             {row.is_default ? 'Yes' : 'No'}
-                        </ZoruBadge>
+                        </Badge>
                     ),
                 },
             ]}

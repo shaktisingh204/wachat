@@ -50,14 +50,14 @@ export default async function ClientEstimatesPage() {
             </div>
 
             {estimates.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title="No estimates yet"
                     description="Estimates sent to you will appear here."
                 />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Number</ZoruTableHead>
@@ -76,13 +76,13 @@ export default async function ClientEstimatesPage() {
                                             <ZoruTableCell>{fmtDate(est.validTill)}</ZoruTableCell>
                                             <ZoruTableCell>{fmtCurrency(est.total, est.currency)}</ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant="outline">{est.status}</ZoruBadge>
+                                                <Badge variant="outline">{est.status}</Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
                                                 {waiting && est.publicHash ? (
-                                                    <ZoruButton asChild size="sm">
+                                                    <Button asChild size="sm">
                                                         <a href={`/share/estimate/${est.publicHash}`}>Review</a>
-                                                    </ZoruButton>
+                                                    </Button>
                                                 ) : (
                                                     <span className="text-xs text-zoru-ink-muted">—</span>
                                                 )}
@@ -91,9 +91,9 @@ export default async function ClientEstimatesPage() {
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

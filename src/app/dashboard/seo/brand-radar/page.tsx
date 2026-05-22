@@ -27,7 +27,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 const ChartContainer = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartContainer), {
     ssr: false,
-    loading: () => <ZoruSkeleton className="h-64 w-full" />,
+    loading: () => <Skeleton className="h-64 w-full" />,
 }) as any;
 const ChartTooltip = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartTooltip), { ssr: false }) as any;
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
@@ -109,14 +109,14 @@ export default function BrandRadarPage() {
                 </p>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Configure Tracking</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2 items-end">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="brand-keywords">Brand Name / Keywords</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="brand-keywords">Brand Name / Keywords</Label>
+                        <Input
                             id="brand-keywords"
                             value={brand}
                             onChange={(e) => setBrand(e.target.value)}
@@ -124,23 +124,23 @@ export default function BrandRadarPage() {
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruButton onClick={handleAnalyze} disabled={isLoading} className="w-full md:w-auto">
+                        <Button onClick={handleAnalyze} disabled={isLoading} className="w-full md:w-auto">
                             {isLoading ? 'Scanning...' : 'Scan for Mentions'}
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {mentions.length > 0 && (
                 <div className="grid gap-8 md:grid-cols-2">
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Sentiment Analysis</ZoruCardTitle>
                             <ZoruCardDescription>Overall sentiment of recent mentions.</ZoruCardDescription>
                         </ZoruCardHeader>
                         <ZoruCardContent>
                             {isLoading ? (
-                                <ZoruSkeleton className="h-64 w-full" />
+                                <Skeleton className="h-64 w-full" />
                             ) : (
                                 <ChartContainer config={chartConfigSentiment} className="h-64 w-full">
                                     <BarChart data={sentimentData} accessibilityLayer>
@@ -153,24 +153,24 @@ export default function BrandRadarPage() {
                                 </ChartContainer>
                             )}
                         </ZoruCardContent>
-                    </ZoruCard>
-                    <ZoruCard>
+                    </Card>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Recent Mentions</ZoruCardTitle>
                         </ZoruCardHeader>
                         <ZoruCardContent>
                             <div className="space-y-4">
                                 {isLoading
-                                    ? [...Array(4)].map((_, i) => <ZoruSkeleton key={i} className="h-16 w-full" />)
+                                    ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
                                     : mentions.map((mention, i) => (
                                           <div key={i} className="flex gap-4 p-3 border-b border-zoru-line last:border-0">
                                               <div className="text-zoru-ink-muted mt-1">{getSourceIcon(mention.source)}</div>
                                               <div className="flex-1">
                                                   <div className="flex justify-between items-center">
                                                       <p className="text-sm text-zoru-ink">{mention.author}</p>
-                                                      <ZoruBadge variant={getSentimentVariant(mention.sentiment)}>
+                                                      <Badge variant={getSentimentVariant(mention.sentiment)}>
                                                           {mention.sentiment}
-                                                      </ZoruBadge>
+                                                      </Badge>
                                                   </div>
                                                   <p className="text-sm text-zoru-ink-muted">{mention.content}</p>
                                                   <a
@@ -186,7 +186,7 @@ export default function BrandRadarPage() {
                                       ))}
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </div>
             )}
 

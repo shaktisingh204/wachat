@@ -76,14 +76,14 @@ function KpiTile({
     icon: React.ElementType;
 }): React.JSX.Element {
     return (
-        <ZoruCard>
+        <Card>
             <div className="flex items-center justify-between">
                 <p className="text-[12.5px] font-medium text-zoru-ink-muted">{label}</p>
                 <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
             </div>
             <p className="mt-2 truncate text-[22px] font-semibold text-zoru-ink">{value}</p>
             {sub ? <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -144,7 +144,7 @@ function MergeClusterCard({
         });
 
     return (
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
             <div className="flex items-center justify-between gap-2 border-b border-zoru-line p-3">
                 <h3 className="flex items-center gap-2 text-[13px] font-medium text-zoru-ink">
                     <Layers className="h-3.5 w-3.5 text-zoru-ink-muted" />
@@ -153,9 +153,9 @@ function MergeClusterCard({
                     ) : (
                         'Cluster'
                     )}
-                    <ZoruBadge variant="outline">{group.members.length} invoices</ZoruBadge>
+                    <Badge variant="outline">{group.members.length} invoices</Badge>
                 </h3>
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="default"
                     disabled={isPending || losers.length === 0}
@@ -167,7 +167,7 @@ function MergeClusterCard({
                         <Sparkles className="mr-1 h-3.5 w-3.5" />
                     )}
                     Merge {losers.length} into survivor
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="grid grid-cols-1 gap-px bg-zoru-line md:grid-cols-2">
@@ -206,7 +206,7 @@ function MergeClusterCard({
                                 <dt className="text-zoru-ink-muted">Status</dt>
                                 <dd className="text-right text-zoru-ink">
                                     {m.status ? (
-                                        <ZoruBadge variant="outline">{m.status}</ZoruBadge>
+                                        <Badge variant="outline">{m.status}</Badge>
                                     ) : (
                                         '—'
                                     )}
@@ -226,7 +226,7 @@ function MergeClusterCard({
                 confirmTone="primary"
                 onConfirm={handleConfirm}
             />
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -270,7 +270,7 @@ export default function InvoiceDuplicatesPage(): React.JSX.Element {
             title="Find duplicates"
             subtitle="Suspected duplicate invoices — same customer, same invoice number or similar amount within ±7 days."
             viewSwitcher={
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={refresh}
@@ -280,12 +280,12 @@ export default function InvoiceDuplicatesPage(): React.JSX.Element {
                         className={['mr-1 h-3.5 w-3.5', isPending ? 'animate-spin' : ''].join(' ')}
                     />
                     Rescan
-                </ZoruButton>
+                </Button>
             }
             primaryAction={
-                <ZoruButton asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm">
                     <Link href="/dashboard/crm/sales/invoices">Back to invoices</Link>
-                </ZoruButton>
+                </Button>
             }
         >
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -316,7 +316,7 @@ export default function InvoiceDuplicatesPage(): React.JSX.Element {
             </div>
 
             {loaded && groups.length === 0 ? (
-                <ZoruCard className="mt-4 p-6">
+                <Card className="mt-4 p-6">
                     <div className="flex flex-col items-center gap-3 text-center">
                         <CheckCircle2 className="h-8 w-8 text-emerald-500" />
                         <h3 className="text-base font-medium text-zoru-ink">No duplicate clusters</h3>
@@ -326,7 +326,7 @@ export default function InvoiceDuplicatesPage(): React.JSX.Element {
                             within ±7 days.
                         </p>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : (
                 <div className="mt-4 space-y-4">
                     {groups.map((group) => (

@@ -215,11 +215,11 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
           href={`/dashboard/hrm/hr/candidates/${row._id}`}
           className="inline-flex items-center gap-2 text-zoru-ink hover:underline"
         >
-          <ZoruAvatar className="h-6 w-6 text-[10px]">
+          <Avatar className="h-6 w-6 text-[10px]">
             <ZoruAvatarFallback>
               {(row.name || '?').slice(0, 2).toUpperCase()}
             </ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
           <span className="truncate font-medium">{row.name || '—'}</span>
         </Link>
       ),

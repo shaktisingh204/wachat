@@ -45,9 +45,9 @@ function statusBadge(record: DnsRecord) {
     missing: 'destructive',
   };
   return (
-    <ZoruBadge variant={tone[record.status] ?? 'secondary'}>
+    <Badge variant={tone[record.status] ?? 'secondary'}>
       {record.type}
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -56,7 +56,7 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
 
   if (domains.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<ShieldCheck />}
         title="No sender domains yet"
         description="Add a domain to your account to begin authenticating outbound mail."
@@ -92,8 +92,8 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
   };
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <ZoruTable>
+    <Card className="overflow-hidden p-0">
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Domain</ZoruTableHead>
@@ -110,25 +110,25 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
                   <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-3 px-4 py-3">
                     <div className="flex items-center gap-2">
                       <ZoruCollapsibleTrigger asChild>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon"
                           aria-label="Toggle DNS records"
                         >
                           <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruCollapsibleTrigger>
                       <span className="font-medium text-zoru-ink">{d.domain}</span>
                     </div>
                     <div>
                       {d.verified ? (
-                        <ZoruBadge variant="success">
+                        <Badge variant="success">
                           <ShieldCheck className="h-3 w-3" /> Verified
-                        </ZoruBadge>
+                        </Badge>
                       ) : (
-                        <ZoruBadge variant="warning">
+                        <Badge variant="warning">
                           <ShieldOff className="h-3 w-3" /> Pending
-                        </ZoruBadge>
+                        </Badge>
                       )}
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -138,22 +138,22 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
                       {statusBadge(d.mx)}
                     </div>
                     <div className="flex justify-end gap-2">
-                      <ZoruButton
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleCheck(d.domain)}
                         disabled={pending}
                       >
                         <RefreshCw className="h-3.5 w-3.5" /> Check now
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleRotate(d.domain)}
                         disabled={pending}
                       >
                         <KeyRound className="h-3.5 w-3.5" /> Rotate DKIM
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
                   <ZoruCollapsibleContent>
@@ -169,7 +169,7 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
-      </ZoruTable>
-    </ZoruCard>
+      </Table>
+    </Card>
   );
 }

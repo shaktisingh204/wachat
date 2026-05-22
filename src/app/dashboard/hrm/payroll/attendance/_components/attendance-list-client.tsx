@@ -302,7 +302,7 @@ export function AttendanceListClient({
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <AttendanceToolbar
           query={query}
           onQueryChange={setQuery}
@@ -361,7 +361,7 @@ export function AttendanceListClient({
             <PaginationBar page={page} limit={limit} hasMore={hasMore} />
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -67,19 +67,19 @@ export default async function ExitDetailPage({ params }: PageProps) {
             actions={
                 <>
                     <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <ArrowLeft className="h-4 w-4" /> Back
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
+                        <Button size="sm">
                             <Pencil className="h-4 w-4" /> Edit
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <a href={`${BASE}/${id}?print=1`} target="_blank" rel="noopener noreferrer">
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <Printer className="h-4 w-4" /> Print clearance
-                        </ZoruButton>
+                        </Button>
                     </a>
                     <HrActionButtons
                         actions={[
@@ -142,12 +142,12 @@ export default async function ExitDetailPage({ params }: PageProps) {
                 title="Exit details"
                 titleSlot={
                     <div className="flex items-center gap-1.5">
-                        <ZoruBadge variant="ghost">{reason}</ZoruBadge>
-                        <ZoruBadge
+                        <Badge variant="ghost">{reason}</Badge>
+                        <Badge
                             variant={fnf === 'processed' ? 'success' : 'warning'}
                         >
                             FnF: {fnf}
-                        </ZoruBadge>
+                        </Badge>
                     </div>
                 }
             >
@@ -166,14 +166,14 @@ export default async function ExitDetailPage({ params }: PageProps) {
                     {fmtDate(e.exit_interview_date)}
                 </HrDetailRow>
                 <HrDetailRow label="Clearance status">
-                    <ZoruBadge variant={clearance === 'cleared' ? 'success' : 'warning'}>
+                    <Badge variant={clearance === 'cleared' ? 'success' : 'warning'}>
                         {clearance}
-                    </ZoruBadge>
+                    </Badge>
                 </HrDetailRow>
                 <HrDetailRow label="FnF status">
-                    <ZoruBadge variant={fnf === 'processed' ? 'success' : 'warning'}>
+                    <Badge variant={fnf === 'processed' ? 'success' : 'warning'}>
                         {fnf}
-                    </ZoruBadge>
+                    </Badge>
                 </HrDetailRow>
                 <HrDetailRow label="FnF amount">
                     {fmtCurrency(e.fnfAmount)}

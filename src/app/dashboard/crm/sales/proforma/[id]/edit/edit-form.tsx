@@ -37,14 +37,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -78,26 +78,26 @@ export function EditProformaForm({
 
     return (
         <form action={formAction}>
-            <ZoruCard className="max-w-2xl p-6">
+            <Card className="max-w-2xl p-6">
                 <input type="hidden" name="proformaId" value={proformaId} />
 
                 <div className="space-y-5">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="proformaNumber" className="text-zoru-ink">
+                            <Label htmlFor="proformaNumber" className="text-zoru-ink">
                                 Proforma Number
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="proformaNumber"
                                 name="proformaNumber"
                                 defaultValue={(initial.proformaNumber as string) || ''}
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="status" className="text-zoru-ink">
+                            <Label htmlFor="status" className="text-zoru-ink">
                                 Status
-                            </ZoruLabel>
-                            <ZoruSelect
+                            </Label>
+                            <Select
                                 name="status"
                                 defaultValue={(initial.status as string) || 'Draft'}
                             >
@@ -112,16 +112,16 @@ export function EditProformaForm({
                                     <ZoruSelectItem value="Expired">Expired</ZoruSelectItem>
                                     <ZoruSelectItem value="Converted">Converted</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="proformaDate" className="text-zoru-ink">
+                            <Label htmlFor="proformaDate" className="text-zoru-ink">
                                 Proforma Date
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="proformaDate"
                                 name="proformaDate"
                                 type="date"
@@ -129,10 +129,10 @@ export function EditProformaForm({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="validTillDate" className="text-zoru-ink">
+                            <Label htmlFor="validTillDate" className="text-zoru-ink">
                                 Valid Till
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="validTillDate"
                                 name="validTillDate"
                                 type="date"
@@ -142,7 +142,7 @@ export function EditProformaForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
+                        <Label className="text-zoru-ink">Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -151,10 +151,10 @@ export function EditProformaForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes" className="text-zoru-ink">
+                        <Label htmlFor="notes" className="text-zoru-ink">
                             Notes
-                        </ZoruLabel>
-                        <ZoruTextarea
+                        </Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             defaultValue={(initial.notes as string) || ''}
@@ -164,15 +164,15 @@ export function EditProformaForm({
 
                     <div className="flex items-center gap-3 pt-2">
                         <SaveButton />
-                        <ZoruButton variant="ghost" size="sm" asChild>
+                        <Button variant="ghost" size="sm" asChild>
                             <Link href={`/dashboard/crm/sales/proforma/${proformaId}`}>
                                 <ArrowLeft className="h-4 w-4" />
                                 Cancel
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

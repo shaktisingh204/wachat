@@ -49,14 +49,14 @@ const initialState: SaveSlaState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       {isEditing ? 'Save changes' : 'Create SLA'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -111,14 +111,14 @@ export function SlaForm({ initialData }: SlaFormProps) {
         <input type="hidden" name="status" value={status} />
       ) : null}
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Basics</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <ZoruLabel htmlFor="name">
+            <Label htmlFor="name">
               Name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="name"
               name="name"
               required
@@ -127,7 +127,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Applies to priority</ZoruLabel>
+            <Label>Applies to priority</Label>
             <EnumFormField
               enumName="ticketPriority"
               initialId={priority}
@@ -136,7 +136,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
           </div>
           {isEditing ? (
             <div className="space-y-1.5">
-              <ZoruLabel>Status</ZoruLabel>
+              <Label>Status</Label>
               <EnumFormField
                 enumName="replyTemplateStatus"
                 initialId={status}
@@ -145,18 +145,18 @@ export function SlaForm({ initialData }: SlaFormProps) {
             </div>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
           Response targets
         </h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="firstResponseMinutes">
+            <Label htmlFor="firstResponseMinutes">
               First response (minutes) *
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="firstResponseMinutes"
               name="firstResponseMinutes"
               type="number"
@@ -167,10 +167,10 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="resolutionMinutes">
+            <Label htmlFor="resolutionMinutes">
               Resolution (minutes) *
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="resolutionMinutes"
               name="resolutionMinutes"
               type="number"
@@ -182,30 +182,30 @@ export function SlaForm({ initialData }: SlaFormProps) {
           </div>
           <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
             <div className="flex flex-col">
-              <ZoruLabel htmlFor="bh-toggle">Business hours only</ZoruLabel>
+              <Label htmlFor="bh-toggle">Business hours only</Label>
               <span className="text-xs text-muted-foreground">
                 Pause the SLA clock outside of configured business hours.
               </span>
             </div>
-            <ZoruSwitch
+            <Switch
               id="bh-toggle"
               checked={businessHoursOnly}
               onCheckedChange={setBusinessHoursOnly}
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
           Escalation
         </h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="escalateAfterMinutes">
+            <Label htmlFor="escalateAfterMinutes">
               Escalate after (minutes)
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="escalateAfterMinutes"
               name="escalateAfterMinutes"
               type="number"
@@ -215,7 +215,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Escalate to</ZoruLabel>
+            <Label>Escalate to</Label>
             <EntityFormField
               entity="user"
               name="escalateTo"
@@ -224,16 +224,16 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
           Notes
         </h2>
         <div className="grid grid-cols-1 gap-5">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               rows={3}
@@ -242,8 +242,8 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="notes">Internal notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Internal notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               rows={3}
@@ -252,10 +252,10 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-        <ZoruButton variant="ghost" asChild>
+        <Button variant="ghost" asChild>
           <Link
             href={
               isEditing && initialData?._id ? `${BASE}/${initialData._id}` : BASE
@@ -264,7 +264,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton isEditing={isEditing} />
       </div>
     </form>

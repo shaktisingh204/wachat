@@ -552,9 +552,9 @@ export default function ChannelDetailPage() {
     if (isLoadingProject || loadingChannel) {
         return (
             <div className="flex flex-col gap-6 p-6">
-                <ZoruSkeleton className="h-8 w-72" />
-                <ZoruSkeleton className="h-32 w-full rounded-xl" />
-                <ZoruSkeleton className="h-64 w-full rounded-xl" />
+                <Skeleton className="h-8 w-72" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-64 w-full rounded-xl" />
             </div>
         );
     }
@@ -562,7 +562,7 @@ export default function ChannelDetailPage() {
     if (!projectId) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     title="Pick a project"
                     description="Channel detail is scoped to a project."
                 />
@@ -573,14 +573,14 @@ export default function ChannelDetailPage() {
     if (!channel) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     title="Channel not found"
                     description="It may have been removed or you no longer have access."
                     action={
                         <Link href="/dashboard/telegram/channels">
-                            <ZoruButton variant="outline">
+                            <Button variant="outline">
                                 <ArrowLeft /> Back to channels
-                            </ZoruButton>
+                            </Button>
                         </Link>
                     }
                 />
@@ -609,7 +609,7 @@ export default function ChannelDetailPage() {
                         <h1 className="text-[20px] font-medium text-zoru-ink">
                             {channel.title}
                         </h1>
-                        {channel.isVerified ? <ZoruBadge>verified</ZoruBadge> : null}
+                        {channel.isVerified ? <Badge>verified</Badge> : null}
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
                         {channel.username ? (
@@ -624,15 +624,15 @@ export default function ChannelDetailPage() {
                         ) : (
                             <span>{channel.chatId}</span>
                         )}
-                        <ZoruBadge variant="outline">{channel.type}</ZoruBadge>
+                        <Badge variant="outline">{channel.type}</Badge>
                         {channel.isAdmin ? (
-                            <ZoruBadge variant="secondary">
+                            <Badge variant="secondary">
                                 <Crown className="mr-1 h-3 w-3" /> Admin
-                            </ZoruBadge>
+                            </Badge>
                         ) : (
-                            <ZoruBadge variant="danger">
+                            <Badge variant="danger">
                                 <AlertCircle className="mr-1 h-3 w-3" /> Not admin
-                            </ZoruBadge>
+                            </Badge>
                         )}
                         <span className="inline-flex items-center gap-1">
                             <Users className="h-3 w-3" />
@@ -640,22 +640,22 @@ export default function ChannelDetailPage() {
                         </span>
                     </div>
                 </div>
-                <ZoruButton
+                <Button
                     onClick={() => setComposer({ ...COMPOSER_INITIAL, open: true })}
                     disabled={!channel.permissions.canPostMessages}
                     style={{ background: ACCENT }}
                 >
                     <MessageSquarePlus /> New post
-                </ZoruButton>
+                </Button>
             </div>
 
             {/* Permission warning */}
             {!channel.permissions.canPostMessages ? (
-                <ZoruCard className="flex items-center gap-2 border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700">
+                <Card className="flex items-center gap-2 border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700">
                     <AlertCircle className="h-4 w-4" /> The bot lacks the{' '}
                     <code>can_post_messages</code> permission on this channel. Update its
                     admin rights in Telegram to enable posting.
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Segmented tab buttons */}
@@ -682,7 +682,7 @@ export default function ChannelDetailPage() {
 
             {/* Tab body */}
             {tabBusy ? (
-                <ZoruSkeleton className="h-48 w-full rounded-xl" />
+                <Skeleton className="h-48 w-full rounded-xl" />
             ) : tab === 'posts' ? (
                 <PostsTab
                     posts={posts}
@@ -721,7 +721,7 @@ export default function ChannelDetailPage() {
             />
 
             {/* Edit dialog */}
-            <ZoruDialog
+            <Dialog
                 open={!!editState.post}
                 onOpenChange={(o) =>
                     o
@@ -744,7 +744,7 @@ export default function ChannelDetailPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="flex flex-col gap-3">
-                        <ZoruTextarea
+                        <Textarea
                             rows={5}
                             value={editState.text}
                             onChange={(e) =>
@@ -753,8 +753,8 @@ export default function ChannelDetailPage() {
                             placeholder="Updated text…"
                         />
                         <div className="flex items-center gap-2">
-                            <ZoruLabel className="text-xs text-zoru-ink-muted">Parse mode</ZoruLabel>
-                            <ZoruSelect
+                            <Label className="text-xs text-zoru-ink-muted">Parse mode</Label>
+                            <Select
                                 value={editState.parseMode}
                                 onValueChange={(v: 'NONE' | 'HTML' | 'MarkdownV2') =>
                                     setEditState((s) => ({ ...s, parseMode: v }))
@@ -768,11 +768,11 @@ export default function ChannelDetailPage() {
                                     <ZoruSelectItem value="HTML">HTML</ZoruSelectItem>
                                     <ZoruSelectItem value="MarkdownV2">MarkdownV2</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             onClick={() =>
                                 setEditState({
@@ -785,21 +785,21 @@ export default function ChannelDetailPage() {
                             disabled={editState.busy}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton onClick={handleEditPost} disabled={editState.busy}>
+                        </Button>
+                        <Button onClick={handleEditPost} disabled={editState.busy}>
                             {editState.busy ? (
                                 <Loader2 className="animate-spin" />
                             ) : (
                                 <PenSquare />
                             )}{' '}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Promote dialog */}
-            <ZoruDialog
+            <Dialog
                 open={!!promoteState.admin}
                 onOpenChange={(o) =>
                     o ? null : setPromoteState((s) => ({ ...s, admin: null }))
@@ -831,7 +831,7 @@ export default function ChannelDetailPage() {
                                 key={key}
                                 className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line p-2"
                             >
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={promoteState[key]}
                                     onCheckedChange={(v) =>
                                         setPromoteState((s) => ({
@@ -845,7 +845,7 @@ export default function ChannelDetailPage() {
                         ))}
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             onClick={() =>
                                 setPromoteState((s) => ({ ...s, admin: null }))
@@ -853,18 +853,18 @@ export default function ChannelDetailPage() {
                             disabled={promoteState.busy}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton onClick={handlePromote} disabled={promoteState.busy}>
+                        </Button>
+                        <Button onClick={handlePromote} disabled={promoteState.busy}>
                             {promoteState.busy ? (
                                 <Loader2 className="animate-spin" />
                             ) : (
                                 <Crown />
                             )}{' '}
                             Save rights
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Confirm dialogs */}
             <ZoruAlertDialog
@@ -952,7 +952,7 @@ function PostsTab({
 }) {
     if (posts.length === 0) {
         return (
-            <ZoruEmptyState
+            <EmptyState
                 title="No posts yet"
                 description="Use the New post button to publish text or media."
             />
@@ -961,16 +961,16 @@ function PostsTab({
     return (
         <div className="flex flex-col gap-2">
             {posts.map((p) => (
-                <ZoruCard key={p._id} className="p-3">
+                <Card key={p._id} className="p-3">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
-                                <ZoruBadge variant="outline">#{p.messageId}</ZoruBadge>
-                                <ZoruBadge variant="outline">{p.kind}</ZoruBadge>
+                                <Badge variant="outline">#{p.messageId}</Badge>
+                                <Badge variant="outline">{p.kind}</Badge>
                                 {p.isPinned ? (
-                                    <ZoruBadge variant="secondary">
+                                    <Badge variant="secondary">
                                         <Pin className="mr-1 h-3 w-3" /> pinned
-                                    </ZoruBadge>
+                                    </Badge>
                                 ) : null}
                                 <span className="inline-flex items-center gap-1">
                                     <Calendar className="h-3 w-3" /> {formatDate(p.sentAt)}
@@ -992,33 +992,33 @@ function PostsTab({
                             )}
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => onTogglePin(p)}
                                 aria-label={p.isPinned ? 'Unpin' : 'Pin'}
                             >
                                 {p.isPinned ? <PinOff /> : <Pin />}
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => onEdit(p)}
                                 aria-label="Edit"
                             >
                                 <PenSquare />
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => onDelete(p)}
                                 aria-label="Delete"
                             >
                                 <Trash2 />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );
@@ -1033,7 +1033,7 @@ function ScheduledTab({
 }) {
     if (scheduled.length === 0) {
         return (
-            <ZoruEmptyState
+            <EmptyState
                 title="Nothing scheduled"
                 description="Schedule a post with a future Send at time from the composer."
             />
@@ -1042,11 +1042,11 @@ function ScheduledTab({
     return (
         <div className="flex flex-col gap-2">
             {scheduled.map((p) => (
-                <ZoruCard key={p._id} className="p-3">
+                <Card key={p._id} className="p-3">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
-                                <ZoruBadge variant="outline">{p.status}</ZoruBadge>
+                                <Badge variant="outline">{p.status}</Badge>
                                 <span className="inline-flex items-center gap-1">
                                     <Calendar className="h-3 w-3" /> Sends{' '}
                                     {formatDate(p.scheduledAt)}
@@ -1060,16 +1060,16 @@ function ScheduledTab({
                                 )}
                             </p>
                         </div>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="icon-sm"
                             onClick={() => onCancel(p)}
                             aria-label="Cancel"
                         >
                             <Trash2 />
-                        </ZoruButton>
+                        </Button>
                     </div>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );
@@ -1086,7 +1086,7 @@ function AdminsTab({
 }) {
     if (admins.length === 0) {
         return (
-            <ZoruEmptyState
+            <EmptyState
                 title="No administrators"
                 description="The Bot API only returns admins for channels/supergroups the bot can read."
             />
@@ -1095,7 +1095,7 @@ function AdminsTab({
     return (
         <div className="flex flex-col gap-2">
             {admins.map((a) => (
-                <ZoruCard key={a.userId} className="flex items-center gap-3 p-3">
+                <Card key={a.userId} className="flex items-center gap-3 p-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface text-zoru-ink-muted">
                         <Users className="h-4 w-4" />
                     </div>
@@ -1104,11 +1104,11 @@ function AdminsTab({
                             <span className="truncate text-sm font-medium text-zoru-ink">
                                 {a.name}
                             </span>
-                            <ZoruBadge
+                            <Badge
                                 variant={a.status === 'creator' ? 'secondary' : 'outline'}
                             >
                                 {a.status}
-                            </ZoruBadge>
+                            </Badge>
                         </div>
                         {a.username ? (
                             <a
@@ -1126,24 +1126,24 @@ function AdminsTab({
                         )}
                     </div>
                     <div className="flex items-center gap-1">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             disabled={a.status === 'creator'}
                             onClick={() => onEditRights(a)}
                         >
                             <PenSquare /> Edit rights
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="ghost"
                             size="sm"
                             disabled={a.status === 'creator'}
                             onClick={() => onDemote(a)}
                         >
                             Demote
-                        </ZoruButton>
+                        </Button>
                     </div>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );
@@ -1151,37 +1151,37 @@ function AdminsTab({
 
 function StatsTab({ stats }: { stats: StatsResp | null }) {
     if (!stats) {
-        return <ZoruSkeleton className="h-48 w-full rounded-xl" />;
+        return <Skeleton className="h-48 w-full rounded-xl" />;
     }
     return (
         <div className="flex flex-col gap-4">
             <div className="grid gap-3 sm:grid-cols-3">
-                <ZoruCard className="p-4">
+                <Card className="p-4">
                     <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                         Posts (30d)
                     </div>
                     <div className="mt-1.5 text-[22px] text-zoru-ink">
                         {stats.postsCount}
                     </div>
-                </ZoruCard>
-                <ZoruCard className="p-4">
+                </Card>
+                <Card className="p-4">
                     <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                         Total views (mirror)
                     </div>
                     <div className="mt-1.5 text-[22px] text-zoru-ink">
                         {stats.totalViews}
                     </div>
-                </ZoruCard>
-                <ZoruCard className="p-4">
+                </Card>
+                <Card className="p-4">
                     <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                         Pending scheduled
                     </div>
                     <div className="mt-1.5 text-[22px] text-zoru-ink">
                         {stats.scheduledCount}
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <div className="mb-2 text-xs font-medium text-zoru-ink">
                     Posts over time
                 </div>
@@ -1190,8 +1190,8 @@ function StatsTab({ stats }: { stats: StatsResp | null }) {
                     <span>{stats.series[0]?.date ?? ''}</span>
                     <span>{stats.series.at(-1)?.date ?? ''}</span>
                 </div>
-            </ZoruCard>
-            <ZoruCard className="p-4">
+            </Card>
+            <Card className="p-4">
                 <div className="mb-2 text-xs font-medium text-zoru-ink">Top posts</div>
                 {stats.topPosts.length === 0 ? (
                     <div className="text-xs text-zoru-ink-muted">
@@ -1218,7 +1218,7 @@ function StatsTab({ stats }: { stats: StatsResp | null }) {
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -1239,7 +1239,7 @@ function ComposerDialog({
     onSubmit: () => void;
 }) {
     return (
-        <ZoruDialog open={state.open} onOpenChange={(o) => (o ? null : onClose())}>
+        <Dialog open={state.open} onOpenChange={(o) => (o ? null : onClose())}>
             <ZoruDialogContent className="max-w-2xl">
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>New channel post</ZoruDialogTitle>
@@ -1249,7 +1249,7 @@ function ComposerDialog({
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <div className="flex flex-col gap-3">
-                    <ZoruTextarea
+                    <Textarea
                         rows={5}
                         value={state.text}
                         onChange={(e) => onChange({ ...state, text: e.target.value })}
@@ -1257,10 +1257,10 @@ function ComposerDialog({
                     />
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruLabel className="text-xs text-zoru-ink-muted">
+                        <Label className="text-xs text-zoru-ink-muted">
                             Parse mode
-                        </ZoruLabel>
-                        <ZoruSelect
+                        </Label>
+                        <Select
                             value={state.parseMode}
                             onValueChange={(v: ComposerState['parseMode']) =>
                                 onChange({ ...state, parseMode: v })
@@ -1274,12 +1274,12 @@ function ComposerDialog({
                                 <ZoruSelectItem value="HTML">HTML</ZoruSelectItem>
                                 <ZoruSelectItem value="MarkdownV2">MarkdownV2</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
 
-                        <ZoruLabel className="ml-3 text-xs text-zoru-ink-muted">
+                        <Label className="ml-3 text-xs text-zoru-ink-muted">
                             Media type
-                        </ZoruLabel>
-                        <ZoruSelect
+                        </Label>
+                        <Select
                             value={state.mediaType}
                             onValueChange={(v: ComposerState['mediaType']) =>
                                 onChange({ ...state, mediaType: v })
@@ -1294,13 +1294,13 @@ function ComposerDialog({
                                 <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
                                 <ZoruSelectItem value="document">Document</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
 
                     <div>
-                        <ZoruLabel className="text-xs text-zoru-ink-muted">
+                        <Label className="text-xs text-zoru-ink-muted">
                             Attachment (SabFiles)
-                        </ZoruLabel>
+                        </Label>
                         <SabFileUrlInput
                             value={state.media}
                             onChange={(v) => onChange({ ...state, media: v })}
@@ -1321,10 +1321,10 @@ function ComposerDialog({
                     {/* Inline keyboard builder */}
                     <div className="rounded-[var(--zoru-radius)] border border-zoru-line p-2">
                         <div className="mb-1.5 flex items-center justify-between">
-                            <ZoruLabel className="text-xs text-zoru-ink-muted">
+                            <Label className="text-xs text-zoru-ink-muted">
                                 Inline buttons
-                            </ZoruLabel>
-                            <ZoruButton
+                            </Label>
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() =>
@@ -1338,7 +1338,7 @@ function ComposerDialog({
                                 }
                             >
                                 <Plus /> Add button
-                            </ZoruButton>
+                            </Button>
                         </div>
                         {state.inlineButtons.length === 0 ? (
                             <p className="text-[11px] text-zoru-ink-muted">
@@ -1351,7 +1351,7 @@ function ComposerDialog({
                                         key={`btn-${i}`}
                                         className="flex items-center gap-2"
                                     >
-                                        <ZoruInput
+                                        <Input
                                             value={b.text}
                                             placeholder="Button label"
                                             onChange={(e) => {
@@ -1360,7 +1360,7 @@ function ComposerDialog({
                                                 onChange({ ...state, inlineButtons: next });
                                             }}
                                         />
-                                        <ZoruInput
+                                        <Input
                                             value={b.url}
                                             placeholder="https://…"
                                             onChange={(e) => {
@@ -1369,7 +1369,7 @@ function ComposerDialog({
                                                 onChange({ ...state, inlineButtons: next });
                                             }}
                                         />
-                                        <ZoruButton
+                                        <Button
                                             variant="ghost"
                                             size="icon-sm"
                                             aria-label="Remove"
@@ -1380,7 +1380,7 @@ function ComposerDialog({
                                             }}
                                         >
                                             <Trash2 />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 ))}
                             </div>
@@ -1389,7 +1389,7 @@ function ComposerDialog({
 
                     <div className="flex flex-wrap items-center gap-3">
                         <label className="flex items-center gap-1.5 text-sm">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={state.disablePreview}
                                 onCheckedChange={(v) =>
                                     onChange({ ...state, disablePreview: Boolean(v) })
@@ -1398,7 +1398,7 @@ function ComposerDialog({
                             Disable link preview
                         </label>
                         <label className="flex items-center gap-1.5 text-sm">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={state.disableNotification}
                                 onCheckedChange={(v) =>
                                     onChange({ ...state, disableNotification: Boolean(v) })
@@ -1409,9 +1409,9 @@ function ComposerDialog({
                     </div>
 
                     <div>
-                        <ZoruLabel className="text-xs text-zoru-ink-muted">
+                        <Label className="text-xs text-zoru-ink-muted">
                             Schedule (optional)
-                        </ZoruLabel>
+                        </Label>
                         <input
                             type="datetime-local"
                             value={state.scheduleAt}
@@ -1427,10 +1427,10 @@ function ComposerDialog({
                     </div>
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" onClick={onClose} disabled={state.busy}>
+                    <Button variant="ghost" onClick={onClose} disabled={state.busy}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={onSubmit} disabled={state.busy}>
+                    </Button>
+                    <Button onClick={onSubmit} disabled={state.busy}>
                         {state.busy ? (
                             <Loader2 className="animate-spin" />
                         ) : state.scheduleAt ? (
@@ -1439,9 +1439,9 @@ function ComposerDialog({
                             <MessageSquarePlus />
                         )}{' '}
                         {state.scheduleAt ? 'Schedule' : 'Send'}
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

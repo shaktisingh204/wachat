@@ -1,6 +1,6 @@
 import { Badge, type ZoruBadgeProps } from '@/components/zoruui';
 /**
- * <StatusPill /> — thin convenience wrapper over <ZoruBadge> for the
+ * <StatusPill /> — thin convenience wrapper over <Badge> for the
  * recurring `{ label, tone }` shape used across CRM / HRM tables.
  *
  * Pure render — no client directive required.
@@ -42,7 +42,7 @@ export interface StatusPillProps {
  * ```
  */
 export function StatusPill({ label, tone = 'neutral' }: StatusPillProps) {
-    return <ZoruBadge variant={TONE_TO_VARIANT[tone]}>{label}</ZoruBadge>;
+    return <Badge variant={TONE_TO_VARIANT[tone]}>{label}</Badge>;
 }
 
 /**

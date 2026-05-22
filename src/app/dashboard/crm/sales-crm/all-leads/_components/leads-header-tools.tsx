@@ -61,11 +61,11 @@ export function LeadsHeaderTools({
                     <LayoutGrid className="h-3.5 w-3.5" /> Kanban
                 </button>
             </div>
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href="/dashboard/crm/sales-crm/all-leads/duplicates">
                     <Copy className="h-3.5 w-3.5" /> Find duplicates
                 </Link>
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

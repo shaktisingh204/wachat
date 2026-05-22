@@ -53,7 +53,7 @@ export function RunCronJobsButton() {
   };
 
   return (
-    <ZoruButton onClick={onRun} variant="outline" disabled={isPending}>
+    <Button onClick={onRun} variant="outline" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -65,6 +65,6 @@ export function RunCronJobsButton() {
           Run All Cron Jobs
         </>
       )}
-    </ZoruButton>
+    </Button>
   );
 }

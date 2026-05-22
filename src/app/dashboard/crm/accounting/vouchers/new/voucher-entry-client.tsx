@@ -46,10 +46,10 @@ const initialState = { message: undefined, error: undefined };
 function SaveButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending || disabled}>
+        <Button type="submit" disabled={pending || disabled}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Submit
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -95,9 +95,9 @@ function LineItemsSection({ title, items, setItems, currency }: LineItemsSection
                 {items.map((item, index) => (
                     <div key={item.id} className="p-3 border border-border rounded-lg bg-secondary space-y-3">
                         <div className="flex justify-between items-center">
-                            <ZoruLabel>Item {index + 1}</ZoruLabel>
+                            <Label>Item {index + 1}</Label>
                             {items.length > 1 && (
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon"
@@ -105,12 +105,12 @@ function LineItemsSection({ title, items, setItems, currency }: LineItemsSection
                                     onClick={() => handleRemoveItem(item.id)}
                                 >
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
+                                </Button>
                             )}
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <ZoruLabel className="text-xs">Account *</ZoruLabel>
+                                <Label className="text-xs">Account *</Label>
                                 <EntityPicker
                                     entity="account"
                                     value={item.accountId || null}
@@ -122,8 +122,8 @@ function LineItemsSection({ title, items, setItems, currency }: LineItemsSection
                                 />
                             </div>
                             <div className="space-y-1">
-                                <ZoruLabel className="text-xs">Remark</ZoruLabel>
-                                <ZoruInput
+                                <Label className="text-xs">Remark</Label>
+                                <Input
                                     placeholder="Add remark"
                                     value={item.remark || ''}
                                     onChange={(e) => handleItemChange(item.id, 'remark', e.target.value)}
@@ -132,7 +132,7 @@ function LineItemsSection({ title, items, setItems, currency }: LineItemsSection
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <ZoruLabel className="text-xs">Currency *</ZoruLabel>
+                                <Label className="text-xs">Currency *</Label>
                                 <EntityPicker
                                     entity="currency"
                                     value={item.currency || null}
@@ -144,8 +144,8 @@ function LineItemsSection({ title, items, setItems, currency }: LineItemsSection
                                 />
                             </div>
                             <div className="space-y-1">
-                                <ZoruLabel className="text-xs">Amount *</ZoruLabel>
-                                <ZoruInput
+                                <Label className="text-xs">Amount *</Label>
+                                <Input
                                     type="number"
                                     value={item.amount}
                                     onChange={(e) => handleItemChange(item.id, 'amount', Number(e.target.value))}
@@ -156,9 +156,9 @@ function LineItemsSection({ title, items, setItems, currency }: LineItemsSection
                     </div>
                 ))}
             </div>
-            <ZoruButton type="button" variant="outline" size="sm" className="mt-3" onClick={handleAddItem}>
+            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={handleAddItem}>
                 Add line item
-            </ZoruButton>
+            </Button>
         </section>
     );
 }
@@ -218,42 +218,42 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
 
             <div className="max-w-6xl mx-auto flex flex-col gap-6">
                 <header className="flex justify-between items-center">
-                    <ZoruButton variant="ghost" asChild className="-ml-4 text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" asChild className="-ml-4 text-muted-foreground hover:text-foreground">
                         <Link href="/dashboard/crm/accounting/vouchers">
                             <ArrowLeft className="mr-2 h-4 w-4" />Back to Voucher Books
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <div className="flex items-center gap-2">
                         <SaveButton disabled={difference !== 0} />
                     </div>
                 </header>
-                <ZoruCard className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                <Card className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                     <header className="text-center mb-8">
                         <h1 className="text-[26px] font-semibold text-accent-foreground">New Voucher Entry</h1>
                         <p className="mt-1 text-[13px] text-muted-foreground">Record a new journal entry.</p>
                     </header>
 
                     {!businessProfile?.name && (
-                        <ZoruAlert variant="destructive" className="mb-6">
+                        <Alert variant="destructive" className="mb-6">
                             <AlertCircle className="h-4 w-4" />
                             <ZoruAlertTitle>Business profile incomplete</ZoruAlertTitle>
                             <ZoruAlertDescription>
                                 Complete your business profile before posting vouchers.
-                                <ZoruButton asChild variant="link" className="p-0 h-auto ml-2">
+                                <Button asChild variant="link" className="p-0 h-auto ml-2">
                                     <Link href="/dashboard/user/settings/profile">Go to settings</Link>
-                                </ZoruButton>
+                                </Button>
                             </ZoruAlertDescription>
-                        </ZoruAlert>
+                        </Alert>
                     )}
 
-                    <ZoruSeparator className="my-8" />
+                    <Separator className="my-8" />
 
                     <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor="voucherBookId">Voucher Book *</ZoruLabel>
+                            <Label htmlFor="voucherBookId">Voucher Book *</Label>
                             {/* TODO(§1E): VoucherBook needs its own EntityKey before this can move to
                                 <EntityFormField>. Keeping the in-memory list bound for now. */}
-                            <ZoruSelect name="voucherBookId" required value={bookId} onValueChange={setBookId}>
+                            <Select name="voucherBookId" required value={bookId} onValueChange={setBookId}>
                                 <ZoruSelectTrigger id="voucherBookId">
                                     <ZoruSelectValue placeholder="Select a book…" />
                                 </ZoruSelectTrigger>
@@ -264,19 +264,19 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor="voucherNumber">Voucher Number *</ZoruLabel>
-                            <ZoruInput id="voucherNumber" name="voucherNumber" required placeholder="e.g. V-001" />
+                            <Label htmlFor="voucherNumber">Voucher Number *</Label>
+                            <Input id="voucherNumber" name="voucherNumber" required placeholder="e.g. V-001" />
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel>Date *</ZoruLabel>
-                            <ZoruDatePicker value={voucherDate} onChange={setVoucherDate} />
+                            <Label>Date *</Label>
+                            <DatePicker value={voucherDate} onChange={setVoucherDate} />
                         </div>
                         <div className="space-y-1 md:col-span-3">
-                            <ZoruLabel htmlFor="note">Note</ZoruLabel>
-                            <ZoruTextarea id="note" name="note" placeholder="Add a note" />
+                            <Label htmlFor="note">Note</Label>
+                            <Textarea id="note" name="note" placeholder="Add a note" />
                         </div>
                     </section>
 
@@ -287,7 +287,7 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
                         currency={currency}
                     />
 
-                    <ZoruSeparator className="my-8" />
+                    <Separator className="my-8" />
 
                     <LineItemsSection
                         title="Credit accounts"
@@ -296,7 +296,7 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
                         currency={currency}
                     />
 
-                    <ZoruSeparator className="my-8" />
+                    <Separator className="my-8" />
 
                     <div className="flex justify-end font-semibold text-[15px] p-4">
                         <div className="w-full max-w-sm space-y-2">
@@ -316,7 +316,7 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
                             )}
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
         </form>
     );

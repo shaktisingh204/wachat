@@ -62,11 +62,11 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
 
     return (
         <div className="overflow-x-auto rounded-lg border border-border">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-border hover:bg-transparent">
                         <ZoruTableHead className="w-10 text-muted-foreground">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={allSelected}
                                 data-indeterminate={someSelected ? 'true' : undefined}
                                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
@@ -108,7 +108,7 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                     data-state={checked ? 'selected' : undefined}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={checked}
                                             onCheckedChange={() => onToggle(row._id)}
                                             aria-label={`Select ${row.name}`}
@@ -150,16 +150,16 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
                                         <div className="flex justify-end items-center gap-1">
-                                            <ZoruButton asChild variant="ghost" size="icon">
+                                            <Button asChild variant="ghost" size="icon">
                                                 <Link href={`/dashboard/crm/accounting/charts/${row._id}/edit`}>
                                                     <Edit className="h-4 w-4" />
                                                 </Link>
-                                            </ZoruButton>
-                                            <ZoruDropdownMenu>
+                                            </Button>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
-                                                    <ZoruButton variant="ghost" size="icon" aria-label="More actions">
+                                                    <Button variant="ghost" size="icon" aria-label="More actions">
                                                         <MoreHorizontal className="h-4 w-4" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruDropdownMenuTrigger>
                                                 <ZoruDropdownMenuContent align="end">
                                                     <ZoruDropdownMenuItem asChild>
@@ -182,7 +182,7 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </div>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -190,7 +190,7 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

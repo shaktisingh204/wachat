@@ -208,7 +208,7 @@ export default function AutomationPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -222,9 +222,9 @@ export default function AutomationPage() {
             <ZoruBreadcrumbPage>Automation</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageTitle>Conversational Automation</ZoruPageTitle>
           <ZoruPageDescription>
@@ -233,31 +233,31 @@ export default function AutomationPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={fetchAutomation}
             disabled={isPending}
           >
             <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setTrainOpen(true)}
             disabled={!selectedPhoneId}
           >
             <Sparkles /> Train
-          </ZoruButton>
-          <ZoruButton size="sm" onClick={handleSave} disabled={isPending || !selectedPhoneId}>
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={isPending || !selectedPhoneId}>
             <Save /> Save
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!selectedPhoneId ? (
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Bot />}
             title="No phone number connected"
             description="Select a project with a configured WhatsApp phone number to manage automation."
@@ -266,12 +266,12 @@ export default function AutomationPage() {
       ) : (
         <>
           {/* Model picker */}
-          <ZoruCard className="mt-6 p-5">
+          <Card className="mt-6 p-5">
             <h2 className="text-[15px] text-zoru-ink">Model</h2>
             <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
               Pick the engine that powers this project&apos;s automation.
             </p>
-            <ZoruRadioGroup
+            <RadioGroup
               value={model}
               onValueChange={setModel}
               className="mt-4 grid gap-3 sm:grid-cols-2"
@@ -284,11 +284,11 @@ export default function AutomationPage() {
                   description={opt.description}
                 />
               ))}
-            </ZoruRadioGroup>
-          </ZoruCard>
+            </RadioGroup>
+          </Card>
 
           {/* Welcome */}
-          <ZoruCard className="mt-6 p-5">
+          <Card className="mt-6 p-5">
             <div className="mb-4 flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
                 <MessageCircle />
@@ -303,17 +303,17 @@ export default function AutomationPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <ZoruSwitch
+              <Switch
                 id="welcome-enabled"
                 checked={welcomeEnabled}
                 onCheckedChange={setWelcomeEnabled}
               />
-              <ZoruLabel htmlFor="welcome-enabled">Enable welcome message</ZoruLabel>
+              <Label htmlFor="welcome-enabled">Enable welcome message</Label>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Ice breakers */}
-          <ZoruCard className="mt-6 p-5">
+          <Card className="mt-6 p-5">
             <div className="mb-4 flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
                 <Sparkles />
@@ -326,9 +326,9 @@ export default function AutomationPage() {
                   Suggested prompts shown when customers first open the chat (max 4).
                 </p>
               </div>
-              <ZoruBadge variant="outline" className="ml-auto">
+              <Badge variant="outline" className="ml-auto">
                 {prompts.length}/4
-              </ZoruBadge>
+              </Badge>
             </div>
 
             {prompts.length > 0 && (
@@ -339,14 +339,14 @@ export default function AutomationPage() {
                     className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2"
                   >
                     <span className="flex-1 text-sm text-zoru-ink">{prompt}</span>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => removePrompt(i)}
                       aria-label="Remove prompt"
                     >
                       <Trash2 />
-                    </ZoruButton>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -354,7 +354,7 @@ export default function AutomationPage() {
 
             {prompts.length < 4 && (
               <div className="flex gap-2">
-                <ZoruInput
+                <Input
                   value={newPrompt}
                   onChange={(e) => setNewPrompt(e.target.value)}
                   placeholder="Add an ice breaker prompt…"
@@ -366,7 +366,7 @@ export default function AutomationPage() {
                     }
                   }}
                 />
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="icon"
                   onClick={addPrompt}
@@ -374,13 +374,13 @@ export default function AutomationPage() {
                   aria-label="Add prompt"
                 >
                   <Plus />
-                </ZoruButton>
+                </Button>
               </div>
             )}
-          </ZoruCard>
+          </Card>
 
           {/* Commands */}
-          <ZoruCard className="mt-6 p-5">
+          <Card className="mt-6 p-5">
             <div className="mb-4 flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
                 <Terminal />
@@ -393,9 +393,9 @@ export default function AutomationPage() {
                   Slash commands customers can use in chat (max 30).
                 </p>
               </div>
-              <ZoruBadge variant="outline" className="ml-auto">
+              <Badge variant="outline" className="ml-auto">
                 {commands.length}/30
-              </ZoruBadge>
+              </Badge>
             </div>
 
             {commands.length > 0 && (
@@ -411,14 +411,14 @@ export default function AutomationPage() {
                     <span className="flex-1 truncate text-sm text-zoru-ink-muted">
                       {cmd.command_description}
                     </span>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => removeCommand(i)}
                       aria-label="Remove command"
                     >
                       <Trash2 />
-                    </ZoruButton>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -426,7 +426,7 @@ export default function AutomationPage() {
 
             {commands.length < 30 && (
               <div className="flex gap-2">
-                <ZoruInput
+                <Input
                   value={newCommandName}
                   onChange={(e) =>
                     setNewCommandName(
@@ -436,7 +436,7 @@ export default function AutomationPage() {
                   placeholder="command_name"
                   className="w-44 font-mono"
                 />
-                <ZoruInput
+                <Input
                   value={newCommandDesc}
                   onChange={(e) => setNewCommandDesc(e.target.value)}
                   placeholder="Description of the command…"
@@ -448,7 +448,7 @@ export default function AutomationPage() {
                     }
                   }}
                 />
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="icon"
                   onClick={addCommand}
@@ -456,31 +456,31 @@ export default function AutomationPage() {
                   aria-label="Add command"
                 >
                   <Plus />
-                </ZoruButton>
+                </Button>
               </div>
             )}
-          </ZoruCard>
+          </Card>
 
-          <ZoruSeparator className="my-6" />
+          <Separator className="my-6" />
 
           <div className="flex items-center justify-between">
             <p className="text-[12px] text-zoru-ink-muted">
               Reset clears all welcome, ice-breaker and command configuration on Meta.
             </p>
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setResetOpen(true)}
               disabled={isPending}
             >
               Reset automation
-            </ZoruButton>
+            </Button>
           </div>
         </>
       )}
 
       {/* Train dialog */}
-      <ZoruDialog open={trainOpen} onOpenChange={setTrainOpen}>
+      <Dialog open={trainOpen} onOpenChange={setTrainOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Train conversational AI</ZoruDialogTitle>
@@ -491,15 +491,15 @@ export default function AutomationPage() {
           </ZoruDialogHeader>
           <div className="space-y-3">
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="train-question">Sample question</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="train-question">Sample question</Label>
+              <Input
                 id="train-question"
                 placeholder="What are your business hours?"
               />
             </div>
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="train-answer">Ideal answer</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="train-answer">Ideal answer</Label>
+              <Textarea
                 id="train-answer"
                 placeholder="We're open Mon–Fri, 9am–6pm IST."
                 rows={3}
@@ -507,10 +507,10 @@ export default function AutomationPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setTrainOpen(false)}>
+            <Button variant="ghost" onClick={() => setTrainOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Saved',
@@ -520,10 +520,10 @@ export default function AutomationPage() {
               }}
             >
               Save sample
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Reset confirm */}
       <ZoruAlertDialog open={resetOpen} onOpenChange={setResetOpen}>

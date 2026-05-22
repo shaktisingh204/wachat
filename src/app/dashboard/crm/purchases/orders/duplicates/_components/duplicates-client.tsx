@@ -203,10 +203,10 @@ export function DuplicatesClient({
     <div className="flex flex-col gap-5">
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <ZoruStatCard label="Duplicate groups" value={String(kpis.totalGroups)} />
-        <ZoruStatCard label="Records affected" value={String(kpis.totalAffected)} />
-        <ZoruStatCard label="Est. duplicates" value={String(kpis.estimated)} />
-        <ZoruStatCard
+        <StatCard label="Duplicate groups" value={String(kpis.totalGroups)} />
+        <StatCard label="Records affected" value={String(kpis.totalAffected)} />
+        <StatCard label="Est. duplicates" value={String(kpis.estimated)} />
+        <StatCard
           label="Last scan"
           value={
             lastScanAt
@@ -219,8 +219,8 @@ export function DuplicatesClient({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <ZoruLabel className="text-[11px]">Confidence</ZoruLabel>
-          <ZoruSelect value={confidenceFilter} onValueChange={setConfidenceFilter}>
+          <Label className="text-[11px]">Confidence</Label>
+          <Select value={confidenceFilter} onValueChange={setConfidenceFilter}>
             <ZoruSelectTrigger className="w-36">
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -232,44 +232,44 @@ export function DuplicatesClient({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
-        <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
+        <Button variant="outline" size="sm" onClick={exportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
+        </Button>
         {ignored.size > 0 && (
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => setIgnored(new Set())}
           >
             <X className="h-3.5 w-3.5" /> Show {ignored.size} ignored
-          </ZoruButton>
+          </Button>
         )}
       </div>
 
       {/* No results */}
       {visible.length === 0 && (
-        <ZoruCard className="p-6 text-center text-[13px] text-zoru-ink-muted">
+        <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
           {groups.length === 0
             ? 'No duplicate clusters found. Purchase orders are matched when they share a vendor and either the same PO number or totals within 1% issued within 7 days.'
             : 'No groups match the selected confidence filter.'}
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Group cards */}
       {visible.map(({ group, confidence }) => (
-        <ZoruCard key={group.key} className="overflow-hidden p-0">
+        <Card key={group.key} className="overflow-hidden p-0">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line bg-zoru-surface-2 px-4 py-3">
             <div className="flex items-center gap-2">
-              <ZoruBadge variant={CONFIDENCE_BADGE[confidence]}>{confidence} confidence</ZoruBadge>
-              <ZoruBadge variant="outline">{group.members.length} POs</ZoruBadge>
+              <Badge variant={CONFIDENCE_BADGE[confidence]}>{confidence} confidence</Badge>
+              <Badge variant="outline">{group.members.length} POs</Badge>
               <span className="text-[12px] text-zoru-ink-muted">
                 Vendor: {group.members[0].vendorId ?? 'unknown'}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => void handleMerge(group)}
@@ -281,18 +281,18 @@ export function DuplicatesClient({
                   <GitMerge className="h-3.5 w-3.5" />
                 )}
                 Merge (keep first)
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => handleIgnore(group.key)}
               >
                 <X className="h-3.5 w-3.5" /> Ignore
-              </ZoruButton>
+              </Button>
             </div>
           </div>
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead>PO #</ZoruTableHead>
@@ -321,17 +321,17 @@ export function DuplicatesClient({
                           {m.poNo || m._id.slice(-6)}
                         </Link>
                         {idx === 0 && (
-                          <ZoruBadge variant="secondary" className="ml-2 text-[10px]">
+                          <Badge variant="secondary" className="ml-2 text-[10px]">
                             Keep
-                          </ZoruBadge>
+                          </Badge>
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <div className="flex flex-wrap gap-1">
                           {matchFields.map((f) => (
-                            <ZoruBadge key={f} variant="outline" className="text-[11px]">
+                            <Badge key={f} variant="outline" className="text-[11px]">
                               {f}
-                            </ZoruBadge>
+                            </Badge>
                           ))}
                         </div>
                       </ZoruTableCell>
@@ -345,19 +345,19 @@ export function DuplicatesClient({
                         {fmtDate(m.date)}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruButton size="sm" variant="outline" asChild>
+                        <Button size="sm" variant="outline" asChild>
                           <Link href={`/dashboard/crm/purchases/orders/${m._id}`}>
                             Open
                           </Link>
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );

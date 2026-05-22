@@ -68,7 +68,7 @@ export function RecurringInvoiceDetailActions({ id, status }: Props) {
 
   return (
     <>
-      <ZoruButton
+      <Button
         disabled={isMutating || status === 'stopped'}
         onClick={() => handle(() => runRecurringInvoiceNow(id), 'Invoice generated')}
       >
@@ -78,40 +78,40 @@ export function RecurringInvoiceDetailActions({ id, status }: Props) {
           <Zap className="h-4 w-4" />
         )}
         Run now
-      </ZoruButton>
+      </Button>
       {status === 'active' ? (
-        <ZoruButton
+        <Button
           variant="outline"
           onClick={() => handle(() => pauseRecurringInvoice(id), 'Paused')}
           disabled={isMutating}
         >
           <Pause className="h-4 w-4" />
           Pause
-        </ZoruButton>
+        </Button>
       ) : status === 'paused' ? (
-        <ZoruButton
+        <Button
           variant="outline"
           onClick={() => handle(() => resumeRecurringInvoice(id), 'Resumed')}
           disabled={isMutating}
         >
           <Play className="h-4 w-4" />
           Resume
-        </ZoruButton>
+        </Button>
       ) : null}
       {status !== 'stopped' ? (
-        <ZoruButton
+        <Button
           variant="outline"
           onClick={() => handle(() => stopRecurringInvoice(id), 'Stopped')}
           disabled={isMutating}
         >
           <StopCircle className="h-4 w-4" />
           Stop
-        </ZoruButton>
+        </Button>
       ) : null}
-      <ZoruButton variant="outline" onClick={handleDelete} disabled={isMutating}>
+      <Button variant="outline" onClick={handleDelete} disabled={isMutating}>
         <Trash2 className="h-4 w-4" />
         Delete
-      </ZoruButton>
+      </Button>
     </>
   );
 }

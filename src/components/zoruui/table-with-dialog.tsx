@@ -69,7 +69,7 @@ export function ZoruTableWithDialog<T>({
           className,
         )}
       >
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow className="hover:bg-transparent">
               {columns.map((col) => (
@@ -120,10 +120,10 @@ export function ZoruTableWithDialog<T>({
               ))
             )}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
       </div>
 
-      <ZoruDialog
+      <Dialog
         open={active !== null}
         onOpenChange={(open) => {
           if (!open) setActiveIndex(null);
@@ -144,7 +144,7 @@ export function ZoruTableWithDialog<T>({
             </>
           )}
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }

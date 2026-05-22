@@ -164,7 +164,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
             rightRail={
                 <>
                     {/* ─── Quick stats ─── */}
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>At a glance</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -234,10 +234,10 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                 </span>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
                     {/* ─── Related entities ─── */}
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Related</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -252,17 +252,17 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                         {item.icon}
                                         {item.label}
                                     </span>
-                                    <ZoruBadge variant="secondary">
+                                    <Badge variant="secondary">
                                         {item.count}
-                                    </ZoruBadge>
+                                    </Badge>
                                 </Link>
                             ))}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
                     {/* ─── Identifiers ─── */}
                     {(account.gstin || account.pan) ? (
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Identifiers</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -284,7 +284,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                     </span>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
                 </>
             }
@@ -296,7 +296,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
             }
         >
             {/* ─── Profile ─── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Profile</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -409,22 +409,22 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         ) : null}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Contacts ─── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <div className="flex items-center justify-between">
                         <ZoruCardTitle>
                             Contacts ({counts.contacts})
                         </ZoruCardTitle>
-                        <ZoruButton asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm">
                             <Link
                                 href={`/dashboard/crm/sales-crm/contacts/new?accountId=${accountId}`}
                             >
                                 + Add contact
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardHeader>
                 <ZoruCardContent>
@@ -476,7 +476,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         </div>
                     ) : null}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Notes ─── */}
             <CrmNotes
@@ -488,7 +488,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
             {/* ─── Attachments ─── */}
             {Array.isArray(account.attachments) &&
             account.attachments.length > 0 ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>
                             Attachments ({account.attachments.length})
@@ -512,7 +512,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         {/* TODO 1D.2: inline add via <SabFilePickerButton> when
                             an `addAccountAttachment` action lands. */}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

@@ -292,7 +292,7 @@ export function QuickSendClient({
         </div>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Recipients</ZoruCardTitle>
           <ZoruCardDescription>
@@ -302,7 +302,7 @@ export function QuickSendClient({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
-          <ZoruTextarea
+          <Textarea
             id="quick-send-paste"
             rows={8}
             value={paste}
@@ -311,17 +311,17 @@ export function QuickSendClient({
             className="font-mono text-xs"
           />
           <div className="flex flex-wrap gap-3 text-xs text-slate-600">
-            <ZoruBadge variant="default">{parsed.rows.length} valid</ZoruBadge>
+            <Badge variant="default">{parsed.rows.length} valid</Badge>
             {parsed.errors.length > 0 && (
-              <ZoruBadge variant="destructive">
+              <Badge variant="destructive">
                 {parsed.errors.length} problem
                 {parsed.errors.length === 1 ? "" : "s"}
-              </ZoruBadge>
+              </Badge>
             )}
             {parsed.variableColumns && (
-              <ZoruBadge variant="secondary">
+              <Badge variant="secondary">
                 vars: {parsed.variableColumns.join(", ")}
-              </ZoruBadge>
+              </Badge>
             )}
           </div>
           {parsed.errors.length > 0 && (
@@ -345,9 +345,9 @@ export function QuickSendClient({
             </details>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Message</ZoruCardTitle>
           <ZoruCardDescription>
@@ -357,7 +357,7 @@ export function QuickSendClient({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
-          <ZoruTextarea
+          <Textarea
             id="quick-send-body"
             rows={4}
             value={body}
@@ -376,9 +376,9 @@ export function QuickSendClient({
             <span>est. ${totalCostDollars.toFixed(2)}</span>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Compliance</ZoruCardTitle>
           <ZoruCardDescription>
@@ -387,13 +387,13 @@ export function QuickSendClient({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
-          <ZoruRadioGroup
+          <RadioGroup
             value={category}
             onValueChange={(v) => setCategory(v as SabsmsMessageCategory)}
             className="grid gap-2 md:grid-cols-5"
           >
             {CATEGORY_OPTIONS.map((c) => (
-              <ZoruLabel
+              <Label
                 key={c.value}
                 htmlFor={`category-${c.value}`}
                 className="flex cursor-pointer items-start gap-2 rounded border border-slate-200 p-3"
@@ -405,13 +405,13 @@ export function QuickSendClient({
                     {c.hint}
                   </span>
                 </span>
-              </ZoruLabel>
+              </Label>
             ))}
-          </ZoruRadioGroup>
+          </RadioGroup>
 
           {category === "marketing" && (
             <label className="flex items-start gap-2 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-              <ZoruCheckbox
+              <Checkbox
                 checked={marketingAttested}
                 onCheckedChange={(v) => setMarketingAttested(v === true)}
               />
@@ -423,9 +423,9 @@ export function QuickSendClient({
             </label>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Send options</ZoruCardTitle>
           <ZoruCardDescription>
@@ -435,10 +435,10 @@ export function QuickSendClient({
         <ZoruCardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="quick-send-throttle">
+              <Label htmlFor="quick-send-throttle">
                 Throttle — {throttle} msg/sec
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="quick-send-throttle"
                 type="range"
                 min={1}
@@ -452,8 +452,8 @@ export function QuickSendClient({
             </div>
 
             <div className="space-y-2">
-              <ZoruLabel htmlFor="quick-send-sender">Sender pool</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="quick-send-sender">Sender pool</Label>
+              <Select
                 value={senderNumberId || "default"}
                 onValueChange={(v) =>
                   setSenderNumberId(v === "default" ? "" : v)
@@ -472,7 +472,7 @@ export function QuickSendClient({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
               {senderNumbers.length === 0 && (
                 <p className="text-xs text-slate-500">
                   No active numbers yet — falls back to the engine
@@ -482,7 +482,7 @@ export function QuickSendClient({
             </div>
           </div>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div className="grid gap-3 md:grid-cols-3">
             <label className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">
@@ -492,7 +492,7 @@ export function QuickSendClient({
                   No real sends — writes a dry-run audit entry only.
                 </span>
               </span>
-              <ZoruSwitch checked={dryRun} onCheckedChange={setDryRun} />
+              <Switch checked={dryRun} onCheckedChange={setDryRun} />
             </label>
 
             <label className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">
@@ -502,7 +502,7 @@ export function QuickSendClient({
                   Check sabsms_suppressions per row.
                 </span>
               </span>
-              <ZoruSwitch
+              <Switch
                 checked={skipSuppressed}
                 onCheckedChange={setSkipSuppressed}
               />
@@ -515,16 +515,16 @@ export function QuickSendClient({
                   Re-checks last 24h of sabsms_messages.
                 </span>
               </span>
-              <ZoruSwitch
+              <Switch
                 checked={skipSentToday}
                 onCheckedChange={setSkipSentToday}
               />
             </label>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Per-row preview</ZoruCardTitle>
           <ZoruCardDescription>
@@ -534,7 +534,7 @@ export function QuickSendClient({
         </ZoruCardHeader>
         <ZoruCardContent>
           <div className="overflow-hidden rounded border border-slate-200">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Phone</ZoruTableHead>
@@ -557,7 +557,7 @@ export function QuickSendClient({
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {row.quiet && (
-                        <ZoruBadge variant="secondary">quiet hours</ZoruBadge>
+                        <Badge variant="secondary">quiet hours</Badge>
                       )}
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -573,7 +573,7 @@ export function QuickSendClient({
                   </ZoruTableRow>
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
           {parsed.rows.length > 25 && (
             <p className="mt-2 text-xs text-slate-500">
@@ -581,9 +581,9 @@ export function QuickSendClient({
             </p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Test send</ZoruCardTitle>
           <ZoruCardDescription>
@@ -594,23 +594,23 @@ export function QuickSendClient({
         <ZoruCardContent className="space-y-3">
           <div className="flex flex-wrap items-end gap-3">
             <div className="grow space-y-1">
-              <ZoruLabel htmlFor="quick-send-test-to">
+              <Label htmlFor="quick-send-test-to">
                 Test recipient (E.164, blank = first paste row)
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="quick-send-test-to"
                 value={testTo}
                 onChange={(e) => setTestTo(e.target.value)}
                 placeholder="+15551234567"
               />
             </div>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={handleTestSend}
               disabled={!body.trim()}
             >
               Send test
-            </ZoruButton>
+            </Button>
           </div>
           {testResult && (
             <p className="rounded border border-slate-200 bg-slate-50 p-2 text-xs">
@@ -618,15 +618,15 @@ export function QuickSendClient({
             </p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="flex flex-wrap items-center gap-3">
-        <ZoruButton onClick={handleLaunchClick} disabled={!canLaunch}>
+        <Button onClick={handleLaunchClick} disabled={!canLaunch}>
           {launchLabel} <ZoruKbd className="ml-2">⌘ ↵</ZoruKbd>
-        </ZoruButton>
-        <ZoruButton variant="outline" asChild>
+        </Button>
+        <Button variant="outline" asChild>
           <Link href={saveAsCampaignHref}>Save as campaign instead</Link>
-        </ZoruButton>
+        </Button>
         {launchState.kind === "error" && (
           <span className="rounded border border-rose-200 bg-rose-50 px-3 py-1 text-sm text-rose-700">
             {launchState.message}

@@ -345,22 +345,22 @@ export function LeadListClient({
 
             {/* KPI strip */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Leads (this page)"
                     value={kpis.total.toLocaleString()}
                     icon={<Users className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="With est. value"
                     value={kpis.withValue.toLocaleString()}
                     icon={<TrendingUp className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Total pipeline"
                     value={fmtMoney(kpis.totalValue, undefined, locale)}
                     icon={<TrendingUp className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Added this month"
                     value={kpis.addedThisMonth.toLocaleString()}
                     icon={<CalendarClock className="h-4 w-4" />}
@@ -371,14 +371,14 @@ export function LeadListClient({
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-sm flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                    <ZoruInput
+                    <Input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder={t('crm.leads.list.search.placeholder')}
                         className="h-9 pl-9 text-[13px]"
                     />
                 </div>
-                <ZoruSelect
+                <Select
                     value={statusFilter}
                     onValueChange={setStatusFilter}
                 >
@@ -393,8 +393,8 @@ export function LeadListClient({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruSelect
+                </Select>
+                <Select
                     value={sourceFilter}
                     onValueChange={setSourceFilter}
                 >
@@ -409,15 +409,15 @@ export function LeadListClient({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 {hasActiveFilters ? (
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="sm"
                         onClick={clearFilters}
                     >
                         <X className="h-3.5 w-3.5" /> Clear filters
-                    </ZoruButton>
+                    </Button>
                 ) : null}
             </div>
 
@@ -429,34 +429,34 @@ export function LeadListClient({
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
-                        <ZoruButton
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={exportCsv}
                         >
                             <Download className="h-3.5 w-3.5" /> Export CSV
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="destructive"
                             onClick={() => setBulkConfirmOpen(true)}
                             disabled={bulkDeleting}
                         >
                             <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setSelected(new Set())}
                             aria-label="Clear selection"
                         >
                             <X className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             ) : null}
 
-            <ZoruCard className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0">
                 {error ? (
                     <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
                         <AlertCircle className="h-4 w-4 shrink-0" />
@@ -464,11 +464,11 @@ export function LeadListClient({
                     </div>
                 ) : null}
 
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead className="w-8">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={headChecked}
                                     onCheckedChange={(c) =>
                                         toggleAll(Boolean(c))
@@ -520,7 +520,7 @@ export function LeadListClient({
                                 return (
                                     <ZoruTableRow key={id}>
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(id)}
                                                 onCheckedChange={() =>
                                                     toggleOne(id)
@@ -566,9 +566,9 @@ export function LeadListClient({
                                         </ZoruTableCell>
                                         <ZoruTableCell>
                                             {lead.status?.name ? (
-                                                <ZoruBadge variant="outline">
+                                                <Badge variant="outline">
                                                     {lead.status.name}
-                                                </ZoruBadge>
+                                                </Badge>
                                             ) : (
                                                 <span className="text-[12.5px] text-zoru-ink-muted">
                                                     —
@@ -596,7 +596,7 @@ export function LeadListClient({
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                <ZoruButton
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     asChild
@@ -606,8 +606,8 @@ export function LeadListClient({
                                                     >
                                                         <Pencil className="h-3.5 w-3.5" />
                                                     </Link>
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() =>
@@ -617,7 +617,7 @@ export function LeadListClient({
                                                     aria-label={`Delete ${fullName(lead, unnamedLabel)}`}
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -625,10 +625,10 @@ export function LeadListClient({
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
 
                 <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-            </ZoruCard>
+            </Card>
 
             {/* Single delete confirm */}
             <ZoruAlertDialog

@@ -16,10 +16,10 @@ const initialState = { message: null, error: null };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Key className="mr-2 h-4 w-4" />}
             Connect Account
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -51,7 +51,7 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
         return (
             <div className="text-center space-y-4">
                 <p className="text-sm text-muted-foreground">To connect {app.name}, you'll be redirected to their authorization page.</p>
-                <ZoruButton type="button" disabled>Connect via {app.name}</ZoruButton>
+                <Button type="button" disabled>Connect via {app.name}</Button>
             </div>
         );
     }
@@ -64,13 +64,13 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
                 <input type="hidden" name="credentialKeys" value={(app.credentials || []).map((c: any) => c.name).join(',')} />
                 <p className="text-sm text-muted-foreground">{app.description}</p>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="connectionName">Connection Name</ZoruLabel>
-                    <ZoruInput id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
+                    <Label htmlFor="connectionName">Connection Name</Label>
+                    <Input id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
                 </div>
                  {(app.credentials || []).map((cred: any) => (
                     <div className="space-y-2" key={cred.name}>
-                        <ZoruLabel htmlFor={cred.name}>{cred.label}</ZoruLabel>
-                        <ZoruInput 
+                        <Label htmlFor={cred.name}>{cred.label}</Label>
+                        <Input 
                             id={cred.name} 
                             name={cred.name} 
                             type={cred.type || 'text'} 

@@ -35,7 +35,7 @@ interface QuickTileProps {
 function QuickTile({ href, label, description, icon: Icon }: QuickTileProps) {
     return (
         <Link href={href} className="group block">
-            <ZoruCard className="h-full p-6 transition-shadow hover:shadow-md">
+            <Card className="h-full p-6 transition-shadow hover:shadow-md">
                 <div className="flex items-start gap-3">
                     <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
@@ -53,20 +53,20 @@ function QuickTile({ href, label, description, icon: Icon }: QuickTileProps) {
                         </p>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </Link>
     );
 }
 
 function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
                 {label}
             </p>
             <p className="mt-2 text-[26px] leading-none text-zoru-ink">{value}</p>
             {hint ? <p className="mt-2 text-[12px] text-zoru-ink-muted">{hint}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -176,9 +176,9 @@ export default function TelegramOverviewPage() {
                             <h1 className="text-[26px] leading-tight text-zoru-ink">
                                 Telegram
                             </h1>
-                            <ZoruBadge variant="ghost">
+                            <Badge variant="ghost">
                                 Beta
-                            </ZoruBadge>
+                            </Badge>
                         </div>
                         <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
                             Connect Telegram bots and Business accounts to SabNode. Run
@@ -188,7 +188,7 @@ export default function TelegramOverviewPage() {
                     </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() =>
@@ -196,12 +196,12 @@ export default function TelegramOverviewPage() {
                         }
                     >
                         Bot API docs
-                    </ZoruButton>
+                    </Button>
                     <Link href="/dashboard/telegram/connections">
-                        <ZoruButton size="md">
+                        <Button size="md">
                             <Plug className="h-3.5 w-3.5" />
                             Connect a bot
-                        </ZoruButton>
+                        </Button>
                     </Link>
                 </div>
             </div>
@@ -308,7 +308,7 @@ export default function TelegramOverviewPage() {
             </div>
 
             {/* Getting started */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-start gap-4">
                     <div
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
@@ -338,7 +338,7 @@ export default function TelegramOverviewPage() {
                         </ol>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

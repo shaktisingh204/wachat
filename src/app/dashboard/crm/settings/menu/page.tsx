@@ -164,7 +164,7 @@ export default function MenuSettingsPage() {
       title="Sidebar Menu"
       subtitle="Configure sidebar entries. Reorder with the arrows; toggle to hide."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -172,13 +172,13 @@ export default function MenuSettingsPage() {
         >
           <Plus className="h-4 w-4" />
           Add Entry
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Label</ZoruTableHead>
@@ -223,10 +223,10 @@ export default function MenuSettingsPage() {
                       {row.icon || '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant="ghost">{row.position ?? idx}</ZoruBadge>
+                      <Badge variant="ghost">{row.position ?? idx}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruSwitch
+                      <Switch
                         checked={!!row.is_visible}
                         disabled={isBusy}
                         onCheckedChange={() => flipVisibility(row._id)}
@@ -235,7 +235,7 @@ export default function MenuSettingsPage() {
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           disabled={idx === 0 || isReordering}
@@ -243,8 +243,8 @@ export default function MenuSettingsPage() {
                           aria-label="Move up"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           disabled={idx === rows.length - 1 || isReordering}
@@ -252,8 +252,8 @@ export default function MenuSettingsPage() {
                           aria-label="Move down"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
@@ -263,26 +263,26 @@ export default function MenuSettingsPage() {
                           aria-label="Edit"
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
                           <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
             <ZoruDialogTitle>
@@ -298,10 +298,10 @@ export default function MenuSettingsPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <ZoruLabel htmlFor="label">
+              <Label htmlFor="label">
                 Label <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="label"
                 name="label"
                 required
@@ -309,8 +309,8 @@ export default function MenuSettingsPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="route">Route</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="route">Route</Label>
+              <Input
                 id="route"
                 name="route"
                 defaultValue={editing?.route || ''}
@@ -318,13 +318,13 @@ export default function MenuSettingsPage() {
               />
             </div>
             <div>
-              <ZoruLabel>Icon</ZoruLabel>
+              <Label>Icon</Label>
               <input type="hidden" name="icon" value={icon} />
               <ZoruIconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
-              <ZoruLabel htmlFor="position">Position</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="position">Position</Label>
+              <Input
                 id="position"
                 name="position"
                 type="number"
@@ -340,27 +340,27 @@ export default function MenuSettingsPage() {
                 defaultChecked={editing?.is_visible ?? true}
                 className="h-4 w-4 accent-zoru-ink"
               />
-              <ZoruLabel htmlFor="is_visible" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="is_visible" className="text-[13px] text-zoru-ink">
                 Visible
-              </ZoruLabel>
+              </Label>
             </div>
 
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingId !== null}

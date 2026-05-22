@@ -17,14 +17,14 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SubmitButton() {
     const { pending: isPending } = useStatus();
     return (
-        <ZoruButton
+        <Button
             type="submit"
             variant="obsidian"
             disabled={isPending}
             leading={isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
         >
             Save Settings
-        </ZoruButton>
+        </Button>
     );
 }
 // Workaround for useFormStatus not being available directly in the same component tree sometimes or simpler isolation
@@ -78,24 +78,24 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                         <div className="p-5 grid gap-6">
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="companyName" className="text-foreground">Company Name</ZoruLabel>
-                                    <ZoruInput id="companyName" name="companyName" defaultValue={settings.companyName} placeholder="Acme Corp" required />
+                                    <Label htmlFor="companyName" className="text-foreground">Company Name</Label>
+                                    <Input id="companyName" name="companyName" defaultValue={settings.companyName} placeholder="Acme Corp" required />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="companyPhone" className="text-foreground">Phone</ZoruLabel>
-                                    <ZoruInput id="companyPhone" name="companyPhone" defaultValue={settings.companyPhone} placeholder="+91 99999 99999" />
+                                    <Label htmlFor="companyPhone" className="text-foreground">Phone</Label>
+                                    <Input id="companyPhone" name="companyPhone" defaultValue={settings.companyPhone} placeholder="+91 99999 99999" />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="companyEmail" className="text-foreground">Email</ZoruLabel>
-                                    <ZoruInput id="companyEmail" name="companyEmail" defaultValue={settings.companyEmail} placeholder="info@acme.com" type="email" />
+                                    <Label htmlFor="companyEmail" className="text-foreground">Email</Label>
+                                    <Input id="companyEmail" name="companyEmail" defaultValue={settings.companyEmail} placeholder="info@acme.com" type="email" />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="gstin" className="text-foreground">GSTIN / Tax ID</ZoruLabel>
-                                    <ZoruInput id="gstin" name="gstin" defaultValue={settings.gstin} placeholder="GSTIN Number" />
+                                    <Label htmlFor="gstin" className="text-foreground">GSTIN / Tax ID</Label>
+                                    <Input id="gstin" name="gstin" defaultValue={settings.gstin} placeholder="GSTIN Number" />
                                 </div>
                                 <div className="col-span-2 space-y-2">
-                                    <ZoruLabel htmlFor="companyAddress" className="text-foreground">Address</ZoruLabel>
-                                    <ZoruTextarea id="companyAddress" name="companyAddress" defaultValue={settings.companyAddress} placeholder="Full business address" />
+                                    <Label htmlFor="companyAddress" className="text-foreground">Address</Label>
+                                    <Textarea id="companyAddress" name="companyAddress" defaultValue={settings.companyAddress} placeholder="Full business address" />
                                 </div>
                             </div>
                         </div>
@@ -108,7 +108,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                         </div>
                         <div className="p-5 grid gap-6 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel className="text-foreground">Currency</ZoruLabel>
+                                <Label className="text-foreground">Currency</Label>
                                 <EntityFormField
                                     entity="currency"
                                     name="currency"
@@ -118,7 +118,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel className="text-foreground">Timezone</ZoruLabel>
+                                <Label className="text-foreground">Timezone</Label>
                                 <EnumFormField
                                     name="timezone"
                                     enumName="timezonePreset"
@@ -127,7 +127,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel className="text-foreground">Date Format</ZoruLabel>
+                                <Label className="text-foreground">Date Format</Label>
                                 <EnumFormField
                                     name="dateFormat"
                                     enumName="momentFormat"
@@ -136,7 +136,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel className="text-foreground">Financial Year Start</ZoruLabel>
+                                <Label className="text-foreground">Financial Year Start</Label>
                                 {/* This form uses month names (April/January/March) rather than the canonical
                                     'apr'/'jan'/'mar' ids — preserved as-is via inline-create. */}
                                 <EnumFormField
@@ -160,26 +160,26 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                         <div className="p-5 grid gap-6">
                             <div className="grid md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="invoicePrefix" className="text-foreground">Invoice Prefix</ZoruLabel>
-                                    <ZoruInput id="invoicePrefix" name="invoicePrefix" defaultValue={settings.invoicePrefix} placeholder="INV-" />
+                                    <Label htmlFor="invoicePrefix" className="text-foreground">Invoice Prefix</Label>
+                                    <Input id="invoicePrefix" name="invoicePrefix" defaultValue={settings.invoicePrefix} placeholder="INV-" />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="quotationPrefix" className="text-foreground">Quotation Prefix</ZoruLabel>
-                                    <ZoruInput id="quotationPrefix" name="quotationPrefix" defaultValue={settings.quotationPrefix} placeholder="QUO-" />
+                                    <Label htmlFor="quotationPrefix" className="text-foreground">Quotation Prefix</Label>
+                                    <Input id="quotationPrefix" name="quotationPrefix" defaultValue={settings.quotationPrefix} placeholder="QUO-" />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="defaultTaxRate" className="text-foreground">Default GST/Tax %</ZoruLabel>
-                                    <ZoruInput id="defaultTaxRate" name="defaultTaxRate" type="number" defaultValue={settings.defaultTaxRate} placeholder="18" />
+                                    <Label htmlFor="defaultTaxRate" className="text-foreground">Default GST/Tax %</Label>
+                                    <Input id="defaultTaxRate" name="defaultTaxRate" type="number" defaultValue={settings.defaultTaxRate} placeholder="18" />
                                 </div>
                             </div>
-                            <ZoruSeparator className="border-border" />
+                            <Separator className="border-border" />
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="defaultInvoiceTerms" className="text-foreground">Default Invoice Terms</ZoruLabel>
-                                <ZoruTextarea id="defaultInvoiceTerms" name="defaultInvoiceTerms" defaultValue={settings.defaultInvoiceTerms} rows={3} />
+                                <Label htmlFor="defaultInvoiceTerms" className="text-foreground">Default Invoice Terms</Label>
+                                <Textarea id="defaultInvoiceTerms" name="defaultInvoiceTerms" defaultValue={settings.defaultInvoiceTerms} rows={3} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="defaultQuotationTerms" className="text-foreground">Default Quotation Terms</ZoruLabel>
-                                <ZoruTextarea id="defaultQuotationTerms" name="defaultQuotationTerms" defaultValue={settings.defaultQuotationTerms} rows={3} />
+                                <Label htmlFor="defaultQuotationTerms" className="text-foreground">Default Quotation Terms</Label>
+                                <Textarea id="defaultQuotationTerms" name="defaultQuotationTerms" defaultValue={settings.defaultQuotationTerms} rows={3} />
                             </div>
                         </div>
                     </ClayCard>
@@ -190,12 +190,12 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                         <div className="p-5">
                             <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
-                                    <ZoruLabel className="text-base text-foreground">Prevent Negative Stock</ZoruLabel>
+                                    <Label className="text-base text-foreground">Prevent Negative Stock</Label>
                                     <p className="text-sm text-muted-foreground">Don't allow invoices if product stock is insufficient.</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <input type="hidden" name="enableStockValidation" value={stockValidation ? "on" : "off"} />
-                                    <ZoruSwitch checked={stockValidation} onCheckedChange={setStockValidation} />
+                                    <Switch checked={stockValidation} onCheckedChange={setStockValidation} />
                                 </div>
                             </div>
                         </div>
@@ -212,16 +212,16 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                         <div className="p-5 grid gap-6">
                             <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                                 <div className="space-y-0.5">
-                                    <ZoruLabel className="text-base text-foreground">Low Stock Alerts</ZoruLabel>
+                                    <Label className="text-base text-foreground">Low Stock Alerts</Label>
                                     <p className="text-sm text-muted-foreground">Show warnings when inventory drops below threshold.</p>
                                 </div>
                                 <input type="hidden" name="enableLowStockAlerts" value={lowStockAlerts ? "on" : "off"} />
-                                <ZoruSwitch checked={lowStockAlerts} onCheckedChange={setLowStockAlerts} />
+                                <Switch checked={lowStockAlerts} onCheckedChange={setLowStockAlerts} />
                             </div>
                             {lowStockAlerts && (
                                 <div className="space-y-2 max-w-xs">
-                                    <ZoruLabel htmlFor="lowStockThreshold" className="text-foreground">Low Stock Threshold</ZoruLabel>
-                                    <ZoruInput id="lowStockThreshold" name="lowStockThreshold" type="number" defaultValue={settings.lowStockThreshold} />
+                                    <Label htmlFor="lowStockThreshold" className="text-foreground">Low Stock Threshold</Label>
+                                    <Input id="lowStockThreshold" name="lowStockThreshold" type="number" defaultValue={settings.lowStockThreshold} />
                                     <p className="text-xs text-muted-foreground">Minimum quantity before flagging.</p>
                                 </div>
                             )}
@@ -238,12 +238,12 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                         </div>
                         <div className="p-5 grid gap-6 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="standardWorkingDays" className="text-foreground">Working Days per Week</ZoruLabel>
-                                <ZoruInput id="standardWorkingDays" name="standardWorkingDays" type="number" defaultValue={settings.standardWorkingDays} max={7} min={1} />
+                                <Label htmlFor="standardWorkingDays" className="text-foreground">Working Days per Week</Label>
+                                <Input id="standardWorkingDays" name="standardWorkingDays" type="number" defaultValue={settings.standardWorkingDays} max={7} min={1} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="dailyWorkingHours" className="text-foreground">Working Hours per Day</ZoruLabel>
-                                <ZoruInput id="dailyWorkingHours" name="dailyWorkingHours" type="number" defaultValue={settings.dailyWorkingHours} max={24} min={1} />
+                                <Label htmlFor="dailyWorkingHours" className="text-foreground">Working Hours per Day</Label>
+                                <Input id="dailyWorkingHours" name="dailyWorkingHours" type="number" defaultValue={settings.dailyWorkingHours} max={24} min={1} />
                             </div>
                         </div>
                     </ClayCard>
@@ -266,11 +266,11 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                             ].map((item) => (
                                 <div key={item.key} className="flex items-center justify-between p-3 border border-border rounded-lg">
                                     <div className="space-y-0.5">
-                                        <ZoruLabel className="text-base text-foreground">{item.label}</ZoruLabel>
+                                        <Label className="text-base text-foreground">{item.label}</Label>
                                         <p className="text-sm text-muted-foreground">{item.desc}</p>
                                     </div>
                                     <input type="hidden" name={`module_${item.key}`} value={modules[item.key as keyof typeof modules] ? "on" : "off"} />
-                                    <ZoruSwitch
+                                    <Switch
                                         checked={modules[item.key as keyof typeof modules]}
                                         onCheckedChange={(checked) => setModules(prev => ({ ...prev, [item.key]: checked }))}
                                     />

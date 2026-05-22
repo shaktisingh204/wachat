@@ -134,7 +134,7 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(
 
               <div className="flex items-center gap-2">
                 {actions?.label && (
-                  <ZoruButton
+                  <Button
                     variant={actions.variant || 'outline'}
                     size="sm"
                     onClick={() => {
@@ -153,7 +153,7 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(
                     )}
                   >
                     {actions.label}
-                  </ZoruButton>
+                  </Button>
                 )}
 
                 <button

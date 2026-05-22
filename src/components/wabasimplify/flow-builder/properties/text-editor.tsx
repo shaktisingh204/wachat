@@ -8,7 +8,7 @@ interface EditorProps {
 
 export function TextEditor({ node, onUpdate }: EditorProps) {
   return (
-    <ZoruTextarea
+    <Textarea
       id="text-content"
       placeholder="Enter your message here..."
       value={node.data.text || ''}

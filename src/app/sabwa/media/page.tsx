@@ -278,13 +278,13 @@ export default function SabWaMediaPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -294,7 +294,7 @@ export default function SabWaMediaPage() {
 
   return (
     <div className="space-y-4 p-4 md:p-6 lg:p-8">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -308,7 +308,7 @@ export default function SabWaMediaPage() {
             <ZoruBreadcrumbPage>Media library</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-wrap items-start gap-3">
@@ -323,16 +323,16 @@ export default function SabWaMediaPage() {
             <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
               Media Library
             </h1>
-            <ZoruBadge variant="ghost">
+            <Badge variant="ghost">
               {items.length} {TAB_LABELS[tab].toLowerCase()}
-            </ZoruBadge>
+            </Badge>
           </div>
           <p className="mt-1 text-[13px] text-zoru-ink-muted">
             Everything sent and received across this session, in one place.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -344,8 +344,8 @@ export default function SabWaMediaPage() {
             ) : (
               <RefreshCw className="h-4 w-4" />
             )}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant={bulkMode ? "default" : "outline"}
             size="sm"
@@ -356,16 +356,16 @@ export default function SabWaMediaPage() {
           >
             <CheckSquare className="mr-2 h-4 w-4" />
             {bulkMode ? "Done" : "Select"}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {/* Filter strip */}
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="grid gap-3 p-3 sm:grid-cols-3 lg:grid-cols-4">
           <div className="space-y-1">
-            <ZoruLabel className="text-xs font-medium">Chat</ZoruLabel>
-            <ZoruSelect value={chatFilter} onValueChange={setChatFilter}>
+            <Label className="text-xs font-medium">Chat</Label>
+            <Select value={chatFilter} onValueChange={setChatFilter}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue
                   placeholder={chatsLoading ? "Loading..." : "All chats"}
@@ -379,13 +379,13 @@ export default function SabWaMediaPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs font-medium" htmlFor="from-date">
+            <Label className="text-xs font-medium" htmlFor="from-date">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="from-date"
               type="date"
               value={fromDate}
@@ -393,10 +393,10 @@ export default function SabWaMediaPage() {
             />
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs font-medium" htmlFor="to-date">
+            <Label className="text-xs font-medium" htmlFor="to-date">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="to-date"
               type="date"
               value={toDate}
@@ -404,8 +404,8 @@ export default function SabWaMediaPage() {
             />
           </div>
           <div className="space-y-1 sm:col-span-3 lg:col-span-1">
-            <ZoruLabel className="text-xs font-medium">Quick</ZoruLabel>
-            <ZoruButton
+            <Label className="text-xs font-medium">Quick</Label>
+            <Button
               type="button"
               variant="ghost"
               size="sm"
@@ -418,10 +418,10 @@ export default function SabWaMediaPage() {
               }}
             >
               <CalendarDays className="mr-2 h-3.5 w-3.5" /> Reset filters
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Type switcher — segmented Button group (no tab UI) */}
       <div
@@ -433,7 +433,7 @@ export default function SabWaMediaPage() {
           const Icon = tabIcon(t);
           const active = tab === t;
           return (
-            <ZoruButton
+            <Button
               key={t}
               type="button"
               variant={active ? "default" : "ghost"}
@@ -444,7 +444,7 @@ export default function SabWaMediaPage() {
             >
               <Icon className="h-3.5 w-3.5" />
               {TAB_LABELS[t]}
-            </ZoruButton>
+            </Button>
           );
         })}
       </div>
@@ -452,24 +452,24 @@ export default function SabWaMediaPage() {
       {/* Bulk action bar */}
       {bulkMode && selected.size > 0 && (
         <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg/95 px-3 py-2 shadow-[var(--zoru-shadow-sm)] backdrop-blur">
-          <ZoruBadge variant="ghost">{selected.size} selected</ZoruBadge>
-          <ZoruButton
+          <Badge variant="ghost">{selected.size} selected</Badge>
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={handleBulkDownload}
           >
             <Download className="mr-2 h-4 w-4" /> Download ZIP
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={handleBulkPushSabFiles}
           >
             <Upload className="mr-2 h-4 w-4" /> Push to SabFiles
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant="ghost"
@@ -477,7 +477,7 @@ export default function SabWaMediaPage() {
             className="ml-auto"
           >
             <X className="mr-1 h-4 w-4" /> Clear
-          </ZoruButton>
+          </Button>
         </div>
       )}
 
@@ -490,23 +490,23 @@ export default function SabWaMediaPage() {
           >
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="mb-3 break-inside-avoid">
-                <ZoruSkeleton className="h-40 w-full rounded-[var(--zoru-radius)]" />
+                <Skeleton className="h-40 w-full rounded-[var(--zoru-radius)]" />
               </div>
             ))}
           </div>
         )}
 
         {!mediaLoading && mediaError && (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-2 p-4 text-sm">
               <CircleSlash className="h-4 w-4 text-zoru-danger" />
               <span className="text-zoru-ink-muted">{mediaError}</span>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
 
         {!mediaLoading && !mediaError && items.length === 0 && (
-          <ZoruCard className="border-dashed">
+          <Card className="border-dashed">
             <ZoruCardContent className="flex flex-col items-center gap-2 p-10 text-center">
               <Folder className="h-7 w-7 text-zoru-ink-muted" />
               <h3 className="text-sm font-semibold text-zoru-ink">No media yet</h3>
@@ -515,7 +515,7 @@ export default function SabWaMediaPage() {
                 video, voice note and document will land here.
               </p>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
 
         {!mediaLoading && items.length > 0 && (
@@ -566,7 +566,7 @@ export default function SabWaMediaPage() {
                     )}
                     {bulkMode && (
                       <div className="absolute left-2 top-2">
-                        <ZoruCheckbox checked={isSelected} aria-label="Select" />
+                        <Checkbox checked={isSelected} aria-label="Select" />
                       </div>
                     )}
                   </div>
@@ -589,7 +589,7 @@ export default function SabWaMediaPage() {
       </section>
 
       {/* Lightbox dialog */}
-      <ZoruDialog
+      <Dialog
         open={lightboxItem !== null}
         onOpenChange={(o) => {
           if (!o) closeLightbox();
@@ -647,7 +647,7 @@ export default function SabWaMediaPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton
+                <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -655,8 +655,8 @@ export default function SabWaMediaPage() {
                   disabled={lightboxIndex === 0}
                 >
                   <ArrowLeft className="mr-1 h-4 w-4" /> Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -667,10 +667,10 @@ export default function SabWaMediaPage() {
                   }
                 >
                   Next <ArrowRight className="ml-1 h-4 w-4" />
-                </ZoruButton>
+                </Button>
                 <span className="ml-auto" />
                 {lightboxItem.message.mediaUrl && (
-                  <ZoruButton asChild type="button" variant="outline" size="sm">
+                  <Button asChild type="button" variant="outline" size="sm">
                     <a
                       href={lightboxItem.message.mediaUrl}
                       target="_blank"
@@ -679,9 +679,9 @@ export default function SabWaMediaPage() {
                     >
                       <Download className="mr-1 h-4 w-4" /> Download
                     </a>
-                  </ZoruButton>
+                  </Button>
                 )}
-                <ZoruButton
+                <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -694,8 +694,8 @@ export default function SabWaMediaPage() {
                   }
                 >
                   <Upload className="mr-1 h-4 w-4" /> Push to SabFiles
-                </ZoruButton>
-                <ZoruButton asChild type="button" size="sm">
+                </Button>
+                <Button asChild type="button" size="sm">
                   <Link
                     href={`/sabwa/inbox?jid=${encodeURIComponent(
                       lightboxItem.chatJid,
@@ -705,12 +705,12 @@ export default function SabWaMediaPage() {
                   >
                     <ExternalLink className="mr-1 h-4 w-4" /> Open in chat
                   </Link>
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           )}
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

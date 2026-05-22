@@ -119,15 +119,15 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
           {selected.size} selected
         </div>
         <div className="flex items-center gap-1">
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
-          <ZoruButton size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isPending}>
+          </Button>
+          <Button size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isPending}>
             <Trash2 className="h-3.5 w-3.5" /> Delete
-          </ZoruButton>
-          <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())} aria-label="Clear selection">
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())} aria-label="Clear selection">
             <X className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     ) : null;
@@ -143,9 +143,9 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
           {search ? 'No pipelines match your search.' : "You haven't created any pipelines yet."}
         </p>
         {!search ? (
-          <ZoruButton onClick={() => setIsCreateOpen(true)}>
+          <Button onClick={() => setIsCreateOpen(true)}>
             Create Your First Pipeline
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
     ) : undefined;
@@ -172,13 +172,13 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
       <div className="space-y-5">
         {/* KPI strip */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <ZoruStatCard label="Total Pipelines" value={kpi.total} icon={<Columns3 />} />
-          <ZoruStatCard
+          <StatCard label="Total Pipelines" value={kpi.total} icon={<Columns3 />} />
+          <StatCard
             label="In-flight Value"
             value={fmtMoney(kpi.inFlightValue, kpi.currency)}
           />
-          <ZoruStatCard label="Avg Velocity (days)" value={kpi.avgVelocityDays} />
-          <ZoruStatCard label="Top Pipeline" value={kpi.topPipelineName} />
+          <StatCard label="Avg Velocity (days)" value={kpi.avgVelocityDays} />
+          <StatCard label="Top Pipeline" value={kpi.topPipelineName} />
         </div>
 
         <EntityListShell
@@ -187,15 +187,15 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
           search={{ value: search, onChange: setSearch, placeholder: 'Search pipelines…' }}
           primaryAction={
             <div className="flex items-center gap-2">
-              <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+              <Button variant="outline" size="sm" onClick={handleExportCsv}>
                 <Download className="h-3.5 w-3.5 mr-1" /> Export CSV
-              </ZoruButton>
-              <ZoruButton variant="outline" onClick={() => setIsEditOpen(true)}>
+              </Button>
+              <Button variant="outline" onClick={() => setIsEditOpen(true)}>
                 Edit Pipelines
-              </ZoruButton>
-              <ZoruButton onClick={() => setIsCreateOpen(true)}>
+              </Button>
+              <Button onClick={() => setIsCreateOpen(true)}>
                 New Pipeline
-              </ZoruButton>
+              </Button>
             </div>
           }
           bulkBar={bulkBar}
@@ -205,7 +205,7 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
           <div className="space-y-4">
             {/* Table summary */}
             <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead className="w-8">
@@ -244,19 +244,19 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                         {p.stages?.length ?? 0}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruButton asChild size="sm" variant="ghost">
+                        <Button asChild size="sm" variant="ghost">
                           <Link href={`${BASE}/${p.id}/edit`}>Edit</Link>
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
 
             {/* Accordion for stage details */}
             {filtered.length > 0 ? (
-              <ZoruAccordion
+              <Accordion
                 type="multiple"
                 defaultValue={[]}
                 className="w-full space-y-2"
@@ -290,21 +290,21 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                         ))}
                       </div>
                       <div className="mt-3 flex justify-end gap-2">
-                        <ZoruButton asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm">
                           <Link href={`${BASE}/${pipeline.id}`}>
                             View Detail
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild variant="outline" size="sm">
+                        </Button>
+                        <Button asChild variant="outline" size="sm">
                           <Link href="/dashboard/crm/sales-crm/deals">
                             View Deals
                           </Link>
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruAccordionContent>
                   </ZoruAccordionItem>
                 ))}
-              </ZoruAccordion>
+              </Accordion>
             ) : null}
           </div>
         </EntityListShell>

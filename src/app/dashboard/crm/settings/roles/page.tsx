@@ -218,11 +218,11 @@ export default function RolesPage() {
                 title="Roles"
                 subtitle="Define custom roles for your CRM and assign the permissions they grant."
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/settings/roles/new">
                             <Plus className="h-4 w-4" /> New Role
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 search={{
                     value: search,
@@ -239,7 +239,7 @@ export default function RolesPage() {
                                 { k: 'custom', l: 'Custom' },
                             ] as { k: Filter; l: string }[]
                         ).map(({ k, l }) => (
-                            <ZoruButton
+                            <Button
                                 key={k}
                                 type="button"
                                 variant={filter === k ? 'default' : 'outline'}
@@ -247,7 +247,7 @@ export default function RolesPage() {
                                 onClick={() => setFilter(k)}
                             >
                                 {l}
-                            </ZoruButton>
+                            </Button>
                         ))}
                     </>
                 }
@@ -258,7 +258,7 @@ export default function RolesPage() {
                                 {selected.size} selected
                             </span>
                             <span className="text-zoru-ink-muted">·</span>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={bulkDeleting}
@@ -266,8 +266,8 @@ export default function RolesPage() {
                             >
                                 <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
                                 Delete (custom only)
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() =>
@@ -278,16 +278,16 @@ export default function RolesPage() {
                             >
                                 <Download className="h-3.5 w-3.5" />
                                 Export CSV
-                            </ZoruButton>
+                            </Button>
                             <span className="ml-auto" />
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSelected(new Set())}
                             >
                                 <X className="h-3.5 w-3.5" />
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -300,7 +300,7 @@ export default function RolesPage() {
                             onClick={() => setFilter('all')}
                             className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
                         >
-                            <ZoruStatCard
+                            <StatCard
                                 label="Total"
                                 value={allRows.length}
                                 icon={<Shield className="h-4 w-4" />}
@@ -316,7 +316,7 @@ export default function RolesPage() {
                             onClick={() => setFilter('system')}
                             className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
                         >
-                            <ZoruStatCard
+                            <StatCard
                                 label="System"
                                 value={allRows.filter((r) => r.is_system).length}
                                 icon={<UserCheck className="h-4 w-4" />}
@@ -332,7 +332,7 @@ export default function RolesPage() {
                             onClick={() => setFilter('custom')}
                             className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
                         >
-                            <ZoruStatCard
+                            <StatCard
                                 label="Custom"
                                 value={
                                     allRows.filter((r) => !r.is_system && !r.is_admin)
@@ -346,20 +346,20 @@ export default function RolesPage() {
                                 }
                             />
                         </button>
-                        <ZoruStatCard
+                        <StatCard
                             label="Members assigned"
                             value={totalMembers}
                             icon={<Users className="h-4 w-4" />}
                         />
                     </div>
 
-                    <ZoruCard className="p-0">
+                    <Card className="p-0">
                         <div className="overflow-x-auto rounded-lg">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="hover:bg-transparent">
                                         <ZoruTableHead className="w-[40px]">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={
                                                     filtered.length > 0 &&
                                                     selected.size === filtered.length
@@ -410,7 +410,7 @@ export default function RolesPage() {
                                         filtered.map((row) => (
                                             <ZoruTableRow key={row._id}>
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={selected.has(row._id)}
                                                         onCheckedChange={() =>
                                                             toggleOne(row._id)
@@ -429,33 +429,33 @@ export default function RolesPage() {
                                                     <code>{row.name}</code>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant="ghost">
+                                                    <Badge variant="ghost">
                                                         <Users className="h-3 w-3" />
                                                         {row.memberCount}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <div className="flex gap-1">
                                                         {row.is_admin ? (
-                                                            <ZoruBadge variant="default">
+                                                            <Badge variant="default">
                                                                 Admin
-                                                            </ZoruBadge>
+                                                            </Badge>
                                                         ) : null}
                                                         {row.is_system ? (
-                                                            <ZoruBadge variant="ghost">
+                                                            <Badge variant="ghost">
                                                                 System
-                                                            </ZoruBadge>
+                                                            </Badge>
                                                         ) : null}
                                                         {!row.is_admin && !row.is_system ? (
-                                                            <ZoruBadge variant="success">
+                                                            <Badge variant="success">
                                                                 Custom
-                                                            </ZoruBadge>
+                                                            </Badge>
                                                         ) : null}
                                                     </div>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
                                                     <div className="flex justify-end gap-1">
-                                                        <ZoruButton
+                                                        <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             asChild
@@ -466,8 +466,8 @@ export default function RolesPage() {
                                                             >
                                                                 <Pencil className="h-3.5 w-3.5" />
                                                             </Link>
-                                                        </ZoruButton>
-                                                        <ZoruButton
+                                                        </Button>
+                                                        <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             disabled={!!row.is_system}
@@ -477,16 +477,16 @@ export default function RolesPage() {
                                                             aria-label="Delete"
                                                         >
                                                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </div>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         ))
                                     )}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
             </EntityListShell>
 

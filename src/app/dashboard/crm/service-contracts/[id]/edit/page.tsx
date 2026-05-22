@@ -57,7 +57,7 @@ export default async function ServiceContractEditPage({ params }: PageProps) {
             }}
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Contract</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -85,8 +85,8 @@ export default async function ServiceContractEditPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
-                    <ZoruCard>
+                    </Card>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>People</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -106,7 +106,7 @@ export default async function ServiceContractEditPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
             audit={<EntityAuditTimeline entityKind="service_contract" entityId={id} />}

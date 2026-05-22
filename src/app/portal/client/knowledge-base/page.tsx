@@ -83,14 +83,14 @@ export default async function ClientKnowledgeBasePage({
 
                 <div className="flex flex-col gap-3">
                     {articles.length === 0 ? (
-                        <ZoruEmptyState
+                        <EmptyState
                             title="No articles found"
                             description={sp.q ? `Nothing matches “${sp.q}”.` : 'No published articles in this category.'}
                         />
                     ) : (
                         articles.map((a) => (
                             <Link key={a._id} href={`/portal/client/knowledge-base/${a._id}`}>
-                                <ZoruCard className="transition-colors hover:bg-zoru-surface-2">
+                                <Card className="transition-colors hover:bg-zoru-surface-2">
                                     <ZoruCardHeader>
                                         <ZoruCardTitle>{a.title}</ZoruCardTitle>
                                     </ZoruCardHeader>
@@ -103,7 +103,7 @@ export default async function ClientKnowledgeBasePage({
                                             Updated {fmtDate(a.updatedAt)}
                                         </div>
                                     </ZoruCardContent>
-                                </ZoruCard>
+                                </Card>
                             </Link>
                         ))
                     )}

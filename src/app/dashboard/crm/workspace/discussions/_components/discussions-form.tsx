@@ -91,8 +91,8 @@ export function DiscussionsForm({
                     children: (
                         <div className="grid gap-4">
                             <div>
-                                <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="title">Title *</Label>
+                                <Input
                                     id="title"
                                     name="title"
                                     required
@@ -101,8 +101,8 @@ export function DiscussionsForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
                                     id="description"
                                     name="description"
                                     rows={6}
@@ -111,8 +111,8 @@ export function DiscussionsForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="category_id">Category</ZoruLabel>
-                                <ZoruSelect
+                                <Label htmlFor="category_id">Category</Label>
+                                <Select
                                     name="category_id"
                                     defaultValue={discussion?.category_id ?? ''}
                                 >
@@ -126,7 +126,7 @@ export function DiscussionsForm({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
                     ),

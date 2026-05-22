@@ -287,14 +287,14 @@ export default function ContractsPage() {
       title="Contracts"
       subtitle="Prepare, send, and e-sign client contracts."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
           }}
         >
           Add Contract
-          </ZoruButton>
+          </Button>
         }
       >
       <ContractsKpiStrip counts={kpis} active={kpiKey} onPick={setKpiKey} />
@@ -302,14 +302,14 @@ export default function ContractsPage() {
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search title, client, status…"
             className="h-9 pl-9 text-[13px]"
           />
         </div>
-        <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Status" />
           </ZoruSelectTrigger>
@@ -321,8 +321,8 @@ export default function ContractsPage() {
             <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
             <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={partyFilter} onValueChange={setPartyFilter}>
+        </Select>
+        <Select value={partyFilter} onValueChange={setPartyFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Party" />
           </ZoruSelectTrigger>
@@ -334,8 +334,8 @@ export default function ContractsPage() {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect
+        </Select>
+        <Select
           value={expiryFilter}
           onValueChange={(v) =>
             setExpiryFilter(v as 'all' | '30d' | '60d' | '90d')
@@ -350,11 +350,11 @@ export default function ContractsPage() {
             <ZoruSelectItem value="60d">Expiring 60d</ZoruSelectItem>
             <ZoruSelectItem value="90d">Expiring 90d</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
@@ -365,35 +365,35 @@ export default function ContractsPage() {
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
-            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="destructive"
               onClick={() => setBulkConfirmOpen(true)}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
-      <ZoruCard>
+      <Card>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="w-8">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
@@ -415,7 +415,7 @@ export default function ContractsPage() {
                 [...Array(3)].map((_, i) => (
                   <ZoruTableRow key={i} className="border-border">
                     <ZoruTableCell colSpan={8}>
-                      <ZoruSkeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
@@ -434,7 +434,7 @@ export default function ContractsPage() {
                 filtered.map((row) => (
                   <ZoruTableRow key={row._id} className="border-border">
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(row._id)}
                         onCheckedChange={() => toggleOne(row._id)}
                         aria-label={`Select ${row.title}`}
@@ -473,11 +473,11 @@ export default function ContractsPage() {
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Link href={`/dashboard/crm/contracts/${row._id}`}>
-                          <ZoruButton variant="outline" size="sm">
+                          <Button variant="outline" size="sm">
                             {row.status === 'signed' ? 'View' : 'Sign'}
-                          </ZoruButton>
+                          </Button>
                         </Link>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
@@ -486,23 +486,23 @@ export default function ContractsPage() {
                           }}
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
                           <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
       <ZoruAlertDialog
         open={bulkConfirmOpen}

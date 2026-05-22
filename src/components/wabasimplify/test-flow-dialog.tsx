@@ -164,7 +164,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
   }, [messages, isBotTyping]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Test Flow</ZoruDialogTitle>
@@ -173,11 +173,11 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <div className="h-[60vh] flex flex-col">
-          <ZoruScrollArea className="flex-1 p-4 border rounded-md" ref={scrollAreaRef}>
+          <ScrollArea className="flex-1 p-4 border rounded-md" ref={scrollAreaRef}>
             <div className="space-y-4">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {msg.sender === 'bot' && <ZoruAvatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></ZoruAvatar>}
+                  {msg.sender === 'bot' && <Avatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></Avatar>}
                   <div className={`max-w-xs rounded-lg p-3 text-sm break-words ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                     {msg.content}
                   </div>
@@ -185,7 +185,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
               ))}
               {isBotTyping && (
                   <div className="flex items-end gap-2 justify-start">
-                    <ZoruAvatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></ZoruAvatar>
+                    <Avatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></Avatar>
                     <div className="max-w-xs rounded-lg p-3 text-sm bg-muted flex items-center gap-1.5">
                         <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></span>
                         <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></span>
@@ -194,19 +194,19 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
                 </div>
               )}
             </div>
-          </ZoruScrollArea>
+          </ScrollArea>
           <form onSubmit={handleUserInput} className="mt-4 flex gap-2">
-            <ZoruInput 
+            <Input 
               value={userInput}
               onChange={e => setUserInput(e.target.value)}
               placeholder="Type your message..."
               disabled={!isWaitingForInput}
               autoComplete="off"
             />
-            <ZoruButton type="submit" disabled={!isWaitingForInput}>Send</ZoruButton>
+            <Button type="submit" disabled={!isWaitingForInput}>Send</Button>
           </form>
         </div>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

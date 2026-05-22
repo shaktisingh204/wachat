@@ -95,7 +95,7 @@ export function InvoiceEmailDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Email invoice</ZoruDialogTitle>
@@ -105,8 +105,8 @@ export function InvoiceEmailDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="email-to">Recipient</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="email-to">Recipient</Label>
+            <Input
               id="email-to"
               type="email"
               value={to}
@@ -116,8 +116,8 @@ export function InvoiceEmailDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="email-subject">Subject</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="email-subject">Subject</Label>
+            <Input
               id="email-subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
@@ -125,8 +125,8 @@ export function InvoiceEmailDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="email-message">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="email-message">Message</Label>
+            <Textarea
               id="email-message"
               rows={4}
               value={message}
@@ -136,15 +136,15 @@ export function InvoiceEmailDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -177,7 +177,7 @@ export function InvoiceWhatsAppDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Send via WhatsApp</ZoruDialogTitle>
@@ -187,8 +187,8 @@ export function InvoiceWhatsAppDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="wa-phone">Phone (with country code)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="wa-phone">Phone (with country code)</Label>
+            <Input
               id="wa-phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -197,8 +197,8 @@ export function InvoiceWhatsAppDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="wa-message">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="wa-message">Message</Label>
+            <Textarea
               id="wa-message"
               rows={3}
               value={message}
@@ -208,13 +208,13 @@ export function InvoiceWhatsAppDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit}>Open WhatsApp</ZoruButton>
+          </Button>
+          <Button onClick={onSubmit}>Open WhatsApp</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -251,7 +251,7 @@ export function InvoiceMarkPaidDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Mark this invoice paid?</ZoruDialogTitle>
@@ -261,14 +261,14 @@ export function InvoiceMarkPaidDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onConfirm} disabled={pending}>
+          </Button>
+          <Button onClick={onConfirm} disabled={pending}>
             {pending ? 'Saving…' : 'Mark paid'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

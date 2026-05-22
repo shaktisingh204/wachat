@@ -136,12 +136,12 @@ export default async function EmployeeProfileSubPage({
             title={fullName}
             subtitle="Personal and employment details."
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/edit`}>
                         <PenLine className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
@@ -174,7 +174,7 @@ export default async function EmployeeProfileSubPage({
 
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Personal info card */}
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-4 flex items-center gap-2">
                         <User className="h-4 w-4 text-zoru-ink-muted" />
                         <h2 className="text-[14px] font-medium text-zoru-ink">
@@ -262,10 +262,10 @@ export default async function EmployeeProfileSubPage({
                             </div>
                         )}
                     </div>
-                </ZoruCard>
+                </Card>
 
                 {/* Employment info card */}
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-4 flex items-center gap-2">
                         <Briefcase className="h-4 w-4 text-zoru-ink-muted" />
                         <h2 className="text-[14px] font-medium text-zoru-ink">
@@ -365,7 +365,7 @@ export default async function EmployeeProfileSubPage({
                             }
                         />
                     </dl>
-                </ZoruCard>
+                </Card>
             </div>
         </EntityListShell>
     );

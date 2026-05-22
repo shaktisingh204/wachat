@@ -93,7 +93,7 @@ export function ConversationHeader({
       )}
     >
       {onBack ? (
-        <ZoruButton
+        <Button
           type="button"
           variant="ghost"
           size="icon"
@@ -102,7 +102,7 @@ export function ConversationHeader({
           onClick={onBack}
         >
           <ArrowLeft className="h-5 w-5" />
-        </ZoruButton>
+        </Button>
       ) : null}
 
       <button
@@ -112,14 +112,14 @@ export function ConversationHeader({
         aria-label={panelOpen ? 'Close contact panel' : 'Open contact panel'}
         className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-1 text-left hover:bg-zoru-surface-2"
       >
-        <ZoruAvatar className="h-9 w-9 shrink-0">
+        <Avatar className="h-9 w-9 shrink-0">
           {chat.profilePicUrl ? (
             <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
           ) : null}
           <ZoruAvatarFallback className="text-xs">
             {isGroup ? <Users className="h-4 w-4" /> : initials}
           </ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-zoru-ink">{name}</p>
           <p
@@ -132,7 +132,7 @@ export function ConversationHeader({
       </button>
 
       <div className="flex shrink-0 items-center gap-0.5">
-        <ZoruButton
+        <Button
           type="button"
           variant="ghost"
           size="icon"
@@ -140,8 +140,8 @@ export function ConversationHeader({
           className="hidden md:inline-flex"
         >
           <Phone className="h-4 w-4" />
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant="ghost"
           size="icon"
@@ -149,8 +149,8 @@ export function ConversationHeader({
           className="hidden md:inline-flex"
         >
           <Video className="h-4 w-4" />
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant="ghost"
           size="icon"
@@ -158,9 +158,9 @@ export function ConversationHeader({
           onClick={onSearch}
         >
           <Search className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
         {onTogglePanel ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="icon"
@@ -173,13 +173,13 @@ export function ConversationHeader({
             ) : (
               <PanelRightOpen className="h-4 w-4" />
             )}
-          </ZoruButton>
+          </Button>
         ) : null}
-        <ZoruDropdownMenu>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton type="button" variant="ghost" size="icon" aria-label="More">
+            <Button type="button" variant="ghost" size="icon" aria-label="More">
               <MoreVertical className="h-4 w-4" />
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent align="end">
             <ZoruDropdownMenuItem onSelect={() => onMuteToggle?.()}>
@@ -196,7 +196,7 @@ export function ConversationHeader({
               Clear messages
             </ZoruDropdownMenuItem>
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
       </div>
     </div>
   );

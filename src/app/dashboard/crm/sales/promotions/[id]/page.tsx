@@ -81,23 +81,23 @@ export default async function PromotionDetailPage({
             title={promotion.name}
             back={{ href: BASE, label: 'Promotions' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${id}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {promotion.code ? (
-                        <ZoruBadge variant="ghost" className="font-mono">
+                        <Badge variant="ghost" className="font-mono">
                             {promotion.code}
-                        </ZoruBadge>
+                        </Badge>
                     ) : null}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -141,10 +141,10 @@ export default async function PromotionDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {(products.length > 0 || categories.length > 0 || segments.length > 0) && (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Applicability
                     </div>
@@ -156,9 +156,9 @@ export default async function PromotionDetailPage({
                             ) : (
                                 <div className="flex flex-wrap gap-1">
                                     {products.map((p) => (
-                                        <ZoruBadge key={p} variant="ghost">
+                                        <Badge key={p} variant="ghost">
                                             {p}
-                                        </ZoruBadge>
+                                        </Badge>
                                     ))}
                                 </div>
                             )}
@@ -170,9 +170,9 @@ export default async function PromotionDetailPage({
                             ) : (
                                 <div className="flex flex-wrap gap-1">
                                     {categories.map((c) => (
-                                        <ZoruBadge key={c} variant="ghost">
+                                        <Badge key={c} variant="ghost">
                                             {c}
-                                        </ZoruBadge>
+                                        </Badge>
                                     ))}
                                 </div>
                             )}
@@ -184,15 +184,15 @@ export default async function PromotionDetailPage({
                             ) : (
                                 <div className="flex flex-wrap gap-1">
                                     {segments.map((s) => (
-                                        <ZoruBadge key={s} variant="ghost">
+                                        <Badge key={s} variant="ghost">
                                             {s}
-                                        </ZoruBadge>
+                                        </Badge>
                                     ))}
                                 </div>
                             )}
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
             )}
         </EntityDetailShell>
     );

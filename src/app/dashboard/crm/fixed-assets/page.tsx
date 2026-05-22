@@ -48,12 +48,12 @@ export default async function FixedAssetsPage({
       title="Fixed Assets"
       subtitle="Track durable company property — laptops, vehicles, machinery — with depreciation and custody."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/fixed-assets/new">
             <Plus className="h-4 w-4" />
             New fixed asset
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 

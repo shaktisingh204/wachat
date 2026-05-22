@@ -108,7 +108,7 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
         }
     };
 
-    if (loading && !audit && status === 'idle') return <ZoruSkeleton className="h-[400px] w-full" />;
+    if (loading && !audit && status === 'idle') return <Skeleton className="h-[400px] w-full" />;
 
     return (
         <div className="flex flex-col gap-6">
@@ -120,14 +120,14 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                     </h1>
                     <p className="text-zoru-ink-muted mt-1">Deep crawl analysis using distributed cloud workers.</p>
                 </div>
-                <ZoruButton onClick={handleStartAudit} disabled={status === 'running'}>
+                <Button onClick={handleStartAudit} disabled={status === 'running'}>
                     {status === 'running' ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
                     {status === 'running' ? 'Crawling...' : 'Start New Audit'}
-                </ZoruButton>
+                </Button>
             </div>
 
             {status === 'running' && (
-                <ZoruCard className="bg-zoru-info/10 border-zoru-info/40">
+                <Card className="bg-zoru-info/10 border-zoru-info/40">
                     <ZoruCardContent className="p-6 flex items-center gap-4">
                         <Loader2 className="h-8 w-8 text-zoru-info animate-spin" />
                         <div className="flex-1">
@@ -135,21 +135,21 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                                 <span className="text-zoru-ink">Audit in Progress</span>
                                 <span className="text-zoru-ink-muted">{progress.crawled} Pages Crawled</span>
                             </div>
-                            <ZoruProgress value={30} className="h-2" />
+                            <Progress value={30} className="h-2" />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {!audit ? (
-                <ZoruCard className="border-dashed py-12 flex flex-col items-center justify-center text-center">
+                <Card className="border-dashed py-12 flex flex-col items-center justify-center text-center">
                     <p className="text-zoru-ink-muted mb-4">No audit history found.</p>
-                    <ZoruButton onClick={handleStartAudit}>Start First Crawl</ZoruButton>
-                </ZoruCard>
+                    <Button onClick={handleStartAudit}>Start First Crawl</Button>
+                </Card>
             ) : (
                 <>
                     <div className="grid gap-6 md:grid-cols-3">
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm">Overall Health</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -158,11 +158,11 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                                     <span className="text-4xl text-zoru-ink">{audit.totalScore || 0}</span>
                                     <span className="text-zoru-ink-muted">/ 100</span>
                                 </div>
-                                <ZoruProgress value={audit.totalScore || 0} className="h-2" />
+                                <Progress value={audit.totalScore || 0} className="h-2" />
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm">Critical Errors</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -175,9 +175,9 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                                     <p className="text-xs text-zoru-ink-muted">Require attention</p>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm">Warnings</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -190,10 +190,10 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                                     <p className="text-xs text-zoru-ink-muted">Optimization tips</p>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </div>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Crawled Pages</ZoruCardTitle>
                             <ZoruCardDescription>Results from the latest crawl.</ZoruCardDescription>
@@ -201,7 +201,7 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                         <ZoruCardContent>
                             <AuditTable pages={pages} />
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             )}
         </div>

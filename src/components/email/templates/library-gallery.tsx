@@ -33,7 +33,7 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
 
   if (templates.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Sparkles />}
         title="Library is empty"
         description="Curated templates will appear here once they're published."
@@ -56,7 +56,7 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {templates.map((t) => (
-        <ZoruCard key={t._id} className="flex flex-col overflow-hidden">
+        <Card key={t._id} className="flex flex-col overflow-hidden">
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-zoru-surface-2">
             {t.thumbnailUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -70,9 +70,9 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
                 <FileText className="h-8 w-8" />
               </div>
             )}
-            <ZoruBadge variant="outline" className="absolute right-2 top-2 gap-1 bg-card">
+            <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-card">
               <Sparkles className="h-3 w-3" /> Library
-            </ZoruBadge>
+            </Badge>
           </div>
           <ZoruCardHeader>
             <ZoruCardTitle className="line-clamp-1 text-sm">{t.name}</ZoruCardTitle>
@@ -81,7 +81,7 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
             {t.category ?? 'General'}
           </ZoruCardContent>
           <ZoruCardFooter>
-            <ZoruButton
+            <Button
               type="button"
               size="sm"
               block
@@ -89,9 +89,9 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
               onClick={() => handleUse(t)}
             >
               <Copy /> {pending ? 'Forking…' : 'Use'}
-            </ZoruButton>
+            </Button>
           </ZoruCardFooter>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );

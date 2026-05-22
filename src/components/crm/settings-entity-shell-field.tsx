@@ -150,11 +150,11 @@ export function FieldRenderer({
     };
 
     if (field.type === 'textarea') {
-        return <ZoruTextarea {...common} rows={3} />;
+        return <Textarea {...common} rows={3} />;
     }
     if (field.type === 'select') {
         return (
-            <ZoruSelect
+            <Select
                 name={field.name}
                 defaultValue={String(common.defaultValue || '')}
             >
@@ -168,13 +168,13 @@ export function FieldRenderer({
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
         );
     }
     if (field.type === 'color') {
         return (
             <div className="flex items-center gap-2">
-                <ZoruInput {...common} type="color" className="h-9 w-12 p-1" />
+                <Input {...common} type="color" className="h-9 w-12 p-1" />
                 <span className="text-[12px] text-zoru-ink-muted">
                     {stringValue || field.defaultValue || ''}
                 </span>
@@ -182,7 +182,7 @@ export function FieldRenderer({
         );
     }
     return (
-        <ZoruInput
+        <Input
             {...common}
             type={field.type || 'text'}
             min={field.type === 'number' ? 0 : undefined}

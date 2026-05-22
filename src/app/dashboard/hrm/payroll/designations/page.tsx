@@ -53,10 +53,10 @@ const GRADE_OPTIONS = [
 function SaveButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -139,17 +139,17 @@ export default function DesignationsPage() {
             title="Designations"
             subtitle="Manage job titles with department mapping and grade levels."
             primaryAction={
-                <ZoruButton onClick={openAdd}>
+                <Button onClick={openAdd}>
                     <Plus className="h-4 w-4" />
                     Add Designation
-                </ZoruButton>
+                </Button>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-[16px] text-zoru-ink">All Designations</h2>
-                    <ZoruBadge variant="secondary">{designations.length} total</ZoruBadge>
+                    <Badge variant="secondary">{designations.length} total</Badge>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
@@ -184,22 +184,22 @@ export default function DesignationsPage() {
                                             <td className="px-4 py-3 text-zoru-ink-muted">{deptName}</td>
                                             <td className="px-4 py-3">
                                                 {(desig as any).level ? (
-                                                    <ZoruBadge variant="info">{(desig as any).level}</ZoruBadge>
+                                                    <Badge variant="info">{(desig as any).level}</Badge>
                                                 ) : (
                                                     <span className="text-zoru-ink-muted">—</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-end gap-1">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => openEdit(desig)}
                                                         aria-label="Edit"
                                                     >
                                                         <Pencil className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => handleDelete(desig)}
@@ -207,7 +207,7 @@ export default function DesignationsPage() {
                                                         aria-label="Delete"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -223,9 +223,9 @@ export default function DesignationsPage() {
                         </tbody>
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle className="text-zoru-ink">
@@ -244,10 +244,10 @@ export default function DesignationsPage() {
                         <input type="hidden" name="level" value={level === '__none__' ? '' : level} />
 
                         <div>
-                            <ZoruLabel htmlFor="desig-name" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="desig-name" className="text-[13px] text-zoru-ink">
                                 Designation Name <span className="text-red-500">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="desig-name"
                                 name="name"
                                 required
@@ -258,10 +258,10 @@ export default function DesignationsPage() {
                         </div>
 
                         <div>
-                            <ZoruLabel htmlFor="desig-desc" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="desig-desc" className="text-[13px] text-zoru-ink">
                                 Description
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="desig-desc"
                                 name="description"
                                 rows={2}
@@ -272,10 +272,10 @@ export default function DesignationsPage() {
                         </div>
 
                         <div>
-                            <ZoruLabel htmlFor="desig-dept" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="desig-dept" className="text-[13px] text-zoru-ink">
                                 Department
-                            </ZoruLabel>
-                            <ZoruSelect value={deptId} onValueChange={setDeptId}>
+                            </Label>
+                            <Select value={deptId} onValueChange={setDeptId}>
                                 <ZoruSelectTrigger
                                     id="desig-dept"
                                     className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
@@ -290,14 +290,14 @@ export default function DesignationsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
 
                         <div>
-                            <ZoruLabel htmlFor="desig-level" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="desig-level" className="text-[13px] text-zoru-ink">
                                 Level / Grade
-                            </ZoruLabel>
-                            <ZoruSelect value={level} onValueChange={setLevel}>
+                            </Label>
+                            <Select value={level} onValueChange={setLevel}>
                                 <ZoruSelectTrigger
                                     id="desig-level"
                                     className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
@@ -310,23 +310,23 @@ export default function DesignationsPage() {
                                         <ZoruSelectItem key={g} value={g}>{g}</ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
 
                         <ZoruDialogFooter>
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => setDialogOpen(false)}
                             >
                                 <X className="h-3.5 w-3.5" />
                                 Cancel
-                            </ZoruButton>
+                            </Button>
                             <SaveButton label={editing ? 'Save Changes' : 'Add Designation'} />
                         </ZoruDialogFooter>
                     </form>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </EntityListShell>
     );
 }

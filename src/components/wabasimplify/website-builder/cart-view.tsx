@@ -22,9 +22,9 @@ export function CartView() {
                 <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground" />
                 <h2 className="mt-4 text-2xl font-semibold">Your cart is empty</h2>
                 <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
-                <ZoruButton asChild className="mt-6">
+                <Button asChild className="mt-6">
                      <Link href={`/shop/${shopSlug}`}>Continue Shopping</Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -33,7 +33,7 @@ export function CartView() {
          <div className="grid md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-4">
                 {cart.map(item => (
-                     <ZoruCard key={item.productId} className="flex items-center p-4 gap-4">
+                     <Card key={item.productId} className="flex items-center p-4 gap-4">
                          <div className="relative h-24 w-24 bg-muted rounded-md overflow-hidden">
                             <Image src={item.imageUrl || 'https://placehold.co/100x100.png'} alt={item.name} fill objectFit="cover" data-ai-hint="product image" />
                          </div>
@@ -42,19 +42,19 @@ export function CartView() {
                             <p className="text-muted-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)}</p>
                          </div>
                          <div className="flex items-center border rounded-md">
-                            <ZoruButton variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>-</ZoruButton>
+                            <Button variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>-</Button>
                             <span className="w-10 text-center">{item.quantity}</span>
-                            <ZoruButton variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity + 1)}>+</ZoruButton>
+                            <Button variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity + 1)}>+</Button>
                          </div>
                          <p className="font-semibold w-24 text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</p>
-                         <ZoruButton variant="ghost" size="icon" onClick={() => removeFromCart(item.productId)}>
+                         <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.productId)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
-                         </ZoruButton>
-                    </ZoruCard>
+                         </Button>
+                    </Card>
                 ))}
             </div>
             <div className="md:col-span-1">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Order Summary</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -67,18 +67,18 @@ export function CartView() {
                             <span>Shipping</span>
                             <span>Calculated at checkout</span>
                         </div>
-                        <ZoruSeparator />
+                        <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
                         </div>
                     </ZoruCardContent>
                     <ZoruCardFooter>
-                        <ZoruButton asChild size="lg" className="w-full">
+                        <Button asChild size="lg" className="w-full">
                              <Link href={`/shop/${shopSlug}/checkout`}>Proceed to Checkout</Link>
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardFooter>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

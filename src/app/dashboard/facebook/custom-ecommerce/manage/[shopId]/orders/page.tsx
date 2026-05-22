@@ -61,10 +61,10 @@ function PageSkeleton() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <ZoruSkeleton className="h-8 w-48" />
-        <ZoruSkeleton className="h-9 w-32" />
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-9 w-32" />
       </div>
-      <ZoruSkeleton className="h-72 w-full" />
+      <Skeleton className="h-72 w-full" />
     </div>
   );
 }
@@ -133,12 +133,12 @@ export default function OrdersPage() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
-          <ZoruBadge
+          <Badge
             variant={statusVariant(row.original.status)}
             className="capitalize"
           >
             {row.original.status}
-          </ZoruBadge>
+          </Badge>
         ),
       },
       {
@@ -151,14 +151,14 @@ export default function OrdersPage() {
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="View order"
               onClick={() => setActiveOrder(row.original)}
             >
               <Eye />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -172,13 +172,13 @@ export default function OrdersPage() {
 
   if (!shop) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
         <ZoruAlertDescription>
           Please select a valid shop to manage its orders.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
@@ -191,7 +191,7 @@ export default function OrdersPage() {
             View and manage orders from your custom shop.
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="outline"
           onClick={fetchData}
           disabled={isLoading}
@@ -203,17 +203,17 @@ export default function OrdersPage() {
             <RefreshCw />
           )}
           Refresh
-        </ZoruButton>
+        </Button>
       </div>
 
       {orders.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Package />}
           title="No orders yet"
           description="Orders placed in your shop will show up here."
         />
       ) : (
-        <ZoruDataTable
+        <DataTable
           columns={columns}
           data={orders}
           filterPlaceholder="Search orders…"
@@ -221,7 +221,7 @@ export default function OrdersPage() {
         />
       )}
 
-      <ZoruSheet
+      <Sheet
         open={!!activeOrder}
         onOpenChange={(open) => !open && setActiveOrder(null)}
       >
@@ -247,12 +247,12 @@ export default function OrdersPage() {
                   <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
                     Status
                   </p>
-                  <ZoruBadge
+                  <Badge
                     variant={statusVariant(activeOrder.status)}
                     className="mt-1 capitalize"
                   >
                     {activeOrder.status}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
@@ -283,7 +283,7 @@ export default function OrdersPage() {
                   </p>
                 </div>
               </div>
-              <ZoruSeparator />
+              <Separator />
               <div>
                 <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
                   Customer
@@ -300,7 +300,7 @@ export default function OrdersPage() {
                   </p>
                 ) : null}
               </div>
-              <ZoruSeparator />
+              <Separator />
               <div>
                 <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
                   Items
@@ -324,7 +324,7 @@ export default function OrdersPage() {
               </div>
               {activeOrder.shippingAddress ? (
                 <>
-                  <ZoruSeparator />
+                  <Separator />
                   <div>
                     <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
                       Shipping address
@@ -344,18 +344,18 @@ export default function OrdersPage() {
                 </>
               ) : null}
               <div className="pt-2">
-                <ZoruButton
+                <Button
                   block
                   size="sm"
                   onClick={() => setActiveOrder(null)}
                 >
                   Close
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
     </div>
   );
 }

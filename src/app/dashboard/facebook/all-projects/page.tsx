@@ -102,21 +102,21 @@ const FEATURES = [
 function PageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-48" />
+      <Skeleton className="h-3 w-48" />
       <div className="mt-5 flex items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-7 w-64" />
-          <ZoruSkeleton className="h-3 w-80" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-7 w-64" />
+          <Skeleton className="h-3 w-80" />
         </div>
         <div className="flex gap-2">
-          <ZoruSkeleton className="h-9 w-28" />
-          <ZoruSkeleton className="h-9 w-32" />
+          <Skeleton className="h-9 w-28" />
+          <Skeleton className="h-9 w-32" />
         </div>
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-44 w-full" />
+          <Skeleton key={i} className="h-44 w-full" />
         ))}
       </div>
     </div>
@@ -139,18 +139,18 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
   };
 
   return (
-    <ZoruCard className="flex flex-col p-0">
+    <Card className="flex flex-col p-0">
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <ZoruAvatar className="h-12 w-12">
+            <Avatar className="h-12 w-12">
               <ZoruAvatarImage
                 src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=large`}
               />
               <ZoruAvatarFallback>
                 <FacebookGlyph className="h-5 w-5" />
               </ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <span
               className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-zoru-bg bg-zoru-success text-zoru-on-primary"
               aria-hidden
@@ -164,7 +164,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
               ID: {project.facebookPageId || "—"}
             </p>
           </div>
-          <ZoruBadge variant="outline">Live</ZoruBadge>
+          <Badge variant="outline">Live</Badge>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
@@ -201,19 +201,19 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
           <ExternalLink className="h-3 w-3" /> Facebook
         </a>
         <div className="flex-1" />
-        <ZoruButton
+        <Button
           size="sm"
           variant="outline"
           onClick={handleManage}
           className="h-7 text-[11px]"
         >
           <Settings /> Manage
-        </ZoruButton>
-        <ZoruButton size="sm" onClick={handleManage} className="h-7 text-[11px]">
+        </Button>
+        <Button size="sm" onClick={handleManage} className="h-7 text-[11px]">
           Open <ArrowRight />
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -227,7 +227,7 @@ function ConnectEmptyState({
   onSuccess: () => void;
 }) {
   return (
-    <ZoruCard className="px-6 py-12 md:px-12">
+    <Card className="px-6 py-12 md:px-12">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-surface-2 text-zoru-ink">
           <FacebookGlyph className="h-8 w-8" />
@@ -248,12 +248,12 @@ function ConnectEmptyState({
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           {appId ? (
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href="/api/auth/meta-suite/login">
                 <FacebookGlyph className="h-4 w-4" /> Connect Facebook Page
                 <ArrowRight />
               </Link>
-            </ZoruButton>
+            </Button>
           ) : (
             <p className="text-[12.5px] text-zoru-danger">
               Facebook App ID not configured.
@@ -284,7 +284,7 @@ function ConnectEmptyState({
           </div>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -321,7 +321,7 @@ export default function AllFacebookPagesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -337,9 +337,9 @@ export default function AllFacebookPagesPage() {
             <ZoruBreadcrumbPage>Connected pages</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5" bordered={false}>
+      <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
             Meta Suite
@@ -351,19 +351,19 @@ export default function AllFacebookPagesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={fetchData}>
+          <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh
-          </ZoruButton>
+          </Button>
           <ManualSetupDialog onSuccess={fetchData} />
           {appId ? (
-            <ZoruButton asChild size="sm">
+            <Button asChild size="sm">
               <Link href="/api/auth/meta-suite/login">
                 <FacebookGlyph className="h-4 w-4" /> Connect page
               </Link>
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* ── stats row ── */}
       {projects.length > 0 ? (

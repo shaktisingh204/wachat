@@ -48,7 +48,7 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
 
   if (runs.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Flame />}
         title="No warmup in progress"
         description="Start a warmup to gradually ramp send volume on a new domain and build inbox trust."
@@ -76,7 +76,7 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
         const peakCap = run.schedule.reduce((m, d) => Math.max(m, d.cap), 0) || 1;
 
         return (
-          <ZoruCard key={run._id}>
+          <Card key={run._id}>
             <ZoruCardHeader>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -88,36 +88,36 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
                   </ZoruCardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ZoruBadge variant={statusVariant(run.status)}>{run.status}</ZoruBadge>
+                  <Badge variant={statusVariant(run.status)}>{run.status}</Badge>
                   {run.status === 'active' ? (
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleAction(run._id, 'pause')}
                       disabled={pending}
                     >
                       <Pause className="h-3.5 w-3.5" /> Pause
-                    </ZoruButton>
+                    </Button>
                   ) : null}
                   {run.status === 'paused' ? (
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleAction(run._id, 'resume')}
                       disabled={pending}
                     >
                       <Play className="h-3.5 w-3.5" /> Resume
-                    </ZoruButton>
+                    </Button>
                   ) : null}
                   {run.status === 'active' || run.status === 'paused' ? (
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleAction(run._id, 'cancel')}
                       disabled={pending}
                     >
                       <X className="h-3.5 w-3.5" /> Cancel
-                    </ZoruButton>
+                    </Button>
                   ) : null}
                 </div>
               </div>
@@ -156,7 +156,7 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
                 })}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         );
       })}
     </div>

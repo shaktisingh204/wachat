@@ -40,10 +40,10 @@ export default function PayrollRunPage() {
     const months = monthKeys.map((key, value) => ({ value, label: t(key) }));
 
     function statusBadge(status: string) {
-        if (status === 'paid') return <ZoruBadge variant="success">{t('hrm.payroll.run.status.paid')}</ZoruBadge>;
-        if (status === 'pending') return <ZoruBadge variant="warning">{t('hrm.payroll.run.status.pending')}</ZoruBadge>;
-        if (status === 'processing') return <ZoruBadge variant="info">{t('hrm.payroll.run.status.processing')}</ZoruBadge>;
-        return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
+        if (status === 'paid') return <Badge variant="success">{t('hrm.payroll.run.status.paid')}</Badge>;
+        if (status === 'pending') return <Badge variant="warning">{t('hrm.payroll.run.status.pending')}</Badge>;
+        if (status === 'processing') return <Badge variant="info">{t('hrm.payroll.run.status.processing')}</Badge>;
+        return <Badge variant="secondary">{status}</Badge>;
     }
 
     const [payslips, setPayslips] = useState<any[]>([]);
@@ -82,58 +82,58 @@ export default function PayrollRunPage() {
             subtitle={t('hrm.payroll.run.subtitle', { period: periodLabel })}
             primaryAction={
                 <>
-                    <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                    <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
                         <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                    </Select>
+                    <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
                         <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruButton disabled={isLoading}>
+                    </Select>
+                    <Button disabled={isLoading}>
                         <Play className="h-4 w-4" />
                         {t('hrm.payroll.run.action.run')}
-                    </ZoruButton>
+                    </Button>
                 </>
             }
         >
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.gross')}</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalGross.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.employees', { count: payslips.length })}</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.deductions')}</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalDeductions.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.deductionsSummary')}</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.netPay')}</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalNet.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.netPaySummary')}</p>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
                         <h2 className="text-[16px] text-zoru-ink">{t('hrm.payroll.run.register.title', { period: periodLabel })}</h2>
                         <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{t('hrm.payroll.run.register.subtitle')}</p>
                     </div>
-                    <ZoruButton variant="outline" size="sm" disabled>
+                    <Button variant="outline" size="sm" disabled>
                         <CheckCircle className="h-3.5 w-3.5" />
                         {t('hrm.payroll.run.action.markAllPaid')}
-                    </ZoruButton>
+                    </Button>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
@@ -202,7 +202,7 @@ export default function PayrollRunPage() {
                         )}
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

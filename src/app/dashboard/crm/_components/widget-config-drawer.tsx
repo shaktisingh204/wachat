@@ -100,12 +100,12 @@ export function WidgetConfigDrawer({
   };
 
   return (
-    <ZoruSheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <ZoruSheetTrigger asChild>
-        <ZoruButton variant={triggerVariant} size="sm">
+        <Button variant={triggerVariant} size="sm">
           <Settings2 className="h-4 w-4" strokeWidth={1.75} />
           {triggerLabel}
-        </ZoruButton>
+        </Button>
       </ZoruSheetTrigger>
       <ZoruSheetContent side="right" className="w-full max-w-md">
         <ZoruSheetHeader>
@@ -142,7 +142,7 @@ export function WidgetConfigDrawer({
                   <p className="text-sm text-zoru-ink">{w.label}</p>
                   <p className="text-[12px] text-zoru-ink-muted">{w.description}</p>
                 </div>
-                <ZoruSwitch
+                <Switch
                   checked={w.enabled}
                   onCheckedChange={(c) => handleToggle(w.widgetKey, Boolean(c))}
                   aria-label={`Toggle ${w.label}`}
@@ -152,6 +152,6 @@ export function WidgetConfigDrawer({
           )}
         </div>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }

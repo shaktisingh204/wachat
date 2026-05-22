@@ -34,9 +34,9 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : 'Create Catalog'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -64,12 +64,12 @@ export function CreateCatalogDialog({ projectId, onCatalogCreated }: CreateCatal
   }, [state, toast, onCatalogCreated]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton disabled={!projectId}>
+        <Button disabled={!projectId}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Create New Catalog
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
@@ -84,17 +84,17 @@ export function CreateCatalogDialog({ projectId, onCatalogCreated }: CreateCatal
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="catalogName">Catalog Name</ZoruLabel>
-                <ZoruInput id="catalogName" name="catalogName" placeholder="e.g., My Online Store" required maxLength={100} />
+                <Label htmlFor="catalogName">Catalog Name</Label>
+                <Input id="catalogName" name="catalogName" placeholder="e.g., My Online Store" required maxLength={100} />
               </div>
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

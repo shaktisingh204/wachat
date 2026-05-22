@@ -22,14 +22,14 @@ export default function SchemaValidatorPage() {
 
   return (
     <ToolShell title="Schema Validator" description="Validate and inspect JSON-LD structured data.">
-      <ZoruTextarea value={raw} onChange={(e) => setRaw(e.target.value)} placeholder="Paste JSON-LD or <script> tag…" className="min-h-[240px] font-mono text-xs" />
-      {result?.ok === false && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{result.error}</ZoruCardContent></ZoruCard>}
+      <Textarea value={raw} onChange={(e) => setRaw(e.target.value)} placeholder="Paste JSON-LD or <script> tag…" className="min-h-[240px] font-mono text-xs" />
+      {result?.ok === false && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{result.error}</ZoruCardContent></Card>}
       {result?.ok && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-2">
+        <Card><ZoruCardContent className="p-4 space-y-2">
           <div className="text-sm"><span className="font-semibold">@context:</span> {result.parsed['@context'] || <span className="text-muted-foreground">—</span>}</div>
           <div className="text-sm"><span className="font-semibold">@type:</span> {result.parsed['@type'] || <span className="text-muted-foreground">—</span>}</div>
           <pre className="text-xs bg-muted p-3 rounded overflow-auto">{JSON.stringify(result.parsed, null, 2)}</pre>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

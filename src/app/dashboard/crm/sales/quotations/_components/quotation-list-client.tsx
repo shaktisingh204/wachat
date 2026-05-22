@@ -396,11 +396,11 @@ export function QuotationListClient({
         title="Quotations"
         subtitle="Create and manage sales quotations — open, accepted, rejected, expired, converted."
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/quotations/new">
               <Plus className="h-4 w-4" /> New quotation
             </Link>
-          </ZoruButton>
+          </Button>
         }
         bulkBar={
           selected.size > 0 ? (
@@ -427,11 +427,11 @@ export function QuotationListClient({
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Draft your first quotation to start the sales conversation.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/quotations/new">
                   <Plus className="h-4 w-4" /> New quotation
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -446,7 +446,7 @@ export function QuotationListClient({
             </div>
           ) : null}
 
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             <QuotationListToolbar
               query={query}
               onQueryChange={setQuery}
@@ -490,7 +490,7 @@ export function QuotationListClient({
               defaultCurrency={defaultCurrency}
               density={density}
             />
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

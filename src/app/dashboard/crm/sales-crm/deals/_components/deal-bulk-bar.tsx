@@ -65,17 +65,17 @@ export function DealBulkBar({
         {count} selected
       </div>
       <div className="flex items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+        <Button size="sm" variant="outline" onClick={onArchive}>
           Archive
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
-        <ZoruDropdownMenu>
+        </Button>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton size="sm" variant="outline">
+            <Button size="sm" variant="outline">
               Change stage
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent>
             {stages.map((s) => (
@@ -84,8 +84,8 @@ export function DealBulkBar({
               </ZoruDropdownMenuItem>
             ))}
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
-        <ZoruButton
+        </DropdownMenu>
+        <Button
           size="sm"
           variant="outline"
           onClick={() => {
@@ -94,16 +94,16 @@ export function DealBulkBar({
           }}
         >
           Assign to…
-        </ZoruButton>
-        <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+        </Button>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-        <ZoruButton size="sm" variant="ghost" onClick={onClear} aria-label="Clear selection">
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onClear} aria-label="Clear selection">
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
 
-      <ZoruDialog open={assignOpen} onOpenChange={setAssignOpen}>
+      <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Assign {count} deal{count === 1 ? '' : 's'}</ZoruDialogTitle>
@@ -112,7 +112,7 @@ export function DealBulkBar({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-2 py-2">
-            <ZoruLabel>Owner</ZoruLabel>
+            <Label>Owner</Label>
             <EntityFormField
               entity="user"
               name="_bulk_assign_owner"
@@ -121,20 +121,20 @@ export function DealBulkBar({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setAssignOpen(false)}>
+            <Button variant="ghost" onClick={() => setAssignOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 onAssign(assignUserId);
                 setAssignOpen(false);
               }}
             >
               Assign
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

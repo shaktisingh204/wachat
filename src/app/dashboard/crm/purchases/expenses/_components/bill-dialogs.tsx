@@ -79,7 +79,7 @@ export function BillEmailDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Email bill</ZoruDialogTitle>
@@ -89,8 +89,8 @@ export function BillEmailDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="email-to">Recipient</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="email-to">Recipient</Label>
+            <Input
               id="email-to"
               type="email"
               value={to}
@@ -100,8 +100,8 @@ export function BillEmailDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="email-subject">Subject</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="email-subject">Subject</Label>
+            <Input
               id="email-subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
@@ -109,8 +109,8 @@ export function BillEmailDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="email-message">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="email-message">Message</Label>
+            <Textarea
               id="email-message"
               rows={4}
               value={message}
@@ -120,13 +120,13 @@ export function BillEmailDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit}>Open email</ZoruButton>
+          </Button>
+          <Button onClick={onSubmit}>Open email</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -163,7 +163,7 @@ export function BillMarkPaidDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Mark this bill paid?</ZoruDialogTitle>
@@ -173,14 +173,14 @@ export function BillMarkPaidDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onConfirm} disabled={pending}>
+          </Button>
+          <Button onClick={onConfirm} disabled={pending}>
             {pending ? 'Saving…' : 'Mark paid'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

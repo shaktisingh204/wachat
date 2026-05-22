@@ -51,14 +51,14 @@ export default async function ClientTicketsPage() {
             </div>
 
             {tickets.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title="No tickets yet"
                     description="Open a new ticket to get help from our team."
                 />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>#</ZoruTableHead>
@@ -84,7 +84,7 @@ export default async function ClientTicketsPage() {
                                             </Link>
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge variant={statusVariant(t.status)}>{t.status}</ZoruBadge>
+                                            <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell>{t.priority}</ZoruTableCell>
                                         <ZoruTableCell>{fmtDate(t.lastReplyAt)}</ZoruTableCell>
@@ -92,9 +92,9 @@ export default async function ClientTicketsPage() {
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

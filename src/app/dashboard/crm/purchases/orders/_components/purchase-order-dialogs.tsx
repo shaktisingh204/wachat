@@ -95,7 +95,7 @@ export function PurchaseOrderEmailDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Email purchase order</ZoruDialogTitle>
@@ -105,8 +105,8 @@ export function PurchaseOrderEmailDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="po-email-to">Recipient</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="po-email-to">Recipient</Label>
+            <Input
               id="po-email-to"
               type="email"
               value={to}
@@ -116,8 +116,8 @@ export function PurchaseOrderEmailDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="po-email-subject">Subject</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="po-email-subject">Subject</Label>
+            <Input
               id="po-email-subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
@@ -125,8 +125,8 @@ export function PurchaseOrderEmailDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="po-email-message">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="po-email-message">Message</Label>
+            <Textarea
               id="po-email-message"
               rows={4}
               value={message}
@@ -136,15 +136,15 @@ export function PurchaseOrderEmailDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -177,7 +177,7 @@ export function PurchaseOrderWhatsAppDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Send via WhatsApp</ZoruDialogTitle>
@@ -187,10 +187,10 @@ export function PurchaseOrderWhatsAppDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="po-wa-phone">
+            <Label htmlFor="po-wa-phone">
               Phone (with country code)
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="po-wa-phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -199,8 +199,8 @@ export function PurchaseOrderWhatsAppDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="po-wa-message">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="po-wa-message">Message</Label>
+            <Textarea
               id="po-wa-message"
               rows={3}
               value={message}
@@ -210,13 +210,13 @@ export function PurchaseOrderWhatsAppDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit}>Open WhatsApp</ZoruButton>
+          </Button>
+          <Button onClick={onSubmit}>Open WhatsApp</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -253,7 +253,7 @@ export function PurchaseOrderApproveDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Approve this purchase order?</ZoruDialogTitle>
@@ -263,14 +263,14 @@ export function PurchaseOrderApproveDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onConfirm} disabled={pending}>
+          </Button>
+          <Button onClick={onConfirm} disabled={pending}>
             {pending ? 'Saving…' : 'Approve'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

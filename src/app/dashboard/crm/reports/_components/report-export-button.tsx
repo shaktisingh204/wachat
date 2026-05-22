@@ -52,9 +52,9 @@ export function ReportExportButton({
   }, [filename, headers, rows, sheetName]);
 
   return (
-    <ZoruDropdownMenu>
+    <DropdownMenu>
       <ZoruDropdownMenuTrigger asChild>
-        <ZoruButton
+        <Button
           type="button"
           size="sm"
           variant="outline"
@@ -62,7 +62,7 @@ export function ReportExportButton({
         >
           <Download className="mr-1.5 h-3.5 w-3.5" />
           Export
-        </ZoruButton>
+        </Button>
       </ZoruDropdownMenuTrigger>
       <ZoruDropdownMenuContent align="end">
         <ZoruDropdownMenuItem onSelect={onCsv}>Export CSV</ZoruDropdownMenuItem>
@@ -70,6 +70,6 @@ export function ReportExportButton({
           Export XLSX
         </ZoruDropdownMenuItem>
       </ZoruDropdownMenuContent>
-    </ZoruDropdownMenu>
+    </DropdownMenu>
   );
 }

@@ -102,14 +102,14 @@ interface StatCardProps {
 
 function StatCard({ title, value, accent, suffix }: StatCardProps) {
     return (
-        <ZoruCard>
+        <Card>
             <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
             <p className="mt-1 flex items-baseline gap-1.5 text-[28px] font-semibold text-foreground">
                 <span>{value.toLocaleString()}</span>
                 {suffix ? <span className="text-[13px] text-muted-foreground">{suffix}</span> : null}
             </p>
             {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -118,12 +118,12 @@ function PageSkeleton() {
         <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {[...Array(4)].map((_, i) => (
-                    <ZoruSkeleton key={i} className="h-28" />
+                    <Skeleton key={i} className="h-28" />
                 ))}
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <ZoruSkeleton className="h-96 lg:col-span-1" />
-                <ZoruSkeleton className="h-96 lg:col-span-2" />
+                <Skeleton className="h-96 lg:col-span-1" />
+                <Skeleton className="h-96 lg:col-span-2" />
             </div>
         </div>
     );
@@ -233,13 +233,13 @@ export default function LeadsSummaryPage() {
 
     if (!summaryData) {
         return (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Error</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Could not load summary data. Please ensure deals have been added to the CRM.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         );
     }
 
@@ -283,14 +283,14 @@ export default function LeadsSummaryPage() {
             </div>
 
             {/* Filters */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Pipeline</ZoruLabel>
-                        <ZoruSelect
+                        <Label className="text-foreground">Pipeline</Label>
+                        <Select
                             value={filters.pipelineId}
                             onValueChange={(v) => handleFilterChange('pipelineId', v)}
                         >
@@ -304,11 +304,11 @@ export default function LeadsSummaryPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Lead Source</ZoruLabel>
-                        <ZoruSelect
+                        <Label className="text-foreground">Lead Source</Label>
+                        <Select
                             value={filters.leadSource}
                             onValueChange={(v) => handleFilterChange('leadSource', v)}
                         >
@@ -322,11 +322,11 @@ export default function LeadsSummaryPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Assigned To</ZoruLabel>
-                        <ZoruSelect
+                        <Label className="text-foreground">Assigned To</Label>
+                        <Select
                             value={filters.assigneeId}
                             onValueChange={(v) => handleFilterChange('assigneeId', v)}
                         >
@@ -340,11 +340,11 @@ export default function LeadsSummaryPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Current Stage</ZoruLabel>
-                        <ZoruSelect
+                        <Label className="text-foreground">Current Stage</Label>
+                        <Select
                             value={filters.currentStage}
                             onValueChange={(v) => handleFilterChange('currentStage', v)}
                         >
@@ -358,35 +358,35 @@ export default function LeadsSummaryPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Created From</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label className="text-foreground">Created From</Label>
+                        <DatePicker
                             value={filters.createdFrom}
                             onChange={(d) => handleFilterChange('createdFrom', (d ?? undefined) as Date | undefined)}
                             placeholder="Start Date"
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Created To</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label className="text-foreground">Created To</Label>
+                        <DatePicker
                             value={filters.createdTo}
                             onChange={(d) => handleFilterChange('createdTo', (d ?? undefined) as Date | undefined)}
                             placeholder="End Date"
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Closed From</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label className="text-foreground">Closed From</Label>
+                        <DatePicker
                             value={filters.closedFrom}
                             onChange={(d) => handleFilterChange('closedFrom', (d ?? undefined) as Date | undefined)}
                             placeholder="Start Date"
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Closed To</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label className="text-foreground">Closed To</Label>
+                        <DatePicker
                             value={filters.closedTo}
                             onChange={(d) => handleFilterChange('closedTo', (d ?? undefined) as Date | undefined)}
                             placeholder="End Date"
@@ -394,16 +394,16 @@ export default function LeadsSummaryPage() {
                     </div>
                 </div>
                 <div className="mt-4 flex items-center gap-2">
-                    <ZoruButton onClick={fetchData} disabled={isLoading}>
+                    <Button onClick={fetchData} disabled={isLoading}>
                         Apply filters
-                    </ZoruButton>
+                    </Button>
                     {activeFilters.length > 0 ? (
-                        <ZoruButton variant="ghost" size="sm" onClick={resetFilters}>
+                        <Button variant="ghost" size="sm" onClick={resetFilters}>
                             Reset
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Active filters */}
             {activeFilters.length > 0 ? (
@@ -417,9 +417,9 @@ export default function LeadsSummaryPage() {
                             .replace(/([A-Z])/g, ' $1')
                             .replace(/^./, (s) => s.toUpperCase());
                         return (
-                            <ZoruBadge key={key} variant="ghost">
+                            <Badge key={key} variant="ghost">
                                 {label}: {display}
-                            </ZoruBadge>
+                            </Badge>
                         );
                     })}
                 </div>
@@ -427,7 +427,7 @@ export default function LeadsSummaryPage() {
 
             {/* Charts row — funnel + source pie + stage line */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <ZoruCard className="lg:col-span-2">
+                <Card className="lg:col-span-2">
                     <div className="mb-4">
                         <h2 className="text-[16px] font-semibold text-foreground">Pipeline funnel</h2>
                         <p className="text-[12px] text-muted-foreground">
@@ -444,9 +444,9 @@ export default function LeadsSummaryPage() {
                             <Bar dataKey="leadCount" fill="hsl(var(--primary))" name="Leads" />
                         </BarChart>
                     </ResponsiveContainer>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <div className="mb-4">
                         <h2 className="text-[16px] font-semibold text-foreground">Source split</h2>
                         <p className="text-[12px] text-muted-foreground">
@@ -480,11 +480,11 @@ export default function LeadsSummaryPage() {
                             </PieChart>
                         </ResponsiveContainer>
                     )}
-                </ZoruCard>
+                </Card>
             </div>
 
             {/* Stage trend (line) */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Stage curve</h2>
                     <p className="text-[12px] text-muted-foreground">
@@ -517,10 +517,10 @@ export default function LeadsSummaryPage() {
                         />
                     </LineChart>
                 </ResponsiveContainer>
-            </ZoruCard>
+            </Card>
 
             {/* Per-stage table */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Stages</h2>
                 </div>
@@ -542,7 +542,7 @@ export default function LeadsSummaryPage() {
                         </div>
                     ))}
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

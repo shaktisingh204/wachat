@@ -14,10 +14,10 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -32,13 +32,13 @@ export function SuccessionForm({ plan }: { plan?: Record<string, any> }) {
         : '';
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     {plan?._id ? <input type="hidden" name="planId" value={String(plan._id)} /> : null}
                     <Field name="role" label="Role / position" defaultValue={plan?.role} required />
                     <div>
-                        <ZoruLabel htmlFor="incumbentEmployeeId">Incumbent employee</ZoruLabel>
+                        <Label htmlFor="incumbentEmployeeId">Incumbent employee</Label>
                         <EntityFormField
                             entity="employee"
                             name="incumbentEmployeeId"
@@ -46,7 +46,7 @@ export function SuccessionForm({ plan }: { plan?: Record<string, any> }) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="department">Department</ZoruLabel>
+                        <Label htmlFor="department">Department</Label>
                         <EntityFormField
                             entity="department"
                             name="department"
@@ -55,14 +55,14 @@ export function SuccessionForm({ plan }: { plan?: Record<string, any> }) {
                     </div>
                     <Field name="reviewDate" label="Review date" type="date" defaultValue={plan?.reviewDate} />
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="candidates">
+                        <Label htmlFor="candidates">
                             Candidates (one per line: <code>employeeId|readiness|notes</code>; readiness ∈ ready / 12mo / 24mo / long-term)
-                        </ZoruLabel>
-                        <ZoruTextarea id="candidates" name="candidates" defaultValue={candidatesText} rows={6} />
+                        </Label>
+                        <Textarea id="candidates" name="candidates" defaultValue={candidatesText} rows={6} />
                     </div>
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea id="notes" name="notes" defaultValue={plan?.notes ?? ''} rows={3} />
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea id="notes" name="notes" defaultValue={plan?.notes ?? ''} rows={3} />
                     </div>
                     <div className="md:col-span-2 flex items-center justify-between gap-3">
                         <div className="text-sm">
@@ -72,17 +72,17 @@ export function SuccessionForm({ plan }: { plan?: Record<string, any> }) {
                     </div>
                 </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
 function Field({ name, label, defaultValue, required, type = 'text' }: { name: string; label: string; defaultValue?: any; required?: boolean; type?: string }) {
     return (
         <div>
-            <ZoruLabel htmlFor={name}>
+            <Label htmlFor={name}>
                 {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
                 id={name}
                 name={name}
                 type={type}

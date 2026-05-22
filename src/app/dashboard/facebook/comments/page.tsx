@@ -206,7 +206,7 @@ export default function FacebookCommentsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<MessageCircle />}
           title="No project selected"
           description="Pick a Facebook page / project from the project switcher to see its comments."
@@ -217,7 +217,7 @@ export default function FacebookCommentsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -231,7 +231,7 @@ export default function FacebookCommentsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Comments</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -240,34 +240,34 @@ export default function FacebookCommentsPage(): React.JSX.Element {
             Read and reply to comments on this page&rsquo;s Facebook posts.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={loadPosts} disabled={isLoadingPosts}>
+        <Button variant="ghost" onClick={loadPosts} disabled={isLoadingPosts}>
           <RefreshCw className={isLoadingPosts ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh posts
-        </ZoruButton>
+        </Button>
       </header>
 
       {postsError && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load posts</ZoruAlertTitle>
           <ZoruAlertDescription>{postsError}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
-        <ZoruCard className="flex flex-col gap-2 p-3">
+        <Card className="flex flex-col gap-2 p-3">
           <p className="px-2 pt-1 text-xs uppercase tracking-wider text-zoru-ink-muted">
             Recent posts
           </p>
-          <ZoruScrollArea className="h-[640px] pr-1">
+          <ScrollArea className="h-[640px] pr-1">
             {isLoadingPosts && posts.length === 0 ? (
               <div className="flex flex-col gap-2 p-2">
-                <ZoruSkeleton className="h-12 w-full" />
-                <ZoruSkeleton className="h-12 w-full" />
-                <ZoruSkeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
               </div>
             ) : posts.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 compact
                 icon={<MessageCircle />}
                 title="No posts yet"
@@ -299,12 +299,12 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                 })}
               </ul>
             )}
-          </ZoruScrollArea>
-        </ZoruCard>
+          </ScrollArea>
+        </Card>
 
-        <ZoruCard className="flex flex-col gap-4 p-5">
+        <Card className="flex flex-col gap-4 p-5">
           {!selectedPost ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<MessageCircle />}
               title="Pick a post"
               description="Select a post on the left to see its comments."
@@ -322,15 +322,15 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     onClick={() => onLike(selectedPost.id)}
                     disabled={isPosting}
                   >
                     <ThumbsUp className="mr-2 h-4 w-4" />
                     Like
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     variant="ghost"
                     onClick={() => loadComments(selectedPost.id)}
                     disabled={isLoadingComments}
@@ -341,27 +341,27 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                       }
                     />
                     Refresh
-                  </ZoruButton>
+                  </Button>
                 </div>
               </header>
 
               {commentsError && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                   <AlertCircle />
                   <ZoruAlertTitle>Could not load comments</ZoruAlertTitle>
                   <ZoruAlertDescription>{commentsError}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
               )}
 
               <div className="flex flex-col gap-3">
                 {isLoadingComments && comments.length === 0 ? (
                   <>
-                    <ZoruSkeleton className="h-16 w-full" />
-                    <ZoruSkeleton className="h-16 w-full" />
-                    <ZoruSkeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
                   </>
                 ) : comments.length === 0 ? (
-                  <ZoruEmptyState
+                  <EmptyState
                     icon={<MessageCircle />}
                     title="No comments yet"
                     description="When users comment on this post, they'll show up here."
@@ -401,22 +401,22 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onLike(c.id)}
                             disabled={isPosting}
                           >
                             <ThumbsUp className="h-4 w-4" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onDelete(c.id)}
                             disabled={isPosting}
                           >
                             <Trash2 className="h-4 w-4" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </li>
                     ))}
@@ -425,7 +425,7 @@ export default function FacebookCommentsPage(): React.JSX.Element {
               </div>
 
               <footer className="mt-auto flex items-center gap-2 border-t border-zoru-line pt-3">
-                <ZoruInput
+                <Input
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Write a comment as the page…"
@@ -437,14 +437,14 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                   }}
                   disabled={isPosting}
                 />
-                <ZoruButton onClick={onPostReply} disabled={isPosting || !replyText.trim()}>
+                <Button onClick={onPostReply} disabled={isPosting || !replyText.trim()}>
                   <Send className="mr-2 h-4 w-4" />
                   Post
-                </ZoruButton>
+                </Button>
               </footer>
             </>
           )}
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

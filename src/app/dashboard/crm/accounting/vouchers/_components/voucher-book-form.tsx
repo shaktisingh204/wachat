@@ -85,7 +85,7 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="voucherBookType">Type *</ZoruLabel>
+                                <Label htmlFor="voucherBookType">Type *</Label>
                                 <EnumFormField
                                     name="voucherBookType"
                                     enumName="voucherType"
@@ -95,8 +95,8 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="voucherBookName">Name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="voucherBookName">Name *</Label>
+                                <Input
                                     id="voucherBookName"
                                     name="voucherBookName"
                                     placeholder="e.g. Sales Voucher — FY 2025-26"
@@ -114,8 +114,8 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="prefix">Prefix</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="prefix">Prefix</Label>
+                                <Input
                                     id="prefix"
                                     name="prefix"
                                     placeholder="e.g. SV-"
@@ -123,8 +123,8 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="suffix">Suffix</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="suffix">Suffix</Label>
+                                <Input
                                     id="suffix"
                                     name="suffix"
                                     placeholder="e.g. /FY25"
@@ -132,8 +132,8 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="startingNumber">Starting number</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="startingNumber">Starting number</Label>
+                                <Input
                                     id="startingNumber"
                                     name="startingNumber"
                                     type="number"
@@ -142,8 +142,8 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="padding">Padding</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="padding">Padding</Label>
+                                <Input
                                     id="padding"
                                     name="padding"
                                     type="number"
@@ -156,7 +156,7 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                 </p>
                             </div>
                             <div className="space-y-2 md:col-span-2">
-                                <ZoruLabel htmlFor="resetFrequency">Reset frequency</ZoruLabel>
+                                <Label htmlFor="resetFrequency">Reset frequency</Label>
                                 <EnumFormField
                                     name="resetFrequency"
                                     enumName="voucherResetFrequency"
@@ -179,7 +179,7 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                         Auto-selected on new voucher entry.
                                     </p>
                                 </div>
-                                <ZoruSwitch name="isDefault" defaultChecked={init?.isDefault ?? false} />
+                                <Switch name="isDefault" defaultChecked={init?.isDefault ?? false} />
                             </label>
                             <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
                                 <div>
@@ -188,7 +188,7 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                         Block posting until an approver signs off.
                                     </p>
                                 </div>
-                                <ZoruSwitch
+                                <Switch
                                     name="approvalRequired"
                                     defaultChecked={init?.approvalRequired ?? false}
                                 />
@@ -200,7 +200,7 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                         Inactive books stay in history but hide from new-entry pickers.
                                     </p>
                                 </div>
-                                <ZoruSwitch
+                                <Switch
                                     name="isActive"
                                     defaultChecked={init?.isActive ?? true}
                                 />

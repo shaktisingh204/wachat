@@ -32,10 +32,10 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
       Submit Request
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -67,7 +67,7 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
   }, [state, toast, onSuccess, onOpenChange]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="startDate" value={startDate?.toISOString()} />
@@ -78,8 +78,8 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="leaveType" className="text-zoru-ink">Leave Type *</ZoruLabel>
-                <ZoruSelect name="leaveType" required>
+                <Label htmlFor="leaveType" className="text-zoru-ink">Leave Type *</Label>
+                <Select name="leaveType" required>
                   <ZoruSelectTrigger id="leaveType"><ZoruSelectValue placeholder="Select type..." /></ZoruSelectTrigger>
                   <ZoruSelectContent>
                     <ZoruSelectItem value="Paid Leave">Paid Leave</ZoruSelectItem>
@@ -87,30 +87,30 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
                     <ZoruSelectItem value="Unpaid Leave">Unpaid Leave</ZoruSelectItem>
                     <ZoruSelectItem value="Other">Other</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <ZoruLabel className="text-zoru-ink">Start Date *</ZoruLabel>
-                  <ZoruDatePicker value={startDate} onChange={setStartDate} />
+                  <Label className="text-zoru-ink">Start Date *</Label>
+                  <DatePicker value={startDate} onChange={setStartDate} />
                 </div>
                 <div className="space-y-2">
-                  <ZoruLabel className="text-zoru-ink">End Date *</ZoruLabel>
-                  <ZoruDatePicker value={endDate} onChange={setEndDate} />
+                  <Label className="text-zoru-ink">End Date *</Label>
+                  <DatePicker value={endDate} onChange={setEndDate} />
                 </div>
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="reason" className="text-zoru-ink">Reason *</ZoruLabel>
-                <ZoruTextarea id="reason" name="reason" required placeholder="Enter reason for leave..." />
+                <Label htmlFor="reason" className="text-zoru-ink">Reason *</Label>
+                <Textarea id="reason" name="reason" required placeholder="Enter reason for leave..." />
               </div>
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

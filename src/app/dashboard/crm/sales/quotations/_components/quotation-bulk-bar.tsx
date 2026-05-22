@@ -59,25 +59,25 @@ export function QuotationBulkBar({
         {count} selected
       </div>
       <div className="flex items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+        <Button size="sm" variant="outline" onClick={onArchive}>
           Archive
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
+        </Button>
         {onExportXlsx ? (
-          <ZoruButton size="sm" variant="outline" onClick={onExportXlsx}>
+          <Button size="sm" variant="outline" onClick={onExportXlsx}>
             <Download className="h-3.5 w-3.5" /> Export XLSX
-          </ZoruButton>
+          </Button>
         ) : null}
-        <ZoruButton size="sm" variant="outline" onClick={onSend}>
+        <Button size="sm" variant="outline" onClick={onSend}>
           <Send className="h-3.5 w-3.5" /> Send
-        </ZoruButton>
-        <ZoruDropdownMenu>
+        </Button>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton size="sm" variant="outline">
+            <Button size="sm" variant="outline">
               Change status
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent>
             {STATUS_OPTIONS.map((s) => (
@@ -86,16 +86,16 @@ export function QuotationBulkBar({
               </ZoruDropdownMenuItem>
             ))}
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
-        <ZoruButton size="sm" variant="outline" onClick={onConvertToInvoice}>
+        </DropdownMenu>
+        <Button size="sm" variant="outline" onClick={onConvertToInvoice}>
           Convert to invoice
-        </ZoruButton>
-        <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+        </Button>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-        <ZoruButton size="sm" variant="ghost" onClick={onClear} aria-label="Clear selection">
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onClear} aria-label="Clear selection">
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

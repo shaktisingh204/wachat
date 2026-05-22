@@ -110,10 +110,10 @@ function toNum(v: string): number {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create RFQ'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -216,16 +216,16 @@ export function RfqForm({ initial }: RfqFormProps) {
       {fromId ? <input type="hidden" name="fromId" value={fromId} /> : null}
 
       {/* ─── Header ─────────────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="title">
+            <Label htmlFor="title">
               Title <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="title"
               name="title"
               required
@@ -236,8 +236,8 @@ export function RfqForm({ initial }: RfqFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="requiredBy">Required by</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="requiredBy">Required by</Label>
+            <Input
               id="requiredBy"
               name="requiredBy"
               type="date"
@@ -246,8 +246,8 @@ export function RfqForm({ initial }: RfqFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="deadline">Submission deadline</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="deadline">Submission deadline</Label>
+            <Input
               id="deadline"
               name="deadline"
               type="date"
@@ -256,14 +256,14 @@ export function RfqForm({ initial }: RfqFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Vendors invited ────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Vendors invited
         </h3>
-        <ZoruLabel>Pick one or more vendors</ZoruLabel>
+        <Label>Pick one or more vendors</Label>
         <div className="mt-1.5">
           <EntityPicker
             entity="vendor"
@@ -281,15 +281,15 @@ export function RfqForm({ initial }: RfqFormProps) {
           Vendors are notified when the RFQ moves to <em>open</em>. The list
           can still be appended while the RFQ is open.
         </p>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Line Items ─────────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Line items
           </h3>
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
@@ -297,7 +297,7 @@ export function RfqForm({ initial }: RfqFormProps) {
           >
             <Plus className="h-3.5 w-3.5" />
             Add line
-          </ZoruButton>
+          </Button>
         </div>
         <p className="mb-3 text-[11px] text-zoru-ink-muted">
           RFQ lines carry no price — vendors quote their rates back via a
@@ -349,7 +349,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                     />
                   </td>
                   <td className="min-w-[180px] py-2 pr-2">
-                    <ZoruInput
+                    <Input
                       value={line.description}
                       onChange={(e) =>
                         updateLine(line.key, { description: e.target.value })
@@ -360,7 +360,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                     />
                   </td>
                   <td className="py-2 pr-2">
-                    <ZoruInput
+                    <Input
                       value={line.qty}
                       onChange={(e) =>
                         updateLine(line.key, { qty: e.target.value })
@@ -383,7 +383,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                     />
                   </td>
                   <td className="min-w-[200px] py-2 pr-2">
-                    <ZoruInput
+                    <Input
                       value={line.specs}
                       onChange={(e) =>
                         updateLine(line.key, { specs: e.target.value })
@@ -394,7 +394,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                     />
                   </td>
                   <td className="py-2 pl-1">
-                    <ZoruButton
+                    <Button
                       type="button"
                       size="sm"
                       variant="ghost"
@@ -403,23 +403,23 @@ export function RfqForm({ initial }: RfqFormProps) {
                       className="text-zoru-danger-ink"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Workflow + terms + attachments ─────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Status</ZoruLabel>
+            <Label>Status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="rfqStatusV2"
@@ -431,8 +431,8 @@ export function RfqForm({ initial }: RfqFormProps) {
             </div>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="terms">Terms</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="terms">Terms</Label>
+            <Textarea
               id="terms"
               name="terms"
               defaultValue={initial?.terms ?? ''}
@@ -443,7 +443,7 @@ export function RfqForm({ initial }: RfqFormProps) {
             />
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel>Attachments</ZoruLabel>
+            <Label>Attachments</Label>
             <div className="mt-1.5">
               <SabFilePickerButton
                 accept="all"
@@ -469,7 +469,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                     <span className="truncate text-[12px] text-zoru-ink">
                       {a.name || a.fileId || 'Attachment'}
                     </span>
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -481,7 +481,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                       }
                     >
                       <X className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -491,10 +491,10 @@ export function RfqForm({ initial }: RfqFormProps) {
             </p>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -504,7 +504,7 @@ export function RfqForm({ initial }: RfqFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

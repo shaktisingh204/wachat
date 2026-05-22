@@ -48,7 +48,7 @@ export function ContractRelatedRail({
 
   return (
     <>
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Status</ZoruCardTitle>
         </ZoruCardHeader>
@@ -56,7 +56,7 @@ export function ContractRelatedRail({
           <div className="space-y-3 text-[12.5px]">
             <div className="flex items-center justify-between">
               <span className="text-zoru-ink-muted">Status</span>
-              <ZoruBadge variant="outline">{status || 'draft'}</ZoruBadge>
+              <Badge variant="outline">{status || 'draft'}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-zoru-ink-muted">Days remaining</span>
@@ -80,9 +80,9 @@ export function ContractRelatedRail({
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Parties</ZoruCardTitle>
         </ZoruCardHeader>
@@ -102,9 +102,9 @@ export function ContractRelatedRail({
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Related</ZoruCardTitle>
         </ZoruCardHeader>
@@ -128,10 +128,10 @@ export function ContractRelatedRail({
             </Link>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {startDate ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Term</ZoruCardTitle>
           </ZoruCardHeader>
@@ -153,7 +153,7 @@ export function ContractRelatedRail({
               </div>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </>
   );

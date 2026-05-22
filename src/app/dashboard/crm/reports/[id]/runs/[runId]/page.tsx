@@ -57,7 +57,7 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
         >
 
             <div className="flex items-center gap-3">
-                <ZoruBadge tone={tone}>{run.status}</ZoruBadge>
+                <Badge tone={tone}>{run.status}</Badge>
                 <span className="text-xs text-muted-foreground">
                     {result?.rows.length ?? 0} rows · trigger: {run.trigger}
                 </span>
@@ -73,18 +73,18 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
             </div>
 
             {result?.error && (
-                <ZoruCard className="border-destructive/50">
+                <Card className="border-destructive/50">
                     <h2 className="mb-2 text-sm font-semibold text-destructive">
                         Engine error
                     </h2>
                     <pre className="overflow-x-auto rounded bg-muted p-3 text-xs">
                         {result.error}
                     </pre>
-                </ZoruCard>
+                </Card>
             )}
 
             {result?.summary && Object.keys(result.summary).length > 0 && (
-                <ZoruCard>
+                <Card>
                     <h2 className="mb-3 text-[15px] font-semibold">Summary</h2>
                     <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                         {Object.entries(result.summary).map(([k, v]) => (
@@ -98,10 +98,10 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
                             </div>
                         ))}
                     </dl>
-                </ZoruCard>
+                </Card>
             )}
 
-            <ZoruCard>
+            <Card>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="text-left text-muted-foreground">
@@ -136,7 +136,7 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
                         </tbody>
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

@@ -32,10 +32,10 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
 
     const ConversationSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
-            <ZoruSkeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="h-10 w-10 rounded-full" />
             <div className="flex-1 space-y-2">
-                <ZoruSkeleton className="h-4 w-3/4" />
-                <ZoruSkeleton className="h-3 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
             </div>
         </div>
     );
@@ -50,31 +50,31 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
             <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
-                        <ZoruAvatar>
+                        <Avatar>
                             <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
                             <ZoruAvatarFallback>{sessionUser.name.charAt(0)}</ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <p className="font-semibold">{sessionUser.name}</p>
                     </div>
                 ) : (
                     <div className="flex items-center gap-3">
-                        <ZoruSkeleton className="h-10 w-10 rounded-full" />
-                        <div className="space-y-2"><ZoruSkeleton className="h-4 w-24" /><ZoruSkeleton className="h-3 w-16" /></div>
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
                     </div>
                 )}
-                <ZoruButton variant="ghost" size="icon" className="h-8 w-8" onClick={onNewChat}>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onNewChat}>
                     <MessageSquarePlus className="h-5 w-5" />
                     <span className="sr-only">New Chat</span>
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <ZoruInput placeholder="Search conversations..." className="pl-8" />
+                    <Input placeholder="Search conversations..." className="pl-8" />
                 </div>
             </div>
-            <ZoruScrollArea className="flex-1">
+            <ScrollArea className="flex-1">
                 {isLoading ? (
                     <div className="p-2 space-y-1">
                         {[...Array(8)].map((_, i) => <ConversationSkeleton key={i} />)}
@@ -92,10 +92,10 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                                         selectedConversationId === convo.id && "bg-accent"
                                     )}
                                 >
-                                    <ZoruAvatar>
+                                    <Avatar>
                                         <ZoruAvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar" />
                                         <ZoruAvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</ZoruAvatarFallback>
-                                    </ZoruAvatar>
+                                    </Avatar>
                                     <div className="flex-1 overflow-hidden">
                                         <div className="flex items-center justify-between">
                                             <p className="font-semibold truncate">{participant?.name || 'Unknown User'}</p>
@@ -106,7 +106,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                                         <div className="flex items-center justify-between">
                                             <p className="text-sm text-muted-foreground truncate">{convo.snippet}</p>
                                             {convo.unread_count > 0 && (
-                                                <ZoruBadge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{convo.unread_count}</ZoruBadge>
+                                                <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{convo.unread_count}</Badge>
                                             )}
                                         </div>
                                     </div>
@@ -119,7 +119,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                         No conversations found.
                     </div>
                 )}
-            </ZoruScrollArea>
+            </ScrollArea>
         </div>
     );
 }

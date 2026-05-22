@@ -84,14 +84,14 @@ export function FlowInspectorPanel({
           <p className="text-xs text-muted-foreground">Node id: {selectedNode.id}</p>
         </div>
         {!disabled ? (
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon"
             onClick={onDeleteNode}
             aria-label="Delete node"
           >
             <Trash2 className="h-4 w-4 text-destructive" />
-          </ZoruButton>
+          </Button>
         ) : null}
       </header>
 
@@ -155,8 +155,8 @@ function SendMessageForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="sm-text">Message text</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="sm-text">Message text</Label>
+        <Textarea
           id="sm-text"
           rows={5}
           value={String(data.text ?? '')}
@@ -165,8 +165,8 @@ function SendMessageForm({ data, patch, disabled }: FormProps) {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="sm-parse">Parse mode</ZoruLabel>
-        <ZoruSelect
+        <Label htmlFor="sm-parse">Parse mode</Label>
+        <Select
           value={String(data.parseMode ?? 'HTML')}
           onValueChange={(v) => patch({ parseMode: v })}
           disabled={disabled}
@@ -179,7 +179,7 @@ function SendMessageForm({ data, patch, disabled }: FormProps) {
             <ZoruSelectItem value="MarkdownV2">MarkdownV2</ZoruSelectItem>
             <ZoruSelectItem value="None">Plain text</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
     </div>
   );
@@ -190,8 +190,8 @@ function SendMediaForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="sm-kind">Media kind</ZoruLabel>
-        <ZoruSelect
+        <Label htmlFor="sm-kind">Media kind</Label>
+        <Select
           value={String(data.mediaKind ?? 'photo')}
           onValueChange={(v) => patch({ mediaKind: v })}
           disabled={disabled}
@@ -205,11 +205,11 @@ function SendMediaForm({ data, patch, disabled }: FormProps) {
             <ZoruSelectItem value="document">Document</ZoruSelectItem>
             <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel>File</ZoruLabel>
+        <Label>File</Label>
         {/*
           SabFiles policy: every file input must source from the SabFile picker
           (library or upload). `SabFileUrlInput` shows the URL but only allows
@@ -230,8 +230,8 @@ function SendMediaForm({ data, patch, disabled }: FormProps) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="sm-caption">Caption</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="sm-caption">Caption</Label>
+        <Textarea
           id="sm-caption"
           rows={3}
           value={String(data.caption ?? '')}
@@ -252,8 +252,8 @@ function SendKeyboardForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="sk-text">Prompt text</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="sk-text">Prompt text</Label>
+        <Textarea
           id="sk-text"
           rows={3}
           value={String(data.text ?? '')}
@@ -263,8 +263,8 @@ function SendKeyboardForm({ data, patch, disabled }: FormProps) {
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <ZoruLabel>Buttons</ZoruLabel>
-          <ZoruButton
+          <Label>Buttons</Label>
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -272,23 +272,23 @@ function SendKeyboardForm({ data, patch, disabled }: FormProps) {
             disabled={disabled}
           >
             <Plus className="h-3 w-3" /> Add
-          </ZoruButton>
+          </Button>
         </div>
         {buttons.map((b, i) => (
           <div key={i} className="flex items-center gap-2">
-            <ZoruInput
+            <Input
               placeholder="Label"
               value={b.label ?? ''}
               onChange={(e) => update(i, { label: e.target.value })}
               disabled={disabled}
             />
-            <ZoruInput
+            <Input
               placeholder="callback data"
               value={b.data ?? ''}
               onChange={(e) => update(i, { data: e.target.value })}
               disabled={disabled}
             />
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon"
               onClick={() => patch({ buttons: buttons.filter((_, idx) => idx !== i) })}
@@ -296,7 +296,7 @@ function SendKeyboardForm({ data, patch, disabled }: FormProps) {
               aria-label="Remove button"
             >
               <Trash2 className="h-3 w-3" />
-            </ZoruButton>
+            </Button>
           </div>
         ))}
       </div>
@@ -308,8 +308,8 @@ function WaitForReplyForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="wf-timeout">Timeout (seconds)</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="wf-timeout">Timeout (seconds)</Label>
+        <Input
           id="wf-timeout"
           type="number"
           value={String(data.timeoutSeconds ?? 300)}
@@ -318,8 +318,8 @@ function WaitForReplyForm({ data, patch, disabled }: FormProps) {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="wf-save">Save reply as variable</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="wf-save">Save reply as variable</Label>
+        <Input
           id="wf-save"
           value={String(data.saveAs ?? '')}
           onChange={(e) => patch({ saveAs: e.target.value })}
@@ -335,8 +335,8 @@ function BranchForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <ZoruLabel>Branch cases</ZoruLabel>
-        <ZoruButton
+        <Label>Branch cases</Label>
+        <Button
           type="button"
           variant="ghost"
           size="sm"
@@ -344,7 +344,7 @@ function BranchForm({ data, patch, disabled }: FormProps) {
           disabled={disabled}
         >
           <Plus className="h-3 w-3" /> Add
-        </ZoruButton>
+        </Button>
       </div>
       <p className="text-xs text-muted-foreground">
         Wire one outgoing edge per case; the canvas picks the matching edge by
@@ -352,7 +352,7 @@ function BranchForm({ data, patch, disabled }: FormProps) {
       </p>
       {cases.map((c, i) => (
         <div key={i} className="flex items-center gap-2">
-          <ZoruInput
+          <Input
             value={c}
             onChange={(e) => {
               const next = cases.map((v, idx) => (idx === i ? e.target.value : v));
@@ -360,7 +360,7 @@ function BranchForm({ data, patch, disabled }: FormProps) {
             }}
             disabled={disabled}
           />
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon"
             onClick={() => patch({ cases: cases.filter((_, idx) => idx !== i) })}
@@ -368,7 +368,7 @@ function BranchForm({ data, patch, disabled }: FormProps) {
             aria-label="Remove case"
           >
             <Trash2 className="h-3 w-3" />
-          </ZoruButton>
+          </Button>
         </div>
       ))}
     </div>
@@ -378,8 +378,8 @@ function BranchForm({ data, patch, disabled }: FormProps) {
 function AssignAgentForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <ZoruLabel htmlFor="aa-team">Team</ZoruLabel>
-      <ZoruInput
+      <Label htmlFor="aa-team">Team</Label>
+      <Input
         id="aa-team"
         value={String(data.team ?? '')}
         onChange={(e) => patch({ team: e.target.value })}
@@ -393,8 +393,8 @@ function TagContactForm({ data, patch, disabled }: FormProps) {
   const value = ((data.tags ?? []) as string[]).join(', ');
   return (
     <div className="flex flex-col gap-1.5">
-      <ZoruLabel htmlFor="tc-tags">Tags (comma-separated)</ZoruLabel>
-      <ZoruInput
+      <Label htmlFor="tc-tags">Tags (comma-separated)</Label>
+      <Input
         id="tc-tags"
         value={value}
         onChange={(e) =>
@@ -415,8 +415,8 @@ function SetVariableForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="sv-name">Variable name</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="sv-name">Variable name</Label>
+        <Input
           id="sv-name"
           value={String(data.name ?? '')}
           onChange={(e) => patch({ name: e.target.value })}
@@ -424,8 +424,8 @@ function SetVariableForm({ data, patch, disabled }: FormProps) {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="sv-value">Value</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="sv-value">Value</Label>
+        <Input
           id="sv-value"
           value={String(data.value ?? '')}
           onChange={(e) => patch({ value: e.target.value })}
@@ -441,8 +441,8 @@ function HttpRequestForm({ data, patch, disabled }: FormProps) {
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col gap-1.5">
-          <ZoruLabel htmlFor="hr-method">Method</ZoruLabel>
-          <ZoruSelect
+          <Label htmlFor="hr-method">Method</Label>
+          <Select
             value={String(data.method ?? 'GET')}
             onValueChange={(v) => patch({ method: v })}
             disabled={disabled}
@@ -457,11 +457,11 @@ function HttpRequestForm({ data, patch, disabled }: FormProps) {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
         <div className="col-span-2 flex flex-col gap-1.5">
-          <ZoruLabel htmlFor="hr-url">URL</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="hr-url">URL</Label>
+          <Input
             id="hr-url"
             value={String(data.url ?? '')}
             onChange={(e) => patch({ url: e.target.value })}
@@ -470,8 +470,8 @@ function HttpRequestForm({ data, patch, disabled }: FormProps) {
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="hr-body">Body (JSON)</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="hr-body">Body (JSON)</Label>
+        <Textarea
           id="hr-body"
           rows={4}
           value={typeof data.body === 'string' ? data.body : JSON.stringify(data.body ?? {}, null, 2)}
@@ -486,8 +486,8 @@ function HttpRequestForm({ data, patch, disabled }: FormProps) {
 function RunSubflowForm({ data, patch, disabled }: FormProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <ZoruLabel htmlFor="rs-id">Subflow id</ZoruLabel>
-      <ZoruInput
+      <Label htmlFor="rs-id">Subflow id</Label>
+      <Input
         id="rs-id"
         value={String(data.subflowId ?? '')}
         onChange={(e) => patch({ subflowId: e.target.value })}

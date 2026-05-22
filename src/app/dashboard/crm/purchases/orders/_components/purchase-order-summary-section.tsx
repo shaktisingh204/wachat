@@ -49,8 +49,8 @@ function SummaryInputRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <ZoruLabel className="text-zoru-ink-muted">{label}</ZoruLabel>
-      <ZoruInput
+      <Label className="text-zoru-ink-muted">{label}</Label>
+      <Input
         type="number"
         step="0.01"
         value={value}
@@ -76,7 +76,7 @@ export function PurchaseOrderSummarySection({
   onRoundOff,
 }: SummarySectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Summary
       </h3>
@@ -129,7 +129,7 @@ export function PurchaseOrderSummarySection({
               value={fmtMoney(Number(roundOff) || 0, currency)}
             />
           ) : null}
-          <ZoruSeparator />
+          <Separator />
           <div className="flex justify-between">
             <span className="font-medium text-zoru-ink">Total</span>
             <span className="text-base font-semibold tabular-nums text-zoru-ink">
@@ -141,7 +141,7 @@ export function PurchaseOrderSummarySection({
           </p>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 

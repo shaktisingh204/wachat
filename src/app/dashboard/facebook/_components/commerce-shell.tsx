@@ -51,7 +51,7 @@ export function CommerceBreadcrumb({
   pageLabel?: string;
 }) {
   return (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -98,7 +98,7 @@ export function CommerceBreadcrumb({
           </>
         )}
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 }
 
@@ -114,7 +114,7 @@ export function CommerceHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <ZoruPageHeader className="mt-5">
+    <PageHeader className="mt-5">
       <ZoruPageHeading>
         <ZoruPageEyebrow>{eyebrow}</ZoruPageEyebrow>
         <ZoruPageTitle>{title}</ZoruPageTitle>
@@ -123,6 +123,6 @@ export function CommerceHeader({
         ) : null}
       </ZoruPageHeading>
       {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
-    </ZoruPageHeader>
+    </PageHeader>
   );
 }

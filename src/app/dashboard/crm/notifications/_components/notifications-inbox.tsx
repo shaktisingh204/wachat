@@ -76,7 +76,7 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
           </ClayBadge>
           <ClayBadge tone="neutral">{rows.length} total</ClayBadge>
         </div>
-        <ZoruButton
+        <Button
           variant="pill"
           size="sm"
           onClick={markAll}
@@ -84,7 +84,7 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
           leading={<CheckCheck className="h-3.5 w-3.5" />}
         >
           Mark all read
-        </ZoruButton>
+        </Button>
       </div>
 
       {rows.length === 0 ? (
@@ -125,14 +125,14 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
                     ) : null}
                   </div>
                   {!read ? (
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="pill"
                       onClick={() => markOne(n._id)}
                       leading={<Check className="h-3.5 w-3.5" />}
                     >
                       Mark read
-                    </ZoruButton>
+                    </Button>
                   ) : null}
                 </li>
               );

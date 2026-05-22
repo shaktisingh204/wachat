@@ -356,21 +356,21 @@ export function BulkImportWizard({
     /* ─── Render helpers ─────────────────────────────────────────────── */
     if (schemaError) {
         return (
-            <ZoruCard className={cn('p-6', className)}>
+            <Card className={cn('p-6', className)}>
                 <p className="text-sm text-zoru-danger">{schemaError}</p>
-            </ZoruCard>
+            </Card>
         );
     }
     if (!schema) {
         return (
-            <ZoruCard className={cn('flex items-center gap-2 p-6 text-sm text-zoru-ink-muted', className)}>
+            <Card className={cn('flex items-center gap-2 p-6 text-sm text-zoru-ink-muted', className)}>
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading schema…
-            </ZoruCard>
+            </Card>
         );
     }
 
     return (
-        <ZoruCard className={cn('flex w-full flex-col gap-4 p-4', className)}>
+        <Card className={cn('flex w-full flex-col gap-4 p-4', className)}>
             {/* Step strip */}
             <ol className="flex flex-wrap items-center gap-2 text-[12px]">
                 {STEPS.map((s) => {
@@ -414,7 +414,7 @@ export function BulkImportWizard({
                             <span className="inline-flex items-center gap-1 text-[12.5px] text-zoru-ink">
                                 <FileSpreadsheet className="h-3.5 w-3.5" />
                                 {pickedFile.name}{' '}
-                                <ZoruBadge variant="secondary">{csvRowCount} rows</ZoruBadge>
+                                <Badge variant="secondary">{csvRowCount} rows</Badge>
                             </span>
                         ) : null}
                     </div>
@@ -442,7 +442,7 @@ export function BulkImportWizard({
                                     {h}
                                 </span>
                                 <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
-                                <ZoruSelect
+                                <Select
                                     value={mapping[h] ?? '__skip__'}
                                     onValueChange={(v) => {
                                         setMapping((prev) => {
@@ -470,7 +470,7 @@ export function BulkImportWizard({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         ))}
                     </div>
@@ -490,8 +490,8 @@ export function BulkImportWizard({
                         can either be replaced or skipped.
                     </p>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="dedup-field">Dedup by</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="dedup-field">Dedup by</Label>
+                        <Select
                             value={dedupField}
                             onValueChange={setDedupField}
                         >
@@ -508,7 +508,7 @@ export function BulkImportWizard({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <label className="flex items-center gap-2 text-sm text-zoru-ink">
                         <input
@@ -532,22 +532,22 @@ export function BulkImportWizard({
                     ) : preview ? (
                         <>
                             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                                <ZoruBadge variant="default">
+                                <Badge variant="default">
                                     {preview.totalRows} total
-                                </ZoruBadge>
-                                <ZoruBadge variant="secondary">
+                                </Badge>
+                                <Badge variant="secondary">
                                     {preview.createCount} create
-                                </ZoruBadge>
-                                <ZoruBadge variant="secondary">
+                                </Badge>
+                                <Badge variant="secondary">
                                     {preview.updateCount} update
-                                </ZoruBadge>
-                                <ZoruBadge variant="secondary">
+                                </Badge>
+                                <Badge variant="secondary">
                                     {preview.skipCount} skip
-                                </ZoruBadge>
+                                </Badge>
                                 {preview.errorCount > 0 ? (
-                                    <ZoruBadge variant="danger">
+                                    <Badge variant="danger">
                                         {preview.errorCount} error
-                                    </ZoruBadge>
+                                    </Badge>
                                 ) : null}
                                 <a
                                     href={csvBlobUrl(preview.previewCsv)}
@@ -579,7 +579,7 @@ export function BulkImportWizard({
                                                     {r.rowIndex}
                                                 </td>
                                                 <td className="px-2 py-1">
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant={
                                                             r.action === 'create'
                                                                 ? 'secondary'
@@ -591,7 +591,7 @@ export function BulkImportWizard({
                                                         }
                                                     >
                                                         {r.action}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </td>
                                                 <td className="px-2 py-1 text-zoru-ink-muted">
                                                     {r.reason ?? r.existingId ?? ''}
@@ -625,19 +625,19 @@ export function BulkImportWizard({
                                 <Check className="h-4 w-4" /> Import complete
                             </p>
                             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                                <ZoruBadge variant="secondary">
+                                <Badge variant="secondary">
                                     {execResult.created} created
-                                </ZoruBadge>
-                                <ZoruBadge variant="secondary">
+                                </Badge>
+                                <Badge variant="secondary">
                                     {execResult.updated} updated
-                                </ZoruBadge>
-                                <ZoruBadge variant="outline">
+                                </Badge>
+                                <Badge variant="outline">
                                     {execResult.skipped} skipped
-                                </ZoruBadge>
+                                </Badge>
                                 {execResult.errors.length > 0 ? (
-                                    <ZoruBadge variant="danger">
+                                    <Badge variant="danger">
                                         {execResult.errors.length} errors
-                                    </ZoruBadge>
+                                    </Badge>
                                 ) : null}
                             </div>
                             {execResult.errors.length > 0 ? (
@@ -661,17 +661,17 @@ export function BulkImportWizard({
 
             {/* Footer nav */}
             <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-zoru-line pt-3">
-                <ZoruButton
+                <Button
                     type="button"
                     variant="outline"
                     onClick={goBack}
                     disabled={step === 'upload' || execBusy}
                 >
                     <ArrowLeft className="h-3.5 w-3.5" /> Back
-                </ZoruButton>
+                </Button>
 
                 {step !== 'execute' ? (
-                    <ZoruButton
+                    <Button
                         type="button"
                         onClick={() => void goNext()}
                         disabled={!canGoNext || previewBusy}
@@ -679,9 +679,9 @@ export function BulkImportWizard({
                     >
                         {step === 'dedup' ? 'Run preview' : 'Next'}
                         <ArrowRight className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                 ) : (
-                    <ZoruButton
+                    <Button
                         type="button"
                         onClick={() => void runExecute()}
                         disabled={execBusy || !!execResult}
@@ -693,10 +693,10 @@ export function BulkImportWizard({
                             <Play className="h-3.5 w-3.5" />
                         )}
                         {execResult ? 'Done' : 'Execute import'}
-                    </ZoruButton>
+                    </Button>
                 )}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 

@@ -13,7 +13,7 @@ export default function AboutUsPage() {
                   &larr; Back to Home
               </Link>
           </div>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-3xl font-bold font-headline">About SabNode</ZoruCardTitle>
             </ZoruCardHeader>
@@ -23,7 +23,7 @@ export default function AboutUsPage() {
               <h2 className="text-xl font-semibold">Our Vision</h2>
               <p>We believe that technology should be an enabler, not a barrier. Our vision is to build a platform that is not only powerful and scalable but also intuitive and accessible to everyone, from small business owners to enterprise marketing teams.</p>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
       </div>
     </div>

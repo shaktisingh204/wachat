@@ -146,7 +146,7 @@ function InvalidState({ reason }: { reason: string }) {
     return (
         <main className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
             <div className="mx-auto flex min-h-screen max-w-2xl items-center justify-center px-4 py-10">
-                <ZoruCard className="w-full p-0">
+                <Card className="w-full p-0">
                     <ZoruCardContent className="flex flex-col items-center gap-4 p-8 text-center">
                         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zoru-surface text-zoru-danger">
                             <AlertCircle className="h-7 w-7" />
@@ -172,7 +172,7 @@ function InvalidState({ reason }: { reason: string }) {
                             </p>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </main>
     );
@@ -205,14 +205,14 @@ export default async function SignContractPage({ params }: PageProps) {
                     <span className="text-sm font-semibold tracking-wide text-zoru-ink-muted">
                         SabNode · Contract signing
                     </span>
-                    <ZoruBadge variant="success">
+                    <Badge variant="success">
                         <ShieldCheck />
                         Secure link
-                    </ZoruBadge>
+                    </Badge>
                 </header>
 
                 {/* ── 1. Contract preview ───────────────────────────── */}
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <ZoruCardContent className="space-y-5 p-6">
                         <div>
                             <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-zoru-ink-muted">
@@ -272,10 +272,10 @@ export default async function SignContractPage({ params }: PageProps) {
                             </div>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ── 2. Signer block ───────────────────────────────── */}
-                <ZoruCard className="mt-4 p-0">
+                <Card className="mt-4 p-0">
                     <ZoruCardContent className="p-6">
                         <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zoru-ink">
                             <User className="h-4 w-4 text-zoru-ink-muted" />
@@ -291,10 +291,10 @@ export default async function SignContractPage({ params }: PageProps) {
                             before signing.
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ── 3. Signature capture (client island) ─────────── */}
-                <ZoruCard className="mt-4 p-0">
+                <Card className="mt-4 p-0">
                     <ZoruCardContent className="p-6">
                         <h2 className="mb-3 text-sm font-semibold text-zoru-ink">
                             Your signature
@@ -305,7 +305,7 @@ export default async function SignContractPage({ params }: PageProps) {
                             signerName={me?.name || ''}
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 <footer className="mt-6 text-center text-xs leading-5 text-zoru-ink-muted">
                     This page is served over a single-use secure link. Your signature, IP

@@ -126,7 +126,7 @@ export default function WebhookLogsPage() {
               : s === 'failed' || s === 'error'
                 ? 'danger'
                 : 'secondary';
-          return <ZoruBadge variant={variant}>{s}</ZoruBadge>;
+          return <Badge variant={variant}>{s}</Badge>;
         },
       },
       {
@@ -136,20 +136,20 @@ export default function WebhookLogsPage() {
         enableHiding: false,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
-            <ZoruButton
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setPreviewLog(row.original)}
             >
               <Eye /> View
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setRetryLog(row.original)}
             >
               <RotateCcw /> Retry
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -162,7 +162,7 @@ export default function WebhookLogsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -176,7 +176,7 @@ export default function WebhookLogsPage() {
             <ZoruBreadcrumbPage>Webhook logs</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
@@ -187,7 +187,7 @@ export default function WebhookLogsPage() {
             View incoming and outgoing webhook event logs.
           </p>
         </div>
-        <ZoruButton
+        <Button
           size="sm"
           variant="outline"
           onClick={() => projectId && fetchLogs(projectId)}
@@ -199,31 +199,31 @@ export default function WebhookLogsPage() {
             <RefreshCw />
           )}
           Refresh
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="mt-6">
         {isLoading && logs.length === 0 ? (
           <div className="flex flex-col gap-2">
-            <ZoruSkeleton className="h-9 w-full" />
-            <ZoruSkeleton className="h-9 w-full" />
-            <ZoruSkeleton className="h-9 w-full" />
-            <ZoruSkeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
           </div>
         ) : logs.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Webhook />}
             title="No webhook logs found"
             description="Once Meta starts sending events to your endpoint, they'll appear here."
           />
         ) : (
-          <ZoruDataTable
+          <DataTable
             columns={columns}
             data={logs}
             filterColumn="event"
             filterPlaceholder="Filter events…"
             empty={
-              <ZoruEmptyState
+              <EmptyState
                 compact
                 icon={<Webhook />}
                 title="No deliveries match"
@@ -234,7 +234,7 @@ export default function WebhookLogsPage() {
       </div>
 
       {/* ── View payload sheet ── */}
-      <ZoruSheet
+      <Sheet
         open={!!previewLog}
         onOpenChange={(o) => !o && setPreviewLog(null)}
       >
@@ -255,10 +255,10 @@ export default function WebhookLogsPage() {
             </pre>
           </div>
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       {/* ── Retry delivery dialog ── */}
-      <ZoruDialog
+      <Dialog
         open={!!retryLog}
         onOpenChange={(o) => !o && setRetryLog(null)}
       >
@@ -271,10 +271,10 @@ export default function WebhookLogsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setRetryLog(null)}>
+            <Button variant="ghost" onClick={() => setRetryLog(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Retry queued',
@@ -284,10 +284,10 @@ export default function WebhookLogsPage() {
               }}
             >
               <RotateCcw /> Retry
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

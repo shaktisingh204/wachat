@@ -50,39 +50,39 @@ export default async function VoucherBookDetailPage(props: {
             }}
             actions={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}/edit`}>
                             <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}`}>
                             View entries
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}?print=1`}>
                             <Printer className="mr-1.5 h-3.5 w-3.5" /> Print
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
+                    </Button>
+                    <Button variant="outline" size="sm" disabled>
                         <Archive className="mr-1.5 h-3.5 w-3.5" /> Archive
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}/activity`}>
                             <History className="mr-1.5 h-3.5 w-3.5" /> Activity
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild size="sm">
+                    </Button>
+                    <Button asChild size="sm">
                         <Link href={`/dashboard/crm/accounting/vouchers/new?mode=entry&bookId=${voucherBookId}`}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New entry
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
             rightRail={
                 <div className="flex flex-col gap-4">
-                    <ZoruCard className="p-4">
+                    <Card className="p-4">
                         <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Numbering
                         </p>
@@ -108,8 +108,8 @@ export default async function VoucherBookDetailPage(props: {
                                 <dd className="text-right capitalize">{meta.resetFrequency ?? 'none'}</dd>
                             </div>
                         </dl>
-                    </ZoruCard>
-                    <ZoruCard className="p-4">
+                    </Card>
+                    <Card className="p-4">
                         <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Flags
                         </p>
@@ -129,13 +129,13 @@ export default async function VoucherBookDetailPage(props: {
                                 </dd>
                             </div>
                         </dl>
-                    </ZoruCard>
+                    </Card>
                 </div>
             }
             audit={<EntityAuditTimeline entityKind="voucher_book" entityId={voucherBookId} />}
         >
             <div className="flex flex-col gap-4">
-                <ZoruCard>
+                <Card>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <SummaryCell label="Total entries" value={(book.entryCount ?? entries.length).toLocaleString()} />
                         <SummaryCell
@@ -144,8 +144,8 @@ export default async function VoucherBookDetailPage(props: {
                         />
                         <SummaryCell label="Type" value={book.type} />
                     </div>
-                </ZoruCard>
-                <ZoruCard className="p-0">
+                </Card>
+                <Card className="p-0">
                     <div className="px-4 py-3">
                         <p className="text-[13px] font-semibold text-foreground">Recent entries</p>
                         <p className="text-[11.5px] text-muted-foreground">
@@ -153,7 +153,7 @@ export default async function VoucherBookDetailPage(props: {
                         </p>
                     </div>
                     <div className="overflow-x-auto border-t border-border">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-border hover:bg-transparent">
                                     <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
@@ -198,9 +198,9 @@ export default async function VoucherBookDetailPage(props: {
                                     ))
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
         </EntityDetailShell>
     );

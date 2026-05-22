@@ -139,7 +139,7 @@ export function PermissionMatrix({
                 <div className="flex flex-col items-center gap-1">
                   {a.label}
                   {!readonly && (
-                    <ZoruCheckbox
+                    <Checkbox
                       aria-label={`Toggle all ${a.label}`}
                       checked={MODULES.every((m) =>
                         map.get(m.key)?.has(a.key),
@@ -175,7 +175,7 @@ export function PermissionMatrix({
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2">
                         {!readonly && (
-                          <ZoruCheckbox
+                          <Checkbox
                             aria-label={`Toggle all for ${mod.label}`}
                             checked={allChecked}
                             onCheckedChange={(v) =>
@@ -192,14 +192,14 @@ export function PermissionMatrix({
                       <td key={a.key} className="px-3 py-2.5 text-center">
                         {readonly ? (
                           rowActions.has(a.key) ? (
-                            <ZoruBadge variant="default" className="text-[10px]">
+                            <Badge variant="default" className="text-[10px]">
                               {a.label}
-                            </ZoruBadge>
+                            </Badge>
                           ) : (
                             <span className="text-zoru-ink-muted">—</span>
                           )
                         ) : (
-                          <ZoruCheckbox
+                          <Checkbox
                             aria-label={`${mod.label} ${a.label}`}
                             checked={rowActions.has(a.key)}
                             onCheckedChange={() => toggle(mod.key, a.key)}

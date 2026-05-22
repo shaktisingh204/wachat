@@ -114,7 +114,7 @@ export function TicketConversation({ ticket, mode, onModeChange }: TicketConvers
     };
 
     return (
-        <ZoruCard className="flex flex-col gap-4 p-6">
+        <Card className="flex flex-col gap-4 p-6">
             <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Conversation
             </h3>
@@ -131,11 +131,11 @@ export function TicketConversation({ ticket, mode, onModeChange }: TicketConvers
                             className="rounded-md border border-zoru-line bg-zoru-surface-2/50 p-3"
                         >
                             <div className="mb-1 flex items-center gap-2">
-                                <ZoruBadge
+                                <Badge
                                     variant={n.kind === 'internal' ? 'warning' : 'info'}
                                 >
                                     {n.kind === 'internal' ? 'Internal' : 'Public'}
-                                </ZoruBadge>
+                                </Badge>
                                 <span className="text-[11.5px] text-zoru-ink-muted">
                                     {fmtDate(n.createdAt)}
                                 </span>
@@ -168,10 +168,10 @@ export function TicketConversation({ ticket, mode, onModeChange }: TicketConvers
                     ))}
                 </div>
 
-                <ZoruLabel htmlFor="ticket-note-body" className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label htmlFor="ticket-note-body" className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Message
-                </ZoruLabel>
-                <ZoruTextarea
+                </Label>
+                <Textarea
                     id="ticket-note-body"
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
@@ -191,17 +191,17 @@ export function TicketConversation({ ticket, mode, onModeChange }: TicketConvers
                         />
                         Internal (not visible to requester)
                     </label>
-                    <ZoruButton size="sm" onClick={submit} disabled={pending || body.trim().length === 0}>
+                    <Button size="sm" onClick={submit} disabled={pending || body.trim().length === 0}>
                         {pending ? (
                             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                         ) : (
                             <Send className="h-3.5 w-3.5" />
                         )}
                         Send
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 

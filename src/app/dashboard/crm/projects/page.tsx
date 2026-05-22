@@ -243,7 +243,7 @@ export default function ProjectsPage() {
           active ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : '',
         ].join(' ')}
       >
-        <ZoruStatCard label={label} value={value} icon={icon} />
+        <StatCard label={label} value={value} icon={icon} />
       </button>
     ),
     [],
@@ -285,15 +285,15 @@ export default function ProjectsPage() {
           placeholder: 'Search name, client, manager…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/projects/new">
               <Plus className="h-4 w-4" /> New project
             </Link>
-          </ZoruButton>
+          </Button>
         }
         filters={
           <>
-            <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -305,8 +305,8 @@ export default function ProjectsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={priorityFilter} onValueChange={setPriorityFilter}>
+            </Select>
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="Priority" />
               </ZoruSelectTrigger>
@@ -318,11 +318,11 @@ export default function ProjectsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {hasActiveFilters ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
             {/* TODO 1D.1: wire <EntityFormField> chips for client + category filters */}
             <input
@@ -348,11 +348,11 @@ export default function ProjectsPage() {
                 Spin up your first project to track tasks, milestones, billable
                 hours, and team delivery.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/projects/new">
                   <Plus className="h-4 w-4" /> New project
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }

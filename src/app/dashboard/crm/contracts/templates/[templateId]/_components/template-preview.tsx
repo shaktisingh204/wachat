@@ -61,13 +61,13 @@ export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
         ) : (
           variables.map((v) => (
             <div key={v}>
-              <ZoruLabel
+              <Label
                 htmlFor={`preview-${v}`}
                 className="text-[11.5px] text-zoru-ink-muted"
               >
                 {v}
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id={`preview-${v}`}
                 value={values[v] ?? ''}
                 onChange={(e) =>

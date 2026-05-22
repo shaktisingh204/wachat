@@ -54,11 +54,11 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton>
+                <Button>
                     <Plus className="mr-2 h-4 w-4" /> Add Keywords
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
@@ -67,8 +67,8 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
 
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <ZoruLabel>Location</ZoruLabel>
-                        <ZoruSelect value={location} onValueChange={setLocation}>
+                        <Label>Location</Label>
+                        <Select value={location} onValueChange={setLocation}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="Select Location" />
                             </ZoruSelectTrigger>
@@ -78,12 +78,12 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
                                 <ZoruSelectItem value="2356">India</ZoruSelectItem>
                                 <ZoruSelectItem value="2036">Australia</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
 
                     <div className="space-y-2">
-                        <ZoruLabel>Keywords (One per line)</ZoruLabel>
-                        <ZoruTextarea
+                        <Label>Keywords (One per line)</Label>
+                        <Textarea
                             placeholder="seo tools&#10;rank tracker"
                             className="h-32"
                             value={keywords}
@@ -92,11 +92,11 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
                     </div>
                 </div>
 
-                <ZoruButton onClick={handleSubmit} disabled={loading} className="w-full">
+                <Button onClick={handleSubmit} disabled={loading} className="w-full">
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Add Keywords
-                </ZoruButton>
+                </Button>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

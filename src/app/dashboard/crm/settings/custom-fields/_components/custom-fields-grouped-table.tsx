@@ -22,7 +22,7 @@ import {
 
 /**
  * Grouped-by-group table for the Custom Fields list page. Renders one
- * <ZoruCard> per group with select-all + per-row controls (move up /
+ * <Card> per group with select-all + per-row controls (move up /
  * down, edit, delete). Extracted from page.tsx to keep that file
  * under the 600-line budget.
  */
@@ -63,13 +63,13 @@ export function CustomFieldsGroupedTable({
 }: CustomFieldsGroupedTableProps) {
     if (groups.length === 0) {
         return (
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="text-center">
                     <p className="text-[13px] text-zoru-ink-muted">
                         No groups match the active filter.
                     </p>
                 </div>
-            </ZoruCard>
+            </Card>
         );
     }
     return (
@@ -79,31 +79,31 @@ export function CustomFieldsGroupedTable({
                     .filter((f) => String(f.group_id) === String(group._id))
                     .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
                 return (
-                    <ZoruCard key={group._id} className="p-6">
+                    <Card key={group._id} className="p-6">
                         <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
                             <div className="flex items-center gap-2">
                                 <h2 className="text-[16px] text-zoru-ink">
                                     {group.name}
                                 </h2>
-                                <ZoruBadge variant="default">
+                                <Badge variant="default">
                                     {group.belongs_to}
-                                </ZoruBadge>
+                                </Badge>
                             </div>
-                            <ZoruButton variant="outline" asChild>
+                            <Button variant="outline" asChild>
                                 <Link
                                     href={`/dashboard/crm/settings/custom-fields/new?group=${group._id}`}
                                 >
                                     <Plus className="h-3.5 w-3.5" />
                                     Add field
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="hover:bg-transparent">
                                         <ZoruTableHead className="w-[40px]">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={
                                                     groupFields.length > 0 &&
                                                     groupFields.every((f) =>
@@ -167,7 +167,7 @@ export function CustomFieldsGroupedTable({
                                         groupFields.map((field, idx) => (
                                             <ZoruTableRow key={field._id}>
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={selected.has(field._id)}
                                                         onCheckedChange={() =>
                                                             setSelected((prev) => {
@@ -188,12 +188,12 @@ export function CustomFieldsGroupedTable({
                                                     {field.name}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant="ghost">
+                                                    <Badge variant="ghost">
                                                         {field.type}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant={
                                                             field.is_required
                                                                 ? 'warning'
@@ -201,10 +201,10 @@ export function CustomFieldsGroupedTable({
                                                         }
                                                     >
                                                         {field.is_required ? 'Yes' : 'No'}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant={
                                                             field.display_in_table
                                                                 ? 'success'
@@ -214,11 +214,11 @@ export function CustomFieldsGroupedTable({
                                                         {field.display_in_table
                                                             ? 'Yes'
                                                             : 'No'}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
                                                     <div className="flex justify-end gap-1">
-                                                        <ZoruButton
+                                                        <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             disabled={
@@ -234,8 +234,8 @@ export function CustomFieldsGroupedTable({
                                                             aria-label="Move up"
                                                         >
                                                             <ArrowUp className="h-3.5 w-3.5" />
-                                                        </ZoruButton>
-                                                        <ZoruButton
+                                                        </Button>
+                                                        <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             disabled={
@@ -253,8 +253,8 @@ export function CustomFieldsGroupedTable({
                                                             aria-label="Move down"
                                                         >
                                                             <ArrowDown className="h-3.5 w-3.5" />
-                                                        </ZoruButton>
-                                                        <ZoruButton
+                                                        </Button>
+                                                        <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             asChild
@@ -265,24 +265,24 @@ export function CustomFieldsGroupedTable({
                                                             >
                                                                 <Pencil className="h-3.5 w-3.5" />
                                                             </Link>
-                                                        </ZoruButton>
-                                                        <ZoruButton
+                                                        </Button>
+                                                        <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => onDelete(field._id)}
                                                             aria-label="Delete"
                                                         >
                                                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </div>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         ))
                                     )}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 );
             })}
         </>

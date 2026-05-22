@@ -57,24 +57,24 @@ export default function SignUpSettingsPage() {
   if (!settings) {
     return (
       <div className="flex flex-col gap-4">
-        <ZoruSkeleton className="h-10 w-72" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-10 w-72" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Sign-up settings</ZoruPageTitle>
           <ZoruPageDescription>
             Control public client signup, admin approval, and the terms shown on the public form.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="flex flex-col gap-6">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -83,7 +83,7 @@ export default function SignUpSettingsPage() {
                 When off, the public /signup page shows a "signup unavailable" message.
               </p>
             </div>
-            <ZoruSwitch
+            <Switch
               checked={settings.allowClientSignup}
               onCheckedChange={(c) => update('allowClientSignup', Boolean(c))}
             />
@@ -96,15 +96,15 @@ export default function SignUpSettingsPage() {
                 New accounts stay in `pending` until an admin approves them from the queue.
               </p>
             </div>
-            <ZoruSwitch
+            <Switch
               checked={settings.requireAdminApproval}
               onCheckedChange={(c) => update('requireAdminApproval', Boolean(c))}
             />
           </div>
 
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="terms-link">Terms link</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="terms-link">Terms link</Label>
+            <Input
               id="terms-link"
               value={settings.termsLink}
               onChange={(e) => update('termsLink', e.target.value)}
@@ -113,8 +113,8 @@ export default function SignUpSettingsPage() {
           </div>
 
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="terms-text">Terms checkbox text</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="terms-text">Terms checkbox text</Label>
+            <Textarea
               id="terms-text"
               value={settings.termsText}
               rows={3}
@@ -123,12 +123,12 @@ export default function SignUpSettingsPage() {
           </div>
 
           <div className="flex justify-end">
-            <ZoruButton onClick={handleSave} disabled={isPending}>
+            <Button onClick={handleSave} disabled={isPending}>
               {isPending ? 'Saving…' : 'Save settings'}
-            </ZoruButton>
+            </Button>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

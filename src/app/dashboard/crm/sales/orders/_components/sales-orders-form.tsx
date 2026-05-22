@@ -81,10 +81,10 @@ const INITIAL_STATE: { message?: string; error?: string; id?: string } = {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create sales order'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -279,16 +279,16 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
       <input type="hidden" name="shippingAddress" value={JSON.stringify(ship)} />
 
       {/* Header */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="soNo">
+            <Label htmlFor="soNo">
               Order # <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="soNo"
               name="soNo"
               required={!editing}
@@ -299,9 +299,9 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Customer <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="client"
@@ -314,10 +314,10 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="date">
+            <Label htmlFor="date">
               Order date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="date"
               name="date"
               type="date"
@@ -330,8 +330,8 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="expectedShipmentDate">Expected shipment</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="expectedShipmentDate">Expected shipment</Label>
+            <Input
               id="expectedShipmentDate"
               name="expectedShipmentDate"
               type="date"
@@ -340,7 +340,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Quotation ref</ZoruLabel>
+            <Label>Quotation ref</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="quotation"
@@ -352,8 +352,8 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="poNo">Customer PO #</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="poNo">Customer PO #</Label>
+            <Input
               id="poNo"
               name="poNo"
               defaultValue={initial?.poNo ?? ''}
@@ -362,8 +362,8 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="poDate">Customer PO date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="poDate">Customer PO date</Label>
+            <Input
               id="poDate"
               name="poDate"
               type="date"
@@ -372,7 +372,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Delivery method</ZoruLabel>
+            <Label>Delivery method</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="salesOrderDeliveryMethod"
@@ -386,8 +386,8 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="paymentTerms">Payment terms</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="paymentTerms">Payment terms</Label>
+            <Input
               id="paymentTerms"
               name="paymentTerms"
               defaultValue={initial?.paymentTerms ?? seed?.paymentTerms ?? ''}
@@ -396,7 +396,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>Currency</ZoruLabel>
+            <Label>Currency</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="currency"
@@ -407,7 +407,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Sales agent</ZoruLabel>
+            <Label>Sales agent</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -419,10 +419,10 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <SoLineItemsTable
           rows={rows}
           currency={currency}
@@ -432,7 +432,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
           onPatch={patchRow}
           onItemPick={onItemPick}
         />
-      </ZoruCard>
+      </Card>
 
       <TotalsCard
         currency={currency}
@@ -450,13 +450,13 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
       <ShippingAddressCard ship={ship} setShip={setShip} />
 
       {/* Workflow & notes */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Workflow & notes
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Status</ZoruLabel>
+            <Label>Status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="salesOrderFulfillmentStatus"
@@ -469,8 +469,8 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="customerNotes">Customer notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="customerNotes">Customer notes</Label>
+            <Textarea
               id="customerNotes"
               name="customerNotes"
               defaultValue={initial?.customerNotes ?? seed?.customerNotes ?? ''}
@@ -480,8 +480,8 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="internalNotes">Internal notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="internalNotes">Internal notes</Label>
+            <Textarea
               id="internalNotes"
               name="internalNotes"
               defaultValue={initial?.internalNotes ?? ''}
@@ -491,10 +491,10 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -504,7 +504,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

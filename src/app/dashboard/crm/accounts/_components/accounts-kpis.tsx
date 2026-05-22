@@ -84,7 +84,7 @@ export function AccountsKpiStrip({
                     : '',
             ].join(' ')}
         >
-            <ZoruStatCard label={label} value={value} icon={icon} />
+            <StatCard label={label} value={value} icon={icon} />
         </button>
     );
 

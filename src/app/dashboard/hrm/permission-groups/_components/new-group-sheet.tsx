@@ -79,12 +79,12 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
   }, [name, description, permissions, toast, handleOpenChange, onCreated]);
 
   return (
-    <ZoruSheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <ZoruSheetTrigger asChild>
-        <ZoruButton>
+        <Button>
           <Plus className="h-4 w-4" />
           New Group
-        </ZoruButton>
+        </Button>
       </ZoruSheetTrigger>
 
       <ZoruSheetContent
@@ -102,10 +102,10 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto py-4">
           {/* Name */}
           <div className="space-y-2">
-            <ZoruLabel htmlFor="new-grp-name">
+            <Label htmlFor="new-grp-name">
               Group name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="new-grp-name"
               placeholder="e.g. Team Lead, Developer, Manager"
               value={name}
@@ -115,8 +115,8 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
 
           {/* Description */}
           <div className="space-y-2">
-            <ZoruLabel htmlFor="new-grp-desc">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="new-grp-desc">Description</Label>
+            <Textarea
               id="new-grp-desc"
               placeholder="Optional notes about this permission group…"
               rows={2}
@@ -127,24 +127,24 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
 
           {/* Permission matrix */}
           <div className="space-y-2">
-            <ZoruLabel>Module Permissions</ZoruLabel>
+            <Label>Module Permissions</Label>
             <PermissionMatrix value={permissions} onChange={setPermissions} />
           </div>
         </div>
 
         <ZoruSheetFooter className="gap-2 pt-4">
-          <ZoruButton
+          <Button
             variant="ghost"
             onClick={() => handleOpenChange(false)}
             disabled={saving}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleSave} disabled={saving || !name.trim()}>
+          </Button>
+          <Button onClick={handleSave} disabled={saving || !name.trim()}>
             {saving ? 'Creating…' : 'Create Group'}
-          </ZoruButton>
+          </Button>
         </ZoruSheetFooter>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }

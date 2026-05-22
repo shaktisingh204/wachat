@@ -42,36 +42,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       title="GTM Snippet Generator"
       description="Generate Google Tag Manager head and body snippets for your website."
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-3">
-          <ZoruLabel htmlFor="gtm-id">GTM Container ID</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="gtm-id">GTM Container ID</Label>
+          <Input
             id="gtm-id"
             value={id}
             onChange={(e) => setId(e.target.value)}
             placeholder="GTM-XXXXXXX"
           />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <ZoruLabel>Head snippet (paste in &lt;head&gt;)</ZoruLabel>
-          <ZoruButton size="sm" variant="outline" onClick={() => copy('head', head)}>
+          <Label>Head snippet (paste in &lt;head&gt;)</Label>
+          <Button size="sm" variant="outline" onClick={() => copy('head', head)}>
             {copiedKey === 'head' ? 'Copied!' : 'Copy'}
-          </ZoruButton>
+          </Button>
         </div>
-        <ZoruTextarea readOnly value={head} className="min-h-[180px] font-mono text-xs" />
+        <Textarea readOnly value={head} className="min-h-[180px] font-mono text-xs" />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <ZoruLabel>Body snippet (paste just after &lt;body&gt;)</ZoruLabel>
-          <ZoruButton size="sm" variant="outline" onClick={() => copy('body', body)}>
+          <Label>Body snippet (paste just after &lt;body&gt;)</Label>
+          <Button size="sm" variant="outline" onClick={() => copy('body', body)}>
             {copiedKey === 'body' ? 'Copied!' : 'Copy'}
-          </ZoruButton>
+          </Button>
         </div>
-        <ZoruTextarea readOnly value={body} className="min-h-[120px] font-mono text-xs" />
+        <Textarea readOnly value={body} className="min-h-[120px] font-mono text-xs" />
       </div>
     </ToolShell>
   );

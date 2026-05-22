@@ -60,7 +60,7 @@ export default async function ClientInvoiceDetailPage({
                 ← Back to invoices
             </Link>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
                         <ZoruCardTitle>Invoice {invoice.invoiceNumber}</ZoruCardTitle>
@@ -69,11 +69,11 @@ export default async function ClientInvoiceDetailPage({
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruBadge>{invoice.status}</ZoruBadge>
+                        <Badge>{invoice.status}</Badge>
                         {unpaid && invoice.publicHash ? (
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <a href={`/share/invoice/${invoice.publicHash}`}>Pay Now</a>
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                     </div>
                 </ZoruCardHeader>
@@ -97,15 +97,15 @@ export default async function ClientInvoiceDetailPage({
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {invoice.lineItems && invoice.lineItems.length > 0 ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Line Items</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent className="p-0">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Item</ZoruTableHead>
@@ -137,9 +137,9 @@ export default async function ClientInvoiceDetailPage({
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </div>
     );

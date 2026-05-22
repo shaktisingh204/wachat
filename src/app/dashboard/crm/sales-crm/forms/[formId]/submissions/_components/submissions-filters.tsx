@@ -85,7 +85,7 @@ export function SubmissionsFilters({
         <div className="flex flex-wrap items-center gap-2">
             <div className="relative max-w-sm flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                <ZoruInput
+                <Input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search by email, name, source, IP…"
@@ -93,7 +93,7 @@ export function SubmissionsFilters({
                 />
             </div>
 
-            <ZoruSelect
+            <Select
                 value={status}
                 onValueChange={(v) => {
                     const next = v as SubmissionsFiltersProps['initialStatus'];
@@ -111,9 +111,9 @@ export function SubmissionsFilters({
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
-            <ZoruInput
+            <Input
                 type="date"
                 value={from}
                 onChange={(e) => {
@@ -123,7 +123,7 @@ export function SubmissionsFilters({
                 className="h-9 w-[150px] text-[13px]"
                 aria-label="From date"
             />
-            <ZoruInput
+            <Input
                 type="date"
                 value={to}
                 onChange={(e) => {
@@ -135,9 +135,9 @@ export function SubmissionsFilters({
             />
 
             {hasActive ? (
-                <ZoruButton variant="ghost" size="sm" onClick={clearAll}>
+                <Button variant="ghost" size="sm" onClick={clearAll}>
                     <X className="h-3.5 w-3.5" /> Clear
-                </ZoruButton>
+                </Button>
             ) : null}
         </div>
     );

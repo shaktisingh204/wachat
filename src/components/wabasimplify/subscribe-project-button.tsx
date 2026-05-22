@@ -47,13 +47,13 @@ export function SubscribeProjectButton({ projectId, isActive, buttonText }: Subs
   const text = buttonText || (isActive ? 'Resubscribe' : 'Subscribe');
 
   return (
-    <ZoruButton onClick={onSubscribe} variant="outline" size="sm" disabled={isPending}>
+    <Button onClick={onSubscribe} variant="outline" size="sm" disabled={isPending}>
       {isPending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Rss className="mr-2 h-4 w-4" />
       )}
       {text}
-    </ZoruButton>
+    </Button>
   );
 }

@@ -40,29 +40,29 @@ export function SubscriptionBulkBar({
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onPause}>
+        <Button size="sm" variant="outline" onClick={onPause}>
           <PauseCircle className="h-3.5 w-3.5" /> Pause
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onResume}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onResume}>
           <PlayCircle className="h-3.5 w-3.5" /> Resume
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onCancel}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onCancel}>
           <XCircle className="h-3.5 w-3.5" /> Cancel
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
-        <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+        </Button>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={onClear}
           aria-label="Clear selection"
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

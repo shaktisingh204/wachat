@@ -99,7 +99,7 @@ export default async function BomDetailPage({ params }: PageProps) {
       rightRail={<BomDetailRail versions={versions} productionOrders={productionOrders} />}
       audit={<EntityAuditTimeline entityKind="bom" entityId={id} />}
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Header</ZoruCardTitle>
         </ZoruCardHeader>
@@ -150,9 +150,9 @@ export default async function BomDetailPage({ params }: PageProps) {
             ) : null}
           </dl>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Components ({components.length})</ZoruCardTitle>
         </ZoruCardHeader>
@@ -197,9 +197,9 @@ export default async function BomDetailPage({ params }: PageProps) {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Cost rollup</ZoruCardTitle>
         </ZoruCardHeader>
@@ -225,7 +225,7 @@ export default async function BomDetailPage({ params }: PageProps) {
             </div>
           </dl>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

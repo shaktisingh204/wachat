@@ -12,7 +12,7 @@ import type { CrmVendorKpis } from '@/app/actions/crm-vendors.actions';
  *
  *   Total vendors · Active (last 12mo) · Total purchase value · Top vendor
  *
- * Cards are clickable wrappers around <ZoruStatCard /> so callers can wire
+ * Cards are clickable wrappers around <StatCard /> so callers can wire
  * cross-filtering (e.g. click "Active" → status filter = active).
  */
 
@@ -109,7 +109,7 @@ function KpiCard({ label, value, hint, icon, active, onClick }: KpiCardProps) {
                 active ? 'rounded-[var(--zoru-radius-lg)] ring-1 ring-zoru-primary' : '',
             ].join(' ')}
         >
-            <ZoruStatCard
+            <StatCard
                 label={label}
                 value={value}
                 icon={icon}

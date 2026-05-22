@@ -22,9 +22,9 @@ export default function JsMinifierPage() {
   );
   return (
     <ToolShell title="JS Minifier" description="Naive JavaScript minifier (strips comments + whitespace). Avoid on code with strings containing those chars.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste JS…" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste JS…" />
       <div className="text-sm text-muted-foreground">{text.length} → {min.length} bytes</div>
-      <ZoruTextarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
+      <Textarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
     </ToolShell>
   );
 }

@@ -160,7 +160,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
     const SubmitIcon = settings.buttonIcon ? LucideIcons[settings.buttonIcon] : null;
 
     return (
-        <ZoruCard className="mx-auto" id={`form-${uniqueId}`}>
+        <Card className="mx-auto" id={`form-${uniqueId}`}>
             <style>{dynamicStyles}</style>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <ZoruCardHeader>
@@ -179,7 +179,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
 
                         return (
                             <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
-                                {field.labelPosition !== 'hidden' && <ZoruLabel htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0')}>{field.label} {field.required && '*'}</ZoruLabel>}
+                                {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0')}>{field.label} {field.required && '*'}</Label>}
                                 <div className="w-full">
                                     <Controller
                                         name={fieldName}
@@ -189,13 +189,13 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                                             const fieldOptions = (field.options || '').split('\n').map(o => o.trim());
 
                                             switch(field.type) {
-                                                case 'textarea': return <ZoruTextarea {...commonProps} />;
-                                                case 'select': return <ZoruSelect onValueChange={controllerField.onChange} defaultValue={controllerField.value}><ZoruSelectTrigger className={cn('form-field', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect>;
-                                                case 'checkbox': return <div className="flex items-center gap-2 pt-2"><ZoruCheckbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><ZoruLabel htmlFor={fieldName} className="font-normal">{field.label}</ZoruLabel></div>;
-                                                case 'acceptance': return <div className="flex items-center gap-2 pt-2"><ZoruCheckbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><ZoruLabel htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</ZoruLabel></div>;
-                                                case 'radio': return <ZoruRadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><ZoruLabel htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</ZoruLabel></div>)}</ZoruRadioGroup>
-                                                case 'file': return <ZoruInput {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
-                                                default: return <ZoruInput {...commonProps} type={field.type} />;
+                                                case 'textarea': return <Textarea {...commonProps} />;
+                                                case 'select': return <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}><ZoruSelectTrigger className={cn('form-field', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></Select>;
+                                                case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.label}</Label></div>;
+                                                case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
+                                                case 'radio': return <RadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
+                                                case 'file': return <Input {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
+                                                default: return <Input {...commonProps} type={field.type} />;
                                             }
                                         }}
                                     />
@@ -208,14 +208,14 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                      {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
                 </ZoruCardContent>
                 <ZoruCardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
-                    <ZoruButton id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
+                    <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                         {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
                         {settings.submitButtonText || 'Submit'}
                         {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardFooter>
             </form>
-        </ZoruCard>
+        </Card>
     );
 };

@@ -90,14 +90,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create automation'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -224,7 +224,7 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -240,8 +240,8 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                 {/* Name + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Automation name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Automation name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -250,8 +250,8 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmAutomationStatus)}
                         >
@@ -265,14 +265,14 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={2}
@@ -284,8 +284,8 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                 {/* Trigger + Conditions */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="trigger-trigger">Trigger</ZoruLabel>
-                        <ZoruSelect value={trigger} onValueChange={setTrigger}>
+                        <Label htmlFor="trigger-trigger">Trigger</Label>
+                        <Select value={trigger} onValueChange={setTrigger}>
                             <ZoruSelectTrigger id="trigger-trigger">
                                 <ZoruSelectValue placeholder="Trigger" />
                             </ZoruSelectTrigger>
@@ -296,11 +296,11 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="conditions">Conditions</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="conditions">Conditions</Label>
+                        <Input
                             id="conditions"
                             name="conditions"
                             placeholder="e.g. tag=hot lead"
@@ -311,8 +311,8 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
 
                 {/* Actions (free-form notes for the engine) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="actions">Action notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="actions">Action notes</Label>
+                    <Textarea
                         id="actions"
                         name="actions"
                         rows={2}
@@ -323,8 +323,8 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                 {/* Nodes table */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Nodes (executed in order)</ZoruLabel>
-                        <ZoruButton
+                        <Label>Nodes (executed in order)</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -332,7 +332,7 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add node
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {nodes.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -359,7 +359,7 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                                             {idx + 1}
                                         </span>
                                     </div>
-                                    <ZoruSelect
+                                    <Select
                                         value={n.type}
                                         onValueChange={(v) =>
                                             updateNode(idx, 'type', v)
@@ -378,22 +378,22 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
-                                    <ZoruInput
+                                    </Select>
+                                    <Input
                                         placeholder="Label"
                                         value={n.label}
                                         onChange={(e) =>
                                             updateNode(idx, 'label', e.target.value)
                                         }
                                     />
-                                    <ZoruInput
+                                    <Input
                                         placeholder='Config (JSON, e.g. {"templateId":"X"})'
                                         value={n.config}
                                         onChange={(e) =>
                                             updateNode(idx, 'config', e.target.value)
                                         }
                                     />
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -401,7 +401,7 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                                         aria-label="Remove node"
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -410,15 +410,15 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to automations
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

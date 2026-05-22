@@ -143,7 +143,7 @@ export function EmployeeDetailActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Status pill — click to open dropdown */}
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -166,32 +166,32 @@ export function EmployeeDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton asChild>
+      <Button asChild>
         <Link href={`/dashboard/hrm/payroll/employees/${employeeId}/edit`}>
           <Pencil className="h-4 w-4" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         variant="outline"
         size="sm"
         onClick={() => moveTo('on_leave')}
         disabled={currentStatus === 'on_leave'}
       >
         <PlaneTakeoff className="h-3.5 w-3.5" /> Mark on leave
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         variant="outline"
         size="sm"
         onClick={() => setTerminateOpen(true)}
       >
         <UserMinus className="h-3.5 w-3.5" /> Terminate
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         variant="outline"
         size="sm"
         onClick={() =>
@@ -202,13 +202,13 @@ export function EmployeeDetailActions({
         }
       >
         <Mail className="h-3.5 w-3.5" /> Welcome kit
-      </ZoruButton>
+      </Button>
 
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
-          <ZoruButton variant="outline" size="sm" aria-label="More actions">
+          <Button variant="outline" size="sm" aria-label="More actions">
             <MoreHorizontal className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </ZoruDropdownMenuTrigger>
         <ZoruDropdownMenuContent align="end">
           <ZoruDropdownMenuItem
@@ -246,7 +246,7 @@ export function EmployeeDetailActions({
             <Archive className="mr-2 h-3.5 w-3.5" /> Archive
           </ZoruDropdownMenuItem>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
       <ConfirmDialog
         open={archiveOpen}

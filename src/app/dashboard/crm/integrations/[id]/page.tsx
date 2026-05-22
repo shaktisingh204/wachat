@@ -77,12 +77,12 @@ export default async function IntegrationDetailPage({
               integrationId={String(integration._id)}
               isActive={integration.isActive}
             />
-            <ZoruButton variant="outline" asChild>
+            <Button variant="outline" asChild>
               <Link href={`${BASE}/${id}/edit`}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </Link>
-            </ZoruButton>
+            </Button>
             <IntegrationDeleteButton
               integrationId={String(integration._id)}
               name={integration.name}
@@ -97,23 +97,23 @@ export default async function IntegrationDetailPage({
         }
       >
         {/* Summary */}
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <div className="text-[14px] font-medium text-zoru-ink">
               Overview
             </div>
-            <ZoruBadge variant="outline" className="capitalize">
+            <Badge variant="outline" className="capitalize">
               {integration.provider}
-            </ZoruBadge>
+            </Badge>
             {integration.isActive ? (
-              <ZoruBadge variant="success">Active</ZoruBadge>
+              <Badge variant="success">Active</Badge>
             ) : (
-              <ZoruBadge variant="ghost">Inactive</ZoruBadge>
+              <Badge variant="ghost">Inactive</Badge>
             )}
             {integration.syncStatus ? (
-              <ZoruBadge variant="info" className="capitalize">
+              <Badge variant="info" className="capitalize">
                 Sync: {integration.syncStatus}
-              </ZoruBadge>
+              </Badge>
             ) : null}
           </div>
 
@@ -149,10 +149,10 @@ export default async function IntegrationDetailPage({
               </div>
             </div>
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Config */}
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 text-[14px] font-medium text-zoru-ink">
             Config
           </div>
@@ -165,10 +165,10 @@ export default async function IntegrationDetailPage({
               {JSON.stringify(integration.config, null, 2)}
             </pre>
           )}
-        </ZoruCard>
+        </Card>
 
         {/* Credentials — never plaintext */}
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center gap-1.5 text-[14px] font-medium text-zoru-ink">
             <ShieldAlert className="h-4 w-4 text-amber-600" />
             Credentials
@@ -181,7 +181,7 @@ export default async function IntegrationDetailPage({
           <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 font-mono text-[12.5px] text-zoru-ink">
             ***hidden***
           </div>
-        </ZoruCard>
+        </Card>
     </EntityDetailShell>
   );
 }

@@ -120,7 +120,7 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
               Hours
             </button>
           </div>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => reload(mode)}
@@ -131,12 +131,12 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
               strokeWidth={1.75}
             />
             Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {isPending && !series ? (
-        <ZoruSkeleton className="h-72 w-full" />
+        <Skeleton className="h-72 w-full" />
       ) : !hasData ? (
         <div className="rounded-lg border border-dashed border-zoru-line p-12 text-center">
           <p className="text-[13px] text-zoru-ink-muted">
@@ -147,12 +147,12 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
       ) : (
         <>
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="ghost">
+            <Badge variant="ghost">
               Total: {series?.total ?? 0} {unit}
-            </ZoruBadge>
-            <ZoruBadge variant="ghost">
+            </Badge>
+            <Badge variant="ghost">
               {rows.length} day{rows.length === 1 ? '' : 's'}
-            </ZoruBadge>
+            </Badge>
           </div>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">

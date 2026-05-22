@@ -249,9 +249,9 @@ export function FlowEditorShell({ flowId }: Props) {
       <div className="flex h-screen flex-col items-center justify-center gap-3 p-6 text-center">
         <Workflow className="h-8 w-8 text-muted-foreground" />
         <p className="text-sm font-medium">{loadError}</p>
-        <ZoruButton variant="secondary" onClick={() => router.push('/dashboard/telegram/flows')}>
+        <Button variant="secondary" onClick={() => router.push('/dashboard/telegram/flows')}>
           <ArrowLeft className="h-4 w-4" /> Back to flows
-        </ZoruButton>
+        </Button>
       </div>
     );
   }
@@ -262,14 +262,14 @@ export function FlowEditorShell({ flowId }: Props) {
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* Top bar */}
       <header className="flex flex-wrap items-center gap-3 border-b bg-background px-4 py-3">
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon"
           onClick={() => router.push('/dashboard/telegram/flows')}
           aria-label="Back"
         >
           <ArrowLeft className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
         <Workflow className="h-5 w-5" style={{ color: ACCENT }} />
         <input
           aria-label="Flow name"
@@ -278,7 +278,7 @@ export function FlowEditorShell({ flowId }: Props) {
           onChange={(e) => patchFlow({ name: e.target.value })}
           disabled={readOnly}
         />
-        <ZoruBadge variant={readOnly ? 'default' : 'secondary'}>{flow.status}</ZoruBadge>
+        <Badge variant={readOnly ? 'default' : 'secondary'}>{flow.status}</Badge>
         <span className="text-xs text-muted-foreground">
           v{flow.version}
           {flow.latestPublishedVersion > 0 ? ` · published v${flow.latestPublishedVersion}` : ''}
@@ -286,17 +286,17 @@ export function FlowEditorShell({ flowId }: Props) {
         <SaveIndicator state={saveState} readOnly={readOnly} />
 
         <div className="ml-auto flex items-center gap-2">
-          <ZoruButton variant="secondary" onClick={() => setTestOpen(true)} disabled={isPublishing}>
+          <Button variant="secondary" onClick={() => setTestOpen(true)} disabled={isPublishing}>
             <PlayCircle className="h-4 w-4" /> Test
-          </ZoruButton>
-          <ZoruButton onClick={handlePublish} disabled={isPublishing || readOnly}>
+          </Button>
+          <Button onClick={handlePublish} disabled={isPublishing || readOnly}>
             {isPublishing ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
               <Rocket className="h-4 w-4" />
             )}
             Publish
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
@@ -316,7 +316,7 @@ export function FlowEditorShell({ flowId }: Props) {
 
       {/* Description */}
       <div className="border-b bg-muted/30 px-4 py-2">
-        <ZoruInput
+        <Input
           aria-label="Flow description"
           placeholder="Description (optional)"
           value={flow.description}
@@ -422,7 +422,7 @@ function TestDrawer({
   const [callback, setCallback] = useState('');
 
   return (
-    <ZoruSheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <ZoruSheetContent className="flex flex-col gap-4">
         <ZoruSheetHeader>
           <ZoruSheetTitle>Test flow</ZoruSheetTitle>
@@ -434,8 +434,8 @@ function TestDrawer({
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="td-text">Message text</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="td-text">Message text</Label>
+            <Textarea
               id="td-text"
               rows={3}
               value={text}
@@ -443,8 +443,8 @@ function TestDrawer({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="td-command">Command (without /)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="td-command">Command (without /)</Label>
+            <Input
               id="td-command"
               value={command}
               onChange={(e) => setCommand(e.target.value)}
@@ -452,8 +452,8 @@ function TestDrawer({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="td-callback">Callback data</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="td-callback">Callback data</Label>
+            <Input
               id="td-callback"
               value={callback}
               onChange={(e) => setCallback(e.target.value)}
@@ -463,10 +463,10 @@ function TestDrawer({
         </div>
 
         <ZoruSheetFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)} disabled={isRunning}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isRunning}>
             Close
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={() =>
               onRun({
                 text: text || undefined,
@@ -478,10 +478,10 @@ function TestDrawer({
           >
             {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
             Run test
-          </ZoruButton>
+          </Button>
         </ZoruSheetFooter>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }
 

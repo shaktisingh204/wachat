@@ -107,10 +107,10 @@ function TasksPageSkeleton() {
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {[...Array(4)].map((_, i) => (
-                    <ZoruSkeleton key={i} className="h-20 w-full" />
+                    <Skeleton key={i} className="h-20 w-full" />
                 ))}
             </div>
-            <ZoruSkeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
         </div>
     );
 }
@@ -278,7 +278,7 @@ export default function TasksPage() {
             primaryAction={<CreateTaskDialog onTaskCreated={fetchData} />}
             filters={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruSelect
+                    <Select
                         value={statusFilter}
                         onValueChange={(v) => {
                             setStatusFilter(v as StatusFilter);
@@ -295,9 +295,9 @@ export default function TasksPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
 
-                    <ZoruSelect
+                    <Select
                         value={priorityFilter}
                         onValueChange={(v) => {
                             setPriorityFilter(v as PriorityFilter);
@@ -314,9 +314,9 @@ export default function TasksPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
 
-                    <ZoruInput
+                    <Input
                         type="date"
                         value={dueFrom}
                         onChange={(e) => {
@@ -326,7 +326,7 @@ export default function TasksPage() {
                         className="h-9 w-[150px] text-[13px]"
                         aria-label="Due from"
                     />
-                    <ZoruInput
+                    <Input
                         type="date"
                         value={dueTo}
                         onChange={(e) => {
@@ -346,13 +346,13 @@ export default function TasksPage() {
                     />
 
                     {hasActiveFilters ? (
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="sm"
                             onClick={clearFilters}
                         >
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </div>
             }
@@ -360,9 +360,9 @@ export default function TasksPage() {
                 selected.size > 0 ? (
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                            <ZoruBadge variant="info">
+                            <Badge variant="info">
                                 {selected.size} selected
-                            </ZoruBadge>
+                            </Badge>
                             <button
                                 type="button"
                                 onClick={() => setSelected(new Set())}
@@ -372,28 +372,28 @@ export default function TasksPage() {
                             </button>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => void runBulk('complete')}
                             >
                                 <CheckCircle2 className="h-3.5 w-3.5" /> Mark
                                 complete
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={exportCsv}
                             >
                                 <Download className="h-3.5 w-3.5" /> Export CSV
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => void runBulk('delete')}
                             >
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 ) : null
@@ -414,22 +414,22 @@ export default function TasksPage() {
             <div className="flex flex-col gap-4">
                 {/* KPI strip */}
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                    <ZoruStatCard
+                    <StatCard
                         label="Total tasks"
                         value={kpis.total.toLocaleString()}
                         icon={<ListChecks className="h-4 w-4" />}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Open"
                         value={kpis.open.toLocaleString()}
                         icon={<Clock className="h-4 w-4" />}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Overdue"
                         value={kpis.overdue.toLocaleString()}
                         icon={<AlertCircle className="h-4 w-4" />}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Completed this week"
                         value={kpis.completedThisWeek.toLocaleString()}
                         icon={<CalendarClock className="h-4 w-4" />}
@@ -437,13 +437,13 @@ export default function TasksPage() {
                 </div>
 
                 {/* Table */}
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <div className="overflow-x-auto">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="w-8">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={headChecked}
                                             onCheckedChange={(c) =>
                                                 toggleAll(Boolean(c))
@@ -469,7 +469,7 @@ export default function TasksPage() {
                                             className="border-zoru-line"
                                         >
                                             <ZoruTableCell colSpan={7}>
-                                                <ZoruSkeleton className="h-10 w-full" />
+                                                <Skeleton className="h-10 w-full" />
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ))
@@ -494,7 +494,7 @@ export default function TasksPage() {
                                                 className="border-zoru-line"
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={selected.has(
                                                             id,
                                                         )}
@@ -519,7 +519,7 @@ export default function TasksPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant={
                                                             task.status ===
                                                             'Completed'
@@ -531,17 +531,17 @@ export default function TasksPage() {
                                                         }
                                                     >
                                                         {task.status ?? 'To-Do'}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     {task.priority ? (
-                                                        <ZoruBadge
+                                                        <Badge
                                                             variant={priorityVariant(
                                                                 task.priority,
                                                             )}
                                                         >
                                                             {task.priority}
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     ) : (
                                                         <span className="text-[12px] text-zoru-ink-muted">
                                                             —
@@ -568,7 +568,7 @@ export default function TasksPage() {
                                                     {task.type || '—'}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         asChild
@@ -578,16 +578,16 @@ export default function TasksPage() {
                                                         >
                                                             <Pencil className="h-3.5 w-3.5" />
                                                         </Link>
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
         </EntityListShell>
     );

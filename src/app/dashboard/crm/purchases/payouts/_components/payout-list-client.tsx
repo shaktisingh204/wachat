@@ -124,12 +124,12 @@ export function PayoutListClient({
     };
 
     return (
-        <ZoruCard className="overflow-hidden p-0">
-            <ZoruTable>
+        <Card className="overflow-hidden p-0">
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow>
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={allSelected}
                                 aria-checked={someSelected ? 'mixed' : allSelected}
                                 onCheckedChange={(v) => onToggleAll(v === true)}
@@ -168,7 +168,7 @@ export function PayoutListClient({
                             return (
                                 <ZoruTableRow key={id}>
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={isChecked}
                                             onCheckedChange={() => onToggleOne(id)}
                                             aria-label={`Select ${p.paymentNo}`}
@@ -192,7 +192,7 @@ export function PayoutListClient({
                                         {fmtDate(p.date)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <ZoruBadge variant="outline">{modeLabel(p.mode)}</ZoruBadge>
+                                        <Badge variant="outline">{modeLabel(p.mode)}</Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {p.bankAccountId ? (
@@ -218,9 +218,9 @@ export function PayoutListClient({
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
                                         {appliedCount > 0 ? (
-                                            <ZoruBadge variant="secondary">
+                                            <Badge variant="secondary">
                                                 <FileText className="mr-1 h-3 w-3" /> {appliedCount}
-                                            </ZoruBadge>
+                                            </Badge>
                                         ) : (
                                             <span className="text-[12.5px] text-zoru-ink-muted">
                                                 —
@@ -229,22 +229,22 @@ export function PayoutListClient({
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
-                                            <ZoruButton size="sm" variant="ghost" asChild>
+                                            <Button size="sm" variant="ghost" asChild>
                                                 <Link
                                                     href={`/dashboard/crm/purchases/payouts/${id}/edit`}
                                                 >
                                                     <Pencil className="h-3.5 w-3.5" />
                                                 </Link>
-                                            </ZoruButton>
-                                            <ZoruDropdownMenu>
+                                            </Button>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         disabled={busyId === id || pendingId}
                                                     >
                                                         <MoreHorizontal className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruDropdownMenuTrigger>
                                                 <ZoruDropdownMenuContent align="end">
                                                     <ZoruDropdownMenuItem
@@ -272,7 +272,7 @@ export function PayoutListClient({
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </div>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -280,7 +280,7 @@ export function PayoutListClient({
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
-        </ZoruCard>
+            </Table>
+        </Card>
     );
 }

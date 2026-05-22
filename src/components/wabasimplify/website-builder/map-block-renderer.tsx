@@ -69,18 +69,18 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
     } = settings;
 
     if (apiKey === undefined) {
-        return <ZoruSkeleton style={{ height }} />;
+        return <Skeleton style={{ height }} />;
     }
 
     if (!apiKey) {
         return (
-            <ZoruAlert variant="destructive" style={{ height: 'auto', minHeight: '200px' }} className="flex flex-col items-center justify-center text-center">
+            <Alert variant="destructive" style={{ height: 'auto', minHeight: '200px' }} className="flex flex-col items-center justify-center text-center">
                 <MapPin className="h-6 w-6" />
                 <ZoruAlertTitle>Google Maps API Key Missing</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Please configure `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in your environment variables.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         );
     }
     

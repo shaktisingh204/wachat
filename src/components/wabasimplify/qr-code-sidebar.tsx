@@ -69,7 +69,7 @@ export function QrCodeSidebar({
   return (
     <aside className="w-full lg:w-60 flex-shrink-0 flex flex-col gap-4">
       <div className="px-1">
-        <ZoruInput
+        <Input
           placeholder="Search by name..."
           leadingSlot={<Search />}
           value={search}
@@ -105,7 +105,7 @@ export function QrCodeSidebar({
         </nav>
       </div>
 
-      <ZoruSeparator />
+      <Separator />
 
       {/* Dynamic / Static */}
       <div className="space-y-1.5">
@@ -134,7 +134,7 @@ export function QrCodeSidebar({
         </nav>
       </div>
 
-      <ZoruSeparator />
+      <Separator />
 
       {/* Sort */}
       <div className="space-y-1.5">
@@ -165,12 +165,12 @@ export function QrCodeSidebar({
 
       {hasFilters ? (
         <>
-          <ZoruSeparator />
+          <Separator />
           <div className="px-2">
-            <ZoruButton variant="ghost" size="sm" onClick={clearAll} className="w-full justify-start">
+            <Button variant="ghost" size="sm" onClick={clearAll} className="w-full justify-start">
               <Filter className="h-3.5 w-3.5" />
               Reset filters
-            </ZoruButton>
+            </Button>
           </div>
         </>
       ) : null}

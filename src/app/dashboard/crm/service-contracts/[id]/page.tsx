@@ -144,7 +144,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="service_contract" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Coverage</ZoruCardTitle>
             </ZoruCardHeader>
@@ -152,7 +152,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Status</span>
-                  <ZoruBadge variant="outline">{status}</ZoruBadge>
+                  <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Days remaining</span>
@@ -178,9 +178,9 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Customer</ZoruCardTitle>
             </ZoruCardHeader>
@@ -196,9 +196,9 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                 </span>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Technician</ZoruCardTitle>
             </ZoruCardHeader>
@@ -207,9 +207,9 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                 {contract.technician || '—'}
               </span>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -229,11 +229,11 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -251,9 +251,9 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             </Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Coverage details</ZoruCardTitle>
         </ZoruCardHeader>
@@ -278,9 +278,9 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             <Field label="Billing model">{contract.billing || '—'}</Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Visit schedule</ZoruCardTitle>
         </ZoruCardHeader>
@@ -308,9 +308,9 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                     <td className="py-2">{fmtDate(v.date)}</td>
                     <td className="py-2">{v.technician || '—'}</td>
                     <td className="py-2">
-                      <ZoruBadge variant="outline">
+                      <Badge variant="outline">
                         {v.status || 'scheduled'}
-                      </ZoruBadge>
+                      </Badge>
                     </td>
                   </tr>
                 ))}
@@ -318,9 +318,9 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             </table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Billing history</ZoruCardTitle>
         </ZoruCardHeader>
@@ -336,10 +336,10 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             </Link>
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {contract.notes ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -348,7 +348,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
               {contract.notes}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

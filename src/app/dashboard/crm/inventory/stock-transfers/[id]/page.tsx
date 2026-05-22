@@ -98,30 +98,30 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
             back={{ href: BASE, label: 'Back to all transfers' }}
             actions={
                 <>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                         <Link href={`${BASE}/${id}/activity`}>
                             <History className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Activity
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton size="sm" asChild>
+                    </Button>
+                    <Button size="sm" asChild>
                         <Link href={`${BASE}/${id}/edit`}>
                             <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Edit
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
                         <a href="javascript:window.print()">
                             <Printer className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Print
                         </a>
-                    </ZoruButton>
+                    </Button>
                     <StockTransferDetailActions id={id} status={status} />
                 </>
             }
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Warehouses</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -151,9 +151,9 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                 />
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>At a glance</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -191,7 +191,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                 </div>
                             </dl>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
             audit={
@@ -201,7 +201,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                 />
             }
         >
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Header</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -222,7 +222,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                         <div>
                             <dt className="text-xs text-zinc-500">Status</dt>
                             <dd>
-                                <ZoruBadge
+                                <Badge
                                     variant={
                                         status === 'Received'
                                             ? 'success'
@@ -236,14 +236,14 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     }
                                 >
                                     {status}
-                                </ZoruBadge>
+                                </Badge>
                             </dd>
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Line items</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -299,10 +299,10 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                         </table>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {transfer.notes ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -311,11 +311,11 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                             {transfer.notes}
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {attachments.length > 0 ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Attachments</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -341,7 +341,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                             ))}
                         </ul>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

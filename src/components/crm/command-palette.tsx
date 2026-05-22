@@ -496,7 +496,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const totalHits = ENTITY_ORDER.reduce((acc, e) => acc + results[e].length, 0);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent
         className="overflow-hidden p-0 shadow-lg sm:max-w-2xl border-zoru-line bg-zoru-surface-2"
       >
@@ -583,7 +583,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           </ZoruCommandList>
         </ZoruCommand>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -667,7 +667,7 @@ function ResultItem({ entity, item, valuePrefix, onSelect }: ResultItemProps) {
 
   return (
     <ZoruCommandItem value={value} onSelect={onSelect}>
-      <ZoruAvatar avatarUrl={chip.avatarUrl} fallback={initials(chip.primary)} />
+      <Avatar avatarUrl={chip.avatarUrl} fallback={initials(chip.primary)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm text-zoru-ink">{chip.primary}</span>
         {chip.secondary || chip.tertiary ? (

@@ -94,7 +94,7 @@ export function ConversationList({
   return (
     <div className="flex h-full min-h-0 flex-col bg-zoru-surface">
       <div className="flex items-center gap-2 border-b border-zoru-line p-3">
-        <ZoruInput
+        <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           leadingSlot={<Search />}
@@ -104,7 +104,7 @@ export function ConversationList({
       <div className="border-b border-zoru-line px-4 py-1.5 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
         {loading ? 'Loading…' : `${total} conversation${total === 1 ? '' : 's'}`}
       </div>
-      <ZoruScrollArea className="min-h-0 flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         {loading && threads.length === 0 ? (
           <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading conversations…
@@ -133,11 +133,11 @@ export function ConversationList({
                       selected && 'bg-zoru-surface-raised',
                     )}
                   >
-                    <ZoruAvatar className="h-9 w-9 shrink-0">
+                    <Avatar className="h-9 w-9 shrink-0">
                       <ZoruAvatarFallback className="text-[11px]">
                         {initialsFor(t)}
                       </ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <div className="flex items-center gap-2">
                         <span
@@ -177,15 +177,15 @@ export function ConversationList({
                         {t.starred && (
                           <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
                         )}
-                        <ZoruBadge variant={tone.variant} className="text-[10px]">
+                        <Badge variant={tone.variant} className="text-[10px]">
                           {tone.label}
-                        </ZoruBadge>
+                        </Badge>
                         {t.assignedTo && (
-                          <ZoruAvatar className="h-4 w-4">
+                          <Avatar className="h-4 w-4">
                             <ZoruAvatarFallback className="text-[8px]">
                               {t.assignedTo.slice(-2).toUpperCase()}
                             </ZoruAvatarFallback>
-                          </ZoruAvatar>
+                          </Avatar>
                         )}
                         {(t.labels ?? []).slice(0, 2).map((l) => (
                           <span
@@ -218,7 +218,7 @@ export function ConversationList({
             )}
           </div>
         )}
-      </ZoruScrollArea>
+      </ScrollArea>
     </div>
   );
 }

@@ -44,25 +44,25 @@ export default function DoFollowCheckerPage() {
   return (
     <ToolShell title="DoFollow / NoFollow Checker" description="Split a page's outbound links into DoFollow vs NoFollow buckets.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={loading || !url}>
+        <Button onClick={run} disabled={loading || !url}>
           {loading ? 'Checking…' : 'Check'}
-        </ZoruButton>
+        </Button>
       </div>
 
       {error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {data && (
         <div className="grid md:grid-cols-2 gap-4">
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="p-4 space-y-2">
               <div className="text-sm font-semibold">DoFollow ({data.dofollow.length})</div>
               <div className="space-y-1 max-h-96 overflow-auto">
@@ -73,8 +73,8 @@ export default function DoFollowCheckerPage() {
                 ))}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
-          <ZoruCard>
+          </Card>
+          <Card>
             <ZoruCardContent className="p-4 space-y-2">
               <div className="text-sm font-semibold">NoFollow ({data.nofollow.length})</div>
               <div className="space-y-1 max-h-96 overflow-auto">
@@ -85,7 +85,7 @@ export default function DoFollowCheckerPage() {
                 ))}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
       )}
     </ToolShell>

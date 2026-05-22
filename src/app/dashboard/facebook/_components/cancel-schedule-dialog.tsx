@@ -73,17 +73,17 @@ export function CancelScheduleDialog({
     <ZoruAlertDialog open={open} onOpenChange={setOpen}>
       <ZoruAlertDialogTrigger asChild>
         {triggerVariant === "outline" ? (
-          <ZoruButton variant="outline" size="sm">
+          <Button variant="outline" size="sm">
             <XCircle /> {label ?? "Cancel"}
-          </ZoruButton>
+          </Button>
         ) : (
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon-sm"
             aria-label="Cancel schedule"
           >
             <XCircle />
-          </ZoruButton>
+          </Button>
         )}
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
@@ -96,19 +96,19 @@ export function CancelScheduleDialog({
         </ZoruAlertDialogHeader>
         <ZoruAlertDialogFooter>
           <ZoruAlertDialogCancel asChild>
-            <ZoruButton variant="outline" disabled={isPending}>
+            <Button variant="outline" disabled={isPending}>
               Keep schedule
-            </ZoruButton>
+            </Button>
           </ZoruAlertDialogCancel>
           <ZoruAlertDialogAction asChild>
-            <ZoruButton
+            <Button
               variant="destructive"
               onClick={handleConfirm}
               disabled={isPending}
             >
               {isPending ? <Loader2 className="animate-spin" /> : <XCircle />}
               Cancel schedule
-            </ZoruButton>
+            </Button>
           </ZoruAlertDialogAction>
         </ZoruAlertDialogFooter>
       </ZoruAlertDialogContent>

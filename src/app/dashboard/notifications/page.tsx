@@ -202,7 +202,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -212,9 +212,9 @@ export default function NotificationsPage() {
             <ZoruBreadcrumbPage>Notifications</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>All Notifications</ZoruPageTitle>
           <ZoruPageDescription>
@@ -222,7 +222,7 @@ export default function NotificationsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruSelect
+          <Select
             defaultValue="ALL"
             onValueChange={(v) => {
               setAppFilter(v);
@@ -242,9 +242,9 @@ export default function NotificationsPage() {
               <ZoruSelectItem value="sabchat">SabChat</ZoruSelectItem>
               <ZoruSelectItem value="system">System</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
 
-          <ZoruSelect defaultValue="ALL" onValueChange={handleEventFilterChange}>
+          <Select defaultValue="ALL" onValueChange={handleEventFilterChange}>
             <ZoruSelectTrigger className="w-[180px]">
               <Filter className="h-4 w-4 text-zoru-ink-muted" />
               <ZoruSelectValue placeholder="Event type" />
@@ -257,9 +257,9 @@ export default function NotificationsPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
 
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={handleMarkAllRead}
@@ -271,9 +271,9 @@ export default function NotificationsPage() {
               <BadgeCheck />
             )}
             Mark all read
-          </ZoruButton>
+          </Button>
 
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => fetchNotifications(currentPage, filter, true)}
@@ -283,16 +283,16 @@ export default function NotificationsPage() {
               className={cn(isRefreshing && "animate-spin")}
             />
             Refresh
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <ul className="divide-y divide-zoru-line">
           {loading ? (
             [...Array(5)].map((_, i) => (
               <li key={i} className="p-4">
-                <ZoruSkeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
               </li>
             ))
           ) : filteredNotifications.length > 0 ? (
@@ -331,30 +331,30 @@ export default function NotificationsPage() {
                     {n.message}
                   </p>
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <ZoruBadge variant="outline" className="font-mono">
+                    <Badge variant="outline" className="font-mono">
                       {humanizeEventType(n.eventType)}
-                    </ZoruBadge>
-                    <ZoruBadge variant="secondary" className="uppercase">
+                    </Badge>
+                    <Badge variant="secondary" className="uppercase">
                       {n.sourceApp || "System"}
-                    </ZoruBadge>
+                    </Badge>
                     {!n.isRead && (
-                      <ZoruBadge variant="info">Unread</ZoruBadge>
+                      <Badge variant="info">Unread</Badge>
                     )}
                   </div>
                 </div>
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleNotificationClick(n)}
                 >
                   <Eye />
                   View
-                </ZoruButton>
+                </Button>
               </li>
             ))
           ) : (
             <li className="p-8">
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Inbox />}
                 title="No notifications"
                 description={
@@ -367,14 +367,14 @@ export default function NotificationsPage() {
             </li>
           )}
         </ul>
-      </ZoruCard>
+      </Card>
 
       {totalPages > 1 && (
         <div className="flex items-center justify-end gap-3">
           <span className="text-xs text-zoru-ink-muted">
             Page {currentPage} of {Math.max(totalPages, 1)}
           </span>
-          <ZoruButton
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Previous page"
@@ -382,8 +382,8 @@ export default function NotificationsPage() {
             disabled={currentPage <= 1 || isRefreshing}
           >
             <ChevronLeft />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Next page"
@@ -391,7 +391,7 @@ export default function NotificationsPage() {
             disabled={currentPage >= totalPages || isRefreshing}
           >
             <ChevronRight />
-          </ZoruButton>
+          </Button>
         </div>
       )}
     </div>

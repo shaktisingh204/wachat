@@ -195,13 +195,13 @@ export default function SabWaCallsPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -211,7 +211,7 @@ export default function SabWaCallsPage() {
 
   return (
     <div className="space-y-4 p-4 md:p-6 lg:p-8">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -225,17 +225,17 @@ export default function SabWaCallsPage() {
             <ZoruBreadcrumbPage>Calls</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Audit-only notice */}
-      <ZoruAlert>
+      <Alert>
         <Phone className="h-4 w-4" />
         <ZoruAlertTitle>Read-only call history</ZoruAlertTitle>
         <ZoruAlertDescription>
           Voice and video calls happen on your phone — this page is for
           audit and visibility. Filter, search, and export below.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
 
       {/* Header */}
       <div className="flex flex-wrap items-start gap-3">
@@ -253,7 +253,7 @@ export default function SabWaCallsPage() {
             Read-only history of incoming, outgoing, missed, and video calls.
           </p>
         </div>
-        <ZoruButton
+        <Button
           type="button"
           variant="outline"
           size="sm"
@@ -264,19 +264,19 @@ export default function SabWaCallsPage() {
           disabled={loading}
         >
           <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* Filters */}
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-1 lg:col-span-2">
-            <ZoruLabel className="text-xs font-medium" htmlFor="calls-search">
+            <Label className="text-xs font-medium" htmlFor="calls-search">
               Search
-            </ZoruLabel>
+            </Label>
             <div className="relative">
               <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-              <ZoruInput
+              <Input
                 id="calls-search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -286,8 +286,8 @@ export default function SabWaCallsPage() {
             </div>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs font-medium">Type</ZoruLabel>
-            <ZoruSelect
+            <Label className="text-xs font-medium">Type</Label>
+            <Select
               value={typeFilter}
               onValueChange={(v) => setTypeFilter(v as typeof typeFilter)}
             >
@@ -301,11 +301,11 @@ export default function SabWaCallsPage() {
                 <ZoruSelectItem value="missed">Missed</ZoruSelectItem>
                 <ZoruSelectItem value="video">Video</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs font-medium">Contact</ZoruLabel>
-            <ZoruSelect value={contactFilter} onValueChange={setContactFilter}>
+            <Label className="text-xs font-medium">Contact</Label>
+            <Select value={contactFilter} onValueChange={setContactFilter}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -319,13 +319,13 @@ export default function SabWaCallsPage() {
                     </ZoruSelectItem>
                   ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs font-medium" htmlFor="from-date">
+            <Label className="text-xs font-medium" htmlFor="from-date">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="from-date"
               type="date"
               value={fromDate}
@@ -333,10 +333,10 @@ export default function SabWaCallsPage() {
             />
           </div>
           <div className="space-y-1 lg:col-start-5">
-            <ZoruLabel className="text-xs font-medium" htmlFor="to-date">
+            <Label className="text-xs font-medium" htmlFor="to-date">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="to-date"
               type="date"
               value={toDate}
@@ -344,7 +344,7 @@ export default function SabWaCallsPage() {
             />
           </div>
           <div className="sm:col-span-2 lg:col-span-5">
-            <ZoruButton
+            <Button
               type="button"
               size="sm"
               variant="ghost"
@@ -357,18 +357,18 @@ export default function SabWaCallsPage() {
               }}
             >
               <Filter className="mr-2 h-3.5 w-3.5" /> Reset filters
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Table */}
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-0">
           {loading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="h-10 w-full" />
+                <Skeleton key={i} className="h-10 w-full" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -382,7 +382,7 @@ export default function SabWaCallsPage() {
               </p>
             </div>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-[110px]">Type</ZoruTableHead>
@@ -398,13 +398,13 @@ export default function SabWaCallsPage() {
                   return (
                     <ZoruTableRow key={c.id}>
                       <ZoruTableCell>
-                        <ZoruBadge
+                        <Badge
                           variant={typeBadgeVariant(c.type)}
                           className="gap-1"
                         >
                           <Icon className="h-3 w-3" />
                           {typeLabel(c.type)}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <div className="flex items-center gap-2">
@@ -425,7 +425,7 @@ export default function SabWaCallsPage() {
                         {formatTs(c.ts)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruButton asChild type="button" size="sm" variant="ghost">
+                        <Button asChild type="button" size="sm" variant="ghost">
                           <Link
                             href={`/sabwa/inbox?jid=${encodeURIComponent(
                               c.counterpartJid,
@@ -434,16 +434,16 @@ export default function SabWaCallsPage() {
                           >
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

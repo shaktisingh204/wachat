@@ -555,7 +555,7 @@ export default function TelegramApiCredentialsPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() => void reload()}
@@ -563,8 +563,8 @@ export default function TelegramApiCredentialsPage() {
                     >
                         <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         onClick={() => {
                             setCreateForm(EMPTY_CREATE_FORM);
@@ -575,7 +575,7 @@ export default function TelegramApiCredentialsPage() {
                     >
                         <Plus className="h-3 w-3" />
                         Add credentials
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
@@ -604,7 +604,7 @@ export default function TelegramApiCredentialsPage() {
             </div>
 
             {/* Table */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
                     <div>
                         <h2 className="text-[14px] text-zoru-ink">Credentials</h2>
@@ -617,7 +617,7 @@ export default function TelegramApiCredentialsPage() {
                 {loading ? (
                     <div className="flex flex-col gap-2 p-4">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-12 w-full" />
+                            <Skeleton key={i} className="h-12 w-full" />
                         ))}
                     </div>
                 ) : loadError ? (
@@ -626,19 +626,19 @@ export default function TelegramApiCredentialsPage() {
                     </div>
                 ) : rows.length === 0 ? (
                     <div className="p-6">
-                        <ZoruEmptyState
+                        <EmptyState
                             icon={<KeyRound />}
                             title="No credentials yet"
                             description="Add an api_id / api_hash pair from my.telegram.org to begin."
                             action={
-                                <ZoruButton
+                                <Button
                                     size="sm"
                                     onClick={() => setCreateOpen(true)}
                                     disabled={!projectId}
                                 >
                                     <Plus className="h-3 w-3" />
                                     Add credentials
-                                </ZoruButton>
+                                </Button>
                             }
                         />
                     </div>
@@ -682,28 +682,28 @@ export default function TelegramApiCredentialsPage() {
                                             <MaskedCell masked={r.apiHashMasked} />
                                         </td>
                                         <td className="px-4 py-3">
-                                            <ZoruBadge
+                                            <Badge
                                                 variant={STATUS_VARIANT[r.status] ?? 'ghost'}
                                             >
                                                 {STATUS_LABEL[r.status] ?? r.status}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </td>
                                         <td className="px-4 py-3">
                                             {r.testMode ? (
-                                                <ZoruBadge variant="warning">Test</ZoruBadge>
+                                                <Badge variant="warning">Test</Badge>
                                             ) : (
-                                                <ZoruBadge variant="ghost">Live</ZoruBadge>
+                                                <Badge variant="ghost">Live</Badge>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-zoru-ink-muted">
                                             {fmtDate(r.lastVerifiedAt)}
                                         </td>
                                         <td className="px-4 py-3 text-right">
-                                            <ZoruDropdownMenu>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
-                                                    <ZoruButton variant="ghost" size="sm">
+                                                    <Button variant="ghost" size="sm">
                                                         <MoreHorizontal className="h-4 w-4" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruDropdownMenuTrigger>
                                                 <ZoruDropdownMenuContent align="end">
                                                     <ZoruDropdownMenuItem
@@ -746,7 +746,7 @@ export default function TelegramApiCredentialsPage() {
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </td>
                                     </tr>
                                 ))}
@@ -754,7 +754,7 @@ export default function TelegramApiCredentialsPage() {
                         </table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* --------- Add credentials drawer --------- */}
             <ZoruDrawer open={createOpen} onOpenChange={setCreateOpen}>
@@ -776,7 +776,7 @@ export default function TelegramApiCredentialsPage() {
                     </ZoruDrawerHeader>
                     <div className="flex flex-col gap-4 px-6 pb-6">
                         <Field label="Label (optional)">
-                            <ZoruInput
+                            <Input
                                 value={createForm.label}
                                 placeholder="e.g. main user account"
                                 onChange={(e) =>
@@ -786,7 +786,7 @@ export default function TelegramApiCredentialsPage() {
                         </Field>
                         <div className="grid gap-4 md:grid-cols-2">
                             <Field label="api_id" hint="Numeric integer.">
-                                <ZoruInput
+                                <Input
                                     inputMode="numeric"
                                     value={createForm.apiId}
                                     placeholder="1234567"
@@ -799,7 +799,7 @@ export default function TelegramApiCredentialsPage() {
                                 label="Phone number"
                                 hint="E.164 — include the country code with `+`."
                             >
-                                <ZoruInput
+                                <Input
                                     value={createForm.phoneNumber}
                                     placeholder="+14155552671"
                                     onChange={(e) =>
@@ -813,7 +813,7 @@ export default function TelegramApiCredentialsPage() {
                         </div>
                         <Field label="api_hash" hint="32 hex characters.">
                             <div className="flex items-center gap-2">
-                                <ZoruInput
+                                <Input
                                     type={showHash ? 'text' : 'password'}
                                     value={createForm.apiHash}
                                     placeholder="32-character hex string"
@@ -821,7 +821,7 @@ export default function TelegramApiCredentialsPage() {
                                         setCreateForm({ ...createForm, apiHash: e.target.value })
                                     }
                                 />
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
@@ -833,11 +833,11 @@ export default function TelegramApiCredentialsPage() {
                                         <Eye className="h-3 w-3" />
                                     )}
                                     {showHash ? 'Hide' : 'Show'}
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </Field>
                         <Field label="Test mode" hint="Route through Telegram's test DC pair.">
-                            <ZoruSwitch
+                            <Switch
                                 checked={createForm.testMode}
                                 onCheckedChange={(v) =>
                                     setCreateForm({ ...createForm, testMode: !!v })
@@ -845,7 +845,7 @@ export default function TelegramApiCredentialsPage() {
                             />
                         </Field>
                         <Field label="Notes (optional)">
-                            <ZoruTextarea
+                            <Textarea
                                 rows={3}
                                 value={createForm.notes}
                                 placeholder="Anything to remember about this account."
@@ -862,18 +862,18 @@ export default function TelegramApiCredentialsPage() {
                         ) : null}
 
                         <div className="flex justify-end gap-2 pt-2">
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setCreateOpen(false)}
                                 disabled={creating}
                             >
                                 Cancel
-                            </ZoruButton>
-                            <ZoruButton size="sm" onClick={submitCreate} disabled={creating}>
+                            </Button>
+                            <Button size="sm" onClick={submitCreate} disabled={creating}>
                                 {creating ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                                 Save credentials
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 </ZoruDrawerContent>
@@ -927,7 +927,7 @@ export default function TelegramApiCredentialsPage() {
                                 </h3>
                                 <div className="flex flex-col gap-3">
                                     <Field label="Label">
-                                        <ZoruInput
+                                        <Input
                                             value={editForm.label}
                                             onChange={(e) =>
                                                 setEditForm({ ...editForm, label: e.target.value })
@@ -938,7 +938,7 @@ export default function TelegramApiCredentialsPage() {
                                         label="Phone number"
                                         hint="Leave blank to keep the existing number."
                                     >
-                                        <ZoruInput
+                                        <Input
                                             value={editForm.phoneNumber}
                                             placeholder={detailRow.phoneNumberMasked}
                                             onChange={(e) =>
@@ -950,7 +950,7 @@ export default function TelegramApiCredentialsPage() {
                                         />
                                     </Field>
                                     <Field label="Test mode">
-                                        <ZoruSwitch
+                                        <Switch
                                             checked={editForm.testMode}
                                             onCheckedChange={(v) =>
                                                 setEditForm({ ...editForm, testMode: !!v })
@@ -958,7 +958,7 @@ export default function TelegramApiCredentialsPage() {
                                         />
                                     </Field>
                                     <Field label="Notes">
-                                        <ZoruTextarea
+                                        <Textarea
                                             rows={3}
                                             value={editForm.notes}
                                             onChange={(e) =>
@@ -967,7 +967,7 @@ export default function TelegramApiCredentialsPage() {
                                         />
                                     </Field>
                                     <div className="flex justify-end gap-2">
-                                        <ZoruButton
+                                        <Button
                                             size="sm"
                                             onClick={saveEdit}
                                             disabled={editSaving}
@@ -976,7 +976,7 @@ export default function TelegramApiCredentialsPage() {
                                                 <Loader2 className="h-3 w-3 animate-spin" />
                                             ) : null}
                                             Save changes
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 </div>
                             </section>
@@ -1000,9 +1000,9 @@ export default function TelegramApiCredentialsPage() {
                                                     <span className="font-mono text-[11.5px] text-zoru-ink-muted">
                                                         {s._id}
                                                     </span>
-                                                    <ZoruBadge variant="ghost">
+                                                    <Badge variant="ghost">
                                                         {s.status}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </div>
                                                 <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
                                                     Started {fmtDate(s.startedAt)} ·
@@ -1051,7 +1051,7 @@ export default function TelegramApiCredentialsPage() {
             </ZoruDrawer>
 
             {/* --------- Login flow modal --------- */}
-            <ZoruDialog
+            <Dialog
                 open={!!loginRow}
                 onOpenChange={(v) => {
                     if (!v) closeLogin();
@@ -1061,7 +1061,7 @@ export default function TelegramApiCredentialsPage() {
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>
                             MTProto login{' '}
-                            <ZoruBadge variant="warning">Preview</ZoruBadge>
+                            <Badge variant="warning">Preview</Badge>
                         </ZoruDialogTitle>
                         <ZoruDialogDescription>
                             This flow currently simulates each step — no MTProto handshake is
@@ -1092,7 +1092,7 @@ export default function TelegramApiCredentialsPage() {
                                 label="Verification code"
                                 hint="Any value works in preview; the real worker will validate."
                             >
-                                <ZoruInput
+                                <Input
                                     value={loginCode}
                                     onChange={(e) => setLoginCode(e.target.value)}
                                     placeholder="123456"
@@ -1110,7 +1110,7 @@ export default function TelegramApiCredentialsPage() {
                                 label="2FA password"
                                 hint="Required if the account has cloud-password enabled. Any value works in preview."
                             >
-                                <ZoruInput
+                                <Input
                                     type="password"
                                     value={loginPassword}
                                     onChange={(e) => setLoginPassword(e.target.value)}
@@ -1131,38 +1131,38 @@ export default function TelegramApiCredentialsPage() {
                     ) : null}
 
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={closeLogin}>
+                        <Button variant="outline" size="sm" onClick={closeLogin}>
                             Close
-                        </ZoruButton>
+                        </Button>
                         {loginStep === 'start' ? (
-                            <ZoruButton size="sm" onClick={loginStart} disabled={loginBusy}>
+                            <Button size="sm" onClick={loginStart} disabled={loginBusy}>
                                 {loginBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                                 Open session
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                         {loginStep === 'code' ? (
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 onClick={loginCodeSubmit}
                                 disabled={loginBusy}
                             >
                                 {loginBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                                 Submit code
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                         {loginStep === 'password' ? (
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 onClick={loginPasswordSubmit}
                                 disabled={loginBusy}
                             >
                                 {loginBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                                 Submit password
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* --------- Revoke confirm --------- */}
             <ZoruAlertDialog
@@ -1271,12 +1271,12 @@ function KpiCard({
                 ? 'text-rose-600'
                 : 'text-zoru-ink';
     return (
-        <ZoruCard className="p-4">
+        <Card className="p-4">
             <TelegramProjectGate />
             <p className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                 {label}
             </p>
             <p className={`mt-1 text-[24px] font-medium leading-none ${color}`}>{value}</p>
-        </ZoruCard>
+        </Card>
     );
 }

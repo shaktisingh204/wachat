@@ -85,14 +85,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create case'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -191,7 +191,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="caseId" value={initialData!._id} />
@@ -205,8 +205,8 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Employee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name *</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             required
@@ -215,8 +215,8 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="HR employee id"
@@ -228,7 +228,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Case type + Severity */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Case type</ZoruLabel>
+                        <Label>Case type</Label>
                         <EnumFormField
                             name="caseType-picker"
                             enumName="disciplinaryCaseType"
@@ -239,7 +239,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Severity</ZoruLabel>
+                        <Label>Severity</Label>
                         <EnumFormField
                             name="severity-picker"
                             enumName="disciplinarySeverity"
@@ -254,8 +254,8 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Raised by + Incident date */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="raisedBy">Raised by</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="raisedBy">Raised by</Label>
+                        <Input
                             id="raisedBy"
                             name="raisedBy"
                             placeholder="Manager or HR officer"
@@ -263,8 +263,8 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="incidentDate">Incident date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="incidentDate">Incident date</Label>
+                        <Input
                             id="incidentDate"
                             name="incidentDate"
                             type="date"
@@ -275,8 +275,8 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={4}
@@ -288,7 +288,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Evidence — SabFiles only */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Evidence (from SabFiles)</ZoruLabel>
+                        <Label>Evidence (from SabFiles)</Label>
                         <SabFilePickerButton
                             accept="all"
                             onPick={onPickEvidence}
@@ -319,7 +319,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                                     >
                                         {e.name || e.url}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -327,7 +327,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                                         aria-label="Remove evidence"
                                     >
                                         <X className="h-4 w-4" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -337,8 +337,8 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Hearings repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Hearings</ZoruLabel>
-                        <ZoruButton
+                        <Label>Hearings</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -346,7 +346,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add hearing
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {hearings.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
@@ -360,28 +360,28 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                                     key={idx}
                                     className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[140px_1fr_2fr_auto]"
                                 >
-                                    <ZoruInput
+                                    <Input
                                         type="date"
                                         value={toDateInput(h.date)}
                                         onChange={(e) =>
                                             updateHearing(idx, 'date', e.target.value)
                                         }
                                     />
-                                    <ZoruInput
+                                    <Input
                                         placeholder="Outcome"
                                         value={h.outcome ?? ''}
                                         onChange={(e) =>
                                             updateHearing(idx, 'outcome', e.target.value)
                                         }
                                     />
-                                    <ZoruInput
+                                    <Input
                                         placeholder="Notes"
                                         value={h.notes ?? ''}
                                         onChange={(e) =>
                                             updateHearing(idx, 'notes', e.target.value)
                                         }
                                     />
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -389,7 +389,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                                         aria-label="Remove hearing"
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -399,7 +399,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Status + Notes */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="disciplinaryCaseStatus"
@@ -412,8 +412,8 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={3}
@@ -424,15 +424,15 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to cases
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

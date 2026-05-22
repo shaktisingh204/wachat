@@ -174,14 +174,14 @@ export function TestEndpointRunner({
   return (
     <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
-        <ZoruInput
+        <Input
           type="password"
           placeholder="Paste your SabNode API key…"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           className="font-mono text-sm"
         />
-        <ZoruInput
+        <Input
           type="text"
           placeholder="Base URL"
           value={baseUrl}
@@ -196,11 +196,11 @@ export function TestEndpointRunner({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {pathParams.map((p) => (
               <div key={p.name} className="space-y-1">
-                <ZoruLabel className="text-xs font-normal text-zoru-ink-muted">
+                <Label className="text-xs font-normal text-zoru-ink-muted">
                   <span className="font-mono text-amber-400">{p.name}</span>
                   {p.description ? <span className="ml-1">— {p.description}</span> : null}
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   value={pathValues[p.name] ?? ''}
                   onChange={(e) => setPathValues({ ...pathValues, [p.name]: e.target.value })}
                   className="font-mono text-sm"
@@ -217,12 +217,12 @@ export function TestEndpointRunner({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {queryParams.map((q) => (
               <div key={q.name} className="space-y-1">
-                <ZoruLabel className="text-xs font-normal text-zoru-ink-muted">
+                <Label className="text-xs font-normal text-zoru-ink-muted">
                   <span className="font-mono text-amber-400">{q.name}</span>
                   {q.required ? <span className="ml-1 text-zoru-danger">*</span> : null}
                   {q.description ? <span className="ml-1">— {q.description}</span> : null}
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   value={queryValues[q.name] ?? ''}
                   onChange={(e) => setQueryValues({ ...queryValues, [q.name]: e.target.value })}
                   className="font-mono text-sm"
@@ -236,7 +236,7 @@ export function TestEndpointRunner({
       {hasBody ? (
         <div>
           <p className="text-xs font-medium text-zoru-ink-muted mb-1.5">JSON body</p>
-          <ZoruTextarea
+          <Textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={6}
@@ -252,9 +252,9 @@ export function TestEndpointRunner({
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <ZoruButton onClick={run} disabled={busy}>
+        <Button onClick={run} disabled={busy}>
           {busy ? 'Sending…' : 'Send request'}
-        </ZoruButton>
+        </Button>
         {error ? <span className="text-xs text-zoru-danger">{error}</span> : null}
       </div>
 

@@ -324,13 +324,13 @@ export default function StickyNotesPage(): React.JSX.Element {
           placeholder: 'Search notes…',
         }}
         primaryAction={
-          <ZoruButton onClick={startNew}>
+          <Button onClick={startNew}>
             <Plus className="h-4 w-4" /> New note
-          </ZoruButton>
+          </Button>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <Select
               value={filters.colour}
               onValueChange={(v) =>
                 setFilters((p) => ({ ...p, colour: v as ColourFilter }))
@@ -347,8 +347,8 @@ export default function StickyNotesPage(): React.JSX.Element {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={filters.pinned}
               onValueChange={(v) =>
                 setFilters((p) => ({ ...p, pinned: v as PinnedFilter }))
@@ -362,8 +362,8 @@ export default function StickyNotesPage(): React.JSX.Element {
                 <ZoruSelectItem value="pinned">Pinned only</ZoruSelectItem>
                 <ZoruSelectItem value="unpinned">Not pinned</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={filters.owner}
               onValueChange={(v) =>
                 setFilters((p) => ({ ...p, owner: v as OwnerFilter }))
@@ -378,11 +378,11 @@ export default function StickyNotesPage(): React.JSX.Element {
                   Mine
                 </ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {filtersActive ? (
-              <ZoruButton variant="ghost" size="sm" onClick={() => setFilters(INITIAL)}>
+              <Button variant="ghost" size="sm" onClick={() => setFilters(INITIAL)}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
             <div className="ml-auto flex items-center gap-2">
               <button
@@ -390,7 +390,7 @@ export default function StickyNotesPage(): React.JSX.Element {
                 onClick={toggleAll}
                 className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1 text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
               >
-                <ZoruCheckbox
+                <Checkbox
                   checked={
                     allSelected
                       ? true
@@ -403,12 +403,12 @@ export default function StickyNotesPage(): React.JSX.Element {
                 />
                 <span>Select all</span>
               </button>
-              <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+              <Button variant="ghost" size="sm" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="sm" onClick={exportXlsx}>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exportXlsx}>
                 <Download className="h-3.5 w-3.5" /> XLSX
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         }
@@ -419,20 +419,20 @@ export default function StickyNotesPage(): React.JSX.Element {
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelected(new Set())}
                 >
                   Clear
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => setBulkConfirm(true)}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Delete
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -452,22 +452,22 @@ export default function StickyNotesPage(): React.JSX.Element {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Total"
               value={notes.length}
               icon={<StickyIcon className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Pinned"
               value={notes.filter((n) => n.pinned).length}
               icon={<Pin className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="By colour"
               value={`${byColour.yellow} · ${byColour.rose} · ${byColour.blue} · ${byColour.green}`}
               icon={<Palette className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Updated (7d)"
               value={recentCount}
               icon={<Clock className="h-4 w-4" />}
@@ -503,7 +503,7 @@ export default function StickyNotesPage(): React.JSX.Element {
               }
               const isSelected = selected.has(n._id);
               return (
-                <ZoruCard
+                <Card
                   key={n._id}
                   className={`flex flex-col gap-2 shadow-md ${meta.bg} ${meta.border} ${
                     isSelected ? 'ring-2 ring-zoru-primary' : ''
@@ -511,15 +511,15 @@ export default function StickyNotesPage(): React.JSX.Element {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleOne(n._id)}
                         aria-label="Select note"
                       />
                       {n.pinned ? (
-                        <ZoruBadge variant="warning">
+                        <Badge variant="warning">
                           <Pin className="h-3 w-3" /> Pinned
-                        </ZoruBadge>
+                        </Badge>
                       ) : null}
                     </div>
                     <div className="flex gap-0.5">
@@ -555,7 +555,7 @@ export default function StickyNotesPage(): React.JSX.Element {
                   >
                     {n.note_text}
                   </p>
-                </ZoruCard>
+                </Card>
               );
             })}
           </div>
@@ -601,8 +601,8 @@ function NoteEditorCard({
 }) {
   const meta = COLORS.find((x) => x.key === colour) ?? COLORS[0];
   return (
-    <ZoruCard className={`flex flex-col gap-2 shadow-md ${meta.bg} ${meta.border}`}>
-      <ZoruTextarea
+    <Card className={`flex flex-col gap-2 shadow-md ${meta.bg} ${meta.border}`}>
+      <Textarea
         value={text}
         onChange={(e) => onTextChange(e.target.value)}
         rows={4}
@@ -624,14 +624,14 @@ function NoteEditorCard({
           />
         ))}
         <div className="ml-auto flex gap-1">
-          <ZoruButton variant="ghost" size="sm" onClick={onCancel}>
+          <Button variant="ghost" size="sm" onClick={onCancel}>
             Cancel
-          </ZoruButton>
-          <ZoruButton size="sm" onClick={onSave} disabled={!text.trim()}>
+          </Button>
+          <Button size="sm" onClick={onSave} disabled={!text.trim()}>
             Save
-          </ZoruButton>
+          </Button>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

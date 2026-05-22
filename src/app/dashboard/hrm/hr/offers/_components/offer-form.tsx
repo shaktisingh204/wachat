@@ -52,14 +52,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create offer'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -120,7 +120,7 @@ export function OfferForm({ initialData }: OfferFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="offerId" value={initialData!._id} />
@@ -130,8 +130,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 1: Candidate id + name */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="candidateId">Candidate id *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="candidateId">Candidate id *</Label>
+                        <Input
                             id="candidateId"
                             name="candidateId"
                             required
@@ -141,8 +141,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="candidateName">Candidate name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="candidateName">Candidate name</Label>
+                        <Input
                             id="candidateName"
                             name="candidateName"
                             placeholder="e.g. Priya Sharma"
@@ -154,8 +154,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 2: Job id + title */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="jobId">Job id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="jobId">Job id</Label>
+                        <Input
                             id="jobId"
                             name="jobId"
                             placeholder="Optional"
@@ -163,8 +163,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="jobTitle">Job title</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="jobTitle">Job title</Label>
+                        <Input
                             id="jobTitle"
                             name="jobTitle"
                             placeholder="e.g. Senior Frontend Engineer"
@@ -176,8 +176,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 3: Salary amount + currency + period */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="salaryAmount">Salary amount *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="salaryAmount">Salary amount *</Label>
+                        <Input
                             id="salaryAmount"
                             name="salaryAmount"
                             type="number"
@@ -192,7 +192,7 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="salaryCurrency"
@@ -202,7 +202,7 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Period</ZoruLabel>
+                        <Label>Period</Label>
                         <EnumFormField
                             enumName="offerSalaryPeriod"
                             name="salaryPeriod"
@@ -220,8 +220,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 4: Bonus + equity */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="bonus">Bonus</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="bonus">Bonus</Label>
+                        <Input
                             id="bonus"
                             name="bonus"
                             type="number"
@@ -235,8 +235,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="equity">Equity</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="equity">Equity</Label>
+                        <Input
                             id="equity"
                             name="equity"
                             placeholder="e.g. 0.1% over 4y"
@@ -247,8 +247,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
 
                 {/* Row 5: Benefits */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="benefits">Benefits</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="benefits">Benefits</Label>
+                    <Input
                         id="benefits"
                         name="benefits"
                         placeholder="health, gratuity, relocation"
@@ -258,7 +258,7 @@ export function OfferForm({ initialData }: OfferFormProps) {
 
                 {/* Row 6: Offer letter (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Offer letter</ZoruLabel>
+                    <Label>Offer letter</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -280,14 +280,14 @@ export function OfferForm({ initialData }: OfferFormProps) {
                                 >
                                     {offerLetterName || offerLetterUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearLetter}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -300,8 +300,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 7: Joining + Expiry */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="joiningDate">Joining date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="joiningDate">Joining date</Label>
+                        <Input
                             id="joiningDate"
                             name="joiningDate"
                             type="date"
@@ -309,8 +309,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiresAt">Expires at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiresAt">Expires at</Label>
+                        <Input
                             id="expiresAt"
                             name="expiresAt"
                             type="date"
@@ -322,7 +322,7 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 8: Approver + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Approver</ZoruLabel>
+                        <Label>Approver</Label>
                         <EntityFormField
                             entity="employee"
                             name="approverId"
@@ -332,7 +332,7 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="offerStatus"
                             name="status"
@@ -347,8 +347,8 @@ export function OfferForm({ initialData }: OfferFormProps) {
 
                 {/* Row 9: Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -360,10 +360,10 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 10: Response notes (edit only) */}
                 {isEditing ? (
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="responseNotes">
+                        <Label htmlFor="responseNotes">
                             Response notes
-                        </ZoruLabel>
-                        <ZoruTextarea
+                        </Label>
+                        <Textarea
                             id="responseNotes"
                             name="responseNotes"
                             rows={2}
@@ -375,15 +375,15 @@ export function OfferForm({ initialData }: OfferFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to offers
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

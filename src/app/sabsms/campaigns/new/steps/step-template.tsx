@@ -67,8 +67,8 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
     <div className="space-y-5">
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2 md:col-span-2">
-          <ZoruLabel htmlFor="campaign-name">Campaign name</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="campaign-name">Campaign name</Label>
+          <Input
             id="campaign-name"
             placeholder="May newsletter"
             value={draft.name}
@@ -76,8 +76,8 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
           />
         </div>
         <div className="space-y-2">
-          <ZoruLabel htmlFor="campaign-category">Category</ZoruLabel>
-          <ZoruSelect
+          <Label htmlFor="campaign-category">Category</Label>
+          <Select
             value={draft.category}
             onValueChange={(v) =>
               onChange({ category: v as SabsmsMessageCategory })
@@ -93,13 +93,13 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       </div>
 
       <div className="space-y-2">
-        <ZoruLabel htmlFor="template-search">Search templates</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="template-search">Search templates</Label>
+        <Input
           id="template-search"
           placeholder="Search by name or body…"
           value={search}
@@ -141,7 +141,7 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
                       <span className="font-medium text-slate-800">
                         {t.name}
                       </span>
-                      <ZoruBadge variant="secondary">{t.category}</ZoruBadge>
+                      <Badge variant="secondary">{t.category}</Badge>
                     </div>
                     <p className="mt-1 line-clamp-2 text-xs text-slate-500">
                       {t.bodies[0]?.body}
@@ -153,7 +153,7 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
           </div>
         </div>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">Preview</ZoruCardTitle>
             <ZoruCardDescription>
@@ -165,8 +165,8 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
           <ZoruCardContent>
             {selected && selected.bodies.length > 1 && (
               <div className="mb-3 space-y-2">
-                <ZoruLabel htmlFor="locale-select">Locale</ZoruLabel>
-                <ZoruSelect
+                <Label htmlFor="locale-select">Locale</Label>
+                <Select
                   value={draft.templateLocale ?? selected.bodies[0]?.locale}
                   onValueChange={(v) => onChange({ templateLocale: v })}
                 >
@@ -180,7 +180,7 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             )}
             <pre className="whitespace-pre-wrap rounded bg-slate-50 p-3 text-xs text-slate-700">
@@ -189,14 +189,14 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
             {selected?.variables && selected.variables.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1">
                 {selected.variables.map((v) => (
-                  <ZoruBadge key={v} variant="outline">
+                  <Badge key={v} variant="outline">
                     {`{{${v}}}`}
-                  </ZoruBadge>
+                  </Badge>
                 ))}
               </div>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

@@ -213,7 +213,7 @@ export function AssignmentControl({
         )}
         aria-label={current ? `Reassign from ${fullName(current)}` : 'Assign owner'}
       >
-        <ZoruAvatar className={chipSize}>
+        <Avatar className={chipSize}>
           {current?.avatar ? (
             <ZoruAvatarImage src={current.avatar} alt={fullName(current)} />
           ) : null}
@@ -224,10 +224,10 @@ export function AssignmentControl({
               <UserCircle2 className="h-4 w-4 text-zoru-ink-muted" />
             )}
           </ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
         <div className="flex min-w-0 flex-col">
           {currentLoading ? (
-            <ZoruSkeleton className="h-3.5 w-24" />
+            <Skeleton className="h-3.5 w-24" />
           ) : current ? (
             <>
               <span className={cn('truncate font-medium text-zoru-ink', textSize)}>
@@ -247,7 +247,7 @@ export function AssignmentControl({
         </div>
       </button>
 
-      <ZoruSheet open={open} onOpenChange={setOpen}>
+      <Sheet open={open} onOpenChange={setOpen}>
         <ZoruSheetContent className="flex w-full max-w-md flex-col gap-4">
           <ZoruSheetHeader>
             <ZoruSheetTitle>Assign owner</ZoruSheetTitle>
@@ -258,7 +258,7 @@ export function AssignmentControl({
 
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-            <ZoruInput
+            <Input
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -271,7 +271,7 @@ export function AssignmentControl({
             {employeesLoading ? (
               <div className="flex flex-col gap-2 p-3">
                 {[...Array(5)].map((_, i) => (
-                  <ZoruSkeleton key={i} className="h-12 w-full" />
+                  <Skeleton key={i} className="h-12 w-full" />
                 ))}
               </div>
             ) : filtered.length === 0 ? (
@@ -295,7 +295,7 @@ export function AssignmentControl({
                           isCurrent ? 'bg-zoru-surface-2' : '',
                         )}
                       >
-                        <ZoruAvatar className="h-8 w-8">
+                        <Avatar className="h-8 w-8">
                           {emp.avatar ? (
                             <ZoruAvatarImage
                               src={emp.avatar}
@@ -305,7 +305,7 @@ export function AssignmentControl({
                           <ZoruAvatarFallback>
                             {initials(emp)}
                           </ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <div className="flex min-w-0 flex-1 flex-col">
                           <span className="truncate text-[13px] font-medium text-zoru-ink">
                             {fullName(emp)}
@@ -328,7 +328,7 @@ export function AssignmentControl({
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               size="sm"
@@ -337,15 +337,15 @@ export function AssignmentControl({
             >
               <UserMinus className="mr-1.5 h-3.5 w-3.5" />
               Unassign
-            </ZoruButton>
+            </Button>
             <ZoruSheetClose asChild>
-              <ZoruButton type="button" variant="outline" size="sm">
+              <Button type="button" variant="outline" size="sm">
                 Close
-              </ZoruButton>
+              </Button>
             </ZoruSheetClose>
           </div>
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
     </div>
   );
 }

@@ -49,7 +49,7 @@ export default function SeoToolsHubPage() {
 
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <ZoruInput
+        <Input
           className="pl-9"
           placeholder="Search tools…"
           value={query}
@@ -88,7 +88,7 @@ export default function SeoToolsHubPage() {
           const Wrapper: any = tool.status === 'ready' ? Link : 'div';
           return (
             <Wrapper key={tool.slug} href={href} className="block">
-              <ZoruCard
+              <Card
                 className={`h-full transition ${
                   tool.status === 'ready'
                     ? 'hover:border-primary hover:shadow-md cursor-pointer'
@@ -99,9 +99,9 @@ export default function SeoToolsHubPage() {
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm leading-tight">{tool.name}</h3>
                     {tool.status === 'soon' && (
-                      <ZoruBadge variant="outline" className="text-[10px]">
+                      <Badge variant="outline" className="text-[10px]">
                         Soon
-                      </ZoruBadge>
+                      </Badge>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground flex-1">{tool.description}</p>
@@ -109,18 +109,18 @@ export default function SeoToolsHubPage() {
                     {SEO_TOOL_CATEGORIES.find((c) => c.id === tool.category)?.label}
                   </div>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             </Wrapper>
           );
         })}
       </div>
 
       {filtered.length === 0 && (
-        <ZoruCard className="border-dashed">
+        <Card className="border-dashed">
           <ZoruCardContent className="p-12 text-center text-muted-foreground">
             No tools match your search.
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );

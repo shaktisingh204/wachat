@@ -46,12 +46,12 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="ghost" size="sm">
+        <Button variant="ghost" size="sm">
           <Edit className="mr-2 h-4 w-4" />
           Credits
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
@@ -62,8 +62,8 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="py-6">
-            <ZoruLabel htmlFor="credits-input">New Credit Balance</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="credits-input">New Credit Balance</Label>
+            <Input
               id="credits-input"
               type="number"
               value={credits}
@@ -72,14 +72,14 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-             <ZoruButton type="submit" disabled={isPending}>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+             <Button type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Save Credits
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

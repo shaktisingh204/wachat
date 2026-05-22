@@ -102,7 +102,7 @@ export default function FacebookCatalogPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<ShoppingBag />}
           title="No project selected"
           description="Pick a Facebook page / project to see its catalogs."
@@ -113,7 +113,7 @@ export default function FacebookCatalogPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -127,7 +127,7 @@ export default function FacebookCatalogPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Catalogs</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -138,30 +138,30 @@ export default function FacebookCatalogPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading || syncing}>
+          <Button variant="ghost" onClick={refresh} disabled={loading || syncing}>
             <RefreshCw
               className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'}
             />
             Refresh
-          </ZoruButton>
-          <ZoruButton onClick={onSync} disabled={syncing}>
+          </Button>
+          <Button onClick={onSync} disabled={syncing}>
             <RefreshCw
               className={syncing ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'}
             />
             {syncing ? 'Syncing…' : 'Sync from Meta'}
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load catalogs</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
-      <ZoruInput
+      <Input
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Filter catalogs by name…"
@@ -169,12 +169,12 @@ export default function FacebookCatalogPage(): React.JSX.Element {
 
       {loading && catalogs.length === 0 ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          <ZoruSkeleton className="h-28 w-full" />
-          <ZoruSkeleton className="h-28 w-full" />
-          <ZoruSkeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
         </div>
       ) : filtered.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<ShoppingBag />}
           title={catalogs.length === 0 ? 'No catalogs found' : 'No matches'}
           description={
@@ -184,39 +184,39 @@ export default function FacebookCatalogPage(): React.JSX.Element {
           }
           action={
             catalogs.length === 0 ? (
-              <ZoruButton onClick={onSync} disabled={syncing}>
+              <Button onClick={onSync} disabled={syncing}>
                 <RefreshCw
                   className={syncing ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'}
                 />
                 Sync from Meta
-              </ZoruButton>
+              </Button>
             ) : undefined
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((c) => (
-            <ZoruCard key={c.id} className="flex flex-col gap-3 p-5">
+            <Card key={c.id} className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="line-clamp-1 text-base text-zoru-ink">{c.name}</p>
                   <p className="font-mono text-[11px] text-zoru-ink-muted">{c.id}</p>
                 </div>
-                <ZoruBadge variant="ghost">
+                <Badge variant="ghost">
                   <Package className="mr-1 h-3 w-3" />
                   {c.product_count ?? 0}
-                </ZoruBadge>
+                </Badge>
               </div>
               <footer className="flex justify-end border-t border-zoru-line pt-3">
-                <ZoruButton asChild size="sm">
+                <Button asChild size="sm">
                   <Link
                     href={`/dashboard/facebook/commerce/products/${encodeURIComponent(c.id)}`}
                   >
                     Open products
                   </Link>
-                </ZoruButton>
+                </Button>
               </footer>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       )}

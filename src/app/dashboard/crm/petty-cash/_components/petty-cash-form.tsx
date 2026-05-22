@@ -54,14 +54,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create float'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -91,7 +91,7 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="floatId" value={initialData!._id} />
@@ -101,8 +101,8 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
                 {/* Row 1: Branch + Custodian */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="branchName">Branch name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="branchName">Branch name *</Label>
+                        <Input
                             id="branchName"
                             name="branchName"
                             required
@@ -111,8 +111,8 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="custodianName">Custodian name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="custodianName">Custodian name</Label>
+                        <Input
                             id="custodianName"
                             name="custodianName"
                             placeholder="Person responsible for the float"
@@ -124,8 +124,8 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
                 {/* Row 2: Opening + Currency */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="openingBalance">Opening balance</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="openingBalance">Opening balance</Label>
+                        <Input
                             id="openingBalance"
                             name="openingBalance"
                             type="number"
@@ -135,8 +135,8 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -149,8 +149,8 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     {isEditing ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="currentBalance">Current balance</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="currentBalance">Current balance</Label>
+                            <Input
                                 id="currentBalance"
                                 name="currentBalance"
                                 type="number"
@@ -162,8 +162,8 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
                         <div />
                     )}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) =>
                                 setStatus(v as CrmPettyCashStatus)
@@ -179,14 +179,14 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -197,14 +197,14 @@ export function PettyCashForm({ initialData }: PettyCashFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to floats
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

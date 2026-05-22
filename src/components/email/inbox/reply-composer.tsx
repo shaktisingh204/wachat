@@ -115,7 +115,7 @@ export function ReplyComposer({
         </span>
       </div>
 
-      <ZoruTextarea
+      <Textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write a reply…"
@@ -153,10 +153,10 @@ export function ReplyComposer({
         >
           <Paperclip /> Attach
         </SabFilePickerButton>
-        <ZoruButton type="submit" disabled={!canSend}>
+        <Button type="submit" disabled={!canSend}>
           {pending ? <Loader2 className="animate-spin" /> : <Send />}
           {pending ? 'Sending…' : 'Send reply'}
-        </ZoruButton>
+        </Button>
       </div>
     </form>
   );

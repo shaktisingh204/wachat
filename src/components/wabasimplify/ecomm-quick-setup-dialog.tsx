@@ -34,10 +34,10 @@ const initialState = { message: null, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Save & Continue
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -65,7 +65,7 @@ export function EcommQuickSetupDialog({ project, onSuccess, children }: EcommQui
   }, [state, toast, onSuccess]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
         {children}
       </ZoruDialogTrigger>
@@ -80,12 +80,12 @@ export function EcommQuickSetupDialog({ project, onSuccess, children }: EcommQui
           </ZoruDialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="shopName">Shop Name</ZoruLabel>
-              <ZoruInput id="shopName" name="shopName" placeholder="My Awesome Store" required />
+              <Label htmlFor="shopName">Shop Name</Label>
+              <Input id="shopName" name="shopName" placeholder="My Awesome Store" required />
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-              <ZoruSelect name="currency" defaultValue="USD" required>
+              <Label htmlFor="currency">Currency</Label>
+              <Select name="currency" defaultValue="USD" required>
                   <ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger>
                   <ZoruSelectContent>
                       <ZoruSelectItem value="USD">USD - US Dollar</ZoruSelectItem>
@@ -93,15 +93,15 @@ export function EcommQuickSetupDialog({ project, onSuccess, children }: EcommQui
                       <ZoruSelectItem value="INR">INR - Indian Rupee</ZoruSelectItem>
                       <ZoruSelectItem value="GBP">GBP - British Pound</ZoruSelectItem>
                   </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

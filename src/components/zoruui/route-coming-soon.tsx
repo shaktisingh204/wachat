@@ -22,14 +22,14 @@ export function RouteComingSoon({
 }: RouteComingSoonProps): React.JSX.Element {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center p-8">
-      <ZoruEmptyState
+      <EmptyState
         icon={<Construction />}
         title={title}
         description={description}
         action={
-          <ZoruButton asChild variant="ghost">
+          <Button asChild variant="ghost">
             <Link href={parentHref}>{parentLabel}</Link>
-          </ZoruButton>
+          </Button>
         }
       />
     </div>

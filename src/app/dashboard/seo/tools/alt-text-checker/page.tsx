@@ -28,14 +28,14 @@ export default function AltTextCheckerPage() {
   return (
     <ToolShell title="Alt Text Checker" description="Find images missing alt attributes on any page.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {images.length > 0 && (
         <>
           <div className="text-sm text-muted-foreground">{images.length} images · <span className="text-red-600 font-semibold">{missing} missing alt</span></div>
-          <ZoruCard><ZoruCardContent className="p-0">
+          <Card><ZoruCardContent className="p-0">
             <table className="w-full text-xs">
               <thead><tr className="border-b"><th className="text-left p-2">Image</th><th className="text-left p-2">Alt</th></tr></thead>
               <tbody>
@@ -47,7 +47,7 @@ export default function AltTextCheckerPage() {
                 ))}
               </tbody>
             </table>
-          </ZoruCardContent></ZoruCard>
+          </ZoruCardContent></Card>
         </>
       )}
     </ToolShell>

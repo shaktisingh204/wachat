@@ -43,30 +43,30 @@ export default function ImageResizerPage() {
 
   return (
     <ToolShell title="Image Resizer" description="Resize images client-side to exact dimensions.">
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <ZoruLabel>Image file</ZoruLabel>
-            <ZoruInput type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            <Label>Image file</Label>
+            <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <ZoruLabel>Width (px)</ZoruLabel>
-              <ZoruInput type="number" value={width} onChange={(e) => setWidth(parseInt(e.target.value) || 0)} />
+              <Label>Width (px)</Label>
+              <Input type="number" value={width} onChange={(e) => setWidth(parseInt(e.target.value) || 0)} />
             </div>
             <div>
-              <ZoruLabel>Height (px)</ZoruLabel>
-              <ZoruInput type="number" value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 0)} />
+              <Label>Height (px)</Label>
+              <Input type="number" value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 0)} />
             </div>
           </div>
-          <ZoruButton onClick={resize} disabled={!file}>
+          <Button onClick={resize} disabled={!file}>
             Resize
-          </ZoruButton>
+          </Button>
           {err && <div className="text-sm text-destructive">{err}</div>}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
       {outUrl && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={outUrl} alt="Resized preview" className="max-w-full rounded border" />
@@ -74,7 +74,7 @@ export default function ImageResizerPage() {
               Download resized image
             </a>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

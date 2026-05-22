@@ -121,7 +121,7 @@ export default function CustomerSatisfactionPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -135,7 +135,7 @@ export default function CustomerSatisfactionPage() {
             <ZoruBreadcrumbPage>Customer Satisfaction</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -147,29 +147,29 @@ export default function CustomerSatisfactionPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setDrawerOpen(true)}
             disabled={lowRatings.length === 0}
           >
             <TriangleAlert /> Low ratings ({lowRatings.length})
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={load} disabled={isPending}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={load} disabled={isPending}>
             <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {isPending && total === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[120px]" />
+            <Skeleton key={i} className="h-[120px]" />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="NPS Score"
             value={total ? nps.toString() : '--'}
             period={
@@ -182,17 +182,17 @@ export default function CustomerSatisfactionPage() {
                 : 'No ratings yet'
             }
           />
-          <ZoruStatCard
+          <StatCard
             label="Promoters (4-5)"
             value={`${promPct}%`}
             icon={<CircleCheck />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Passives (3)"
             value={`${passPct}%`}
             icon={<TriangleAlert />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Detractors (1-2)"
             value={`${detPct}%`}
             icon={<CircleX />}
@@ -200,7 +200,7 @@ export default function CustomerSatisfactionPage() {
         </div>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Rating Distribution</ZoruCardTitle>
           <ZoruCardDescription>
@@ -209,7 +209,7 @@ export default function CustomerSatisfactionPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {total === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Star />}
               title="No ratings yet"
               description="Once customers rate their conversations, the distribution will appear here."
@@ -248,15 +248,15 @@ export default function CustomerSatisfactionPage() {
             </ZoruChartContainer>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Recent Feedback ({ratings.length})</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
           {ratings.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Inbox />}
               title="No feedback yet"
               description="Customer feedback will show up here as it arrives."
@@ -281,7 +281,7 @@ export default function CustomerSatisfactionPage() {
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Low-rating drawer */}
       <ZoruDrawer open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -294,7 +294,7 @@ export default function CustomerSatisfactionPage() {
           </ZoruDrawerHeader>
           <div className="max-h-[60vh] overflow-y-auto px-4 pb-6 sm:px-6">
             {lowRatings.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<CircleCheck />}
                 title="No low ratings"
                 description="Nothing to follow up on right now."
@@ -307,7 +307,7 @@ export default function CustomerSatisfactionPage() {
                     <Stars count={r.rating} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <ZoruBadge variant="danger">{r.rating} stars</ZoruBadge>
+                        <Badge variant="danger">{r.rating} stars</Badge>
                         <span className="text-[11px] text-zoru-ink-subtle">
                           {r.createdAt
                             ? new Date(r.createdAt).toLocaleString()

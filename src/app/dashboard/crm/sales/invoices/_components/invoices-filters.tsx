@@ -98,9 +98,9 @@ export function InvoicesFilters({
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-          <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
+          <Select value={statusFilter} onValueChange={onStatusFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -111,10 +111,10 @@ export function InvoicesFilters({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Customer</ZoruLabel>
+          <Label>Customer</Label>
           <EntityFormField
             entity="client"
             name="_filter_customer"
@@ -123,7 +123,7 @@ export function InvoicesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Sales agent</ZoruLabel>
+          <Label>Sales agent</Label>
           <EntityFormField
             entity="user"
             name="_filter_agent"
@@ -132,7 +132,7 @@ export function InvoicesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Branch</ZoruLabel>
+          <Label>Branch</Label>
           <EntityFormField
             entity="branch"
             name="_filter_branch"
@@ -141,7 +141,7 @@ export function InvoicesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Currency</ZoruLabel>
+          <Label>Currency</Label>
           <EntityFormField
             entity="currency"
             name="_filter_currency"
@@ -150,40 +150,40 @@ export function InvoicesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Invoice date — from</ZoruLabel>
-          <ZoruInput
+          <Label>Invoice date — from</Label>
+          <Input
             type="date"
             value={fromDate}
             onChange={(e) => onFromDate(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Invoice date — to</ZoruLabel>
-          <ZoruInput
+          <Label>Invoice date — to</Label>
+          <Input
             type="date"
             value={toDate}
             onChange={(e) => onToDate(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Due — from</ZoruLabel>
-          <ZoruInput
+          <Label>Due — from</Label>
+          <Input
             type="date"
             value={dueFrom}
             onChange={(e) => onDueFrom(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Due — to</ZoruLabel>
-          <ZoruInput
+          <Label>Due — to</Label>
+          <Input
             type="date"
             value={dueTo}
             onChange={(e) => onDueTo(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Amount min</ZoruLabel>
-          <ZoruInput
+          <Label>Amount min</Label>
+          <Input
             type="number"
             value={amountMin}
             onChange={(e) => onAmountMin(e.target.value)}
@@ -191,8 +191,8 @@ export function InvoicesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Amount max</ZoruLabel>
-          <ZoruInput
+          <Label>Amount max</Label>
+          <Input
             type="number"
             value={amountMax}
             onChange={(e) => onAmountMax(e.target.value)}

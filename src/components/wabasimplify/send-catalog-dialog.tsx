@@ -37,10 +37,10 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Send Catalog
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -87,7 +87,7 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
     };
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
@@ -105,21 +105,21 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                         <div className="grid gap-6">
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="headerText">Header Text</ZoruLabel>
-                                    <ZoruInput id="headerText" name="headerText" placeholder="Our Top Products" required />
+                                    <Label htmlFor="headerText">Header Text</Label>
+                                    <Input id="headerText" name="headerText" placeholder="Our Top Products" required />
                                 </div>
                                 <div className="space-y-2">
-                                    <ZoruLabel htmlFor="footerText">Footer Text (Optional)</ZoruLabel>
-                                    <ZoruInput id="footerText" name="footerText" placeholder="Sale ends soon!" />
+                                    <Label htmlFor="footerText">Footer Text (Optional)</Label>
+                                    <Input id="footerText" name="footerText" placeholder="Sale ends soon!" />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="bodyText">Body Text</ZoruLabel>
-                                <ZoruTextarea id="bodyText" name="bodyText" placeholder="Check out these amazing products from our collection." required />
+                                <Label htmlFor="bodyText">Body Text</Label>
+                                <Textarea id="bodyText" name="bodyText" placeholder="Check out these amazing products from our collection." required />
                             </div>
 
                             <div className="space-y-2">
-                                <ZoruLabel>Select Products ({selectedProducts.length}/30)</ZoruLabel>
+                                <Label>Select Products ({selectedProducts.length}/30)</Label>
                                 <ScrollArea className="h-64 border rounded-md p-2">
                                     {isLoading ? (
                                         <div className="flex items-center justify-center h-full">
@@ -138,10 +138,10 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                                                     <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
                                                         {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6 text-gray-400" />}
                                                     </div>
-                                                    <ZoruLabel htmlFor={`product-${product.id}`} className="flex-1 cursor-pointer">
+                                                    <Label htmlFor={`product-${product.id}`} className="flex-1 cursor-pointer">
                                                         <p className="font-medium">{product.name}</p>
                                                         <p className="text-xs text-muted-foreground font-mono">{product.retailer_id}</p>
-                                                    </ZoruLabel>
+                                                    </Label>
                                                 </div>
                                             ))}
                                         </div>
@@ -154,11 +154,11 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                     </div>
 
                     <ZoruDialogFooter className="px-6 pb-6 pt-2">
-                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

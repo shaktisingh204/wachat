@@ -251,10 +251,10 @@ export default function EmployeeVisaDetailsSubPage() {
                 title="Visa details"
                 subtitle="Travel visas, sponsorship and supporting documents."
                 primaryAction={
-                    <ZoruButton onClick={openAdd}>
+                    <Button onClick={openAdd}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add visa
-                    </ZoruButton>
+                    </Button>
                 }
             >
 
@@ -293,7 +293,7 @@ export default function EmployeeVisaDetailsSubPage() {
                         <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
                     </div>
                 ) : rows.length === 0 ? (
-                    <ZoruCard className="flex flex-col items-start gap-3 p-8">
+                    <Card className="flex flex-col items-start gap-3 p-8">
                         <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                             <Plane
                                 className="h-5 w-5 text-zoru-ink-muted"
@@ -310,18 +310,18 @@ export default function EmployeeVisaDetailsSubPage() {
                                 SabFiles.
                             </p>
                         </div>
-                        <ZoruButton onClick={openAdd}>
+                        <Button onClick={openAdd}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add visa
-                        </ZoruButton>
-                    </ZoruCard>
+                        </Button>
+                    </Card>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {rows.map((v) => {
                             const tone =
                                 STATUS_TONE[v.status] ?? ('neutral' as StatusTone);
                             return (
-                                <ZoruCard
+                                <Card
                                     key={v._id}
                                     className="flex flex-col gap-3 p-4"
                                 >
@@ -399,14 +399,14 @@ export default function EmployeeVisaDetailsSubPage() {
                                             </span>
                                         )}
                                         <div className="flex gap-1">
-                                            <ZoruButton
+                                            <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => openEdit(v)}
                                             >
                                                 <Pencil className="h-3.5 w-3.5" />
-                                            </ZoruButton>
-                                            <ZoruButton
+                                            </Button>
+                                            <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() =>
@@ -414,10 +414,10 @@ export default function EmployeeVisaDetailsSubPage() {
                                                 }
                                             >
                                                 <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                            </ZoruButton>
+                                            </Button>
                                         </div>
                                     </div>
-                                </ZoruCard>
+                                </Card>
                             );
                         })}
                     </div>
@@ -425,7 +425,7 @@ export default function EmployeeVisaDetailsSubPage() {
             </EntityListShell>
 
             {/* Add / Edit dialog */}
-            <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <ZoruDialogContent className="max-w-xl">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>
@@ -435,10 +435,10 @@ export default function EmployeeVisaDetailsSubPage() {
                     <div className="grid gap-4 py-2">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="visa-country">
+                                <Label htmlFor="visa-country">
                                     Country *
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="visa-country"
                                     value={form.country}
                                     onChange={(e) =>
@@ -450,10 +450,10 @@ export default function EmployeeVisaDetailsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="visa-type">
+                                <Label htmlFor="visa-type">
                                     Visa type *
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="visa-type"
                                     placeholder="H1-B, Schengen…"
                                     value={form.visaType}
@@ -466,10 +466,10 @@ export default function EmployeeVisaDetailsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="visa-number">
+                                <Label htmlFor="visa-number">
                                     Visa number
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="visa-number"
                                     value={form.visaNumber}
                                     onChange={(e) =>
@@ -481,10 +481,10 @@ export default function EmployeeVisaDetailsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="visa-status">
+                                <Label htmlFor="visa-status">
                                     Status
-                                </ZoruLabel>
-                                <ZoruSelect
+                                </Label>
+                                <Select
                                     value={form.status}
                                     onValueChange={(v) =>
                                         setForm({
@@ -506,13 +506,13 @@ export default function EmployeeVisaDetailsSubPage() {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="visa-issue">
+                                <Label htmlFor="visa-issue">
                                     Issue date
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="visa-issue"
                                     type="date"
                                     value={form.issueDate}
@@ -525,10 +525,10 @@ export default function EmployeeVisaDetailsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="visa-expiry">
+                                <Label htmlFor="visa-expiry">
                                     Expiry date
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="visa-expiry"
                                     type="date"
                                     value={form.expiryDate}
@@ -541,10 +541,10 @@ export default function EmployeeVisaDetailsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5 sm:col-span-2">
-                                <ZoruLabel htmlFor="visa-sponsor">
+                                <Label htmlFor="visa-sponsor">
                                     Sponsor
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="visa-sponsor"
                                     placeholder="Employer / sponsoring entity"
                                     value={form.sponsor}
@@ -558,8 +558,8 @@ export default function EmployeeVisaDetailsSubPage() {
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="visa-notes">Notes</ZoruLabel>
-                            <ZoruTextarea
+                            <Label htmlFor="visa-notes">Notes</Label>
+                            <Textarea
                                 id="visa-notes"
                                 rows={2}
                                 value={form.notes}
@@ -572,7 +572,7 @@ export default function EmployeeVisaDetailsSubPage() {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel>Visa document</ZoruLabel>
+                            <Label>Visa document</Label>
                             <div className="flex flex-wrap items-center gap-2">
                                 <SabFilePickerButton
                                     accept="document"
@@ -595,7 +595,7 @@ export default function EmployeeVisaDetailsSubPage() {
                                             {form.documentName ||
                                                 form.documentUrl}
                                         </a>
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="ghost"
                                             size="sm"
@@ -608,7 +608,7 @@ export default function EmployeeVisaDetailsSubPage() {
                                             }
                                         >
                                             Remove
-                                        </ZoruButton>
+                                        </Button>
                                     </>
                                 ) : (
                                     <span className="text-[12px] text-zoru-ink-muted">
@@ -619,21 +619,21 @@ export default function EmployeeVisaDetailsSubPage() {
                         </div>
                     </div>
                     <ZoruDialogFooter className="gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             onClick={() => setDialogOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton onClick={handleSave} disabled={saving}>
+                        </Button>
+                        <Button onClick={handleSave} disabled={saving}>
                             {saving ? (
                                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             {form.visaId ? 'Save changes' : 'Add visa'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

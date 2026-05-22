@@ -42,12 +42,12 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
         'Select a Page';
 
     return (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" className="w-56 justify-between">
+                <Button variant="outline" className="w-56 justify-between">
                     <span className="truncate">{activeSurfaceLabel}</span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </ZoruButton>
+                </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent className="w-56">
                 <ZoruDropdownMenuLabel>Site Parts</ZoruDropdownMenuLabel>
@@ -72,6 +72,6 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
                     ))}
                 </ZoruDropdownMenuGroup>
             </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
     );
 }

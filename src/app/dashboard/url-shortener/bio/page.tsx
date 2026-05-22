@@ -80,23 +80,23 @@ export default function BioBuilderPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Link in Bio</ZoruPageTitle>
           <ZoruPageDescription>
             Build your public bio page with links and a personal profile.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-5">
-          <ZoruCard className="p-5 space-y-4">
+          <Card className="p-5 space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Page URL</ZoruLabel>
+              <Label className="text-[12.5px] text-zoru-ink-muted">Page URL</Label>
               <div className="flex items-center gap-2">
                 <span className="text-[13px] text-zoru-ink-muted whitespace-nowrap">/bio/</span>
-                <ZoruInput
+                <Input
                   placeholder="your-name"
                   value={state.slug}
                   onChange={(e) => update({ slug: e.target.value.replace(/[^a-z0-9-_]/gi, '').toLowerCase() })}
@@ -105,8 +105,8 @@ export default function BioBuilderPage() {
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Title</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12.5px] text-zoru-ink-muted">Title</Label>
+              <Input
                 placeholder="Your name or brand"
                 value={state.title}
                 onChange={(e) => update({ title: e.target.value })}
@@ -114,11 +114,11 @@ export default function BioBuilderPage() {
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+              <Label className="text-[12.5px] text-zoru-ink-muted">
                 Bio{' '}
                 <span className="text-zoru-ink-muted/60">({state.bio.length}/160)</span>
-              </ZoruLabel>
-              <ZoruTextarea
+              </Label>
+              <Textarea
                 placeholder="A short description about you..."
                 value={state.bio}
                 maxLength={160}
@@ -128,7 +128,7 @@ export default function BioBuilderPage() {
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Avatar</ZoruLabel>
+              <Label className="text-[12.5px] text-zoru-ink-muted">Avatar</Label>
               <div className="flex items-center gap-3">
                 {state.avatarUrl ? (
                   <img
@@ -144,15 +144,15 @@ export default function BioBuilderPage() {
                 </SabFilePickerButton>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-5 space-y-3">
+          <Card className="p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <ZoruLabel className="text-[13px] text-zoru-ink">
+              <Label className="text-[13px] text-zoru-ink">
                 Links{' '}
                 <span className="text-zoru-ink-muted">({state.links.length}/20)</span>
-              </ZoruLabel>
-              <ZoruButton
+              </Label>
+              <Button
                 type="button"
                 size="sm"
                 variant="outline"
@@ -161,7 +161,7 @@ export default function BioBuilderPage() {
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add Link
-              </ZoruButton>
+              </Button>
             </div>
 
             {state.links.length === 0 ? (
@@ -180,13 +180,13 @@ export default function BioBuilderPage() {
                       <GripVertical className="h-4 w-4" />
                     </button>
                     <div className="flex flex-1 gap-2">
-                      <ZoruInput
+                      <Input
                         placeholder="Label"
                         value={link.label}
                         onChange={(e) => updateLink(link.id, { label: e.target.value })}
                         className="flex-1"
                       />
-                      <ZoruInput
+                      <Input
                         placeholder="https://"
                         value={link.url}
                         onChange={(e) => updateLink(link.id, { url: e.target.value })}
@@ -205,11 +205,11 @@ export default function BioBuilderPage() {
                 ))}
               </ul>
             )}
-          </ZoruCard>
+          </Card>
 
-          <ZoruButton onClick={handleSave} className="w-full">
+          <Button onClick={handleSave} className="w-full">
             Save Changes
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="flex justify-center lg:justify-start">

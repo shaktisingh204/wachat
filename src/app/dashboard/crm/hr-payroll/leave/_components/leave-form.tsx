@@ -61,10 +61,10 @@ interface LeaveFormProps {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Submit request'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -112,13 +112,13 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
         <input type="hidden" name="_id" value={String(initial!._id)} />
       ) : null}
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Applicant
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Employee</ZoruLabel>
+            <Label>Employee</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="employee"
@@ -128,11 +128,11 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="leaveTypeId">
+            <Label htmlFor="leaveTypeId">
               Leave type <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
-              <ZoruSelect
+              <Select
                 name="leaveTypeId"
                 defaultValue={initial?.leaveTypeId ?? undefined}
                 required
@@ -156,22 +156,22 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
                     ))
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Range
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="from">
+            <Label htmlFor="from">
               Start date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="from"
               name="from"
               type="date"
@@ -181,10 +181,10 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="to">
+            <Label htmlFor="to">
               End date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="to"
               name="to"
               type="date"
@@ -194,15 +194,15 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
             />
           </div>
           <div className="flex items-center gap-2 md:col-span-2">
-            <ZoruCheckbox
+            <Checkbox
               id="halfDay"
               name="halfDay"
               value="true"
               defaultChecked={initial?.halfDay ?? false}
             />
-            <ZoruLabel htmlFor="halfDay" className="cursor-pointer">
+            <Label htmlFor="halfDay" className="cursor-pointer">
               Half-day request
-            </ZoruLabel>
+            </Label>
           </div>
           {editing && typeof initial?.days === 'number' ? (
             <div className="md:col-span-2 rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px] text-zoru-ink-muted">
@@ -215,15 +215,15 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
             </div>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
+            <Label htmlFor="status">Status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="leaveStatus"
@@ -238,7 +238,7 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
             </p>
           </div>
           <div>
-            <ZoruLabel>Approver</ZoruLabel>
+            <Label>Approver</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -252,8 +252,8 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
             </p>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="reason">Reason</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="reason">Reason</Label>
+            <Textarea
               id="reason"
               name="reason"
               defaultValue={initial?.reason ?? ''}
@@ -263,10 +263,10 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -276,7 +276,7 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

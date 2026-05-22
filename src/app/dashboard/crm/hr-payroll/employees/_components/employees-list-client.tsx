@@ -367,7 +367,7 @@ export function EmployeesListClient({
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name, code, email…"
@@ -375,7 +375,7 @@ export function EmployeesListClient({
           />
         </div>
 
-        <ZoruSelect
+        <Select
           value={statusFilter}
           onValueChange={(v) => setStatusFilter(v as StatusFilter)}
         >
@@ -389,9 +389,9 @@ export function EmployeesListClient({
             <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
             <ZoruSelectItem value="resigned">Resigned</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruSelect
+        <Select
           value={typeFilter}
           onValueChange={(v) => setTypeFilter(v as TypeFilter)}
         >
@@ -406,20 +406,20 @@ export function EmployeesListClient({
             <ZoruSelectItem value="intern">Intern</ZoruSelectItem>
             <ZoruSelectItem value="consultant">Consultant</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
 
         <div className="ml-auto">
-          <ZoruButton asChild size="sm">
+          <Button asChild size="sm">
             <Link href={`${LIST_BASE}/new`}>
               <Plus className="h-3.5 w-3.5" /> New employee
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -431,43 +431,43 @@ export function EmployeesListClient({
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={handleExportCsv}
               aria-label="Export selection as CSV"
             >
               <Download className="h-3.5 w-3.5" /> CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={handleExportXlsx}
               aria-label="Export selection as XLSX"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" /> XLSX
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="destructive"
               onClick={() => setBulkConfirmOpen(true)}
               disabled={bulkDeleting}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {error ? (
           <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
             <AlertCircle className="h-4 w-4 shrink-0" />
@@ -475,11 +475,11 @@ export function EmployeesListClient({
           </div>
         ) : null}
 
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead className="w-8">
-                <ZoruCheckbox
+                <Checkbox
                   checked={headChecked}
                   onCheckedChange={(c) => toggleAll(Boolean(c))}
                   aria-label="Select all"
@@ -518,7 +518,7 @@ export function EmployeesListClient({
                 return (
                   <ZoruTableRow key={id}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={checked}
                         onCheckedChange={() => toggleOne(id)}
                         aria-label={`Select ${name}`}
@@ -529,14 +529,14 @@ export function EmployeesListClient({
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex items-center gap-2">
-                        <ZoruAvatar className="h-8 w-8">
+                        <Avatar className="h-8 w-8">
                           {photoUrl ? (
                             <ZoruAvatarImage src={photoUrl} alt={name} />
                           ) : null}
                           <ZoruAvatarFallback>
                             {avatarInitials(r)}
                           </ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <EntityRowLink
                           href={`${LIST_BASE}/${id}`}
                           label={name}
@@ -564,12 +564,12 @@ export function EmployeesListClient({
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton size="sm" variant="ghost" asChild>
+                        <Button size="sm" variant="ghost" asChild>
                           <Link href={`${LIST_BASE}/${id}/edit`}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(r)}
@@ -577,7 +577,7 @@ export function EmployeesListClient({
                           aria-label={`Delete ${name}`}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -585,10 +585,10 @@ export function EmployeesListClient({
               })
             )}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={pendingDelete !== null}

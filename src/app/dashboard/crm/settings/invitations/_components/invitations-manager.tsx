@@ -266,7 +266,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <button type="button" className="text-left" onClick={() => setStatusFilter('all')}>
-          <ZoruStatCard
+          <StatCard
             label="Total"
             value={kpis.total.toLocaleString()}
             icon={<Users className="h-4 w-4" />}
@@ -274,7 +274,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('pending')}>
-          <ZoruStatCard
+          <StatCard
             label="Pending"
             value={kpis.pending.toLocaleString()}
             icon={<Clock className="h-4 w-4" />}
@@ -282,14 +282,14 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('accepted')}>
-          <ZoruStatCard
+          <StatCard
             label="Accepted"
             value={kpis.accepted.toLocaleString()}
             icon={<CheckCircle2 className="h-4 w-4" />}
             className={cn(statusFilter === 'accepted' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
-        <ZoruStatCard
+        <StatCard
           label="Expired / Revoked"
           value={kpis.expiredOrRevoked.toLocaleString()}
           icon={<Ban className="h-4 w-4" />}
@@ -297,17 +297,17 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
       </div>
 
       {/* Send invitation form */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <form
           onSubmit={handleSend}
           className="grid gap-3 md:grid-cols-[1fr_200px_auto]"
           aria-label="Send invitation"
         >
           <div>
-            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted" htmlFor="inv-email">
+            <Label className="text-[11.5px] text-zoru-ink-muted" htmlFor="inv-email">
               Email
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="inv-email"
               type="email"
               required
@@ -318,10 +318,10 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             />
           </div>
           <div>
-            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted" htmlFor="inv-role">
+            <Label className="text-[11.5px] text-zoru-ink-muted" htmlFor="inv-role">
               Role id (optional)
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="inv-role"
               value={roleId}
               onChange={(e) => setRoleId(e.target.value)}
@@ -330,22 +330,22 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             />
           </div>
           <div className="flex items-end">
-            <ZoruButton type="submit" disabled={sending || !email.trim()}>
+            <Button type="submit" disabled={sending || !email.trim()}>
               {sending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <UserPlus className="mr-2 h-4 w-4" />
               )}
               Send invitation
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
 
       {/* Filter chips + bulk bar */}
       <div className="flex flex-wrap items-center gap-2">
         {(['all', 'pending', 'accepted', 'expired', 'revoked'] as StatusFilter[]).map((s) => (
-          <ZoruButton
+          <Button
             key={s}
             type="button"
             variant={statusFilter === s ? 'default' : 'outline'}
@@ -353,7 +353,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             onClick={() => setStatusFilter(s)}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}
-          </ZoruButton>
+          </Button>
         ))}
       </div>
 
@@ -362,7 +362,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2 text-[13px]">
           <span className="font-medium text-zoru-ink">{selected.size} selected</span>
           <span className="text-zoru-ink-muted">·</span>
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             disabled={bulkPending}
@@ -370,8 +370,8 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           >
             <Mail className="mr-1 h-3.5 w-3.5" />
             Resend
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             disabled={bulkPending}
@@ -379,24 +379,24 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           >
             <Ban className="mr-1 h-3.5 w-3.5 text-zoru-danger-ink" />
             Revoke
-          </ZoruButton>
-          <ZoruButton variant="ghost" size="sm" onClick={handleExportCsv}>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleExportCsv}>
             <Download className="mr-1 h-3.5 w-3.5" />
             Export CSV
-          </ZoruButton>
+          </Button>
           <span className="ml-auto" />
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => setSelected(new Set())}
           >
             <X className="h-3.5 w-3.5" />
             Clear
-          </ZoruButton>
+          </Button>
         </div>
       ) : (
         <div className="flex justify-end">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={handleExportCsv}
@@ -404,22 +404,22 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           >
             <Download className="mr-1 h-3.5 w-3.5" />
             Export CSV
-          </ZoruButton>
+          </Button>
         </div>
       )}
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <ZoruCard className="flex items-center justify-center py-12">
+        <Card className="flex items-center justify-center py-12">
           <p className="text-[13px] text-zoru-ink-muted">No invitations match this filter.</p>
-        </ZoruCard>
+        </Card>
       ) : (
-        <ZoruCard className="p-0 overflow-x-auto">
-          <ZoruTable>
+        <Card className="p-0 overflow-x-auto">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="hover:bg-transparent">
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={(v) => toggleAll(v === true)}
                     aria-label="Select all on page"
@@ -440,7 +440,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                   className={cn(selected.has(inv._id) && 'bg-zoru-surface')}
                 >
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={selected.has(inv._id)}
                       onCheckedChange={() => toggleOne(inv._id)}
                       aria-label={`Select ${inv.email}`}
@@ -453,9 +453,9 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                     {inv.role_id || '—'}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge variant={STATUS_BADGE[inv.status] ?? 'ghost'}>
+                    <Badge variant={STATUS_BADGE[inv.status] ?? 'ghost'}>
                       {inv.status}
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                     {formatStamp(inv.createdAt)}
@@ -465,39 +465,39 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => copyToken(inv.token)}
                         aria-label="Copy token"
                       >
                         <Copy className="h-3.5 w-3.5" />
-                      </ZoruButton>
+                      </Button>
                       {inv.status === 'pending' ? (
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRevoke(inv._id)}
                           aria-label="Revoke"
                         >
                           <Ban className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       ) : null}
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(inv._id)}
                         aria-label="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       )}
     </div>
   );

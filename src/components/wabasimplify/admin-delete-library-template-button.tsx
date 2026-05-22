@@ -48,9 +48,9 @@ export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: A
   return (
     <ZoruAlertDialog open={open} onOpenChange={setOpen}>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton variant="ghost" size="icon">
+        <Button variant="ghost" size="icon">
           <Trash2 className="h-4 w-4 text-destructive" />
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
@@ -61,10 +61,10 @@ export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: A
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter className="mt-4">
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruButton variant="destructive" onClick={handleDelete} disabled={isPending}>
+            <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
               {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
               Yes, Delete
-            </ZoruButton>
+            </Button>
           </ZoruAlertDialogFooter>
       </ZoruAlertDialogContent>
     </ZoruAlertDialog>

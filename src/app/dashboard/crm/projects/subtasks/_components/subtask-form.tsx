@@ -43,14 +43,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create subtask'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -89,7 +89,7 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -103,8 +103,8 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
 
                 {/* Title */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
                         id="title"
                         name="title"
                         required
@@ -116,7 +116,7 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                 {/* Parent kind + parent picker */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Parent kind *</ZoruLabel>
+                        <Label>Parent kind *</Label>
                         <EnumFormField
                             enumName="subtaskParentKindRust"
                             name="parentKindPicker"
@@ -131,7 +131,7 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Parent task *</ZoruLabel>
+                        <Label>Parent task *</Label>
                         <EntityFormField
                             entity="task"
                             name="parentId"
@@ -145,7 +145,7 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                 {/* Assignee + Due */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Assignee</ZoruLabel>
+                        <Label>Assignee</Label>
                         <EntityFormField
                             entity="employee"
                             name="assigneeId"
@@ -154,8 +154,8 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="dueDate">Due date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="dueDate">Due date</Label>
+                        <Input
                             id="dueDate"
                             name="dueDate"
                             type="date"
@@ -167,8 +167,8 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                 {/* Order + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="order">Order</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="order">Order</Label>
+                        <Input
                             id="order"
                             name="order"
                             type="number"
@@ -183,7 +183,7 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="subtaskStatus"
                             name="statusPicker"
@@ -198,8 +198,8 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={4}
@@ -210,16 +210,16 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to subtasks
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }
 

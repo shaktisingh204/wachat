@@ -82,9 +82,9 @@ export default async function BudgetsPage() {
       subtitle="Track revenue and expense targets against actuals."
       primaryAction={
         <Link href="/dashboard/crm/budgets/new">
-          <ZoruButton variant="outline" size="sm">
+          <Button variant="outline" size="sm">
             New budget
-          </ZoruButton>
+          </Button>
         </Link>
       }
     >

@@ -143,20 +143,20 @@ export default function LeaveDetailPage({
     >
 
       {isLoading && !leave ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading…
           </div>
-        </ZoruCard>
+        </Card>
       ) : !leave ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Leave application not found.
           </div>
-        </ZoruCard>
+        </Card>
       ) : (
         <>
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
                 <div className="text-[12px] uppercase text-zoru-ink-muted">
@@ -166,7 +166,7 @@ export default function LeaveDetailPage({
                   {employeeName}
                 </div>
               </div>
-              <ZoruBadge variant={statusVariant(leave.status)}>{leave.status}</ZoruBadge>
+              <Badge variant={statusVariant(leave.status)}>{leave.status}</Badge>
             </div>
 
             <dl className="mt-6 grid gap-4 md:grid-cols-3">
@@ -242,8 +242,8 @@ export default function LeaveDetailPage({
             {leave.status === 'pending' ? (
               <div className="mt-6 flex flex-wrap items-end gap-3">
                 <div className="flex-1 min-w-[240px]">
-                  <ZoruLabel className="text-zoru-ink">Rejection reason (optional)</ZoruLabel>
-                  <ZoruTextarea
+                  <Label className="text-zoru-ink">Rejection reason (optional)</Label>
+                  <Textarea
                     rows={2}
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
@@ -251,15 +251,15 @@ export default function LeaveDetailPage({
                   />
                 </div>
                 <div className="flex gap-2">
-                  <ZoruButton
+                  <Button
                     type="button"
                     onClick={handleApprove}
                     disabled={isActing}
                   >
                     <Check className="h-4 w-4" />
                     Approve
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={handleReject}
@@ -267,13 +267,13 @@ export default function LeaveDetailPage({
                   >
                     <X className="h-4 w-4" />
                     Reject
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
             ) : null}
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-4 text-[16px] text-zoru-ink">Attachments</h2>
             {files.length === 0 ? (
               <p className="text-[13px] text-zoru-ink-muted">No attachments.</p>
@@ -293,21 +293,21 @@ export default function LeaveDetailPage({
                       <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                       {f.filename}
                     </a>
-                    <ZoruButton
+                    <Button
                       variant="outline"
                       onClick={() => handleDeleteFile(String(f._id))}
                       title="Delete attachment"
                     >
                       <Trash2 className="h-3.5 w-3.5 text-red-500" />
                       Delete
-                    </ZoruButton>
+                    </Button>
                   </li>
                 ))}
               </ul>
             )}
 
             <form onSubmit={handleAddFile} className="mt-4 grid gap-3 md:grid-cols-[1fr_2fr_auto]">
-              <ZoruInput
+              <Input
                 placeholder="File name"
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
@@ -319,12 +319,12 @@ export default function LeaveDetailPage({
                 value={fileUrl}
                 onChange={(v) => setFileUrl(v)}
               />
-              <ZoruButton type="submit">
+              <Button type="submit">
                 <Plus className="h-4 w-4" />
                 Add
-              </ZoruButton>
+              </Button>
             </form>
-          </ZoruCard>
+          </Card>
         </>
       )}
     </EntityListShell>

@@ -67,14 +67,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create request'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -113,7 +113,7 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -128,10 +128,10 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                 {/* Customer name + email */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="customerName">
+                        <Label htmlFor="customerName">
                             Customer name *
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="customerName"
                             name="customerName"
                             required
@@ -142,10 +142,10 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="customerEmail">
+                        <Label htmlFor="customerEmail">
                             Customer email
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="customerEmail"
                             name="customerEmail"
                             type="email"
@@ -159,8 +159,8 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
 
                 {/* Requirements */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="requirements">Requirements *</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="requirements">Requirements *</Label>
+                    <Textarea
                         id="requirements"
                         name="requirements"
                         required
@@ -175,8 +175,8 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                 {/* Budget + Deadline */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="budgetRange">Budget range</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="budgetRange">Budget range</Label>
+                        <Input
                             id="budgetRange"
                             name="budgetRange"
                             placeholder="e.g. ₹50,000 – ₹1,00,000"
@@ -186,8 +186,8 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="deadline">Deadline</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="deadline">Deadline</Label>
+                        <Input
                             id="deadline"
                             name="deadline"
                             type="date"
@@ -199,7 +199,7 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                 {/* Source + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Source</ZoruLabel>
+                        <Label>Source</Label>
                         <EnumFormField
                             enumName="estimateRequestSource"
                             name="__source_picker"
@@ -209,7 +209,7 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="estimateRequestStatus"
                             name="__status_picker"
@@ -221,8 +221,8 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
 
                 {/* Assigned + Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="assignedToId">Assigned to (user id)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="assignedToId">Assigned to (user id)</Label>
+                    <Input
                         id="assignedToId"
                         name="assignedToId"
                         placeholder="Optional — owner user id"
@@ -233,8 +233,8 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Internal notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Internal notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={4}
@@ -245,15 +245,15 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to requests
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

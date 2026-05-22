@@ -209,8 +209,8 @@ export default function MessageSettingsPage() {
         >
           {!doc && !docId ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -237,7 +237,7 @@ export default function MessageSettingsPage() {
                     Enable in-app messaging across the CRM.
                   </div>
                 </div>
-                <ZoruSwitch
+                <Switch
                   checked={enabled}
                   onCheckedChange={setEnabled}
                   aria-label="Messages enabled"
@@ -253,7 +253,7 @@ export default function MessageSettingsPage() {
                     Users can attach files to messages.
                   </div>
                 </div>
-                <ZoruSwitch
+                <Switch
                   checked={allowAttachments}
                   onCheckedChange={setAllowAttachments}
                   aria-label="Allow attachments"
@@ -261,11 +261,11 @@ export default function MessageSettingsPage() {
               </div>
 
               <div>
-                <ZoruLabel htmlFor="max_file_size_mb">
+                <Label htmlFor="max_file_size_mb">
                   Max file size (MB)
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="max_file_size_mb"
                     name="max_file_size_mb"
                     type="number"
@@ -279,18 +279,18 @@ export default function MessageSettingsPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -300,7 +300,7 @@ export default function MessageSettingsPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <IntegrationActivityFeed

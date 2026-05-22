@@ -118,7 +118,7 @@ export default function TeamInvitesPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
@@ -128,20 +128,20 @@ export default function TeamInvitesPage() {
                         <ZoruBreadcrumbPage>Invitations</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Invitations</ZoruPageTitle>
                     <ZoruPageDescription>
                         Track who&apos;s been invited to the workspace. Resend or revoke pending invites.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-                <ZoruButton variant="ghost" size="sm" onClick={refresh}>
+                <Button variant="ghost" size="sm" onClick={refresh}>
                     <RefreshCw className="h-4 w-4" />
                     Refresh
-                </ZoruButton>
-            </ZoruPageHeader>
+                </Button>
+            </PageHeader>
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
@@ -164,7 +164,7 @@ export default function TeamInvitesPage() {
                     ))}
                 </div>
                 <div className="ml-auto w-full sm:w-64">
-                    <ZoruInput
+                    <Input
                         placeholder="Search email or project…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -174,11 +174,11 @@ export default function TeamInvitesPage() {
             </div>
 
             {/* List */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 {loading ? (
                     <div className="space-y-2 p-4">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-14 w-full" />
+                            <Skeleton key={i} className="h-14 w-full" />
                         ))}
                     </div>
                 ) : visible.length === 0 ? (
@@ -220,7 +220,7 @@ export default function TeamInvitesPage() {
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <ZoruButton
+                                        <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => handleCopyLink(inv.token)}
@@ -231,9 +231,9 @@ export default function TeamInvitesPage() {
                                                 <Copy className="h-4 w-4" />
                                             )}
                                             {copied === inv.token ? 'Copied' : 'Copy link'}
-                                        </ZoruButton>
+                                        </Button>
                                         {canResend && (
-                                            <ZoruButton
+                                            <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => handleResend(inv._id)}
@@ -245,10 +245,10 @@ export default function TeamInvitesPage() {
                                                     <RefreshCw className="h-4 w-4" />
                                                 )}
                                                 Resend
-                                            </ZoruButton>
+                                            </Button>
                                         )}
                                         {canRevoke && (
-                                            <ZoruButton
+                                            <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => handleRevoke(inv._id)}
@@ -256,7 +256,7 @@ export default function TeamInvitesPage() {
                                             >
                                                 <CircleX className="h-4 w-4" />
                                                 Revoke
-                                            </ZoruButton>
+                                            </Button>
                                         )}
                                     </div>
                                 </li>
@@ -264,16 +264,16 @@ export default function TeamInvitesPage() {
                         })}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
 
 function StatusBadge({ status }: { status: string }) {
-    if (status === 'accepted') return <ZoruBadge variant="success">Accepted</ZoruBadge>;
-    if (status === 'expired') return <ZoruBadge variant="danger">Expired</ZoruBadge>;
-    if (status === 'revoked') return <ZoruBadge variant="ghost">Revoked</ZoruBadge>;
-    return <ZoruBadge variant="warning">Pending</ZoruBadge>;
+    if (status === 'accepted') return <Badge variant="success">Accepted</Badge>;
+    if (status === 'expired') return <Badge variant="danger">Expired</Badge>;
+    if (status === 'revoked') return <Badge variant="ghost">Revoked</Badge>;
+    return <Badge variant="warning">Pending</Badge>;
 }
 
 function formatRelative(iso: string): string {

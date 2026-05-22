@@ -37,7 +37,7 @@ export function RerunButton({ definitionId }: { definitionId: string }) {
                     {error}
                 </span>
             )}
-            <ZoruButton
+            <Button
                 type="button"
                 size="sm"
                 variant="primary"
@@ -45,7 +45,7 @@ export function RerunButton({ definitionId }: { definitionId: string }) {
                 disabled={pending}
             >
                 {pending ? 'Running…' : 'Re-run'}
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

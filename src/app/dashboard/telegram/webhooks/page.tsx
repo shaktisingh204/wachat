@@ -418,7 +418,7 @@ export default function TelegramWebhooksPage() {
     if (!activeProjectId) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     icon={<Webhook className="h-8 w-8" />}
                     title="Pick a project"
                     description="Telegram webhooks are scoped to a project. Choose one to continue."
@@ -429,7 +429,7 @@ export default function TelegramWebhooksPage() {
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageEyebrow style={{ color: ACCENT }}>Telegram</ZoruPageEyebrow>
                     <ZoruPageTitle className="flex items-center gap-2">
@@ -442,7 +442,7 @@ export default function TelegramWebhooksPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         onClick={() => {
                             loadSubs();
@@ -450,35 +450,35 @@ export default function TelegramWebhooksPage() {
                         }}
                     >
                         <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="outline"
                         onClick={() => setConfirmRotateAll(true)}
                         disabled={subs.length === 0}
                     >
                         <ShieldCheck className="mr-2 h-4 w-4" /> Rotate all secrets
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* KPI strip */}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Deliveries (7 d)"
                     value={analyticsLoading ? '…' : fmtNumber(analytics?.totalReceived ?? 0)}
                     icon={<Inbox className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Failed (7 d)"
                     value={analyticsLoading ? '…' : fmtNumber(analytics?.totalFailed ?? 0)}
                     icon={<XCircle className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="DLQ size"
                     value={analyticsLoading ? '…' : fmtNumber(analytics?.dlqCount ?? 0)}
                     icon={<AlertCircle className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Avg processing ms"
                     value={
                         analyticsLoading
@@ -604,13 +604,13 @@ export default function TelegramWebhooksPage() {
                         </ZoruDrawerDescription>
                     </ZoruDrawerHeader>
                     <div className="p-4">
-                        <ZoruScrollArea className="max-h-[60vh] rounded-md border bg-muted/20 p-3">
+                        <ScrollArea className="max-h-[60vh] rounded-md border bg-muted/20 p-3">
                             <pre className="text-xs leading-relaxed">
                                 {drawerDelivery
                                     ? JSON.stringify(drawerDelivery.payload ?? {}, null, 2)
                                     : ''}
                             </pre>
-                        </ZoruScrollArea>
+                        </ScrollArea>
                     </div>
                 </ZoruDrawerContent>
             </ZoruDrawer>
@@ -699,37 +699,37 @@ function SubscriptionsSection({
 }) {
     if (loading) {
         return (
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="space-y-2 p-4">
                     {[0, 1, 2].map((i) => (
-                        <ZoruSkeleton key={i} className="h-16 w-full" />
+                        <Skeleton key={i} className="h-16 w-full" />
                     ))}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         );
     }
     if (error) {
         return (
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="p-6">
                     <div className="flex items-center gap-2 text-destructive">
                         <AlertCircle className="h-4 w-4" />
                         {error}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         );
     }
     if (subs.length === 0) {
         return (
-            <ZoruEmptyState
+            <EmptyState
                 icon={<Webhook className="h-8 w-8" />}
                 title="No webhook subscriptions yet"
                 description="Save a URL for one of your bots to start collecting deliveries."
                 action={
-                    <ZoruButton onClick={onAddNew}>
+                    <Button onClick={onAddNew}>
                         <Pencil className="mr-2 h-4 w-4" /> Configure a webhook
-                    </ZoruButton>
+                    </Button>
                 }
             />
         );
@@ -765,11 +765,11 @@ function SubscriptionRow({
 }) {
     const [showSecret, setShowSecret] = React.useState(false);
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-start md:justify-between">
                 <div className="flex-1 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruBadge variant="info">@{s.botUsername ?? s.botId.slice(0, 8)}</ZoruBadge>
+                        <Badge variant="info">@{s.botUsername ?? s.botId.slice(0, 8)}</Badge>
                         <code className="break-all rounded bg-muted px-2 py-0.5 text-xs">{s.url}</code>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -787,26 +787,26 @@ function SubscriptionRow({
                     </div>
                     <div className="flex flex-wrap gap-1">
                         {s.allowedUpdates.map((u) => (
-                            <ZoruBadge key={u} variant="ghost">
+                            <Badge key={u} variant="ghost">
                                 {u}
-                            </ZoruBadge>
+                            </Badge>
                         ))}
                     </div>
                     <div className="flex items-center gap-2 text-xs">
-                        <ZoruLabel>Secret:</ZoruLabel>
+                        <Label>Secret:</Label>
                         <code className="rounded bg-muted px-2 py-0.5">
                             {showSecret ? s.secretToken ?? '—' : maskSecret(s.secretToken)}
                         </code>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="sm"
                             type="button"
                             onClick={() => setShowSecret((v) => !v)}
                         >
                             {showSecret ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                        </ZoruButton>
+                        </Button>
                         {s.secretToken && (
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 type="button"
@@ -815,7 +815,7 @@ function SubscriptionRow({
                                 }}
                             >
                                 <Copy className="h-3 w-3" />
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                     {s.lastTelegramErrorMessage && (
@@ -826,21 +826,21 @@ function SubscriptionRow({
                     )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={onEdit}>
+                    <Button variant="outline" size="sm" onClick={onEdit}>
                         <Pencil className="mr-1 h-3 w-3" /> Edit
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" onClick={onTest}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={onTest}>
                         <Play className="mr-1 h-3 w-3" /> Test
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" onClick={onRotate}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={onRotate}>
                         <ShieldCheck className="mr-1 h-3 w-3" /> Rotate
-                    </ZoruButton>
-                    <ZoruButton variant="destructive" size="sm" onClick={onDelete}>
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={onDelete}>
                         <Trash2 className="mr-1 h-3 w-3" /> Delete
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -932,8 +932,8 @@ function SubscriptionDrawer({
                 <div className="flex flex-col gap-4 p-4">
                     {!editing?._id && (
                         <div>
-                            <ZoruLabel>Bot</ZoruLabel>
-                            <ZoruSelect value={botId} onValueChange={setBotId}>
+                            <Label>Bot</Label>
+                            <Select value={botId} onValueChange={setBotId}>
                                 <ZoruSelectTrigger>
                                     <ZoruSelectValue placeholder="Pick a bot…" />
                                 </ZoruSelectTrigger>
@@ -944,7 +944,7 @@ function SubscriptionDrawer({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             {subs.length === 0 && (
                                 <p className="mt-1 text-xs text-muted-foreground">
                                     No bots configured yet — connect one under Telegram → Bots
@@ -954,43 +954,43 @@ function SubscriptionDrawer({
                         </div>
                     )}
                     <div>
-                        <ZoruLabel>URL (https only)</ZoruLabel>
-                        <ZoruInput
+                        <Label>URL (https only)</Label>
+                        <Input
                             placeholder="https://example.com/api/telegram/webhook/…"
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                         />
                     </div>
                     <div>
-                        <ZoruLabel>Secret token</ZoruLabel>
+                        <Label>Secret token</Label>
                         <div className="flex items-center gap-2">
-                            <ZoruInput
+                            <Input
                                 type={showSecret ? 'text' : 'password'}
                                 value={secret}
                                 onChange={(e) => setSecret(e.target.value)}
                                 placeholder="(generated if empty)"
                             />
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setShowSecret((v) => !v)}
                             >
                                 {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>
+                        <Label>
                             Allowed updates ({allowed.length} of {TELEGRAM_ALLOWED_UPDATES.length})
-                        </ZoruLabel>
+                        </Label>
                         <div className="grid grid-cols-2 gap-2 rounded-md border p-2 sm:grid-cols-3">
                             {TELEGRAM_ALLOWED_UPDATES.map((u) => (
                                 <label
                                     key={u}
                                     className="flex items-center gap-2 rounded px-1 text-xs hover:bg-muted/50"
                                 >
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={allowed.includes(u)}
                                         onCheckedChange={() => toggle(u)}
                                     />
@@ -1000,7 +1000,7 @@ function SubscriptionDrawer({
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Max connections: {maxConns}</ZoruLabel>
+                        <Label>Max connections: {maxConns}</Label>
                         <input
                             type="range"
                             min={1}
@@ -1017,17 +1017,17 @@ function SubscriptionDrawer({
                                 Discard updates Telegram queued before the new webhook was set.
                             </p>
                         </div>
-                        <ZoruSwitch checked={dropPending} onCheckedChange={setDropPending} />
+                        <Switch checked={dropPending} onCheckedChange={setDropPending} />
                     </label>
                 </div>
                 <div className="flex items-center justify-end gap-2 border-t p-4">
-                    <ZoruButton variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={onClose}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={save} disabled={saving}>
+                    </Button>
+                    <Button onClick={save} disabled={saving}>
                         {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Save
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruDrawerContent>
         </ZoruDrawer>
@@ -1060,9 +1060,9 @@ function DeliveriesSection(props: {
 }) {
     return (
         <div className="space-y-3">
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 xl:grid-cols-6">
-                    <ZoruSelect value={props.bot} onValueChange={props.onBot}>
+                    <Select value={props.bot} onValueChange={props.onBot}>
                         <ZoruSelectTrigger>
                             <ZoruSelectValue placeholder="Bot" />
                         </ZoruSelectTrigger>
@@ -1073,8 +1073,8 @@ function DeliveriesSection(props: {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect value={props.event} onValueChange={props.onEvent}>
+                    </Select>
+                    <Select value={props.event} onValueChange={props.onEvent}>
                         <ZoruSelectTrigger>
                             <ZoruSelectValue placeholder="Event type" />
                         </ZoruSelectTrigger>
@@ -1085,8 +1085,8 @@ function DeliveriesSection(props: {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect value={props.status} onValueChange={props.onStatus}>
+                    </Select>
+                    <Select value={props.status} onValueChange={props.onStatus}>
                         <ZoruSelectTrigger>
                             <ZoruSelectValue placeholder="Status" />
                         </ZoruSelectTrigger>
@@ -1096,10 +1096,10 @@ function DeliveriesSection(props: {
                             <ZoruSelectItem value="processed">Processed</ZoruSelectItem>
                             <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                     <div className="relative">
                         <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                        <ZoruInput
+                        <Input
                             className="pl-8"
                             placeholder="chatId or userId"
                             value={props.search}
@@ -1107,26 +1107,26 @@ function DeliveriesSection(props: {
                         />
                     </div>
                     <ZoruDateRangePicker value={props.range} onChange={props.onRange} />
-                    <ZoruButton onClick={props.onApply}>
+                    <Button onClick={props.onApply}>
                         <Search className="mr-2 h-4 w-4" /> Apply
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {props.loading && props.deliveries.length === 0 ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-4">
-                        <ZoruSkeleton className="h-40 w-full" />
+                        <Skeleton className="h-40 w-full" />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : props.deliveries.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     icon={<Inbox className="h-8 w-8" />}
                     title="No deliveries match these filters"
                     description="Webhook deliveries land here as Telegram POSTs them. Adjust filters or wait for traffic."
                 />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
@@ -1151,14 +1151,14 @@ function DeliveriesSection(props: {
                                                 {fmtDate(d.receivedAt)}
                                             </td>
                                             <td className="px-3 py-2">
-                                                <ZoruBadge variant="ghost">{d.eventType}</ZoruBadge>
+                                                <Badge variant="ghost">{d.eventType}</Badge>
                                             </td>
                                             <td className="px-3 py-2">{d.chatId ?? '—'}</td>
                                             <td className="px-3 py-2">{d.fromUserId ?? '—'}</td>
                                             <td className="px-3 py-2">
-                                                <ZoruBadge variant={STATUS_VARIANT[d.status] ?? 'ghost'}>
+                                                <Badge variant={STATUS_VARIANT[d.status] ?? 'ghost'}>
                                                     {d.status}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </td>
                                             <td className="px-3 py-2 text-right">
                                                 {d.processingDurationMs != null
@@ -1166,20 +1166,20 @@ function DeliveriesSection(props: {
                                                     : '—'}
                                             </td>
                                             <td className="px-3 py-2 text-right">
-                                                <ZoruButton
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => props.onView(d)}
                                                 >
                                                     <Eye className="h-3 w-3" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => props.onReplay(d)}
                                                 >
                                                     <RotateCcw className="h-3 w-3" />
-                                                </ZoruButton>
+                                                </Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -1188,7 +1188,7 @@ function DeliveriesSection(props: {
                         </div>
                         {props.hasMore && (
                             <div className="border-t p-3 text-center">
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={props.onMore}
@@ -1200,11 +1200,11 @@ function DeliveriesSection(props: {
                                         <ChevronDown className="mr-2 h-3 w-3" />
                                     )}
                                     Load more
-                                </ZoruButton>
+                                </Button>
                             </div>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );
@@ -1229,9 +1229,9 @@ function DlqSection(props: {
 }) {
     return (
         <div className="space-y-3">
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-3 xl:grid-cols-4">
-                    <ZoruSelect value={props.bot} onValueChange={props.onBot}>
+                    <Select value={props.bot} onValueChange={props.onBot}>
                         <ZoruSelectTrigger>
                             <ZoruSelectValue placeholder="Bot" />
                         </ZoruSelectTrigger>
@@ -1242,8 +1242,8 @@ function DlqSection(props: {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect value={props.status} onValueChange={props.onStatus}>
+                    </Select>
+                    <Select value={props.status} onValueChange={props.onStatus}>
                         <ZoruSelectTrigger>
                             <ZoruSelectValue placeholder="Status" />
                         </ZoruSelectTrigger>
@@ -1256,22 +1256,22 @@ function DlqSection(props: {
                             </ZoruSelectItem>
                             <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruButton onClick={props.onApply}>
+                    </Select>
+                    <Button onClick={props.onApply}>
                         <Search className="mr-2 h-4 w-4" /> Apply
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
             {props.loading && props.items.length === 0 ? (
-                <ZoruSkeleton className="h-40 w-full" />
+                <Skeleton className="h-40 w-full" />
             ) : props.items.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     icon={<ShieldCheck className="h-8 w-8" />}
                     title="The DLQ is empty"
                     description="Failed deliveries land here. The worker auto-retries pending items on a schedule."
                 />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
@@ -1295,9 +1295,9 @@ function DlqSection(props: {
                                             </td>
                                             <td className="px-3 py-2 text-right">{d.attempts}</td>
                                             <td className="px-3 py-2">
-                                                <ZoruBadge variant={STATUS_VARIANT[d.status] ?? 'ghost'}>
+                                                <Badge variant={STATUS_VARIANT[d.status] ?? 'ghost'}>
                                                     {d.status}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </td>
                                             <td className="px-3 py-2">
                                                 <span className="line-clamp-1 max-w-[40ch] text-xs text-muted-foreground">
@@ -1305,27 +1305,27 @@ function DlqSection(props: {
                                                 </span>
                                             </td>
                                             <td className="px-3 py-2 text-right">
-                                                <ZoruButton
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => props.onRetry(d)}
                                                 >
                                                     <RotateCcw className="h-3 w-3" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => props.onResolve(d)}
                                                 >
                                                     <ChevronRight className="h-3 w-3" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => props.onDelete(d)}
                                                 >
                                                     <Trash2 className="h-3 w-3" />
-                                                </ZoruButton>
+                                                </Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -1333,7 +1333,7 @@ function DlqSection(props: {
                             </table>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );
@@ -1351,11 +1351,11 @@ function AnalyticsSection({
     analytics: AnalyticsResp | null;
 }) {
     if (loading) {
-        return <ZoruSkeleton className="h-72 w-full" />;
+        return <Skeleton className="h-72 w-full" />;
     }
     if (!analytics) {
         return (
-            <ZoruEmptyState
+            <EmptyState
                 icon={<AlertCircle className="h-8 w-8" />}
                 title="No analytics yet"
                 description="Once deliveries arrive this section shows the 7-day trend."
@@ -1366,7 +1366,7 @@ function AnalyticsSection({
     return (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
             <TelegramProjectGate />
-            <ZoruCard className="xl:col-span-2">
+            <Card className="xl:col-span-2">
                 <ZoruCardContent className="p-4">
                     <h3 className="mb-2 text-sm font-medium">Deliveries & failures by day</h3>
                     <ZoruChartContainer config={{}} className="h-64 w-full">
@@ -1382,8 +1382,8 @@ function AnalyticsSection({
                         </LineChart>
                     </ZoruChartContainer>
                 </ZoruCardContent>
-            </ZoruCard>
-            <ZoruCard>
+            </Card>
+            <Card>
                 <ZoruCardContent className="p-4">
                     <h3 className="mb-2 text-sm font-medium">By event type</h3>
                     {analytics.byEventType.length === 0 ? (
@@ -1409,8 +1409,8 @@ function AnalyticsSection({
                         </ZoruChartContainer>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
-            <ZoruCard className="xl:col-span-3">
+            </Card>
+            <Card className="xl:col-span-3">
                 <ZoruCardContent className="p-4">
                     <h3 className="mb-2 text-sm font-medium">Top event types</h3>
                     {analytics.byEventType.length === 0 ? (
@@ -1427,7 +1427,7 @@ function AnalyticsSection({
                         </ZoruChartContainer>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

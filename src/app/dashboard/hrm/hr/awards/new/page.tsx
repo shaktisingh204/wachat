@@ -21,14 +21,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Save program
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -53,12 +53,12 @@ export default function NewAwardProgramPage() {
       subtitle="Define a recognition cycle with nominations and winners."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Row 1: Program Name */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="name">Program Name *</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="name">Program Name *</Label>
+            <Input
               id="name"
               name="name"
               placeholder="e.g. Employee of the Month"
@@ -69,7 +69,7 @@ export default function NewAwardProgramPage() {
           {/* Row 2: Program Type + Frequency */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="programType">Program Type</ZoruLabel>
+              <Label htmlFor="programType">Program Type</Label>
               <select
                 id="programType"
                 name="programType"
@@ -84,7 +84,7 @@ export default function NewAwardProgramPage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="frequency">Frequency</ZoruLabel>
+              <Label htmlFor="frequency">Frequency</Label>
               <select
                 id="frequency"
                 name="frequency"
@@ -103,20 +103,20 @@ export default function NewAwardProgramPage() {
           {/* Row 3: Period Start + Period End */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="periodStart">Period Start</ZoruLabel>
-              <ZoruInput id="periodStart" name="periodStart" type="date" />
+              <Label htmlFor="periodStart">Period Start</Label>
+              <Input id="periodStart" name="periodStart" type="date" />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="periodEnd">Period End</ZoruLabel>
-              <ZoruInput id="periodEnd" name="periodEnd" type="date" />
+              <Label htmlFor="periodEnd">Period End</Label>
+              <Input id="periodEnd" name="periodEnd" type="date" />
             </div>
           </div>
 
           {/* Row 4: Points Value + Cash Value */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="pointsValue">Points Value</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="pointsValue">Points Value</Label>
+              <Input
                 id="pointsValue"
                 name="pointsValue"
                 type="number"
@@ -126,8 +126,8 @@ export default function NewAwardProgramPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="cashValue">Cash Value (₹)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="cashValue">Cash Value (₹)</Label>
+              <Input
                 id="cashValue"
                 name="cashValue"
                 type="number"
@@ -140,8 +140,8 @@ export default function NewAwardProgramPage() {
 
           {/* Row 5: Criteria */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="criteria">Selection Criteria</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="criteria">Selection Criteria</Label>
+            <Textarea
               id="criteria"
               name="criteria"
               placeholder="How are nominees evaluated and winners chosen?"
@@ -151,8 +151,8 @@ export default function NewAwardProgramPage() {
 
           {/* Row 6: Description */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               placeholder="Additional details about this award program"
@@ -164,7 +164,7 @@ export default function NewAwardProgramPage() {
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

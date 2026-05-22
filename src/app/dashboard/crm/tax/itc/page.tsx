@@ -108,7 +108,7 @@ export default async function ItcReconciliationPage(props: {
 
             {/* Import prompt */}
             {needsImport ? (
-                <ZoruCard>
+                <Card>
                     <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="text-[15px] font-semibold text-foreground">
@@ -128,11 +128,11 @@ export default async function ItcReconciliationPage(props: {
                             Import GSTR-2B
                         </a>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : !reconRes.ok ? (
-                <ZoruCard>
+                <Card>
                     <p className="text-[13px] text-destructive">{reconRes.error}</p>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Three-table client shell (selection, bulk reconcile, export per section) */}

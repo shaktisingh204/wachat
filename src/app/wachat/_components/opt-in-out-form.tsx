@@ -42,10 +42,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <Save />}
       Save Opt-in/Out Settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -86,15 +86,15 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
               Manage keywords for user subscription preferences.
             </ZoruCardDescription>
           </div>
-          <ZoruSwitch name="enabled" defaultChecked={settings?.enabled} />
+          <Switch name="enabled" defaultChecked={settings?.enabled} />
         </div>
       </ZoruCardHeader>
       <ZoruCardContent className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-4">
           <h4 className="text-[14px] text-zoru-ink">Opt-in Settings</h4>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="optInKeywords">Opt-in Keywords</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="optInKeywords">Opt-in Keywords</Label>
+            <Textarea
               id="optInKeywords"
               name="optInKeywords"
               defaultValue={settings?.optInKeywords?.join(', ')}
@@ -102,10 +102,10 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="optInResponse">
+            <Label htmlFor="optInResponse">
               Opt-in Response Message
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="optInResponse"
               name="optInResponse"
               defaultValue={settings?.optInResponse}
@@ -116,8 +116,8 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
         <div className="flex flex-col gap-4">
           <h4 className="text-[14px] text-zoru-danger">Opt-out Settings</h4>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="optOutKeywords">Opt-out Keywords</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="optOutKeywords">Opt-out Keywords</Label>
+            <Textarea
               id="optOutKeywords"
               name="optOutKeywords"
               defaultValue={settings?.optOutKeywords?.join(', ')}
@@ -125,10 +125,10 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="optOutResponse">
+            <Label htmlFor="optOutResponse">
               Opt-out Response Message
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="optOutResponse"
               name="optOutResponse"
               defaultValue={settings?.optOutResponse}

@@ -159,7 +159,7 @@ export default async function KnowledgeBaseDetailPage({
                 }
                 rightRail={
                     <>
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Key facts</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -167,9 +167,9 @@ export default async function KnowledgeBaseDetailPage({
                                 <dl className="grid grid-cols-2 gap-y-1.5 text-[12.5px]">
                                     <dt className="text-zoru-ink-muted">Status</dt>
                                     <dd>
-                                        <ZoruBadge variant="outline">
+                                        <Badge variant="outline">
                                             {status.label}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </dd>
                                     <dt className="text-zoru-ink-muted">Type</dt>
                                     <dd className="text-zoru-ink capitalize">
@@ -203,10 +203,10 @@ export default async function KnowledgeBaseDetailPage({
                                     </dd>
                                 </dl>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
                         {a.userId ? (
-                            <ZoruCard>
+                            <Card>
                                 <ZoruCardHeader>
                                     <ZoruCardTitle>Author</ZoruCardTitle>
                                 </ZoruCardHeader>
@@ -216,67 +216,67 @@ export default async function KnowledgeBaseDetailPage({
                                         id={String(a.userId)}
                                     />
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ) : null}
 
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Quick actions</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 <div className="flex flex-col gap-2 text-[12.5px]">
-                                    <ZoruButton asChild variant="outline" size="sm">
+                                    <Button asChild variant="outline" size="sm">
                                         <Link
                                             href={`/dashboard/crm/workspace/knowledge-base/${String(a._id)}/edit`}
                                         >
                                             Edit article
                                         </Link>
-                                    </ZoruButton>
-                                    <ZoruButton asChild variant="ghost" size="sm">
+                                    </Button>
+                                    <Button asChild variant="ghost" size="sm">
                                         <Link href="/dashboard/crm/workspace/knowledge-base">
                                             All articles
                                         </Link>
-                                    </ZoruButton>
+                                    </Button>
                                     {category ? (
-                                        <ZoruButton asChild variant="ghost" size="sm">
+                                        <Button asChild variant="ghost" size="sm">
                                             <Link
                                                 href={`/dashboard/crm/workspace/knowledge-base?category=${String(category._id)}`}
                                             >
                                                 More in {category.name}
                                             </Link>
-                                        </ZoruButton>
+                                        </Button>
                                     ) : null}
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </>
                 }
             >
                 <SectionNav />
 
-                <ZoruCard id="section-overview">
+                <Card id="section-overview">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Overview</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="mb-3 flex flex-wrap items-center gap-2">
-                            <ZoruBadge variant="ghost" className="capitalize">
+                            <Badge variant="ghost" className="capitalize">
                                 {a.type}
-                            </ZoruBadge>
+                            </Badge>
                             {a.pinned ? (
-                                <ZoruBadge variant="warning">
+                                <Badge variant="warning">
                                     <Pin className="h-3 w-3" /> Pinned
-                                </ZoruBadge>
+                                </Badge>
                             ) : null}
                             {a.to_do === 'yes' ? (
-                                <ZoruBadge variant="info">
+                                <Badge variant="info">
                                     <CheckSquare className="h-3 w-3" /> To-do
-                                </ZoruBadge>
+                                </Badge>
                             ) : null}
                             {category ? (
-                                <ZoruBadge variant="secondary">
+                                <Badge variant="secondary">
                                     {category.name}
-                                </ZoruBadge>
+                                </Badge>
                             ) : null}
                         </div>
                         <div className="grid gap-4 md:grid-cols-2">
@@ -296,9 +296,9 @@ export default async function KnowledgeBaseDetailPage({
                             </Field>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-body">
+                <Card id="section-body">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Body</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -311,9 +311,9 @@ export default async function KnowledgeBaseDetailPage({
                             )}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-files">
+                <Card id="section-files">
                     <ZoruCardHeader>
                         <ZoruCardTitle>
                             Attachments ({fileList.length})
@@ -321,7 +321,7 @@ export default async function KnowledgeBaseDetailPage({
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         {fileList.length === 0 ? (
-                            <ZoruEmptyState
+                            <EmptyState
                                 title="No attachments"
                                 description="Files uploaded with this article appear here. Upload via the Edit form using the SabFiles picker."
                             />
@@ -345,7 +345,7 @@ export default async function KnowledgeBaseDetailPage({
                                             </div>
                                         </div>
                                         {f.url ? (
-                                            <ZoruButton
+                                            <Button
                                                 asChild
                                                 variant="ghost"
                                                 size="sm"
@@ -357,16 +357,16 @@ export default async function KnowledgeBaseDetailPage({
                                                 >
                                                     Download
                                                 </a>
-                                            </ZoruButton>
+                                            </Button>
                                         ) : null}
                                     </li>
                                 ))}
                             </ul>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-helpfulness">
+                <Card id="section-helpfulness">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Helpfulness</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -379,21 +379,21 @@ export default async function KnowledgeBaseDetailPage({
                             acknowledgement.
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-versions">
+                <Card id="section-versions">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Version history</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <ZoruEmptyState
+                        <EmptyState
                             title="Version history coming soon"
                             description="Article revisions will be captured once the KB content store grows a versions sub-collection. The Activity timeline below already records create/update events."
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-related">
+                <Card id="section-related">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Related</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -421,7 +421,7 @@ export default async function KnowledgeBaseDetailPage({
                             </Link>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 <p className="text-[11px] text-zoru-ink-muted">
                     Created {fmtDate(a.createdAt)} · Updated{' '}

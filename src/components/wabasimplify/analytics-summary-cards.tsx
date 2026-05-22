@@ -20,7 +20,7 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, icon, sub }: MetricCardProps) {
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">{label}</p>
@@ -31,16 +31,16 @@ function MetricCard({ label, value, icon, sub }: MetricCardProps) {
           {icon}
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
 function SkeletonCard() {
   return (
-    <ZoruCard className="p-4">
-      <ZoruSkeleton className="h-3 w-24 mb-3" />
-      <ZoruSkeleton className="h-8 w-16" />
-    </ZoruCard>
+    <Card className="p-4">
+      <Skeleton className="h-3 w-24 mb-3" />
+      <Skeleton className="h-8 w-16" />
+    </Card>
   );
 }
 

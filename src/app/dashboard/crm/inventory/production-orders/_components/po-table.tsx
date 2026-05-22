@@ -73,11 +73,11 @@ export function PoTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all orders on this page"
                                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
@@ -121,7 +121,7 @@ export function PoTable({
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label={`Select ${o.orderNo}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(o._id)}
@@ -169,7 +169,7 @@ export function PoTable({
                                         <StatusPill label={o.status} tone={statusToTone(o.status)} />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
@@ -224,14 +224,14 @@ export function PoTable({
                                                     Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

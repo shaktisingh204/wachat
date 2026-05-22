@@ -60,7 +60,7 @@ export default function PricingPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             {plans.map(plan => (
-                <ZoruCard key={plan.name} className={`flex flex-col h-full ${plan.isPopular ? 'border-2 border-primary shadow-2xl' : ''}`}>
+                <Card key={plan.name} className={`flex flex-col h-full ${plan.isPopular ? 'border-2 border-primary shadow-2xl' : ''}`}>
                     <ZoruCardHeader>
                         <ZoruCardTitle className="text-2xl">{plan.name}</ZoruCardTitle>
                         <ZoruCardDescription>{plan.description}</ZoruCardDescription>
@@ -80,11 +80,11 @@ export default function PricingPage() {
                         </ul>
                     </ZoruCardContent>
                     <ZoruCardFooter>
-                         <ZoruButton className="w-full" size="lg" variant={plan.isPopular ? 'default' : 'outline'}>
+                         <Button className="w-full" size="lg" variant={plan.isPopular ? 'default' : 'outline'}>
                             {plan.cta}
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardFooter>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
       </div>

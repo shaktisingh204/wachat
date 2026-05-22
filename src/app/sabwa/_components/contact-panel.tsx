@@ -93,7 +93,7 @@ export function ContactPanel({
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-zoru-line px-3">
         <p className="text-sm font-semibold text-zoru-ink">Contact info</p>
         {onClose ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="icon"
@@ -101,20 +101,20 @@ export function ContactPanel({
             onClick={onClose}
           >
             <X className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         <div className="flex flex-col items-center gap-2 border-b border-zoru-line px-4 py-6">
-          <ZoruAvatar className="h-24 w-24">
+          <Avatar className="h-24 w-24">
             {chat.profilePicUrl ? (
               <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
             ) : null}
             <ZoruAvatarFallback className="text-xl">
               {isGroup ? <Users className="h-8 w-8" /> : initials}
             </ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
           <p className="text-base font-semibold text-zoru-ink">{name}</p>
           <p className="text-xs text-zoru-ink-muted">{subtitle}</p>
           {isGroup ? (
@@ -125,7 +125,7 @@ export function ContactPanel({
         </div>
 
         <div className="grid grid-cols-3 gap-1 border-b border-zoru-line p-2 text-xs">
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             className="flex-col gap-1 py-3 text-[11px]"
@@ -133,8 +133,8 @@ export function ContactPanel({
           >
             <BellOff className="h-4 w-4" />
             {chat.muted ? 'Unmute' : 'Mute'}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="ghost"
             className="flex-col gap-1 py-3 text-[11px]"
@@ -142,8 +142,8 @@ export function ContactPanel({
           >
             <Archive className="h-4 w-4" />
             {chat.archived ? 'Unarchive' : 'Archive'}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="ghost"
             className="flex-col gap-1 py-3 text-[11px] text-zoru-danger hover:text-zoru-danger"
@@ -151,7 +151,7 @@ export function ContactPanel({
           >
             <Ban className="h-4 w-4" />
             Block
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="p-3">
@@ -160,7 +160,7 @@ export function ContactPanel({
             aria-label="Media filter"
             className="mb-3 grid grid-cols-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-0.5 text-xs"
           >
-            <ZoruButton
+            <Button
               type="button"
               variant={tab === 'photos' ? 'default' : 'ghost'}
               size="sm"
@@ -173,8 +173,8 @@ export function ContactPanel({
                   {buckets.photos.length}
                 </span>
               ) : null}
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               type="button"
               variant={tab === 'videos' ? 'default' : 'ghost'}
               size="sm"
@@ -187,8 +187,8 @@ export function ContactPanel({
                   {buckets.videos.length}
                 </span>
               ) : null}
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               type="button"
               variant={tab === 'docs' ? 'default' : 'ghost'}
               size="sm"
@@ -201,7 +201,7 @@ export function ContactPanel({
                   {buckets.docs.length}
                 </span>
               ) : null}
-            </ZoruButton>
+            </Button>
           </div>
 
           {active.length === 0 ? (
@@ -260,7 +260,7 @@ export function ContactPanel({
             </div>
           )}
         </div>
-      </ZoruScrollArea>
+      </ScrollArea>
     </aside>
   );
 }

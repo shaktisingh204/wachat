@@ -23,7 +23,7 @@ import { LoaderCircle } from 'lucide-react';
  *
  * Server-action driven via `saveBookingAction`. Relational fields use
  * `<EntityFormField>` so the value stored is an id; the status /
- * payment-status pickers use `<ZoruSelect>` against the wire-format
+ * payment-status pickers use `<Select>` against the wire-format
  * enums declared in `crm-extras-types::booking`.
  *
  * NOTE: There is no custom-fields panel — `'booking'` is intentionally
@@ -50,10 +50,10 @@ interface BookingFormProps {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create booking'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -118,15 +118,15 @@ export function BookingForm({ initial }: BookingFormProps) {
       <input type="hidden" name="status" value={status} />
       <input type="hidden" name="paymentStatus" value={paymentStatus} />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Basics
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>
+            <Label>
               Customer <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="client"
@@ -137,7 +137,7 @@ export function BookingForm({ initial }: BookingFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Service</ZoruLabel>
+            <Label>Service</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="item"
@@ -148,9 +148,9 @@ export function BookingForm({ initial }: BookingFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Assigned staff / resource <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -161,8 +161,8 @@ export function BookingForm({ initial }: BookingFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="capacityUsed">Capacity used</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="capacityUsed">Capacity used</Label>
+            <Input
               id="capacityUsed"
               name="capacityUsed"
               type="number"
@@ -172,18 +172,18 @@ export function BookingForm({ initial }: BookingFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Scheduling
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="slotStart">
+            <Label htmlFor="slotStart">
               Slot start <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="slotStart"
               name="slotStart"
               type="datetime-local"
@@ -193,10 +193,10 @@ export function BookingForm({ initial }: BookingFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="slotEnd">
+            <Label htmlFor="slotEnd">
               Slot end <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="slotEnd"
               name="slotEnd"
               type="datetime-local"
@@ -206,8 +206,8 @@ export function BookingForm({ initial }: BookingFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="recurringRule">Recurring rule (RRULE)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="recurringRule">Recurring rule (RRULE)</Label>
+            <Input
               id="recurringRule"
               name="recurringRule"
               defaultValue={initial?.recurringRule ?? ''}
@@ -216,8 +216,8 @@ export function BookingForm({ initial }: BookingFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="cancellationPolicy">Cancellation policy</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="cancellationPolicy">Cancellation policy</Label>
+            <Input
               id="cancellationPolicy"
               name="cancellationPolicy"
               defaultValue={initial?.cancellationPolicy ?? ''}
@@ -226,15 +226,15 @@ export function BookingForm({ initial }: BookingFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Status
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Booking status</ZoruLabel>
+            <Label>Booking status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="bookingStatus"
@@ -250,7 +250,7 @@ export function BookingForm({ initial }: BookingFormProps) {
             ) : null}
           </div>
           <div>
-            <ZoruLabel>Payment status</ZoruLabel>
+            <Label>Payment status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="bookingPaymentStatus"
@@ -262,8 +262,8 @@ export function BookingForm({ initial }: BookingFormProps) {
             </div>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               defaultValue={initial?.notes ?? ''}
@@ -273,10 +273,10 @@ export function BookingForm({ initial }: BookingFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -286,7 +286,7 @@ export function BookingForm({ initial }: BookingFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

@@ -32,23 +32,23 @@ export function PayrollRunsBulkBar({
         {count === 1 ? ' run' : ' runs'} selected
       </span>
       <span className="mx-1 h-4 w-px bg-zoru-line" aria-hidden />
-      <ZoruButton size="sm" variant="outline" onClick={onApprove}>
+      <Button size="sm" variant="outline" onClick={onApprove}>
         <Check className="h-3.5 w-3.5 text-emerald-600" /> Approve
-      </ZoruButton>
-      <ZoruButton size="sm" variant="outline" onClick={onDisburse}>
+      </Button>
+      <Button size="sm" variant="outline" onClick={onDisburse}>
         <Banknote className="h-3.5 w-3.5" /> Disburse
-      </ZoruButton>
-      <ZoruButton size="sm" variant="outline" onClick={onExport}>
+      </Button>
+      <Button size="sm" variant="outline" onClick={onExport}>
         <Download className="h-3.5 w-3.5" /> Export CSV
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         size="sm"
         variant="ghost"
         onClick={onClear}
         className="ml-auto"
       >
         Clear selection
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

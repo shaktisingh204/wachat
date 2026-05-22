@@ -37,7 +37,7 @@ export default function LeaveBalancePage() {
       subtitle="Per-employee remaining leaves across every leave type."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-left text-[13px]">
             <thead>
@@ -126,7 +126,7 @@ export default function LeaveBalancePage() {
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

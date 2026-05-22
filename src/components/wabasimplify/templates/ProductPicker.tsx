@@ -91,20 +91,20 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
 
     if (!catalogId) {
         return (
-            <ZoruButton variant="outline" disabled size="sm" className="opacity-50 cursor-not-allowed">
+            <Button variant="outline" disabled size="sm" className="opacity-50 cursor-not-allowed">
                 <ShoppingBag className="mr-2 h-4 w-4" />
                 Select Catalog First
-            </ZoruButton>
+            </Button>
         );
     }
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                     <ShoppingBag className="mr-2 h-4 w-4" />
                     Select Products {selectedIds.length > 0 && `(${selectedIds.length})`}
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
                 <ZoruDialogHeader>
@@ -114,7 +114,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                 <div className="flex gap-2 my-2">
                     <div className="relative flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <ZoruInput
+                        <Input
                             placeholder="Search products..."
                             className="pl-8"
                             value={searchTerm}
@@ -122,9 +122,9 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                             onKeyDown={(e) => e.key === 'Enter' && fetchProducts()}
                         />
                     </div>
-                    <ZoruButton onClick={() => fetchProducts()} disabled={loading}>
+                    <Button onClick={() => fetchProducts()} disabled={loading}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
-                    </ZoruButton>
+                    </Button>
                 </div>
 
                 <div className="flex-1 overflow-hidden min-h-[300px] border rounded-md relative">
@@ -138,7 +138,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                             <p>No products found.</p>
                         </div>
                     ) : (
-                        <ZoruScrollArea className="h-[400px]">
+                        <ScrollArea className="h-[400px]">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2">
                                 {products.map((product) => {
                                     const isSelected = localSelected.has(product.retailer_id);
@@ -161,9 +161,9 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="text-sm font-medium leading-tight truncate" title={product.name}>{product.name}</h4>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <ZoruBadge variant="secondary" className="text-[10px] h-5 px-1 font-mono">
+                                                    <Badge variant="secondary" className="text-[10px] h-5 px-1 font-mono">
                                                         {product.retailer_id}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                     <span className="text-xs font-semibold">
                                                         {product.price} {product.currency}
                                                     </span>
@@ -174,7 +174,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                                     );
                                 })}
                             </div>
-                        </ZoruScrollArea>
+                        </ScrollArea>
                     )}
                 </div>
 
@@ -183,11 +183,11 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                         {localSelected.size} selected
                     </div>
                     <div className="flex gap-2">
-                        <ZoruButton variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-                        <ZoruButton onClick={handleConfirm}>Confirm Selection</ZoruButton>
+                        <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button onClick={handleConfirm}>Confirm Selection</Button>
                     </div>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

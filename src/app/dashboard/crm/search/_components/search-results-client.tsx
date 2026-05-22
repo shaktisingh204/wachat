@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
  * for `/dashboard/crm/search`.
  *
  * Receives server-rendered `groups: SearchResultGroup[]` and:
- *  - Renders each group in its own `<ZoruCard>` with the entity kind as
+ *  - Renders each group in its own `<Card>` with the entity kind as
  *    the card title.
  *  - Each row is an `<EntityPickerChip>`-style pill — avatar/initials +
  *    primary + secondary — clickable, navigates to the result's route.
@@ -107,11 +107,11 @@ export function SearchResultsClient({
       aria-label="Search results"
     >
       {groups.map((group, gi) => (
-        <ZoruCard key={group.entityKind} className="p-6">
+        <Card key={group.entityKind} className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h2 className="text-[15px] font-semibold text-zoru-ink">{group.label}</h2>
-              <ZoruBadge variant="secondary">{group.results.length}</ZoruBadge>
+              <Badge variant="secondary">{group.results.length}</Badge>
             </div>
           </div>
           <ul className="flex flex-col gap-1">
@@ -153,7 +153,7 @@ export function SearchResultsClient({
               );
             })}
           </ul>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );

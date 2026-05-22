@@ -70,20 +70,20 @@ type BlockedRow = {
 function PageRolesSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-48" />
+      <Skeleton className="h-3 w-48" />
       <div className="mt-5 flex flex-col gap-2">
-        <ZoruSkeleton className="h-3 w-24" />
-        <ZoruSkeleton className="h-7 w-72" />
-        <ZoruSkeleton className="h-3 w-96" />
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-7 w-72" />
+        <Skeleton className="h-3 w-96" />
       </div>
       <div className="mt-6 grid gap-3 md:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-24 w-full" />
+          <Skeleton key={i} className="h-24 w-full" />
         ))}
       </div>
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <ZoruSkeleton className="h-72 w-full" />
-        <ZoruSkeleton className="h-72 w-full" />
+        <Skeleton className="h-72 w-full" />
+        <Skeleton className="h-72 w-full" />
       </div>
     </div>
   );
@@ -175,7 +175,7 @@ export default function PageRolesPage() {
         accessorKey: "role",
         header: "Role",
         cell: ({ row }) => (
-          <ZoruBadge variant="secondary">{row.original.role}</ZoruBadge>
+          <Badge variant="secondary">{row.original.role}</Badge>
         ),
       },
     ],
@@ -207,13 +207,13 @@ export default function PageRolesPage() {
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setUnblockTarget(row.original)}
             >
               Unblock
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -227,7 +227,7 @@ export default function PageRolesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -243,9 +243,9 @@ export default function PageRolesPage() {
             <ZoruBreadcrumbPage>Page roles</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5" bordered={false}>
+      <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
             Page access control
@@ -257,14 +257,14 @@ export default function PageRolesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={fetchData}
             disabled={!projectId}
           >
             <RefreshCw /> Refresh
-          </ZoruButton>
+          </Button>
           {projectId ? (
             <BlockProfileDialog
               projectId={projectId}
@@ -272,7 +272,7 @@ export default function PageRolesPage() {
             />
           ) : null}
         </div>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!projectId ? (
         <div className="mt-6">
@@ -280,11 +280,11 @@ export default function PageRolesPage() {
         </div>
       ) : error ? (
         <div className="mt-6">
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <AlertCircle />
             <ZoruAlertTitle>Couldn’t load page roles</ZoruAlertTitle>
             <ZoruAlertDescription>{error}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         </div>
       ) : (
         <>
@@ -317,7 +317,7 @@ export default function PageRolesPage() {
           {/* ── Tables ── */}
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             {/* Roles */}
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
@@ -327,22 +327,22 @@ export default function PageRolesPage() {
                     {roles.length} role{roles.length !== 1 ? "s" : ""} assigned
                   </p>
                 </div>
-                <ZoruBadge variant="outline">
+                <Badge variant="outline">
                   <ShieldCheck className="h-3 w-3" />
                   Live
-                </ZoruBadge>
+                </Badge>
               </div>
 
               <div className="mt-4">
                 {roles.length === 0 ? (
-                  <ZoruEmptyState
+                  <EmptyState
                     compact
                     icon={<ShieldCheck />}
                     title="No roles found"
                     description="Add admins or editors from your Facebook Page settings."
                   />
                 ) : (
-                  <ZoruDataTable
+                  <DataTable
                     columns={roleColumns}
                     data={roles}
                     showColumnMenu={false}
@@ -350,10 +350,10 @@ export default function PageRolesPage() {
                   />
                 )}
               </div>
-            </ZoruCard>
+            </Card>
 
             {/* Blocked */}
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
@@ -368,14 +368,14 @@ export default function PageRolesPage() {
 
               <div className="mt-4">
                 {blocked.length === 0 ? (
-                  <ZoruEmptyState
+                  <EmptyState
                     compact
                     icon={<Ban />}
                     title="No blocked profiles"
                     description="Use “Block profile” above to restrict a Facebook profile."
                   />
                 ) : (
-                  <ZoruDataTable
+                  <DataTable
                     columns={blockedColumns}
                     data={blocked}
                     showColumnMenu={false}
@@ -383,7 +383,7 @@ export default function PageRolesPage() {
                   />
                 )}
               </div>
-            </ZoruCard>
+            </Card>
           </div>
         </>
       )}

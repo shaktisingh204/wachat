@@ -30,23 +30,23 @@ export function TestimonialsBlockRenderer({ settings }: { settings: any }) {
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(settings.testimonials || []).map((item: any) => (
-                <ZoruCard key={item.id} className="flex flex-col">
+                <Card key={item.id} className="flex flex-col">
                     <ZoruCardContent className="p-6 flex-grow">
                         <p className="italic text-muted-foreground">"{item.quote}"</p>
                     </ZoruCardContent>
                     <ZoruCardFooter className="flex items-center gap-4 mt-auto">
-                        <ZoruAvatar>
+                        <Avatar>
                             {item.avatar ? (
                                 <ZoruAvatarImage src={item.avatar} alt={item.author} data-ai-hint="person avatar" />
                             ) : null}
                             <ZoruAvatarFallback>{item.author?.charAt(0) || 'A'}</ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <div>
                             <p className="font-semibold">{item.author}</p>
                             <p className="text-sm text-muted-foreground">{item.title}</p>
                         </div>
                     </ZoruCardFooter>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     </div>

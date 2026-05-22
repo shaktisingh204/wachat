@@ -255,26 +255,26 @@ export function BankingListClient(): React.JSX.Element {
                     subtitle="Manage your bank, employee, cash and wallet accounts."
                     primaryAction={
                         <>
-                            <ZoruButton asChild variant="outline">
+                            <Button asChild variant="outline">
                                 <Link href="/dashboard/crm/banking/bank-transactions">Transactions</Link>
-                            </ZoruButton>
-                            <ZoruButton asChild variant="outline">
+                            </Button>
+                            <Button asChild variant="outline">
                                 <Link href="/dashboard/crm/banking/reconciliation">Reconcile</Link>
-                            </ZoruButton>
-                            <ZoruButton onClick={handleExport} variant="outline">
+                            </Button>
+                            <Button onClick={handleExport} variant="outline">
                                 Export CSV
-                            </ZoruButton>
-                            <ZoruButton asChild>
+                            </Button>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/banking/all/new">
                                     <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Account
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </>
                     }
                     search={{ value: search, onChange: setSearch, placeholder: 'Search accounts…' }}
                     filters={
                         <div className="flex flex-wrap items-center gap-2">
-                            <ZoruSelect
+                            <Select
                                 value={filters.currency}
                                 onValueChange={(v) => setFilters({ ...filters, currency: v })}
                             >
@@ -289,8 +289,8 @@ export function BankingListClient(): React.JSX.Element {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                            </Select>
+                            <Select
                                 value={filters.status}
                                 onValueChange={(v) => setFilters({ ...filters, status: v as FiltersState['status'] })}
                             >
@@ -302,8 +302,8 @@ export function BankingListClient(): React.JSX.Element {
                                     <ZoruSelectItem value="active">Active</ZoruSelectItem>
                                     <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                            </Select>
+                            <Select
                                 value={filters.defaultOnly}
                                 onValueChange={(v) =>
                                     setFilters({ ...filters, defaultOnly: v as FiltersState['defaultOnly'] })
@@ -317,7 +317,7 @@ export function BankingListClient(): React.JSX.Element {
                                     <ZoruSelectItem value="yes">Default only</ZoruSelectItem>
                                     <ZoruSelectItem value="no">Non-default</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     }
                     bulkBar={
@@ -327,33 +327,33 @@ export function BankingListClient(): React.JSX.Element {
                                     <strong>{selection.size}</strong> selected
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <ZoruButton
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setConfirmBulk('archive')}
                                         disabled={isPending}
                                     >
                                         Archive
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setConfirmBulk('activate')}
                                         disabled={isPending}
                                     >
                                         Activate
-                                    </ZoruButton>
-                                    <ZoruButton variant="outline" size="sm" onClick={handleExport} disabled={isPending}>
+                                    </Button>
+                                    <Button variant="outline" size="sm" onClick={handleExport} disabled={isPending}>
                                         Export
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="destructive"
                                         size="sm"
                                         onClick={() => setConfirmBulk('delete')}
                                         disabled={isPending}
                                     >
                                         Delete
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
                         ) : null

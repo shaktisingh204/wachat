@@ -58,7 +58,7 @@ export default function BillingPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -68,29 +68,29 @@ export default function BillingPage() {
                         <ZoruBreadcrumbPage>{t('settings.billing.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <ZoruPageTitle>{t('settings.billing.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
                             {t('settings.billing.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
-                <ZoruButton size="sm" asChild>
+                </PageHeader>
+                <Button size="sm" asChild>
                     <Link href="/dashboard/user/billing">
                         {t('settings.billing.manageBilling')}
                         <ArrowUpRight className="h-4 w-4" />
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
 
             {/* Current plan card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 {loading ? (
-                    <ZoruSkeleton className="h-40 w-full" />
+                    <Skeleton className="h-40 w-full" />
                 ) : (
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export default function BillingPage() {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <p className="text-base text-zoru-ink">{planName}</p>
-                                    <ZoruBadge variant="info">{t('settings.billing.currentPlan')}</ZoruBadge>
+                                    <Badge variant="info">{t('settings.billing.currentPlan')}</Badge>
                                 </div>
                                 <p className="mt-1 text-xs text-zoru-ink-muted">
                                     {price > 0
@@ -110,19 +110,19 @@ export default function BillingPage() {
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <ZoruButton variant="outline" size="sm" asChild>
+                            <Button variant="outline" size="sm" asChild>
                                 <Link href="/dashboard/user/billing">{t('settings.billing.changePlan')}</Link>
-                            </ZoruButton>
-                            <ZoruButton variant="ghost" size="sm" asChild>
+                            </Button>
+                            <Button variant="ghost" size="sm" asChild>
                                 <Link href="/dashboard/settings/invoices">{t('settings.billing.invoices')}</Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Features */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4">
                     <p className="text-sm text-zoru-ink">{t('settings.billing.whatsIncluded')}</p>
                     <p className="text-xs text-zoru-ink-muted">
@@ -130,7 +130,7 @@ export default function BillingPage() {
                     </p>
                 </div>
                 {loading ? (
-                    <ZoruSkeleton className="h-40 w-full" />
+                    <Skeleton className="h-40 w-full" />
                 ) : featureEntries.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-xs text-zoru-ink-muted">
                         {t('settings.billing.noFeatureMatrix')}
@@ -155,10 +155,10 @@ export default function BillingPage() {
                         ))}
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Payment method */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <CreditCard className="h-4 w-4" />
@@ -177,11 +177,11 @@ export default function BillingPage() {
                                 : t('settings.billing.noSavedCard')}
                         </p>
                     </div>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                         <Link href="/dashboard/user/billing">{t('settings.billing.update')}</Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

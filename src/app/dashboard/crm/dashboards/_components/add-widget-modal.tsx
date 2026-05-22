@@ -124,7 +124,7 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
     }
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="max-w-lg">
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>
@@ -161,8 +161,8 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                 ) : (
                     <div className="space-y-3">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="widget-title">Title</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="widget-title">Title</Label>
+                            <Input
                                 id="widget-title"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
@@ -170,8 +170,8 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="ds-type">Data source</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="ds-type">Data source</Label>
+                            <Select
                                 value={dsType}
                                 onValueChange={(v) => setDsType(v as WidgetDataSourceType)}
                             >
@@ -185,16 +185,16 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             <p className="text-[11.5px] text-zoru-ink-muted">
                                 {DATA_SOURCE_TYPES.find((d) => d.value === dsType)?.hint}
                             </p>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="ds-ref">
+                            <Label htmlFor="ds-ref">
                                 {dsType === 'metric_query' ? 'Metric slug' : 'Reference ID'}
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="ds-ref"
                                 value={dsRef}
                                 onChange={(e) => setDsRef(e.target.value)}
@@ -224,23 +224,23 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                 <ZoruDialogFooter className="flex gap-2">
                     {step === 1 ? (
                         <>
-                            <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+                            <Button variant="outline" onClick={() => onOpenChange(false)}>
                                 Cancel
-                            </ZoruButton>
-                            <ZoruButton onClick={() => setStep(2)}>Next</ZoruButton>
+                            </Button>
+                            <Button onClick={() => setStep(2)}>Next</Button>
                         </>
                     ) : (
                         <>
-                            <ZoruButton variant="outline" onClick={() => setStep(1)}>
+                            <Button variant="outline" onClick={() => setStep(1)}>
                                 Back
-                            </ZoruButton>
-                            <ZoruButton onClick={confirm} disabled={!dsRef.trim()}>
+                            </Button>
+                            <Button onClick={confirm} disabled={!dsRef.trim()}>
                                 Add widget
-                            </ZoruButton>
+                            </Button>
                         </>
                     )}
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

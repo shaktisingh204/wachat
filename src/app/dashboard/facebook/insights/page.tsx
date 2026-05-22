@@ -190,7 +190,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<BarChart3 />}
           title="No project selected"
           description="Pick a Facebook page / project to see insights."
@@ -201,7 +201,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -215,7 +215,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Insights</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -226,7 +226,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruSelect value={preset} onValueChange={(v) => setPreset(v as Preset)}>
+          <Select value={preset} onValueChange={(v) => setPreset(v as Preset)}>
             <ZoruSelectTrigger className="w-[160px]">
               <ZoruSelectValue placeholder="Range" />
             </ZoruSelectTrigger>
@@ -235,45 +235,45 @@ export default function FacebookInsightsPage(): React.JSX.Element {
               <ZoruSelectItem value="30d">Last 30 days</ZoruSelectItem>
               <ZoruSelectItem value="90d">Last 90 days</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          </Select>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load insights</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {loading && series.length === 0 && !summary ? (
           <>
-            <ZoruSkeleton className="h-28 w-full" />
-            <ZoruSkeleton className="h-28 w-full" />
-            <ZoruSkeleton className="h-28 w-full" />
-            <ZoruSkeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
           </>
         ) : (
           <>
-            <ZoruStatCard
+            <StatCard
               icon={<Eye />}
               label="Impressions"
               value={(metricTotal(impressions) || 0).toLocaleString()}
               period={`last ${presetSince(preset).days} days`}
             />
-            <ZoruStatCard
+            <StatCard
               icon={<Users />}
               label="Reach"
               value={(summary?.pageReach ?? 0).toLocaleString()}
               period="lifetime page reach"
             />
-            <ZoruStatCard
+            <StatCard
               icon={<Heart />}
               label="Engagement"
               value={(
@@ -281,7 +281,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
               ).toLocaleString()}
               period={`last ${presetSince(preset).days} days`}
             />
-            <ZoruStatCard
+            <StatCard
               icon={<Activity />}
               label="Page views"
               value={(metricTotal(pageViews) || 0).toLocaleString()}
@@ -291,15 +291,15 @@ export default function FacebookInsightsPage(): React.JSX.Element {
         )}
       </section>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>{primaryLabel} over time</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
           {loading && chartData.length === 0 ? (
-            <ZoruSkeleton className="h-[280px] w-full" />
+            <Skeleton className="h-[280px] w-full" />
           ) : chartData.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<BarChart3 />}
               title="No time-series data"
               description="The Graph Insights API returned no daily values for this range."
@@ -356,9 +356,9 @@ export default function FacebookInsightsPage(): React.JSX.Element {
             </ZoruChartContainer>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Other metrics</ZoruCardTitle>
         </ZoruCardHeader>
@@ -375,7 +375,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
                   <span className="text-zoru-ink">{m.title ?? m.name}</span>
                   <div className="flex items-center gap-2">
                     {m.period ? (
-                      <ZoruBadge variant="outline">{m.period}</ZoruBadge>
+                      <Badge variant="outline">{m.period}</Badge>
                     ) : null}
                     <span className="font-medium text-zoru-ink">
                       {metricTotal(m).toLocaleString()}
@@ -394,7 +394,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -40,12 +40,12 @@ export function ClayUserCard({
         className,
       )}
     >
-      <ZoruAvatar className="h-10 w-10 shrink-0 ring-2 ring-background">
+      <Avatar className="h-10 w-10 shrink-0 ring-2 ring-background">
         {avatarSrc ? <ZoruAvatarImage src={avatarSrc} alt={name} /> : null}
         <ZoruAvatarFallback className="bg-gradient-to-br from-muted to-border text-[12px] font-semibold text-muted-foreground">
           {initials}
         </ZoruAvatarFallback>
-      </ZoruAvatar>
+      </Avatar>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-semibold text-foreground leading-[1.2]">
           {name}

@@ -64,7 +64,7 @@ export function BulkTemplateForm({
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <form onSubmit={handleSubmit}>
         <ZoruCardHeader>
           <ZoruCardTitle>Bulk Add Template</ZoruCardTitle>
@@ -75,8 +75,8 @@ export function BulkTemplateForm({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="template-select">Template to apply</ZoruLabel>
-            <ZoruSelect value={selectedTemplate} onValueChange={setSelectedTemplate}>
+            <Label htmlFor="template-select">Template to apply</Label>
+            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
               <ZoruSelectTrigger id="template-select">
                 <ZoruSelectValue placeholder="Select a template…" />
               </ZoruSelectTrigger>
@@ -87,7 +87,7 @@ export function BulkTemplateForm({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <p className="text-xs text-zoru-ink-muted">
               This will add or update the template with the same name and language in each
               selected project.
@@ -95,12 +95,12 @@ export function BulkTemplateForm({
           </div>
         </ZoruCardContent>
         <ZoruCardFooter>
-          <ZoruButton type="submit" disabled={isPending || !selectedTemplate}>
+          <Button type="submit" disabled={isPending || !selectedTemplate}>
             {isPending && <LoaderCircle className="h-4 w-4 animate-spin" />}
             Apply to all
-          </ZoruButton>
+          </Button>
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

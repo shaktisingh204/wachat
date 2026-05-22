@@ -58,14 +58,14 @@ export default function FlowsUserGuidePage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <ZoruButton variant="ghost" size="sm" asChild className="-ml-2 mb-4">
+        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
           <Link href="/wachat/flows">
             <ChevronLeft className="mr-1 h-4 w-4" />
             Back to Meta Flows
           </Link>
-        </ZoruButton>
+        </Button>
 
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>
               <span className="inline-flex items-center gap-3">
@@ -77,10 +77,10 @@ export default function FlowsUserGuidePage() {
               A guide to creating multi-step, interactive forms and journeys inside WhatsApp.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>What are Meta Flows?</ZoruCardTitle>
         </ZoruCardHeader>
@@ -104,9 +104,9 @@ export default function FlowsUserGuidePage() {
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div>
         <h2 className="text-2xl text-zoru-ink">Common patterns & use cases</h2>
@@ -117,7 +117,7 @@ export default function FlowsUserGuidePage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {commonPatterns.map((pattern) => (
-          <ZoruCard key={pattern.title} className="flex flex-col">
+          <Card key={pattern.title} className="flex flex-col">
             <ZoruCardHeader>
               <ZoruCardTitle>{pattern.title}</ZoruCardTitle>
               <ZoruCardDescription>{pattern.description}</ZoruCardDescription>
@@ -129,7 +129,7 @@ export default function FlowsUserGuidePage() {
                 ))}
               </ol>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     </div>

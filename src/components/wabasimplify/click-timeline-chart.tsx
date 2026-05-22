@@ -60,15 +60,15 @@ export function ClickTimelineChart({ data, isLoading, onGranularityChange }: Cli
 
   if (isLoading) {
     return (
-      <ZoruCard className="p-5">
-        <ZoruSkeleton className="h-5 w-36 mb-4" />
-        <ZoruSkeleton className="h-[220px] w-full rounded-lg" />
-      </ZoruCard>
+      <Card className="p-5">
+        <Skeleton className="h-5 w-36 mb-4" />
+        <Skeleton className="h-[220px] w-full rounded-lg" />
+      </Card>
     );
   }
 
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <MousePointerClick className="h-4 w-4 text-zoru-ink-muted" />
@@ -135,6 +135,6 @@ export function ClickTimelineChart({ data, isLoading, onGranularityChange }: Cli
           </AreaChart>
         </ResponsiveContainer>
       )}
-    </ZoruCard>
+    </Card>
   );
 }

@@ -46,7 +46,7 @@ export function InvoicesKpiStrip({
         onClick={() => onSelect('all')}
         ariaLabel="Show all unpaid invoices"
       >
-        <ZoruStatCard
+        <StatCard
           label="Outstanding"
           value={fmtMoney(kpi.outstanding, currency)}
           period="non-paid balance"
@@ -58,7 +58,7 @@ export function InvoicesKpiStrip({
         onClick={() => onSelect('my-overdue')}
         ariaLabel="Show overdue invoices"
       >
-        <ZoruStatCard
+        <StatCard
           label="Overdue"
           value={`${kpi.overdueCount.toLocaleString()} · ${fmtMoney(
             kpi.overdueAmount,
@@ -74,7 +74,7 @@ export function InvoicesKpiStrip({
         onClick={() => onSelect('paid-30d')}
         ariaLabel="Show invoices paid this month"
       >
-        <ZoruStatCard
+        <StatCard
           label="Paid this month"
           value={`${kpi.paidThisMonthCount.toLocaleString()} · ${fmtMoney(
             kpi.paidThisMonthAmount,
@@ -89,14 +89,14 @@ export function InvoicesKpiStrip({
         onClick={() => onSelect('draft')}
         ariaLabel="Show draft invoices"
       >
-        <ZoruStatCard
+        <StatCard
           label="Drafts"
           value={kpi.draftCount.toLocaleString()}
           period="not yet sent"
           icon={<FileEdit />}
         />
       </KpiButton>
-      <ZoruStatCard
+      <StatCard
         label="Avg days to pay"
         value={kpi.avgDaysToPay != null ? `${kpi.avgDaysToPay.toFixed(1)} d` : '—'}
         period="create → paid"

@@ -36,10 +36,10 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitBtn() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="lg" disabled={pending}>
+    <Button type="submit" size="lg" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       Save file record
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -78,12 +78,12 @@ export default function NewFileRecordPage() {
       back={{ href: '/dashboard/crm/files', label: 'Files' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="space-y-5">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="filename">Filename *</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="filename">Filename *</Label>
+              <Input
                 id="filename"
                 name="filename"
                 required
@@ -91,8 +91,8 @@ export default function NewFileRecordPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="display_name">Display name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="display_name">Display name</Label>
+              <Input
                 id="display_name"
                 name="display_name"
                 placeholder="Signed contract"
@@ -101,7 +101,7 @@ export default function NewFileRecordPage() {
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="url">File URL *</ZoruLabel>
+            <Label htmlFor="url">File URL *</Label>
             <SabFileUrlInput
               id="url"
               name="url"
@@ -117,27 +117,27 @@ export default function NewFileRecordPage() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="size_bytes">Size (bytes)</ZoruLabel>
-              <ZoruInput id="size_bytes" name="size_bytes" type="number" min={0} />
+              <Label htmlFor="size_bytes">Size (bytes)</Label>
+              <Input id="size_bytes" name="size_bytes" type="number" min={0} />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="mime_type">MIME type</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="mime_type">MIME type</Label>
+              <Input
                 id="mime_type"
                 name="mime_type"
                 placeholder="application/pdf"
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="extension">Extension</ZoruLabel>
-              <ZoruInput id="extension" name="extension" placeholder="pdf" />
+              <Label htmlFor="extension">Extension</Label>
+              <Input id="extension" name="extension" placeholder="pdf" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="folder_id">Folder</ZoruLabel>
-              <ZoruSelect name="folder_id">
+              <Label htmlFor="folder_id">Folder</Label>
+              <Select name="folder_id">
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="No folder (root)" />
                 </ZoruSelectTrigger>
@@ -148,11 +148,11 @@ export default function NewFileRecordPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="storage_location">Storage location</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="storage_location">Storage location</Label>
+              <Input
                 id="storage_location"
                 name="storage_location"
                 defaultValue="external"
@@ -162,8 +162,8 @@ export default function NewFileRecordPage() {
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               rows={3}
@@ -178,19 +178,19 @@ export default function NewFileRecordPage() {
               name="is_public"
               className="h-4 w-4"
             />
-            <ZoruLabel htmlFor="is_public" className="cursor-pointer">
+            <Label htmlFor="is_public" className="cursor-pointer">
               Publicly accessible
-            </ZoruLabel>
+            </Label>
           </div>
 
           <div className="flex items-center justify-end gap-3 border-t border-zoru-line pt-4">
             <Link href="/dashboard/crm/files">
-              <ZoruButton variant="ghost">Cancel</ZoruButton>
+              <Button variant="ghost">Cancel</Button>
             </Link>
             <SubmitBtn />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

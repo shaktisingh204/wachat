@@ -358,26 +358,26 @@ export function ProformaListClient({
           placeholder: 'Search proformas…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/proforma/new">
               <Plus className="h-4 w-4" /> New proforma
             </Link>
-          </ZoruButton>
+          </Button>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-              <ZoruButton size="sm" variant="outline" onClick={bulkArchive} disabled={busy}>
+              <Button size="sm" variant="outline" onClick={bulkArchive} disabled={busy}>
                 Archive
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={bulkExport}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={bulkExportXlsx}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkExportXlsx}>
                 <Download className="h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 className="text-zoru-danger-ink"
@@ -385,10 +385,10 @@ export function ProformaListClient({
                 disabled={busy}
               >
                 Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -400,11 +400,11 @@ export function ProformaListClient({
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Create a proforma invoice to share a cost estimate before issuing a formal invoice.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/proforma/new">
                   <Plus className="h-4 w-4" /> New proforma
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -426,7 +426,7 @@ export function ProformaListClient({
             </div>
           ) : null}
 
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-2 border-b border-zoru-line px-3 py-2">
               <div className="relative max-w-xs flex-1">
@@ -450,9 +450,9 @@ export function ProformaListClient({
               </div>
               <details className="relative">
                 <summary className="list-none">
-                  <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                  <Button variant="outline" size="sm" className="h-9 text-[12.5px]">
                     <CalendarRange className="h-3.5 w-3.5" /> Date range
-                  </ZoruButton>
+                  </Button>
                 </summary>
                 <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
                   <label className="text-[11px] text-zoru-ink-muted">From</label>
@@ -472,7 +472,7 @@ export function ProformaListClient({
                 </div>
               </details>
               {filtersActive ? (
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => {
@@ -482,15 +482,15 @@ export function ProformaListClient({
                   className="text-[12px] text-zoru-ink-muted"
                 >
                   <X className="h-3.5 w-3.5" /> Clear filters
-                </ZoruButton>
+                </Button>
               ) : null}
             </div>
 
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-[36px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
@@ -523,7 +523,7 @@ export function ProformaListClient({
                     return (
                       <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${inv.proformaNumber}`}
@@ -567,8 +567,8 @@ export function ProformaListClient({
                   })
                 )}
               </ZoruTableBody>
-            </ZoruTable>
-          </ZoruCard>
+            </Table>
+          </Card>
         </div>
       </EntityListShell>
 

@@ -28,24 +28,24 @@ export default function RedirectCheckerPage() {
   return (
     <ToolShell title="Redirect Checker" description="Trace the redirect chain from an initial URL to its final destination.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={loading || !url}>
+        <Button onClick={run} disabled={loading || !url}>
           {loading ? 'Checking…' : 'Check'}
-        </ZoruButton>
+        </Button>
       </div>
 
       {result?.error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{result.error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {result && !result.error && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <Stat label="Hops" value={String(result.redirectChain?.length ?? 0)} />
@@ -61,8 +61,8 @@ export default function RedirectCheckerPage() {
                 <div className="space-y-2">
                   {result.redirectChain.map((hop, i) => (
                     <div key={i} className="flex items-start gap-3 text-sm">
-                      <ZoruBadge variant="secondary">{i + 1}</ZoruBadge>
-                      <ZoruBadge>{hop.status}</ZoruBadge>
+                      <Badge variant="secondary">{i + 1}</Badge>
+                      <Badge>{hop.status}</Badge>
                       <div className="font-mono break-all">{hop.url}</div>
                     </div>
                   ))}
@@ -70,7 +70,7 @@ export default function RedirectCheckerPage() {
               )}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

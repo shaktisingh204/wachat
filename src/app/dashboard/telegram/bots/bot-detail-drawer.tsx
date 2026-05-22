@@ -137,7 +137,7 @@ export function BotDetailDrawer({
     }
 
     return (
-        <ZoruSheet open={open} onOpenChange={onOpenChange}>
+        <Sheet open={open} onOpenChange={onOpenChange}>
             <ZoruSheetContent
                 side="right"
                 className="flex w-full max-w-[640px] flex-col gap-0 p-0 sm:max-w-[640px]"
@@ -210,9 +210,9 @@ export function BotDetailDrawer({
                 <div className="flex-1 overflow-y-auto p-6">
                     {loading ? (
                         <div className="flex flex-col gap-3">
-                            <ZoruSkeleton className="h-8 w-1/2" />
-                            <ZoruSkeleton className="h-6 w-3/4" />
-                            <ZoruSkeleton className="h-32 w-full" />
+                            <Skeleton className="h-8 w-1/2" />
+                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-32 w-full" />
                         </div>
                     ) : !bot ? (
                         <div className="flex flex-col items-start gap-3 rounded-lg border border-zoru-danger-line bg-zoru-danger-bg p-4 text-[12.5px] text-zoru-danger-ink">
@@ -226,14 +226,14 @@ export function BotDetailDrawer({
                                     </p>
                                 </div>
                             </div>
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={reload}
                             >
                                 <RefreshCw className="h-3 w-3" aria-hidden />
                                 Retry
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : section === 'overview' ? (
                         <OverviewPanel bot={bot} onRefresh={mutated} toast={toast} />
@@ -273,7 +273,7 @@ export function BotDetailDrawer({
                     )}
                 </div>
             </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
     );
 }
 
@@ -332,7 +332,7 @@ function OverviewPanel({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap gap-2">
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={refreshInfo}
@@ -344,8 +344,8 @@ function OverviewPanel({
                         <RefreshCw className="h-3 w-3" aria-hidden />
                     )}
                     Refresh from Telegram
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={runHealth}
@@ -357,7 +357,7 @@ function OverviewPanel({
                         <Heart className="h-3 w-3" aria-hidden />
                     )}
                     Health check
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -378,7 +378,7 @@ function OverviewPanel({
                 />
             </div>
 
-            <ZoruSeparator />
+            <Separator />
 
             <div>
                 <h3 className="text-[13px] font-medium text-zoru-ink">Capabilities</h3>
@@ -408,20 +408,20 @@ function OverviewPanel({
 function StatusInline({ status }: { status: BotRow['status'] }) {
     if (status === 'active')
         return (
-            <ZoruBadge variant="success">
+            <Badge variant="success">
                 <CheckCircle2 className="h-3 w-3" aria-hidden /> Active
-            </ZoruBadge>
+            </Badge>
         );
     if (status === 'error')
         return (
-            <ZoruBadge variant="danger">
+            <Badge variant="danger">
                 <AlertTriangle className="h-3 w-3" aria-hidden /> Error
-            </ZoruBadge>
+            </Badge>
         );
     return (
-        <ZoruBadge variant="ghost">
+        <Badge variant="ghost">
             <Unlink className="h-3 w-3" aria-hidden /> Disconnected
-        </ZoruBadge>
+        </Badge>
     );
 }
 
@@ -444,14 +444,14 @@ function Field({
 
 function Capability({ label, on }: { label: string; on: boolean }) {
     return (
-        <ZoruBadge variant={on ? 'success' : 'ghost'}>
+        <Badge variant={on ? 'success' : 'ghost'}>
             {on ? (
                 <CheckCircle2 className="h-3 w-3" aria-hidden />
             ) : (
                 <X className="h-3 w-3" aria-hidden />
             )}
             {label}
-        </ZoruBadge>
+        </Badge>
     );
 }
 
@@ -569,7 +569,7 @@ function CommandsPanel({
     return (
         <div className="flex flex-col gap-3">
             {loading ? (
-                <ZoruSkeleton className="h-40 w-full" />
+                <Skeleton className="h-40 w-full" />
             ) : (
                 <>
                     {commands.length === 0 ? (
@@ -585,10 +585,10 @@ function CommandsPanel({
                                     className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line p-3"
                                 >
                                     <div className="flex flex-col gap-1">
-                                        <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                                        <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                                             Command
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             value={c.command}
                                             onChange={(e) =>
                                                 update(idx, {
@@ -602,10 +602,10 @@ function CommandsPanel({
                                         />
                                     </div>
                                     <div className="flex flex-1 flex-col gap-1">
-                                        <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                                        <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                                             Description
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             value={c.description}
                                             onChange={(e) =>
                                                 update(idx, { description: e.target.value })
@@ -613,25 +613,25 @@ function CommandsPanel({
                                             placeholder="Start the bot"
                                         />
                                     </div>
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => remove(idx)}
                                         aria-label="Remove command"
                                     >
                                         <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
                     )}
 
                     <div className="flex items-center justify-between gap-2">
-                        <ZoruButton variant="outline" size="sm" onClick={add}>
+                        <Button variant="outline" size="sm" onClick={add}>
                             <Plus className="h-3 w-3" aria-hidden /> Add command
-                        </ZoruButton>
+                        </Button>
                         <div className="flex gap-2">
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={clearAll}
@@ -641,8 +641,8 @@ function CommandsPanel({
                                     <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
                                 ) : null}
                                 Clear all
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 size="sm"
                                 onClick={save}
                                 disabled={saving || clearing}
@@ -653,7 +653,7 @@ function CommandsPanel({
                                     <Save className="h-3 w-3" aria-hidden />
                                 )}
                                 Push to Telegram
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 </>
@@ -750,10 +750,10 @@ function ProfilePanel({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                     Language code
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                     value={languageCode}
                     onChange={(e) =>
                         setLanguageCode(e.target.value.toLowerCase().slice(0, 5))
@@ -767,19 +767,19 @@ function ProfilePanel({
                 </p>
             </div>
 
-            <ZoruSeparator />
+            <Separator />
 
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                     Name (1–64 chars)
-                </ZoruLabel>
+                </Label>
                 <div className="flex gap-2">
-                    <ZoruInput
+                    <Input
                         value={name}
                         onChange={(e) => setName(e.target.value.slice(0, 64))}
                         placeholder="My Bot"
                     />
-                    <ZoruButton
+                    <Button
                         size="sm"
                         onClick={saveName}
                         disabled={busy !== null}
@@ -790,22 +790,22 @@ function ProfilePanel({
                             <Save className="h-3 w-3" aria-hidden />
                         )}
                         Save
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                     Description (0–512 chars)
-                </ZoruLabel>
-                <ZoruTextarea
+                </Label>
+                <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value.slice(0, 512))}
                     rows={4}
                     placeholder="Shown on the bot’s profile page."
                 />
                 <div className="flex justify-end">
-                    <ZoruButton
+                    <Button
                         size="sm"
                         onClick={saveDescription}
                         disabled={busy !== null}
@@ -816,22 +816,22 @@ function ProfilePanel({
                             <Save className="h-3 w-3" aria-hidden />
                         )}
                         Save description
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                     Short description (0–120 chars)
-                </ZoruLabel>
-                <ZoruTextarea
+                </Label>
+                <Textarea
                     value={shortDescription}
                     onChange={(e) => setShortDescription(e.target.value.slice(0, 120))}
                     rows={2}
                     placeholder="Shown on the bot’s share preview card."
                 />
                 <div className="flex justify-end">
-                    <ZoruButton
+                    <Button
                         size="sm"
                         onClick={saveShort}
                         disabled={busy !== null}
@@ -842,7 +842,7 @@ function ProfilePanel({
                             <Save className="h-3 w-3" aria-hidden />
                         )}
                         Save short description
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -931,15 +931,15 @@ function MenuButtonPanel({
         }
     }
 
-    if (loading) return <ZoruSkeleton className="h-40 w-full" />;
+    if (loading) return <Skeleton className="h-40 w-full" />;
 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                     Menu type
-                </ZoruLabel>
-                <ZoruSelect value={type} onValueChange={(v) => setType(v as MenuType)}>
+                </Label>
+                <Select value={type} onValueChange={(v) => setType(v as MenuType)}>
                     <ZoruSelectTrigger>
                         <ZoruSelectValue />
                     </ZoruSelectTrigger>
@@ -948,26 +948,26 @@ function MenuButtonPanel({
                         <ZoruSelectItem value="commands">Commands list</ZoruSelectItem>
                         <ZoruSelectItem value="web_app">Web app</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             {type === 'web_app' ? (
                 <>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                        <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                             Button text
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             value={text}
                             onChange={(e) => setText(e.target.value.slice(0, 64))}
                             placeholder="Open app"
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                        <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                             Web app URL (https://)
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             placeholder="https://example.com/mini-app"
@@ -977,7 +977,7 @@ function MenuButtonPanel({
                 </>
             ) : null}
 
-            <ZoruSeparator />
+            <Separator />
             <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4">
                 <p className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-subtle">
                     Preview
@@ -997,14 +997,14 @@ function MenuButtonPanel({
             </div>
 
             <div className="flex justify-end">
-                <ZoruButton size="sm" onClick={save} disabled={saving}>
+                <Button size="sm" onClick={save} disabled={saving}>
                     {saving ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
                     ) : (
                         <Save className="h-3 w-3" aria-hidden />
                     )}
                     Save menu button
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -1114,9 +1114,9 @@ function WebhookPanel({
                     </span>
                     <div className="mt-1 flex flex-wrap gap-1">
                         {info.allowedUpdates.map((u) => (
-                            <ZoruBadge key={u} variant="ghost">
+                            <Badge key={u} variant="ghost">
                                 {u}
-                            </ZoruBadge>
+                            </Badge>
                         ))}
                     </div>
                 </div>
@@ -1135,7 +1135,7 @@ function WebhookPanel({
             ) : null}
 
             <div className="flex flex-wrap gap-2">
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={refresh}
@@ -1147,8 +1147,8 @@ function WebhookPanel({
                         <RefreshCw className="h-3 w-3" aria-hidden />
                     )}
                     Refresh
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={rotate}
@@ -1160,8 +1160,8 @@ function WebhookPanel({
                         <RotateCw className="h-3 w-3" aria-hidden />
                     )}
                     Rotate secret
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="destructive"
                     size="sm"
                     onClick={disconnect}
@@ -1173,7 +1173,7 @@ function WebhookPanel({
                         <Unlink className="h-3 w-3" aria-hidden />
                     )}
                     Disconnect bot
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -1282,10 +1282,10 @@ function AdminRightsPanel({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[10.5px] uppercase tracking-[0.1em]">
+                <Label className="text-[10.5px] uppercase tracking-[0.1em]">
                     Scope
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                     value={forChannels ? 'channel' : 'group'}
                     onValueChange={(v) => setForChannels(v === 'channel')}
                 >
@@ -1296,11 +1296,11 @@ function AdminRightsPanel({
                         <ZoruSelectItem value="group">Groups</ZoruSelectItem>
                         <ZoruSelectItem value="channel">Channels</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             {loading ? (
-                <ZoruSkeleton className="h-60 w-full" />
+                <Skeleton className="h-60 w-full" />
             ) : (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {fields.map((f) => (
@@ -1311,7 +1311,7 @@ function AdminRightsPanel({
                             <span className="text-[12.5px] text-zoru-ink">
                                 {f.label}
                             </span>
-                            <ZoruSwitch
+                            <Switch
                                 checked={!!rights[f.key]}
                                 onCheckedChange={(v) => toggle(f.key, v)}
                                 aria-label={f.label}
@@ -1322,14 +1322,14 @@ function AdminRightsPanel({
             )}
 
             <div className="flex justify-end">
-                <ZoruButton size="sm" onClick={save} disabled={saving}>
+                <Button size="sm" onClick={save} disabled={saving}>
                     {saving ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
                     ) : (
                         <Save className="h-3 w-3" aria-hidden />
                     )}
                     Save default rights
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );

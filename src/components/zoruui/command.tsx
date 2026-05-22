@@ -43,7 +43,7 @@ export function ZoruCommandDialog({
   contentProps,
 }: ZoruCommandDialogProps) {
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent
         {...contentProps}
         className={cn("overflow-hidden p-0 max-w-2xl", contentProps?.className)}
@@ -53,7 +53,7 @@ export function ZoruCommandDialog({
           {children}
         </ZoruCommand>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

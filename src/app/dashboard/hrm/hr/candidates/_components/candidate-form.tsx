@@ -45,14 +45,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create candidate'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -116,7 +116,7 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -130,8 +130,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 1: First + last name */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="firstName">First name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="firstName">First name *</Label>
+                        <Input
                             id="firstName"
                             name="firstName"
                             required
@@ -140,8 +140,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="lastName">Last name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="lastName">Last name</Label>
+                        <Input
                             id="lastName"
                             name="lastName"
                             placeholder="e.g. Sharma"
@@ -153,8 +153,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 2: Email + phone */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="email">Email *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
                             id="email"
                             name="email"
                             type="email"
@@ -164,8 +164,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="phone">Phone</Label>
+                        <Input
                             id="phone"
                             name="phone"
                             placeholder="+91-…"
@@ -177,10 +177,10 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 3: Current company + title */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currentCompany">
+                        <Label htmlFor="currentCompany">
                             Current company
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="currentCompany"
                             name="currentCompany"
                             placeholder="e.g. Acme Corp"
@@ -188,10 +188,10 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currentTitle">
+                        <Label htmlFor="currentTitle">
                             Current title
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="currentTitle"
                             name="currentTitle"
                             placeholder="e.g. Senior Engineer"
@@ -203,8 +203,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 4: Location + Job id */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="location">Location</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="location">Location</Label>
+                        <Input
                             id="location"
                             name="location"
                             placeholder="e.g. Bengaluru, IN"
@@ -212,8 +212,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="jobId">Linked job id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="jobId">Linked job id</Label>
+                        <Input
                             id="jobId"
                             name="jobId"
                             placeholder="Optional"
@@ -225,7 +225,7 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 5: Stage + Source */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Stage</ZoruLabel>
+                        <Label>Stage</Label>
                         <EnumFormField
                             enumName="candidateStage"
                             name="stage"
@@ -239,7 +239,7 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Source</ZoruLabel>
+                        <Label>Source</Label>
                         <EnumFormField
                             enumName="candidateSource"
                             name="source"
@@ -254,7 +254,7 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
 
                 {/* Row 6: Resume (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Resume</ZoruLabel>
+                    <Label>Resume</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -276,14 +276,14 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                                 >
                                     {resumeName || resumeUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearResume}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -296,10 +296,10 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 7: Experience + expected salary + currency */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="experienceYears">
+                        <Label htmlFor="experienceYears">
                             Experience (yrs)
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="experienceYears"
                             name="experienceYears"
                             type="number"
@@ -313,10 +313,10 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expectedSalary">
+                        <Label htmlFor="expectedSalary">
                             Expected salary
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="expectedSalary"
                             name="expectedSalary"
                             type="number"
@@ -330,7 +330,7 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -344,8 +344,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 8: Skills + Rating */}
                 <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="skills">Skills</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="skills">Skills</Label>
+                        <Input
                             id="skills"
                             name="skills"
                             placeholder="react, typescript, node"
@@ -353,8 +353,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="rating">Rating (1-5)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="rating">Rating (1-5)</Label>
+                        <Input
                             id="rating"
                             name="rating"
                             type="number"
@@ -373,8 +373,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
 
                 {/* Row 9: Cover letter */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="coverLetter">Cover letter</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="coverLetter">Cover letter</Label>
+                    <Textarea
                         id="coverLetter"
                         name="coverLetter"
                         rows={4}
@@ -385,8 +385,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
 
                 {/* Row 10: Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -397,8 +397,8 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
 
                 {/* Row 11: Tags */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="tags">Tags</Label>
+                    <Input
                         id="tags"
                         name="tags"
                         placeholder="comma, separated, tags"
@@ -408,15 +408,15 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to candidates
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

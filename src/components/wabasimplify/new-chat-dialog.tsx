@@ -63,7 +63,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
   const selectedCountry = countryCodes.find(c => c.name === selectedCountryName);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-[425px] max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form onSubmit={handleSubmit} className="flex h-full flex-col overflow-hidden">
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
@@ -75,11 +75,11 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <ZoruLabel>Phone Number</ZoruLabel>
+                <Label>Phone Number</Label>
                 <div className="flex gap-2">
                   <Popover open={openCombobox} onOpenChange={setOpenCombobox} modal={true}>
                     <PopoverTrigger asChild>
-                      <ZoruButton
+                      <Button
                         variant="outline"
                         role="combobox"
                         aria-expanded={openCombobox}
@@ -88,7 +88,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                       >
                         {selectedCountry ? `+${selectedCountry.code}` : "Select..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </ZoruButton>
+                      </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[300px] p-0" align="start">
                       <Command>
@@ -120,7 +120,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  <ZoruInput
+                  <Input
                     id="phoneNumber"
                     name="phoneNumber"
                     placeholder="e.g. 9876543210"
@@ -138,14 +138,14 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</ZoruButton>
-            <ZoruButton type="submit" disabled={loading || !phoneNumber}>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
+            <Button type="submit" disabled={loading || !phoneNumber}>
               {loading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Start Chat
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

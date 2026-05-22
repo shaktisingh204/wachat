@@ -90,12 +90,12 @@ export function ChatListRow({
       )}
     >
       <div className="relative shrink-0">
-        <ZoruAvatar className="h-10 w-10">
+        <Avatar className="h-10 w-10">
           {chat.profilePicUrl ? (
             <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
           ) : null}
           <ZoruAvatarFallback>{initialsFor(name)}</ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
         {isGroup ? (
           <span
             aria-hidden

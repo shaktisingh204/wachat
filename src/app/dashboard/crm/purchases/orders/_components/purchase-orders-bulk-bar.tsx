@@ -73,23 +73,23 @@ export function PurchaseOrdersBulkBar({
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+        <Button size="sm" variant="outline" onClick={onArchive}>
           Archive
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onApprove}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onApprove}>
           <CheckCheck className="h-3.5 w-3.5" /> Approve
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onSend}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onSend}>
           <Mail className="h-3.5 w-3.5" /> Send
-        </ZoruButton>
-        <ZoruDropdownMenu>
+        </Button>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton size="sm" variant="outline">
+            <Button size="sm" variant="outline">
               Change status
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent>
             {STATUS_OPTIONS.map((s) => (
@@ -101,23 +101,23 @@ export function PurchaseOrdersBulkBar({
               </ZoruDropdownMenuItem>
             ))}
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
-        <ZoruButton size="sm" variant="outline" asChild>
+        </DropdownMenu>
+        <Button size="sm" variant="outline" asChild>
           <Link href={grnHref}>
             <PackageCheck className="h-3.5 w-3.5" /> Convert to GRN
           </Link>
-        </ZoruButton>
-        <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+        </Button>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={onClear}
           aria-label="Clear selection"
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

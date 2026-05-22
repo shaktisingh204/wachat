@@ -219,7 +219,7 @@ export function DevicesClient() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-4 md:px-6 lg:px-8 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -233,7 +233,7 @@ export function DevicesClient() {
             <ZoruBreadcrumbPage>Linked Devices</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -256,9 +256,9 @@ export function DevicesClient() {
         </div>
         <div className="flex items-center gap-2">
           <ZoruTooltipProvider delayDuration={150}>
-            <ZoruTooltip>
+            <Tooltip>
               <ZoruTooltipTrigger asChild>
-                <ZoruButton
+                <Button
                   type="button"
                   variant="ghost"
                   size="icon"
@@ -269,10 +269,10 @@ export function DevicesClient() {
                   <RefreshCw
                     className={cn('h-4 w-4', isLoading && 'animate-spin')}
                   />
-                </ZoruButton>
+                </Button>
               </ZoruTooltipTrigger>
               <ZoruTooltipContent>Refresh</ZoruTooltipContent>
-            </ZoruTooltip>
+            </Tooltip>
           </ZoruTooltipProvider>
 
           {/* Segmented view-mode switcher — replaces the previous Tabs UI */}
@@ -281,7 +281,7 @@ export function DevicesClient() {
             aria-label="View mode"
             className="hidden md:inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
           >
-            <ZoruButton
+            <Button
               type="button"
               size="sm"
               variant={view === 'grid' ? 'secondary' : 'ghost'}
@@ -291,8 +291,8 @@ export function DevicesClient() {
             >
               <LayoutGrid className="h-3.5 w-3.5" />
               <span className="ml-1 text-xs">Grid</span>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               type="button"
               size="sm"
               variant={view === 'table' ? 'secondary' : 'ghost'}
@@ -302,26 +302,26 @@ export function DevicesClient() {
             >
               <TableIcon className="h-3.5 w-3.5" />
               <span className="ml-1 text-xs">Table</span>
-            </ZoruButton>
+            </Button>
           </div>
 
-          <ZoruButton asChild className="gap-2">
+          <Button asChild className="gap-2">
             <Link href="/sabwa/connect">
               <Plus className="h-4 w-4" /> Connect another number
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {/* Body */}
       {isLoading ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="flex h-40 items-center justify-center text-zoru-ink-muted">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading sessions…
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : !sessions || sessions.length === 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="py-10">
             <EmptyState
               icon={Smartphone}
@@ -330,18 +330,18 @@ export function DevicesClient() {
                 loadError ?? 'Connect your first WhatsApp number to start receiving messages, scheduling broadcasts, and automating chats.'
               }
               action={
-                <ZoruButton asChild className="gap-2">
+                <Button asChild className="gap-2">
                   <Link href="/sabwa/connect">
                     <Plus className="h-4 w-4" /> Connect WhatsApp
                   </Link>
-                </ZoruButton>
+                </Button>
               }
             />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : view === 'table' ? (
-        <ZoruCard className="p-0 overflow-hidden">
-          <ZoruTable>
+        <Card className="p-0 overflow-hidden">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Number</ZoruTableHead>
@@ -384,7 +384,7 @@ export function DevicesClient() {
                     {formatRelative(s.lastSeenAt)}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
-                    <ZoruButton
+                    <Button
                       type="button"
                       size="sm"
                       variant="ghost"
@@ -396,8 +396,8 @@ export function DevicesClient() {
                     >
                       <Pencil className="h-3.5 w-3.5" />
                       <span className="ml-1 text-xs">Rename</span>
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       type="button"
                       size="sm"
                       variant="ghost"
@@ -405,17 +405,17 @@ export function DevicesClient() {
                       className="h-7 px-2 text-zoru-danger hover:text-zoru-danger"
                     >
                       Logout
-                    </ZoruButton>
+                    </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sessions.map((s) => (
-            <ZoruCard key={s._id.toString()} className="flex flex-col p-0">
+            <Card key={s._id.toString()} className="flex flex-col p-0">
               <ZoruCardHeader className="flex flex-row items-start gap-3 space-y-0">
                 <span
                   aria-hidden
@@ -463,14 +463,14 @@ export function DevicesClient() {
                   </div>
                 </dl>
                 {s.banSignals && s.banSignals.length > 0 ? (
-                  <ZoruBadge variant="warning" className="mt-3 gap-1">
+                  <Badge variant="warning" className="mt-3 gap-1">
                     {s.banSignals.length} ban signal
                     {s.banSignals.length === 1 ? '' : 's'}
-                  </ZoruBadge>
+                  </Badge>
                 ) : null}
               </ZoruCardContent>
               <ZoruCardFooter className="flex justify-between gap-2 border-t border-zoru-line bg-zoru-surface/40 py-3 px-5 sm:px-6">
-                <ZoruButton
+                <Button
                   type="button"
                   size="sm"
                   variant="ghost"
@@ -481,8 +481,8 @@ export function DevicesClient() {
                   className="gap-1"
                 >
                   <Pencil className="h-3.5 w-3.5" /> Rename
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   type="button"
                   size="sm"
                   variant="ghost"
@@ -490,15 +490,15 @@ export function DevicesClient() {
                   onClick={() => setLogoutTarget(s)}
                 >
                   Logout
-                </ZoruButton>
+                </Button>
               </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       )}
 
       {/* Rename dialog */}
-      <ZoruDialog
+      <Dialog
         open={renameTarget !== null}
         onOpenChange={(o) => {
           if (!o) setRenameTarget(null);
@@ -513,8 +513,8 @@ export function DevicesClient() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="rename-label">Label</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="rename-label">Label</Label>
+            <Input
               id="rename-label"
               value={renameValue}
               autoFocus
@@ -524,25 +524,25 @@ export function DevicesClient() {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => setRenameTarget(null)}
               disabled={renamePending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               type="button"
               onClick={handleRename}
               disabled={renamePending || renameValue.trim().length === 0}
             >
               {renamePending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Logout confirmation */}
       <ZoruAlertDialog

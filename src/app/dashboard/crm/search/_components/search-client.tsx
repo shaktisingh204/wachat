@@ -68,7 +68,7 @@ export function SearchClient({
           className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted"
           aria-hidden
         />
-        <ZoruInput
+        <Input
           id="crm-global-search"
           ref={inputRef}
           defaultValue={initialQuery}
@@ -82,9 +82,9 @@ export function SearchClient({
 
       {/* KPI strip — small enough to live in the same card as the input. */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <ZoruStatCard label="Total matches" value={totalHits.toLocaleString()} />
-        <ZoruStatCard label="Groups" value={groupCount.toLocaleString()} />
-        <ZoruStatCard label="Status" value={initialQuery ? 'Searching' : 'Idle'} />
+        <StatCard label="Total matches" value={totalHits.toLocaleString()} />
+        <StatCard label="Groups" value={groupCount.toLocaleString()} />
+        <StatCard label="Status" value={initialQuery ? 'Searching' : 'Idle'} />
       </div>
     </div>
   );

@@ -28,8 +28,8 @@ export default function ProposalTemplateDetailPage(props: {
   if (isLoading && !initial) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }

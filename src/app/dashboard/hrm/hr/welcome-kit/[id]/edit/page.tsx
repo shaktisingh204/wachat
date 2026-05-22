@@ -41,8 +41,8 @@ export default function EditWelcomeKitPage({
   if (loading) {
     return (
       <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }

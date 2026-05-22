@@ -58,7 +58,7 @@ export default async function RecurringInvoiceDetailPage(props: {
         <RecurringInvoiceDetailActions id={id} status={doc.status ?? 'stopped'} />
       }
       rightRail={
-        <ZoruCard className="p-4">
+        <Card className="p-4">
           <div className="space-y-4">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
@@ -90,11 +90,11 @@ export default async function RecurringInvoiceDetailPage(props: {
               </p>
             </div>
           </div>
-        </ZoruCard>
+        </Card>
       }
     >
       {/* Line items */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-3 text-[15px] text-zoru-ink">Line Items</h2>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-sm">
@@ -133,10 +133,10 @@ export default async function RecurringInvoiceDetailPage(props: {
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Generated invoices */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-3 text-[15px] text-zoru-ink">Generated Invoices</h2>
         {generated.length === 0 ? (
           <p className="text-[13px] text-zoru-ink-muted">
@@ -151,7 +151,7 @@ export default async function RecurringInvoiceDetailPage(props: {
             ))}
           </ul>
         )}
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

@@ -178,16 +178,16 @@ export default function IncomeStatementPage(): React.JSX.Element {
 
     if (user && (!user.businessProfile?.name || !user.businessProfile.address)) {
         return (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Business Profile Incomplete</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Please complete your business profile in the user settings to view accounting reports.
-                    <ZoruButton asChild variant="link" className="ml-2 h-auto p-0">
+                    <Button asChild variant="link" className="ml-2 h-auto p-0">
                         <Link href="/dashboard/user/settings/profile">Go to Settings</Link>
-                    </ZoruButton>
+                    </Button>
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         );
     }
 
@@ -240,7 +240,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
         downloadXlsx(`income-statement-${dateStamp()}.xlsx`, HEADERS, exportRows, 'Income Statement');
 
     const filters = (
-        <ZoruSelect value={fyChoice} onValueChange={handleFyChange}>
+        <Select value={fyChoice} onValueChange={handleFyChange}>
             <ZoruSelectTrigger className="w-[180px]">
                 <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -249,7 +249,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
                 <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
                 <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
             </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
     );
 
     const chart = (
@@ -330,7 +330,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
     };
 
     const table = (
-        <ZoruTable>
+        <Table>
             <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
                     <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
@@ -348,7 +348,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
                     pageRows.map((r, i) => <Fragment key={i}>{renderRow(r, i)}</Fragment>)
                 )}
             </ZoruTableBody>
-        </ZoruTable>
+        </Table>
     );
 
     return (

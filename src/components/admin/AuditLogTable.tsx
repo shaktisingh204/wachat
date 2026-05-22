@@ -220,7 +220,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         </label>
                         <div className="relative mt-1">
                             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <ZoruInput
+                            <Input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="actor, action, resource…"
@@ -232,7 +232,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         <label className="text-xs font-medium text-slate-500">
                             From
                         </label>
-                        <ZoruInput
+                        <Input
                             type="datetime-local"
                             value={from}
                             onChange={(e) => setFrom(e.target.value)}
@@ -243,7 +243,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         <label className="text-xs font-medium text-slate-500">
                             To
                         </label>
-                        <ZoruInput
+                        <Input
                             type="datetime-local"
                             value={to}
                             onChange={(e) => setTo(e.target.value)}
@@ -263,14 +263,14 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                 {(actorFilter || actionFilter) && (
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
                         {actorFilter && (
-                            <ZoruBadge variant="secondary">
+                            <Badge variant="secondary">
                                 Actor: {actorFilter}
-                            </ZoruBadge>
+                            </Badge>
                         )}
                         {actionFilter && (
-                            <ZoruBadge variant="secondary">
+                            <Badge variant="secondary">
                                 Action: {actionFilter}
-                            </ZoruBadge>
+                            </Badge>
                         )}
                     </div>
                 )}
@@ -286,7 +286,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         Showing {filtered.length} of {summary.recent.length} most-recent rows.
                     </p>
                 </div>
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead className="w-[180px]">Timestamp</ZoruTableHead>
@@ -323,20 +323,20 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {isFailure(evt) ? (
-                                            <ZoruBadge variant="destructive">
+                                            <Badge variant="destructive">
                                                 error
-                                            </ZoruBadge>
+                                            </Badge>
                                         ) : (
-                                            <ZoruBadge variant="secondary">
+                                            <Badge variant="secondary">
                                                 ok
-                                            </ZoruBadge>
+                                            </Badge>
                                         )}
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ))
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
         </div>
     );

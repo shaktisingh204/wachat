@@ -362,7 +362,7 @@ export function BookingListClient({
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by service, notes, status…"
@@ -388,27 +388,27 @@ export function BookingListClient({
           allLabel="All payments"
         />
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
         <div className="ml-auto inline-flex rounded-[var(--zoru-radius)] border border-zoru-line p-0.5">
-          <ZoruButton
+          <Button
             size="sm"
             variant={view === 'table' ? 'default' : 'ghost'}
             onClick={() => setView('table')}
             aria-pressed={view === 'table'}
           >
             <Table2 className="h-3.5 w-3.5" /> Table
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             variant={view === 'calendar' ? 'default' : 'ghost'}
             onClick={() => setView('calendar')}
             aria-pressed={view === 'calendar'}
           >
             <CalendarDays className="h-3.5 w-3.5" /> Calendar
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -420,33 +420,33 @@ export function BookingListClient({
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
-            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportXlsx}>
               Export XLSX
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="destructive"
               onClick={() => setBulkConfirmOpen(true)}
               disabled={bulkDeleting}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {error ? (
           <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
             <AlertCircle className="h-4 w-4 shrink-0" />
@@ -459,11 +459,11 @@ export function BookingListClient({
             <BookingsCalendar bookings={filtered} />
           </div>
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-8">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
@@ -497,7 +497,7 @@ export function BookingListClient({
                   return (
                     <ZoruTableRow key={id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={checked}
                           onCheckedChange={() => toggleOne(id)}
                           aria-label={`Select booking ${bookingLabel(b)}`}
@@ -529,19 +529,19 @@ export function BookingListClient({
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton size="sm" variant="ghost" asChild>
+                          <Button size="sm" variant="ghost" asChild>
                             <Link href={`/dashboard/crm/bookings/${id}/edit`}>
                               <Pencil className="h-3.5 w-3.5" />
                             </Link>
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setPendingDelete(b)}
                             className="text-zoru-danger-ink"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -549,13 +549,13 @@ export function BookingListClient({
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
 
         {view === 'table' ? (
           <PaginationBar page={page} limit={limit} hasMore={hasMore} />
         ) : null}
-      </ZoruCard>
+      </Card>
 
       <BookingSingleDeleteDialog
         open={pendingDelete !== null}

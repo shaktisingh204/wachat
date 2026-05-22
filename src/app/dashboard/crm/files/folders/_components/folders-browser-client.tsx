@@ -389,35 +389,35 @@ export function FoldersBrowserClient({
     <div className="flex flex-col gap-5">
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <ZoruStatCard label="Total folders" value={String(stats.totalFolders)} />
-        <ZoruStatCard label="Total files" value={String(stats.totalFiles)} />
-        <ZoruStatCard
+        <StatCard label="Total folders" value={String(stats.totalFolders)} />
+        <StatCard label="Total files" value={String(stats.totalFiles)} />
+        <StatCard
           label="Storage used"
           value={formatFileSize(stats.totalStorageBytes)}
         />
-        <ZoruStatCard label="Added this month" value={String(stats.addedThisMonth)} />
+        <StatCard label="Added this month" value={String(stats.addedThisMonth)} />
       </div>
 
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Folder tree */}
-        <ZoruCard className="w-full shrink-0 p-0 lg:w-64">
+        <Card className="w-full shrink-0 p-0 lg:w-64">
           <div className="flex items-center justify-between border-b border-zoru-line px-3 py-2">
             <span className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Folders
             </span>
-            <ZoruButton
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setShowNewFolder((v) => !v)}
               title="New folder"
             >
               <FolderPlus className="h-4 w-4" />
-            </ZoruButton>
+            </Button>
           </div>
 
           {showNewFolder && (
             <div className="border-b border-zoru-line p-2 flex gap-1">
-              <ZoruInput
+              <Input
                 placeholder="Folder name"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
@@ -426,14 +426,14 @@ export function FoldersBrowserClient({
                   if (e.key === 'Enter') void handleCreateFolder();
                 }}
               />
-              <ZoruButton
+              <Button
                 size="sm"
                 onClick={() => void handleCreateFolder()}
                 disabled={creatingFolder}
                 className="h-7 px-2"
               >
                 {creatingFolder ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Add'}
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
@@ -465,7 +465,7 @@ export function FoldersBrowserClient({
               ))}
             </ul>
           </nav>
-        </ZoruCard>
+        </Card>
 
         {/* File list */}
         <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -496,18 +496,18 @@ export function FoldersBrowserClient({
             </SabFilePickerButton>
 
             {activeFolderId && (
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => void handleDeleteFolder()}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete folder
-              </ZoruButton>
+              </Button>
             )}
 
             <div className="flex items-center gap-1.5 ml-auto">
-              <ZoruLabel className="text-[11px]">Type</ZoruLabel>
-              <ZoruSelect
+              <Label className="text-[11px]">Type</Label>
+              <Select
                 value={fileTypeFilter}
                 onValueChange={(v) => setFileTypeFilter(v as FileTypeFilter)}
               >
@@ -521,16 +521,16 @@ export function FoldersBrowserClient({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
 
-              <ZoruInput
+              <Input
                 type="date"
                 className="h-8 w-36 text-[12px]"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
                 title="From date"
               />
-              <ZoruInput
+              <Input
                 type="date"
                 className="h-8 w-36 text-[12px]"
                 value={dateTo}
@@ -538,7 +538,7 @@ export function FoldersBrowserClient({
                 title="To date"
               />
               {(fileTypeFilter !== 'all' || dateFrom || dateTo) && (
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => {
@@ -548,7 +548,7 @@ export function FoldersBrowserClient({
                   }}
                 >
                   <X className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
               )}
             </div>
           </div>
@@ -559,7 +559,7 @@ export function FoldersBrowserClient({
               <span className="text-[12.5px] text-zoru-ink">
                 {selected.size} selected
               </span>
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => void handleBulkDelete()}
@@ -571,23 +571,23 @@ export function FoldersBrowserClient({
                   <Trash2 className="h-3.5 w-3.5" />
                 )}
                 Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 className="ml-auto"
                 onClick={exportCsv}
               >
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
           {/* Table */}
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             {loading ? (
               <div className="flex items-center justify-center p-10">
                 <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
@@ -598,7 +598,7 @@ export function FoldersBrowserClient({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="hover:bg-transparent">
                       <ZoruTableHead className="w-8">
@@ -650,9 +650,9 @@ export function FoldersBrowserClient({
                             </div>
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruBadge variant="secondary" className="text-[11px]">
+                            <Badge variant="secondary" className="text-[11px]">
                               {file.mime_type ?? file.extension ?? 'unknown'}
-                            </ZoruBadge>
+                            </Badge>
                           </ZoruTableCell>
                           <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                             {formatFileSize(file.size_bytes)}
@@ -668,29 +668,29 @@ export function FoldersBrowserClient({
                               : '—'}
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruButton
+                            <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => void handleDeleteFile(id)}
                             >
                               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           </ZoruTableCell>
                         </ZoruTableRow>
                       );
                     })}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
             )}
-          </ZoruCard>
+          </Card>
 
           {/* Export bar (when nothing selected) */}
           {selected.size === 0 && filtered.length > 0 && (
             <div className="flex justify-end">
-              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              <Button size="sm" variant="outline" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
+              </Button>
             </div>
           )}
         </div>

@@ -177,7 +177,7 @@ function BulkTemplateForm({
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <form onSubmit={handleSubmit}>
         <ZoruCardHeader>
           <ZoruCardTitle>Bulk Add Template</ZoruCardTitle>
@@ -188,8 +188,8 @@ function BulkTemplateForm({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="template-select">Template to Apply</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="template-select">Template to Apply</Label>
+            <Select
               value={selectedTemplate}
               onValueChange={setSelectedTemplate}
             >
@@ -206,7 +206,7 @@ function BulkTemplateForm({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <p className="text-xs text-zoru-ink-muted">
               This will add or update the template with the same name and
               language in each selected project.
@@ -214,16 +214,16 @@ function BulkTemplateForm({
           </div>
         </ZoruCardContent>
         <ZoruCardFooter>
-          <ZoruButton
+          <Button
             type="submit"
             disabled={!selectedTemplate || isPending}
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Apply to All
-          </ZoruButton>
+          </Button>
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -239,14 +239,14 @@ const bulkBroadcastInitialState = {
 function BulkBroadcastSubmit({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending || disabled}>
+    <Button type="submit" disabled={pending || disabled}>
       {pending ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         <Send className="h-4 w-4" />
       )}
       Distribute &amp; Send
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -283,7 +283,7 @@ function BulkBroadcastForm({
   }, [state, toast]);
 
   return (
-    <ZoruCard>
+    <Card>
       <form action={formAction} ref={formRef}>
         <input
           type="hidden"
@@ -300,8 +300,8 @@ function BulkBroadcastForm({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="templateName">Template Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="templateName">Template Name</Label>
+            <Input
               id="templateName"
               name="templateName"
               required
@@ -313,8 +313,8 @@ function BulkBroadcastForm({
             </p>
           </div>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="language">Language Code</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="language">Language Code</Label>
+            <Input
               id="language"
               name="language"
               required
@@ -323,8 +323,8 @@ function BulkBroadcastForm({
             />
           </div>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="contactFile">Contact File</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="contactFile">Contact File</Label>
+            <Input
               id="contactFile"
               name="contactFile"
               type="file"
@@ -341,6 +341,6 @@ function BulkBroadcastForm({
           <BulkBroadcastSubmit disabled={!file} />
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

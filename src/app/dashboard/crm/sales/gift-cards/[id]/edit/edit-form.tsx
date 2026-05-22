@@ -32,14 +32,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -73,12 +73,12 @@ export function EditGiftCardForm({
 
     return (
         <form action={formAction} className="max-w-2xl">
-            <ZoruCard className="space-y-6 p-6">
+            <Card className="space-y-6 p-6">
                 <input type="hidden" name="giftCardId" value={giftCardId} />
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-zoru-ink">Issued To</ZoruLabel>
+                        <Label className="text-zoru-ink">Issued To</Label>
                         <EntityFormField
                             entity="client"
                             name="clientId"
@@ -88,10 +88,10 @@ export function EditGiftCardForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="issuedToEmail" className="text-zoru-ink">
+                        <Label htmlFor="issuedToEmail" className="text-zoru-ink">
                             Customer Email
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="issuedToEmail"
                             name="issuedToEmail"
                             type="email"
@@ -103,10 +103,10 @@ export function EditGiftCardForm({
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiryDate" className="text-zoru-ink">
+                        <Label htmlFor="expiryDate" className="text-zoru-ink">
                             Expiry Date
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="expiryDate"
                             name="expiryDate"
                             type="date"
@@ -114,9 +114,9 @@ export function EditGiftCardForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status" className="text-zoru-ink">
+                        <Label htmlFor="status" className="text-zoru-ink">
                             Status
-                        </ZoruLabel>
+                        </Label>
                         <EnumFormField
                             name="status"
                             enumName="giftCardStatus"
@@ -133,16 +133,16 @@ export function EditGiftCardForm({
                         className="h-4 w-4 rounded border-zoru-line accent-zoru-ink"
                         defaultChecked={initial.transferable === true}
                     />
-                    <ZoruLabel htmlFor="transferable" className="cursor-pointer text-zoru-ink">
+                    <Label htmlFor="transferable" className="cursor-pointer text-zoru-ink">
                         Transferable
-                    </ZoruLabel>
+                    </Label>
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes" className="text-zoru-ink">
+                    <Label htmlFor="notes" className="text-zoru-ink">
                         Notes
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         defaultValue={(initial.notes as string) || ''}
@@ -152,14 +152,14 @@ export function EditGiftCardForm({
 
                 <div className="flex items-center gap-3 pt-2">
                     <SaveButton />
-                    <ZoruButton variant="ghost" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild>
                         <Link href={`/dashboard/crm/sales/gift-cards/${giftCardId}`}>
                             <ArrowLeft className="h-4 w-4" />
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

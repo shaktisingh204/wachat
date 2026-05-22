@@ -159,7 +159,7 @@ function SectionCard({
     children: React.ReactNode;
 }) {
     return (
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
             <div className="flex items-center gap-3 border-b border-zoru-line bg-zoru-surface px-5 py-3.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-zoru-line bg-zoru-bg">
                     <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
@@ -174,7 +174,7 @@ function SectionCard({
                 </div>
             </div>
             <div className="p-5 sm:p-6">{children}</div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -199,10 +199,10 @@ function Field({
                 : '';
     return (
         <div className={`space-y-1.5 ${spanCls}`}>
-            <ZoruLabel htmlFor={htmlFor} className={labelCls}>
+            <Label htmlFor={htmlFor} className={labelCls}>
                 {label}
                 {required ? <Req /> : null}
-            </ZoruLabel>
+            </Label>
             {children}
         </div>
     );
@@ -211,14 +211,14 @@ function Field({
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} size="lg">
+        <Button type="submit" disabled={pending} size="lg">
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
             ) : (
                 <Save className="h-4 w-4" strokeWidth={1.75} />
             )}
             {isEditing ? 'Save Changes' : 'Add Employee'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -446,7 +446,7 @@ export function EmployeeForm({
             >
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="First Name" htmlFor="firstName" required>
-                        <ZoruInput
+                        <Input
                             id="firstName"
                             name="firstName"
                             defaultValue={employee?.firstName}
@@ -455,7 +455,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Last Name" htmlFor="lastName" required>
-                        <ZoruInput
+                        <Input
                             id="lastName"
                             name="lastName"
                             defaultValue={employee?.lastName}
@@ -464,7 +464,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Work Email" htmlFor="email" required>
-                        <ZoruInput
+                        <Input
                             id="email"
                             name="email"
                             type="email"
@@ -474,7 +474,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Phone" htmlFor="phone">
-                        <ZoruInput
+                        <Input
                             id="phone"
                             name="phone"
                             type="tel"
@@ -483,7 +483,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Date of Birth">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={coreDateOfBirth}
                             onChange={setCoreDateOfBirth}
                             placeholder="Select date of birth"
@@ -500,7 +500,7 @@ export function EmployeeForm({
             >
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="Employee ID" htmlFor="employeeIdCode" required>
-                        <ZoruInput
+                        <Input
                             id="employeeIdCode"
                             name="employeeIdCode"
                             defaultValue={employee?.employeeId}
@@ -509,7 +509,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Status">
-                        <ZoruSelect
+                        <Select
                             name="status"
                             defaultValue={employee?.status || 'Active'}
                         >
@@ -523,7 +523,7 @@ export function EmployeeForm({
                                     Terminated
                                 </ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Department">
                         <EntityFormField
@@ -557,7 +557,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Date of Joining" required>
-                        <ZoruDatePicker
+                        <DatePicker
                             value={dateOfJoining}
                             onChange={setDateOfJoining}
                             placeholder="Select joining date"
@@ -624,7 +624,7 @@ export function EmployeeForm({
             >
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="About" span={2}>
-                        <ZoruTextarea
+                        <Textarea
                             name="about_me"
                             rows={3}
                             defaultValue={detail?.about_me ?? ''}
@@ -632,7 +632,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Gender">
-                        <ZoruSelect
+                        <Select
                             name="gender"
                             defaultValue={detail?.gender || NONE}
                         >
@@ -645,10 +645,10 @@ export function EmployeeForm({
                                 <ZoruSelectItem value="female">Female</ZoruSelectItem>
                                 <ZoruSelectItem value="others">Others</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Marital Status">
-                        <ZoruSelect
+                        <Select
                             name="marital_status"
                             defaultValue={detail?.marital_status || NONE}
                         >
@@ -662,17 +662,17 @@ export function EmployeeForm({
                                 <ZoruSelectItem value="divorced">Divorced</ZoruSelectItem>
                                 <ZoruSelectItem value="widowed">Widowed</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Date of Birth (Detailed)">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={detailDateOfBirth}
                             onChange={setDetailDateOfBirth}
                             placeholder="Select date of birth"
                         />
                     </Field>
                     <Field label="Blood Group">
-                        <ZoruSelect
+                        <Select
                             name="blood_group"
                             defaultValue={detail?.blood_group || NONE}
                         >
@@ -689,10 +689,10 @@ export function EmployeeForm({
                                     ),
                                 )}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Nationality" htmlFor="nationality">
-                        <ZoruInput
+                        <Input
                             id="nationality"
                             name="nationality"
                             defaultValue={detail?.nationality ?? ''}
@@ -700,7 +700,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Religion" htmlFor="religion">
-                        <ZoruInput
+                        <Input
                             id="religion"
                             name="religion"
                             defaultValue={detail?.religion ?? ''}
@@ -711,7 +711,7 @@ export function EmployeeForm({
                         label="Languages (comma-separated)"
                         htmlFor="languages"
                     >
-                        <ZoruInput
+                        <Input
                             id="languages"
                             name="languages"
                             defaultValue={detail?.languages ?? ''}
@@ -720,14 +720,14 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Marriage Anniversary">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={marriageAnniversary}
                             onChange={setMarriageAnniversary}
                             placeholder="Select date"
                         />
                     </Field>
                     <Field label="Hobbies" htmlFor="hobbies" span={2}>
-                        <ZoruTextarea
+                        <Textarea
                             id="hobbies"
                             name="hobbies"
                             rows={2}
@@ -736,7 +736,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Address" htmlFor="address" span={2}>
-                        <ZoruTextarea
+                        <Textarea
                             id="address"
                             name="address"
                             rows={2}
@@ -755,7 +755,7 @@ export function EmployeeForm({
             >
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="Employment Type">
-                        <ZoruSelect
+                        <Select
                             name="employment_type"
                             defaultValue={detail?.employment_type || NONE}
                         >
@@ -772,7 +772,7 @@ export function EmployeeForm({
                                 </ZoruSelectItem>
                                 <ZoruSelectItem value="trainee">Trainee</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Reporting To">
                         <EntityFormField
@@ -788,21 +788,21 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Probation End Date">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={probationEnd}
                             onChange={setProbationEnd}
                             placeholder="Select date"
                         />
                     </Field>
                     <Field label="Last Working Date">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={lastDate}
                             onChange={setLastDate}
                             placeholder="Select date"
                         />
                     </Field>
                     <Field label="Notice Period (days)" htmlFor="notice_period">
-                        <ZoruInput
+                        <Input
                             id="notice_period"
                             name="notice_period"
                             type="number"
@@ -812,28 +812,28 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Notice Period End Date">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={noticePeriodEnd}
                             onChange={setNoticePeriodEnd}
                             placeholder="Select date"
                         />
                     </Field>
                     <Field label="Internship End Date">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={internshipEnd}
                             onChange={setInternshipEnd}
                             placeholder="Select date"
                         />
                     </Field>
                     <Field label="Contract End Date">
-                        <ZoruDatePicker
+                        <DatePicker
                             value={contractEnd}
                             onChange={setContractEnd}
                             placeholder="Select date"
                         />
                     </Field>
                     <Field label="Hourly Rate" htmlFor="hourly_rate">
-                        <ZoruInput
+                        <Input
                             id="hourly_rate"
                             name="hourly_rate"
                             type="number"
@@ -847,7 +847,7 @@ export function EmployeeForm({
                         label="Overtime Hourly Rate"
                         htmlFor="overtime_hourly_rate"
                     >
-                        <ZoruInput
+                        <Input
                             id="overtime_hourly_rate"
                             name="overtime_hourly_rate"
                             type="number"
@@ -858,7 +858,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Slack Username" htmlFor="slack_username">
-                        <ZoruInput
+                        <Input
                             id="slack_username"
                             name="slack_username"
                             defaultValue={detail?.slack_username ?? ''}
@@ -866,7 +866,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Work Anniversary Notified">
-                        <ZoruSelect
+                        <Select
                             name="work_anniversary_notified"
                             defaultValue={
                                 detail?.work_anniversary_notified ? 'true' : 'false'
@@ -879,7 +879,7 @@ export function EmployeeForm({
                                 <ZoruSelectItem value="false">No</ZoruSelectItem>
                                 <ZoruSelectItem value="true">Yes</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                 </div>
             </SectionCard>
@@ -903,7 +903,7 @@ export function EmployeeForm({
                         label="Bank Account Number"
                         htmlFor="bank_account_number"
                     >
-                        <ZoruInput
+                        <Input
                             id="bank_account_number"
                             name="bank_account_number"
                             defaultValue={detail?.bank_account_number ?? ''}
@@ -911,7 +911,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Bank Name" htmlFor="bank_name">
-                        <ZoruInput
+                        <Input
                             id="bank_name"
                             name="bank_name"
                             defaultValue={detail?.bank_name ?? ''}
@@ -919,7 +919,7 @@ export function EmployeeForm({
                         />
                     </Field>
                     <Field label="Tax Regime">
-                        <ZoruSelect
+                        <Select
                             name="tax_regime"
                             defaultValue={detail?.tax_regime || NONE}
                         >
@@ -931,10 +931,10 @@ export function EmployeeForm({
                                 <ZoruSelectItem value="old">Old</ZoruSelectItem>
                                 <ZoruSelectItem value="new">New</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Gross Salary" htmlFor="grossSalary">
-                        <ZoruInput
+                        <Input
                             id="grossSalary"
                             name="grossSalary"
                             type="number"
@@ -971,14 +971,14 @@ export function EmployeeForm({
             {/* ─── Sticky Action Bar ─── */}
             <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zoru-line bg-zoru-bg/95 backdrop-blur supports-[backdrop-filter]:bg-zoru-bg/80">
                 <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={() => router.back()}
                     >
                         <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
                         Cancel
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </div>

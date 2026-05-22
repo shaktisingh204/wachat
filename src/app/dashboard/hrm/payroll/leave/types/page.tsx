@@ -132,14 +132,14 @@ export default function LeaveTypesPage() {
       title="Leave Types"
       subtitle="Define leave categories with annual quota, color, monthly cap, and paid status."
       primaryAction={
-        <ZoruButton onClick={openNew}>
+        <Button onClick={openNew}>
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           Add Leave Type
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoadingList && types.length === 0 ? (
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">Loading…</div>
         ) : types.length === 0 ? (
@@ -177,26 +177,26 @@ export default function LeaveTypesPage() {
                     <td className="px-4 py-3 text-zoru-ink">{t.monthly_limit}</td>
                     <td className="px-4 py-3 text-zoru-ink capitalize">{t.leave_unit}</td>
                     <td className="px-4 py-3">
-                      <ZoruBadge variant={t.paid ? 'success' : 'warning'}>
+                      <Badge variant={t.paid ? 'success' : 'warning'}>
                         {t.paid ? 'Paid' : 'Unpaid'}
-                      </ZoruBadge>
+                      </Badge>
                     </td>
                     <td className="px-4 py-3">
-                      <ZoruBadge variant={t.status === 'active' ? 'success' : 'warning'}>
+                      <Badge variant={t.status === 'active' ? 'success' : 'warning'}>
                         {t.status}
-                      </ZoruBadge>
+                      </Badge>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton
+                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => openEdit(t)}
                         >
                           <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                           Edit
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleDelete(t._id)}
@@ -204,7 +204,7 @@ export default function LeaveTypesPage() {
                         >
                           <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
                           Delete
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -213,24 +213,24 @@ export default function LeaveTypesPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Add / Edit dialog */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <ZoruCard className="w-full max-w-lg p-6">
+          <Card className="w-full max-w-lg p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[16px] text-zoru-ink">
                 {editing ? 'Edit Leave Type' : 'Add Leave Type'}
               </h2>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setOpen(false)}
               >
                 <X className="h-4 w-4" strokeWidth={1.75} />
                 Close
-              </ZoruButton>
+              </Button>
             </div>
 
             <form ref={formRef} action={formAction} className="grid gap-4 md:grid-cols-2">
@@ -241,8 +241,8 @@ export default function LeaveTypesPage() {
 
               {/* type_name — full width */}
               <div className="md:col-span-2">
-                <ZoruLabel className="text-zoru-ink">Type Name *</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Type Name *</Label>
+                <Input
                   name="type_name"
                   required
                   value={typeName}
@@ -253,8 +253,8 @@ export default function LeaveTypesPage() {
 
               {/* no_of_leaves */}
               <div>
-                <ZoruLabel className="text-zoru-ink">Leaves Per Year</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Leaves Per Year</Label>
+                <Input
                   name="no_of_leaves"
                   type="number"
                   min="0"
@@ -266,8 +266,8 @@ export default function LeaveTypesPage() {
 
               {/* monthly_limit */}
               <div>
-                <ZoruLabel className="text-zoru-ink">Monthly Limit</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Monthly Limit</Label>
+                <Input
                   name="monthly_limit"
                   type="number"
                   min="0"
@@ -279,7 +279,7 @@ export default function LeaveTypesPage() {
 
               {/* color */}
               <div>
-                <ZoruLabel className="text-zoru-ink">Color</ZoruLabel>
+                <Label className="text-zoru-ink">Color</Label>
                 <div className="mt-1.5 flex items-center gap-2">
                   <input
                     type="color"
@@ -294,8 +294,8 @@ export default function LeaveTypesPage() {
 
               {/* leave_unit */}
               <div>
-                <ZoruLabel className="text-zoru-ink">Leave Unit</ZoruLabel>
-                <ZoruSelect
+                <Label className="text-zoru-ink">Leave Unit</Label>
+                <Select
                   value={leaveUnit}
                   onValueChange={(v) => setLeaveUnit(v as typeof leaveUnit)}
                   name="leave_unit"
@@ -308,15 +308,15 @@ export default function LeaveTypesPage() {
                     <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
                     <ZoruSelectItem value="half-days">Half Days</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 {/* hidden input because shadcn Select doesn't submit via form */}
                 <input type="hidden" name="leave_unit" value={leaveUnit} />
               </div>
 
               {/* paid */}
               <div>
-                <ZoruLabel className="text-zoru-ink">Paid</ZoruLabel>
-                <ZoruSelect value={paid} onValueChange={setPaid} name="paid">
+                <Label className="text-zoru-ink">Paid</Label>
+                <Select value={paid} onValueChange={setPaid} name="paid">
                   <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
@@ -324,14 +324,14 @@ export default function LeaveTypesPage() {
                     <ZoruSelectItem value="true">Yes</ZoruSelectItem>
                     <ZoruSelectItem value="false">No</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 <input type="hidden" name="paid" value={paid} />
               </div>
 
               {/* status */}
               <div>
-                <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
-                <ZoruSelect
+                <Label className="text-zoru-ink">Status</Label>
+                <Select
                   value={status}
                   onValueChange={(v) => setStatus(v as typeof status)}
                   name="status"
@@ -343,19 +343,19 @@ export default function LeaveTypesPage() {
                     <ZoruSelectItem value="active">Active</ZoruSelectItem>
                     <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 <input type="hidden" name="status" value={status} />
               </div>
 
               <div className="flex justify-end gap-2 md:col-span-2">
-                <ZoruButton
+                <Button
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   type="submit"
                   disabled={isPending}
                 >
@@ -363,10 +363,10 @@ export default function LeaveTypesPage() {
                     <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
                   ) : null}
                   {editing ? 'Update' : 'Create'}
-                </ZoruButton>
+                </Button>
               </div>
             </form>
-          </ZoruCard>
+          </Card>
         </div>
       )}
     </EntityListShell>

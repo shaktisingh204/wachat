@@ -139,9 +139,9 @@ function OrgNode({ node, depth }: { node: TreeNode; depth: number }) {
             </span>
           )}
           {node.status && (
-            <ZoruBadge variant={variant}>
+            <Badge variant={variant}>
               {node.status}
-            </ZoruBadge>
+            </Badge>
           )}
           {hasChildren && (
             <span className="text-[11px] text-zoru-ink-muted">
@@ -189,19 +189,19 @@ export default function OrgChartPage() {
       subtitle="Reporting hierarchy built from employee records."
       primaryAction={
         <Link href="/dashboard/hrm/hr/directory">
-          <ZoruButton variant="outline">
+          <Button variant="outline">
             View Directory
             <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-          </ZoruButton>
+          </Button>
         </Link>
       }
     >
 
-      <ZoruCard>
+      <Card>
         {isLoading ? (
           <div className="flex flex-col gap-3 p-6">
             {[...Array(5)].map((_, i) => (
-              <ZoruSkeleton key={i} className={`h-10 w-full ${i > 0 ? 'ml-10' : ''}`} />
+              <Skeleton key={i} className={`h-10 w-full ${i > 0 ? 'ml-10' : ''}`} />
             ))}
           </div>
         ) : failed ? (
@@ -218,10 +218,10 @@ export default function OrgChartPage() {
               Add employees via HR-Payroll → Employees to see the org chart.
             </p>
             <Link href="/dashboard/hrm/hr/directory">
-              <ZoruButton>
+              <Button>
                 Open Directory
                 <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-              </ZoruButton>
+              </Button>
             </Link>
           </div>
         ) : (
@@ -238,7 +238,7 @@ export default function OrgChartPage() {
             </div>
           </div>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

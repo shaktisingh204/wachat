@@ -18,7 +18,7 @@ export function RecoveryButton({ cartId }: { cartId: string }) {
     const [pending, startTransition] = useTransition();
 
     return (
-        <ZoruButton
+        <Button
             size="sm"
             variant="outline"
             disabled={pending}
@@ -42,6 +42,6 @@ export function RecoveryButton({ cartId }: { cartId: string }) {
         >
             <Send className="h-3.5 w-3.5" />
             Send recovery email
-        </ZoruButton>
+        </Button>
     );
 }

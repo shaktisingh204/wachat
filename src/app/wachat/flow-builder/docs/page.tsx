@@ -157,14 +157,14 @@ export default function FlowBuilderDocsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <ZoruButton variant="ghost" size="sm" asChild className="-ml-2 mb-4">
+        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
           <Link href="/wachat/flow-builder">
             <ChevronLeft className="mr-1 h-4 w-4" />
             Back to flow builder
           </Link>
-        </ZoruButton>
+        </Button>
 
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Flow builder documentation</ZoruPageTitle>
             <ZoruPageDescription>
@@ -172,10 +172,10 @@ export default function FlowBuilderDocsPage() {
               them to create powerful automations for your WhatsApp conversations.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Using variables</ZoruCardTitle>
           <ZoruCardDescription>
@@ -186,27 +186,27 @@ export default function FlowBuilderDocsPage() {
           <p>
             Variables are placeholders for data that can change, such as a user&apos;s name or their
             answer to a question. Use double curly braces to insert a variable, like this:{' '}
-            <ZoruBadge variant="outline" className="font-mono">{`{{name}}`}</ZoruBadge>.
+            <Badge variant="outline" className="font-mono">{`{{name}}`}</Badge>.
           </p>
           <p>
             The &quot;Get user input&quot; block is the primary way to create custom variables. When
             you configure it to save an answer to a variable named{' '}
-            <ZoruBadge variant="outline">color</ZoruBadge>, you can later use the user&apos;s
+            <Badge variant="outline">color</Badge>, you can later use the user&apos;s
             answer by writing{' '}
-            <ZoruBadge variant="outline" className="font-mono">{`{{color}}`}</ZoruBadge> in a
+            <Badge variant="outline" className="font-mono">{`{{color}}`}</Badge> in a
             &quot;Send message&quot; block.
           </p>
           <p>
             There are pre-defined variables you can use:{' '}
-            <ZoruBadge variant="outline" className="font-mono">{`{{name}}`}</ZoruBadge> (the
+            <Badge variant="outline" className="font-mono">{`{{name}}`}</Badge> (the
             user&apos;s WhatsApp profile name) and{' '}
-            <ZoruBadge variant="outline" className="font-mono">{`{{waId}}`}</ZoruBadge> (their phone
+            <Badge variant="outline" className="font-mono">{`{{waId}}`}</Badge> (their phone
             number). Variables you save from an API call can also be used this way.
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Common pattern: button-based menu</ZoruCardTitle>
           <ZoruCardDescription>
@@ -261,9 +261,9 @@ export default function FlowBuilderDocsPage() {
             </p>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div>
         <h2 className="text-2xl text-zoru-ink">Flow blocks</h2>
@@ -272,7 +272,7 @@ export default function FlowBuilderDocsPage() {
         </p>
       </div>
 
-      <ZoruAccordion type="single" collapsible className="w-full">
+      <Accordion type="single" collapsible className="w-full">
         {blockDocs.map((doc, index) => (
           <ZoruAccordionItem value={`item-${index}`} key={index}>
             <ZoruAccordionTrigger className="text-lg">{doc.title}</ZoruAccordionTrigger>
@@ -309,7 +309,7 @@ export default function FlowBuilderDocsPage() {
             </ZoruAccordionContent>
           </ZoruAccordionItem>
         ))}
-      </ZoruAccordion>
+      </Accordion>
     </div>
   );
 }

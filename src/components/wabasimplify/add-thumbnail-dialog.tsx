@@ -28,10 +28,10 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending || disabled}>
+    <Button type="submit" disabled={pending || disabled}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
       Upload Thumbnail
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -64,7 +64,7 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
   }, [state, toast, onOpenChange, onSuccess]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
@@ -79,7 +79,7 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
 
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="thumbnailFile">Thumbnail Image</ZoruLabel>
+              <Label htmlFor="thumbnailFile">Thumbnail Image</Label>
               <div className="flex items-center gap-2">
                 <SabFilePickerButton
                   accept="image"
@@ -99,11 +99,11 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton disabled={!thumbnailUrl} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

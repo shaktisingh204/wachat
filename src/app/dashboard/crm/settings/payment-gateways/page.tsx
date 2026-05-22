@@ -92,7 +92,7 @@ function SecretInput({
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
-      <ZoruInput
+      <Input
         id={id}
         name={name}
         defaultValue={defaultValue || ''}
@@ -125,7 +125,7 @@ function ActiveSwitch({
   const [checked, setChecked] = useState(initialChecked);
   return (
     <>
-      <ZoruSwitch
+      <Switch
         id={name}
         checked={checked}
         onCheckedChange={setChecked}
@@ -214,7 +214,7 @@ export default function PaymentGatewaysPage() {
       title="Payment Gateways"
       subtitle="Configure API credentials for each supported gateway."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => {
             setEditing(null);
             setOpen(true);
@@ -222,28 +222,28 @@ export default function PaymentGatewaysPage() {
         >
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           Add Gateway
-        </ZoruButton>
+        </Button>
       }
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <ZoruStatCard
+        <StatCard
           label="Configured"
           value={totalConfigured}
           icon={<Wifi className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Active"
           value={totalActive}
           icon={<CheckCircle2 className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Test mode"
           value={totalTestMode}
           icon={<FlaskConical className="h-4 w-4" />}
         />
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
             <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
@@ -254,7 +254,7 @@ export default function PaymentGatewaysPage() {
           </div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="text-zoru-ink-muted">Gateway</ZoruTableHead>
@@ -284,20 +284,20 @@ export default function PaymentGatewaysPage() {
                         </div>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={r.mode === 'live' ? 'success' : 'warning'}>
+                        <Badge variant={r.mode === 'live' ? 'success' : 'warning'}>
                           {r.mode}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                         {r.api_key ? `${String(r.api_key).slice(0, 6)}…` : '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={r.is_active ? 'success' : 'ghost'}>
+                        <Badge variant={r.is_active ? 'success' : 'ghost'}>
                           {r.is_active ? 'active' : 'inactive'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon"
                           title={r.is_active ? 'Deactivate' : 'Activate'}
@@ -305,8 +305,8 @@ export default function PaymentGatewaysPage() {
                           onClick={() => onToggle(r._id)}
                         >
                           <Power className="h-4 w-4" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="icon"
                           title="Edit"
@@ -316,26 +316,26 @@ export default function PaymentGatewaysPage() {
                           }}
                         >
                           <Pencil className="h-4 w-4" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="icon"
                           title="Delete"
                           onClick={() => setConfirmDelete(r)}
                         >
                           <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={setOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>
@@ -348,7 +348,7 @@ export default function PaymentGatewaysPage() {
             ) : null}
 
             <div>
-              <ZoruLabel htmlFor="gateway">Gateway</ZoruLabel>
+              <Label htmlFor="gateway">Gateway</Label>
               <EnumFormField
                 name="gateway"
                 enumName="paymentGatewayType"
@@ -356,7 +356,7 @@ export default function PaymentGatewaysPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="mode">Mode</ZoruLabel>
+              <Label htmlFor="mode">Mode</Label>
               <EnumFormField
                 name="mode"
                 enumName="gatewayMode"
@@ -365,15 +365,15 @@ export default function PaymentGatewaysPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="api_key">API Key</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="api_key">API Key</Label>
+              <Input
                 id="api_key"
                 name="api_key"
                 defaultValue={editing?.api_key || ''}
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="api_secret">API Secret</ZoruLabel>
+              <Label htmlFor="api_secret">API Secret</Label>
               <SecretInput
                 id="api_secret"
                 name="api_secret"
@@ -381,7 +381,7 @@ export default function PaymentGatewaysPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="webhook_secret">Webhook Secret</ZoruLabel>
+              <Label htmlFor="webhook_secret">Webhook Secret</Label>
               <SecretInput
                 id="webhook_secret"
                 name="webhook_secret"
@@ -393,35 +393,35 @@ export default function PaymentGatewaysPage() {
                 name="is_active"
                 initialChecked={editing?.is_active ?? false}
               />
-              <ZoruLabel htmlFor="is_active" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="is_active" className="text-[13px] text-zoru-ink">
                 Active
-              </ZoruLabel>
+              </Label>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
               <ActiveSwitch
                 name="show_on_public"
                 initialChecked={editing?.show_on_public ?? false}
               />
-              <ZoruLabel
+              <Label
                 htmlFor="show_on_public"
                 className="text-[13px] text-zoru-ink"
               >
                 Show on public invoice/proposal pay pages
-              </ZoruLabel>
+              </Label>
             </div>
             <ZoruDialogFooter>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 onClick={() => setOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit">Save</ZoruButton>
+              </Button>
+              <Button type="submit">Save</Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={!!confirmDelete}

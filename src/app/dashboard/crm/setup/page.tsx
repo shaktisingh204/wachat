@@ -177,8 +177,8 @@ export default function CrmSetupPage(): React.JSX.Element {
       </div>
 
       {/* Progress + step rail */}
-      <ZoruCard className="p-4">
-        <ZoruProgress value={progress} />
+      <Card className="p-4">
+        <Progress value={progress} />
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           {STEPS.map((s, i) => {
             const Icon = s.icon;
@@ -206,10 +206,10 @@ export default function CrmSetupPage(): React.JSX.Element {
             );
           })}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Body */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {step === 0 ? (
           <StepCompany state={state} update={update} />
         ) : step === 1 ? (
@@ -223,22 +223,22 @@ export default function CrmSetupPage(): React.JSX.Element {
         ) : (
           <StepFirstRecords state={state} update={update} />
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Footer nav */}
       <div className="flex items-center justify-between gap-2">
-        <ZoruButton variant="outline" onClick={handleBack} disabled={step === 0 || isPending}>
+        <Button variant="outline" onClick={handleBack} disabled={step === 0 || isPending}>
           <ArrowLeft className="h-4 w-4" /> Back
-        </ZoruButton>
+        </Button>
         {step < totalSteps - 1 ? (
-          <ZoruButton onClick={handleNext}>
+          <Button onClick={handleNext}>
             Next <ArrowRight className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         ) : (
-          <ZoruButton onClick={handleFinish} disabled={isPending}>
+          <Button onClick={handleFinish} disabled={isPending}>
             {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             Finish setup
-          </ZoruButton>
+          </Button>
         )}
       </div>
     </div>
@@ -257,8 +257,8 @@ function StepCompany({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel htmlFor="cn">Company name</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="cn">Company name</Label>
+        <Input
           id="cn"
           value={state.companyName}
           onChange={(e) => update('companyName', e.target.value)}
@@ -266,8 +266,8 @@ function StepCompany({
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="ce">Company email</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="ce">Company email</Label>
+        <Input
           id="ce"
           type="email"
           value={state.companyEmail}
@@ -276,8 +276,8 @@ function StepCompany({
         />
       </div>
       <div className="md:col-span-2">
-        <ZoruLabel htmlFor="ca">Address</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="ca">Address</Label>
+        <Textarea
           id="ca"
           rows={3}
           value={state.companyAddress}
@@ -299,7 +299,7 @@ function StepIndustry({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <ZoruLabel>Industry</ZoruLabel>
+        <Label>Industry</Label>
         <p className="mb-2 text-[12px] text-zoru-ink-muted">
           Choose the closest match — we&rsquo;ll tailor stages, templates, and reports.
         </p>
@@ -329,16 +329,16 @@ function StepIndustry({
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel htmlFor="pn">Default pipeline name</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="pn">Default pipeline name</Label>
+          <Input
             id="pn"
             value={state.pipelineName}
             onChange={(e) => update('pipelineName', e.target.value)}
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="st">Stages (comma-separated)</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="st">Stages (comma-separated)</Label>
+          <Input
             id="st"
             value={state.stages}
             onChange={(e) => update('stages', e.target.value)}
@@ -359,8 +359,8 @@ function StepInvites({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <ZoruLabel htmlFor="inv">Invite teammates</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="inv">Invite teammates</Label>
+        <Textarea
           id="inv"
           rows={4}
           value={state.invites}
@@ -370,7 +370,7 @@ function StepInvites({
       </div>
       <p className="text-[12px] text-zoru-ink-muted">
         Invites send after setup completes. You can refine roles in{' '}
-        <ZoruBadge variant="secondary">Settings → Team</ZoruBadge>.
+        <Badge variant="secondary">Settings → Team</Badge>.
       </p>
     </div>
   );
@@ -386,24 +386,24 @@ function StepNumbering({
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <div>
-        <ZoruLabel htmlFor="ip">Invoice prefix</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="ip">Invoice prefix</Label>
+        <Input
           id="ip"
           value={state.invoicePrefix}
           onChange={(e) => update('invoicePrefix', e.target.value)}
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="qp">Quote prefix</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="qp">Quote prefix</Label>
+        <Input
           id="qp"
           value={state.quotePrefix}
           onChange={(e) => update('quotePrefix', e.target.value)}
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="pp">PO prefix</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="pp">PO prefix</Label>
+        <Input
           id="pp"
           value={state.poPrefix}
           onChange={(e) => update('poPrefix', e.target.value)}
@@ -423,8 +423,8 @@ function StepTax({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel htmlFor="tx">Default tax rate (%)</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="tx">Default tax rate (%)</Label>
+        <Input
           id="tx"
           type="number"
           min={0}
@@ -434,8 +434,8 @@ function StepTax({
         />
       </div>
       <div>
-        <ZoruLabel>Default currency</ZoruLabel>
-        <ZoruSelect
+        <Label>Default currency</Label>
+        <Select
           value={state.currency}
           onValueChange={(v) => update('currency', v)}
         >
@@ -449,7 +449,7 @@ function StepTax({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
     </div>
   );
@@ -465,8 +465,8 @@ function StepFirstRecords({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel htmlFor="fl">First lead title (optional)</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="fl">First lead title (optional)</Label>
+        <Input
           id="fl"
           value={state.firstLeadTitle}
           onChange={(e) => update('firstLeadTitle', e.target.value)}
@@ -474,8 +474,8 @@ function StepFirstRecords({
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="fd">First deal title (optional)</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="fd">First deal title (optional)</Label>
+        <Input
           id="fd"
           value={state.firstDealTitle}
           onChange={(e) => update('firstDealTitle', e.target.value)}

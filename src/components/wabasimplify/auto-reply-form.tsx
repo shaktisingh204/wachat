@@ -40,10 +40,10 @@ const initialState = { message: null, error: null };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -118,19 +118,19 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
   const renderFormContent = () => {
     switch (type) {
         case 'welcomeMessage':
-            return <div className="space-y-2"><ZoruLabel htmlFor="message">Message</ZoruLabel><ZoruTextarea id="message" name="message" defaultValue={project.autoReplySettings?.welcomeMessage?.message || ''} placeholder="Hello! 👋 Welcome to our business. How can we help you today?" /></div>;
+            return <div className="space-y-2"><Label htmlFor="message">Message</Label><Textarea id="message" name="message" defaultValue={project.autoReplySettings?.welcomeMessage?.message || ''} placeholder="Hello! 👋 Welcome to our business. How can we help you today?" /></div>;
 
         case 'aiAssistant':
             return (
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="context">Business Context</ZoruLabel>
-                        <ZoruTextarea id="context" name="context" className="min-h-32" defaultValue={project.autoReplySettings?.aiAssistant?.context || ''} placeholder="We are a clothing store specializing in men's fashion. Our business hours are 9 AM to 6 PM. We offer free shipping on orders above $50..." />
+                        <Label htmlFor="context">Business Context</Label>
+                        <Textarea id="context" name="context" className="min-h-32" defaultValue={project.autoReplySettings?.aiAssistant?.context || ''} placeholder="We are a clothing store specializing in men's fashion. Our business hours are 9 AM to 6 PM. We offer free shipping on orders above $50..." />
                         <p className="text-xs text-muted-foreground">Provide information about your business for the AI to use when answering questions.</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <ZoruSwitch checked={autoTranslate} onCheckedChange={setAutoTranslate} />
-                        <ZoruLabel className="font-normal">Auto-detect & translate to user's language</ZoruLabel>
+                        <Switch checked={autoTranslate} onCheckedChange={setAutoTranslate} />
+                        <Label className="font-normal">Auto-detect & translate to user's language</Label>
                     </div>
                 </div>
             );
@@ -140,28 +140,28 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
             return (
                  <div className="space-y-4">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="message">Away Message</ZoruLabel>
-                        <ZoruTextarea id="message" name="message" defaultValue={settings?.message || ''} placeholder="Thanks for reaching out! We're currently away. Our business hours are Mon-Fri 9 AM to 6 PM. We'll get back to you as soon as possible." />
+                        <Label htmlFor="message">Away Message</Label>
+                        <Textarea id="message" name="message" defaultValue={settings?.message || ''} placeholder="Thanks for reaching out! We're currently away. Our business hours are Mon-Fri 9 AM to 6 PM. We'll get back to you as soon as possible." />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="startTime">Away From (Start)</ZoruLabel>
-                            <ZoruInput id="startTime" name="startTime" type="time" defaultValue={settings?.startTime || '20:00'} />
+                            <Label htmlFor="startTime">Away From (Start)</Label>
+                            <Input id="startTime" name="startTime" type="time" defaultValue={settings?.startTime || '20:00'} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="endTime">Available At (End)</ZoruLabel>
-                            <ZoruInput id="endTime" name="endTime" type="time" defaultValue={settings?.endTime || '08:00'} />
+                            <Label htmlFor="endTime">Available At (End)</Label>
+                            <Input id="endTime" name="endTime" type="time" defaultValue={settings?.endTime || '08:00'} />
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="timezone">Timezone</ZoruLabel>
-                        <ZoruSelect name="timezone" defaultValue={settings?.timezone || 'Asia/Kolkata'}>
+                        <Label htmlFor="timezone">Timezone</Label>
+                        <Select name="timezone" defaultValue={settings?.timezone || 'Asia/Kolkata'}>
                             <ZoruSelectTrigger id="timezone"><ZoruSelectValue /></ZoruSelectTrigger>
                             <ZoruSelectContent className="max-h-60">{timezones.map(tz => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}</ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Active on these days</ZoruLabel>
+                        <Label>Active on these days</Label>
                         <p className="text-xs text-muted-foreground mb-2">Away message will be sent on selected days during the inactive hours.</p>
                         <div className="flex flex-wrap gap-2">
                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
@@ -193,25 +193,25 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     )}
                     {replies.map((rule) => (
                         <div key={rule.id} className="p-4 border rounded-lg space-y-3 relative bg-muted/50">
-                             <ZoruButton type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeReplyRule(rule.id)}><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+                             <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeReplyRule(rule.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                             <div className="space-y-2">
-                                <ZoruLabel>Keywords (comma-separated)</ZoruLabel>
-                                <ZoruInput value={rule.keywords} onChange={(e) => handleReplyRuleChange(rule.id, 'keywords', e.target.value)} placeholder="hello, hi, hey" />
+                                <Label>Keywords (comma-separated)</Label>
+                                <Input value={rule.keywords} onChange={(e) => handleReplyRuleChange(rule.id, 'keywords', e.target.value)} placeholder="hello, hi, hey" />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Reply Message</ZoruLabel>
-                                <ZoruTextarea value={rule.reply} onChange={(e) => handleReplyRuleChange(rule.id, 'reply', e.target.value)} placeholder="Hi there! How can I help you?" />
+                                <Label>Reply Message</Label>
+                                <Textarea value={rule.reply} onChange={(e) => handleReplyRuleChange(rule.id, 'reply', e.target.value)} placeholder="Hi there! How can I help you?" />
                             </div>
-                            <ZoruSelect value={rule.matchType} onValueChange={(val) => handleReplyRuleChange(rule.id, 'matchType', val)}>
+                            <Select value={rule.matchType} onValueChange={(val) => handleReplyRuleChange(rule.id, 'matchType', val)}>
                                 <ZoruSelectTrigger className="w-[180px] h-8 text-xs"><ZoruSelectValue /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     <ZoruSelectItem value="contains">Contains keyword</ZoruSelectItem>
                                     <ZoruSelectItem value="exact">Exact match</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     ))}
-                    <ZoruButton type="button" variant="outline" size="sm" onClick={addReplyRule}><PlusCircle className="mr-2 h-4 w-4"/>Add Rule</ZoruButton>
+                    <Button type="button" variant="outline" size="sm" onClick={addReplyRule}><PlusCircle className="mr-2 h-4 w-4"/>Add Rule</Button>
                 </div>
             )
         }
@@ -220,7 +220,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
   }
 
   return (
-    <ZoruCard>
+    <Card>
       <form action={formAction} ref={formRef}>
         <input type="hidden" name="projectId" value={project._id.toString()} />
         <input type="hidden" name="replyType" value={type} />
@@ -236,7 +236,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                 <ZoruCardTitle>{formDetails[type].title}</ZoruCardTitle>
                 <ZoruCardDescription>{formDetails[type].description}</ZoruCardDescription>
             </div>
-            <ZoruSwitch checked={isEnabled} onCheckedChange={setIsEnabled} />
+            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
           </div>
         </ZoruCardHeader>
         <ZoruCardContent className={cn(!isEnabled && 'opacity-50 pointer-events-none')}>
@@ -246,6 +246,6 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
           <SubmitButton />
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

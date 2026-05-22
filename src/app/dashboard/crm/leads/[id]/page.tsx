@@ -80,11 +80,11 @@ export default async function LeadDetailPage({
       return (
         <div className="flex w-full flex-col gap-4 p-6">
           <p className="text-[14px] text-zoru-ink">Couldn&apos;t load this lead — {error}</p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/leads">
               <ArrowLeft className="h-4 w-4" /> Back to Leads
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -102,17 +102,17 @@ export default async function LeadDetailPage({
       actions={
         <div className="flex items-center gap-2">
           <PinButton entityType="lead" entityId={id} title={fullName} />
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href={`/dashboard/crm/leads/${id}/edit`}>
               <Pencil className="h-4 w-4" /> Edit
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       }
     >
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <ZoruCard className="p-6 lg:col-span-2">
+        <Card className="p-6 lg:col-span-2">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Identity & Contact
           </h3>
@@ -132,7 +132,7 @@ export default async function LeadDetailPage({
             <Field label="Source">{lead.attribution?.source || '—'}</Field>
             <Field label="Sub-source">{lead.subSource || '—'}</Field>
             <Field label="Status">
-              {lead.status?.name ? <ZoruBadge variant="outline">{lead.status.name}</ZoruBadge> : '—'}
+              {lead.status?.name ? <Badge variant="outline">{lead.status.name}</Badge> : '—'}
             </Field>
             <Field label="Lead score">{lead.leadScore ?? '—'}</Field>
             <Field label="Owner">
@@ -150,10 +150,10 @@ export default async function LeadDetailPage({
               )}
             </Field>
           </div>
-        </ZoruCard>
+        </Card>
 
         <div className="flex flex-col gap-6">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Value & Forecast
             </h3>
@@ -165,7 +165,7 @@ export default async function LeadDetailPage({
               </Field>
               <Field label="Expected close">{fmtDate(lead.expectedClose)}</Field>
             </div>
-          </ZoruCard>
+          </Card>
 
           <RelatedRail
             items={[
@@ -199,7 +199,7 @@ export default async function LeadDetailPage({
       </div>
 
       {customFields.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Custom fields
           </h3>
@@ -213,7 +213,7 @@ export default async function LeadDetailPage({
               </Field>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       <div className="text-[11px] text-zoru-ink-muted">

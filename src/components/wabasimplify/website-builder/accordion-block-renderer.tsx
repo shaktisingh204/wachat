@@ -122,7 +122,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     return (
         <div id={cssId} className={cn(animationClass, responsiveClasses, cssClasses)} style={wrapperStyle} {...customAttrs}>
             <style>{dynamicStyles}</style>
-            <ZoruAccordion type={behavior as any} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem as any} style={{ gap: `${spaceBetween}px` }}>
+            <Accordion type={behavior as any} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem as any} style={{ gap: `${spaceBetween}px` }}>
                 {items.map(item => (
                     <ZoruAccordionItem 
                         key={item.id} 
@@ -145,7 +145,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
                         </ZoruAccordionContent>
                     </ZoruAccordionItem>
                 ))}
-            </ZoruAccordion>
+            </Accordion>
         </div>
     );
 };

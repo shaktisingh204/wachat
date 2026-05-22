@@ -64,14 +64,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create promotion'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -123,7 +123,7 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
     const segmentsInitial = (initialData?.customerSegments ?? []).join(', ');
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -138,10 +138,10 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                 {/* Name + Code */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">
+                        <Label htmlFor="name">
                             Name <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -150,8 +150,8 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="code">Code</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="code">Code</Label>
+                        <Input
                             id="code"
                             name="code"
                             placeholder="SUMMER26"
@@ -163,8 +163,8 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={2}
@@ -176,7 +176,7 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                 {/* Type + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Type</ZoruLabel>
+                        <Label>Type</Label>
                         <EnumFormField
                             enumName="promotionType"
                             name="__type_picker"
@@ -186,7 +186,7 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="promotionStatus"
                             name="__status_picker"
@@ -200,8 +200,8 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     {showValueField ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="value">{valueLabel}</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="value">{valueLabel}</Label>
+                            <Input
                                 id="value"
                                 name="value"
                                 type="number"
@@ -215,8 +215,8 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                         <div />
                     )}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="minCart">Min cart value</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="minCart">Min cart value</Label>
+                        <Input
                             id="minCart"
                             name="minCart"
                             type="number"
@@ -231,8 +231,8 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                 {/* Max uses + dates */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="maxUses">Max uses</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="maxUses">Max uses</Label>
+                        <Input
                             id="maxUses"
                             name="maxUses"
                             type="number"
@@ -243,8 +243,8 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="validFrom">Valid from</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="validFrom">Valid from</Label>
+                        <Input
                             id="validFrom"
                             name="validFrom"
                             type="date"
@@ -252,8 +252,8 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="validTo">Valid to</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="validTo">Valid to</Label>
+                        <Input
                             id="validTo"
                             name="validTo"
                             type="date"
@@ -264,10 +264,10 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
 
                 {/* Applicability — comma-separated lists */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="applicableProducts">
+                    <Label htmlFor="applicableProducts">
                         Applicable products (comma-separated product ids)
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         id="applicableProducts"
                         name="applicableProducts"
                         defaultValue={productsInitial}
@@ -275,10 +275,10 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="applicableCategories">
+                    <Label htmlFor="applicableCategories">
                         Applicable categories
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         id="applicableCategories"
                         name="applicableCategories"
                         defaultValue={categoriesInitial}
@@ -286,10 +286,10 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="customerSegments">
+                    <Label htmlFor="customerSegments">
                         Customer segments
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         id="customerSegments"
                         name="customerSegments"
                         defaultValue={segmentsInitial}
@@ -299,15 +299,15 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to promotions
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

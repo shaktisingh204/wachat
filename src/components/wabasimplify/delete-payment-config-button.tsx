@@ -44,10 +44,10 @@ export function DeletePaymentConfigButton({ projectId, configName, onSuccess }: 
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton variant="destructive" size="sm" disabled={isPending}>
+        <Button variant="destructive" size="sm" disabled={isPending}>
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>

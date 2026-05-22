@@ -56,11 +56,11 @@ export default async function PosSessionsPage({ searchParams }: PageProps) {
             title="POS sessions"
             subtitle="Cashier shifts across every terminal."
             primaryAction={
-                <ZoruButton size="sm" asChild>
+                <Button size="sm" asChild>
                     <Link href="/dashboard/crm/pos/sessions/new">
                         <Plus className="h-4 w-4" /> Open session
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             <PosSessionsListClient

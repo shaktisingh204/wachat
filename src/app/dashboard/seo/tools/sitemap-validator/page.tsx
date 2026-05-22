@@ -31,19 +31,19 @@ export default function SitemapValidatorPage() {
   return (
     <ToolShell title="Sitemap Validator" description="Validate a sitemap.xml and list its URLs.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/sitemap.xml" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Validating…' : 'Validate'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/sitemap.xml" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Validating…' : 'Validate'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {result && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-1 text-sm">
+        <Card><ZoruCardContent className="p-4 space-y-1 text-sm">
           <div>XML header: {result.isXml ? '✅' : '❌'}</div>
           <div>Urlset: {result.hasUrlset ? '✅' : '❌'}</div>
           <div>Sitemap index: {result.isIndex ? '✅' : '—'}</div>
           <div>URLs: {result.count}</div>
           <div className="mt-3 text-xs font-semibold">First {result.samples.length}:</div>
           {result.samples.map((u: string, i: number) => <div key={i} className="text-xs font-mono border-t py-0.5 truncate">{u}</div>)}
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

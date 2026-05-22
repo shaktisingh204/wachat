@@ -73,11 +73,11 @@ export default function BudgetOptimizerPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Budget Optimizer" />
-                <ZoruAlert>
+                <Alert>
                     <CircleAlert className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to view budget recommendations.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -91,9 +91,9 @@ export default function BudgetOptimizerPage() {
                 title="Budget optimizer"
                 description="AI-driven budget recommendations based on last 7 days performance."
                 actions={
-                    <ZoruButton variant="outline" onClick={fetchData} disabled={loading}>
+                    <Button variant="outline" onClick={fetchData} disabled={loading}>
                         <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
-                    </ZoruButton>
+                    </Button>
                 }
             />
 
@@ -104,46 +104,46 @@ export default function BudgetOptimizerPage() {
 
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-24" />)}
+                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
                 </div>
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardContent className="p-4">
                                 <div className="text-sm text-muted-foreground">Increase budget</div>
                                 <div className="text-3xl font-bold text-green-600">{countByType('increase')}</div>
                             </ZoruCardContent>
-                        </ZoruCard>
-                        <ZoruCard>
+                        </Card>
+                        <Card>
                             <ZoruCardContent className="p-4">
                                 <div className="text-sm text-muted-foreground">Decrease budget</div>
                                 <div className="text-3xl font-bold text-amber-600">{countByType('decrease')}</div>
                             </ZoruCardContent>
-                        </ZoruCard>
-                        <ZoruCard>
+                        </Card>
+                        <Card>
                             <ZoruCardContent className="p-4">
                                 <div className="text-sm text-muted-foreground">Pause</div>
                                 <div className="text-3xl font-bold text-red-600">{countByType('pause')}</div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </div>
 
                     {recs.length === 0 ? (
-                        <ZoruCard><ZoruCardContent className="p-8 text-center text-muted-foreground">No active campaigns with insights found.</ZoruCardContent></ZoruCard>
+                        <Card><ZoruCardContent className="p-8 text-center text-muted-foreground">No active campaigns with insights found.</ZoruCardContent></Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {recs.map((r) => {
                                 const style = recStyles[r.recommendation] || recStyles.maintain;
                                 const Icon = style.icon;
                                 return (
-                                    <ZoruCard key={r.campaignId}>
+                                    <Card key={r.campaignId}>
                                         <ZoruCardHeader className="pb-2">
                                             <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
                                                 <span className="truncate mr-2">{r.campaignName}</span>
-                                                <ZoruBadge variant={style.variant} className="capitalize shrink-0">
+                                                <Badge variant={style.variant} className="capitalize shrink-0">
                                                     <Icon className="h-3 w-3 mr-1" />{r.recommendation}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </ZoruCardTitle>
                                         </ZoruCardHeader>
                                         <ZoruCardContent className="space-y-2 text-sm">
@@ -155,15 +155,15 @@ export default function BudgetOptimizerPage() {
                                                 <span>Daily budget</span><span className="text-foreground tabular-nums">${r.dailyBudget.toFixed(2)}</span>
                                             </div>
                                             <p className="text-xs text-muted-foreground italic">{r.reason}</p>
-                                            <ZoruButton
+                                            <Button
                                                 size="sm"
                                                 className="w-full mt-1"
                                                 onClick={() => toast({ title: 'Acknowledged', description: `Recommendation for "${r.campaignName}" noted.` })}
                                             >
                                                 Apply
-                                            </ZoruButton>
+                                            </Button>
                                         </ZoruCardContent>
-                                    </ZoruCard>
+                                    </Card>
                                 );
                             })}
                         </div>

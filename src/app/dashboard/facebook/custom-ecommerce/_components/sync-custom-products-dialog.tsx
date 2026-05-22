@@ -102,12 +102,12 @@ export function SyncCustomProductsDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline">
+        <Button variant="outline">
           <Facebook />
           Sync to Facebook catalog
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
@@ -118,9 +118,9 @@ export function SyncCustomProductsDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <div className="space-y-2 py-2">
-          <ZoruLabel htmlFor="catalog-select">Target catalog</ZoruLabel>
+          <Label htmlFor="catalog-select">Target catalog</Label>
           <div className="flex items-center gap-2">
-            <ZoruSelect
+            <Select
               value={selectedCatalogId}
               onValueChange={setSelectedCatalogId}
               disabled={isLoading}
@@ -138,8 +138,8 @@ export function SyncCustomProductsDialog({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruButton
+            </Select>
+            <Button
               variant="ghost"
               size="icon"
               onClick={() => fetchAndSetCatalogs(true)}
@@ -151,27 +151,27 @@ export function SyncCustomProductsDialog({
               ) : (
                 <RefreshCw />
               )}
-            </ZoruButton>
+            </Button>
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             onClick={() => setOpen(false)}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             onClick={handleSync}
             disabled={isSyncing || !selectedCatalogId}
           >
             {isSyncing ? <LoaderCircle className="animate-spin" /> : null}
             Sync now
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

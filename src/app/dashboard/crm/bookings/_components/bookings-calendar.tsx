@@ -92,7 +92,7 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
     <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line px-3 py-2">
         <div className="flex items-center gap-1">
-          <ZoruButton
+          <Button
             size="sm"
             variant="ghost"
             aria-label="Previous month"
@@ -103,11 +103,11 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
             }
           >
             <ChevronLeft className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
           <div className="min-w-[140px] text-center text-[13px] font-medium text-zoru-ink">
             {monthLabel}
           </div>
-          <ZoruButton
+          <Button
             size="sm"
             variant="ghost"
             aria-label="Next month"
@@ -118,8 +118,8 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
             }
           >
             <ChevronRight className="h-4 w-4" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             variant="outline"
             onClick={() =>
@@ -127,7 +127,7 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
             }
           >
             Today
-          </ZoruButton>
+          </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
           <LegendDot tone="success" label="Confirmed / Completed" />
@@ -185,12 +185,12 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
                     href={`/dashboard/crm/bookings/${String(b._id)}`}
                     className="block"
                   >
-                    <ZoruBadge
+                    <Badge
                       variant={statusVariant(b.status)}
                       className="w-full truncate text-[10.5px]"
                     >
                       {b.service || 'Booking'}
-                    </ZoruBadge>
+                    </Badge>
                   </Link>
                 ))}
                 {list.length > 4 ? (

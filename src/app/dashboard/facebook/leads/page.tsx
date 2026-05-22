@@ -191,7 +191,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Inbox />}
           title="No project selected"
           description="Pick a Facebook page / project to see Lead Gen forms and leads."
@@ -202,7 +202,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -216,7 +216,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Leads</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -226,44 +226,44 @@ export default function FacebookLeadsPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refreshForms} disabled={loadingForms}>
+          <Button variant="ghost" onClick={refreshForms} disabled={loadingForms}>
             <RefreshCw
               className={loadingForms ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'}
             />
             Refresh
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={handleExport}
             disabled={!selectedForm || leads.length === 0}
           >
             <Download className="mr-2 h-4 w-4" />
             Export CSV
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load forms</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[320px_1fr]">
-        <ZoruCard className="self-start">
+        <Card className="self-start">
           <ZoruCardHeader>
             <ZoruCardTitle>Forms</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
             {loadingForms && forms.length === 0 ? (
               <div className="flex flex-col gap-2">
-                <ZoruSkeleton className="h-12 w-full" />
-                <ZoruSkeleton className="h-12 w-full" />
-                <ZoruSkeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
               </div>
             ) : forms.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Inbox />}
                 title="No forms"
                 description="No Lead Gen forms found for this Page."
@@ -288,9 +288,9 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                           {f.name}
                         </span>
                         <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">
-                          <ZoruBadge variant="secondary">
+                          <Badge variant="secondary">
                             {f.leads_count ?? 0} leads
-                          </ZoruBadge>
+                          </Badge>
                           <span>{fmtDate(f.created_time)}</span>
                         </div>
                       </button>
@@ -300,9 +300,9 @@ export default function FacebookLeadsPage(): React.JSX.Element {
               </ul>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>
               {selectedForm ? `Leads · ${selectedForm.name}` : 'Leads'}
@@ -310,25 +310,25 @@ export default function FacebookLeadsPage(): React.JSX.Element {
           </ZoruCardHeader>
           <ZoruCardContent>
             {!selectedForm ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Inbox />}
                 title="Pick a form"
                 description="Select a Lead Gen form on the left to see its leads."
               />
             ) : loadingLeads && leads.length === 0 ? (
               <div className="flex flex-col gap-2">
-                <ZoruSkeleton className="h-10 w-full" />
-                <ZoruSkeleton className="h-10 w-full" />
-                <ZoruSkeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
               </div>
             ) : leads.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Inbox />}
                 title="No leads yet"
                 description="No submissions captured against this form."
               />
             ) : (
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead>Name</ZoruTableHead>
@@ -374,13 +374,13 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruSheet
+      <Sheet
         open={!!selectedLead}
         onOpenChange={(open) => !open && setSelectedLead(null)}
       >
@@ -419,7 +419,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
             </div>
           ) : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
     </div>
   );
 }

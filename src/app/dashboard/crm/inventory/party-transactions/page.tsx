@@ -100,14 +100,14 @@ function KpiTile({
     icon: React.ElementType;
 }): React.JSX.Element {
     return (
-        <ZoruCard>
+        <Card>
             <div className="flex items-center justify-between">
                 <p className="text-[12.5px] font-medium text-muted-foreground">{label}</p>
                 <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
             </div>
             <p className="mt-2 truncate text-[22px] font-semibold text-foreground">{value}</p>
             {sub ? <p className="mt-0.5 truncate text-[11.5px] text-muted-foreground">{sub}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -207,21 +207,21 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
             subtitle="Inventory + receivable exposure for every customer and vendor."
             primaryAction={
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         onClick={handleCsv}
                         disabled={exportRows.length === 0}
                     >
                         <Download className="mr-2 h-4 w-4" />
                         CSV
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="outline"
                         onClick={handleXlsx}
                         disabled={exportRows.length === 0}
                     >
                         XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
@@ -251,7 +251,7 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                 />
             </div>
 
-            <ZoruCard className="mt-4">
+            <Card className="mt-4">
                 <h2 className="text-[16px] font-semibold text-foreground">Top 10 parties by volume</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                     Combined invoice + credit-note exposure, descending.
@@ -275,13 +275,13 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="mt-4">
+            <Card className="mt-4">
                 <h2 className="text-[16px] font-semibold text-foreground">Per-party drilldown</h2>
                 <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div className="space-y-1">
-                        <ZoruLabel>Party type</ZoruLabel>
+                        <Label>Party type</Label>
                         <EnumFormField
                             enumName="partyTypeReport"
                             name="partyType"
@@ -292,7 +292,7 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel>Select party</ZoruLabel>
+                        <Label>Select party</Label>
                         {partyType === 'customer' ? (
                             <EntityPicker
                                 entity="client"
@@ -314,16 +314,16 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                         )}
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel>Start date</ZoruLabel>
-                        <ZoruDatePicker value={startDate} onChange={setStartDate} />
+                        <Label>Start date</Label>
+                        <DatePicker value={startDate} onChange={setStartDate} />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel>End date</ZoruLabel>
-                        <ZoruDatePicker value={endDate} onChange={setEndDate} />
+                        <Label>End date</Label>
+                        <DatePicker value={endDate} onChange={setEndDate} />
                     </div>
                 </div>
                 <div className="mt-4">
-                    <ZoruButton
+                    <Button
                         onClick={handleGenerateReport}
                         disabled={isLoading || !partyId}
                     >
@@ -331,11 +331,11 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         Generate report
-                    </ZoruButton>
+                    </Button>
                 </div>
 
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
@@ -392,9 +392,9 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

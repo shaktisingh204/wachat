@@ -125,7 +125,7 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
         <div className="flex items-center justify-between gap-2">
           <dt className="text-zoru-ink-muted">Stage</dt>
           <dd>
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
                 <button
                   type="button"
@@ -146,13 +146,13 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
                   </ZoruDropdownMenuItem>
                 ))}
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
           <dt className="text-zoru-ink-muted">Status</dt>
           <dd>
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
                 <button
                   type="button"
@@ -169,18 +169,18 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
                   </ZoruDropdownMenuItem>
                 ))}
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </dd>
         </div>
       </dl>
 
-      <ZoruDialog open={ownerDialogOpen} onOpenChange={setOwnerDialogOpen}>
+      <Dialog open={ownerDialogOpen} onOpenChange={setOwnerDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Change deal owner</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="space-y-2 py-2">
-            <ZoruLabel>Owner</ZoruLabel>
+            <Label>Owner</Label>
             <EntityFormField
               entity="user"
               name="_owner"
@@ -189,13 +189,13 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setOwnerDialogOpen(false)}>
+            <Button variant="ghost" onClick={() => setOwnerDialogOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={commitOwner}>Save</ZoruButton>
+            </Button>
+            <Button onClick={commitOwner}>Save</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }

@@ -188,10 +188,10 @@ export default function EmployeeEmergencyContactsSubPage() {
                 title="Emergency contacts"
                 subtitle="People to reach in case of an emergency."
                 primaryAction={
-                    <ZoruButton onClick={openAdd}>
+                    <Button onClick={openAdd}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add contact
-                    </ZoruButton>
+                    </Button>
                 }
             >
 
@@ -227,7 +227,7 @@ export default function EmployeeEmergencyContactsSubPage() {
                         <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
                     </div>
                 ) : rows.length === 0 ? (
-                    <ZoruCard className="flex flex-col items-start gap-3 p-8">
+                    <Card className="flex flex-col items-start gap-3 p-8">
                         <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                             <PhoneCall
                                 className="h-5 w-5 text-zoru-ink-muted"
@@ -244,15 +244,15 @@ export default function EmployeeEmergencyContactsSubPage() {
                                 profile.
                             </p>
                         </div>
-                        <ZoruButton onClick={openAdd}>
+                        <Button onClick={openAdd}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add contact
-                        </ZoruButton>
-                    </ZoruCard>
+                        </Button>
+                    </Card>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                         {rows.map((c) => (
-                            <ZoruCard
+                            <Card
                                 key={c._id}
                                 className="flex flex-col gap-2 p-4"
                             >
@@ -268,9 +268,9 @@ export default function EmployeeEmergencyContactsSubPage() {
                                         ) : null}
                                     </div>
                                     {c.isPrimary ? (
-                                        <ZoruBadge variant="success">
+                                        <Badge variant="success">
                                             Primary
-                                        </ZoruBadge>
+                                        </Badge>
                                     ) : null}
                                 </div>
                                 <dl className="grid gap-1 text-[12.5px]">
@@ -326,29 +326,29 @@ export default function EmployeeEmergencyContactsSubPage() {
                                     ) : null}
                                 </dl>
                                 <div className="mt-auto flex justify-end gap-1 border-t border-zoru-line pt-2">
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => openEdit(c)}
                                     >
                                         <Pencil className="h-3.5 w-3.5" />
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => setPendingDelete(c)}
                                     >
                                         <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
-                            </ZoruCard>
+                            </Card>
                         ))}
                     </div>
                 )}
             </EntityListShell>
 
             {/* Add / Edit dialog */}
-            <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <ZoruDialogContent className="max-w-lg">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>
@@ -360,10 +360,10 @@ export default function EmployeeEmergencyContactsSubPage() {
                     <div className="grid gap-4 py-2">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="contact-name">
+                                <Label htmlFor="contact-name">
                                     Name *
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="contact-name"
                                     value={form.name}
                                     onChange={(e) =>
@@ -375,10 +375,10 @@ export default function EmployeeEmergencyContactsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="contact-relationship">
+                                <Label htmlFor="contact-relationship">
                                     Relationship
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="contact-relationship"
                                     placeholder="Spouse, Parent…"
                                     value={form.relationship}
@@ -391,10 +391,10 @@ export default function EmployeeEmergencyContactsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="contact-phone">
+                                <Label htmlFor="contact-phone">
                                     Phone
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="contact-phone"
                                     type="tel"
                                     value={form.phone}
@@ -407,10 +407,10 @@ export default function EmployeeEmergencyContactsSubPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="contact-email">
+                                <Label htmlFor="contact-email">
                                     Email
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="contact-email"
                                     type="email"
                                     value={form.email}
@@ -424,10 +424,10 @@ export default function EmployeeEmergencyContactsSubPage() {
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="contact-address">
+                            <Label htmlFor="contact-address">
                                 Address
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="contact-address"
                                 rows={2}
                                 value={form.address}
@@ -440,8 +440,8 @@ export default function EmployeeEmergencyContactsSubPage() {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="contact-notes">Notes</ZoruLabel>
-                            <ZoruTextarea
+                            <Label htmlFor="contact-notes">Notes</Label>
+                            <Textarea
                                 id="contact-notes"
                                 rows={2}
                                 value={form.notes}
@@ -454,7 +454,7 @@ export default function EmployeeEmergencyContactsSubPage() {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <ZoruCheckbox
+                            <Checkbox
                                 id="contact-primary"
                                 checked={form.isPrimary}
                                 onCheckedChange={(v) =>
@@ -464,30 +464,30 @@ export default function EmployeeEmergencyContactsSubPage() {
                                     })
                                 }
                             />
-                            <ZoruLabel
+                            <Label
                                 htmlFor="contact-primary"
                                 className="cursor-pointer"
                             >
                                 Mark as primary contact
-                            </ZoruLabel>
+                            </Label>
                         </div>
                     </div>
                     <ZoruDialogFooter className="gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             onClick={() => setDialogOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton onClick={handleSave} disabled={saving}>
+                        </Button>
+                        <Button onClick={handleSave} disabled={saving}>
                             {saving ? (
                                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             {form.contactId ? 'Save changes' : 'Add contact'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

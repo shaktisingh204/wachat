@@ -35,7 +35,7 @@ export function EmployeesKpiStrip({
         onClick={() => onSelect('reset')}
         ariaLabel="Show all employees"
       >
-        <ZoruStatCard
+        <StatCard
           label="Total"
           value={kpi.total.toLocaleString()}
           period="all employees"
@@ -47,7 +47,7 @@ export function EmployeesKpiStrip({
         onClick={() => onSelect('all-active')}
         ariaLabel="Show active employees"
       >
-        <ZoruStatCard
+        <StatCard
           label="Active"
           value={kpi.active.toLocaleString()}
           period="currently working"
@@ -59,7 +59,7 @@ export function EmployeesKpiStrip({
         onClick={() => onSelect('on-leave')}
         ariaLabel="Show employees on leave"
       >
-        <ZoruStatCard
+        <StatCard
           label="On leave"
           value={kpi.onLeave.toLocaleString()}
           period="away from work"
@@ -71,7 +71,7 @@ export function EmployeesKpiStrip({
         onClick={() => onSelect('on-notice')}
         ariaLabel="Show employees on notice"
       >
-        <ZoruStatCard
+        <StatCard
           label="On notice"
           value={kpi.onNotice.toLocaleString()}
           period="serving notice period"
@@ -83,7 +83,7 @@ export function EmployeesKpiStrip({
         onClick={() => onSelect('joined-this-month')}
         ariaLabel="Show employees joined this month"
       >
-        <ZoruStatCard
+        <StatCard
           label="New this month"
           value={kpi.newThisMonth.toLocaleString()}
           period="joined this month"

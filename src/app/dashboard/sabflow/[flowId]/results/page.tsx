@@ -71,7 +71,7 @@ export default async function FlowResultsPage({ params }: Props) {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -95,16 +95,16 @@ export default async function FlowResultsPage({ params }: Props) {
             <ZoruBreadcrumbPage>Results</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>{flowName}</ZoruPageTitle>
           <ZoruPageDescription>
             Flow results and session analytics.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Composite — kept opaque. */}
       <ResultsPageClient

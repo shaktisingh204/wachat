@@ -34,7 +34,7 @@ export function QuotationHeaderSection({
   initial?: CrmQuotationDoc | null;
 }) {
   return (
-    <ZoruCard className="space-y-4 p-6">
+    <Card className="space-y-4 p-6">
       <div>
         <h2 className="text-[15px] font-semibold text-zoru-ink">Header</h2>
         <p className="text-[12.5px] text-zoru-ink-muted">
@@ -43,10 +43,10 @@ export function QuotationHeaderSection({
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="quotationNo">
+          <Label htmlFor="quotationNo">
             Quotation # <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="quotationNo"
             name="quotationNo"
             required
@@ -55,10 +55,10 @@ export function QuotationHeaderSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="date">
+          <Label htmlFor="date">
             Date <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="date"
             name="date"
             type="date"
@@ -67,10 +67,10 @@ export function QuotationHeaderSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="validUntil">
+          <Label htmlFor="validUntil">
             Valid until <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="validUntil"
             name="validUntil"
             type="date"
@@ -79,7 +79,7 @@ export function QuotationHeaderSection({
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -99,7 +99,7 @@ export function QuotationCustomerSection({
   onAnyChange,
 }: QuotationCustomerSectionProps) {
   return (
-    <ZoruCard className="space-y-4 p-6">
+    <Card className="space-y-4 p-6">
       <div>
         <h2 className="text-[15px] font-semibold text-zoru-ink">Customer</h2>
         <p className="text-[12.5px] text-zoru-ink-muted">
@@ -108,9 +108,9 @@ export function QuotationCustomerSection({
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
-          <ZoruLabel>
+          <Label>
             Customer <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
+          </Label>
           <EntityFormField
             entity="client"
             name="clientId"
@@ -120,8 +120,8 @@ export function QuotationCustomerSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="referenceNo">Reference #</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="referenceNo">Reference #</Label>
+          <Input
             id="referenceNo"
             name="referenceNo"
             defaultValue={initial?.referenceNo ?? ''}
@@ -129,7 +129,7 @@ export function QuotationCustomerSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel>Sales agent</ZoruLabel>
+          <Label>Sales agent</Label>
           <EntityFormField
             entity="user"
             name="salesAgentId"
@@ -140,7 +140,7 @@ export function QuotationCustomerSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel>Pipeline</ZoruLabel>
+          <Label>Pipeline</Label>
           <EntityFormField
             entity="pipeline"
             name="pipelineId"
@@ -152,7 +152,7 @@ export function QuotationCustomerSection({
           />
         </div>
         <div className="space-y-1.5 md:col-span-2">
-          <ZoruLabel>Deal</ZoruLabel>
+          <Label>Deal</Label>
           <EntityFormField
             entity="deal"
             name="dealId"
@@ -162,7 +162,7 @@ export function QuotationCustomerSection({
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -182,14 +182,14 @@ export function QuotationSubjectSection({
   onAnyChange,
 }: QuotationSubjectSectionProps) {
   return (
-    <ZoruCard className="space-y-4 p-6">
+    <Card className="space-y-4 p-6">
       <div>
         <h2 className="text-[15px] font-semibold text-zoru-ink">Subject</h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="subject">Subject</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="subject">Subject</Label>
+          <Input
             id="subject"
             name="subject"
             defaultValue={initial?.subject ?? ''}
@@ -197,8 +197,8 @@ export function QuotationSubjectSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="placeOfSupply">Place of supply</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="placeOfSupply">Place of supply</Label>
+          <Input
             id="placeOfSupply"
             name="placeOfSupply"
             defaultValue={initial?.placeOfSupply ?? ''}
@@ -206,7 +206,7 @@ export function QuotationSubjectSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel>Currency</ZoruLabel>
+          <Label>Currency</Label>
           <EntityFormField
             entity="currency"
             name="currency"
@@ -219,7 +219,7 @@ export function QuotationSubjectSection({
         </div>
         {editing ? (
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
+            <Label htmlFor="status">Status</Label>
             <EnumFormField
               enumName="quotationStatusV2"
               name="status"
@@ -228,7 +228,7 @@ export function QuotationSubjectSection({
           </div>
         ) : null}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -240,14 +240,14 @@ export function QuotationNotesSection({
   initial?: CrmQuotationDoc | null;
 }) {
   return (
-    <ZoruCard className="space-y-4 p-6">
+    <Card className="space-y-4 p-6">
       <div>
         <h2 className="text-[15px] font-semibold text-zoru-ink">Notes</h2>
       </div>
       <div className="grid gap-4">
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="termsAndConditions">Terms &amp; conditions</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="termsAndConditions">Terms &amp; conditions</Label>
+          <Textarea
             id="termsAndConditions"
             name="termsAndConditions"
             defaultValue={initial?.termsAndConditions ?? ''}
@@ -256,8 +256,8 @@ export function QuotationNotesSection({
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="notes">Customer notes</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="notes">Customer notes</Label>
+          <Textarea
             id="notes"
             name="notes"
             defaultValue={initial?.customerNotes ?? ''}
@@ -266,6 +266,6 @@ export function QuotationNotesSection({
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

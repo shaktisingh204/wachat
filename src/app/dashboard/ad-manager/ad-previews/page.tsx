@@ -69,37 +69,37 @@ export default function AdPreviewsPage() {
                 title="Ad preview gallery"
                 description="Browse your ad creatives and preview copy."
                 actions={
-                    <ZoruButton variant="outline" onClick={fetchData} disabled={loading}>
+                    <Button variant="outline" onClick={fetchData} disabled={loading}>
                         <RefreshCw className={loading ? 'animate-spin' : ''} /> Refresh
-                    </ZoruButton>
+                    </Button>
                 }
             />
 
             <div className="flex gap-2">
                 {(['ALL', 'ACTIVE', 'PAUSED'] as const).map((s) => (
-                    <ZoruButton
+                    <Button
                         key={s}
                         variant={filter === s ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setFilter(s)}
                     >
                         {s === 'ALL' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
-                    </ZoruButton>
+                    </Button>
                 ))}
             </div>
 
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Array.from({ length: 6 }).map((_, i) => <ZoruSkeleton key={i} className="h-64" />)}
+                    {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64" />)}
                 </div>
             ) : filtered.length === 0 ? (
-                <ZoruCard><ZoruCardContent className="p-8 text-center text-muted-foreground">No ads found.</ZoruCardContent></ZoruCard>
+                <Card><ZoruCardContent className="p-8 text-center text-muted-foreground">No ads found.</ZoruCardContent></Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((ad) => {
                         const img = ad.creative?.thumbnail_url || ad.creative?.image_url;
                         return (
-                            <ZoruCard key={ad.id} className="overflow-hidden">
+                            <Card key={ad.id} className="overflow-hidden">
                                 {img ? (
                                     <div className="h-40 bg-muted overflow-hidden">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -113,9 +113,9 @@ export default function AdPreviewsPage() {
                                 <ZoruCardHeader className="pb-2">
                                     <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
                                         <span className="truncate mr-2">{ad.name}</span>
-                                        <ZoruBadge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                                        <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>
                                             {ad.status}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruCardTitle>
                                 </ZoruCardHeader>
                                 <ZoruCardContent className="space-y-1 text-sm">
@@ -132,7 +132,7 @@ export default function AdPreviewsPage() {
                                         View on Facebook <ExternalLink className="h-3 w-3" />
                                     </a>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         );
                     })}
                 </div>

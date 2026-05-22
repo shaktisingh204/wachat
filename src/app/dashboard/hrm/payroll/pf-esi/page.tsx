@@ -81,45 +81,45 @@ export default function PfEsiPage() {
             subtitle={`Provident Fund and Employee State Insurance contributions for ${periodLabel}.`}
             primaryAction={
                 <>
-                    <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                    <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
                         <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                    </Select>
+                    <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
                         <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </>
             }
         >
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total PF Liability</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalPF.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Employee share @ {PF_RATE}% of basic</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total ESI Liability</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalESI.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Employee share @ {ESI_RATE}% (ceiling ₹{ESI_WAGE_CEILING.toLocaleString('en-IN')})</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Combined</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{(totalPF + totalESI).toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{rows.length} employees this period</p>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4">
                     <h2 className="text-[16px] text-zoru-ink">Employee PF & ESI Breakdown</h2>
                     <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Contribution details, registration numbers, and UAN per employee.</p>
@@ -159,7 +159,7 @@ export default function PfEsiPage() {
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">{row.pfRate}%</td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{row.pf.toLocaleString('en-IN')}</td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">
-                                            {row.esiApplicable ? `${row.esiRate}%` : <ZoruBadge variant="secondary">N/A</ZoruBadge>}
+                                            {row.esiApplicable ? `${row.esiRate}%` : <Badge variant="secondary">N/A</Badge>}
                                         </td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {row.esiApplicable ? `₹${row.esi.toLocaleString('en-IN')}` : '—'}
@@ -190,7 +190,7 @@ export default function PfEsiPage() {
                         )}
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

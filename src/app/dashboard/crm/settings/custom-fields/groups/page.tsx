@@ -132,7 +132,7 @@ export default function CustomFieldGroupsPage() {
           key: 'belongs_to',
           label: 'Target',
           render: (row) => (
-            <ZoruBadge variant="ghost">{String(row.belongs_to || '')}</ZoruBadge>
+            <Badge variant="ghost">{String(row.belongs_to || '')}</Badge>
           ),
         },
       ]}

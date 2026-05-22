@@ -222,20 +222,20 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
         search={{ value: q, onChange: setQ, placeholder: 'Search activity…' }}
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="sm" onClick={() => onExportCsv(filtered)}>
+            <Button variant="outline" size="sm" onClick={() => onExportCsv(filtered)}>
               <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
               CSV
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={() => onExportXlsx(filtered)}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => onExportXlsx(filtered)}>
               <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />
               XLSX
-            </ZoruButton>
+            </Button>
           </div>
         }
         filters={
           <>
             <div className="w-48">
-              <ZoruSelect value={actorFilter} onValueChange={setActorFilter}>
+              <Select value={actorFilter} onValueChange={setActorFilter}>
                 <ZoruSelectTrigger><ZoruSelectValue placeholder="Actor" /></ZoruSelectTrigger>
                 <ZoruSelectContent>
                   <ZoruSelectItem value="all">All actors</ZoruSelectItem>
@@ -243,10 +243,10 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
                     <ZoruSelectItem key={a} value={a}>{a}</ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="w-44">
-              <ZoruSelect value={kindFilter} onValueChange={setKindFilter}>
+              <Select value={kindFilter} onValueChange={setKindFilter}>
                 <ZoruSelectTrigger><ZoruSelectValue placeholder="Entity kind" /></ZoruSelectTrigger>
                 <ZoruSelectContent>
                   <ZoruSelectItem value="all">All kinds</ZoruSelectItem>
@@ -258,13 +258,13 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
                   <ZoruSelectItem value="member">Member</ZoruSelectItem>
                   <ZoruSelectItem value="other">Other</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[12px] text-zoru-ink-muted">From</span>
-              <ZoruInput type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
+              <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
               <span className="text-[12px] text-zoru-ink-muted">To</span>
-              <ZoruInput type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-40" />
+              <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-40" />
             </div>
           </>
         }
@@ -273,17 +273,17 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
             <div className="flex items-center justify-between gap-3">
               <span className="text-[12.5px] text-zoru-ink-muted">{selected.size} selected</span>
               <div className="flex items-center gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={() => setSelected(new Set())}>Clear</ZoruButton>
-                <ZoruButton
+                <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onExportCsv(rows.filter((r) => selected.has(r._id)))}
                 >
                   <Download className="h-3.5 w-3.5" strokeWidth={1.75} /> Export selected
-                </ZoruButton>
-                <ZoruButton variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
                   <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} /> Delete selected
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -292,13 +292,13 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
       >
         <div className="flex flex-col gap-4">
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <ZoruStatCard label="Events today" value={eventsToday.toLocaleString('en-IN')} icon={<Activity className="h-4 w-4" />} />
-            <ZoruStatCard label="Events this week" value={eventsWeek.toLocaleString('en-IN')} icon={<CalendarRange className="h-4 w-4" />} period="last 7 days" />
-            <ZoruStatCard label="Top actor" value={topActor} icon={<Crown className="h-4 w-4" />} />
-            <ZoruStatCard label="Top action" value={topAction} icon={<TrendingUp className="h-4 w-4" />} />
+            <StatCard label="Events today" value={eventsToday.toLocaleString('en-IN')} icon={<Activity className="h-4 w-4" />} />
+            <StatCard label="Events this week" value={eventsWeek.toLocaleString('en-IN')} icon={<CalendarRange className="h-4 w-4" />} period="last 7 days" />
+            <StatCard label="Top actor" value={topActor} icon={<Crown className="h-4 w-4" />} />
+            <StatCard label="Top action" value={topAction} icon={<TrendingUp className="h-4 w-4" />} />
           </div>
 
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <ol className="relative divide-y divide-zoru-line">
               {pageRows.length === 0 ? (
                 <li className="px-6 py-10 text-center text-zoru-ink-muted">
@@ -361,7 +361,7 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
                 },
               }}
             />
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

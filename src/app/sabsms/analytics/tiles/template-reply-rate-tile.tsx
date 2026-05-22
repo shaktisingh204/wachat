@@ -33,7 +33,7 @@ export function TemplateReplyRateTile({
   queryString,
 }: TemplateReplyRateTileProps) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>Reply-rate by template</ZoruCardTitle>
@@ -61,7 +61,7 @@ export function TemplateReplyRateTile({
             No template sends in this window.
           </p>
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Template</ZoruTableHead>
@@ -88,9 +88,9 @@ export function TemplateReplyRateTile({
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

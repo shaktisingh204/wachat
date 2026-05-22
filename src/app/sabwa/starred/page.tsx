@@ -123,13 +123,13 @@ export default function SabWaStarredPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -139,7 +139,7 @@ export default function SabWaStarredPage() {
 
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -153,7 +153,7 @@ export default function SabWaStarredPage() {
             <ZoruBreadcrumbPage>Starred</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-start gap-3">
         <div
@@ -167,9 +167,9 @@ export default function SabWaStarredPage() {
             <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
               Starred Messages
             </h1>
-            <ZoruBadge variant="ghost" className="text-[10.5px]">
+            <Badge variant="ghost" className="text-[10.5px]">
               {totalCount} total
-            </ZoruBadge>
+            </Badge>
           </div>
           <p className="mt-1 text-[13px] text-zoru-ink-muted">
             Every message you’ve starred across chats, grouped by
@@ -180,7 +180,7 @@ export default function SabWaStarredPage() {
 
       <div className="relative max-w-xl">
         <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -191,7 +191,7 @@ export default function SabWaStarredPage() {
       </div>
 
       {error ? (
-        <ZoruCard className="border-zoru-danger/50">
+        <Card className="border-zoru-danger/50">
           <ZoruCardHeader>
             <ZoruCardTitle className="text-zoru-danger">
               Couldn’t load starred messages
@@ -199,11 +199,11 @@ export default function SabWaStarredPage() {
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-3">
             <p className="text-[13px] text-zoru-ink-muted">{error}</p>
-            <ZoruButton type="button" size="sm" variant="outline" onClick={refetch}>
+            <Button type="button" size="sm" variant="outline" onClick={refetch}>
               Retry
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : loading ? (
         <StarredSkeleton />
       ) : groups.length === 0 ? (
@@ -218,7 +218,7 @@ export default function SabWaStarredPage() {
             const hasMore = group.entries.length > PREVIEW_LIMIT;
             return (
               <li key={group.chatJid}>
-                <ZoruCard>
+                <Card>
                   <ZoruCardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
                     <div className="min-w-0">
                       <ZoruCardTitle className="truncate text-base">
@@ -230,7 +230,7 @@ export default function SabWaStarredPage() {
                       </p>
                     </div>
                     {hasMore ? (
-                      <ZoruButton
+                      <Button
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -253,7 +253,7 @@ export default function SabWaStarredPage() {
                             {group.entries.length})
                           </>
                         )}
-                      </ZoruButton>
+                      </Button>
                     ) : null}
                   </ZoruCardHeader>
                   <ZoruCardContent className="space-y-3">
@@ -261,7 +261,7 @@ export default function SabWaStarredPage() {
                       <StarredPreview key={entry.message.messageId} entry={entry} />
                     ))}
                   </ZoruCardContent>
-                </ZoruCard>
+                </Card>
               </li>
             );
           })}
@@ -290,12 +290,12 @@ function StarredPreview({ entry }: { entry: SabwaStarredEntry }) {
         <MessageBubble message={message} fromMe={message.fromMe} />
       </div>
       <div className="flex justify-end">
-        <ZoruButton asChild variant="link" size="sm" className="h-6 px-1">
+        <Button asChild variant="link" size="sm" className="h-6 px-1">
           <Link href={jumpHref}>
             <ExternalLink className="mr-1 h-3 w-3" />
             Jump to message
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );
@@ -306,17 +306,17 @@ function StarredSkeleton() {
     <ul className="flex flex-col gap-4">
       {Array.from({ length: 3 }).map((_, i) => (
         <li key={i}>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
-              <ZoruSkeleton className="h-4 w-1/3" />
-              <ZoruSkeleton className="mt-1 h-3 w-1/4" />
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="mt-1 h-3 w-1/4" />
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-3">
               {Array.from({ length: 2 }).map((__, j) => (
-                <ZoruSkeleton key={j} className="h-12 w-full max-w-md" />
+                <Skeleton key={j} className="h-12 w-full max-w-md" />
               ))}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </li>
       ))}
     </ul>
@@ -325,7 +325,7 @@ function StarredSkeleton() {
 
 function StarredEmptyState({ filtered }: { filtered: boolean }) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
         <div
           aria-hidden
@@ -342,6 +342,6 @@ function StarredEmptyState({ filtered }: { filtered: boolean }) {
             : "Star messages in the Inbox by right-clicking them. They’ll all show up here, neatly grouped by chat."}
         </p>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

@@ -65,8 +65,8 @@ export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element 
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="md:col-span-2">
-                                <ZoruLabel htmlFor="title">Program name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="title">Program name *</Label>
+                                <Input
                                     id="title"
                                     name="title"
                                     required
@@ -75,8 +75,8 @@ export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element 
                                 />
                             </div>
                             <div className="md:col-span-2">
-                                <ZoruLabel htmlFor="summary">Summary</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="summary">Summary</Label>
+                                <Textarea
                                     id="summary"
                                     name="summary"
                                     rows={3}
@@ -85,8 +85,8 @@ export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element 
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="icon">Icon (emoji)</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="icon">Icon (emoji)</Label>
+                                <Input
                                     id="icon"
                                     name="icon"
                                     defaultValue={award?.icon ?? '🏆'}
@@ -95,7 +95,7 @@ export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element 
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Frequency *</ZoruLabel>
+                                <Label>Frequency *</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         enumName="awardFrequency"
@@ -114,8 +114,8 @@ export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element 
                     children: (
                         <div className="grid gap-4">
                             <div>
-                                <ZoruLabel htmlFor="criteria">Criteria</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="criteria">Criteria</Label>
+                                <Textarea
                                     id="criteria"
                                     name="criteria"
                                     rows={4}
@@ -125,8 +125,8 @@ export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element 
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="prize">Prize / payout / certificate</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="prize">Prize / payout / certificate</Label>
+                                <Textarea
                                     id="prize"
                                     name="prize"
                                     rows={3}

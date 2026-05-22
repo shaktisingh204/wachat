@@ -20,14 +20,14 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save Program
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -54,14 +54,14 @@ export default function NewLoyaltyProgramPage() {
         >
 
             <form action={formAction}>
-                <ZoruCard className="p-6 max-w-xl">
+                <Card className="p-6 max-w-xl">
                     <div className="space-y-5">
                         {/* Program Name */}
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="name" className="text-zoru-ink">
+                            <Label htmlFor="name" className="text-zoru-ink">
                                 Program Name <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 required
@@ -73,10 +73,10 @@ export default function NewLoyaltyProgramPage() {
                         {/* Points per ₹1 Spent + Points needed per ₹1 Redemption */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="pointsPerCurrencyUnit" className="text-zoru-ink">
+                                <Label htmlFor="pointsPerCurrencyUnit" className="text-zoru-ink">
                                     Points per ₹1 Spent
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="pointsPerCurrencyUnit"
                                     name="pointsPerCurrencyUnit"
                                     type="number"
@@ -87,10 +87,10 @@ export default function NewLoyaltyProgramPage() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="redemptionRatio" className="text-zoru-ink">
+                                <Label htmlFor="redemptionRatio" className="text-zoru-ink">
                                     Points needed per ₹1 Redemption
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="redemptionRatio"
                                     name="redemptionRatio"
                                     type="number"
@@ -104,10 +104,10 @@ export default function NewLoyaltyProgramPage() {
                         {/* Min Redemption Points + Points Expiry */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="minRedemptionPoints" className="text-zoru-ink">
+                                <Label htmlFor="minRedemptionPoints" className="text-zoru-ink">
                                     Min Redemption Points
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="minRedemptionPoints"
                                     name="minRedemptionPoints"
                                     type="number"
@@ -118,10 +118,10 @@ export default function NewLoyaltyProgramPage() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="expiryDays" className="text-zoru-ink">
+                                <Label htmlFor="expiryDays" className="text-zoru-ink">
                                     Points Expiry (days)
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="expiryDays"
                                     name="expiryDays"
                                     type="number"
@@ -134,10 +134,10 @@ export default function NewLoyaltyProgramPage() {
 
                         {/* Welcome Bonus Points */}
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="welcomeBonus" className="text-zoru-ink">
+                            <Label htmlFor="welcomeBonus" className="text-zoru-ink">
                                 Welcome Bonus Points
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="welcomeBonus"
                                 name="welcomeBonus"
                                 type="number"
@@ -149,10 +149,10 @@ export default function NewLoyaltyProgramPage() {
 
                         {/* Notes */}
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="notes" className="text-zoru-ink">
+                            <Label htmlFor="notes" className="text-zoru-ink">
                                 Notes
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="notes"
                                 name="notes"
                                 placeholder="Optional notes about this loyalty program…"
@@ -165,7 +165,7 @@ export default function NewLoyaltyProgramPage() {
                             <SubmitButton />
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
             </form>
         </EntityDetailShell>
     );

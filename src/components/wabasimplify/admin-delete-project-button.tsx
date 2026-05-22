@@ -50,9 +50,9 @@ export function AdminDeleteProjectButton({ projectId, projectName }: AdminDelete
   return (
     <ZoruAlertDialog open={open} onOpenChange={setOpen}>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton variant="destructive" size="sm">
+        <Button variant="destructive" size="sm">
           Delete
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
@@ -63,10 +63,10 @@ export function AdminDeleteProjectButton({ projectId, projectName }: AdminDelete
         </ZoruAlertDialogHeader>
         <ZoruAlertDialogFooter className="mt-4">
           <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-          <ZoruButton variant="destructive" onClick={handleDelete} disabled={isPending}>
+          <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
             Yes, Delete Project
-          </ZoruButton>
+          </Button>
         </ZoruAlertDialogFooter>
       </ZoruAlertDialogContent>
     </ZoruAlertDialog>

@@ -130,16 +130,16 @@ export default async function EWayBillDetailPage(props: {
       audit={<EntityAuditTimeline entityKind="eway_bill" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Validity</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
               <ValidityCountdown validUpto={validUpto} status={status} />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Status</ZoruCardTitle>
             </ZoruCardHeader>
@@ -147,7 +147,7 @@ export default async function EWayBillDetailPage(props: {
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Bill</span>
-                  <ZoruBadge variant="outline">{status}</ZoruBadge>
+                  <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Provider</span>
@@ -157,9 +157,9 @@ export default async function EWayBillDetailPage(props: {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">GST portal sync</span>
-                  <ZoruBadge variant="outline">
+                  <Badge variant="outline">
                     {bill.rawResponse ? 'synced' : 'pending'}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between border-t border-zoru-line pt-1.5">
                   <span className="text-zoru-ink-muted">Generated at</span>
@@ -169,9 +169,9 @@ export default async function EWayBillDetailPage(props: {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>QR</ZoruCardTitle>
             </ZoruCardHeader>
@@ -183,9 +183,9 @@ export default async function EWayBillDetailPage(props: {
                 Scan to verify EWB {bill.ewbNo}
               </p>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -209,11 +209,11 @@ export default async function EWayBillDetailPage(props: {
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -243,9 +243,9 @@ export default async function EWayBillDetailPage(props: {
             </Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Transport</ZoruCardTitle>
         </ZoruCardHeader>
@@ -265,9 +265,9 @@ export default async function EWayBillDetailPage(props: {
             ) : null}
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Items</ZoruCardTitle>
         </ZoruCardHeader>
@@ -324,9 +324,9 @@ export default async function EWayBillDetailPage(props: {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Documents</ZoruCardTitle>
         </ZoruCardHeader>
@@ -367,9 +367,9 @@ export default async function EWayBillDetailPage(props: {
             )}
           </ul>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>History</ZoruCardTitle>
         </ZoruCardHeader>
@@ -402,7 +402,7 @@ export default async function EWayBillDetailPage(props: {
             </ol>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

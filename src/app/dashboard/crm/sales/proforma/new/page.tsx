@@ -31,10 +31,10 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save Proforma Invoice
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -86,19 +86,19 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
                                         }}
                                     />
                                 </td>
-                                <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
-                                <td className="p-2"><ZoruInput type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
+                                <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
+                                <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
-                                <td className="p-2"><ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton></td>
+                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></Button></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <ZoruButton type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="h-4 w-4" />Add New Line</ZoruButton>
+                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="h-4 w-4" />Add New Line</Button>
             </div>
-            <ZoruSeparator />
+            <Separator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
                     <div className="flex justify-between items-center"><span className="text-zoru-ink-muted">Total ({currency})</span><span className="text-lg text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
@@ -155,21 +155,21 @@ export default function NewProformaInvoicePage() {
                     <header className="flex justify-between items-center mb-6">
                         <div>
                             <Link href="/dashboard/crm/sales/proforma">
-                                <ZoruButton variant="outline" size="sm"><ArrowLeft className="h-4 w-4" />Back to Proforma Invoices</ZoruButton>
+                                <Button variant="outline" size="sm"><ArrowLeft className="h-4 w-4" />Back to Proforma Invoices</Button>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <ZoruButton variant="outline" type="button">Save As Draft</ZoruButton>
+                            <Button variant="outline" type="button">Save As Draft</Button>
                             <SaveButton />
                         </div>
                     </header>
-                    <ZoruCard className="p-0 max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                    <Card className="p-0 max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                         <div className="p-0">
                             <header className="mb-8">
                                 <h1 className="text-3xl text-zoru-ink">Proforma Invoice</h1>
                             </header>
 
-                            <ZoruSeparator className="my-8" />
+                            <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
@@ -199,11 +199,11 @@ export default function NewProformaInvoicePage() {
                             </section>
 
                             <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                                <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Proforma No.</ZoruLabel><ZoruInput name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
-                                <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Date</ZoruLabel><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
-                                <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Due Date</ZoruLabel><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-zoru-ink">Proforma No.</Label><Input name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-zoru-ink">Date</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-zoru-ink">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
                                 <div className="space-y-1">
-                                    <ZoruLabel className="text-xs text-zoru-ink">Currency</ZoruLabel>
+                                    <Label className="text-xs text-zoru-ink">Currency</Label>
                                     <EntityFormField
                                         entity="currency"
                                         name="currency"
@@ -218,7 +218,7 @@ export default function NewProformaInvoicePage() {
                             </section>
 
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
             </div>
         </form>

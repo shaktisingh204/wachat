@@ -234,9 +234,9 @@ export function NumberDetailClient({ detail }: Props) {
       id: "status",
       header: "Status",
       render: (r) => (
-        <ZoruBadge variant={r.status === "delivered" ? "default" : "secondary"}>
+        <Badge variant={r.status === "delivered" ? "default" : "secondary"}>
           {r.status}
-        </ZoruBadge>
+        </Badge>
       ),
       width: "120px",
     },
@@ -283,14 +283,14 @@ export function NumberDetailClient({ detail }: Props) {
       {/* Top action row — refresh + export + kbd hint */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruBadge variant="default">{detail.provider}</ZoruBadge>
-          <ZoruBadge variant="secondary">{detail.country}</ZoruBadge>
-          <ZoruBadge variant="secondary">{detail.type}</ZoruBadge>
-          <ZoruBadge
+          <Badge variant="default">{detail.provider}</Badge>
+          <Badge variant="secondary">{detail.country}</Badge>
+          <Badge variant="secondary">{detail.type}</Badge>
+          <Badge
             variant={detail.status === "active" ? "default" : "secondary"}
           >
             {detail.status}
-          </ZoruBadge>
+          </Badge>
           <span className="font-mono text-sm">{detail.e164}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -314,14 +314,14 @@ export function NumberDetailClient({ detail }: Props) {
               )
             }
           />
-          <ZoruButton
+          <Button
             variant="outline"
             onClick={() => setAuditOpen(true)}
             aria-label="Open audit log"
           >
             <History className="h-4 w-4" />
             <span className="ml-2">Audit</span>
-          </ZoruButton>
+          </Button>
           <SabsmsKbdHint
             shortcuts={[
               { keys: ["r"], description: "Reload" },
@@ -333,7 +333,7 @@ export function NumberDetailClient({ detail }: Props) {
       </div>
 
       {/* Compliance + capabilities banner */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Compliance and capabilities</ZoruCardTitle>
           <ZoruCardDescription>
@@ -343,7 +343,7 @@ export function NumberDetailClient({ detail }: Props) {
         </ZoruCardHeader>
         <ZoruCardContent>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <ZoruBadge
+            <Badge
               variant={
                 detail.compliance.tendlc === "registered"
                   ? "default"
@@ -353,8 +353,8 @@ export function NumberDetailClient({ detail }: Props) {
               }
             >
               10DLC: {detail.compliance.tendlc}
-            </ZoruBadge>
-            <ZoruBadge
+            </Badge>
+            <Badge
               variant={
                 detail.compliance.dlt === "registered"
                   ? "default"
@@ -364,20 +364,20 @@ export function NumberDetailClient({ detail }: Props) {
               }
             >
               DLT: {detail.compliance.dlt}
-            </ZoruBadge>
-            <ZoruBadge
+            </Badge>
+            <Badge
               variant={
                 detail.compliance.consentLog === "ok" ? "default" : "secondary"
               }
             >
               Consent log: {detail.compliance.consentLog}
-            </ZoruBadge>
+            </Badge>
             {(["sms", "mms", "rcs", "voice"] as const)
               .filter((c) => detail.capabilities[c])
               .map((c) => (
-                <ZoruBadge key={c} variant="secondary" className="uppercase">
+                <Badge key={c} variant="secondary" className="uppercase">
                   {c}
-                </ZoruBadge>
+                </Badge>
               ))}
           </div>
           <div className="mt-3 grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
@@ -393,11 +393,11 @@ export function NumberDetailClient({ detail }: Props) {
             />
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Charts row */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Health (30d)</ZoruCardTitle>
             <ZoruCardDescription>DLR + complaint rate.</ZoruCardDescription>
@@ -432,8 +432,8 @@ export function NumberDetailClient({ detail }: Props) {
               </ZoruChart.LineChart>
             </ZoruChartContainer>
           </ZoruCardContent>
-        </ZoruCard>
-        <ZoruCard>
+        </Card>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Volume (30d)</ZoruCardTitle>
             <ZoruCardDescription>
@@ -475,8 +475,8 @@ export function NumberDetailClient({ detail }: Props) {
               </ZoruChart.LineChart>
             </ZoruChartContainer>
           </ZoruCardContent>
-        </ZoruCard>
-        <ZoruCard>
+        </Card>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Cost (30d)</ZoruCardTitle>
             <ZoruCardDescription>USD per day, this number.</ZoruCardDescription>
@@ -511,12 +511,12 @@ export function NumberDetailClient({ detail }: Props) {
               </ZoruChart.LineChart>
             </ZoruChartContainer>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Per-country + per-template aggregators */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Per-country deliverability</ZoruCardTitle>
             <ZoruCardDescription>
@@ -552,11 +552,11 @@ export function NumberDetailClient({ detail }: Props) {
                         {c.delivered}
                       </td>
                       <td className="px-3 py-2 text-right text-xs">
-                        <ZoruBadge
+                        <Badge
                           variant={c.deliveryRate >= 95 ? "default" : "secondary"}
                         >
                           {c.deliveryRate}%
-                        </ZoruBadge>
+                        </Badge>
                       </td>
                     </tr>
                   ))
@@ -564,8 +564,8 @@ export function NumberDetailClient({ detail }: Props) {
               </tbody>
             </table>
           </ZoruCardContent>
-        </ZoruCard>
-        <ZoruCard>
+        </Card>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Per-template performance</ZoruCardTitle>
             <ZoruCardDescription>
@@ -607,11 +607,11 @@ export function NumberDetailClient({ detail }: Props) {
               </tbody>
             </table>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Campaign + pool assignment */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Assignments</ZoruCardTitle>
           <ZoruCardDescription>
@@ -648,7 +648,7 @@ export function NumberDetailClient({ detail }: Props) {
               <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Sender pool
               </div>
-              <ZoruSelect value={poolId} onValueChange={setPoolId}>
+              <Select value={poolId} onValueChange={setPoolId}>
                 <ZoruSelectTrigger className="mt-2">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -659,14 +659,14 @@ export function NumberDetailClient({ detail }: Props) {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Override config */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Per-number overrides</ZoruCardTitle>
           <ZoruCardDescription>
@@ -684,8 +684,8 @@ export function NumberDetailClient({ detail }: Props) {
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-2">
               <div className="space-y-1">
-                <ZoruLabel htmlFor="rps">Per second</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="rps">Per second</Label>
+                <Input
                   id="rps"
                   type="number"
                   min={1}
@@ -699,8 +699,8 @@ export function NumberDetailClient({ detail }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <ZoruLabel htmlFor="rpm">Per minute</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="rpm">Per minute</Label>
+                <Input
                   id="rpm"
                   type="number"
                   min={1}
@@ -716,7 +716,7 @@ export function NumberDetailClient({ detail }: Props) {
             </div>
           </div>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div>
             <div className="flex items-center justify-between">
@@ -724,7 +724,7 @@ export function NumberDetailClient({ detail }: Props) {
                 Quiet hours
               </div>
               <label className="flex items-center gap-2 text-xs">
-                <ZoruCheckbox
+                <Checkbox
                   checked={quietHours.enabled}
                   onCheckedChange={(v) =>
                     setQuietHours((q) => ({ ...q, enabled: Boolean(v) }))
@@ -735,8 +735,8 @@ export function NumberDetailClient({ detail }: Props) {
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-3">
               <div className="space-y-1">
-                <ZoruLabel htmlFor="tz">Timezone</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="tz">Timezone</Label>
+                <Input
                   id="tz"
                   value={quietHours.timezone}
                   onChange={(e) =>
@@ -745,8 +745,8 @@ export function NumberDetailClient({ detail }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <ZoruLabel htmlFor="qh-start">Start hour</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="qh-start">Start hour</Label>
+                <Input
                   id="qh-start"
                   type="number"
                   min={0}
@@ -764,8 +764,8 @@ export function NumberDetailClient({ detail }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <ZoruLabel htmlFor="qh-end">End hour</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="qh-end">End hour</Label>
+                <Input
                   id="qh-end"
                   type="number"
                   min={0}
@@ -785,7 +785,7 @@ export function NumberDetailClient({ detail }: Props) {
             </div>
           </div>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div>
             <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -793,8 +793,8 @@ export function NumberDetailClient({ detail }: Props) {
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-3">
               <div className="space-y-1">
-                <ZoruLabel htmlFor="hook-in">Inbound URL</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="hook-in">Inbound URL</Label>
+                <Input
                   id="hook-in"
                   value={webhooks.inboundUrl ?? ""}
                   onChange={(e) =>
@@ -804,8 +804,8 @@ export function NumberDetailClient({ detail }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <ZoruLabel htmlFor="hook-dlr">DLR URL</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="hook-dlr">DLR URL</Label>
+                <Input
                   id="hook-dlr"
                   value={webhooks.dlrUrl ?? ""}
                   onChange={(e) =>
@@ -815,8 +815,8 @@ export function NumberDetailClient({ detail }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <ZoruLabel htmlFor="hook-voice">Voice URL (Phase 7)</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="hook-voice">Voice URL (Phase 7)</Label>
+                <Input
                   id="hook-voice"
                   value={webhooks.voiceUrl ?? ""}
                   onChange={(e) =>
@@ -830,10 +830,10 @@ export function NumberDetailClient({ detail }: Props) {
 
           {detail.type === "alphanumeric" && (
             <>
-              <ZoruSeparator />
+              <Separator />
               <div className="space-y-1">
-                <ZoruLabel htmlFor="alpha">Sender ID (alpha override)</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="alpha">Sender ID (alpha override)</Label>
+                <Input
                   id="alpha"
                   value={senderIdAlpha}
                   onChange={(e) => setSenderIdAlpha(e.target.value)}
@@ -849,20 +849,20 @@ export function NumberDetailClient({ detail }: Props) {
           )}
 
           <div className="flex justify-end">
-            <ZoruButton onClick={persistOverrides} disabled={savePending}>
+            <Button onClick={persistOverrides} disabled={savePending}>
               {savePending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : null}
               <span className={savePending ? "ml-2" : undefined}>
                 Save overrides
               </span>
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Send + inbound history */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>History</ZoruCardTitle>
           <ZoruCardDescription>
@@ -906,10 +906,10 @@ export function NumberDetailClient({ detail }: Props) {
             />
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Mini composer */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Test send from this number</ZoruCardTitle>
           <ZoruCardDescription>
@@ -920,8 +920,8 @@ export function NumberDetailClient({ detail }: Props) {
         <ZoruCardContent>
           <div className="grid gap-3 md:grid-cols-3">
             <div className="space-y-1">
-              <ZoruLabel htmlFor="composer-to">To (E.164)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="composer-to">To (E.164)</Label>
+              <Input
                 id="composer-to"
                 value={composerTo}
                 onChange={(e) => setComposerTo(e.target.value)}
@@ -929,8 +929,8 @@ export function NumberDetailClient({ detail }: Props) {
               />
             </div>
             <div className="space-y-1 md:col-span-2">
-              <ZoruLabel htmlFor="composer-body">Body</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="composer-body">Body</Label>
+              <Textarea
                 id="composer-body"
                 rows={2}
                 value={composerBody}
@@ -939,20 +939,20 @@ export function NumberDetailClient({ detail }: Props) {
             </div>
           </div>
           <div className="mt-3 flex justify-end">
-            <ZoruButton onClick={doTestSend} disabled={composerPending}>
+            <Button onClick={doTestSend} disabled={composerPending}>
               {composerPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Send className="h-4 w-4" />
               )}
               <span className="ml-2">Send test</span>
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Danger zone */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Danger zone</ZoruCardTitle>
           <ZoruCardDescription>
@@ -962,22 +962,22 @@ export function NumberDetailClient({ detail }: Props) {
         </ZoruCardHeader>
         <ZoruCardContent>
           <div className="flex flex-wrap gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setReleaseOpen(true)}
             >
               <PhoneOff className="h-4 w-4" />
               <span className="ml-2">Release with grace</span>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               onClick={() => setPortOutOpen(true)}
             >
               <ShieldCheck className="h-4 w-4" />
               <span className="ml-2">Port-out (stub)</span>
-            </ZoruButton>
+            </Button>
           </div>
-          <ZoruAlert className="mt-3" variant="info">
+          <Alert className="mt-3" variant="info">
             <AlertTriangle aria-hidden />
             <ZoruAlertTitle>Heads-up</ZoruAlertTitle>
             <ZoruAlertDescription>
@@ -987,9 +987,9 @@ export function NumberDetailClient({ detail }: Props) {
               files a stub audit entry — the engine doesn{`’`}t support
               carrier ports yet.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Release confirmation */}
       <ZoruAlertDialog open={releaseOpen} onOpenChange={setReleaseOpen}>
@@ -1002,8 +1002,8 @@ export function NumberDetailClient({ detail }: Props) {
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <div className="space-y-1 py-2">
-            <ZoruLabel htmlFor="grace">Grace period (hours)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="grace">Grace period (hours)</Label>
+            <Input
               id="grace"
               type="number"
               min={0}
@@ -1042,8 +1042,8 @@ export function NumberDetailClient({ detail }: Props) {
           </ZoruAlertDialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-1">
-              <ZoruLabel htmlFor="port-carrier">Target carrier</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="port-carrier">Target carrier</Label>
+              <Input
                 id="port-carrier"
                 value={portTarget.newCarrier}
                 onChange={(e) =>
@@ -1053,8 +1053,8 @@ export function NumberDetailClient({ detail }: Props) {
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel htmlFor="port-email">Contact email</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="port-email">Contact email</Label>
+              <Input
                 id="port-email"
                 type="email"
                 value={portTarget.contactEmail}

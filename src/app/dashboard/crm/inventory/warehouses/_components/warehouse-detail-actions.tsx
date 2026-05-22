@@ -79,7 +79,7 @@ export function WarehouseDetailActions({
     return (
         <>
             {!isDefault && !archived ? (
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={handleSetDefault}
@@ -87,9 +87,9 @@ export function WarehouseDetailActions({
                 >
                     <BadgeCheck className="h-3.5 w-3.5" strokeWidth={1.75} />
                     Set default
-                </ZoruButton>
+                </Button>
             ) : null}
-            <ZoruButton
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmArchive(true)}
@@ -106,7 +106,7 @@ export function WarehouseDetailActions({
                         Archive
                     </>
                 )}
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={confirmArchive}

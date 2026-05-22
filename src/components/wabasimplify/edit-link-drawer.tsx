@@ -60,35 +60,35 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
 
   return (
     <>
-      <ZoruButton variant="outline" size="sm" onClick={() => setOpen(true)}>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
         <Settings className="h-3.5 w-3.5" />
         Edit
-      </ZoruButton>
-      <ZoruDialog open={open} onOpenChange={setOpen}>
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
         <ZoruDialogContent className="max-w-md">
           <ZoruDialogHeader>
             <ZoruDialogTitle>Edit Link</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Destination URL</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12.5px] text-zoru-ink-muted">Destination URL</Label>
+              <Input
                 value={originalUrl}
                 onChange={(e) => setOriginalUrl(e.target.value)}
                 placeholder="https://..."
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Expiry Date</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12.5px] text-zoru-ink-muted">Expiry Date</Label>
+              <Input
                 type="datetime-local"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Click Limit</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12.5px] text-zoru-ink-muted">Click Limit</Label>
+              <Input
                 type="number"
                 min={1}
                 value={clickLimit}
@@ -97,21 +97,21 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">UTM Source / Medium / Campaign</ZoruLabel>
+              <Label className="text-[12.5px] text-zoru-ink-muted">UTM Source / Medium / Campaign</Label>
               <div className="grid grid-cols-3 gap-2">
-                <ZoruInput
+                <Input
                   value={utmSource}
                   onChange={(e) => setUtmSource(e.target.value)}
                   placeholder="Source"
                   className="text-[12px]"
                 />
-                <ZoruInput
+                <Input
                   value={utmMedium}
                   onChange={(e) => setUtmMedium(e.target.value)}
                   placeholder="Medium"
                   className="text-[12px]"
                 />
-                <ZoruInput
+                <Input
                   value={utmCampaign}
                   onChange={(e) => setUtmCampaign(e.target.value)}
                   placeholder="Campaign"
@@ -121,16 +121,16 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <ZoruButton variant="outline" size="sm" onClick={() => setOpen(false)}>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton size="sm" onClick={handleSave} disabled={isPending || !originalUrl}>
+            </Button>
+            <Button size="sm" onClick={handleSave} disabled={isPending || !originalUrl}>
               {isPending ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Save Changes
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }

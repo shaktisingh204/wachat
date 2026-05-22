@@ -29,8 +29,8 @@ export function StorefrontFilterClient({
     return (
         <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="storefront-filter">Storefront</ZoruLabel>
-                <ZoruSelect
+                <Label htmlFor="storefront-filter">Storefront</Label>
+                <Select
                     value={currentValue}
                     onValueChange={(value) => {
                         if (value === ALL_VALUE) {
@@ -56,7 +56,7 @@ export function StorefrontFilterClient({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
         </div>
     );

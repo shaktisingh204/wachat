@@ -58,12 +58,12 @@ export function LeadDetailActions({
         : null;
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/sales-crm/all-leads/${leadId}/edit`}>
                     <Edit className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={onConvert}
@@ -75,45 +75,45 @@ export function LeadDetailActions({
                     <Building className="h-3.5 w-3.5" />
                 )}
                 Convert to Account
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={onComposeEmail}
                 disabled={!email}
             >
                 <Mail className="h-3.5 w-3.5" /> Email
-            </ZoruButton>
+            </Button>
             {whatsappHref ? (
-                <ZoruButton asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm">
                     <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
                         <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
                     </a>
-                </ZoruButton>
+                </Button>
             ) : null}
             {phone ? (
-                <ZoruButton asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm">
                     <a href={`tel:${phone}`}>
                         <Phone className="h-3.5 w-3.5" /> Call
                     </a>
-                </ZoruButton>
+                </Button>
             ) : null}
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <a href={printHref} target="_blank" rel="noopener noreferrer">
                     <Printer className="h-3.5 w-3.5" /> Print
                 </a>
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={onArchive}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> {archived ? 'Restore' : 'Archive'}
-            </ZoruButton>
-            <ZoruButton asChild variant="outline" size="sm">
+            </Button>
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/sales-crm/all-leads/${leadId}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="destructive" size="sm" onClick={onDelete}>
+            </Button>
+            <Button variant="destructive" size="sm" onClick={onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

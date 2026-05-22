@@ -47,12 +47,12 @@ export default async function LeadsPage({
       title={t('crm.leads.list.title')}
       subtitle={t('crm.leads.list.subtitle')}
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/leads/new">
             <Plus className="h-4 w-4" />
             {t('crm.leads.list.action.new')}
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       <LeadListClient

@@ -98,7 +98,7 @@ export default function UrlShortenerWebhooksPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
@@ -116,44 +116,44 @@ export default function UrlShortenerWebhooksPage() {
             <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Webhooks</ZoruPageTitle>
             <ZoruPageDescription>
               Receive HTTP callbacks when link events occur.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton size="sm" onClick={() => setShowForm((v) => !v)}>
+        </PageHeader>
+        <Button size="sm" onClick={() => setShowForm((v) => !v)}>
           <Plus className="h-3.5 w-3.5" />
           Add Webhook
-        </ZoruButton>
+        </Button>
       </div>
 
       {showForm ? (
-        <ZoruCard className="p-5 space-y-4">
+        <Card className="p-5 space-y-4">
           <h3 className="text-[14px] text-zoru-ink">New Webhook</h3>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Endpoint URL</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[12.5px] text-zoru-ink-muted">Endpoint URL</Label>
+            <Input
               placeholder="https://yourserver.com/webhook"
               value={formUrl}
               onChange={(e) => setFormUrl(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Secret (Optional)</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[12.5px] text-zoru-ink-muted">Secret (Optional)</Label>
+            <Input
               placeholder="Signing secret"
               value={formSecret}
               onChange={(e) => setFormSecret(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Events</ZoruLabel>
+            <Label className="text-[12.5px] text-zoru-ink-muted">Events</Label>
             <div className="flex flex-wrap gap-2">
               {ALL_EVENTS.map((ev) => {
                 const on = formEvents.has(ev);
@@ -175,14 +175,14 @@ export default function UrlShortenerWebhooksPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 pt-1">
-            <ZoruButton size="sm" onClick={handleAdd}>Save</ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={() => setShowForm(false)}>Cancel</ZoruButton>
+            <Button size="sm" onClick={handleAdd}>Save</Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {webhooks.length === 0 && !showForm ? (
-        <ZoruCard className="p-10 text-center">
+        <Card className="p-10 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
             <Webhook className="h-5 w-5" />
           </div>
@@ -190,9 +190,9 @@ export default function UrlShortenerWebhooksPage() {
           <p className="mt-1 text-xs text-zoru-ink-muted">
             Add a webhook to receive real-time notifications when link events occur.
           </p>
-        </ZoruCard>
+        </Card>
       ) : webhooks.length > 0 ? (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <ul className="divide-y divide-zoru-line">
             {webhooks.map((w) => (
               <li key={w.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
@@ -200,19 +200,19 @@ export default function UrlShortenerWebhooksPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate text-[13px] text-zoru-ink">{w.url}</span>
                     {w.active ? (
-                      <ZoruBadge variant="success">Active</ZoruBadge>
+                      <Badge variant="success">Active</Badge>
                     ) : (
-                      <ZoruBadge variant="ghost">Paused</ZoruBadge>
+                      <Badge variant="ghost">Paused</Badge>
                     )}
                   </div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {w.events.map((ev) => (
-                      <ZoruBadge key={ev} variant="outline" className="text-[10.5px]">{ev}</ZoruBadge>
+                      <Badge key={ev} variant="outline" className="text-[10.5px]">{ev}</Badge>
                     ))}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <ZoruSwitch
+                  <Switch
                     checked={w.active}
                     onCheckedChange={() => toggleActive(w.id)}
                     aria-label="Toggle webhook active"
@@ -229,7 +229,7 @@ export default function UrlShortenerWebhooksPage() {
               </li>
             ))}
           </ul>
-        </ZoruCard>
+        </Card>
       ) : null}
     </div>
   );

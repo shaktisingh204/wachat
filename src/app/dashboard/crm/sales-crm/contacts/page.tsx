@@ -403,11 +403,11 @@ export default function CrmContactsPage() {
                     placeholder: 'Search name, email, phone, company…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/sales-crm/contacts/new">
                             <Plus className="h-4 w-4" /> New Contact
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <ContactsFiltersRow
@@ -469,12 +469,12 @@ export default function CrmContactsPage() {
                                 champion your accounts. Contacts feed your
                                 deals, tickets and email outreach.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/sales-crm/contacts/new">
                                     <Plus className="h-4 w-4" /> Add your first
                                     contact
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

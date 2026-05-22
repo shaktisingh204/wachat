@@ -54,10 +54,10 @@ function SaveBtn() {
     const { pending } = useFormStatus();
     const { t } = useT();
     return (
-        <ZoruButton type="submit" size="md" disabled={pending}>
+        <Button type="submit" size="md" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {pending ? t('common.saving') : t('settings.security.updatePassword')}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -138,7 +138,7 @@ export default function SecuritySettingsPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -148,19 +148,19 @@ export default function SecuritySettingsPage() {
                         <ZoruBreadcrumbPage>{t('settings.security.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>{t('settings.security.title')}</ZoruPageTitle>
                     <ZoruPageDescription>
                         {t('settings.security.subtitle')}
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* Password */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <Lock className="h-4 w-4" />
@@ -174,22 +174,22 @@ export default function SecuritySettingsPage() {
                 </div>
                 <form action={formAction} className="grid gap-4 sm:grid-cols-3">
                     <Field label={t('settings.security.password.current')}>
-                        <ZoruInput type="password" name="currentPassword" required />
+                        <Input type="password" name="currentPassword" required />
                     </Field>
                     <Field label={t('settings.security.password.new')}>
-                        <ZoruInput type="password" name="newPassword" required minLength={12} />
+                        <Input type="password" name="newPassword" required minLength={12} />
                     </Field>
                     <Field label={t('settings.security.password.confirm')}>
-                        <ZoruInput type="password" name="confirmPassword" required minLength={12} />
+                        <Input type="password" name="confirmPassword" required minLength={12} />
                     </Field>
                     <div className="sm:col-span-3 flex justify-end">
                         <SaveBtn />
                     </div>
                 </form>
-            </ZoruCard>
+            </Card>
 
             {/* 2FA */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-start gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <Shield className="h-4 w-4" />
@@ -199,33 +199,33 @@ export default function SecuritySettingsPage() {
                             <p className="text-sm text-zoru-ink">
                                 {t('settings.security.twoFactor.title')}
                             </p>
-                            <ZoruBadge variant={twoFactor ? 'success' : 'ghost'}>
+                            <Badge variant={twoFactor ? 'success' : 'ghost'}>
                                 {twoFactor ? t('common.enabled') : t('common.disabled')}
-                            </ZoruBadge>
+                            </Badge>
                         </div>
                         <p className="text-xs text-zoru-ink-muted">
                             {t('settings.security.twoFactor.hint')}
                         </p>
                     </div>
-                    <ZoruSwitch checked={twoFactor} onCheckedChange={persistTwoFactor} />
+                    <Switch checked={twoFactor} onCheckedChange={persistTwoFactor} />
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2 p-3">
                     <div>
-                        <ZoruLabel className="text-[13px]">{t('settings.security.alerts.label')}</ZoruLabel>
+                        <Label className="text-[13px]">{t('settings.security.alerts.label')}</Label>
                         <p className="mt-0.5 text-xs text-zoru-ink-muted">
                             {t('settings.security.alerts.hint')}
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         checked={loginAlerts}
                         onCheckedChange={persistLoginAlerts}
                         disabled={alertsPending}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Active sessions */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <Laptop className="h-4 w-4" />
@@ -236,7 +236,7 @@ export default function SecuritySettingsPage() {
                             {t('settings.security.sessions.hint')}
                         </p>
                     </div>
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleSignOutEverywhere}
@@ -248,7 +248,7 @@ export default function SecuritySettingsPage() {
                             <LogOut className="h-4 w-4" />
                         )}
                         {t('settings.security.sessions.signOutEverywhere')}
-                    </ZoruButton>
+                    </Button>
                 </div>
                 <div className="divide-y divide-zoru-line rounded-xl border border-zoru-line">
                     {sessions.length === 0 ? (
@@ -265,10 +265,10 @@ export default function SecuritySettingsPage() {
                         ))
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Recovery */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <Key className="h-4 w-4" />
@@ -279,11 +279,11 @@ export default function SecuritySettingsPage() {
                             {t('settings.security.recovery.hint')}
                         </p>
                     </div>
-                    <ZoruButton variant="outline" size="sm">
+                    <Button variant="outline" size="sm">
                         {t('settings.security.recovery.generate')}
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -291,7 +291,7 @@ export default function SecuritySettingsPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <ZoruLabel className="mb-1.5 block text-xs">{label}</ZoruLabel>
+            <Label className="mb-1.5 block text-xs">{label}</Label>
             {children}
         </div>
     );
@@ -314,16 +314,16 @@ function SessionRow({
             <div>
                 <div className="flex items-center gap-2">
                     <p className="text-zoru-ink">{label}</p>
-                    {current && <ZoruBadge variant="success">{t('settings.security.sessions.thisDevice')}</ZoruBadge>}
+                    {current && <Badge variant="success">{t('settings.security.sessions.thisDevice')}</Badge>}
                 </div>
                 <p className="mt-0.5 text-xs text-zoru-ink-muted">
                     {device} · {location}
                 </p>
             </div>
             {!current && (
-                <ZoruButton variant="ghost" size="sm">
+                <Button variant="ghost" size="sm">
                     {t('settings.security.sessions.signOut')}
-                </ZoruButton>
+                </Button>
             )}
         </div>
     );

@@ -239,14 +239,14 @@ export function RuleEditorDrawer({
                         <Section title="1. Basics">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <Field label="Name">
-                                    <ZoruInput
+                                    <Input
                                         value={form.name}
                                         onChange={(e) => patch('name', e.target.value)}
                                         placeholder="Welcome reply"
                                     />
                                 </Field>
                                 <Field label="Bot scope">
-                                    <ZoruSelect
+                                    <Select
                                         value={form.botId || 'all'}
                                         onValueChange={(v) => patch('botId', v === 'all' ? '' : v)}
                                     >
@@ -261,10 +261,10 @@ export function RuleEditorDrawer({
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 <Field label="Priority (lower runs first)">
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         value={form.priority}
                                         onChange={(e) =>
@@ -274,7 +274,7 @@ export function RuleEditorDrawer({
                                 </Field>
                                 <Field label="Enabled">
                                     <div className="flex h-10 items-center gap-2">
-                                        <ZoruSwitch
+                                        <Switch
                                             checked={form.status === 'enabled'}
                                             onCheckedChange={(v) =>
                                                 patch('status', v ? 'enabled' : 'disabled')
@@ -292,7 +292,7 @@ export function RuleEditorDrawer({
                         <Section title="2. Trigger">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <Field label="Kind">
-                                    <ZoruSelect
+                                    <Select
                                         value={form.trigger.kind}
                                         onValueChange={(v) => {
                                             const kind = v as TriggerKind;
@@ -320,11 +320,11 @@ export function RuleEditorDrawer({
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 <Field label="Case sensitive">
                                     <div className="flex h-10 items-center gap-2">
-                                        <ZoruSwitch
+                                        <Switch
                                             checked={form.trigger.caseSensitive ?? false}
                                             onCheckedChange={(v) =>
                                                 setTrigger({ caseSensitive: v })
@@ -363,8 +363,8 @@ export function RuleEditorDrawer({
                                         className="flex flex-col gap-2 rounded-md border bg-card/60 p-3 sm:flex-row sm:items-end"
                                     >
                                         <div className="flex-1">
-                                            <ZoruLabel>Condition</ZoruLabel>
-                                            <ZoruSelect
+                                            <Label>Condition</Label>
+                                            <Select
                                                 value={c.kind}
                                                 onValueChange={(v) =>
                                                     setCondition(i, {
@@ -385,7 +385,7 @@ export function RuleEditorDrawer({
                                                         </ZoruSelectItem>
                                                     ))}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </div>
                                         <div className="flex-1">
                                             <ConditionPayloadEditor
@@ -395,19 +395,19 @@ export function RuleEditorDrawer({
                                                 }
                                             />
                                         </div>
-                                        <ZoruButton
+                                        <Button
                                             variant="ghost"
                                             size="icon"
                                             onClick={() => removeCondition(i)}
                                             title="Remove condition"
                                         >
                                             <Trash2 className="h-4 w-4" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 ))}
-                                <ZoruButton variant="outline" size="sm" onClick={addCondition}>
+                                <Button variant="outline" size="sm" onClick={addCondition}>
                                     <Plus className="mr-1 h-4 w-4" /> Add condition
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </Section>
 
@@ -420,12 +420,12 @@ export function RuleEditorDrawer({
                                     </p>
                                 )}
                                 {form.actions.map((a, i) => (
-                                    <ZoruCard key={i}>
+                                    <Card key={i}>
                                         <ZoruCardContent className="space-y-3 p-3">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <ZoruBadge variant="ghost">#{i + 1}</ZoruBadge>
+                                                <Badge variant="ghost">#{i + 1}</Badge>
                                                 <div className="flex-1 min-w-[180px]">
-                                                    <ZoruSelect
+                                                    <Select
                                                         value={a.kind}
                                                         onValueChange={(v) =>
                                                             setAction(i, {
@@ -446,9 +446,9 @@ export function RuleEditorDrawer({
                                                                 </ZoruSelectItem>
                                                             ))}
                                                         </ZoruSelectContent>
-                                                    </ZoruSelect>
+                                                    </Select>
                                                 </div>
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => moveAction(i, -1)}
@@ -456,8 +456,8 @@ export function RuleEditorDrawer({
                                                     disabled={i === 0}
                                                 >
                                                     <ArrowUp className="h-4 w-4" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => moveAction(i, 1)}
@@ -465,26 +465,26 @@ export function RuleEditorDrawer({
                                                     disabled={i === form.actions.length - 1}
                                                 >
                                                     <ArrowDown className="h-4 w-4" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => removeAction(i)}
                                                     title="Remove action"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                             <ActionPayloadEditor
                                                 action={a}
                                                 onChange={(k, v) => setActionPayload(i, k, v)}
                                             />
                                         </ZoruCardContent>
-                                    </ZoruCard>
+                                    </Card>
                                 ))}
-                                <ZoruButton variant="outline" size="sm" onClick={addAction}>
+                                <Button variant="outline" size="sm" onClick={addAction}>
                                     <Plus className="mr-1 h-4 w-4" /> Add action
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </Section>
 
@@ -492,7 +492,7 @@ export function RuleEditorDrawer({
                         <Section title="5. Cooldown (optional)">
                             <div className="grid gap-4 sm:grid-cols-3">
                                 <Field label="Per chat (seconds)">
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         value={form.cooldown.perChatSeconds ?? ''}
                                         onChange={(e) =>
@@ -507,7 +507,7 @@ export function RuleEditorDrawer({
                                     />
                                 </Field>
                                 <Field label="Per rule (seconds)">
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         value={form.cooldown.perRuleSeconds ?? ''}
                                         onChange={(e) =>
@@ -522,7 +522,7 @@ export function RuleEditorDrawer({
                                     />
                                 </Field>
                                 <Field label="Per day limit (fires)">
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         value={form.cooldown.perDayLimit ?? ''}
                                         onChange={(e) =>
@@ -548,19 +548,19 @@ export function RuleEditorDrawer({
                 </div>
 
                 <div className="flex items-center justify-end gap-2 border-t bg-background p-4">
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
                         disabled={saving}
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={submit} disabled={saving}>
+                    </Button>
+                    <Button onClick={submit} disabled={saving}>
                         {saving ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         {existing ? 'Save rule' : 'Create rule'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruDrawerContent>
         </ZoruDrawer>
@@ -595,7 +595,7 @@ function Field({
 }) {
     return (
         <div className="space-y-1">
-            <ZoruLabel>{label}</ZoruLabel>
+            <Label>{label}</Label>
             {children}
         </div>
     );
@@ -623,7 +623,7 @@ function TriggerPayloadEditor({
                         : 'Phrases (one per line or comma-separated)'
                 }
             >
-                <ZoruTextarea
+                <Textarea
                     rows={4}
                     value={list.join('\n')}
                     onChange={(e) =>
@@ -646,7 +646,7 @@ function TriggerPayloadEditor({
                     kind === 'regex' ? 'Pattern (PCRE-style)' : 'Value'
                 }
             >
-                <ZoruInput
+                <Input
                     value={typeof trigger.payload === 'string' ? trigger.payload : ''}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={kind === 'regex' ? '^/start' : ''}
@@ -662,7 +662,7 @@ function TriggerPayloadEditor({
         return (
             <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Start hour (0–23, UTC)">
-                    <ZoruInput
+                    <Input
                         type="number"
                         min={0}
                         max={23}
@@ -676,7 +676,7 @@ function TriggerPayloadEditor({
                     />
                 </Field>
                 <Field label="End hour (0–24, UTC)">
-                    <ZoruInput
+                    <Input
                         type="number"
                         min={0}
                         max={24}
@@ -710,7 +710,7 @@ function ConditionPayloadEditor({
     if (condition.kind === 'contact_has_tag') {
         return (
             <Field label="Tag">
-                <ZoruInput
+                <Input
                     value={typeof condition.payload === 'string' ? condition.payload : ''}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder="vip"
@@ -721,7 +721,7 @@ function ConditionPayloadEditor({
     if (condition.kind === 'sender_role') {
         return (
             <Field label="Role">
-                <ZoruInput
+                <Input
                     value={typeof condition.payload === 'string' ? condition.payload : ''}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder="agent / customer / admin"
@@ -736,7 +736,7 @@ function ConditionPayloadEditor({
         };
         return (
             <div className="grid grid-cols-2 gap-2">
-                <ZoruInput
+                <Input
                     type="number"
                     min={0}
                     max={23}
@@ -746,7 +746,7 @@ function ConditionPayloadEditor({
                     }
                     aria-label="Start hour"
                 />
-                <ZoruInput
+                <Input
                     type="number"
                     min={0}
                     max={24}
@@ -781,7 +781,7 @@ function ActionPayloadEditor({
             return (
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
                     <Field label="Text">
-                        <ZoruTextarea
+                        <Textarea
                             rows={3}
                             value={p.text ?? ''}
                             onChange={(e) => onChange('text', e.target.value)}
@@ -789,7 +789,7 @@ function ActionPayloadEditor({
                         />
                     </Field>
                     <Field label="Parse mode">
-                        <ZoruSelect
+                        <Select
                             value={p.parseMode ?? 'plain'}
                             onValueChange={(v) => onChange('parseMode', v)}
                         >
@@ -801,7 +801,7 @@ function ActionPayloadEditor({
                                 <ZoruSelectItem value="markdown">Markdown</ZoruSelectItem>
                                 <ZoruSelectItem value="html">HTML</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                 </div>
             );
@@ -810,7 +810,7 @@ function ActionPayloadEditor({
                 <div className="grid gap-3">
                     <Field label="Media file (from SabFiles)">
                         <div className="flex items-center gap-2">
-                            <ZoruInput
+                            <Input
                                 value={p.url ?? ''}
                                 readOnly
                                 placeholder="Pick a file from your SabFiles library"
@@ -829,7 +829,7 @@ function ActionPayloadEditor({
                         </div>
                     </Field>
                     <Field label="Caption (optional)">
-                        <ZoruTextarea
+                        <Textarea
                             rows={2}
                             value={p.caption ?? ''}
                             onChange={(e) => onChange('caption', e.target.value)}
@@ -840,7 +840,7 @@ function ActionPayloadEditor({
         case 'forward_to_chat':
             return (
                 <Field label="Destination chat id">
-                    <ZoruInput
+                    <Input
                         value={p.chatId ?? ''}
                         onChange={(e) => onChange('chatId', e.target.value)}
                         placeholder="@channel or -100…"
@@ -851,7 +851,7 @@ function ActionPayloadEditor({
         case 'remove_tag':
             return (
                 <Field label="Tag">
-                    <ZoruInput
+                    <Input
                         value={p.tag ?? ''}
                         onChange={(e) => onChange('tag', e.target.value)}
                         placeholder="lead / vip"
@@ -861,7 +861,7 @@ function ActionPayloadEditor({
         case 'assign_agent':
             return (
                 <Field label="Agent user id">
-                    <ZoruInput
+                    <Input
                         value={p.agentUserId ?? ''}
                         onChange={(e) => onChange('agentUserId', e.target.value)}
                         placeholder="agent ObjectId"
@@ -871,7 +871,7 @@ function ActionPayloadEditor({
         case 'run_flow':
             return (
                 <Field label="Flow id">
-                    <ZoruInput
+                    <Input
                         value={p.flowId ?? ''}
                         onChange={(e) => onChange('flowId', e.target.value)}
                         placeholder="ObjectId of the SabFlow / telegram-flows record"
@@ -882,13 +882,13 @@ function ActionPayloadEditor({
             return (
                 <div className="grid gap-3 sm:grid-cols-2">
                     <Field label="Key">
-                        <ZoruInput
+                        <Input
                             value={p.key ?? ''}
                             onChange={(e) => onChange('key', e.target.value)}
                         />
                     </Field>
                     <Field label="Value">
-                        <ZoruInput
+                        <Input
                             value={p.value ?? ''}
                             onChange={(e) => onChange('value', e.target.value)}
                         />
@@ -900,7 +900,7 @@ function ActionPayloadEditor({
                 <div className="grid gap-3">
                     <div className="grid gap-3 sm:grid-cols-[120px_1fr]">
                         <Field label="Method">
-                            <ZoruSelect
+                            <Select
                                 value={p.method ?? 'POST'}
                                 onValueChange={(v) => onChange('method', v)}
                             >
@@ -914,10 +914,10 @@ function ActionPayloadEditor({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="URL">
-                            <ZoruInput
+                            <Input
                                 value={p.url ?? ''}
                                 onChange={(e) => onChange('url', e.target.value)}
                                 placeholder="https://example.com/webhook"
@@ -925,7 +925,7 @@ function ActionPayloadEditor({
                         </Field>
                     </div>
                     <Field label="Headers (one per line, key: value)">
-                        <ZoruTextarea
+                        <Textarea
                             rows={2}
                             value={p.headers ?? ''}
                             onChange={(e) => onChange('headers', e.target.value)}
@@ -933,7 +933,7 @@ function ActionPayloadEditor({
                         />
                     </Field>
                     <Field label="Body">
-                        <ZoruTextarea
+                        <Textarea
                             rows={3}
                             value={p.body ?? ''}
                             onChange={(e) => onChange('body', e.target.value)}

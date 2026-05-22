@@ -77,21 +77,21 @@ type Story = {
 function StoriesPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-48" />
-          <ZoruSkeleton className="h-4 w-72" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-72" />
         </div>
-        <ZoruSkeleton className="h-9 w-36 rounded-full" />
+        <Skeleton className="h-9 w-36 rounded-full" />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <ZoruSkeleton className="h-24" />
+        <Skeleton className="h-24" />
       </div>
       <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-64" />
+          <Skeleton key={i} className="h-64" />
         ))}
       </div>
     </div>
@@ -108,7 +108,7 @@ function MetricTile({
   icon: React.ReactNode;
 }) {
   return (
-    <ZoruCard variant="elevated" className="p-5">
+    <Card variant="elevated" className="p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -122,14 +122,14 @@ function MetricTile({
           {icon}
         </span>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
 function StoryTile({ story }: { story: Story }) {
   const isPublished = story.status === "PUBLISHED";
   return (
-    <ZoruCard variant="elevated" className="overflow-hidden">
+    <Card variant="elevated" className="overflow-hidden">
       <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-zoru-surface-2">
         {story.url ? (
           <Image
@@ -148,11 +148,11 @@ function StoryTile({ story }: { story: Story }) {
       </div>
       <div className="flex flex-col gap-2 p-3">
         <div className="flex items-center justify-between gap-2">
-          <ZoruBadge variant="secondary">{story.media_type ?? "photo"}</ZoruBadge>
+          <Badge variant="secondary">{story.media_type ?? "photo"}</Badge>
           {story.status && (
-            <ZoruBadge variant={isPublished ? "success" : "ghost"}>
+            <Badge variant={isPublished ? "success" : "ghost"}>
               {story.status}
-            </ZoruBadge>
+            </Badge>
           )}
         </div>
         {story.created_time && (
@@ -163,7 +163,7 @@ function StoryTile({ story }: { story: Story }) {
           </p>
         )}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -237,7 +237,7 @@ export default function StoriesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -253,9 +253,9 @@ export default function StoriesPage() {
             <ZoruBreadcrumbPage>Stories</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
           <ZoruPageTitle>Stories</ZoruPageTitle>
@@ -264,18 +264,18 @@ export default function StoriesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruBadge variant="secondary">
+          <Badge variant="secondary">
             <CircleDot />
             {stories.length} active
-          </ZoruBadge>
-          <ZoruButton
+          </Badge>
+          <Button
             onClick={() => setCreateOpen(true)}
             disabled={!projectId}
           >
             <Plus /> Create story
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 flex flex-col gap-6">
         {!projectId ? (
@@ -299,14 +299,14 @@ export default function StoriesPage() {
                 ))}
               </div>
             ) : (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<CircleDot />}
                 title="No active stories"
                 description="Stories disappear after 24 hours — publish a photo story to get started."
                 action={
-                  <ZoruButton onClick={() => setCreateOpen(true)}>
+                  <Button onClick={() => setCreateOpen(true)}>
                     <Plus /> Create story
-                  </ZoruButton>
+                  </Button>
                 }
               />
             )}
@@ -352,7 +352,7 @@ function CreateStoryDialog({
 }) {
   const trimmed = photoUrl.trim();
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Create photo story</ZoruDialogTitle>
@@ -363,18 +363,18 @@ function CreateStoryDialog({
         </ZoruDialogHeader>
 
         {!projectId && (
-          <ZoruAlert variant="warning">
+          <Alert variant="warning">
             <ZoruAlertDescription>
               Pick a project before publishing.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         )}
 
         <div className="flex flex-col gap-2">
-          <ZoruLabel htmlFor="story-photo-url" required>
+          <Label htmlFor="story-photo-url" required>
             Photo URL
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="story-photo-url"
             type="url"
             value={photoUrl}
@@ -387,22 +387,22 @@ function CreateStoryDialog({
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             onClick={onPublish}
             disabled={!projectId || !trimmed || isPublishing}
           >
             <Upload /> Publish story
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

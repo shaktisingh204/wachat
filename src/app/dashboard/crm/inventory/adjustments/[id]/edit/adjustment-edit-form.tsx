@@ -76,8 +76,8 @@ export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
                         <div className="grid gap-4 md:grid-cols-3">
                             {initial.productName ? (
                                 <div className="space-y-1">
-                                    <ZoruLabel>Product</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Product</Label>
+                                    <Input
                                         defaultValue={initial.productName}
                                         disabled
                                     />
@@ -85,16 +85,16 @@ export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
                             ) : null}
                             {initial.warehouseName ? (
                                 <div className="space-y-1">
-                                    <ZoruLabel>Warehouse</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Warehouse</Label>
+                                    <Input
                                         defaultValue={initial.warehouseName}
                                         disabled
                                     />
                                 </div>
                             ) : null}
                             <div className="space-y-1">
-                                <ZoruLabel>Quantity</ZoruLabel>
-                                <ZoruInput
+                                <Label>Quantity</Label>
+                                <Input
                                     defaultValue={String(initial.quantity)}
                                     disabled
                                 />
@@ -108,7 +108,7 @@ export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-1">
-                                <ZoruLabel htmlFor="reason">Reason *</ZoruLabel>
+                                <Label htmlFor="reason">Reason *</Label>
                                 <EnumFormField
                                     enumName="stockAdjustmentReason"
                                     name="reason"
@@ -118,10 +118,10 @@ export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <ZoruLabel htmlFor="referenceNumber">
+                                <Label htmlFor="referenceNumber">
                                     Reference doc
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="referenceNumber"
                                     name="referenceNumber"
                                     defaultValue={initial.referenceNumber ?? ''}
@@ -129,8 +129,8 @@ export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
                                 />
                             </div>
                             <div className="space-y-1 md:col-span-2">
-                                <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="notes">Notes</Label>
+                                <Textarea
                                     id="notes"
                                     name="notes"
                                     defaultValue={initial.notes ?? ''}

@@ -8,7 +8,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
  *
  * Reads `?q=<query>` from `searchParams`. Empty → renders an empty
  * "Type to search" state. Present → calls `searchCrmEntities(q)` and
- * renders the results grouped by entity kind in `<ZoruCard>`s.
+ * renders the results grouped by entity kind in `<Card>`s.
  *
  * The controlled input + debounced URL push live in the client
  * companion (`./_components/search-client.tsx`); the grouped result
@@ -41,12 +41,12 @@ export default async function CrmGlobalSearchPage({ searchParams }: PageProps) {
       subtitle="Search every CRM entity at once — clients, vendors, items, employees, invoices and more."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <SearchClient initialQuery={q} totalHits={totalHits} groupCount={groups.length} />
-      </ZoruCard>
+      </Card>
 
       {q.length === 0 ? (
-        <ZoruCard className="p-10">
+        <Card className="p-10">
           <div className="flex flex-col items-center justify-center gap-2 text-center">
             <SearchIcon className="h-8 w-8 text-zoru-ink-muted" aria-hidden />
             <p className="text-[14px] font-medium text-zoru-ink">Type to search</p>
@@ -54,9 +54,9 @@ export default async function CrmGlobalSearchPage({ searchParams }: PageProps) {
               Start typing above to search across every CRM entity in your tenant.
             </p>
           </div>
-        </ZoruCard>
+        </Card>
       ) : groups.length === 0 ? (
-        <ZoruCard className="p-10">
+        <Card className="p-10">
           <div className="flex flex-col items-center justify-center gap-2 text-center">
             <p className="text-[14px] font-medium text-zoru-ink">
               No results for &ldquo;{q}&rdquo;.
@@ -66,7 +66,7 @@ export default async function CrmGlobalSearchPage({ searchParams }: PageProps) {
               you&rsquo;re looking for.
             </p>
           </div>
-        </ZoruCard>
+        </Card>
       ) : (
         <SearchResultsClient groups={groups} query={q} />
       )}

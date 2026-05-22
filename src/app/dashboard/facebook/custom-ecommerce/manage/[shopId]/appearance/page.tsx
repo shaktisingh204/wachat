@@ -158,10 +158,10 @@ export default function ShopAppearancePage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <ZoruSkeleton className="h-8 w-72" />
+        <Skeleton className="h-8 w-72" />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-          <ZoruSkeleton className="h-96" />
-          <ZoruSkeleton className="h-96" />
+          <Skeleton className="h-96" />
+          <Skeleton className="h-96" />
         </div>
       </div>
     );
@@ -173,12 +173,12 @@ export default function ShopAppearancePage() {
         <p className="text-zoru-ink-muted">
           This shop could not be loaded.
         </p>
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/dashboard/facebook/custom-ecommerce">
             <ArrowLeft />
             Back to all shops
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     );
   }
@@ -197,18 +197,18 @@ export default function ShopAppearancePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" onClick={() => setSaveOpen(true)}>
+          <Button variant="outline" onClick={() => setSaveOpen(true)}>
             <Save />
             Save theme
-          </ZoruButton>
-          <ZoruButton onClick={() => setPublishOpen(true)}>
+          </Button>
+          <Button onClick={() => setPublishOpen(true)}>
             Publish shop
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <h3 className="text-[15px] tracking-tight text-zoru-ink">
             Palette presets
           </h3>
@@ -238,7 +238,7 @@ export default function ShopAppearancePage() {
           </div>
 
           <div className="mt-6 flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="primary-color">Primary color</ZoruLabel>
+            <Label htmlFor="primary-color">Primary color</Label>
             <ZoruColorPicker
               value={primary}
               onChange={(c) => {
@@ -254,17 +254,17 @@ export default function ShopAppearancePage() {
           </div>
 
           <div className="mt-4 flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="theme-name">Theme name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="theme-name">Theme name</Label>
+            <Input
               id="theme-name"
               value={themeName}
               onChange={(e) => setThemeName(e.target.value)}
               placeholder="e.g. Default"
             />
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
             <Brush className="h-3.5 w-3.5" />
             Live preview
@@ -314,10 +314,10 @@ export default function ShopAppearancePage() {
               ))}
             </div>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruDialog open={saveOpen} onOpenChange={setSaveOpen}>
+      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Save theme?</ZoruDialogTitle>
@@ -328,16 +328,16 @@ export default function ShopAppearancePage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setSaveOpen(false)}>
+            <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="animate-spin" /> : null}
               Save theme
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog open={publishOpen} onOpenChange={setPublishOpen}>
         <ZoruAlertDialogContent>

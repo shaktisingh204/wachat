@@ -85,16 +85,16 @@ function fmtDate(value: unknown): string {
 
 function statusBadge(status: string) {
   if (status === 'Received')
-    return <ZoruBadge variant="success">Received</ZoruBadge>;
+    return <Badge variant="success">Received</Badge>;
   if (status === 'InTransit')
-    return <ZoruBadge variant="info">In Transit</ZoruBadge>;
+    return <Badge variant="info">In Transit</Badge>;
   if (status === 'Approved')
-    return <ZoruBadge variant="info">Approved</ZoruBadge>;
+    return <Badge variant="info">Approved</Badge>;
   if (status === 'Cancelled')
-    return <ZoruBadge variant="danger">Cancelled</ZoruBadge>;
+    return <Badge variant="danger">Cancelled</Badge>;
   if (status === 'archived')
-    return <ZoruBadge variant="default">Archived</ZoruBadge>;
-  return <ZoruBadge variant="warning">Draft</ZoruBadge>;
+    return <Badge variant="default">Archived</Badge>;
+  return <Badge variant="warning">Draft</Badge>;
 }
 
 export function StockTransfersListClient() {
@@ -279,18 +279,18 @@ export function StockTransfersListClient() {
           placeholder: 'Search transfer #, notes…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href={`${BASE}/new`}>
               <Plus className="h-4 w-4" /> New transfer
             </Link>
-          </ZoruButton>
+          </Button>
         }
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-40 space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Status
-              </ZoruLabel>
+              </Label>
               <EnumFilterField
                 enumName="stockTransferStatus"
                 value={statusFilter || 'all'}
@@ -302,9 +302,9 @@ export function StockTransfersListClient() {
               />
             </div>
             <div className="w-56 space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 From
-              </ZoruLabel>
+              </Label>
               <EntityFormField
                 entity="warehouse"
                 name="filter_fromWarehouseId"
@@ -317,9 +317,9 @@ export function StockTransfersListClient() {
               />
             </div>
             <div className="w-56 space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 To
-              </ZoruLabel>
+              </Label>
               <EntityFormField
                 entity="warehouse"
                 name="filter_toWarehouseId"
@@ -332,9 +332,9 @@ export function StockTransfersListClient() {
               />
             </div>
             {hasActiveFilters ? (
-              <ZoruButton size="sm" variant="ghost" onClick={clearFilters}>
+              <Button size="sm" variant="ghost" onClick={clearFilters}>
                 <X className="mr-1 h-3.5 w-3.5" /> Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
@@ -346,33 +346,33 @@ export function StockTransfersListClient() {
                 {selected.size} selected
               </div>
               <div className="flex flex-wrap items-center gap-1">
-                <ZoruButton size="sm" variant="outline" onClick={() => setBulkOp('approve')}>
+                <Button size="sm" variant="outline" onClick={() => setBulkOp('approve')}>
                   Approve
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={() => setBulkOp('cancel')}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setBulkOp('cancel')}>
                   Cancel
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={exportCsv}>
                   <Download className="h-3.5 w-3.5" /> CSV
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={exportXlsx}>
                   <Download className="h-3.5 w-3.5" /> XLSX
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="destructive"
                   onClick={() => setBulkOp('delete')}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Delete
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => setSelected(new Set())}
                   aria-label="Clear selection"
                 >
                   <X className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -387,11 +387,11 @@ export function StockTransfersListClient() {
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Move stock between warehouses with a clear audit trail.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href={`${BASE}/new`}>
                   <Plus className="h-4 w-4" /> New transfer
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -411,22 +411,22 @@ export function StockTransfersListClient() {
         <div className="flex flex-col gap-4">
           {/* KPI strip */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Total"
               value={kpis.total}
               icon={<FileText className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="In Transit"
               value={kpis.inTransit}
               icon={<Truck className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Received"
               value={kpis.received}
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Draft"
               value={kpis.draft}
               icon={<Activity className="h-4 w-4" />}
@@ -436,22 +436,22 @@ export function StockTransfersListClient() {
           {/* Export row (shown when no selection) */}
           {selected.size === 0 && rows.length > 0 ? (
             <div className="flex items-center justify-end gap-2">
-              <ZoruButton size="sm" variant="ghost" onClick={exportCsv}>
+              <Button size="sm" variant="ghost" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={exportXlsx}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={exportXlsx}>
                 <Download className="h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
+              </Button>
             </div>
           ) : null}
 
           {/* Table */}
           <div className="overflow-x-auto rounded-md border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-8">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={headChecked}
                       onCheckedChange={(c) => toggleAll(Boolean(c))}
                       aria-label="Select all"
@@ -471,7 +471,7 @@ export function StockTransfersListClient() {
                   ? Array.from({ length: 5 }).map((_, i) => (
                       <ZoruTableRow key={i}>
                         <ZoruTableCell colSpan={8}>
-                          <ZoruSkeleton className="h-6 w-full" />
+                          <Skeleton className="h-6 w-full" />
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))
@@ -484,7 +484,7 @@ export function StockTransfersListClient() {
                       return (
                         <ZoruTableRow key={id}>
                           <ZoruTableCell>
-                            <ZoruCheckbox
+                            <Checkbox
                               checked={checked}
                               onCheckedChange={() => toggleOne(id)}
                               aria-label={`Select ${r.transferNumber ?? id.slice(-6)}`}
@@ -527,20 +527,20 @@ export function StockTransfersListClient() {
                             {statusBadge(String(r.status || 'Draft'))}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-right">
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="icon"
                               aria-label="Delete"
                               onClick={() => setDeleteTargetId(id)}
                             >
                               <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </ZoruButton>
+                            </Button>
                           </ZoruTableCell>
                         </ZoruTableRow>
                       );
                     })}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         </div>
       </EntityListShell>

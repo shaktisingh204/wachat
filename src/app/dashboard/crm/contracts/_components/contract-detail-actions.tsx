@@ -117,7 +117,7 @@ export function ContractDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -140,24 +140,24 @@ export function ContractDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/contracts/${contractId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setSendOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setSendOpen(true)}>
         <Send className="h-3.5 w-3.5" /> Send for signature
-      </ZoruButton>
+      </Button>
 
       {pendingSigners.length > 0 ? (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton size="sm" variant="outline">
+            <Button size="sm" variant="outline">
               <Mail className="h-3.5 w-3.5" /> Resend invite
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent>
             {pendingSigners.map((s) => (
@@ -186,61 +186,61 @@ export function ContractDetailActions({
               </ZoruDropdownMenuItem>
             ))}
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
       ) : null}
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => moveTo('signed')}
       >
         <FileSignature className="h-3.5 w-3.5" /> Mark signed
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setRenewOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setRenewOpen(true)}>
         <RefreshCcw className="h-3.5 w-3.5" /> Renew
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setVoidOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setVoidOpen(true)}>
         <XCircle className="h-3.5 w-3.5" /> Void
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`mailto:${contactEmail ?? ''}?subject=${encodeURIComponent('Your contract')}`}
         >
           <Mail className="h-3.5 w-3.5" /> Email
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => window.print()}>
+      <Button size="sm" variant="outline" onClick={() => window.print()}>
         <Printer className="h-3.5 w-3.5" /> Print
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         {/* TODO 1D.2: server-side duplicate endpoint not yet available — link to new page */}
         <Link href={`/dashboard/crm/contracts?fromKind=contract&fromId=${contractId}`}>
           <Copy className="h-3.5 w-3.5" /> Duplicate
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/contracts/${contractId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="destructive"
         onClick={() => setDeleteOpen(true)}
       >
         <Trash2 className="h-3.5 w-3.5" /> Delete
-      </ZoruButton>
+      </Button>
 
       <ContractSendDialog
         open={sendOpen}

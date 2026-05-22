@@ -98,7 +98,7 @@ export function EntityDetailShell({
                             {title}
                         </h1>
                         {status ? (
-                            <ZoruBadge variant={badgeVariant}>{status.label}</ZoruBadge>
+                            <Badge variant={badgeVariant}>{status.label}</Badge>
                         ) : null}
                     </div>
                 </div>

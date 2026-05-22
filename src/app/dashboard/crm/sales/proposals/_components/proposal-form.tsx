@@ -72,14 +72,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create proposal'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -172,7 +172,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -196,8 +196,8 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
 
                 {/* Row 1: Title */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
                         id="title"
                         name="title"
                         required
@@ -209,8 +209,8 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                 {/* Row 2: Account + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="accountId">Account / client</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="accountId">Account / client</Label>
+                        <Input
                             id="accountId"
                             name="accountId"
                             placeholder="Account id or name"
@@ -218,7 +218,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="proposalStatus"
                             name="__status_picker"
@@ -231,8 +231,8 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                 {/* Row 3: Amount + Currency + Valid until */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="totalAmount">Total amount</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="totalAmount">Total amount</Label>
+                        <Input
                             id="totalAmount"
                             name="totalAmount"
                             type="number"
@@ -247,8 +247,8 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor={`${reactId}-currency`}>Currency</ZoruLabel>
-                        <ZoruSelect value={currency} onValueChange={setCurrency}>
+                        <Label htmlFor={`${reactId}-currency`}>Currency</Label>
+                        <Select value={currency} onValueChange={setCurrency}>
                             <ZoruSelectTrigger id={`${reactId}-currency`}>
                                 <ZoruSelectValue placeholder="Currency" />
                             </ZoruSelectTrigger>
@@ -259,11 +259,11 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="validUntil">Valid until</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="validUntil">Valid until</Label>
+                        <Input
                             id="validUntil"
                             name="validUntil"
                             type="date"
@@ -275,8 +275,8 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                 {/* Sections repeater */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Proposal sections</ZoruLabel>
-                        <ZoruButton
+                        <Label>Proposal sections</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -284,7 +284,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add section
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="flex flex-col gap-3">
                         {sections.map((s, idx) => (
@@ -294,7 +294,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                             >
                                 <div className="mb-2 flex items-center gap-2">
                                     <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
-                                    <ZoruInput
+                                    <Input
                                         placeholder={`Section ${idx + 1} heading`}
                                         value={s.heading}
                                         onChange={(e) =>
@@ -303,7 +303,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                                             })
                                         }
                                     />
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -312,9 +312,9 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                                         title="Remove section"
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
-                                <ZoruTextarea
+                                <Textarea
                                     rows={4}
                                     placeholder="Section body — markdown supported."
                                     value={s.body}
@@ -330,7 +330,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                 {/* Attachments — SabFiles only */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Attachments</ZoruLabel>
+                        <Label>Attachments</Label>
                         <SabFilePickerButton
                             accept="any"
                             onPick={onPickAttachment}
@@ -362,7 +362,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                                     >
                                         {a.name || a.url}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -370,7 +370,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                                         title="Remove attachment"
                                     >
                                         <X className="h-4 w-4" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -379,15 +379,15 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to proposals
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -52,7 +52,7 @@ function SectionCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <ZoruCard className="p-0 overflow-hidden">
+    <Card className="p-0 overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 bg-zoru-surface-2 border-b border-zoru-line">
         <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface [&_svg]:size-4 text-zoru-ink-muted">
           <Icon />
@@ -65,11 +65,11 @@ function SectionCard({
       <div className="px-6 py-5 space-y-4">{children}</div>
       {footer ? (
         <>
-          <ZoruSeparator />
+          <Separator />
           <div className="px-6 py-4 flex items-center justify-end gap-2">{footer}</div>
         </>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -112,7 +112,7 @@ function ToggleRow({
       </div>
       {/* Radix Switch does not reliably submit with FormData; use a hidden input */}
       <input type="hidden" name={name} value={checked ? 'on' : 'off'} />
-      <ZoruSwitch
+      <Switch
         checked={checked}
         onCheckedChange={setChecked}
         aria-label={label}
@@ -198,15 +198,15 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
           footer={
             <>
               <SaveFeedback state={pipelineState} />
-              <ZoruButton type="submit" size="sm" disabled={pipelinePending}>
+              <Button type="submit" size="sm" disabled={pipelinePending}>
                 {pipelinePending ? 'Saving…' : 'Save'}
-              </ZoruButton>
+              </Button>
             </>
           }
         >
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="defaultPipeline">Default Pipeline</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="defaultPipeline">Default Pipeline</Label>
+            <Select
               name="defaultPipelineId"
               defaultValue={config.defaultPipelineId ?? '__none__'}
             >
@@ -221,12 +221,12 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <p className="text-[11.5px] text-zoru-ink-muted">
               New deals will be created in this pipeline by default.
             </p>
           </div>
-          <ZoruSeparator />
+          <Separator />
           <ToggleRow
             label="Auto-progression"
             description="Automatically advance deals to the next stage when all tasks are complete."
@@ -245,9 +245,9 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
           footer={
             <>
               <SaveFeedback state={leadState} />
-              <ZoruButton type="submit" size="sm" disabled={leadPending}>
+              <Button type="submit" size="sm" disabled={leadPending}>
                 {leadPending ? 'Saving…' : 'Save'}
-              </ZoruButton>
+              </Button>
             </>
           }
         >
@@ -257,17 +257,17 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
             name="autoAssignLeads"
             defaultChecked={Boolean(config.autoAssignLeads)}
           />
-          <ZoruSeparator />
+          <Separator />
           <ToggleRow
             label="Lead scoring"
             description="Enable AI-assisted lead scoring based on engagement and profile data."
             name="leadScoringEnabled"
             defaultChecked={Boolean(config.leadScoringEnabled)}
           />
-          <ZoruSeparator />
+          <Separator />
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="defaultStatus">Default Lead Status</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="defaultStatus">Default Lead Status</Label>
+            <Select
               name="defaultLeadStatusId"
               defaultValue={config.defaultLeadStatusId ?? '__none__'}
             >
@@ -291,7 +291,7 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <p className="text-[11.5px] text-zoru-ink-muted">
               Applied to every new lead created without an explicit status.
             </p>
@@ -308,9 +308,9 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
           footer={
             <>
               <SaveFeedback state={dealState} />
-              <ZoruButton type="submit" size="sm" disabled={dealPending}>
+              <Button type="submit" size="sm" disabled={dealPending}>
                 {dealPending ? 'Saving…' : 'Save'}
-              </ZoruButton>
+              </Button>
             </>
           }
         >
@@ -320,10 +320,10 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
             name="probabilityTracking"
             defaultChecked={Boolean(config.probabilityTracking)}
           />
-          <ZoruSeparator />
+          <Separator />
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="dealRot">Deal rot threshold (days)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="dealRot">Deal rot threshold (days)</Label>
+            <Input
               id="dealRot"
               name="dealRotDays"
               type="number"
@@ -336,10 +336,10 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
               Flag open deals as &quot;at-risk&quot; after this many days without activity.
             </p>
           </div>
-          <ZoruSeparator />
+          <Separator />
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="currency">Default Currency</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="currency">Default Currency</Label>
+            <Select
               name="defaultCurrency"
               defaultValue={config.defaultCurrency ?? 'INR'}
             >
@@ -353,7 +353,7 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         </SectionCard>
       </form>
@@ -367,9 +367,9 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
           footer={
             <>
               <SaveFeedback state={notifState} />
-              <ZoruButton type="submit" size="sm" disabled={notifPending}>
+              <Button type="submit" size="sm" disabled={notifPending}>
                 {notifPending ? 'Saving…' : 'Save'}
-              </ZoruButton>
+              </Button>
             </>
           }
         >
@@ -379,7 +379,7 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
             name="emailNotifications"
             defaultChecked={Boolean(config.emailNotifications)}
           />
-          <ZoruSeparator />
+          <Separator />
           <ToggleRow
             label="In-app notifications"
             description="Show bell-icon alerts inside the CRM dashboard."

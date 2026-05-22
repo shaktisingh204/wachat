@@ -91,22 +91,22 @@ const PAGE_SIZE = 25;
 function StatusBadge({ status }: { status: BotStatus }) {
     if (status === 'active') {
         return (
-            <ZoruBadge variant="success">
+            <Badge variant="success">
                 <CheckCircle2 className="h-3 w-3" aria-hidden /> Active
-            </ZoruBadge>
+            </Badge>
         );
     }
     if (status === 'error') {
         return (
-            <ZoruBadge variant="danger">
+            <Badge variant="danger">
                 <AlertTriangle className="h-3 w-3" aria-hidden /> Error
-            </ZoruBadge>
+            </Badge>
         );
     }
     return (
-        <ZoruBadge variant="ghost">
+        <Badge variant="ghost">
             <Unlink className="h-3 w-3" aria-hidden /> Disconnected
-        </ZoruBadge>
+        </Badge>
     );
 }
 
@@ -176,7 +176,7 @@ function RowSkeleton() {
         <ZoruTableRow>
             {Array.from({ length: 8 }).map((_, i) => (
                 <ZoruTableCell key={i}>
-                    <ZoruSkeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
                 </ZoruTableCell>
             ))}
         </ZoruTableRow>
@@ -442,7 +442,7 @@ export default function TelegramBotsPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={handleExport}
@@ -452,33 +452,33 @@ export default function TelegramBotsPage() {
                             <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
                         ) : null}
                         Export CSV
-                    </ZoruButton>
+                    </Button>
                     <Link href="/dashboard/telegram/connections">
-                        <ZoruButton size="sm">
+                        <Button size="sm">
                             <Plus className="h-3 w-3" aria-hidden /> Connect a bot
-                        </ZoruButton>
+                        </Button>
                     </Link>
                 </div>
             </div>
 
             {/* KPI cards */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Total bots"
                     value={total}
                     icon={<Bot className="h-4 w-4" aria-hidden />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Active"
                     value={kpis.active}
                     icon={<CheckCircle2 className="h-4 w-4" aria-hidden />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Errors"
                     value={kpis.errors}
                     icon={<AlertTriangle className="h-4 w-4" aria-hidden />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Avg latency"
                     value={kpis.avgLatency !== null ? `${kpis.avgLatency} ms` : '—'}
                     icon={<Activity className="h-4 w-4" aria-hidden />}
@@ -493,7 +493,7 @@ export default function TelegramBotsPage() {
                             className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted"
                             aria-hidden
                         />
-                        <ZoruInput
+                        <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search by name or @username"
@@ -501,7 +501,7 @@ export default function TelegramBotsPage() {
                             aria-label="Search bots"
                         />
                     </div>
-                    <ZoruSelect
+                    <Select
                         value={status}
                         onValueChange={(v) => setStatus(v as StatusFilter)}
                     >
@@ -515,38 +515,38 @@ export default function TelegramBotsPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 {someSelected ? (
                     <div className="flex items-center gap-2">
                         <span className="text-[12.5px] text-zoru-ink-muted">
                             {selected.size} selected
                         </span>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setSelected(new Set())}
                         >
                             <X className="h-3 w-3" aria-hidden /> Clear
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => setBulkOpen(true)}
                         >
                             <Unlink className="h-3 w-3" aria-hidden /> Disconnect selected
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </div>
 
             {/* Table */}
-            <ZoruCard className="overflow-hidden p-0">
-                <ZoruTable>
+            <Card className="overflow-hidden p-0">
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead className="w-10">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={allSelectedOnPage}
                                     onCheckedChange={toggleSelectAll}
                                     aria-label="Select all on page"
@@ -571,7 +571,7 @@ export default function TelegramBotsPage() {
                         ) : rows.length === 0 ? (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={8} className="p-0">
-                                    <ZoruEmptyState
+                                    <EmptyState
                                         icon={<Bot className="h-5 w-5" aria-hidden />}
                                         title={
                                             error
@@ -590,10 +590,10 @@ export default function TelegramBotsPage() {
                                         action={
                                             !error && !debouncedSearch && status === 'all' ? (
                                                 <Link href="/dashboard/telegram/connections">
-                                                    <ZoruButton size="sm">
+                                                    <Button size="sm">
                                                         <Plus className="h-3 w-3" aria-hidden /> Connect a
                                                         bot
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </Link>
                                             ) : null
                                         }
@@ -607,7 +607,7 @@ export default function TelegramBotsPage() {
                                 return (
                                     <ZoruTableRow key={bot._id}>
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(bot._id)}
                                                 onCheckedChange={() => toggleSelectRow(bot._id)}
                                                 aria-label={`Select ${bot.name || bot.username}`}
@@ -668,9 +668,9 @@ export default function TelegramBotsPage() {
                                                 : '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruDropdownMenu>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label="Bot actions"
@@ -687,7 +687,7 @@ export default function TelegramBotsPage() {
                                                                 aria-hidden
                                                             />
                                                         )}
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruDropdownMenuTrigger>
                                                 <ZoruDropdownMenuContent align="end">
                                                     <ZoruDropdownMenuItem
@@ -726,40 +726,40 @@ export default function TelegramBotsPage() {
                                                         Disconnect
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 );
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
                 {totalPages > 1 ? (
                     <div className="flex items-center justify-between border-t border-zoru-line px-4 py-3 text-[12.5px] text-zoru-ink-muted">
                         <span>
                             Page {page} of {totalPages} · {total} bot{total === 1 ? '' : 's'}
                         </span>
                         <div className="flex gap-1">
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                             >
                                 Previous
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 disabled={page >= totalPages}
                                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                             >
                                 Next
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
             {/* Bulk-disconnect confirm */}
             <ZoruAlertDialog open={bulkOpen} onOpenChange={setBulkOpen}>

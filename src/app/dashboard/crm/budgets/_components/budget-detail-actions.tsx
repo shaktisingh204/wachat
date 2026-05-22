@@ -89,58 +89,58 @@ export function BudgetDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/budgets/${budgetId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runApprove}
         disabled={status === 'approved' || locked}
       >
         <CheckCircle2 className="h-3.5 w-3.5" /> Approve
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setRejectOpen(true)}
         disabled={status === 'rejected' || locked}
       >
         <XCircle className="h-3.5 w-3.5" /> Reject
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runLock}
         disabled={locked}
       >
         <Lock className="h-3.5 w-3.5" /> Lock
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setActualOpen(true)}
         disabled={locked}
       >
         <BarChart3 className="h-3.5 w-3.5" /> Record actual
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         {/* TODO 1D.2: scenario comparison view not yet implemented */}
         <Link
           href={`/dashboard/crm/budgets?scenario=${scenario || 'base'}&compare=1`}
         >
           <BarChart3 className="h-3.5 w-3.5" /> Compare scenarios
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         {/* TODO 1D.2: variance export endpoint not yet implemented */}
         <a
           href={`/api/crm/budgets/${budgetId}/variance.csv`}
@@ -148,21 +148,21 @@ export function BudgetDetailActions({
         >
           <Download className="h-3.5 w-3.5" /> Export variance
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setArchiveOpen(true)}
       >
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/budgets/${budgetId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <BudgetRejectDialog
         open={rejectOpen}

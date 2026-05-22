@@ -179,17 +179,17 @@ export default function LeadboardPreferencesPage() {
         >
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <ZoruStatCard
+                <StatCard
                     label="Total presets"
                     value={rows.length}
                     icon={<KanbanSquare className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Pipelines covered"
                     value={pipelinesCovered}
                     icon={<Filter className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="With hidden stages"
                     value={withHidden}
                     icon={<EyeOff className="h-4 w-4" />}
@@ -197,7 +197,7 @@ export default function LeadboardPreferencesPage() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <ZoruCard className="p-6 lg:col-span-2">
+                <Card className="p-6 lg:col-span-2">
                     <div className="pb-3">
                         <h2 className="text-[16px] text-zoru-ink">Edit preferences</h2>
                         <p className="text-[12.5px] text-zoru-ink-muted">
@@ -206,7 +206,7 @@ export default function LeadboardPreferencesPage() {
                     </div>
                     <div className="grid gap-3">
                         <div className="grid gap-1.5">
-                            <ZoruLabel>Pipeline</ZoruLabel>
+                            <Label>Pipeline</Label>
                             <EntityFormField
                                 entity="pipeline"
                                 name="pipeline_id"
@@ -218,10 +218,10 @@ export default function LeadboardPreferencesPage() {
                             />
                         </div>
                         <div className="grid gap-1.5">
-                            <ZoruLabel htmlFor="hide-stages">
+                            <Label htmlFor="hide-stages">
                                 Hidden stages (comma separated)
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="hide-stages"
                                 rows={2}
                                 value={form.hide_stages}
@@ -232,8 +232,8 @@ export default function LeadboardPreferencesPage() {
                             />
                         </div>
                         <div className="grid gap-1.5">
-                            <ZoruLabel>Sort by</ZoruLabel>
-                            <ZoruSelect
+                            <Label>Sort by</Label>
+                            <Select
                                 value={form.sort_by}
                                 onValueChange={(v) =>
                                     setForm((f) => ({
@@ -252,13 +252,13 @@ export default function LeadboardPreferencesPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="grid gap-1.5">
-                            <ZoruLabel htmlFor="cols">
+                            <Label htmlFor="cols">
                                 Visible columns (comma separated)
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="cols"
                                 rows={3}
                                 value={form.visible_columns}
@@ -271,15 +271,15 @@ export default function LeadboardPreferencesPage() {
                             />
                         </div>
                         <div>
-                            <ZoruButton onClick={handleSave} disabled={saving}>
+                            <Button onClick={handleSave} disabled={saving}>
                                 <Save className="h-4 w-4" />
                                 {saving ? 'Saving…' : 'Save preferences'}
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="pb-3">
                         <h2 className="text-[16px] text-zoru-ink">Saved presets</h2>
                         <p className="text-[12.5px] text-zoru-ink-muted">
@@ -287,23 +287,23 @@ export default function LeadboardPreferencesPage() {
                         </p>
                     </div>
                     <div className="mb-3 flex flex-col gap-2">
-                        <ZoruInput
+                        <Input
                             type="search"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search presets…"
                         />
                         <div className="flex flex-wrap gap-1">
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 size="sm"
                                 variant={sortFilter === 'all' ? 'default' : 'outline'}
                                 onClick={() => setSortFilter('all')}
                             >
                                 All
-                            </ZoruButton>
+                            </Button>
                             {SORTS.map((s) => (
-                                <ZoruButton
+                                <Button
                                     key={s}
                                     type="button"
                                     size="sm"
@@ -311,7 +311,7 @@ export default function LeadboardPreferencesPage() {
                                     onClick={() => setSortFilter(s)}
                                 >
                                     {s}
-                                </ZoruButton>
+                                </Button>
                             ))}
                         </div>
                     </div>
@@ -341,29 +341,29 @@ export default function LeadboardPreferencesPage() {
                                                 'unknown'}
                                         </p>
                                         <div className="mt-1 flex flex-wrap gap-1">
-                                            <ZoruBadge variant="ghost">
+                                            <Badge variant="ghost">
                                                 {r.sort_by}
-                                            </ZoruBadge>
+                                            </Badge>
                                             {(r.hide_stages?.length ?? 0) > 0 ? (
-                                                <ZoruBadge variant="warning">
+                                                <Badge variant="warning">
                                                     {r.hide_stages!.length} hidden
-                                                </ZoruBadge>
+                                                </Badge>
                                             ) : null}
                                         </div>
                                     </button>
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => setDeletingId(r._id)}
                                         aria-label="Delete preset"
                                     >
                                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
                     )}
-                </ZoruCard>
+                </Card>
             </div>
 
             <ZoruAlertDialog

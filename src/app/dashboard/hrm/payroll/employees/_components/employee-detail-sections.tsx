@@ -149,7 +149,7 @@ export async function EmployeeDetailSections({
       {/* ── Overview ── */}
       <section className="space-y-4">
         <SectionAnchor id="overview" label="Overview" />
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Personal
           </h3>
@@ -173,9 +173,9 @@ export async function EmployeeDetailSections({
                 : '—'}
             </Field>
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Identity &amp; contact
           </h3>
@@ -187,9 +187,9 @@ export async function EmployeeDetailSections({
             <Field label="Personal email">{employee.personalEmail || '—'}</Field>
             <Field label="Personal phone">{employee.personalPhone || '—'}</Field>
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Employment
           </h3>
@@ -252,9 +252,9 @@ export async function EmployeeDetailSections({
               </>
             ) : null}
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Compensation
           </h3>
@@ -280,10 +280,10 @@ export async function EmployeeDetailSections({
               )}
             </Field>
           </div>
-        </ZoruCard>
+        </Card>
 
         {customFields.length > 0 ? (
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Custom fields
             </h3>
@@ -301,14 +301,14 @@ export async function EmployeeDetailSections({
                 </Field>
               ))}
             </div>
-          </ZoruCard>
+          </Card>
         ) : null}
       </section>
 
       {/* ── Attendance ── */}
       <section className="space-y-4">
         <SectionAnchor id="attendance" label="Attendance (last 30 days)" />
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="grid gap-4 md:grid-cols-3">
             <Field label="Present + WFH">{presentCount}</Field>
             <Field label="Late punches">{lateCount}</Field>
@@ -368,21 +368,21 @@ export async function EmployeeDetailSections({
             </div>
           )}
           <div className="mt-4 flex justify-end">
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
               <Link
                 href={`/dashboard/hrm/payroll/attendance?employeeId=${employeeIdStr}`}
               >
                 <CalendarCheck className="h-3.5 w-3.5" /> View all attendance
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       </section>
 
       {/* ── Leave ── */}
       <section className="space-y-4">
         <SectionAnchor id="leave" label="Leave" />
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           {recentLeaves.length === 0 ? (
             <p className="text-[12.5px] text-zoru-ink-muted">
               No leave applications yet.
@@ -412,7 +412,7 @@ export async function EmployeeDetailSections({
                         {l.days}
                       </td>
                       <td className="p-2 align-middle">
-                        <ZoruBadge>{l.status}</ZoruBadge>
+                        <Badge>{l.status}</Badge>
                       </td>
                       <td className="p-2 align-middle text-zoru-ink-muted">
                         {l.reason || '—'}
@@ -424,34 +424,34 @@ export async function EmployeeDetailSections({
             </div>
           )}
           <div className="mt-4 flex justify-end">
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
               <Link
                 href={`/dashboard/crm/hr-payroll/leave?employeeId=${employeeIdStr}`}
               >
                 <PlaneTakeoff className="h-3.5 w-3.5" /> View leave history
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       </section>
 
       {/* ── Payslips ── */}
       <section className="space-y-4">
         <SectionAnchor id="payslips" label="Payslips" />
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <p className="text-[12.5px] text-zoru-ink-muted">
             Recent payslips for this employee.
           </p>
           <div className="mt-3 flex justify-end">
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
               <Link
                 href={`/dashboard/crm/hr-payroll/payslips?employeeId=${employeeIdStr}`}
               >
                 <FileText className="h-3.5 w-3.5" /> View payslips
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       </section>
 
       <div className="text-[11px] text-zoru-ink-muted">

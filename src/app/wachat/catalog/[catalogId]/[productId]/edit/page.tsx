@@ -50,14 +50,14 @@ export default function EditProductPage() {
   }, [productId, catalogId, activeProjectId]);
 
   if (isLoading || !product) {
-    return <ZoruSkeleton className="h-96 w-full" />;
+    return <Skeleton className="h-96 w-full" />;
   }
 
   const backHref = `/wachat/catalog/${catalogId}`;
 
   return (
     <div className="space-y-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -75,20 +75,20 @@ export default function EditProductPage() {
             <ZoruBreadcrumbPage>Edit product</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Edit product: {product.name}</ZoruPageTitle>
           <ZoruPageDescription>Modify the details for this product.</ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruButton variant="ghost" size="sm" asChild className="-ml-2">
+      <Button variant="ghost" size="sm" asChild className="-ml-2">
         <Link href={backHref}>
           <ArrowLeft className="mr-1 h-4 w-4" /> Back to products
         </Link>
-      </ZoruButton>
+      </Button>
 
       <ProductForm product={product} />
     </div>

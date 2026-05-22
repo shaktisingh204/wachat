@@ -34,11 +34,11 @@ export default function KeywordTrendsPage() {
   return (
     <ToolShell title="Keyword Trends" description="12-month interest trend for a keyword (deterministic demo).">
       <div className="flex gap-2">
-        <ZoruInput value={kw} onChange={(e) => setKw(e.target.value)} placeholder="e.g. ai tools" />
-        <ZoruButton onClick={() => setSubmitted(kw)}>Show trend</ZoruButton>
+        <Input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="e.g. ai tools" />
+        <Button onClick={() => setSubmitted(kw)}>Show trend</Button>
       </div>
       {submitted && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4">
             <div className="text-sm font-semibold mb-2">{submitted}</div>
             <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-40">
@@ -53,7 +53,7 @@ export default function KeywordTrendsPage() {
               {months.map((m) => <div key={m}>{m}</div>)}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

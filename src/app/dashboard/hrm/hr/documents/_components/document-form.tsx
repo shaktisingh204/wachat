@@ -65,14 +65,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create document'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -137,7 +137,7 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="documentId" value={initialData!._id} />
@@ -151,8 +151,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -164,7 +164,7 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 2: Category + Document number */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Category</ZoruLabel>
+                        <Label>Category</Label>
                         <EnumFormField
                             name="category-picker"
                             enumName="documentCategory"
@@ -175,8 +175,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="documentNumber">Document number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="documentNumber">Document number</Label>
+                        <Input
                             id="documentNumber"
                             name="documentNumber"
                             placeholder="e.g. 1234-5678-9012"
@@ -187,8 +187,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
 
                 {/* Row 3: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={3}
@@ -199,7 +199,7 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
 
                 {/* Row 4: File (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Attached file</ZoruLabel>
+                    <Label>Attached file</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -219,14 +219,14 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                                 >
                                     {fileName || fileUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearFile}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -239,7 +239,7 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 5: Linked entity */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Entity kind</ZoruLabel>
+                        <Label>Entity kind</Label>
                         <EnumFormField
                             name="entityKind-picker"
                             enumName="documentEntityKind"
@@ -250,8 +250,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="entityId">Entity id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="entityId">Entity id</Label>
+                        <Input
                             id="entityId"
                             name="entityId"
                             placeholder="ObjectId of the linked record"
@@ -259,8 +259,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             placeholder="Display name (optional)"
@@ -272,8 +272,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 6: Employee + Candidate ids */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee id</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="Optional employee ObjectId"
@@ -281,8 +281,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="candidateId">Candidate id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="candidateId">Candidate id</Label>
+                        <Input
                             id="candidateId"
                             name="candidateId"
                             placeholder="Optional candidate ObjectId"
@@ -294,8 +294,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 7: Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="issueDate">Issue date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="issueDate">Issue date</Label>
+                        <Input
                             id="issueDate"
                             name="issueDate"
                             type="date"
@@ -303,8 +303,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiryDate">Expiry date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiryDate">Expiry date</Label>
+                        <Input
                             id="expiryDate"
                             name="expiryDate"
                             type="date"
@@ -316,8 +316,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 8: Tags + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
                             id="tags"
                             name="tags"
                             placeholder="comma, separated, tags"
@@ -325,7 +325,7 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="documentStatus"
@@ -342,8 +342,8 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 9: Notes + Confidential flag */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={3}
@@ -352,30 +352,30 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isConfidential"
                             name="isConfidential"
                             defaultChecked={!!initialData?.isConfidential}
                         />
-                        <ZoruLabel
+                        <Label
                             htmlFor="isConfidential"
                             className="cursor-pointer"
                         >
                             Confidential — restrict to HR only
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to documents
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

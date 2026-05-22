@@ -310,11 +310,11 @@ export default function PayoutsPage() {
                     placeholder: 'Search by payment #, reference, txn id…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/purchases/payouts/new">
                             <Plus className="h-4 w-4" /> New payout
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <PayoutFiltersRow
@@ -377,11 +377,11 @@ export default function PayoutsPage() {
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Record your first payment made to a vendor.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/purchases/payouts/new">
                                     <Plus className="h-4 w-4" /> Add first payout
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

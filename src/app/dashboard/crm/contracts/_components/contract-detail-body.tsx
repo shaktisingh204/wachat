@@ -62,7 +62,7 @@ interface ContractDetailBodyProps {
 export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
   return (
     <>
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -79,16 +79,16 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
             <Field
               label="Status"
               value={
-                <ZoruBadge variant="outline">
+                <Badge variant="outline">
                   {contract.status || 'draft'}
-                </ZoruBadge>
+                </Badge>
               }
             />
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Parties</ZoruCardTitle>
         </ZoruCardHeader>
@@ -117,10 +117,10 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
             ) : null}
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {contract.body ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Terms &amp; body</ZoruCardTitle>
           </ZoruCardHeader>
@@ -129,10 +129,10 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
               {contract.body}
             </pre>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Signature audit trail</ZoruCardTitle>
         </ZoruCardHeader>
@@ -178,10 +178,10 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
             </p>
           ) : null}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {contract.notes ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -190,7 +190,7 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
               {contract.notes}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </>
   );

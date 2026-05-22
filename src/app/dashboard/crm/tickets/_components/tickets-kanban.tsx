@@ -69,7 +69,7 @@ export function TicketsKanban({ tickets }: TicketsKanbanProps) {
                             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 {col.label}
                             </h3>
-                            <ZoruBadge variant="ghost">{items.length}</ZoruBadge>
+                            <Badge variant="ghost">{items.length}</Badge>
                         </div>
                         <div className="flex flex-col gap-2">
                             {items.length === 0 ? (
@@ -82,7 +82,7 @@ export function TicketsKanban({ tickets }: TicketsKanbanProps) {
                                     const overdue = isOverdue(t);
                                     const priority = String(t.priority ?? '').toLowerCase();
                                     return (
-                                        <ZoruCard key={id} className="p-3">
+                                        <Card key={id} className="p-3">
                                             <Link
                                                 href={`/dashboard/crm/tickets/${id}`}
                                                 className="flex flex-col gap-1.5"
@@ -126,7 +126,7 @@ export function TicketsKanban({ tickets }: TicketsKanbanProps) {
                                                     </span>
                                                 ) : null}
                                             </Link>
-                                        </ZoruCard>
+                                        </Card>
                                     );
                                 })
                             )}

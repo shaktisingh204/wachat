@@ -88,7 +88,7 @@ const ProductsTable = ({
   };
 
   return (
-    <ZoruTable>
+    <Table>
       <ZoruTableHeader>
         <ZoruTableRow>
           <ZoruTableHead className="w-20"></ZoruTableHead>
@@ -130,22 +130,22 @@ const ProductsTable = ({
               </ZoruTableCell>
               <ZoruTableCell>{product.inventory?.toLocaleString() || 'N/A'}</ZoruTableCell>
               <ZoruTableCell>
-                <ZoruBadge variant={product.availability === 'in_stock' ? 'success' : 'secondary'}>
+                <Badge variant={product.availability === 'in_stock' ? 'success' : 'secondary'}>
                   {product.availability?.replace(/_/g, ' ') || 'N/A'}
-                </ZoruBadge>
+                </Badge>
               </ZoruTableCell>
               <ZoruTableCell className="font-mono text-xs">{product.retailer_id}</ZoruTableCell>
               <ZoruTableCell className="text-right">
-                <ZoruButton variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" asChild>
                   <Link href={`/wachat/catalog/${catalogId}/${product.id}/edit`}>
                     <Edit className="h-4 w-4" />
                   </Link>
-                </ZoruButton>
+                </Button>
                 <ZoruAlertDialog>
                   <ZoruAlertDialogTrigger asChild>
-                    <ZoruButton variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon">
                       <Trash2 className="h-4 w-4 text-zoru-danger" />
-                    </ZoruButton>
+                    </Button>
                   </ZoruAlertDialogTrigger>
                   <ZoruAlertDialogContent>
                     <ZoruAlertDialogHeader>
@@ -173,7 +173,7 @@ const ProductsTable = ({
           </ZoruTableRow>
         )}
       </ZoruTableBody>
-    </ZoruTable>
+    </Table>
   );
 };
 
@@ -197,7 +197,7 @@ const CollectionsTable = ({
           onCollectionCreated={onAction}
         />
       </div>
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Collection name</ZoruTableHead>
@@ -229,7 +229,7 @@ const CollectionsTable = ({
             </ZoruTableRow>
           )}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 };
@@ -262,12 +262,12 @@ export default function CatalogProductsPage() {
   }, [fetchData]);
 
   if (isLoading && products.length === 0 && collections.length === 0) {
-    return <ZoruSkeleton className="h-96 w-full" />;
+    return <Skeleton className="h-96 w-full" />;
   }
 
   return (
     <div className="space-y-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -285,15 +285,15 @@ export default function CatalogProductsPage() {
             <ZoruBreadcrumbPage>Products</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruButton variant="ghost" size="sm" asChild className="-ml-2">
+      <Button variant="ghost" size="sm" asChild className="-ml-2">
         <Link href="/wachat/catalog">
           <ChevronLeft className="mr-1 h-4 w-4" /> Back to catalogs
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -305,7 +305,7 @@ export default function CatalogProductsPage() {
             Manage products and collections within your catalog.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1 sm:w-fit">
         {(['products', 'collections'] as const).map((id) => (
@@ -327,18 +327,18 @@ export default function CatalogProductsPage() {
       </div>
 
       {tab === 'products' && (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <ZoruCardTitle>Products</ZoruCardTitle>
                 <ZoruCardDescription>A list of products in this catalog.</ZoruCardDescription>
               </div>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href={`/wachat/catalog/new?catalogId=${catalogId}`}>
                   <PlusCircle className="mr-1 h-4 w-4" /> Add product
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           </ZoruCardHeader>
           <ZoruCardContent>
@@ -350,11 +350,11 @@ export default function CatalogProductsPage() {
               />
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {tab === 'collections' && (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Collections (product sets)</ZoruCardTitle>
             <ZoruCardDescription>
@@ -371,7 +371,7 @@ export default function CatalogProductsPage() {
               />
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );

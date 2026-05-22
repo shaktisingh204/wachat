@@ -79,9 +79,9 @@ const mockForm16Data = [
 ];
 
 function statusBadge(status: string) {
-    if (status === 'generated') return <ZoruBadge variant="success">Generated</ZoruBadge>;
-    if (status === 'pending') return <ZoruBadge variant="warning">Pending</ZoruBadge>;
-    return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
+    if (status === 'generated') return <Badge variant="success">Generated</Badge>;
+    if (status === 'pending') return <Badge variant="warning">Pending</Badge>;
+    return <Badge variant="secondary">{status}</Badge>;
 }
 
 export default function Form16Page() {
@@ -104,35 +104,35 @@ export default function Form16Page() {
             title="Form 16 Generation"
             subtitle="Download Annual Tax Certificates (Part A & Part B) for all employees."
             primaryAction={
-                <ZoruButton
+                <Button
                     disabled={isGenerating}
                     onClick={() => handleGenerate(selectedFY.label)}
                 >
                     {isGenerating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                     Generate All — {selectedFY.label}
-                </ZoruButton>
+                </Button>
             }
         >
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="text-[12.5px] text-zoru-ink-muted">Total Tax Deducted (FY {selectedFY.label})</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Across {mockForm16Data.length} employees</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] text-zoru-ink-muted">Form 16 Generated</p>
                     <div className="mt-2 text-2xl text-zoru-ink">{generated} / {mockForm16Data.length}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">employees</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] text-zoru-ink-muted">Financial Year</p>
                     <div className="mt-2 text-2xl text-zoru-ink">FY {selectedFY.label}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{selectedFY.period}</p>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4">
                     <h2 className="text-[16px] text-zoru-ink">Select Financial Year</h2>
                     <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Expand a year to view and download individual Form 16 certificates.</p>
@@ -154,7 +154,7 @@ export default function Form16Page() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {fy.label === financialYears[0].label && (
-                                        <ZoruBadge variant="info">Current FY</ZoruBadge>
+                                        <Badge variant="info">Current FY</Badge>
                                     )}
                                     <ChevronDown className={`h-4 w-4 text-zoru-ink-muted transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
                                 </div>
@@ -189,14 +189,14 @@ export default function Form16Page() {
                                                     <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
                                                     <td className="px-4 py-3 text-center">{statusBadge(emp.status)}</td>
                                                     <td className="px-4 py-3 text-right">
-                                                        <ZoruButton
+                                                        <Button
                                                             variant="outline"
                                                             size="sm"
                                                             disabled={emp.status !== 'generated'}
                                                         >
                                                             <Download className="h-3.5 w-3.5" />
                                                             Form 16
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -221,7 +221,7 @@ export default function Form16Page() {
                         Currently showing sample data — connect to live payroll actions to enable actual generation.
                     </p>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

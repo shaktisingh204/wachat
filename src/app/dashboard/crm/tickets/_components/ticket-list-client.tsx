@@ -133,11 +133,11 @@ export function TicketListClient({
   };
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by subject or category…"
@@ -153,7 +153,7 @@ export function TicketListClient({
         </div>
       ) : null}
 
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Subject</ZoruTableHead>
@@ -207,14 +207,14 @@ export function TicketListClient({
                   </ZoruTableCell>
                   <ZoruTableCell>
                     {status ? (
-                      <ZoruBadge variant={statusVariant}>{statusLabel(status)}</ZoruBadge>
+                      <Badge variant={statusVariant}>{statusLabel(status)}</Badge>
                     ) : (
                       <span className="text-[12.5px] text-zoru-ink-muted">—</span>
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell>
                     {priority ? (
-                      <ZoruBadge variant={priorityVariant}>{priority}</ZoruBadge>
+                      <Badge variant={priorityVariant}>{priority}</Badge>
                     ) : (
                       <span className="text-[12.5px] text-zoru-ink-muted">—</span>
                     )}
@@ -234,19 +234,19 @@ export function TicketListClient({
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/crm/tickets/${id}/edit`}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setPendingDelete(ticket)}
                         className="text-zoru-danger-ink"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -254,7 +254,7 @@ export function TicketListClient({
             })
           )}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
 
       <PaginationBar page={page} limit={limit} hasMore={hasMore} />
 
@@ -286,6 +286,6 @@ export function TicketListClient({
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </ZoruCard>
+    </Card>
   );
 }

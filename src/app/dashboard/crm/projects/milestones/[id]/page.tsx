@@ -64,17 +64,17 @@ export default async function MilestoneDetailPage({
             back={{ href: BASE, label: 'Milestones' }}
             actions={
                 canEdit ? (
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href={`${BASE}/${id}/edit`}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 ) : undefined
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill
@@ -86,9 +86,9 @@ export default async function MilestoneDetailPage({
                         tone={PRIORITY_TONE[milestone.priority]}
                     />
                     {tags.map((t) => (
-                        <ZoruBadge key={t} variant="ghost">
+                        <Badge key={t} variant="ghost">
                             {t}
-                        </ZoruBadge>
+                        </Badge>
                     ))}
                 </div>
 
@@ -140,7 +140,7 @@ export default async function MilestoneDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Progress</div>
                         <div className="flex items-center gap-2">
-                            <ZoruProgress value={progress} className="h-1.5 w-[160px]" />
+                            <Progress value={progress} className="h-1.5 w-[160px]" />
                             <span className="font-mono text-[12px] text-zoru-ink">
                                 {progress}%
                             </span>
@@ -155,9 +155,9 @@ export default async function MilestoneDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="text-[14px] font-semibold text-zoru-ink">Audit</h2>
                 <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-[12.5px]">
                     <div className="text-zoru-ink-muted">Created</div>
@@ -165,7 +165,7 @@ export default async function MilestoneDetailPage({
                     <div className="text-zoru-ink-muted">Updated</div>
                     <div className="text-zoru-ink">{fmtDate(milestone.updatedAt)}</div>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

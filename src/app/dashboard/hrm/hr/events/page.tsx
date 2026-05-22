@@ -54,11 +54,11 @@ export default async function WorkplaceEventsPage({ searchParams }: PageProps) {
             title="Workplace Events"
             subtitle="Meetings, workshops, celebrations and everything your team shows up for."
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href="/dashboard/hrm/hr/events/new">
                         <Plus className="mr-1.5 h-3.5 w-3.5" /> New Event
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             <EventsListClient

@@ -6,7 +6,7 @@
  * source of selection for "all status / open / paid / overdue …" style
  * filter chips.
  *
- * Migration target: the many filter-bar `<ZoruSelect>` widgets that
+ * Migration target: the many filter-bar `<Select>` widgets that
  * carry an `'all'` sentinel — those don't fit `<EnumFormField>` cleanly
  * because `'all'` isn't a real catalogued enum value. The sweep agents
  * have been leaving `// TODO 1E.sweep: filter-with-all` comments on

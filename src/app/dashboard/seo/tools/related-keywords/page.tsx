@@ -27,22 +27,22 @@ export default function RelatedKeywordsPage() {
   return (
     <ToolShell title="Related Keywords" description="Find related keyword ideas based on a seed term.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <ZoruButton onClick={run}>Find Related</ZoruButton>
+        <Button onClick={run}>Find Related</Button>
       </div>
       {results.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 flex flex-wrap gap-2">
             {results.map((r) => (
-              <ZoruBadge key={r} variant="secondary" className="text-sm">{r}</ZoruBadge>
+              <Badge key={r} variant="secondary" className="text-sm">{r}</Badge>
             ))}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

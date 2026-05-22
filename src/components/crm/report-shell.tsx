@@ -91,7 +91,7 @@ export function ReportShell({
             ) : null}
             {toolbarExtra}
             {onRefresh ? (
-                <ZoruButton
+                <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -105,15 +105,15 @@ export function ReportShell({
                         aria-hidden="true"
                     />
                     <span className="ml-1.5">Refresh</span>
-                </ZoruButton>
+                </Button>
             ) : null}
             {hasAnyExport ? (
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton type="button" variant="outline" size="sm">
+                        <Button type="button" variant="outline" size="sm">
                             <Download className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                             <span className="ml-1.5">Export</span>
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="end">
                         {onExportCsv ? (
@@ -135,7 +135,7 @@ export function ReportShell({
                             </ZoruDropdownMenuItem>
                         ) : null}
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
             ) : null}
         </div>
     );
@@ -162,8 +162,8 @@ export function ReportShell({
             {children ?? (
                 <div className="flex flex-col gap-4">
                     {kpis ? <div>{kpis}</div> : null}
-                    {chart ? <ZoruCard className="p-4">{chart}</ZoruCard> : null}
-                    {table ? <ZoruCard className="p-0 overflow-hidden">{table}</ZoruCard> : null}
+                    {chart ? <Card className="p-4">{chart}</Card> : null}
+                    {table ? <Card className="p-0 overflow-hidden">{table}</Card> : null}
                     {pagination ? <div>{pagination}</div> : null}
                 </div>
             )}
@@ -199,7 +199,7 @@ export function ReportKpiStrip({ cards }: { cards: ReportKpiCard[] }): React.JSX
                 const Icon = card.icon;
                 const tone = card.tone ?? 'default';
                 return (
-                    <ZoruCard key={card.label} className="h-full p-5">
+                    <Card key={card.label} className="h-full p-5">
                         <div className="flex items-start justify-between gap-3">
                             <p className="text-[12px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
                                 {card.label}
@@ -218,7 +218,7 @@ export function ReportKpiStrip({ cards }: { cards: ReportKpiCard[] }): React.JSX
                         {card.hint ? (
                             <p className="mt-2 text-[12px] text-zoru-ink-muted">{card.hint}</p>
                         ) : null}
-                    </ZoruCard>
+                    </Card>
                 );
             })}
         </div>

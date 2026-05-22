@@ -23,11 +23,11 @@ export default function FacebookLayout({
     <div className="relative h-full">
       {children}
       <div className="fixed bottom-24 right-6 z-40">
-        <ZoruButton asChild size="lg" className="h-14 w-14 rounded-full shadow-[var(--zoru-shadow-lg)]">
+        <Button asChild size="lg" className="h-14 w-14 rounded-full shadow-[var(--zoru-shadow-lg)]">
           <Link href="/dashboard/facebook/create-post" aria-label="Create Post">
             <Pencil className="h-5 w-5" />
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

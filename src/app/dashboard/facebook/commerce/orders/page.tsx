@@ -73,16 +73,16 @@ function statusVariant(s?: string): "default" | "secondary" | "outline" | "dange
 function OrdersSkeleton() {
   return (
     <CommercePage>
-      <ZoruSkeleton className="h-3 w-64" />
+      <Skeleton className="h-3 w-64" />
       <div className="mt-5 flex items-end justify-between">
         <div className="space-y-3">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <ZoruSkeleton className="h-9 w-28" />
+        <Skeleton className="h-9 w-28" />
       </div>
-      <ZoruSkeleton className="mt-8 h-72 w-full" />
+      <Skeleton className="mt-8 h-72 w-full" />
     </CommercePage>
   );
 }
@@ -160,9 +160,9 @@ export default function OrdersPage() {
         cell: ({ row }) => {
           const s = row.original.order_status?.state;
           return (
-            <ZoruBadge variant={statusVariant(s)} className="capitalize">
+            <Badge variant={statusVariant(s)} className="capitalize">
               {s ? s.replace(/_/g, " ").toLowerCase() : "—"}
-            </ZoruBadge>
+            </Badge>
           );
         },
       },
@@ -178,22 +178,22 @@ export default function OrdersPage() {
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
           <div className="flex justify-end gap-1">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="View order"
               onClick={() => setActiveOrder(row.original)}
             >
               <Eye />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Refund order"
               onClick={() => setRefundOrder(row.original)}
             >
               <Undo2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -213,7 +213,7 @@ export default function OrdersPage() {
         title="Orders"
         description="View and manage orders coming through your Facebook Shop checkout."
         actions={
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={fetchData}
@@ -221,19 +221,19 @@ export default function OrdersPage() {
           >
             {isLoading ? <LoaderCircle className="animate-spin" /> : <RefreshCw />}
             Refresh
-          </ZoruButton>
+          </Button>
         }
       />
 
       {error ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Could not fetch orders</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : orders.length === 0 ? (
         <div className="mt-8">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Package />}
             title="No orders found"
             description="Orders placed through Facebook or Instagram Checkout will show up here."
@@ -241,7 +241,7 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="mt-8">
-          <ZoruDataTable
+          <DataTable
             columns={columns}
             data={orders}
             filterColumn="id"
@@ -252,7 +252,7 @@ export default function OrdersPage() {
       )}
 
       {/* ── Per-order detail sheet ── */}
-      <ZoruSheet
+      <Sheet
         open={!!activeOrder}
         onOpenChange={(open) => !open && setActiveOrder(null)}
       >
@@ -276,14 +276,14 @@ export default function OrdersPage() {
                   <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
                     Status
                   </p>
-                  <ZoruBadge
+                  <Badge
                     variant={statusVariant(activeOrder.order_status?.state)}
                     className="mt-1 capitalize"
                   >
                     {activeOrder.order_status?.state
                       ?.replace(/_/g, " ")
                       .toLowerCase() || "—"}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
@@ -329,7 +329,7 @@ export default function OrdersPage() {
                 </p>
               </div>
               <div className="flex gap-2 pt-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   className="flex-1"
@@ -339,19 +339,19 @@ export default function OrdersPage() {
                   }}
                 >
                   <Undo2 /> Refund
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   className="flex-1"
                   onClick={() => setActiveOrder(null)}
                 >
                   Close
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       {/* ── Refund confirmation ── */}
       <ZoruAlertDialog

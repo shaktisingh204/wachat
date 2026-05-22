@@ -55,30 +55,30 @@ export default function LinkExtractorPage() {
   return (
     <ToolShell title="Link Extractor" description="Extract all links from a page and export them as CSV.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={loading || !url}>
+        <Button onClick={run} disabled={loading || !url}>
           {loading ? 'Extracting…' : 'Extract'}
-        </ZoruButton>
+        </Button>
       </div>
 
       {error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {rows && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-sm font-semibold">{rows.length} links</div>
-              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              <Button size="sm" variant="outline" onClick={exportCsv}>
                 Export CSV
-              </ZoruButton>
+              </Button>
             </div>
             <div className="overflow-auto max-h-[600px]">
               <table className="w-full text-sm">
@@ -96,14 +96,14 @@ export default function LinkExtractorPage() {
                       <td className="p-2 font-mono text-xs break-all max-w-xs">{r.href}</td>
                       <td className="p-2 truncate max-w-xs">{r.text}</td>
                       <td className="p-2 text-xs">{r.rel}</td>
-                      <td className="p-2">{r.nofollow ? <ZoruBadge variant="destructive">Yes</ZoruBadge> : <ZoruBadge variant="secondary">No</ZoruBadge>}</td>
+                      <td className="p-2">{r.nofollow ? <Badge variant="destructive">Yes</Badge> : <Badge variant="secondary">No</Badge>}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

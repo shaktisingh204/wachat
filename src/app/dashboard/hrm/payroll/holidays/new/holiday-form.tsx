@@ -12,10 +12,10 @@ import { saveHolidayAction } from '@/app/actions/crm/holidays.actions';
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -30,7 +30,7 @@ export function HolidayForm({ holiday }: { holiday?: Record<string, any> }) {
         : (holiday?.applicableLocations ?? '');
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     {holiday?._id ? <input type="hidden" name="holidayId" value={String(holiday._id)} /> : null}
@@ -44,12 +44,12 @@ export function HolidayForm({ holiday }: { holiday?: Record<string, any> }) {
                             type="checkbox"
                             defaultChecked={Boolean(holiday?.recurring)}
                         />
-                        <ZoruLabel htmlFor="recurring">Recurring</ZoruLabel>
+                        <Label htmlFor="recurring">Recurring</Label>
                     </div>
                     <Field name="applicableLocations" label="Applicable locations (comma-sep)" defaultValue={locations} />
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea id="notes" name="notes" defaultValue={holiday?.notes ?? ''} rows={3} />
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea id="notes" name="notes" defaultValue={holiday?.notes ?? ''} rows={3} />
                     </div>
                     <div className="md:col-span-2 flex items-center justify-between gap-3">
                         <div className="text-sm">
@@ -59,17 +59,17 @@ export function HolidayForm({ holiday }: { holiday?: Record<string, any> }) {
                     </div>
                 </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
 function Field({ name, label, defaultValue, required, type = 'text' }: { name: string; label: string; defaultValue?: any; required?: boolean; type?: string }) {
     return (
         <div>
-            <ZoruLabel htmlFor={name}>
+            <Label htmlFor={name}>
                 {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
                 id={name}
                 name={name}
                 type={type}

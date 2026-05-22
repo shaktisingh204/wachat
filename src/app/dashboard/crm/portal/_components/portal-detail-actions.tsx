@@ -84,59 +84,59 @@ export function PortalDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/portal/${portalUserId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => runMagicLink(false)}
       >
         <Link2 className="h-3.5 w-3.5" /> Send magic link
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => runMagicLink(true)}
       >
         <Mail className="h-3.5 w-3.5" /> Resend invite
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setSuspendOpen(true)}
         disabled={isSuspended}
       >
         <PowerOff className="h-3.5 w-3.5" /> Suspend
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runRestore}
         disabled={!isSuspended}
       >
         <Power className="h-3.5 w-3.5" /> Restore
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/portal/${portalUserId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="destructive"
         onClick={() => setDeleteOpen(true)}
       >
         <Trash2 className="h-3.5 w-3.5" /> Delete
-      </ZoruButton>
+      </Button>
 
       <ConfirmDialog
         open={suspendOpen}

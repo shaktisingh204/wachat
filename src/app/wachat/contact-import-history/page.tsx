@@ -48,24 +48,24 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'completed':
       return (
-        <ZoruBadge variant="success">
+        <Badge variant="success">
           <CircleCheck /> Completed
-        </ZoruBadge>
+        </Badge>
       );
     case 'failed':
       return (
-        <ZoruBadge variant="danger">
+        <Badge variant="danger">
           <CircleX /> Failed
-        </ZoruBadge>
+        </Badge>
       );
     case 'processing':
       return (
-        <ZoruBadge variant="info">
+        <Badge variant="info">
           <Clock /> Processing
-        </ZoruBadge>
+        </Badge>
       );
     default:
-      return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
+      return <Badge variant="secondary">{status}</Badge>;
   }
 }
 
@@ -102,7 +102,7 @@ export default function ContactImportHistoryPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -122,7 +122,7 @@ export default function ContactImportHistoryPage() {
             <ZoruBreadcrumbPage>Import History</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -134,32 +134,32 @@ export default function ContactImportHistoryPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Total Imports
           </div>
           <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
             {imports.length}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-5">
+        </Card>
+        <Card className="p-5">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Contacts Imported
           </div>
           <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
             {totalImported.toLocaleString()}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
       {isLoadingInitial ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-12 w-full" />
+            <Skeleton key={i} className="h-12 w-full" />
           ))}
         </div>
       ) : imports.length > 0 ? (
-        <ZoruCard className="overflow-x-auto p-0">
+        <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -199,21 +199,21 @@ export default function ContactImportHistoryPage() {
                     <StatusBadge status={imp.status || 'completed'} />
                   </td>
                   <td className="px-5 py-3 text-right">
-                    <ZoruButton
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSelected(imp)}
                     >
                       <Eye /> View
-                    </ZoruButton>
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </ZoruCard>
+        </Card>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<FileSpreadsheet />}
           title="No import records found"
           description="Imports performed via the Contacts page will appear here."
@@ -221,7 +221,7 @@ export default function ContactImportHistoryPage() {
       )}
 
       {/* View results sheet */}
-      <ZoruSheet
+      <Sheet
         open={!!selected}
         onOpenChange={(o) => !o && setSelected(null)}
       >
@@ -268,7 +268,7 @@ export default function ContactImportHistoryPage() {
             </div>
           )}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       <div className="h-6" />
     </div>

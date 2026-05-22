@@ -26,12 +26,12 @@ export default async function HolidayDetailPage({ params }: PageProps) {
             back={{ href: '/dashboard/hrm/payroll/holidays', label: 'All holidays' }}
             actions={
                 <Link href={`/dashboard/hrm/payroll/holidays/${id}/edit`}>
-                    <ZoruButton size="sm">Edit</ZoruButton>
+                    <Button size="sm">Edit</Button>
                 </Link>
             }
             audit={<EntityAuditTimeline entityKind="holiday" entityId={id} />}
         >
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="space-y-3 p-6 text-sm">
                     <Row label="Date" value={holiday.date} />
                     <Row label="Type" value={holiday.type} />
@@ -39,7 +39,7 @@ export default async function HolidayDetailPage({ params }: PageProps) {
                     <Row label="Locations" value={Array.isArray(holiday.applicableLocations) ? holiday.applicableLocations.join(', ') : holiday.applicableLocations} />
                     <Row label="Notes" value={holiday.notes} />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

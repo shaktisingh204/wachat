@@ -179,7 +179,7 @@ function bandFromScore(score: number): {
 
 function OverviewBreadcrumb() {
   return (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -193,7 +193,7 @@ function OverviewBreadcrumb() {
           <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 }
 
@@ -201,7 +201,7 @@ function OverviewBreadcrumb() {
 
 function DisconnectedHero() {
   return (
-    <ZoruCard className="overflow-hidden border-zoru-line bg-zoru-surface">
+    <Card className="overflow-hidden border-zoru-line bg-zoru-surface">
       <ZoruCardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
         <div
           aria-hidden
@@ -222,18 +222,18 @@ function DisconnectedHero() {
           </p>
         </div>
         <div className="flex flex-col gap-2 md:flex-none">
-          <ZoruButton asChild size="lg" className="gap-2">
+          <Button asChild size="lg" className="gap-2">
             <Link href="/sabwa/connect">
               <QrCode className="h-4 w-4" />
               Connect WhatsApp
             </Link>
-          </ZoruButton>
-          <ZoruButton asChild variant="outline" size="sm">
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href="/sabwa/settings/rate-limits">Read ban-risk guide</Link>
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -262,7 +262,7 @@ function SessionHeaderCard({
     .toUpperCase();
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:gap-6 md:p-6">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <div
@@ -295,9 +295,9 @@ function SessionHeaderCard({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruPopover open={open} onOpenChange={setOpen}>
+          <Popover open={open} onOpenChange={setOpen}>
             <ZoruPopoverTrigger asChild>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 disabled={sessions.length < 2}
@@ -305,7 +305,7 @@ function SessionHeaderCard({
               >
                 <Smartphone className="h-4 w-4" />
                 Switch session
-              </ZoruButton>
+              </Button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent align="end" className="w-72 p-2">
               <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
@@ -342,7 +342,7 @@ function SessionHeaderCard({
                 })}
               </ul>
               <div className="my-2 h-px bg-zoru-line" aria-hidden />
-              <ZoruButton
+              <Button
                 asChild
                 variant="ghost"
                 size="sm"
@@ -352,18 +352,18 @@ function SessionHeaderCard({
                   <PlusCircle className="h-4 w-4" />
                   <span className="text-sm">Connect another number</span>
                 </Link>
-              </ZoruButton>
+              </Button>
             </ZoruPopoverContent>
-          </ZoruPopover>
-          <ZoruButton asChild variant="ghost" size="sm" className="gap-2">
+          </Popover>
+          <Button asChild variant="ghost" size="sm" className="gap-2">
             <Link href="/sabwa/devices">
               Manage devices
               <ArrowRight className="h-4 w-4" />
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -423,7 +423,7 @@ function KpiCardShell({
   className?: string;
 }) {
   const body = (
-    <ZoruCard
+    <Card
       className={cn(
         "h-full transition-shadow",
         href && "cursor-pointer hover:shadow-[var(--zoru-shadow-md)]",
@@ -445,7 +445,7 @@ function KpiCardShell({
         </div>
         {children}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 
   if (href) {
@@ -483,7 +483,7 @@ function KpiRow({
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <KpiCardShell icon={Send} label="Today's messages" href="/sabwa/analytics">
         {loading ? (
-          <ZoruSkeleton className="h-8 w-24" />
+          <Skeleton className="h-8 w-24" />
         ) : (
           <div className="flex items-end justify-between gap-3">
             <div>
@@ -511,7 +511,7 @@ function KpiRow({
         href="/sabwa/scheduler/queue"
       >
         {loading ? (
-          <ZoruSkeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20" />
         ) : (
           <div>
             <p className="text-2xl font-semibold tabular-nums leading-none text-zoru-ink">
@@ -530,7 +530,7 @@ function KpiRow({
 
       <KpiCardShell icon={Users} label="Active groups" href="/sabwa/groups">
         {loading ? (
-          <ZoruSkeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20" />
         ) : (
           <div>
             <p className="text-2xl font-semibold tabular-nums leading-none text-zoru-ink">
@@ -549,7 +549,7 @@ function KpiRow({
         href="/sabwa/analytics"
       >
         {loading ? (
-          <ZoruSkeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20" />
         ) : (
           <div>
             <p className="text-2xl font-semibold tabular-nums leading-none text-zoru-ink">
@@ -587,16 +587,16 @@ function BanRiskGauge({
   const dashOffset = circumference * (1 - fraction);
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="pb-2">
         <div className="flex flex-wrap items-center gap-2">
           <ZoruCardTitle className="text-base font-semibold">
             Ban-risk score
           </ZoruCardTitle>
-          <ZoruBadge variant="outline" className={cn("text-[10px]", band.className)}>
+          <Badge variant="outline" className={cn("text-[10px]", band.className)}>
             <ShieldAlert className="mr-1 h-3 w-3" />
             {band.label}
-          </ZoruBadge>
+          </Badge>
         </div>
         <ZoruCardDescription>
           Computed from velocity, delivery failures, and recipient signals.
@@ -605,7 +605,7 @@ function BanRiskGauge({
       <ZoruCardContent>
         <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[auto_1fr]">
           {loading ? (
-            <ZoruSkeleton className="h-[80px] w-[160px]" />
+            <Skeleton className="h-[80px] w-[160px]" />
           ) : (
             <div className="relative h-[80px] w-[160px]" aria-hidden>
               <svg viewBox="0 0 120 70" className="h-full w-full">
@@ -651,9 +651,9 @@ function BanRiskGauge({
             </p>
             {loading ? (
               <div className="space-y-1.5">
-                <ZoruSkeleton className="h-3 w-3/4" />
-                <ZoruSkeleton className="h-3 w-2/3" />
-                <ZoruSkeleton className="h-3 w-1/2" />
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-2/3" />
+                <Skeleton className="h-3 w-1/2" />
               </div>
             ) : reasons.length === 0 ? (
               <p className="text-sm text-zoru-ink-muted">
@@ -675,13 +675,13 @@ function BanRiskGauge({
                 ))}
               </ul>
             )}
-            <ZoruButton asChild variant="link" size="sm" className="h-auto px-0">
+            <Button asChild variant="link" size="sm" className="h-auto px-0">
               <Link href="/sabwa/settings/rate-limits">Review settings</Link>
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -706,7 +706,7 @@ function QuickActions({
   ];
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="pb-2">
         <ZoruCardTitle className="text-base font-semibold">Quick actions</ZoruCardTitle>
         <ZoruCardDescription>
@@ -746,7 +746,7 @@ function QuickActions({
           })}
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -772,7 +772,7 @@ function RecentActivity({
   loading: boolean;
 }) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
         <div>
           <ZoruCardTitle className="text-base font-semibold">
@@ -782,21 +782,21 @@ function RecentActivity({
             Latest 10 events touching this session.
           </ZoruCardDescription>
         </div>
-        <ZoruButton asChild variant="ghost" size="sm" className="gap-1">
+        <Button asChild variant="ghost" size="sm" className="gap-1">
           <Link href="/sabwa/audit">
             See all
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-        </ZoruButton>
+        </Button>
       </ZoruCardHeader>
       <ZoruCardContent>
         {loading ? (
           <ul className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <li key={i} className="flex items-center gap-3">
-                <ZoruSkeleton className="h-2 w-2 rounded-full" />
-                <ZoruSkeleton className="h-3 flex-1" />
-                <ZoruSkeleton className="h-3 w-16" />
+                <Skeleton className="h-2 w-2 rounded-full" />
+                <Skeleton className="h-3 flex-1" />
+                <Skeleton className="h-3 w-16" />
               </li>
             ))}
           </ul>
@@ -853,7 +853,7 @@ function RecentActivity({
           </ul>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -871,7 +871,7 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
   const completed = items.filter((i) => i.done).length;
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -913,7 +913,7 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
           ))}
         </ul>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -947,7 +947,7 @@ function PlanUsageCard({
   ];
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -959,9 +959,9 @@ function PlanUsageCard({
               <span className="capitalize">{planName || "free"}</span> plan.
             </ZoruCardDescription>
           </div>
-          <ZoruButton asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm">
             <Link href="/dashboard/billing">Upgrade</Link>
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruCardHeader>
       <ZoruCardContent>
@@ -981,7 +981,7 @@ function PlanUsageCard({
                     <span className="text-xs font-medium text-zoru-ink-muted">
                       {label}
                     </span>
-                    <ZoruTooltip>
+                    <Tooltip>
                       <ZoruTooltipTrigger asChild>
                         <span className="text-xs tabular-nums text-zoru-ink">
                           {used.toLocaleString()}{" "}
@@ -995,7 +995,7 @@ function PlanUsageCard({
                           ? `${percent}% of cap`
                           : "No static cap on your plan"}
                       </ZoruTooltipContent>
-                    </ZoruTooltip>
+                    </Tooltip>
                   </div>
                   <div
                     role="progressbar"
@@ -1026,7 +1026,7 @@ function PlanUsageCard({
           </ul>
         </ZoruTooltipProvider>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 

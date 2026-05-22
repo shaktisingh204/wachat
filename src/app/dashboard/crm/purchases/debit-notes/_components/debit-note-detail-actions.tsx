@@ -70,7 +70,7 @@ export function DebitNoteDetailActions({
 
     return (
         <>
-            <ZoruButton
+            <Button
                 variant="outline"
                 onClick={() => run('refunded')}
                 disabled={pending || currentStatus === 'refunded'}
@@ -81,8 +81,8 @@ export function DebitNoteDetailActions({
                     <BadgeDollarSign className="h-4 w-4" />
                 )}
                 Mark refunded
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 onClick={() => run('archive')}
                 disabled={pending}
@@ -93,7 +93,7 @@ export function DebitNoteDetailActions({
                     <Archive className="h-4 w-4" />
                 )}
                 Archive
-            </ZoruButton>
+            </Button>
         </>
     );
 }

@@ -55,7 +55,7 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
 
   if (status === 'accepted') {
     return (
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Proposal accepted</ZoruCardTitle>
         </ZoruCardHeader>
@@ -79,13 +79,13 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
             <p>This proposal has been accepted.</p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     );
   }
 
   if (status === 'declined') {
     return (
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Proposal declined</ZoruCardTitle>
         </ZoruCardHeader>
@@ -96,7 +96,7 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
             <p>This proposal has been declined.</p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -132,20 +132,20 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>Respond to this proposal</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
         {banner ? (
-          <ZoruAlert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+          <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
             <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : null}
 
         <div>
-          <ZoruLabel htmlFor="signer-name">Your full name</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="signer-name">Your full name</Label>
+          <Input
             id="signer-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -157,15 +157,15 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
         <SignaturePad onChange={setSignatureData} />
 
         <div className="flex flex-col gap-2 sm:flex-row">
-          <ZoruButton onClick={handleAccept} disabled={pending}>
+          <Button onClick={handleAccept} disabled={pending}>
             {pending ? 'Submitting…' : 'Accept proposal'}
-          </ZoruButton>
-          <ZoruButton variant="outline" onClick={() => setDeclineOpen(true)} disabled={pending}>
+          </Button>
+          <Button variant="outline" onClick={() => setDeclineOpen(true)} disabled={pending}>
             Decline
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruDialog open={declineOpen} onOpenChange={setDeclineOpen}>
+        <Dialog open={declineOpen} onOpenChange={setDeclineOpen}>
           <ZoruDialogContent>
             <ZoruDialogHeader>
               <ZoruDialogTitle>Decline proposal</ZoruDialogTitle>
@@ -173,23 +173,23 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
                 Optionally let the sender know why.
               </ZoruDialogDescription>
             </ZoruDialogHeader>
-            <ZoruTextarea
+            <Textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Reason (optional)"
               rows={4}
             />
             <ZoruDialogFooter>
-              <ZoruButton variant="ghost" onClick={() => setDeclineOpen(false)}>
+              <Button variant="ghost" onClick={() => setDeclineOpen(false)}>
                 Cancel
-              </ZoruButton>
-              <ZoruButton variant="destructive" onClick={handleDecline} disabled={pending}>
+              </Button>
+              <Button variant="destructive" onClick={handleDecline} disabled={pending}>
                 {pending ? 'Submitting…' : 'Decline'}
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

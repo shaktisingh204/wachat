@@ -32,7 +32,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -41,7 +41,7 @@ function SubmitButton() {
       ) : (
         'Import URLs'
       )}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -68,12 +68,12 @@ export function BulkImportDialog({ onImportComplete }: BulkImportDialogProps) {
   }, [state, toast, onImportComplete]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline">
+        <Button variant="outline">
             <UploadCloud className="mr-2 h-4 w-4" />
             Bulk Import
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
@@ -85,16 +85,16 @@ export function BulkImportDialog({ onImportComplete }: BulkImportDialogProps) {
             </ZoruDialogHeader>
             <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="urlFile">File</ZoruLabel>
-                    <ZoruInput id="urlFile" name="urlFile" type="file" accept=".csv,.xlsx" required />
+                    <Label htmlFor="urlFile">File</Label>
+                    <Input id="urlFile" name="urlFile" type="file" accept=".csv,.xlsx" required />
                 </div>
             </div>
             <ZoruDialogFooter>
-                <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                 <SubmitButton />
             </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

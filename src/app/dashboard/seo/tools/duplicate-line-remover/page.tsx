@@ -18,15 +18,15 @@ export default function DuplicateLineRemoverPage() {
 
   return (
     <ToolShell title="Duplicate Line Remover" description="Remove duplicate lines while preserving order.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste lines…" className="min-h-[220px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste lines…" className="min-h-[220px]" />
       <div className="flex gap-2">
-        <ZoruButton onClick={run}>Remove duplicates</ZoruButton>
-        <ZoruButton variant="ghost" onClick={() => { setText(''); setResult(''); }}>Clear</ZoruButton>
+        <Button onClick={run}>Remove duplicates</Button>
+        <Button variant="ghost" onClick={() => { setText(''); setResult(''); }}>Clear</Button>
       </div>
       {result && (
         <>
           <div className="text-sm text-muted-foreground">Removed {removed} duplicate line(s)</div>
-          <ZoruTextarea readOnly value={result} className="min-h-[220px] font-mono text-xs" />
+          <Textarea readOnly value={result} className="min-h-[220px] font-mono text-xs" />
         </>
       )}
     </ToolShell>

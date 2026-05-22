@@ -46,7 +46,7 @@ export function KpiStrip({ kpis }: KpiStripProps) {
     return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {items.map((item) => (
-                <ZoruCard key={item.label} className="flex items-center gap-4 p-5">
+                <Card key={item.label} className="flex items-center gap-4 p-5">
                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.accent}`}>
                         {item.icon}
                     </div>
@@ -56,7 +56,7 @@ export function KpiStrip({ kpis }: KpiStripProps) {
                         </p>
                         <p className="text-[12px] text-zoru-ink-muted">{item.label}</p>
                     </div>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );

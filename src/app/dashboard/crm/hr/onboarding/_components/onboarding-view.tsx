@@ -289,29 +289,29 @@ export function OnboardingView({
         subtitle="Track new joiners through pre-joining, Day-1, Week-1 and Month-1."
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+            <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton asChild>
+            </Button>
+            <Button asChild>
               <Link href="/dashboard/crm/hr/onboarding/new">
                 <Plus className="h-4 w-4" />
                 New onboarding
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative max-w-sm flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-              <ZoruInput
+              <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by employee, notes…"
                 className="h-9 pl-9 text-[13px]"
               />
             </div>
-            <ZoruSelect
+            <Select
               value={statusFilter || 'all'}
               onValueChange={(v) => onStatusChange(v === 'all' ? '' : v)}
             >
@@ -325,11 +325,11 @@ export function OnboardingView({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {hasActiveFilters ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
@@ -337,10 +337,10 @@ export function OnboardingView({
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-2">
               <span className="text-[13px] text-zoru-ink-muted">{selected.size} selected</span>
-              <ZoruButton size="sm" variant="outline" disabled={bulkPending} onClick={() => executeBulk('complete')}>
+              <Button size="sm" variant="outline" disabled={bulkPending} onClick={() => executeBulk('complete')}>
                 Mark complete
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 disabled={bulkPending}
@@ -348,10 +348,10 @@ export function OnboardingView({
                 className="text-destructive"
               >
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -365,12 +365,12 @@ export function OnboardingView({
           <KpiCard label="Avg completion (days)" value={kpis.avgCompletionDays} tone="blue" />
         </div>
 
-        <ZoruCard className="overflow-hidden p-0">
-          <ZoruTable>
+        <Card className="overflow-hidden p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-10 px-3">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected}
                     onCheckedChange={toggleAll}
                     aria-label="Select all"
@@ -409,7 +409,7 @@ export function OnboardingView({
                   return (
                     <ZoruTableRow key={id} className={isChecked ? 'bg-zoru-surface-active' : ''}>
                       <ZoruTableCell className="px-3">
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={isChecked}
                           onCheckedChange={() => toggleOne(id)}
                           aria-label={`Select ${employeeName}`}
@@ -459,12 +459,12 @@ export function OnboardingView({
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton size="sm" variant="ghost" asChild>
+                          <Button size="sm" variant="ghost" asChild>
                             <Link href={`/dashboard/crm/hr/onboarding/${id}/edit`}>
                               <Pencil className="h-3.5 w-3.5" />
                             </Link>
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => confirmDelete(doc)}
@@ -473,7 +473,7 @@ export function OnboardingView({
                             aria-label={`Delete onboarding for ${employeeName}`}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -481,8 +481,8 @@ export function OnboardingView({
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       </EntityListShell>
 
       {/* Bulk delete confirm */}

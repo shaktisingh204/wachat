@@ -136,21 +136,21 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
   };
 
   if (loading || !journey) {
-    return <ZoruSkeleton className="h-96 w-full" />;
+    return <Skeleton className="h-96 w-full" />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <ZoruButton variant="ghost" size="icon" onClick={() => router.push('/dashboard/email/journeys')} aria-label="Back">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/email/journeys')} aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="truncate text-lg font-semibold">{journey.name}</h1>
-              <ZoruBadge variant={STATUS_VARIANTS[journey.status]}>{journey.status}</ZoruBadge>
-              {dirty ? <ZoruBadge variant="secondary">Unsaved</ZoruBadge> : null}
+              <Badge variant={STATUS_VARIANTS[journey.status]}>{journey.status}</Badge>
+              {dirty ? <Badge variant="secondary">Unsaved</Badge> : null}
             </div>
             {journey.description ? (
               <p className="text-xs text-zoru-ink-muted line-clamp-1">{journey.description}</p>
@@ -159,17 +159,17 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
         </div>
         <div className="flex items-center gap-2">
           {journey.status === 'active' ? (
-            <ZoruButton variant="outline" onClick={pause}>
+            <Button variant="outline" onClick={pause}>
               <Pause className="h-4 w-4" /> Pause
-            </ZoruButton>
+            </Button>
           ) : (
-            <ZoruButton variant="outline" onClick={activate}>
+            <Button variant="outline" onClick={activate}>
               <Play className="h-4 w-4" /> Activate
-            </ZoruButton>
+            </Button>
           )}
-          <ZoruButton onClick={save} disabled={saving || !dirty}>
+          <Button onClick={save} disabled={saving || !dirty}>
             <Save className="h-4 w-4" /> {saving ? 'Saving…' : 'Save'}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -192,7 +192,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
 
       {tab === 'canvas' ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <ZoruCard className="p-6 overflow-x-auto">
+          <Card className="p-6 overflow-x-auto">
             <JourneyCanvas
               nodes={nodes}
               edges={edges}
@@ -201,20 +201,20 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
               onChange={onCanvasChange}
               readOnly={journey.status === 'active'}
             />
-          </ZoruCard>
+          </Card>
           <InspectorPanel node={selectedNode} onChange={updateSelectedNode} />
         </div>
       ) : null}
 
       {tab === 'settings' ? (
-        <ZoruCard className="p-6 space-y-4 max-w-xl">
+        <Card className="p-6 space-y-4 max-w-xl">
           <div className="space-y-1">
-            <ZoruLabel htmlFor="j-name">Name</ZoruLabel>
-            <ZoruInput id="j-name" value={name} onChange={(e) => { setName(e.target.value); setDirty(true); }} />
+            <Label htmlFor="j-name">Name</Label>
+            <Input id="j-name" value={name} onChange={(e) => { setName(e.target.value); setDirty(true); }} />
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="j-desc">Description</ZoruLabel>
-            <ZoruTextarea id="j-desc" rows={4} value={description} onChange={(e) => { setDescription(e.target.value); setDirty(true); }} />
+            <Label htmlFor="j-desc">Description</Label>
+            <Textarea id="j-desc" rows={4} value={description} onChange={(e) => { setDescription(e.target.value); setDirty(true); }} />
           </div>
           <p className="text-xs text-zoru-ink-muted">
             Re-entry policy and trigger detail edits live on the trigger node — open the Canvas tab and pick the trigger step.
@@ -227,7 +227,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
               View enrolment runs →
             </Link>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {tab === 'report' ? <ReportTab journeyId={journeyId} /> : null}
@@ -282,21 +282,21 @@ function ReportTab({ journeyId }: { journeyId: string }) {
     return () => { cancelled = true; };
   }, [journeyId]);
 
-  if (loading) return <ZoruSkeleton className="h-48 w-full" />;
+  if (loading) return <Skeleton className="h-48 w-full" />;
   if (!report) return null;
 
   return (
     <div className="space-y-6">
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-        <ZoruStatCard label="Entered"   value={report.entered.toLocaleString()} />
-        <ZoruStatCard label="Active"    value={report.active.toLocaleString()} />
-        <ZoruStatCard label="Waiting"   value={report.waiting.toLocaleString()} />
-        <ZoruStatCard label="Completed" value={report.completed.toLocaleString()} />
-        <ZoruStatCard label="Exited"    value={report.exited.toLocaleString()} />
-        <ZoruStatCard label="Errored"   value={report.errored.toLocaleString()} />
+        <StatCard label="Entered"   value={report.entered.toLocaleString()} />
+        <StatCard label="Active"    value={report.active.toLocaleString()} />
+        <StatCard label="Waiting"   value={report.waiting.toLocaleString()} />
+        <StatCard label="Completed" value={report.completed.toLocaleString()} />
+        <StatCard label="Exited"    value={report.exited.toLocaleString()} />
+        <StatCard label="Errored"   value={report.errored.toLocaleString()} />
       </div>
 
-      <ZoruCard className="p-4">
+      <Card className="p-4">
         <p className="text-sm font-medium mb-3">Per-node breakdown</p>
         {Object.keys(report.perNode).length === 0 ? (
           <p className="text-sm text-zoru-ink-muted">No node-level data yet — runs haven't accumulated.</p>
@@ -314,7 +314,7 @@ function ReportTab({ journeyId }: { journeyId: string }) {
             ))}
           </ul>
         )}
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

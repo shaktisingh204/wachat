@@ -102,15 +102,15 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
     return (
         <div className="space-y-6">
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Could not create account</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             )}
 
             <div className="grid gap-3 sm:grid-cols-2">
-                <ZoruButton
+                <Button
                     variant="outline"
                     type="button"
                     disabled={isPending}
@@ -118,8 +118,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 >
                     <GoogleIcon />
                     Continue with Google
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="outline"
                     type="button"
                     disabled={isPending}
@@ -127,7 +127,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 >
                     <FacebookIcon />
                     Continue with Facebook
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="relative">
@@ -143,8 +143,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
 
             <form onSubmit={handleEmailSignup} className="space-y-4" noValidate>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="name">Full name</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Full name</Label>
+                    <Input
                         id="name"
                         name="name"
                         placeholder="Jane Cooper"
@@ -155,8 +155,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="email">Work email</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="email">Work email</Label>
+                    <Input
                         id="email"
                         name="email"
                         type="email"
@@ -168,9 +168,9 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="password">Password</ZoruLabel>
+                    <Label htmlFor="password">Password</Label>
                     <div className="relative">
-                        <ZoruInput
+                        <Input
                             id="password"
                             name="password"
                             type={showPassword ? 'text' : 'password'}
@@ -203,7 +203,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                     </p>
                 </div>
 
-                <ZoruButton
+                <Button
                     type="submit"
                     className="w-full h-11 text-base"
                     disabled={isPending}
@@ -212,7 +212,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Create account & continue
-                </ZoruButton>
+                </Button>
             </form>
         </div>
     );

@@ -93,7 +93,7 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       disabled={pending}
       onClick={() => setIntent(intent)}
@@ -109,7 +109,7 @@ function SubmitButton({
           : editing
             ? 'Save changes'
             : 'Create bill'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -121,7 +121,7 @@ function EntryModeToggle({
   onChange: (next: EntryMode) => void;
 }) {
   return (
-    <ZoruCard className="p-3">
+    <Card className="p-3">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -133,7 +133,7 @@ function EntryModeToggle({
           </p>
         </div>
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant={value === 'items' ? 'default' : 'ghost'}
@@ -141,8 +141,8 @@ function EntryModeToggle({
             aria-pressed={value === 'items'}
           >
             Line items
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant={value === 'expenses' ? 'default' : 'ghost'}
@@ -150,10 +150,10 @@ function EntryModeToggle({
             aria-pressed={value === 'expenses'}
           >
             Expense lines
-          </ZoruButton>
+          </Button>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -278,7 +278,7 @@ export function BillForm({ initial, customFields, redirectTo }: BillFormProps) {
       />
 
       {customFields.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Custom fields
           </h3>
@@ -292,11 +292,11 @@ export function BillForm({ initial, customFields, redirectTo }: BillFormProps) {
               />
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               f.editing
@@ -306,7 +306,7 @@ export function BillForm({ initial, customFields, redirectTo }: BillFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton
           editing={f.editing}
           intent="save"

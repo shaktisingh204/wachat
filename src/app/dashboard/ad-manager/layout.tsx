@@ -53,7 +53,7 @@ import { DATE_PRESETS } from '@/components/wabasimplify/ad-manager/constants';
 function MetaFeatureLock() {
   const router = useRouter();
   return (
-    <ZoruCard className="mt-6">
+    <Card className="mt-6">
       <ZoruCardContent className="flex flex-col items-center justify-center gap-5 py-24 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
           <Lock className="h-7 w-7 text-muted-foreground" strokeWidth={1.75} />
@@ -67,15 +67,15 @@ function MetaFeatureLock() {
             audiences, creative library, and performance insights.
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="default"
           size="md"
           onClick={() => router.push('/dashboard/user/billing#upgrade')}
         >
           Explore plans
-        </ZoruButton>
+        </Button>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -93,19 +93,19 @@ function DateRangeBar({
   setPreset: (p: string) => void;
 }) {
   return (
-    <ZoruPopover>
+    <Popover>
       <ZoruPopoverTrigger asChild>
-        <ZoruButton variant="outline" size="sm" className="rounded-full">
+        <Button variant="outline" size="sm" className="rounded-full">
           <CalendarIcon className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
           {DATE_PRESETS.find((p) => p.id === preset)?.label ||
             (date?.from
               ? `${format(date.from, 'LLL dd')} – ${date.to ? format(date.to, 'LLL dd') : ''}`
               : 'Last 7 days')}
-        </ZoruButton>
+        </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent className="p-0 w-auto" align="end">
         <div className="flex">
-          <ZoruScrollArea className="h-[340px] border-r w-40">
+          <ScrollArea className="h-[340px] border-r w-40">
             <div className="p-2 flex flex-col">
               {DATE_PRESETS.map((p) => (
                 <button
@@ -123,7 +123,7 @@ function DateRangeBar({
                 </button>
               ))}
             </div>
-          </ZoruScrollArea>
+          </ScrollArea>
           <Calendar
             mode="range"
             selected={date}
@@ -136,7 +136,7 @@ function DateRangeBar({
           />
         </div>
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }
 
@@ -147,7 +147,7 @@ function AccountPill() {
   const router = useRouter();
 
   return (
-    <ZoruButton
+    <Button
       variant="outline"
       size="sm"
       className="rounded-full"
@@ -161,7 +161,7 @@ function AccountPill() {
       </span>
       {activeAccount?.name || 'Select account'}
       <ChevronsUpDown className="ml-1.5 h-3 w-3 opacity-60" />
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -202,7 +202,7 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
           {/* Search */}
           <div className="relative hidden sm:block">
             <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50 z-10" />
-            <ZoruInput
+            <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search campaigns..."
@@ -213,14 +213,14 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
 
         <div className="flex items-center gap-2">
           <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
-          <ZoruButton
+          <Button
             variant="default"
             size="sm"
             onClick={() => router.push('/dashboard/ad-manager/create')}
           >
             <Plus className="mr-1 h-3.5 w-3.5" />
             Create
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 

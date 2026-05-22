@@ -95,7 +95,7 @@ export default function GlobalSettingsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/crm">CRM</ZoruBreadcrumbLink>
@@ -109,36 +109,36 @@ export default function GlobalSettingsPage() {
             <ZoruBreadcrumbPage>Global</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Global Settings</ZoruPageTitle>
           <ZoruPageDescription>
             Workspace-wide defaults — timezone, date/moment format, RTL, and default currency.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Status summary strip */}
       {settings ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Business name"
             value={settings.business_name || '—'}
             icon={<Building2 className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Timezone"
             value={settings.timezone || '—'}
             icon={<Clock className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Currency"
             value={currencyLabel}
             icon={<DollarSign className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="RTL"
             value={settings.rtl ? 'Enabled' : 'Disabled'}
             icon={<Globe className="h-4 w-4" />}
@@ -147,22 +147,22 @@ export default function GlobalSettingsPage() {
       ) : null}
 
       {isLoading && !settings ? (
-        <ZoruCard className="p-6">
-          <ZoruSkeleton className="h-[320px] w-full" />
-        </ZoruCard>
+        <Card className="p-6">
+          <Skeleton className="h-[320px] w-full" />
+        </Card>
       ) : (
         <form action={formAction} className="flex flex-col gap-4">
           {/* Section: Identity */}
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
               Identity
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="business_name" className="text-[13px]">
+                <Label htmlFor="business_name" className="text-[13px]">
                   Business Name
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="business_name"
                   name="business_name"
                   defaultValue={settings?.business_name ?? ''}
@@ -170,9 +170,9 @@ export default function GlobalSettingsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel htmlFor="currency_id" className="text-[13px]">
+                <Label htmlFor="currency_id" className="text-[13px]">
                   Default Currency
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
                   <EntityFormField
                     entity="currency"
@@ -185,18 +185,18 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Section: Locale */}
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
               Locale &amp; Date Formats
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="timezone" className="text-[13px]">
+                <Label htmlFor="timezone" className="text-[13px]">
                   Timezone
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
                   <EnumFormField
                     name="timezone"
@@ -207,9 +207,9 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="datepicker_format" className="text-[13px]">
+                <Label htmlFor="datepicker_format" className="text-[13px]">
                   Date-picker Format
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
                   <EnumFormField
                     name="datepicker_format"
@@ -219,9 +219,9 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="moment_format" className="text-[13px]">
+                <Label htmlFor="moment_format" className="text-[13px]">
                   Moment.js Format
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
                   <EnumFormField
                     name="moment_format"
@@ -231,18 +231,18 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Section: Behaviour */}
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
               Behaviour
             </h3>
             <div className="grid gap-4 md:grid-cols-3">
               <div>
-                <ZoruLabel htmlFor="rtl" className="text-[13px]">
+                <Label htmlFor="rtl" className="text-[13px]">
                   Right-to-left Layout
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
                   <EnumFormField
                     name="rtl"
@@ -253,9 +253,9 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="strict_timezone" className="text-[13px]">
+                <Label htmlFor="strict_timezone" className="text-[13px]">
                   Strict Timezone
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
                   <EnumFormField
                     name="strict_timezone"
@@ -266,9 +266,9 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="email_verified" className="text-[13px]">
+                <Label htmlFor="email_verified" className="text-[13px]">
                   Email Verified
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
                   <EnumFormField
                     name="email_verified"
@@ -279,13 +279,13 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
           <div className="flex justify-end">
-            <ZoruButton type="submit" disabled={isSaving}>
+            <Button type="submit" disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save Global Settings
-            </ZoruButton>
+            </Button>
           </div>
         </form>
       )}

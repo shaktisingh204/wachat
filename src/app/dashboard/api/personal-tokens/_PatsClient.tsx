@@ -98,7 +98,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
   return (
     <div className="space-y-4">
       {revealed ? (
-        <ZoruAlert variant="warning">
+        <Alert variant="warning">
           <TriangleAlert className="h-4 w-4" />
           <div className="space-y-2">
             <p className="font-semibold text-sm">Save this token now — shown once. Treat it as a password.</p>
@@ -106,18 +106,18 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
               <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
                 {revealed}
               </code>
-              <ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(revealed)}>
+              <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(revealed)}>
                 <Copy className="h-3 w-3 mr-1" /> Copy
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setRevealed(null)}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setRevealed(null)}>
                 Dismiss
-              </ZoruButton>
+              </Button>
             </div>
           </div>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Generate Personal Access Token</ZoruCardTitle>
           <ZoruCardDescription>PATs inherit your RBAC and can only do what your account is allowed to do.</ZoruCardDescription>
@@ -125,8 +125,8 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
         <ZoruCardContent>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
             <div className="space-y-1.5">
-              <ZoruLabel>Name</ZoruLabel>
-              <ZoruInput
+              <Label>Name</Label>
+              <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. local-dev"
@@ -134,30 +134,30 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Expires at (optional)</ZoruLabel>
-              <ZoruInput
+              <Label>Expires at (optional)</Label>
+              <Input
                 type="datetime-local"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value ? new Date(e.target.value).toISOString() : '')}
                 disabled={busy}
               />
             </div>
-            <ZoruButton onClick={handleCreate} disabled={busy || !name.trim()}>
+            <Button onClick={handleCreate} disabled={busy || !name.trim()}>
               {busy ? 'Working…' : 'Generate'}
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
-      <ZoruCard>
-        <ZoruTable>
+      <Card>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>Name</ZoruTableHead>
@@ -172,7 +172,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
             {tokens.length === 0 ? (
               <ZoruTableRow>
                 <ZoruTableCell colSpan={6}>
-                  <ZoruEmptyState
+                  <EmptyState
                     icon={<KeyRound className="h-8 w-8" />}
                     title="No tokens yet"
                     description="Generate a PAT above to get started."
@@ -192,14 +192,14 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {t.revoked ? (
-                    <ZoruBadge variant="destructive">Revoked</ZoruBadge>
+                    <Badge variant="destructive">Revoked</Badge>
                   ) : (
-                    <ZoruBadge variant="success">Active</ZoruBadge>
+                    <Badge variant="success">Active</Badge>
                   )}
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   {!t.revoked ? (
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRevoke(t._id)}
@@ -207,14 +207,14 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
                       className="text-zoru-danger hover:text-zoru-danger"
                     >
                       Revoke
-                    </ZoruButton>
+                    </Button>
                   ) : null}
                 </ZoruTableCell>
               </ZoruTableRow>
             ))}
           </ZoruTableBody>
-        </ZoruTable>
-      </ZoruCard>
+        </Table>
+      </Card>
     </div>
   );
 }

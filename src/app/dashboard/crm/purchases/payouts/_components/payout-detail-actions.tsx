@@ -69,7 +69,7 @@ export function PayoutDetailActions({ id, currentStatus }: PayoutDetailActionsPr
 
     return (
         <>
-            <ZoruButton
+            <Button
                 variant="outline"
                 onClick={() => run('cleared')}
                 disabled={pending || currentStatus === 'cleared'}
@@ -80,8 +80,8 @@ export function PayoutDetailActions({ id, currentStatus }: PayoutDetailActionsPr
                     <CheckCircle2 className="h-4 w-4" />
                 )}
                 Mark cleared
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 onClick={() => run('failed')}
                 disabled={pending || currentStatus === 'failed'}
@@ -92,8 +92,8 @@ export function PayoutDetailActions({ id, currentStatus }: PayoutDetailActionsPr
                     <XCircle className="h-4 w-4" />
                 )}
                 Mark failed
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 onClick={() => run('archive')}
                 disabled={pending}
@@ -104,7 +104,7 @@ export function PayoutDetailActions({ id, currentStatus }: PayoutDetailActionsPr
                     <Archive className="h-4 w-4" />
                 )}
                 Archive
-            </ZoruButton>
+            </Button>
         </>
     );
 }

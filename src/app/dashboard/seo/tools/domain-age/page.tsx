@@ -38,17 +38,17 @@ export default function DomainAgePage() {
   return (
     <ToolShell title="Domain Age Checker" description="Check when a domain was first registered.">
       <div className="flex gap-2">
-        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</ZoruButton>
+        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {info && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-2 text-sm">
+        <Card><ZoruCardContent className="p-4 space-y-2 text-sm">
           <div><span className="font-semibold">Age:</span> {info.age}</div>
           <div><span className="font-semibold">Created:</span> {info.created || '—'}</div>
           <div><span className="font-semibold">Expires:</span> {info.expires || '—'}</div>
           <div><span className="font-semibold">Registrar:</span> {info.registrar || '—'}</div>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

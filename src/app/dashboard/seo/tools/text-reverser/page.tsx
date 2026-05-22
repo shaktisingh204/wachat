@@ -13,12 +13,12 @@ export default function TextReverserPage() {
 
   return (
     <ToolShell title="Text Reverser" description="Reverse text by characters or word order.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Type or paste text…" className="min-h-[220px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Type or paste text…" className="min-h-[220px]" />
       <div className="flex flex-wrap gap-2">
-        <ZoruButton variant="outline" onClick={() => setText(reverseCharacters(text))}>Reverse characters</ZoruButton>
-        <ZoruButton variant="outline" onClick={() => setText(reverseWords(text))}>Reverse word order</ZoruButton>
-        <ZoruButton variant="outline" onClick={() => setText(text.split(/\r?\n/).reverse().join('\n'))}>Reverse line order</ZoruButton>
-        <ZoruButton variant="ghost" onClick={() => setText('')}>Clear</ZoruButton>
+        <Button variant="outline" onClick={() => setText(reverseCharacters(text))}>Reverse characters</Button>
+        <Button variant="outline" onClick={() => setText(reverseWords(text))}>Reverse word order</Button>
+        <Button variant="outline" onClick={() => setText(text.split(/\r?\n/).reverse().join('\n'))}>Reverse line order</Button>
+        <Button variant="ghost" onClick={() => setText('')}>Clear</Button>
       </div>
     </ToolShell>
   );

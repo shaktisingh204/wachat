@@ -15,8 +15,8 @@ export default function WordFrequencyPage() {
 
   return (
     <ToolShell title="Word Frequency Counter" description="Rank the most used words in your content.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
-      <ZoruCard>
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
+      <Card>
         <ZoruCardContent className="p-4 space-y-2">
           {freq.map((row) => (
             <div key={row.word} className="space-y-0.5">
@@ -31,7 +31,7 @@ export default function WordFrequencyPage() {
           ))}
           {freq.length === 0 && <div className="text-center text-muted-foreground py-6">Start typing to see word frequency.</div>}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </ToolShell>
   );
 }

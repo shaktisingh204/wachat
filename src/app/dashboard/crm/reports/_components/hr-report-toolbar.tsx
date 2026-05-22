@@ -178,10 +178,10 @@ export function HrReportToolbar({
         </select>
       </label>
 
-      <ZoruButton type="submit" size="sm">
+      <Button type="submit" size="sm">
         Apply
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         type="button"
         size="sm"
         variant="outline"
@@ -189,7 +189,7 @@ export function HrReportToolbar({
       >
         <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
         Refresh
-      </ZoruButton>
+      </Button>
       {exportProps ? <ReportExportButton {...exportProps} /> : null}
     </form>
   );

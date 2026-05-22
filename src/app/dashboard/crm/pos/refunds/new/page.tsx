@@ -36,7 +36,7 @@ export default async function NewPosRefundPage({ searchParams }: PageProps) {
                 title="New refund"
                 back={{ href: BASE, label: 'Refunds' }}
             >
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="flex flex-col items-center gap-2 p-8 text-center">
                         <p className="text-sm text-zoru-ink">
                             Provide a transaction id to start a refund.
@@ -44,13 +44,13 @@ export default async function NewPosRefundPage({ searchParams }: PageProps) {
                         <p className="text-[12px] text-zoru-ink-muted">
                             Open the session detail page and use "Start refund" on a transaction.
                         </p>
-                        <ZoruButton size="sm" variant="outline" asChild>
+                        <Button size="sm" variant="outline" asChild>
                             <Link href="/dashboard/crm/pos/sessions">
                                 Pick a session
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </EntityDetailShell>
         );
     }

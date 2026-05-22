@@ -80,7 +80,7 @@ export function SubscriptionFilters({
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Client</ZoruLabel>
+          <Label>Client</Label>
           <EntityFormField
             entity="client"
             name="_filter_customer"
@@ -89,7 +89,7 @@ export function SubscriptionFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           <EnumFilterField
             enumName="subscriptionStatus"
             value={statusFilter}
@@ -98,9 +98,9 @@ export function SubscriptionFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Billing cadence</ZoruLabel>
+          <Label>Billing cadence</Label>
           {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-          <ZoruSelect value={frequencyFilter} onValueChange={onFrequencyFilter}>
+          <Select value={frequencyFilter} onValueChange={onFrequencyFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -111,12 +111,12 @@ export function SubscriptionFilters({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Renewal</ZoruLabel>
+          <Label>Renewal</Label>
           {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-          <ZoruSelect value={renewalFilter} onValueChange={onRenewalFilter}>
+          <Select value={renewalFilter} onValueChange={onRenewalFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -127,7 +127,7 @@ export function SubscriptionFilters({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       </div>
     </details>

@@ -214,13 +214,13 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                 title="Abandoned carts"
                 subtitle="Drop-off carts with recovery email dispatch."
                 filters={
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Storefront
-                                </ZoruLabel>
-                                <ZoruSelect value={storefrontFilter} onValueChange={setStorefrontFilter}>
+                                </Label>
+                                <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
                                     <ZoruSelectTrigger>
                                         <ZoruSelectValue placeholder="All storefronts" />
                                     </ZoruSelectTrigger>
@@ -232,19 +232,19 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="min-w-[220px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Date range
-                                </ZoruLabel>
+                                </Label>
                                 <ZoruDateRangePicker value={dateRange} onChange={setDateRange} />
                             </div>
                             <div className="min-w-[140px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Min value
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     type="number"
                                     placeholder="0"
                                     value={minValue}
@@ -253,7 +253,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                 />
                             </div>
                             {hasActiveFilters ? (
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
@@ -263,35 +263,35 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                     }}
                                 >
                                     Clear filters
-                                </ZoruButton>
+                                </Button>
                             ) : null}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 }
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
                             <span className="flex-1" />
-                            <ZoruButton size="sm" variant="outline" onClick={handleBulkSendRecovery}>
+                            <Button size="sm" variant="outline" onClick={handleBulkSendRecovery}>
                                 <Mail className="h-3.5 w-3.5" /> Send recovery email
-                            </ZoruButton>
-                            <ZoruDropdownMenu>
+                            </Button>
+                            <DropdownMenu>
                                 <ZoruDropdownMenuTrigger asChild>
-                                    <ZoruButton size="sm" variant="outline">
+                                    <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruDropdownMenuTrigger>
                                 <ZoruDropdownMenuContent align="end">
                                     <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
                                 </ZoruDropdownMenuContent>
-                            </ZoruDropdownMenu>
-                            <ZoruButton size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                            </DropdownMenu>
+                            <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
-                            </ZoruButton>
-                            <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -308,20 +308,20 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard label="Total carts" value={kpis.total.toLocaleString()} icon={<AlertTriangle />} />
-                        <ZoruStatCard
+                        <StatCard label="Total carts" value={kpis.total.toLocaleString()} icon={<AlertTriangle />} />
+                        <StatCard
                             label="Value at risk"
                             value={fmtMoney(kpis.totalValue)}
                             icon={<AlertTriangle />}
                             period="total subtotal"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Recovery rate"
                             value={`${kpis.recoveryRate.toFixed(1)}%`}
                             icon={<AlertTriangle />}
                             period={`${kpis.recovered} recovered`}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Avg cart value"
                             value={fmtMoney(kpis.avgValue)}
                             icon={<AlertTriangle />}
@@ -330,12 +330,12 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                     </div>
 
                     {filtered.length > 0 ? (
-                        <ZoruCard className="overflow-hidden p-0">
-                            <ZoruTable>
+                        <Card className="overflow-hidden p-0">
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
@@ -360,7 +360,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         aria-label={`Select cart ${id}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
@@ -379,10 +379,10 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                                     {fmtDate(c.lastInteractionAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+                                                    <Badge variant={statusVariant(status)}>{status}</Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="outline"
                                                         onClick={async () => {
@@ -397,14 +397,14 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                                         disabled={status === 'recovered'}
                                                     >
                                                         <Mail className="h-3 w-3" /> Send
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })}
                                 </ZoruTableBody>
-                            </ZoruTable>
-                        </ZoruCard>
+                            </Table>
+                        </Card>
                     ) : null}
                 </div>
             </EntityListShell>

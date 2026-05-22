@@ -176,14 +176,14 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           aria-label="Stop broadcast"
           className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
         >
           <CircleStop className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
@@ -222,10 +222,10 @@ function ISTClock() {
     hour12: false,
   });
   return (
-    <ZoruButton variant="outline" size="sm" disabled>
+    <Button variant="outline" size="sm" disabled>
       <Clock className="h-3.5 w-3.5" />
       {ist} IST
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -390,7 +390,7 @@ export default function BroadcastPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       {/* ── Breadcrumb ── */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -404,7 +404,7 @@ export default function BroadcastPage() {
             <ZoruBreadcrumbPage>Campaigns</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* ── Header ── */}
       <div className="flex flex-wrap items-end justify-between gap-6">
@@ -419,7 +419,7 @@ export default function BroadcastPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ISTClock />
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={onSyncTemplates}
@@ -427,8 +427,8 @@ export default function BroadcastPage() {
           >
             <BookCopy className="h-3.5 w-3.5" />
             {isSyncingTemplates ? 'Syncing…' : 'Sync templates'}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() =>
@@ -438,28 +438,28 @@ export default function BroadcastPage() {
           >
             <RefreshCw className={cn('h-3.5 w-3.5', isRefreshing && 'animate-spin')} />
             {isRefreshing ? 'Refreshing…' : 'Refresh'}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {/* ── Stats strip ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ZoruStatCard
+        <StatCard
           label="All-time campaigns"
           value={compact(totalCampaigns)}
           period="across this project"
         />
-        <ZoruStatCard
+        <StatCard
           label="Messages sent"
           value={compact(stats.totalSent)}
           period="sum of this page"
         />
-        <ZoruStatCard
+        <StatCard
           label="Delivery rate"
           value={`${stats.deliveryRate}%`}
           period={`${compact(stats.totalDelivered)} delivered`}
         />
-        <ZoruStatCard
+        <StatCard
           label="Live now"
           value={String(stats.processing)}
           period={
@@ -481,7 +481,7 @@ export default function BroadcastPage() {
             </p>
           </div>
         </div>
-        <ZoruCard className="mt-5 p-6">
+        <Card className="mt-5 p-6">
           {isRefreshing && !activeProject ? (
             <div className="h-40 w-full animate-pulse rounded-[var(--zoru-radius)] bg-zoru-surface-2" />
           ) : (
@@ -491,7 +491,7 @@ export default function BroadcastPage() {
               onSuccess={onBroadcastSuccess}
             />
           )}
-        </ZoruCard>
+        </Card>
       </section>
 
       {/* ── Broadcast history ── */}
@@ -507,7 +507,7 @@ export default function BroadcastPage() {
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <ZoruButton
+            <Button
               variant="outline"
               size="icon-sm"
               aria-label="New campaign"
@@ -517,12 +517,12 @@ export default function BroadcastPage() {
               }}
             >
               <Plus />
-            </ZoruButton>
-            <ZoruDropdownMenu>
+            </Button>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="icon-sm" aria-label="More">
+                <Button variant="outline" size="icon-sm" aria-label="More">
                   <Ellipsis />
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuItem
@@ -550,17 +550,17 @@ export default function BroadcastPage() {
                   <ArrowUpRight /> Open analytics
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </div>
         </div>
 
-        <ZoruCard className="mt-5 p-6">
+        <Card className="mt-5 p-6">
           {/* ── Filter bar ── */}
           {hasLoaded && history.length > 0 && (
             <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-zoru-line pb-4">
               <div className="relative min-w-[240px] flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-                <ZoruInput
+                <Input
                   type="text"
                   placeholder="Search by name or template..."
                   value={searchQuery}
@@ -568,7 +568,7 @@ export default function BroadcastPage() {
                   className="pl-9"
                 />
               </div>
-              <ZoruSelect
+              <Select
                 value={statusFilter}
                 onValueChange={(v) => setStatusFilter(v)}
               >
@@ -585,9 +585,9 @@ export default function BroadcastPage() {
                     Failed / cancelled
                   </ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
               {(searchQuery || statusFilter !== 'all') && (
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
@@ -596,7 +596,7 @@ export default function BroadcastPage() {
                   }}
                 >
                   Clear
-                </ZoruButton>
+                </Button>
               )}
               <span className="ml-auto text-[11px] text-zoru-ink-muted tabular-nums">
                 {filteredHistory.length} of {history.length}
@@ -609,24 +609,24 @@ export default function BroadcastPage() {
               <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
             </div>
           ) : !activeProjectId ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<CircleAlert />}
               title="No project selected"
               description="Please select a project from the main dashboard to view its broadcast history."
               action={
-                <ZoruButton size="sm" onClick={() => router.push('/wachat')}>
+                <Button size="sm" onClick={() => router.push('/wachat')}>
                   Choose a project
-                </ZoruButton>
+                </Button>
               }
             />
           ) : history.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<FileText />}
               title="No broadcasts yet"
               description="Use the composer above to send your first WhatsApp broadcast — it'll appear here with live delivery and read analytics."
             />
           ) : filteredHistory.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Search />}
               title="No broadcasts match"
               description="Try clearing the search or status filter."
@@ -663,12 +663,12 @@ export default function BroadcastPage() {
                               item.fileName ||
                               'Untitled'}
                           </p>
-                          <ZoruBadge variant={tone.variant}>
+                          <Badge variant={tone.variant}>
                             <span
                               className={cn('h-1.5 w-1.5 rounded-full', tone.dot)}
                             />
                             {tone.label}
-                          </ZoruBadge>
+                          </Badge>
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
                           {item.templateName ? (
@@ -726,7 +726,7 @@ export default function BroadcastPage() {
                             templates={templates}
                           />
                         )}
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon-sm"
                           asChild
@@ -737,11 +737,11 @@ export default function BroadcastPage() {
                           >
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </div>
                     {processing ? (
-                      <ZoruProgress value={progress} className="mt-3 h-1" />
+                      <Progress value={progress} className="mt-3 h-1" />
                     ) : null}
                   </div>
                 );
@@ -756,7 +756,7 @@ export default function BroadcastPage() {
                 campaigns
               </span>
               <div className="flex items-center gap-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
@@ -764,8 +764,8 @@ export default function BroadcastPage() {
                 >
                   <ChevronLeft className="h-3 w-3" />
                   Previous
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() =>
@@ -775,11 +775,11 @@ export default function BroadcastPage() {
                 >
                   Next
                   <ChevronRight className="h-3 w-3" />
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       </section>
 
       <div className="h-6" />

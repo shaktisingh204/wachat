@@ -29,14 +29,14 @@ export const dynamic = 'force-dynamic';
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="sm" disabled={pending}>
+    <Button type="submit" size="sm" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
       ) : (
         <Save className="h-4 w-4" />
       )}
       {pending ? 'Saving…' : 'Save loan'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -70,11 +70,11 @@ export default function NewLoanPage() {
       title="New Loan"
       back={{ href: '/dashboard/crm/loans', label: 'Loans & Advances' }}
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Loan Type */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Loan Type</ZoruLabel>
+            <Label>Loan Type</Label>
             <EnumFormField
               enumName="loanType"
               name="type"
@@ -85,9 +85,9 @@ export default function NewLoanPage() {
 
           {/* Borrower */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>
+            <Label>
               Borrower <span className="text-red-500">*</span>
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity={borrowerEntityForType(loanType)}
               name="borrowerId"
@@ -99,10 +99,10 @@ export default function NewLoanPage() {
 
           {/* Principal Amount */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="principal">
+            <Label htmlFor="principal">
               Principal Amount (₹) <span className="text-red-500">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="principal"
               name="principal"
               type="number"
@@ -116,8 +116,8 @@ export default function NewLoanPage() {
 
           {/* Interest Rate */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="interestRate">Interest Rate (%)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="interestRate">Interest Rate (%)</Label>
+            <Input
               id="interestRate"
               name="interestRate"
               type="number"
@@ -131,8 +131,8 @@ export default function NewLoanPage() {
 
           {/* Tenure */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="tenureMonths">Tenure (months)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="tenureMonths">Tenure (months)</Label>
+            <Input
               id="tenureMonths"
               name="tenureMonths"
               type="number"
@@ -146,7 +146,7 @@ export default function NewLoanPage() {
 
           {/* Start Date */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="startDate">Start Date</ZoruLabel>
+            <Label htmlFor="startDate">Start Date</Label>
             <input
               id="startDate"
               name="startDate"
@@ -157,8 +157,8 @@ export default function NewLoanPage() {
 
           {/* Notes */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               rows={3}
@@ -173,12 +173,12 @@ export default function NewLoanPage() {
 
           <div className="flex items-center gap-3">
             <SubmitButton />
-            <ZoruButton variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/crm/loans">Cancel</Link>
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

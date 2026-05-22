@@ -96,10 +96,10 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="md:col-span-2">
-                                <ZoruLabel htmlFor="name">
+                                <Label htmlFor="name">
                                     Project name <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="name"
                                     name="name"
                                     defaultValue={initial?.name ?? ''}
@@ -108,8 +108,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="projectShortCode">Short code</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="projectShortCode">Short code</Label>
+                                <Input
                                     id="projectShortCode"
                                     name="projectShortCode"
                                     defaultValue={initial?.projectShortCode ?? ''}
@@ -117,7 +117,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Client</ZoruLabel>
+                                <Label>Client</Label>
                                 <EntityFormField
                                     entity="client"
                                     name="clientId"
@@ -128,7 +128,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Manager (owner)</ZoruLabel>
+                                <Label>Manager (owner)</Label>
                                 <EntityFormField
                                     entity="user"
                                     name="projectAdmin"
@@ -138,7 +138,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Category</ZoruLabel>
+                                <Label>Category</Label>
                                 <EntityFormField
                                     entity="category"
                                     name="categoryId"
@@ -149,7 +149,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Department</ZoruLabel>
+                                <Label>Department</Label>
                                 <EntityFormField
                                     entity="department"
                                     name="departmentId"
@@ -169,8 +169,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <ZoruLabel htmlFor="startDate">Start date</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="startDate">Start date</Label>
+                                <Input
                                     id="startDate"
                                     name="startDate"
                                     type="date"
@@ -178,8 +178,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="deadline">Deadline</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="deadline">Deadline</Label>
+                                <Input
                                     id="deadline"
                                     name="deadline"
                                     type="date"
@@ -187,9 +187,9 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>
+                                <Label>
                                     Status <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
+                                </Label>
                                 <EnumFormField
                                     enumName="projectStatus"
                                     name="status"
@@ -198,7 +198,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Priority</ZoruLabel>
+                                <Label>Priority</Label>
                                 <EnumFormField
                                     enumName="priorityMedium"
                                     name="priority"
@@ -207,8 +207,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="completionPercent">% Complete</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="completionPercent">% Complete</Label>
+                                <Input
                                     id="completionPercent"
                                     name="completionPercent"
                                     type="number"
@@ -227,8 +227,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <ZoruLabel htmlFor="projectBudget">Project budget</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="projectBudget">Project budget</Label>
+                                <Input
                                     id="projectBudget"
                                     name="projectBudget"
                                     type="number"
@@ -237,7 +237,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Currency</ZoruLabel>
+                                <Label>Currency</Label>
                                 <EntityFormField
                                     entity="currency"
                                     name="currency"
@@ -246,8 +246,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="hoursAllocated">Hours allocated</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="hoursAllocated">Hours allocated</Label>
+                                <Input
                                     id="hoursAllocated"
                                     name="hoursAllocated"
                                     type="number"
@@ -256,20 +256,20 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div className="flex items-center gap-3 pt-6">
-                                <ZoruSwitch
+                                <Switch
                                     id="billable"
                                     name="billable"
                                     defaultChecked={!!initial?.billable}
                                 />
-                                <ZoruLabel htmlFor="billable">Billable project</ZoruLabel>
+                                <Label htmlFor="billable">Billable project</Label>
                             </div>
                             <div className="flex items-center gap-3">
-                                <ZoruSwitch
+                                <Switch
                                     id="public"
                                     name="public"
                                     defaultChecked={!!initial?.public}
                                 />
-                                <ZoruLabel htmlFor="public">Public (client portal)</ZoruLabel>
+                                <Label htmlFor="public">Public (client portal)</Label>
                             </div>
                         </div>
                     ),
@@ -280,8 +280,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                     children: (
                         <div className="grid grid-cols-1 gap-4">
                             <div>
-                                <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
                                     id="description"
                                     name="description"
                                     defaultValue={initial?.description ?? ''}
@@ -290,8 +290,8 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="notes">Internal notes</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="notes">Internal notes</Label>
+                                <Textarea
                                     id="notes"
                                     name="notes"
                                     defaultValue={initial?.notes ?? ''}

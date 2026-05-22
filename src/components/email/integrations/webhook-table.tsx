@@ -47,7 +47,7 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
 
   if (webhooks.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Network />}
         title="No webhooks yet"
         description="Subscribe an external endpoint to receive realtime delivery events."
@@ -90,8 +90,8 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
   };
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <ZoruTable>
+    <Card className="overflow-hidden p-0">
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Endpoint</ZoruTableHead>
@@ -113,25 +113,25 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
               <ZoruTableCell>
                 <div className="flex flex-wrap gap-1">
                   {w.events.slice(0, 3).map((e) => (
-                    <ZoruBadge key={e} variant="secondary">
+                    <Badge key={e} variant="secondary">
                       {e}
-                    </ZoruBadge>
+                    </Badge>
                   ))}
                   {w.events.length > 3 ? (
-                    <ZoruBadge variant="ghost">+{w.events.length - 3}</ZoruBadge>
+                    <Badge variant="ghost">+{w.events.length - 3}</Badge>
                   ) : null}
                 </div>
               </ZoruTableCell>
               <ZoruTableCell>
                 {w.active ? (
-                  <ZoruBadge variant="success">Active</ZoruBadge>
+                  <Badge variant="success">Active</Badge>
                 ) : (
-                  <ZoruBadge variant="secondary">Paused</ZoruBadge>
+                  <Badge variant="secondary">Paused</Badge>
                 )}
                 {w.failureCount && w.failureCount > 0 ? (
-                  <ZoruBadge variant="destructive" className="ml-1">
+                  <Badge variant="destructive" className="ml-1">
                     {w.failureCount} fail
-                  </ZoruBadge>
+                  </Badge>
                 ) : null}
               </ZoruTableCell>
               <ZoruTableCell className="text-sm text-zoru-ink-muted">
@@ -149,11 +149,11 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                 )}
               </ZoruTableCell>
               <ZoruTableCell>
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                   <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton variant="ghost" size="icon" disabled={pending}>
+                    <Button variant="ghost" size="icon" disabled={pending}>
                       <MoreHorizontal className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                   </ZoruDropdownMenuTrigger>
                   <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuItem onSelect={() => handleTest(w._id)}>
@@ -190,12 +190,12 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                       </ZoruAlertDialogContent>
                     </ZoruAlertDialog>
                   </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
               </ZoruTableCell>
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
-      </ZoruTable>
-    </ZoruCard>
+      </Table>
+    </Card>
   );
 }

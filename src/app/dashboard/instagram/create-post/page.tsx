@@ -19,10 +19,10 @@ const initialState: any = { message: null, error: null };
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="sm" disabled={pending || disabled}>
+    <Button type="submit" size="sm" disabled={pending || disabled}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       Post
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -55,13 +55,13 @@ export default function CreateInstagramPostPage() {
     <div className="flex justify-center">
       <form action={formAction} ref={formRef} className="w-full max-w-xl">
         <input type="hidden" name="projectId" value={projectId || ''} />
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <ZoruCardHeader className="flex flex-row items-center justify-between">
-            <ZoruButton variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" asChild>
               <Link href="/dashboard/instagram/feed">
                 <X className="h-5 w-5" />
               </Link>
-            </ZoruButton>
+            </Button>
             <h1 className="text-lg flex items-center gap-2 text-zoru-ink">
               <Instagram className="h-5 w-5" /> Create Post
             </h1>
@@ -69,7 +69,7 @@ export default function CreateInstagramPostPage() {
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="imageUrl">Image URL</ZoruLabel>
+              <Label htmlFor="imageUrl">Image URL</Label>
               <SabFileUrlInput
                 id="imageUrl"
                 name="imageUrl"
@@ -83,8 +83,8 @@ export default function CreateInstagramPostPage() {
               </p>
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="caption">Caption</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="caption">Caption</Label>
+              <Textarea
                 id="caption"
                 name="caption"
                 placeholder="Write a caption..."
@@ -92,7 +92,7 @@ export default function CreateInstagramPostPage() {
               />
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </form>
     </div>
   );

@@ -61,9 +61,9 @@ export function SmartCombobox({
     }, [options, value]);
 
     return (
-        <ZoruPopover open={open} onOpenChange={setOpen} modal={true}>
+        <Popover open={open} onOpenChange={setOpen} modal={true}>
             <ZoruPopoverTrigger asChild>
-                <ZoruButton
+                <Button
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
@@ -72,7 +72,7 @@ export function SmartCombobox({
                 >
                     {selectedLabel || placeholder}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </ZoruButton>
+                </Button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent className="w-full p-0" align="start">
                 <ZoruCommand>

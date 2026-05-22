@@ -49,12 +49,12 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton variant="outline" className={defaultName ? "hidden" : ""}>
+                <Button variant="outline" className={defaultName ? "hidden" : ""}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Pipeline
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
@@ -66,8 +66,8 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="name" className="text-foreground">Pipeline Name</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="name" className="text-foreground">Pipeline Name</Label>
+                            <Input
                                 id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -77,18 +77,18 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-                        <ZoruButton
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button
                             type="submit"
                             variant="obsidian"
                             disabled={isPending}
                             leading={isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
                         >
                             Create Pipeline
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

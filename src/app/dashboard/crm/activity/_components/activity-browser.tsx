@@ -69,8 +69,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
           aria-label="Filter activity"
         >
           <div>
-            <ZoruLabel className="text-[11.5px] text-muted-foreground">Actor</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11.5px] text-muted-foreground">Actor</Label>
+            <Input
               value={filters.actor}
               onChange={(e) => setFilters((f) => ({ ...f, actor: e.target.value }))}
               placeholder="User id"
@@ -78,8 +78,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <ZoruLabel className="text-[11.5px] text-muted-foreground">Action</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11.5px] text-muted-foreground">Action</Label>
+            <Input
               value={filters.action}
               onChange={(e) => setFilters((f) => ({ ...f, action: e.target.value }))}
               placeholder="e.g. created"
@@ -87,8 +87,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <ZoruLabel className="text-[11.5px] text-muted-foreground">Resource type</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11.5px] text-muted-foreground">Resource type</Label>
+            <Input
               value={filters.resourceType}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, resourceType: e.target.value }))
@@ -98,8 +98,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <ZoruLabel className="text-[11.5px] text-muted-foreground">From</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11.5px] text-muted-foreground">From</Label>
+            <Input
               type="date"
               value={filters.from}
               onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
@@ -107,8 +107,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <ZoruLabel className="text-[11.5px] text-muted-foreground">To</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11.5px] text-muted-foreground">To</Label>
+            <Input
               type="date"
               value={filters.to}
               onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
@@ -116,16 +116,16 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div className="flex items-end gap-2 md:col-span-5">
-            <ZoruButton
+            <Button
               type="submit"
               variant="obsidian"
               size="sm"
               leading={<Search className="h-3.5 w-3.5" />}
             >
               Apply
-            </ZoruButton>
+            </Button>
             {hasFilters ? (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="pill"
                 size="sm"
@@ -133,7 +133,7 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
                 leading={<XCircle className="h-3.5 w-3.5" />}
               >
                 Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         </form>

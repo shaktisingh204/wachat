@@ -141,21 +141,21 @@ export default function ConsentLogsPage() {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <button type="button" className="text-left" onClick={() => setStatusFilter('all')}>
-          <ZoruStatCard
+          <StatCard
             label="Total entries"
             value={totalEntries.toLocaleString()}
             className={cn(statusFilter === 'all' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('granted')}>
-          <ZoruStatCard
+          <StatCard
             label="Active (granted)"
             value={grantedEntries.toLocaleString()}
             className={cn(statusFilter === 'granted' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('revoked')}>
-          <ZoruStatCard
+          <StatCard
             label="Withdrawn (revoked)"
             value={revokedEntries.toLocaleString()}
             className={cn(statusFilter === 'revoked' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
@@ -163,7 +163,7 @@ export default function ConsentLogsPage() {
         </button>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
           {(['leads', 'users'] as const).map((id) => (
@@ -183,7 +183,7 @@ export default function ConsentLogsPage() {
           ))}
           </div>
           <div className="flex items-center gap-2">
-            <ZoruSelect
+            <Select
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
@@ -195,17 +195,17 @@ export default function ConsentLogsPage() {
                 <ZoruSelectItem value="granted">Granted</ZoruSelectItem>
                 <ZoruSelectItem value="revoked">Revoked</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+            </Select>
+            <Button variant="outline" size="sm" onClick={handleExportCsv}>
               <Download className="mr-1 h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
         {tab === 'leads' ? (
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="text-zoru-ink-muted">Lead ID</ZoruTableHead>
@@ -220,7 +220,7 @@ export default function ConsentLogsPage() {
                   [...Array(3)].map((_, i) => (
                     <ZoruTableRow key={i}>
                       <ZoruTableCell colSpan={5}>
-                        <ZoruSkeleton className="h-8 w-full" />
+                        <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -243,9 +243,9 @@ export default function ConsentLogsPage() {
                         {purposeTitle(row.purpose_consent_id)}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={row.granted ? 'success' : 'danger'}>
+                        <Badge variant={row.granted ? 'success' : 'danger'}>
                           {row.granted ? 'Granted' : 'Revoked'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                         {formatDateTime(row.granted_at)}
@@ -257,11 +257,11 @@ export default function ConsentLogsPage() {
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="text-zoru-ink-muted">User ID</ZoruTableHead>
@@ -276,7 +276,7 @@ export default function ConsentLogsPage() {
                   [...Array(3)].map((_, i) => (
                     <ZoruTableRow key={i}>
                       <ZoruTableCell colSpan={5}>
-                        <ZoruSkeleton className="h-8 w-full" />
+                        <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -299,9 +299,9 @@ export default function ConsentLogsPage() {
                         {purposeTitle(row.purpose_consent_id)}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={row.granted ? 'success' : 'danger'}>
+                        <Badge variant={row.granted ? 'success' : 'danger'}>
                           {row.granted ? 'Granted' : 'Revoked'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                         {formatDateTime(row.granted_at)}
@@ -313,10 +313,10 @@ export default function ConsentLogsPage() {
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

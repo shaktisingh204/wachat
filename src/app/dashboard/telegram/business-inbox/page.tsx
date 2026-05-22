@@ -444,7 +444,7 @@ export default function Page() {
     if (!projectId) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     icon={<Inbox />}
                     title="Select a project"
                     description="Choose an active project to view its Telegram business inbox."
@@ -525,7 +525,7 @@ export default function Page() {
                 <div className="flex min-w-0 flex-1 flex-col">
                     {!thread ? (
                         <div className="flex h-full items-center justify-center p-8">
-                            <ZoruEmptyState
+                            <EmptyState
                                 icon={<MessageSquare />}
                                 title="No conversation selected"
                                 description="Pick a thread on the left to view its messages, assign agents, and write internal notes."
@@ -596,7 +596,7 @@ export default function Page() {
             />
 
             {/* Resolve confirm */}
-            <ZoruDialog open={resolveOpen} onOpenChange={setResolveOpen}>
+            <Dialog open={resolveOpen} onOpenChange={setResolveOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Resolve thread?</ZoruDialogTitle>
@@ -606,20 +606,20 @@ export default function Page() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="ghost" onClick={() => setResolveOpen(false)}>
+                        <Button variant="ghost" onClick={() => setResolveOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             onClick={async () => {
                                 setResolveOpen(false);
                                 await onStatus('resolved');
                             }}
                         >
                             <Check className="mr-1 h-4 w-4" /> Resolve
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }
@@ -649,7 +649,7 @@ function AnalyticsBar({
                 <Inbox className="h-5 w-5" style={{ color: ACCENT }} />
                 <h1 className="text-base font-semibold">Telegram Business Inbox</h1>
             </div>
-            <ZoruSeparator orientation="vertical" className="h-6" />
+            <Separator orientation="vertical" className="h-6" />
             <Stat label="Open" value={openCount} icon={CircleDot} />
             <Stat label="Breached" value={breachedCount} icon={AlertTriangle} tone="destructive" />
             <Stat
@@ -663,15 +663,15 @@ function AnalyticsBar({
                 icon={CheckCheck}
             />
             <div className="ml-auto flex items-center gap-2">
-                <ZoruButton variant="ghost" size="sm" onClick={onEvalSla}>
+                <Button variant="ghost" size="sm" onClick={onEvalSla}>
                     <AlarmClock className="mr-1 h-4 w-4" /> Re-evaluate SLA
-                </ZoruButton>
-                <ZoruButton variant="ghost" size="sm" onClick={onOpenRules}>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onOpenRules}>
                     <ListChecks className="mr-1 h-4 w-4" /> Auto-assign
-                </ZoruButton>
-                <ZoruButton variant="ghost" size="sm" onClick={onOpenSla}>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onOpenSla}>
                     <Settings className="mr-1 h-4 w-4" /> SLA
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -757,16 +757,16 @@ function ThreadListHeader(props: {
         <div className="flex-shrink-0 space-y-2 border-b p-3">
             <div className="flex items-center gap-2">
                 <Search className="h-4 w-4 text-muted-foreground" />
-                <ZoruInput
+                <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search threads…"
                     className="h-8 flex-1"
                 />
                 <ZoruTooltipProvider>
-                    <ZoruTooltip>
+                    <Tooltip>
                         <ZoruTooltipTrigger asChild>
-                            <ZoruButton
+                            <Button
                                 size="icon"
                                 variant={bulkMode ? 'default' : 'ghost'}
                                 onClick={() => setBulkMode(!bulkMode)}
@@ -774,10 +774,10 @@ function ThreadListHeader(props: {
                                 aria-label="Bulk select"
                             >
                                 <ListChecks className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </ZoruTooltipTrigger>
                         <ZoruTooltipContent>Bulk select</ZoruTooltipContent>
-                    </ZoruTooltip>
+                    </Tooltip>
                 </ZoruTooltipProvider>
             </div>
 
@@ -803,7 +803,7 @@ function ThreadListHeader(props: {
             </div>
 
             <div className="flex flex-wrap gap-2">
-                <ZoruSelect value={assignedFilter} onValueChange={setAssignedFilter}>
+                <Select value={assignedFilter} onValueChange={setAssignedFilter}>
                     <ZoruSelectTrigger className="h-8 flex-1">
                         <ZoruSelectValue placeholder="Assignee" />
                     </ZoruSelectTrigger>
@@ -817,9 +817,9 @@ function ThreadListHeader(props: {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
 
-                <ZoruSelect value={priorityFilter} onValueChange={setPriorityFilter}>
+                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                     <ZoruSelectTrigger className="h-8 flex-1">
                         <ZoruSelectValue placeholder="Priority" />
                     </ZoruSelectTrigger>
@@ -831,18 +831,18 @@ function ThreadListHeader(props: {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="flex items-center gap-2">
-                <ZoruInput
+                <Input
                     value={tagFilter}
                     onChange={(e) => setTagFilter(e.target.value)}
                     placeholder="Filter by tag…"
                     className="h-8"
                 />
                 <label className="flex flex-shrink-0 cursor-pointer items-center gap-1 text-xs">
-                    <ZoruCheckbox checked={hasUnread} onCheckedChange={(v) => setHasUnread(Boolean(v))} />
+                    <Checkbox checked={hasUnread} onCheckedChange={(v) => setHasUnread(Boolean(v))} />
                     Unread
                 </label>
             </div>
@@ -856,15 +856,15 @@ function ThreadListHeader(props: {
                         </button>
                     </div>
                     <div className="flex flex-wrap gap-1">
-                        <ZoruButton size="sm" variant="ghost" onClick={() => onBulkAction('status', { status: 'resolved' })}>
+                        <Button size="sm" variant="ghost" onClick={() => onBulkAction('status', { status: 'resolved' })}>
                             Resolve
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="ghost" onClick={() => onBulkAction('status', { status: 'open' })}>
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => onBulkAction('status', { status: 'open' })}>
                             Reopen
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="ghost" onClick={() => onBulkAction('priority', { priority: 'high' })}>
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => onBulkAction('priority', { priority: 'high' })}>
                             High prio
-                        </ZoruButton>
+                        </Button>
                         <BulkTagButton onAdd={(t) => onBulkAction('tag', { add: [t] })} />
                         <BulkAssignButton agents={agents} onAssign={(id) => onBulkAction('assign', { agentId: id })} />
                     </div>
@@ -879,18 +879,18 @@ function BulkTagButton({ onAdd }: { onAdd: (tag: string) => Promise<void> }) {
     const [val, setVal] = React.useState('');
     return (
         <>
-            <ZoruButton size="sm" variant="ghost" onClick={() => setOpen(true)}>
+            <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
                 <Tag className="mr-1 h-3 w-3" /> Tag
-            </ZoruButton>
-            <ZoruDialog open={open} onOpenChange={setOpen}>
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Add tag</ZoruDialogTitle>
                     </ZoruDialogHeader>
-                    <ZoruInput value={val} onChange={(e) => setVal(e.target.value)} placeholder="tag-name" />
+                    <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="tag-name" />
                     <ZoruDialogFooter>
-                        <ZoruButton variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-                        <ZoruButton
+                        <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button
                             onClick={async () => {
                                 await onAdd(val);
                                 setOpen(false);
@@ -899,10 +899,10 @@ function BulkTagButton({ onAdd }: { onAdd: (tag: string) => Promise<void> }) {
                             disabled={!val.trim()}
                         >
                             Add
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </>
     );
 }
@@ -917,10 +917,10 @@ function BulkAssignButton({
     const [open, setOpen] = React.useState(false);
     return (
         <>
-            <ZoruButton size="sm" variant="ghost" onClick={() => setOpen(true)}>
+            <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
                 <UserCircle2 className="mr-1 h-3 w-3" /> Assign
-            </ZoruButton>
-            <ZoruDialog open={open} onOpenChange={setOpen}>
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Assign to agent</ZoruDialogTitle>
@@ -949,7 +949,7 @@ function BulkAssignButton({
                         ))}
                     </div>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </>
     );
 }
@@ -976,10 +976,10 @@ function ThreadList({
             <div className="space-y-2 p-2">
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="flex items-center gap-2 p-2">
-                        <ZoruSkeleton className="h-10 w-10 rounded-full" />
+                        <Skeleton className="h-10 w-10 rounded-full" />
                         <div className="flex-1 space-y-1">
-                            <ZoruSkeleton className="h-3 w-3/4" />
-                            <ZoruSkeleton className="h-3 w-1/2" />
+                            <Skeleton className="h-3 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
                         </div>
                     </div>
                 ))}
@@ -989,12 +989,12 @@ function ThreadList({
     if (threads.length === 0) {
         return (
             <div className="p-6">
-                <ZoruEmptyState icon={<Inbox />} title="No threads" description="No conversations match these filters yet." />
+                <EmptyState icon={<Inbox />} title="No threads" description="No conversations match these filters yet." />
             </div>
         );
     }
     return (
-        <ZoruScrollArea className="flex-1">
+        <ScrollArea className="flex-1">
             <div className="divide-y">
                 {threads.map((t) => {
                     const agent = t.assignedAgentId ? agents.find((a) => a._id === t.assignedAgentId) : null;
@@ -1011,12 +1011,12 @@ function ThreadList({
                         >
                             {bulkMode && (
                                 <div className="pt-1">
-                                    <ZoruCheckbox checked={selectedIds.has(t._id)} />
+                                    <Checkbox checked={selectedIds.has(t._id)} />
                                 </div>
                             )}
-                            <ZoruAvatar className="h-10 w-10 flex-shrink-0">
+                            <Avatar className="h-10 w-10 flex-shrink-0">
                                 <ZoruAvatarFallback>{initials(t.title)}</ZoruAvatarFallback>
-                            </ZoruAvatar>
+                            </Avatar>
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="truncate font-medium text-sm">{t.title}</div>
@@ -1032,31 +1032,31 @@ function ThreadList({
                                 </div>
                                 <div className="mt-1 flex flex-wrap items-center gap-1">
                                     {t.unreadCount > 0 && (
-                                        <ZoruBadge variant="default" className="h-4 px-1 text-[10px]">
+                                        <Badge variant="default" className="h-4 px-1 text-[10px]">
                                             {t.unreadCount}
-                                        </ZoruBadge>
+                                        </Badge>
                                     )}
                                     {t.priority !== 'normal' && (
-                                        <ZoruBadge variant={PRIORITY_TONE[t.priority]} className="h-4 px-1 text-[10px]">
+                                        <Badge variant={PRIORITY_TONE[t.priority]} className="h-4 px-1 text-[10px]">
                                             {t.priority}
-                                        </ZoruBadge>
+                                        </Badge>
                                     )}
                                     {t.status !== 'open' && (
-                                        <ZoruBadge variant="secondary" className="h-4 px-1 text-[10px]">
+                                        <Badge variant="secondary" className="h-4 px-1 text-[10px]">
                                             {t.status}
-                                        </ZoruBadge>
+                                        </Badge>
                                     )}
                                     {sla && (
-                                        <ZoruBadge variant={sla.tone === 'danger' ? 'danger' : sla.tone === 'warning' ? 'warning' : 'secondary'} className="h-4 px-1 text-[10px]">
+                                        <Badge variant={sla.tone === 'danger' ? 'danger' : sla.tone === 'warning' ? 'warning' : 'secondary'} className="h-4 px-1 text-[10px]">
                                             {sla.text}
-                                        </ZoruBadge>
+                                        </Badge>
                                     )}
                                     {agent && (
-                                        <ZoruAvatar className="h-4 w-4">
+                                        <Avatar className="h-4 w-4">
                                             <ZoruAvatarFallback className="text-[8px]">
                                                 {initials(agent.name)}
                                             </ZoruAvatarFallback>
-                                        </ZoruAvatar>
+                                        </Avatar>
                                     )}
                                     {t.tags.slice(0, 2).map((tag) => (
                                         <span
@@ -1072,7 +1072,7 @@ function ThreadList({
                     );
                 })}
             </div>
-        </ZoruScrollArea>
+        </ScrollArea>
     );
 }
 
@@ -1098,9 +1098,9 @@ function ThreadHeader({
     const sla = fmtSlaCountdown(thread.slaDueAt, thread.slaBreached);
     return (
         <div className="flex flex-shrink-0 items-center gap-3 border-b bg-card px-4 py-3">
-            <ZoruAvatar className="h-10 w-10">
+            <Avatar className="h-10 w-10">
                 <ZoruAvatarFallback>{initials(thread.title)}</ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <div className="min-w-0 flex-1">
                 <div className="truncate font-semibold">{thread.title}</div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -1108,13 +1108,13 @@ function ThreadHeader({
                     <span>·</span>
                     <span>Last activity {fmtRelative(thread.lastInboundAt ?? thread.updatedAt)}</span>
                     {sla && (
-                        <ZoruBadge variant={sla.tone === 'danger' ? 'danger' : sla.tone === 'warning' ? 'warning' : 'secondary'} className="h-4 px-1 text-[10px]">
+                        <Badge variant={sla.tone === 'danger' ? 'danger' : sla.tone === 'warning' ? 'warning' : 'secondary'} className="h-4 px-1 text-[10px]">
                             {sla.text}
-                        </ZoruBadge>
+                        </Badge>
                     )}
                 </div>
             </div>
-            <ZoruSelect
+            <Select
                 value={thread.assignedAgentId ?? 'unassigned'}
                 onValueChange={(v) => onAssign(v === 'unassigned' ? null : v)}
             >
@@ -1129,8 +1129,8 @@ function ThreadHeader({
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={thread.status} onValueChange={(v) => onStatus(v as ThreadStatus)}>
+            </Select>
+            <Select value={thread.status} onValueChange={(v) => onStatus(v as ThreadStatus)}>
                 <ZoruSelectTrigger className="h-8 w-32">
                     <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -1141,8 +1141,8 @@ function ThreadHeader({
                     <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
                     <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={thread.priority} onValueChange={(v) => onPriority(v as ThreadPriority)}>
+            </Select>
+            <Select value={thread.priority} onValueChange={(v) => onPriority(v as ThreadPriority)}>
                 <ZoruSelectTrigger className="h-8 w-28">
                     <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -1153,10 +1153,10 @@ function ThreadHeader({
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruButton size="sm" onClick={onResolve}>
+            </Select>
+            <Button size="sm" onClick={onResolve}>
                 <CheckCheck className="mr-1 h-4 w-4" /> Resolve
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -1217,7 +1217,7 @@ function Composer({
 }) {
     return (
         <div className="flex flex-shrink-0 items-end gap-2 border-t bg-card p-3">
-            <ZoruTextarea
+            <Textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder="Type a reply…"
@@ -1231,9 +1231,9 @@ function Composer({
                 }}
                 disabled={disabled}
             />
-            <ZoruButton onClick={onSend} disabled={disabled || !value.trim()}>
+            <Button onClick={onSend} disabled={disabled || !value.trim()}>
                 {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -1272,15 +1272,15 @@ function RightPane({
     const [newTag, setNewTag] = React.useState('');
     const agent = thread.assignedAgentId ? agents.find((a) => a._id === thread.assignedAgentId) : null;
     return (
-        <ZoruScrollArea className="flex-1">
+        <ScrollArea className="flex-1">
             <div className="space-y-4 p-3">
                 {/* Contact card */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="space-y-1 py-3">
                         <div className="flex items-center gap-2">
-                            <ZoruAvatar className="h-10 w-10">
+                            <Avatar className="h-10 w-10">
                                 <ZoruAvatarFallback>{initials(thread.title)}</ZoruAvatarFallback>
-                            </ZoruAvatar>
+                            </Avatar>
                             <div>
                                 <div className="font-medium">{thread.title}</div>
                                 <div className="text-xs text-muted-foreground">{thread.type}</div>
@@ -1301,7 +1301,7 @@ function RightPane({
                             )}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* Tags */}
                 <div>
@@ -1310,7 +1310,7 @@ function RightPane({
                     </div>
                     <div className="flex flex-wrap gap-1">
                         {thread.tags.map((t) => (
-                            <ZoruBadge key={t} variant="secondary" className="cursor-default gap-1">
+                            <Badge key={t} variant="secondary" className="cursor-default gap-1">
                                 #{t}
                                 <button
                                     type="button"
@@ -1320,10 +1320,10 @@ function RightPane({
                                 >
                                     <X className="h-3 w-3" />
                                 </button>
-                            </ZoruBadge>
+                            </Badge>
                         ))}
                         <div className="flex items-center gap-1">
-                            <ZoruInput
+                            <Input
                                 value={newTag}
                                 onChange={(e) => setNewTag(e.target.value)}
                                 placeholder="+ tag"
@@ -1346,20 +1346,20 @@ function RightPane({
                     </div>
                     <div className="space-y-2">
                         <div className="flex items-end gap-1">
-                            <ZoruTextarea
+                            <Textarea
                                 value={noteDraft}
                                 onChange={(e) => setNoteDraft(e.target.value)}
                                 placeholder="Write a note (mention with @userId)…"
                                 rows={2}
                                 className="resize-none text-xs"
                             />
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 onClick={onAddNote}
                                 disabled={isAddingNote || !noteDraft.trim()}
                             >
                                 {isAddingNote ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
-                            </ZoruButton>
+                            </Button>
                         </div>
                         {notes.length === 0 && (
                             <div className="rounded border border-dashed p-2 text-center text-xs text-muted-foreground">
@@ -1438,7 +1438,7 @@ function RightPane({
                     </div>
                 )}
             </div>
-        </ZoruScrollArea>
+        </ScrollArea>
     );
 }
 
@@ -1499,17 +1499,17 @@ function RulesDrawer({
                     </ZoruDrawerDescription>
                 </ZoruDrawerHeader>
                 <div className="space-y-3 p-4">
-                    <ZoruButton
+                    <Button
                         onClick={() => {
                             setEditing(null);
                             setShowForm(true);
                         }}
                     >
                         <Plus className="mr-1 h-4 w-4" /> New rule
-                    </ZoruButton>
-                    {isLoading && <ZoruSkeleton className="h-20 w-full" />}
+                    </Button>
+                    {isLoading && <Skeleton className="h-20 w-full" />}
                     {!isLoading && rules.length === 0 && (
-                        <ZoruEmptyState
+                        <EmptyState
                             icon={<ListChecks />}
                             title="No rules yet"
                             description="Add a rule to automatically route incoming threads."
@@ -1517,15 +1517,15 @@ function RulesDrawer({
                     )}
                     <div className="space-y-2">
                         {rules.map((r) => (
-                            <ZoruCard key={r._id}>
+                            <Card key={r._id}>
                                 <ZoruCardContent className="flex items-center gap-2 py-2">
                                     <GripVertical className="h-4 w-4 text-muted-foreground" />
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium">{r.name}</span>
-                                            <ZoruBadge variant={r.enabled ? 'success' : 'ghost'} className="h-4 px-1 text-[10px]">
+                                            <Badge variant={r.enabled ? 'success' : 'ghost'} className="h-4 px-1 text-[10px]">
                                                 {r.enabled ? 'on' : 'off'}
-                                            </ZoruBadge>
+                                            </Badge>
                                             <span className="text-xs text-muted-foreground">priority {r.priority}</span>
                                         </div>
                                         <div className="text-xs text-muted-foreground">
@@ -1533,14 +1533,14 @@ function RulesDrawer({
                                             {(r.assignTo?.agentIds ?? []).join(', ') || 'none'}
                                         </div>
                                     </div>
-                                    <ZoruButton size="icon" variant="ghost" onClick={() => { setEditing(r); setShowForm(true); }} aria-label="Edit rule">
+                                    <Button size="icon" variant="ghost" onClick={() => { setEditing(r); setShowForm(true); }} aria-label="Edit rule">
                                         <Pencil className="h-3 w-3" />
-                                    </ZoruButton>
-                                    <ZoruButton size="icon" variant="ghost" onClick={() => onDelete(r._id)} aria-label="Delete rule">
+                                    </Button>
+                                    <Button size="icon" variant="ghost" onClick={() => onDelete(r._id)} aria-label="Delete rule">
                                         <Trash2 className="h-3 w-3" />
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ))}
                     </div>
                 </div>
@@ -1637,7 +1637,7 @@ function RuleForm({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={(v) => !v && onClose()}>
+        <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>{rule ? 'Edit rule' : 'New rule'}</ZoruDialogTitle>
@@ -1645,27 +1645,27 @@ function RuleForm({
                 <div className="space-y-3">
                     <div>
                         <label className="text-xs font-medium" htmlFor="rule-name">Name</label>
-                        <ZoruInput id="rule-name" value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input id="rule-name" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <div>
                             <label className="text-xs font-medium" htmlFor="rule-priority">Priority (lower = first)</label>
-                            <ZoruInput id="rule-priority" type="number" value={priority} onChange={(e) => setPriority(Number(e.target.value))} />
+                            <Input id="rule-priority" type="number" value={priority} onChange={(e) => setPriority(Number(e.target.value))} />
                         </div>
                         <div className="flex flex-col">
                             <label className="text-xs font-medium" htmlFor="rule-enabled">Enabled</label>
                             <div className="pt-2">
-                                <ZoruCheckbox id="rule-enabled" checked={enabled} onCheckedChange={(v) => setEnabled(Boolean(v))} />
+                                <Checkbox id="rule-enabled" checked={enabled} onCheckedChange={(v) => setEnabled(Boolean(v))} />
                             </div>
                         </div>
                     </div>
                     <div>
                         <label className="text-xs font-medium" htmlFor="rule-keywords">Match keywords (comma-separated)</label>
-                        <ZoruInput id="rule-keywords" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="refund, billing, urgent" />
+                        <Input id="rule-keywords" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="refund, billing, urgent" />
                     </div>
                     <div>
                         <label className="text-xs font-medium" htmlFor="rule-kind">Assignment kind</label>
-                        <ZoruSelect value={kind} onValueChange={setKind}>
+                        <Select value={kind} onValueChange={setKind}>
                             <ZoruSelectTrigger id="rule-kind"><ZoruSelectValue /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="agent">Fixed agent (first in list)</ZoruSelectItem>
@@ -1673,14 +1673,14 @@ function RuleForm({
                                 <ZoruSelectItem value="random">Random</ZoruSelectItem>
                                 <ZoruSelectItem value="least_loaded">Least loaded</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div>
                         <label className="text-xs font-medium">Agents</label>
                         <div className="grid grid-cols-2 gap-1">
                             {agents.map((a) => (
                                 <label key={a._id} className="flex items-center gap-1 text-xs">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={agentIds.includes(a._id)}
                                         onCheckedChange={(v) => {
                                             setAgentIds((prev) =>
@@ -1695,23 +1695,23 @@ function RuleForm({
                     </div>
                     <div>
                         <label className="text-xs font-medium" htmlFor="rule-tags">Apply tags (comma-separated)</label>
-                        <ZoruInput id="rule-tags" value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
+                        <Input id="rule-tags" value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
                     </div>
                     <div>
                         <label className="text-xs font-medium" htmlFor="rule-sla">SLA seconds (optional)</label>
-                        <ZoruInput id="rule-sla" type="number" value={setSla} onChange={(e) => setSetSla(e.target.value)} />
+                        <Input id="rule-sla" type="number" value={setSla} onChange={(e) => setSetSla(e.target.value)} />
                     </div>
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" onClick={onClose} disabled={busy}>
+                    <Button variant="ghost" onClick={onClose} disabled={busy}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={onSave} disabled={busy}>
+                    </Button>
+                    <Button onClick={onSave} disabled={busy}>
                         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -1770,12 +1770,12 @@ function SlaDrawer({
                     </ZoruDrawerDescription>
                 </ZoruDrawerHeader>
                 <div className="space-y-3 p-4">
-                    <ZoruButton onClick={() => { setEditing(null); setShowForm(true); }}>
+                    <Button onClick={() => { setEditing(null); setShowForm(true); }}>
                         <Plus className="mr-1 h-4 w-4" /> New SLA
-                    </ZoruButton>
-                    {isLoading && <ZoruSkeleton className="h-20 w-full" />}
+                    </Button>
+                    {isLoading && <Skeleton className="h-20 w-full" />}
                     {!isLoading && policies.length === 0 && (
-                        <ZoruEmptyState
+                        <EmptyState
                             icon={<AlarmClock />}
                             title="No SLA policies"
                             description="Add one to start measuring response and resolution times."
@@ -1783,7 +1783,7 @@ function SlaDrawer({
                     )}
                     <div className="space-y-2">
                         {policies.map((p) => (
-                            <ZoruCard key={p._id}>
+                            <Card key={p._id}>
                                 <ZoruCardContent className="flex items-center gap-2 py-2">
                                     <div className="flex-1">
                                         <div className="font-medium">{p.name}</div>
@@ -1794,14 +1794,14 @@ function SlaDrawer({
                                             )}
                                         </div>
                                     </div>
-                                    <ZoruButton size="icon" variant="ghost" onClick={() => { setEditing(p); setShowForm(true); }} aria-label="Edit policy">
+                                    <Button size="icon" variant="ghost" onClick={() => { setEditing(p); setShowForm(true); }} aria-label="Edit policy">
                                         <Pencil className="h-3 w-3" />
-                                    </ZoruButton>
-                                    <ZoruButton size="icon" variant="ghost" onClick={() => onDelete(p._id)} aria-label="Delete policy">
+                                    </Button>
+                                    <Button size="icon" variant="ghost" onClick={() => onDelete(p._id)} aria-label="Delete policy">
                                         <Trash2 className="h-3 w-3" />
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ))}
                     </div>
                 </div>
@@ -1876,7 +1876,7 @@ function SlaForm({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={(v) => !v && onClose()}>
+        <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>{policy ? 'Edit SLA' : 'New SLA'}</ZoruDialogTitle>
@@ -1884,32 +1884,32 @@ function SlaForm({
                 <div className="space-y-3">
                     <div>
                         <label className="text-xs font-medium" htmlFor="sla-name">Name</label>
-                        <ZoruInput id="sla-name" value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input id="sla-name" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <div>
                             <label className="text-xs font-medium" htmlFor="sla-first">First response (s)</label>
-                            <ZoruInput id="sla-first" type="number" value={first} onChange={(e) => setFirst(e.target.value)} />
+                            <Input id="sla-first" type="number" value={first} onChange={(e) => setFirst(e.target.value)} />
                         </div>
                         <div>
                             <label className="text-xs font-medium" htmlFor="sla-resolution">Resolution (s)</label>
-                            <ZoruInput id="sla-resolution" type="number" value={resolution} onChange={(e) => setResolution(e.target.value)} />
+                            <Input id="sla-resolution" type="number" value={resolution} onChange={(e) => setResolution(e.target.value)} />
                         </div>
                     </div>
                     <div>
                         <label className="text-xs font-medium" htmlFor="sla-tags">Apply to tags (comma-separated; blank = global)</label>
-                        <ZoruInput id="sla-tags" value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
+                        <Input id="sla-tags" value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
                     </div>
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" onClick={onClose} disabled={busy}>
+                    <Button variant="ghost" onClick={onClose} disabled={busy}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={onSave} disabled={busy}>
+                    </Button>
+                    <Button onClick={onSave} disabled={busy}>
                         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

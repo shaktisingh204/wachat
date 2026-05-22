@@ -63,7 +63,7 @@ export function ClayAvatarStack({
         const fallbackText =
           item.fallback ?? item.alt?.[0]?.toUpperCase() ?? '?';
         return (
-          <ZoruAvatar
+          <Avatar
             key={i}
             title={item.alt}
             className={cn(
@@ -95,7 +95,7 @@ export function ClayAvatarStack({
             >
               {fallbackText}
             </ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
         );
       })}
       {overflow > 0 ? (

@@ -60,9 +60,9 @@ async function loadNumbers(workspaceId: string): Promise<NumberRow[]> {
 
 function capPill(label: string, on: boolean) {
   return (
-    <ZoruBadge variant={on ? "default" : "secondary"} className="text-[10px]">
+    <Badge variant={on ? "default" : "secondary"} className="text-[10px]">
       {label}
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -75,7 +75,7 @@ export default async function SabsmsNumbersPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Numbers</ZoruPageTitle>
           <ZoruPageDescription>
@@ -92,13 +92,13 @@ export default async function SabsmsNumbersPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton asChild variant="outline">
+          <Button asChild variant="outline">
             <Link href="/sabsms/providers">Configure provider</Link>
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Sender pool</ZoruCardTitle>
           <ZoruCardDescription>
@@ -109,7 +109,7 @@ export default async function SabsmsNumbersPage() {
         <ZoruCardContent className="p-0">
           {rows.length === 0 ? (
             <div className="p-10">
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Phone />}
                 title="No numbers provisioned yet"
                 description={
@@ -118,14 +118,14 @@ export default async function SabsmsNumbersPage() {
                     : "Configure a provider, then provision a number. The provisioning UI ships in Phase 1.5."
                 }
                 action={
-                  <ZoruButton asChild>
+                  <Button asChild>
                     <Link href="/sabsms/providers">Open providers</Link>
-                  </ZoruButton>
+                  </Button>
                 }
               />
             </div>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Number</ZoruTableHead>
@@ -154,19 +154,19 @@ export default async function SabsmsNumbersPage() {
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge
+                      <Badge
                         variant={r.status === "active" ? "default" : "secondary"}
                       >
                         {r.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

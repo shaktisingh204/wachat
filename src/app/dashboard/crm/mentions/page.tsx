@@ -12,7 +12,7 @@ export default async function MentionsPage() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
             <AtSign className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
@@ -24,23 +24,23 @@ export default async function MentionsPage() {
         </div>
         {unread > 0 ? (
           <ZoruPageActions>
-            <ZoruBadge variant="danger">{unread} unread</ZoruBadge>
+            <Badge variant="danger">{unread} unread</Badge>
           </ZoruPageActions>
         ) : null}
-      </ZoruPageHeader>
+      </PageHeader>
 
       {mentions.length === 0 ? (
-        <ZoruCard className="flex items-center justify-center p-6 py-12">
+        <Card className="flex items-center justify-center p-6 py-12">
           <p className="text-[13px] text-zoru-ink-muted">No mentions yet.</p>
-        </ZoruCard>
+        </Card>
       ) : (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <ul className="divide-y divide-zoru-line">
             {mentions.map((m) => (
               <MentionRow key={m._id} mention={m} />
             ))}
           </ul>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );

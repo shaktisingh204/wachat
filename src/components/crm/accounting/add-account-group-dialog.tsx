@@ -28,14 +28,14 @@ const initialState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton
+        <Button
             type="submit"
             variant="obsidian"
             disabled={pending}
             leading={pending ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
         >
             Save Group
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -112,7 +112,7 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                         </Select>
                     </div>
                     <DialogFooter>
-                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

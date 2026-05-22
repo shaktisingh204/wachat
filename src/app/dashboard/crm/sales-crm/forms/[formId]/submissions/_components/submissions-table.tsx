@@ -217,7 +217,7 @@ export function SubmissionsTable({
 
     if (submissions.length === 0) {
         return (
-            <ZoruCard className="flex min-h-[240px] items-center justify-center p-8">
+            <Card className="flex min-h-[240px] items-center justify-center p-8">
                 <div className="text-center">
                     <p className="text-[14px] font-medium text-zoru-ink">No submissions yet</p>
                     <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
@@ -232,7 +232,7 @@ export function SubmissionsTable({
                         </Link>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         );
     }
 
@@ -245,56 +245,56 @@ export function SubmissionsTable({
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
-                        <ZoruButton
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={() => bulkUpdate('processed')}
                             disabled={pending}
                         >
                             <CheckCircle2 className="h-3.5 w-3.5" /> Mark processed
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={() => bulkUpdate('spam')}
                             disabled={pending}
                         >
                             <ShieldAlert className="h-3.5 w-3.5" /> Spam
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={() => bulkUpdate('archived')}
                             disabled={pending}
                         >
                             <Archive className="h-3.5 w-3.5" /> Archive
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="destructive"
                             onClick={bulkDelete}
                             disabled={pending}
                         >
                             <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setSelected(new Set())}
                             aria-label="Clear selection"
                         >
                             <X className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             ) : null}
 
-            <ZoruCard className="overflow-hidden p-0">
-                <ZoruTable>
+            <Card className="overflow-hidden p-0">
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead className="w-8">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={headChecked}
                                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                                     aria-label="Select all"
@@ -315,7 +315,7 @@ export function SubmissionsTable({
                             return (
                                 <ZoruTableRow key={id}>
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={checked}
                                             onCheckedChange={() => toggleOne(id)}
                                             aria-label="Select submission"
@@ -335,16 +335,16 @@ export function SubmissionsTable({
                                         {safeHost(s.sourceUrl)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <ZoruBadge variant={STATUS_VARIANT[status]}>
+                                        <Badge variant={STATUS_VARIANT[status]}>
                                             {status}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
-                                                <ZoruButton size="sm" variant="ghost" aria-label="Row actions">
+                                                <Button size="sm" variant="ghost" aria-label="Row actions">
                                                     <MoreHorizontal className="h-4 w-4" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruDropdownMenuTrigger>
                                             <ZoruDropdownMenuContent align="end">
                                                 <ZoruDropdownMenuItem asChild>
@@ -370,15 +370,15 @@ export function SubmissionsTable({
                                                     <Trash2 className="h-4 w-4" /> Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
                 <PaginationBar page={page} limit={limit} hasMore={hasMore} total={total} />
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

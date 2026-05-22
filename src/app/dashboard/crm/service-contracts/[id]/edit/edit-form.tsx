@@ -100,14 +100,14 @@ function toDateInput(value?: string): string {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -170,18 +170,18 @@ export function ServiceContractEditForm({
                 value={JSON.stringify(documents)}
             />
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Identification</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="contractNo">
+                            <Label htmlFor="contractNo">
                                 Contract no.{' '}
                                 <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="contractNo"
                                 name="contractNo"
                                 defaultValue={contract.contractNo ?? ''}
@@ -190,8 +190,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="title">Title</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="title">Title</Label>
+                            <Input
                                 id="title"
                                 name="title"
                                 defaultValue={contract.title ?? ''}
@@ -199,8 +199,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="coverage">Coverage</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="coverage">Coverage</Label>
+                            <Input
                                 id="coverage"
                                 name="coverage"
                                 defaultValue={contract.coverage ?? ''}
@@ -208,8 +208,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="frequency">Visit frequency</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="frequency">Visit frequency</Label>
+                            <Input
                                 id="frequency"
                                 name="frequency"
                                 defaultValue={contract.frequency ?? ''}
@@ -217,7 +217,7 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2 md:col-span-2">
-                            <ZoruLabel>Status</ZoruLabel>
+                            <Label>Status</Label>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as ContractStatus)}
@@ -232,16 +232,16 @@ export function ServiceContractEditForm({
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Parties</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel>Customer</ZoruLabel>
+                            <Label>Customer</Label>
                             <EntityFormField
                                 entity="client"
                                 name="customerId"
@@ -253,7 +253,7 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Primary contact</ZoruLabel>
+                            <Label>Primary contact</Label>
                             <EntityFormField
                                 entity="contact"
                                 name="contactId"
@@ -264,7 +264,7 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Assigned technician</ZoruLabel>
+                            <Label>Assigned technician</Label>
                             <EntityFormField
                                 entity="employee"
                                 name="technicianId"
@@ -275,7 +275,7 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Account manager</ZoruLabel>
+                            <Label>Account manager</Label>
                             <EntityFormField
                                 entity="user"
                                 name="accountManagerId"
@@ -287,17 +287,17 @@ export function ServiceContractEditForm({
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Period & billing</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="periodStart">Start date</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="periodStart">Start date</Label>
+                            <Input
                                 id="periodStart"
                                 name="periodStart"
                                 type="date"
@@ -306,8 +306,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="periodEnd">End date</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="periodEnd">End date</Label>
+                            <Input
                                 id="periodEnd"
                                 name="periodEnd"
                                 type="date"
@@ -316,8 +316,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="billingAmount">Contract value</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="billingAmount">Contract value</Label>
+                            <Input
                                 id="billingAmount"
                                 name="billingAmount"
                                 type="number"
@@ -327,8 +327,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="billing">Billing cadence</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="billing">Billing cadence</Label>
+                            <Input
                                 id="billing"
                                 name="billing"
                                 defaultValue={contract.billing ?? ''}
@@ -336,8 +336,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="currency">Currency</Label>
+                            <Input
                                 id="currency"
                                 name="currency"
                                 defaultValue={contract.currency ?? 'INR'}
@@ -346,9 +346,9 @@ export function ServiceContractEditForm({
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Renewal</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -360,7 +360,7 @@ export function ServiceContractEditForm({
                                 Automatically renew the contract at expiry.
                             </div>
                         </div>
-                        <ZoruSwitch
+                        <Switch
                             checked={autoRenew}
                             onCheckedChange={(v) => setAutoRenew(Boolean(v))}
                             aria-label="Auto-renew"
@@ -368,10 +368,10 @@ export function ServiceContractEditForm({
                     </div>
                     <div className="mt-4 grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="renewalNoticeDays">
+                            <Label htmlFor="renewalNoticeDays">
                                 Renewal notice (days)
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="renewalNoticeDays"
                                 name="renewalNoticeDays"
                                 type="number"
@@ -381,8 +381,8 @@ export function ServiceContractEditForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="nextRenewalAt">Next renewal date</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="nextRenewalAt">Next renewal date</Label>
+                            <Input
                                 id="nextRenewalAt"
                                 name="nextRenewalAt"
                                 type="date"
@@ -391,14 +391,14 @@ export function ServiceContractEditForm({
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Terms & conditions</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <ZoruTextarea
+                    <Textarea
                         id="terms"
                         name="terms"
                         defaultValue={contract.terms ?? ''}
@@ -409,9 +409,9 @@ export function ServiceContractEditForm({
                         Plain text — rich-text editor not available in this build.
                     </p>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Document attachments</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -458,14 +458,14 @@ export function ServiceContractEditForm({
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Notes</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <ZoruTextarea
+                    <Textarea
                         id="notes"
                         name="notes"
                         defaultValue={contract.notes ?? ''}
@@ -473,7 +473,7 @@ export function ServiceContractEditForm({
                         placeholder="Internal notes about this contract."
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
                 <div className="text-sm">
@@ -484,11 +484,11 @@ export function ServiceContractEditForm({
                     ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={`/dashboard/crm/service-contracts/${contractId}`}>
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton />
                 </div>
             </div>

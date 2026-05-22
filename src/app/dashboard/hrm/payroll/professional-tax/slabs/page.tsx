@@ -72,14 +72,14 @@ const saveInitialState: SaveSlabState = { message: null, error: null };
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {isEditing ? 'Save Slab' : 'Add Slab'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -113,17 +113,17 @@ function SlabFormDialog({
     }, [state, toast, onSave]);
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
                 {slab ? (
-                    <ZoruButton variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon">
                         <Edit className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                 ) : (
-                    <ZoruButton>
+                    <Button>
                         <Plus className="h-4 w-4" />
                         Add New Slab
-                    </ZoruButton>
+                    </Button>
                 )}
             </ZoruDialogTrigger>
             <ZoruDialogContent>
@@ -140,11 +140,11 @@ function SlabFormDialog({
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <ZoruLabel>
+                            <Label>
                                 State{' '}
                                 <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruSelect
+                            </Label>
+                            <Select
                                 name="state"
                                 required
                                 defaultValue={slab?.state}
@@ -159,15 +159,15 @@ function SlabFormDialog({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>
+                                <Label>
                                     Min. Monthly Salary (₹){' '}
                                     <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     type="number"
                                     name="minSalary"
                                     defaultValue={slab?.minSalary}
@@ -176,11 +176,11 @@ function SlabFormDialog({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>
+                                <Label>
                                     Max. Monthly Salary (₹){' '}
                                     <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     type="number"
                                     name="maxSalary"
                                     defaultValue={slab?.maxSalary}
@@ -190,11 +190,11 @@ function SlabFormDialog({
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>
+                            <Label>
                                 Monthly Tax Amount (₹){' '}
                                 <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 type="number"
                                 name="taxAmount"
                                 defaultValue={slab?.taxAmount}
@@ -204,18 +204,18 @@ function SlabFormDialog({
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => setOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton isEditing={!!slab} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -248,13 +248,13 @@ function DeleteSlabButton({
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon"
                     className="text-zoru-danger-ink hover:text-zoru-danger-ink"
                 >
                     <Trash2 className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -321,7 +321,7 @@ export default function ProfessionalTaxSlabsPage() {
         >
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">
                         Total PT Liability
                     </p>
@@ -331,8 +331,8 @@ export default function ProfessionalTaxSlabsPage() {
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
                         Current month across all employees
                     </p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">
                         States Configured
                     </p>
@@ -340,8 +340,8 @@ export default function ProfessionalTaxSlabsPage() {
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
                         {slabs.length} total slabs defined
                     </p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">
                         Employees Applicable
                     </p>
@@ -349,12 +349,12 @@ export default function ProfessionalTaxSlabsPage() {
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
                         with matching state slab
                     </p>
-                </ZoruCard>
+                </Card>
             </div>
 
             <div className="grid items-start gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <div className="mb-4">
                             <h2 className="text-[16px] text-zoru-ink">
                                 Professional Tax Report
@@ -407,9 +407,9 @@ export default function ProfessionalTaxSlabsPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <ZoruBadge variant="secondary">
+                                                    <Badge variant="secondary">
                                                         {item.state}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </td>
                                                 <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                                     {new Intl.NumberFormat('en-IN', {
@@ -468,11 +468,11 @@ export default function ProfessionalTaxSlabsPage() {
                                 )}
                             </table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
 
                 <div className="lg:col-span-1">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <div>
                                 <h2 className="text-[16px] text-zoru-ink">
@@ -498,9 +498,9 @@ export default function ProfessionalTaxSlabsPage() {
                                     >
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2">
-                                                <ZoruBadge variant="secondary">
+                                                <Badge variant="secondary">
                                                     {slab.state}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </div>
                                             <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
                                                 ₹
@@ -534,7 +534,7 @@ export default function ProfessionalTaxSlabsPage() {
                                 to start.
                             </div>
                         )}
-                    </ZoruCard>
+                    </Card>
                 </div>
             </div>
         </EntityListShell>

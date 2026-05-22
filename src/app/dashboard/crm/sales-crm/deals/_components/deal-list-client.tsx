@@ -364,7 +364,7 @@ export function DealListClient({
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {/* Toolbar */}
         <DealListToolbar
           query={query}
@@ -397,7 +397,7 @@ export function DealListClient({
           </summary>
           <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
             <div className="space-y-1">
-              <ZoruLabel>Pipeline</ZoruLabel>
+              <Label>Pipeline</Label>
               <EntityFormField
                 entity="pipeline"
                 name="_filter_pipeline"
@@ -409,7 +409,7 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Stage</ZoruLabel>
+              <Label>Stage</Label>
               <EntityFormField
                 entity="stage"
                 name="_filter_stage"
@@ -419,7 +419,7 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Owner</ZoruLabel>
+              <Label>Owner</Label>
               <EntityFormField
                 entity="user"
                 name="_filter_owner"
@@ -428,7 +428,7 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Status</ZoruLabel>
+              <Label>Status</Label>
               <EnumFilterField
                 enumName="dealStatus"
                 value={statusFilter}
@@ -437,16 +437,16 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Expected close — from</ZoruLabel>
-              <ZoruInput type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+              <Label>Expected close — from</Label>
+              <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Expected close — to</ZoruLabel>
-              <ZoruInput type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+              <Label>Expected close — to</Label>
+              <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Amount min</ZoruLabel>
-              <ZoruInput
+              <Label>Amount min</Label>
+              <Input
                 type="number"
                 value={amountMin}
                 onChange={(e) => setAmountMin(e.target.value)}
@@ -454,8 +454,8 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Amount max</ZoruLabel>
-              <ZoruInput
+              <Label>Amount max</Label>
+              <Input
                 type="number"
                 value={amountMax}
                 onChange={(e) => setAmountMax(e.target.value)}
@@ -463,8 +463,8 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Probability max %</ZoruLabel>
-              <ZoruInput
+              <Label>Probability max %</Label>
+              <Input
                 type="number"
                 value={probMax}
                 onChange={(e) => setProbMax(e.target.value)}
@@ -472,8 +472,8 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel>Tag</ZoruLabel>
-              <ZoruInput
+              <Label>Tag</Label>
+              <Input
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
                 placeholder="any-tag"
@@ -526,7 +526,7 @@ export function DealListClient({
             />
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
       {/* Bulk-archive confirm */}
       <ConfirmDialog

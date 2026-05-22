@@ -96,11 +96,11 @@ export function LeadTagsChips({ leadId, tags, onTagsChanged }: LeadTagsChipsProp
                     </span>
                 ))
             )}
-            <ZoruPopover open={addOpen} onOpenChange={setAddOpen}>
+            <Popover open={addOpen} onOpenChange={setAddOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <ZoruButton variant="ghost" size="sm" className="h-6 px-2 text-[12px]">
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-[12px]">
                         <Tag className="h-3 w-3" /> + Add tag
-                    </ZoruButton>
+                    </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="start" className="w-64 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -113,7 +113,7 @@ export function LeadTagsChips({ leadId, tags, onTagsChanged }: LeadTagsChipsProp
                         onChange={handleAdd}
                     />
                 </ZoruPopoverContent>
-            </ZoruPopover>
+            </Popover>
         </div>
     );
 }

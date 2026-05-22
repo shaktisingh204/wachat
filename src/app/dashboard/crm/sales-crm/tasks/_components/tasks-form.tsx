@@ -203,7 +203,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
             <input type="hidden" name="assignedTo" value={assignedTo} />
 
             {/* ─── Overview ─────────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Overview</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -212,8 +212,8 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2 md:col-span-2">
-                        <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Title *</Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -222,8 +222,8 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                        <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
                             id="description"
                             name="description"
                             rows={3}
@@ -232,7 +232,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Type</ZoruLabel>
+                        <Label>Type</Label>
                         <EnumFormField
                             enumName="taskType"
                             name="type"
@@ -240,7 +240,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Priority</ZoruLabel>
+                        <Label>Priority</Label>
                         <EnumFormField
                             enumName="priorityLegacy"
                             name="priority"
@@ -248,7 +248,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="taskStatusLegacy"
                             name="status"
@@ -257,10 +257,10 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Schedule ─────────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Schedule</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -269,8 +269,8 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel>Due date</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label>Due date</Label>
+                        <DatePicker
                             value={dueDate}
                             onChange={(d) => {
                                 setDueDate(d);
@@ -280,8 +280,8 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="reminders">Reminders</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="reminders">Reminders</Label>
+                        <Input
                             id="reminders"
                             name="reminders"
                             placeholder="2026-05-15T09:00, 2026-05-16T18:30"
@@ -303,7 +303,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         </p>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Repeat</ZoruLabel>
+                        <Label>Repeat</Label>
                         <EnumFormField
                             enumName="recurringFrequencySimple"
                             name="recurringFrequency"
@@ -314,8 +314,8 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Recurrence ends on</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label>Recurrence ends on</Label>
+                        <DatePicker
                             value={recurringEnd}
                             onChange={(d) => {
                                 setRecurringEnd(d);
@@ -325,10 +325,10 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Assignment ───────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Assignment</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -337,7 +337,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel>Assignee</ZoruLabel>
+                        <Label>Assignee</Label>
                         <EntityFormField
                             entity="user"
                             name="assigneeDisplay"
@@ -350,10 +350,10 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Linked entity (discriminator) ────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Linked entity</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -362,7 +362,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel>Link to</ZoruLabel>
+                        <Label>Link to</Label>
                         <EnumFormField
                             enumName="linkedEntityKind"
                             name="linkedKindPicker"
@@ -376,9 +376,9 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>
+                        <Label>
                             {LINKED_KINDS.find((k) => k.value === linkedKind)?.label ?? 'None'}
-                        </ZoruLabel>
+                        </Label>
                         {linkedEntity ? (
                             <EntityFormField
                                 entity={linkedEntity}
@@ -397,10 +397,10 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         )}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Checklist ────────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Checklist</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -408,7 +408,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                     </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <ZoruTextarea
+                    <Textarea
                         id="checklist"
                         name="checklist"
                         rows={4}
@@ -416,10 +416,10 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         placeholder="Draft proposal\nSend follow-up email\nBook demo slot"
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Attachments ──────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Attachments</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -443,29 +443,29 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         Add files from the task detail page once it has been saved.
                     </p>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Sticky action bar ────────────────────────────────────── */}
             <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-zoru-line bg-zoru-bg/95 px-4 py-3 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={() => router.push('/dashboard/crm/sales-crm/tasks')}
                         disabled={pending}
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         type="button"
                         variant="outline"
                         onClick={() => void submit('save_new')}
                         disabled={pending}
                     >
                         Save &amp; New
-                    </ZoruButton>
+                    </Button>
                     {mode === 'create' ? (
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => void submit('save_complete')}
@@ -473,16 +473,16 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                             title="Save the task and immediately mark it Completed"
                         >
                             Save &amp; Mark Complete
-                        </ZoruButton>
+                        </Button>
                     ) : null}
-                    <ZoruButton type="submit" disabled={pending}>
+                    <Button type="submit" disabled={pending}>
                         {pending ? (
                             <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
                         ) : (
                             <Save className="h-4 w-4" aria-hidden="true" />
                         )}
                         {mode === 'edit' ? 'Save changes' : 'Save task'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
         </form>

@@ -137,7 +137,7 @@ export function ImportWizardShell({
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => void refresh()}
@@ -151,28 +151,28 @@ export function ImportWizardShell({
                                     : 'h-3.5 w-3.5'
                             }
                         />
-                    </ZoruButton>
-                    <ZoruButton onClick={handleOpen} size="sm">
+                    </Button>
+                    <Button onClick={handleOpen} size="sm">
                         <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
                         Start import
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
-            <ZoruCard className="overflow-hidden">
+            <Card className="overflow-hidden">
                 <div className="border-b border-zoru-line bg-zoru-surface-2 px-4 py-2 text-[12.5px] font-medium text-zoru-ink">
                     Recent imports
                 </div>
                 {jobs.length === 0 ? (
                     <div className="p-6">
-                        <ZoruEmptyState
+                        <EmptyState
                             title="No imports yet"
                             description="Click “Start import” to upload your first file."
                         />
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>File</ZoruTableHead>
@@ -211,11 +211,11 @@ export function ImportWizardShell({
                                                 {schema?.label ?? job.entityType}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge
+                                                <Badge
                                                     variant={statusVariant(job.status)}
                                                 >
                                                     {job.status}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                                 {job.processed}/{total} ({pct}%)
@@ -234,7 +234,7 @@ export function ImportWizardShell({
                                             <ZoruTableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     {job.errors.length > 0 && (
-                                                        <ZoruButton
+                                                        <Button
                                                             asChild
                                                             variant="ghost"
                                                             size="sm"
@@ -245,10 +245,10 @@ export function ImportWizardShell({
                                                             >
                                                                 <Download className="h-3.5 w-3.5" />
                                                             </a>
-                                                        </ZoruButton>
+                                                        </Button>
                                                     )}
                                                     {canDelete && (
-                                                        <ZoruButton
+                                                        <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() =>
@@ -257,7 +257,7 @@ export function ImportWizardShell({
                                                             aria-label="Delete import job"
                                                         >
                                                             <Trash2 className="h-3.5 w-3.5" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                     )}
                                                 </div>
                                             </ZoruTableCell>
@@ -265,12 +265,12 @@ export function ImportWizardShell({
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
-            <ZoruSheet
+            <Sheet
                 open={isOpen}
                 onOpenChange={(o) => {
                     if (!o) handleClose();
@@ -293,7 +293,7 @@ export function ImportWizardShell({
                         />
                     </div>
                 </ZoruSheetContent>
-            </ZoruSheet>
+            </Sheet>
         </>
     );
 }

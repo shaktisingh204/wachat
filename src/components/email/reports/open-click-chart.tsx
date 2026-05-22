@@ -44,7 +44,7 @@ export function OpenClickChart({
   const hasData = data.length > 0 && data.some((p) => (p.opened ?? 0) + (p.clicked ?? 0) > 0);
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="flex items-center gap-2">
           <LineChart className="h-4 w-4" /> {title}
@@ -87,13 +87,13 @@ export function OpenClickChart({
             </RechartsLineChart>
           </ZoruChartContainer>
         ) : (
-          <ZoruEmptyState
+          <EmptyState
             icon={<LineChart />}
             title="No engagement yet"
             description="Once mail is sent, opens and clicks will appear here."
           />
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

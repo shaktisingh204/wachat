@@ -66,13 +66,13 @@ export function SharePublicLinkButton({
 
   return (
     <>
-      <ZoruButton
+      <Button
         variant="pill"
         onClick={open_}
         leading={<Link2 className="h-4 w-4" />}
       >
         {label}
-      </ZoruButton>
+      </Button>
       {open ? (
         <div
           role="dialog"
@@ -114,14 +114,14 @@ export function SharePublicLinkButton({
                     <span className="text-[11.5px] text-muted-foreground">
                       {copied ? 'Copied!' : 'Copy and share with your client.'}
                     </span>
-                    <ZoruButton
+                    <Button
                       variant="obsidian"
                       size="sm"
                       onClick={copy}
                       leading={<Copy className="h-3.5 w-3.5" />}
                     >
                       Copy
-                    </ZoruButton>
+                    </Button>
                   </div>
                 </div>
               ) : null}

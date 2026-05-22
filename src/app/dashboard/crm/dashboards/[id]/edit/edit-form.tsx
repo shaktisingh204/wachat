@@ -14,10 +14,10 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -28,7 +28,7 @@ export function DashboardEditForm({ dashboard }: { dashboard: Record<string, any
     } as any);
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     <input type="hidden" name="dashboardId" value={String(dashboard._id ?? '')} />
@@ -37,7 +37,7 @@ export function DashboardEditForm({ dashboard }: { dashboard: Record<string, any
                     <Field name="visibility" label="Visibility" defaultValue={dashboard.visibility} />
                     <Field name="autoRefreshSeconds" label="Auto-refresh (sec)" type="number" defaultValue={dashboard.autoRefreshSeconds} />
                     <div>
-                        <ZoruLabel>Owner</ZoruLabel>
+                        <Label>Owner</Label>
                         <EntityFormField
                             entity="user"
                             name="ownerId"
@@ -46,8 +46,8 @@ export function DashboardEditForm({ dashboard }: { dashboard: Record<string, any
                         />
                     </div>
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                        <ZoruTextarea id="description" name="description" defaultValue={dashboard.description ?? ''} rows={3} />
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea id="description" name="description" defaultValue={dashboard.description ?? ''} rows={3} />
                     </div>
                     <div className="md:col-span-2 flex items-center justify-between gap-3">
                         <div className="text-sm">
@@ -57,17 +57,17 @@ export function DashboardEditForm({ dashboard }: { dashboard: Record<string, any
                     </div>
                 </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
 function Field({ name, label, defaultValue, required, type = 'text' }: { name: string; label: string; defaultValue?: any; required?: boolean; type?: string }) {
     return (
         <div>
-            <ZoruLabel htmlFor={name}>
+            <Label htmlFor={name}>
                 {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
                 id={name}
                 name={name}
                 type={type}

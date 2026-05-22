@@ -79,11 +79,11 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <input type="hidden" name="_id" value={row._id} />
       <div className="space-y-1.5">
-        <ZoruLabel htmlFor="st-name">Status Name</ZoruLabel>
-        <ZoruInput id="st-name" name="type" defaultValue={row.type} required />
+        <Label htmlFor="st-name">Status Name</Label>
+        <Input id="st-name" name="type" defaultValue={row.type} required />
       </div>
       <div className="space-y-1.5">
-        <ZoruLabel htmlFor="st-color">Color (hex)</ZoruLabel>
+        <Label htmlFor="st-color">Color (hex)</Label>
         <div className="flex items-center gap-2">
           <input
             type="color"
@@ -95,7 +95,7 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
               if (inp) inp.value = e.target.value;
             }}
           />
-          <ZoruInput
+          <Input
             id="st-color-text"
             name="color"
             defaultValue={row.color ?? '#64748b'}
@@ -105,8 +105,8 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
         </div>
       </div>
       <div className="space-y-1.5">
-        <ZoruLabel htmlFor="st-priority">Priority</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="st-priority">Priority</Label>
+        <Input
           id="st-priority"
           name="priority"
           type="number"
@@ -114,8 +114,8 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
         />
       </div>
       <div className="space-y-1.5">
-        <ZoruLabel htmlFor="st-default">Default Status</ZoruLabel>
-        <ZoruSelect name="default" defaultValue={row.default ? 'yes' : 'no'}>
+        <Label htmlFor="st-default">Default Status</Label>
+        <Select name="default" defaultValue={row.default ? 'yes' : 'no'}>
           <ZoruSelectTrigger id="st-default">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -123,11 +123,11 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
             <ZoruSelectItem value="no">No</ZoruSelectItem>
             <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
-      <ZoruButton type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? 'Saving…' : 'Save Changes'}
-      </ZoruButton>
+      </Button>
     </form>
   );
 }
@@ -213,7 +213,7 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
   ];
 
   const filters = (
-    <ZoruSelect value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
+    <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
       <ZoruSelectTrigger className="h-9 w-40 text-[12.5px]">
         <ZoruSelectValue />
       </ZoruSelectTrigger>
@@ -224,7 +224,7 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
           </ZoruSelectItem>
         ))}
       </ZoruSelectContent>
-    </ZoruSelect>
+    </Select>
   );
 
   const bulkBar =
@@ -235,15 +235,15 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
           {selected.size} selected
         </div>
         <div className="flex items-center gap-1">
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
-          <ZoruButton size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isPending}>
+          </Button>
+          <Button size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isPending}>
             <Trash2 className="h-3.5 w-3.5" /> Delete
-          </ZoruButton>
-          <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())} aria-label="Clear selection">
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())} aria-label="Clear selection">
             <X className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     ) : null;
@@ -262,10 +262,10 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
     <div className="space-y-5">
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ZoruStatCard label="Total Statuses" value={kpi.total} icon={<Flag />} />
-        <ZoruStatCard label="Open Statuses" value={kpi.openCount} />
-        <ZoruStatCard label="Closed Statuses" value={kpi.closedCount} />
-        <ZoruStatCard label="Won / Lost" value={kpi.wonLostCount} />
+        <StatCard label="Total Statuses" value={kpi.total} icon={<Flag />} />
+        <StatCard label="Open Statuses" value={kpi.openCount} />
+        <StatCard label="Closed Statuses" value={kpi.closedCount} />
+        <StatCard label="Won / Lost" value={kpi.wonLostCount} />
       </div>
 
       <EntityListShell
@@ -274,16 +274,16 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
         search={{ value: search, onChange: setSearch, placeholder: 'Search statuses…' }}
         filters={filters}
         primaryAction={
-          <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+          <Button variant="outline" size="sm" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5 mr-1" /> Export CSV
-          </ZoruButton>
+          </Button>
         }
         bulkBar={bulkBar}
         empty={empty}
         loading={false}
       >
         <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-8">
@@ -365,7 +365,7 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                       {fmtDate(row.createdAt)}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruButton
+                      <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(row._id)}
@@ -373,13 +373,13 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                         aria-label={`Delete ${row.type}`}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger" />
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 );
               })}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
       </EntityListShell>
     </div>

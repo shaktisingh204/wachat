@@ -71,10 +71,10 @@ const PAGE_SIZE = 20;
 function SubmitBtn({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
       {isEditing ? 'Save changes' : 'Create'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -99,7 +99,7 @@ function EditDialog({
   }, [state, toast, onSaved, onOpenChange]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-xl">
         <form action={formAction}>
           {isEditing && <input type="hidden" name="_id" value={initial!._id} />}
@@ -108,35 +108,35 @@ function EditDialog({
           </ZoruDialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="link_name">Name <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruInput id="link_name" name="link_name" required defaultValue={initial?.link_name ?? ''} placeholder="My Dashboard" />
+              <Label htmlFor="link_name">Name <span className="text-zoru-danger-ink">*</span></Label>
+              <Input id="link_name" name="link_name" required defaultValue={initial?.link_name ?? ''} placeholder="My Dashboard" />
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="position">Order</ZoruLabel>
-              <ZoruInput id="position" name="position" type="number" defaultValue={String(initial?.position ?? 0)} />
+              <Label htmlFor="position">Order</Label>
+              <Input id="position" name="position" type="number" defaultValue={String(initial?.position ?? 0)} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <ZoruLabel htmlFor="url">URL <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruInput id="url" name="url" required defaultValue={initial?.url ?? ''} placeholder="https://example.com" />
+              <Label htmlFor="url">URL <span className="text-zoru-danger-ink">*</span></Label>
+              <Input id="url" name="url" required defaultValue={initial?.url ?? ''} placeholder="https://example.com" />
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="open_in_new_tab">Opens in</ZoruLabel>
-              <ZoruSelect name="open_in_new_tab" defaultValue={initial?.open_in_new_tab ? 'true' : 'false'}>
+              <Label htmlFor="open_in_new_tab">Opens in</Label>
+              <Select name="open_in_new_tab" defaultValue={initial?.open_in_new_tab ? 'true' : 'false'}>
                 <ZoruSelectTrigger id="open_in_new_tab"><ZoruSelectValue /></ZoruSelectTrigger>
                 <ZoruSelectContent>
                   <ZoruSelectItem value="false">Same tab</ZoruSelectItem>
                   <ZoruSelectItem value="true">New tab</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitBtn isEditing={isEditing} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -271,25 +271,25 @@ export function CustomLinksClient(): React.JSX.Element {
         title="Custom Links"
         subtitle="Extra links rendered in the workspace sidebar."
         primaryAction={
-          <ZoruButton onClick={() => { setEditing(null); setDialogOpen(true); }}>
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
             <Link2 className="mr-1.5 h-3.5 w-3.5" /> New Link
-          </ZoruButton>
+          </Button>
         }
         search={{ value: search, onChange: setSearch, placeholder: 'Search by name or URL…' }}
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect value={tabFilter} onValueChange={(v) => setTabFilter(v as TabFilter)}>
+            <Select value={tabFilter} onValueChange={(v) => setTabFilter(v as TabFilter)}>
               <ZoruSelectTrigger className="h-9 w-[160px]"><ZoruSelectValue placeholder="Opens in" /></ZoruSelectTrigger>
               <ZoruSelectContent>
                 <ZoruSelectItem value="all">All</ZoruSelectItem>
                 <ZoruSelectItem value="new_tab">New tab</ZoruSelectItem>
                 <ZoruSelectItem value="same_tab">Same tab</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {(search || tabFilter !== 'all') && (
-              <ZoruButton variant="ghost" size="sm" onClick={() => { setSearch(''); setTabFilter('all'); }}>
+              <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setTabFilter('all'); }}>
                 <X className="mr-1 h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             )}
           </div>
         }
@@ -297,15 +297,15 @@ export function CustomLinksClient(): React.JSX.Element {
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[12.5px]">
-                <ZoruBadge variant="default">{selected.size} selected</ZoruBadge>
+                <Badge variant="default">{selected.size} selected</Badge>
                 <button type="button" onClick={() => setSelected(new Set())} className="text-zoru-ink-muted hover:text-zoru-ink">Clear</button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</ZoruButton>
-                <ZoruButton variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</ZoruButton>
-                <ZoruButton variant="destructive" size="sm" disabled={bulkPending} onClick={() => setPendingBulk(true)}>
+                <Button variant="outline" size="sm" onClick={handleExportCsv}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</Button>
+                <Button variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</Button>
+                <Button variant="destructive" size="sm" disabled={bulkPending} onClick={() => setPendingBulk(true)}>
                   <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete {selected.size}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -321,25 +321,25 @@ export function CustomLinksClient(): React.JSX.Element {
         <div className="flex flex-col gap-4">
           {/* KPI strip */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-            <ZoruStatCard label="Total links" value={kpis.total.toLocaleString()} />
-            <ZoruStatCard label="Opens new tab" value={kpis.newTab.toLocaleString()} icon={<ExternalLink className="h-4 w-4" />} />
-            <ZoruStatCard label="Opens same tab" value={kpis.sameTab.toLocaleString()} />
+            <StatCard label="Total links" value={kpis.total.toLocaleString()} />
+            <StatCard label="Opens new tab" value={kpis.newTab.toLocaleString()} icon={<ExternalLink className="h-4 w-4" />} />
+            <StatCard label="Opens same tab" value={kpis.sameTab.toLocaleString()} />
           </div>
 
           {selected.size === 0 && (
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <ZoruButton variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={filtered.length === 0}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</ZoruButton>
+              <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</Button>
+              <Button variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={filtered.length === 0}><FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX</Button>
             </div>
           )}
 
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
-                      <ZoruCheckbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
+                      <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
                     </ZoruTableHead>
                     <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
                     <ZoruTableHead className="text-zoru-ink-muted">URL</ZoruTableHead>
@@ -351,7 +351,7 @@ export function CustomLinksClient(): React.JSX.Element {
                 <ZoruTableBody>
                   {loading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruTableRow key={i}><ZoruTableCell colSpan={6}><ZoruSkeleton className="h-8 w-full" /></ZoruTableCell></ZoruTableRow>
+                      <ZoruTableRow key={i}><ZoruTableCell colSpan={6}><Skeleton className="h-8 w-full" /></ZoruTableCell></ZoruTableRow>
                     ))
                   ) : pageRows.length === 0 ? (
                     <ZoruTableRow>
@@ -361,7 +361,7 @@ export function CustomLinksClient(): React.JSX.Element {
                     pageRows.map((row) => (
                       <ZoruTableRow key={row._id} className="border-zoru-line">
                         <ZoruTableCell>
-                          <ZoruCheckbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.link_name}`} />
+                          <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.link_name}`} />
                         </ZoruTableCell>
                         <ZoruTableCell className="font-medium text-foreground">
                           <RowDrawer label={row.link_name} title={`Custom Link · ${row.link_name}`} description="Link details. Use Edit to modify.">
@@ -377,26 +377,26 @@ export function CustomLinksClient(): React.JSX.Element {
                           <a href={row.url} target="_blank" rel="noreferrer" className="hover:underline">{row.url}</a>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px]">
-                          <ZoruBadge variant={row.open_in_new_tab ? 'warning' : 'ghost'}>
+                          <Badge variant={row.open_in_new_tab ? 'warning' : 'ghost'}>
                             {row.open_in_new_tab ? 'New tab' : 'Same tab'}
-                          </ZoruBadge>
+                          </Badge>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px] text-zoru-ink">{row.position ?? 0}</ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.link_name}`}>Edit</ZoruButton>
-                            <ZoruButton variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.link_name}`}>
+                            <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.link_name}`}>Edit</Button>
+                            <Button variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.link_name}`}>
                               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

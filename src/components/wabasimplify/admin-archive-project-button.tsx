@@ -49,7 +49,7 @@ export function AdminArchiveProjectButton({
 
     return (
         <ZoruAlertDialog open={open} onOpenChange={setOpen}>
-            <ZoruButton
+            <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setOpen(true)}
@@ -57,7 +57,7 @@ export function AdminArchiveProjectButton({
                 className="text-slate-500 hover:text-slate-900 hover:bg-slate-100"
             >
                 {isArchived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-            </ZoruButton>
+            </Button>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
                     <ZoruAlertDialogTitle>
@@ -71,14 +71,14 @@ export function AdminArchiveProjectButton({
                 </ZoruAlertDialogHeader>
                 <ZoruAlertDialogFooter className="mt-4">
                     <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruButton
+                    <Button
                         variant={isArchived ? 'default' : 'destructive'}
                         onClick={handleConfirm}
                         disabled={isPending}
                     >
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         {isArchived ? 'Restore' : 'Archive'}
-                    </ZoruButton>
+                    </Button>
                 </ZoruAlertDialogFooter>
             </ZoruAlertDialogContent>
         </ZoruAlertDialog>

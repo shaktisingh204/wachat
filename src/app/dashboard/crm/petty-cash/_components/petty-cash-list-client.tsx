@@ -222,14 +222,14 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search branch, custodian, status…"
             className="h-9 pl-9 text-[13px]"
           />
         </div>
-        <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Status" />
           </ZoruSelectTrigger>
@@ -241,8 +241,8 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={branchFilter} onValueChange={setBranchFilter}>
+        </Select>
+        <Select value={branchFilter} onValueChange={setBranchFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Branch" />
           </ZoruSelectTrigger>
@@ -254,8 +254,8 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={custodianFilter} onValueChange={setCustodianFilter}>
+        </Select>
+        <Select value={custodianFilter} onValueChange={setCustodianFilter}>
           <ZoruSelectTrigger className="h-9 w-[180px] text-[13px]">
             <ZoruSelectValue placeholder="Custodian" />
           </ZoruSelectTrigger>
@@ -267,11 +267,11 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
@@ -282,28 +282,28 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
-            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-8">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
@@ -334,7 +334,7 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
                 filtered.map((r) => (
                   <ZoruTableRow key={r._id}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(r._id)}
                         onCheckedChange={() => toggleOne(r._id)}
                         aria-label="Select"
@@ -364,19 +364,19 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
                       {fmtDate(r.lastToppedUpAt ?? r.lastReconciledAt)}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/crm/petty-cash/${r._id}/edit`}>
                           Edit
                         </Link>
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

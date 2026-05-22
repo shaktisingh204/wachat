@@ -84,22 +84,22 @@ const INITIAL_UPLOAD_STATE: UploadState = {};
 function ReelsPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-48" />
-          <ZoruSkeleton className="h-4 w-72" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-72" />
         </div>
-        <ZoruSkeleton className="h-9 w-32 rounded-full" />
+        <Skeleton className="h-9 w-32 rounded-full" />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <ZoruSkeleton className="h-24" />
-        <ZoruSkeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-72" />
+          <Skeleton key={i} className="h-72" />
         ))}
       </div>
     </div>
@@ -116,7 +116,7 @@ function MetricTile({
   icon: React.ReactNode;
 }) {
   return (
-    <ZoruCard variant="elevated" className="p-5">
+    <Card variant="elevated" className="p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -130,13 +130,13 @@ function MetricTile({
           {icon}
         </span>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
 function ReelTile({ reel }: { reel: Reel }) {
   return (
-    <ZoruCard variant="elevated" className="flex flex-col overflow-hidden">
+    <Card variant="elevated" className="flex flex-col overflow-hidden">
       <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-zoru-surface-2">
         {reel.picture ? (
           <Image
@@ -187,7 +187,7 @@ function ReelTile({ reel }: { reel: Reel }) {
           </a>
         )}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -258,7 +258,7 @@ export default function ReelsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -274,9 +274,9 @@ export default function ReelsPage() {
             <ZoruBreadcrumbPage>Reels</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
           <ZoruPageTitle>Reels</ZoruPageTitle>
@@ -285,18 +285,18 @@ export default function ReelsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruBadge variant="secondary">
+          <Badge variant="secondary">
             <Film />
             {reels.length} reel{reels.length === 1 ? "" : "s"}
-          </ZoruBadge>
-          <ZoruButton
+          </Badge>
+          <Button
             onClick={() => setUploadOpen(true)}
             disabled={!projectId}
           >
             <Upload /> Upload Reel
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 flex flex-col gap-6">
         {!projectId ? (
@@ -325,14 +325,14 @@ export default function ReelsPage() {
                 ))}
               </div>
             ) : (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Film />}
                 title="No reels yet"
                 description="Upload your first reel to start growing your Page audience."
                 action={
-                  <ZoruButton onClick={() => setUploadOpen(true)}>
+                  <Button onClick={() => setUploadOpen(true)}>
                     <Upload /> Upload Reel
-                  </ZoruButton>
+                  </Button>
                 }
               />
             )}
@@ -380,7 +380,7 @@ function UploadReelDialog({
   }, [state?.message]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Upload reel</ZoruDialogTitle>
@@ -394,14 +394,14 @@ function UploadReelDialog({
           <input type="hidden" name="projectId" value={projectId ?? ""} />
 
           {state?.error && (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           )}
 
           <div className="flex flex-col gap-2">
-            <ZoruLabel htmlFor="reel-description">Caption</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="reel-description">Caption</Label>
+            <Textarea
               id="reel-description"
               name="description"
               rows={3}
@@ -410,9 +410,9 @@ function UploadReelDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <ZoruLabel htmlFor="reel-video" required>
+            <Label htmlFor="reel-video" required>
               Video file
-            </ZoruLabel>
+            </Label>
             <label
               htmlFor="reel-video"
               className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface focus-within:border-zoru-ink"
@@ -439,19 +439,19 @@ function UploadReelDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={!projectId || !file}>
+            </Button>
+            <Button type="submit" disabled={!projectId || !file}>
               <Upload /> Publish reel
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

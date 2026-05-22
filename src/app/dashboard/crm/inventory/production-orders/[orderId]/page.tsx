@@ -103,7 +103,7 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
       }
       rightRail={
         <div className="flex flex-col gap-4">
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>BOM reference</ZoruCardTitle>
             </ZoruCardHeader>
@@ -126,9 +126,9 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
                 <span className="text-zoru-ink-muted">No BOM linked.</span>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Cost rollup</ZoruCardTitle>
             </ZoruCardHeader>
@@ -148,12 +148,12 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
                 </dd>
               </dl>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
       }
       audit={<EntityAuditTimeline entityKind="production_order" entityId={orderId} />}
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Order header</ZoruCardTitle>
         </ZoruCardHeader>
@@ -227,9 +227,9 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
             ) : null}
           </dl>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Yield & scrap</ZoruCardTitle>
         </ZoruCardHeader>
@@ -241,7 +241,7 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
                 {actual} / {planned} ({yieldPct}%)
               </span>
             </div>
-            <ZoruProgress value={yieldPct} />
+            <Progress value={yieldPct} />
           </div>
           <div>
             <div className="mb-1 flex items-center justify-between text-[12.5px]">
@@ -250,12 +250,12 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
                 {scrap} ({scrapPct}%)
               </span>
             </div>
-            <ZoruProgress value={scrapPct} />
+            <Progress value={scrapPct} />
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Component consumption ({components.length})</ZoruCardTitle>
         </ZoruCardHeader>
@@ -308,7 +308,7 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

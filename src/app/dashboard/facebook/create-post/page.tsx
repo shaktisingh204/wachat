@@ -83,10 +83,10 @@ type PostType = "text" | "image" | "video";
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="sm" disabled={pending || disabled}>
+    <Button type="submit" size="sm" disabled={pending || disabled}>
       {pending ? <Loader2 className="animate-spin" /> : <Send />}
       Publish
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -209,7 +209,7 @@ export default function CreateFacebookPostPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -225,9 +225,9 @@ export default function CreateFacebookPostPage() {
             <ZoruBreadcrumbPage>Create post</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false} className="mt-5">
+      <PageHeader bordered={false} className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
           <ZoruPageTitle>Create post</ZoruPageTitle>
@@ -237,13 +237,13 @@ export default function CreateFacebookPostPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/facebook/posts">
               <X /> Cancel
             </Link>
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <form action={formAction} ref={formRef} className="mt-6">
         <input type="hidden" name="projectId" value={projectId} />
@@ -263,13 +263,13 @@ export default function CreateFacebookPostPage() {
           {/* ── Composer ─────────────────────────────────────────── */}
           <div className="flex flex-col gap-6">
             {/* Identity */}
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Posting as</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent>
                 <div className="flex items-center gap-3">
-                  <ZoruAvatar>
+                  <Avatar>
                     {pageDetails?.picture?.data.url && (
                       <ZoruAvatarImage
                         src={pageDetails.picture.data.url}
@@ -279,7 +279,7 @@ export default function CreateFacebookPostPage() {
                     <ZoruAvatarFallback>
                       {pageDetails?.name?.charAt(0) ?? "P"}
                     </ZoruAvatarFallback>
-                  </ZoruAvatar>
+                  </Avatar>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-zoru-ink">
                       {pageDetails?.name ?? "Connected Page"}
@@ -290,19 +290,19 @@ export default function CreateFacebookPostPage() {
                   </div>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Message */}
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Message</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent>
                 <div className="flex flex-col gap-2">
-                  <ZoruLabel htmlFor="message" className="sr-only">
+                  <Label htmlFor="message" className="sr-only">
                     Post message
-                  </ZoruLabel>
-                  <ZoruTextarea
+                  </Label>
+                  <Textarea
                     id="message"
                     name="message"
                     value={message}
@@ -316,10 +316,10 @@ export default function CreateFacebookPostPage() {
                   </p>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Media */}
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Media</ZoruCardTitle>
               </ZoruCardHeader>
@@ -346,7 +346,7 @@ export default function CreateFacebookPostPage() {
                         className="w-full"
                       />
                     )}
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="outline"
                       size="icon-sm"
@@ -355,7 +355,7 @@ export default function CreateFacebookPostPage() {
                       onClick={clearMedia}
                     >
                       <X />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center">
@@ -391,27 +391,27 @@ export default function CreateFacebookPostPage() {
                   )}
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Scheduling */}
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Schedule</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-4">
                 <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-4 py-3">
                   <div className="flex flex-col">
-                    <ZoruLabel
+                    <Label
                       htmlFor="isScheduledSwitch"
                       className="font-semibold"
                     >
                       Schedule this post
-                    </ZoruLabel>
+                    </Label>
                     <span className="text-[12px] text-zoru-ink-muted">
                       Publish later at a specific date and time.
                     </span>
                   </div>
-                  <ZoruSwitch
+                  <Switch
                     id="isScheduledSwitch"
                     checked={isScheduled}
                     onCheckedChange={setIsScheduled}
@@ -420,19 +420,19 @@ export default function CreateFacebookPostPage() {
 
                 {isScheduled && (
                   <>
-                    <ZoruSeparator />
+                    <Separator />
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div className="flex flex-col gap-2">
-                        <ZoruLabel htmlFor="scheduledDate">Date</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label htmlFor="scheduledDate">Date</Label>
+                        <DatePicker
                           value={scheduledDate}
                           onChange={setScheduledDate}
                           placeholder="Pick a date"
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <ZoruLabel htmlFor="scheduledTime">Time</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="scheduledTime">Time</Label>
+                        <Input
                           id="scheduledTime"
                           name="scheduledTime"
                           type="time"
@@ -445,7 +445,7 @@ export default function CreateFacebookPostPage() {
                   </>
                 )}
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Actions */}
             <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg px-4 py-3">
@@ -457,9 +457,9 @@ export default function CreateFacebookPostPage() {
                   : "This post will be published immediately."}
               </p>
               <div className="flex items-center gap-2">
-                <ZoruButton type="button" variant="outline" size="sm" asChild>
+                <Button type="button" variant="outline" size="sm" asChild>
                   <Link href="/dashboard/facebook/posts">Cancel</Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton disabled={isPostDisabled} />
               </div>
             </div>
@@ -467,20 +467,20 @@ export default function CreateFacebookPostPage() {
 
           {/* ── Preview pane ─────────────────────────────────────── */}
           <div className="lg:sticky lg:top-6 lg:self-start">
-            <ZoruCard variant="elevated">
+            <Card variant="elevated">
               <ZoruCardHeader className="flex-row items-center justify-between">
                 <ZoruCardTitle>Preview</ZoruCardTitle>
-                <ZoruBadge variant="ghost">
+                <Badge variant="ghost">
                   {postType === "video"
                     ? "Video"
                     : postType === "image"
                     ? "Photo"
                     : "Text"}
-                </ZoruBadge>
+                </Badge>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
-                  <ZoruAvatar>
+                  <Avatar>
                     {pageDetails?.picture?.data.url && (
                       <ZoruAvatarImage
                         src={pageDetails.picture.data.url}
@@ -490,7 +490,7 @@ export default function CreateFacebookPostPage() {
                     <ZoruAvatarFallback>
                       {pageDetails?.name?.charAt(0) ?? "P"}
                     </ZoruAvatarFallback>
-                  </ZoruAvatar>
+                  </Avatar>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-zoru-ink">
                       {pageDetails?.name ?? "Connected Page"}
@@ -535,7 +535,7 @@ export default function CreateFacebookPostPage() {
                   </div>
                 )}
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </div>
         </div>
       </form>

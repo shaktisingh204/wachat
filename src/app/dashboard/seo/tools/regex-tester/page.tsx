@@ -32,15 +32,15 @@ export default function RegexTesterPage() {
   return (
     <ToolShell title="Regex Tester" description="Test regular expressions against sample text.">
       <div className="flex gap-2">
-        <ZoruInput value={pattern} onChange={(e) => setPattern(e.target.value)} placeholder="pattern" className="font-mono" />
-        <ZoruInput value={flags} onChange={(e) => setFlags(e.target.value)} placeholder="flags" className="w-24 font-mono" />
+        <Input value={pattern} onChange={(e) => setPattern(e.target.value)} placeholder="pattern" className="font-mono" />
+        <Input value={flags} onChange={(e) => setFlags(e.target.value)} placeholder="flags" className="w-24 font-mono" />
       </div>
-      <ZoruTextarea value={test} onChange={(e) => setTest(e.target.value)} placeholder="Test string…" className="min-h-[180px] font-mono text-xs" />
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      <Textarea value={test} onChange={(e) => setTest(e.target.value)} placeholder="Test string…" className="min-h-[180px] font-mono text-xs" />
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       <div className="text-sm text-muted-foreground">{matches.length} match(es)</div>
-      <ZoruCard><ZoruCardContent className="p-4">
+      <Card><ZoruCardContent className="p-4">
         <div className="font-mono text-xs whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: highlighted }} />
-      </ZoruCardContent></ZoruCard>
+      </ZoruCardContent></Card>
     </ToolShell>
   );
 }

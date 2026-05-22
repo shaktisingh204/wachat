@@ -111,7 +111,7 @@ export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                         <ZoruDropdownMenuTrigger asChild>
                             <button
                                 type="button"
@@ -140,7 +140,7 @@ export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
                                 </ZoruDropdownMenuItem>
                             ))}
                         </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                     <TicketSlaBadge
                         ticketId={id}
                         dueBy={ticket.dueBy}
@@ -157,7 +157,7 @@ export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
 
             <TicketConversation ticket={ticket} mode={mode} onModeChange={setMode} />
 
-            <ZoruDialog
+            <Dialog
                 open={mergeOpen}
                 onOpenChange={(o) => {
                     setMergeOpen(o);
@@ -173,7 +173,7 @@ export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Target ticket</ZoruLabel>
+                        <Label>Target ticket</Label>
                         <EntityFormField
                             entity="ticketGroup"
                             name="mergeTargetId"
@@ -183,22 +183,22 @@ export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
                         />
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             onClick={() => setMergeOpen(false)}
                             disabled={pending}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             onClick={confirmMerge}
                             disabled={pending || !mergeTargetId}
                         >
                             Merge
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

@@ -290,7 +290,7 @@ export default function TaskReportsPage() {
 
       {/* Segmented view switcher (no Tabs per project directive) */}
       <div className="inline-flex items-center rounded-lg border border-zoru-line bg-zoru-surface p-0.5 gap-0.5">
-        <ZoruButton
+        <Button
           variant={view === 'inbox' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setView('inbox')}
@@ -299,8 +299,8 @@ export default function TaskReportsPage() {
           <Inbox className="h-3.5 w-3.5" />
           Inbox
           {hasDirectReports === true ? ' (Manager)' : null}
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           variant={view === 'history' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setView('history')}
@@ -309,7 +309,7 @@ export default function TaskReportsPage() {
           <History className="h-3.5 w-3.5" />
           My History
           {hasDirectReports === false ? ' (Worker)' : null}
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* ── INBOX VIEW ── */}
@@ -323,14 +323,14 @@ export default function TaskReportsPage() {
             {/* Date range */}
             <div className="flex items-center gap-2">
               <label className="text-[12px] text-zoru-ink-muted whitespace-nowrap">From</label>
-              <ZoruInput
+              <Input
                 type="date"
                 className="h-8 text-[13px] w-36"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
               />
               <label className="text-[12px] text-zoru-ink-muted whitespace-nowrap">To</label>
-              <ZoruInput
+              <Input
                 type="date"
                 className="h-8 text-[13px] w-36"
                 value={toDate}
@@ -341,7 +341,7 @@ export default function TaskReportsPage() {
             {/* Status chips */}
             <div className="flex items-center gap-1">
               {(['all', 'unacknowledged', 'acknowledged'] as StatusFilter[]).map((s) => (
-                <ZoruButton
+                <Button
                   key={s}
                   size="sm"
                   variant={statusFilter === s ? 'default' : 'outline'}
@@ -349,12 +349,12 @@ export default function TaskReportsPage() {
                   className="h-8 capitalize"
                 >
                   {s === 'all' ? 'All' : s === 'unacknowledged' ? 'Unacknowledged' : 'Acknowledged'}
-                </ZoruButton>
+                </Button>
               ))}
             </div>
 
             {/* Worker search */}
-            <ZoruInput
+            <Input
               placeholder="Search by worker…"
               className="h-8 text-[13px] w-48"
               value={workerSearch}
@@ -362,14 +362,14 @@ export default function TaskReportsPage() {
             />
 
             {/* Apply filters */}
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={() => void refreshInbox()}
               className="h-8"
             >
               Apply
-            </ZoruButton>
+            </Button>
           </div>
 
           {/* Bulk action bar */}
@@ -378,7 +378,7 @@ export default function TaskReportsPage() {
               <span className="text-[13px] text-zoru-ink-muted">
                 {selectedIds.size} selected
               </span>
-              <ZoruButton
+              <Button
                 size="sm"
                 disabled={bulkAcking}
                 onClick={() => void handleBulkAcknowledge()}
@@ -386,8 +386,8 @@ export default function TaskReportsPage() {
               >
                 <CheckCheck className="h-3.5 w-3.5" />
                 {bulkAcking ? 'Acknowledging…' : 'Acknowledge Selected'}
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 disabled={exporting}
@@ -396,14 +396,14 @@ export default function TaskReportsPage() {
               >
                 <Download className="h-3.5 w-3.5" />
                 {exporting ? 'Exporting…' : 'Export Selected'}
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
           {/* Export all (no selection) */}
           {selectedIds.size === 0 && (
             <div className="flex justify-end">
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 disabled={exporting}
@@ -412,7 +412,7 @@ export default function TaskReportsPage() {
               >
                 <Download className="h-3.5 w-3.5" />
                 {exporting ? 'Exporting…' : 'Export CSV'}
-              </ZoruButton>
+              </Button>
             </div>
           )}
 

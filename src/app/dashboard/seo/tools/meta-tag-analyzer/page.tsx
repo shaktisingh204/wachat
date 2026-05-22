@@ -41,13 +41,13 @@ export default function MetaTagAnalyzerPage() {
   return (
     <ToolShell title="Meta Tag Analyzer" description="Inspect meta tags, Open Graph, and Twitter cards of any URL.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Analyze'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Analyze'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {parsed && (
         <>
-          <ZoruCard><ZoruCardContent className="p-4">
+          <Card><ZoruCardContent className="p-4">
             <div className="font-semibold text-sm mb-2">Meta Tags</div>
             <table className="w-full text-sm">
               <tbody>
@@ -56,22 +56,22 @@ export default function MetaTagAnalyzerPage() {
                 ))}
               </tbody>
             </table>
-          </ZoruCardContent></ZoruCard>
+          </ZoruCardContent></Card>
           {Object.keys(parsed.openGraph).length > 0 && (
-            <ZoruCard><ZoruCardContent className="p-4">
+            <Card><ZoruCardContent className="p-4">
               <div className="font-semibold text-sm mb-2">Open Graph</div>
               {Object.entries(parsed.openGraph).map(([k, v]) => (
                 <div key={k} className="text-xs border-t py-1"><span className="font-mono text-muted-foreground">{k}:</span> {v}</div>
               ))}
-            </ZoruCardContent></ZoruCard>
+            </ZoruCardContent></Card>
           )}
           {Object.keys(parsed.twitter).length > 0 && (
-            <ZoruCard><ZoruCardContent className="p-4">
+            <Card><ZoruCardContent className="p-4">
               <div className="font-semibold text-sm mb-2">Twitter</div>
               {Object.entries(parsed.twitter).map(([k, v]) => (
                 <div key={k} className="text-xs border-t py-1"><span className="font-mono text-muted-foreground">{k}:</span> {v}</div>
               ))}
-            </ZoruCardContent></ZoruCard>
+            </ZoruCardContent></Card>
           )}
         </>
       )}

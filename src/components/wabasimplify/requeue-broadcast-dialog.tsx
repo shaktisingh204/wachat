@@ -50,7 +50,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       variant="rose"
       size="md"
@@ -64,7 +64,7 @@ function SubmitButton() {
       }
     >
       {pending ? 'Requeueing…' : 'Requeue broadcast'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -129,7 +129,7 @@ export function RequeueBroadcastDialog({
   );
 
   return (
-    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <ZoruDialogTrigger asChild>
         <button
           type="button"
@@ -163,10 +163,10 @@ export function RequeueBroadcastDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Template select */}
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
                 Message template <span className="ml-1 text-destructive">*</span>
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 value={selectedTemplateId}
                 onValueChange={setSelectedTemplateId}
               >
@@ -194,13 +194,13 @@ export function RequeueBroadcastDialog({
                     </div>
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             {/* Header media (optional) */}
             {showImageUpload ? (
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel
+                <Label
                   htmlFor="headerImageUrl"
                   className="text-[11.5px] font-semibold text-muted-foreground"
                 >
@@ -208,8 +208,8 @@ export function RequeueBroadcastDialog({
                   <span className="ml-1 text-muted-foreground/70 font-normal">
                     (optional)
                   </span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="headerImageUrl"
                   name="headerImageUrl"
                   type="url"
@@ -224,10 +224,10 @@ export function RequeueBroadcastDialog({
 
             {/* Scope radio group */}
             <div className="flex flex-col gap-2">
-              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
                 Target contacts
-              </ZoruLabel>
-              <ZoruRadioGroup
+              </Label>
+              <RadioGroup
                 value={requeueScope}
                 onValueChange={(v) =>
                   setRequeueScope(v as 'ALL' | 'FAILED')
@@ -248,24 +248,24 @@ export function RequeueBroadcastDialog({
                   title="Only failed contacts"
                   description="Retry delivery only to the ones that failed last time."
                 />
-              </ZoruRadioGroup>
+              </RadioGroup>
             </div>
           </div>
 
           <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="pill"
               size="md"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

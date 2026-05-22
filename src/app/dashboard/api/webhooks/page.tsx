@@ -36,7 +36,7 @@ export default async function WebhooksPage(): Promise<JSX.Element> {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
@@ -46,9 +46,9 @@ export default async function WebhooksPage(): Promise<JSX.Element> {
             <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Webhooks</ZoruPageTitle>
           <ZoruPageDescription>
@@ -57,13 +57,13 @@ export default async function WebhooksPage(): Promise<JSX.Element> {
             auto-pauses a subscription after 50 consecutive failures.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loadError ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>{loadError}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       <WebhooksClient initialSubs={initialSubs} initialDeliveries={initialDeliveries} />

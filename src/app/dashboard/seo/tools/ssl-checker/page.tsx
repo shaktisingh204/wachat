@@ -26,12 +26,12 @@ export default function SslCheckerPage() {
   return (
     <ToolShell title="SSL Certificate Checker" description="Inspect the SSL certificate of any host.">
       <div className="flex gap-2">
-        <ZoruInput value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</ZoruButton>
+        <Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {data && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-2 text-sm">
+        <Card><ZoruCardContent className="p-4 space-y-2 text-sm">
           <div><span className="font-semibold">Host:</span> {data.host}</div>
           <div><span className="font-semibold">Trusted:</span> {data.authorized ? '✅ yes' : '⚠️ no'}</div>
           <div><span className="font-semibold">Protocol:</span> {data.protocol || '—'}</div>
@@ -41,7 +41,7 @@ export default function SslCheckerPage() {
           <div><span className="font-semibold">Valid to:</span> {data.validTo || '—'}</div>
           <div><span className="font-semibold">Days remaining:</span> {data.daysRemaining ?? '—'}</div>
           <div className="font-mono text-xs break-all"><span className="font-semibold">SHA-256:</span> {data.fingerprint256 || '—'}</div>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

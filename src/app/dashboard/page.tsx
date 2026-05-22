@@ -122,29 +122,29 @@ function greeting(): string {
 function HomeSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-center justify-between">
-        <ZoruSkeleton className="h-9 w-56" />
+        <Skeleton className="h-9 w-56" />
         <div className="flex gap-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-9 w-28 rounded-full" />
+            <Skeleton key={i} className="h-9 w-28 rounded-full" />
           ))}
         </div>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
-        <ZoruSkeleton className="h-[150px]" />
-        <ZoruSkeleton className="h-[150px]" />
+        <Skeleton className="h-[150px]" />
+        <Skeleton className="h-[150px]" />
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-11" />
-          <ZoruSkeleton className="h-11" />
-          <ZoruSkeleton className="h-11" />
+          <Skeleton className="h-11" />
+          <Skeleton className="h-11" />
+          <Skeleton className="h-11" />
         </div>
       </div>
       <div className="mt-10">
-        <ZoruSkeleton className="h-5 w-32" />
+        <Skeleton className="h-5 w-32" />
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-24" />
+            <Skeleton key={i} className="h-24" />
           ))}
         </div>
       </div>
@@ -187,9 +187,9 @@ function OnboardingSetupCard({
             </p>
           </div>
         </div>
-        <ZoruButton onClick={() => router.push("/onboarding")}>
+        <Button onClick={() => router.push("/onboarding")}>
           Continue setup <ArrowRight />
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -406,7 +406,7 @@ export default function HomePage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* ── Breadcrumb ── */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -420,7 +420,7 @@ export default function HomePage() {
             <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* ── Page header ── */}
       <div className="mt-5 flex items-end justify-between gap-6">
@@ -434,22 +434,22 @@ export default function HomePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => router.push("/dashboard/billing")}
           >
             {stats.planName || "Free plan"}
             <ChevronDown className="opacity-60" />
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download /> Export
-          </ZoruButton>
-          <ZoruDropdownMenu>
+          </Button>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 <Filter /> Filter
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end" className="w-56">
               <ZoruDropdownMenuLabel>Filter by</ZoruDropdownMenuLabel>
@@ -478,7 +478,7 @@ export default function HomePage() {
                 <AlarmClock /> Refresh data
               </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -580,21 +580,21 @@ export default function HomePage() {
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => router.push("/wachat/integrations")}
             >
               Integrations
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="icon-sm"
               aria-label="More"
               onClick={() => router.push("/dashboard/settings")}
             >
               <MoreHorizontal />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -775,12 +775,12 @@ export default function HomePage() {
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   {TIME_RANGE_LABELS[timeRange]}
                   <ChevronDown className="opacity-60" />
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
@@ -808,11 +808,11 @@ export default function HomePage() {
                   <ArrowUpRight /> Open analytics
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
 
-            <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+            <Button variant="outline" size="sm" onClick={handleExport}>
               <Download /> Export
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -898,7 +898,7 @@ export default function HomePage() {
 
       {/* ── Plan + Quick Modules + Recent Activity ── */}
       <section className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -924,36 +924,36 @@ export default function HomePage() {
           </div>
           <InitialsStack initials={projectInitials} className="mt-4" />
           <div className="mt-4 flex items-center gap-2">
-            <ZoruButton
+            <Button
               size="sm"
               className="flex-1"
               onClick={() => router.push("/dashboard/billing")}
             >
               Manage billing
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               className="flex-1"
               onClick={() => router.push("/dashboard/profile")}
             >
               Profile
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
 
         <div>
           <div className="flex items-center justify-between pb-3">
             <h3 className="text-[15px] text-zoru-ink">Quick Modules</h3>
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => router.push("/wachat/integrations")}
             >
               <Plus /> Add app
-            </ZoruButton>
+            </Button>
           </div>
-          <ZoruCard className="divide-y divide-zoru-line p-0">
+          <Card className="divide-y divide-zoru-line p-0">
             {moduleRows.map((row) => (
               <button
                 key={row.key}
@@ -970,10 +970,10 @@ export default function HomePage() {
                 <ArrowRight className="h-3.5 w-3.5 shrink-0 text-zoru-ink-subtle" />
               </button>
             ))}
-          </ZoruCard>
+          </Card>
         </div>
 
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-center justify-between">
             <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Recent Activity
@@ -1013,7 +1013,7 @@ export default function HomePage() {
               ))}
             </ul>
           )}
-        </ZoruCard>
+        </Card>
       </section>
 
       <div className="h-6" />
@@ -1047,7 +1047,7 @@ function BigStatCard({
   onCtaClick: () => void;
 }) {
   return (
-    <ZoruCard className="min-w-[260px] p-4">
+    <Card className="min-w-[260px] p-4">
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-zoru-ink-muted">
         <span className="inline-flex items-center gap-1">{metaLeft}</span>
         <span className="text-zoru-ink-subtle">·</span>
@@ -1075,11 +1075,11 @@ function BigStatCard({
 
       <div className="mt-3.5 flex items-center justify-between gap-3">
         <InitialsStack initials={tokens} />
-        <ZoruButton size="sm" onClick={onCtaClick}>
+        <Button size="sm" onClick={onCtaClick}>
           {ctaLabel} <ArrowRight />
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 

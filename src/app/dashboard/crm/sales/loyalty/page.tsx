@@ -296,16 +296,16 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
           placeholder: 'Search by program name…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/loyalty/new">
               <Plus className="h-4 w-4" /> New program
             </Link>
-          </ZoruButton>
+          </Button>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
             <div className="w-40">
-              <ZoruSelect
+              <Select
                 value={statusFilter}
                 onValueChange={(v) => {
                   setStatusFilter(v as StatusFilter);
@@ -322,7 +322,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="w-64">
               <ZoruDateRangePicker
@@ -335,15 +335,15 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
               />
             </div>
             {hasActiveFilters ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   <Download className="h-4 w-4" /> Export
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
@@ -353,18 +353,18 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                   <FileSpreadsheet className="h-4 w-4" /> XLSX
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </div>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-sm text-zoru-ink">
               <span className="font-medium">{selected.size} selected</span>
-              <ZoruDropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                  <ZoruButton variant="outline" size="sm">
+                  <Button variant="outline" size="sm">
                     Set status
-                  </ZoruButton>
+                  </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent>
                   <ZoruDropdownMenuItem onClick={() => runBulk('status', 'active')}>
@@ -380,12 +380,12 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                     Cancelled
                   </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
-              <ZoruDropdownMenu>
+              </DropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                  <ZoruButton variant="outline" size="sm">
+                  <Button variant="outline" size="sm">
                     <Download className="h-4 w-4" /> Export selected
-                  </ZoruButton>
+                  </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                   <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
@@ -395,13 +395,13 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                     <FileSpreadsheet className="h-4 w-4" /> XLSX
                   </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
-              <ZoruButton variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+              </DropdownMenu>
+              <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
                 Delete
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
                 Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -413,11 +413,11 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Launch your first program to reward repeat customers.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/loyalty/new">
                   <Plus className="h-4 w-4" /> New program
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -436,31 +436,31 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Total members"
               value={kpis.totalMembers.toLocaleString()}
               icon={<Users />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Points outstanding"
               value={kpis.pointsOutstanding.toLocaleString()}
               icon={<Coins />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Top-tier members"
               value={kpis.topTierMembers.toLocaleString()}
               icon={<Crown />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Redemption rate"
               value={`${kpis.redemptionRate.toLocaleString()}%`}
               icon={<RefreshCcw />}
             />
           </div>
 
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
@@ -518,18 +518,18 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                             {formatExpiryRule(p.expiryDays)}
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruBadge variant={getStatusVariant(p.status)}>
+                            <Badge variant={getStatusVariant(p.status)}>
                               {p.status || 'draft'}
-                            </ZoruBadge>
+                            </Badge>
                           </ZoruTableCell>
                         </ZoruTableRow>
                       );
                     })
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

@@ -164,7 +164,7 @@ function normalizeDemographics(d: any): {
 function DemoBars({ title, buckets }: { title: string; buckets: DemoBucket[] }) {
   const total = buckets.reduce((acc, b) => acc + b.value, 0);
   return (
-    <ZoruCard className="flex flex-col gap-3 p-4">
+    <Card className="flex flex-col gap-3 p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
         {title}
       </p>
@@ -180,13 +180,13 @@ function DemoBars({ title, buckets }: { title: string; buckets: DemoBucket[] }) 
                   <span className="text-zoru-ink">{b.label}</span>
                   <span className="text-zoru-ink-muted">{pct}%</span>
                 </div>
-                <ZoruProgress value={pct} />
+                <Progress value={pct} />
               </li>
             );
           })}
         </ul>
       )}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -267,7 +267,7 @@ export default function FacebookAudiencePage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Users />}
           title="No project selected"
           description="Pick a Facebook page / project to view audience demographics and segments."
@@ -278,7 +278,7 @@ export default function FacebookAudiencePage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -292,7 +292,7 @@ export default function FacebookAudiencePage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Audience</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -302,31 +302,31 @@ export default function FacebookAudiencePage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
-          <ZoruButton onClick={() => setDialogOpen(true)}>
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New segment
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load audience data</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {loading && !demographics ? (
           <>
-            <ZoruSkeleton className="h-40 w-full" />
-            <ZoruSkeleton className="h-40 w-full" />
-            <ZoruSkeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
           </>
         ) : (
           <>
@@ -337,18 +337,18 @@ export default function FacebookAudiencePage(): React.JSX.Element {
         )}
       </section>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Saved segments</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
           {loading && segments.length === 0 ? (
             <div className="flex flex-col gap-2">
-              <ZoruSkeleton className="h-12 w-full" />
-              <ZoruSkeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
             </div>
           ) : segments.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Users />}
               title="No segments yet"
               description="Create a segment to group people by gender, age, or location for campaigns."
@@ -387,9 +387,9 @@ export default function FacebookAudiencePage(): React.JSX.Element {
                         </p>
                       ) : null}
                     </div>
-                    <ZoruBadge variant="secondary">
+                    <Badge variant="secondary">
                       {Number(size).toLocaleString()} contacts
-                    </ZoruBadge>
+                    </Badge>
                     <span className="text-[11px] text-zoru-ink-muted">
                       {fmtDate(s.createdAt)}
                     </span>
@@ -399,9 +399,9 @@ export default function FacebookAudiencePage(): React.JSX.Element {
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>New audience segment</ZoruDialogTitle>
@@ -411,8 +411,8 @@ export default function FacebookAudiencePage(): React.JSX.Element {
           </ZoruDialogHeader>
           <div className="flex flex-col gap-3 py-2">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="seg-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="seg-name">Name</Label>
+              <Input
                 id="seg-name"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
@@ -420,8 +420,8 @@ export default function FacebookAudiencePage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="seg-desc">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="seg-desc">Description</Label>
+              <Textarea
                 id="seg-desc"
                 value={formDesc}
                 onChange={(e) => setFormDesc(e.target.value)}
@@ -431,8 +431,8 @@ export default function FacebookAudiencePage(): React.JSX.Element {
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="seg-gender">Gender</ZoruLabel>
-                <ZoruSelect value={formGender} onValueChange={setFormGender}>
+                <Label htmlFor="seg-gender">Gender</Label>
+                <Select value={formGender} onValueChange={setFormGender}>
                   <ZoruSelectTrigger id="seg-gender">
                     <ZoruSelectValue placeholder="Any" />
                   </ZoruSelectTrigger>
@@ -441,11 +441,11 @@ export default function FacebookAudiencePage(): React.JSX.Element {
                     <ZoruSelectItem value="male">Male</ZoruSelectItem>
                     <ZoruSelectItem value="female">Female</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="seg-age-min">Min age</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="seg-age-min">Min age</Label>
+                <Input
                   id="seg-age-min"
                   type="number"
                   min={13}
@@ -454,8 +454,8 @@ export default function FacebookAudiencePage(): React.JSX.Element {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="seg-age-max">Max age</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="seg-age-max">Max age</Label>
+                <Input
                   id="seg-age-max"
                   type="number"
                   min={13}
@@ -466,19 +466,19 @@ export default function FacebookAudiencePage(): React.JSX.Element {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setDialogOpen(false)}
               disabled={saving}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={saving}>
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
               {saving ? 'Saving...' : 'Save segment'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

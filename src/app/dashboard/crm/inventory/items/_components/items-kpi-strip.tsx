@@ -41,7 +41,7 @@ export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStrip
         onClick={() => onSelect('all')}
         ariaLabel="Show all SKUs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Total SKUs"
           value={kpi.totalCount.toLocaleString()}
           period="all items"
@@ -53,14 +53,14 @@ export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStrip
         onClick={() => onSelect('active')}
         ariaLabel="Show active SKUs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Active"
           value={kpi.activeCount.toLocaleString()}
           period="not archived"
           icon={<CheckCircle2 />}
         />
       </KpiButton>
-      <ZoruStatCard
+      <StatCard
         label="In stock"
         value={kpi.inStockCount.toLocaleString()}
         period="on-hand > 0"
@@ -71,7 +71,7 @@ export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStrip
         onClick={() => onSelect('low-stock')}
         ariaLabel="Show low-stock SKUs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Low stock"
           value={kpi.lowStockCount.toLocaleString()}
           period="≤ reorder point"
@@ -84,7 +84,7 @@ export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStrip
         onClick={() => onSelect('out-of-stock')}
         ariaLabel="Show out-of-stock SKUs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Out of stock"
           value={kpi.outOfStockCount.toLocaleString()}
           period="0 on hand"
@@ -92,7 +92,7 @@ export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStrip
           invertDelta
         />
       </KpiButton>
-      <ZoruStatCard
+      <StatCard
         label="Inventory value"
         value={fmtMoney(kpi.inventoryValue, currency)}
         period="cost × on-hand"

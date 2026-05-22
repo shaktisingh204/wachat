@@ -249,8 +249,8 @@ export default function SocialAuthIntegrationPage() {
         >
           {!doc && !docId ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -265,20 +265,20 @@ export default function SocialAuthIntegrationPage() {
                     <h3 className="text-[13px] font-medium text-zoru-ink">
                       {p.title}
                     </h3>
-                    <ZoruBadge
+                    <Badge
                       variant={on ? 'success' : 'ghost'}
                       className="font-normal"
                     >
                       {on ? 'Enabled' : 'Disabled'}
-                    </ZoruBadge>
+                    </Badge>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <ZoruLabel htmlFor={String(p.idKey)}>
+                      <Label htmlFor={String(p.idKey)}>
                         {p.idLabel}
-                      </ZoruLabel>
+                      </Label>
                       <div className="mt-1.5">
-                        <ZoruInput
+                        <Input
                           id={String(p.idKey)}
                           name={String(p.idKey)}
                           defaultValue={v(p.idKey)}
@@ -286,11 +286,11 @@ export default function SocialAuthIntegrationPage() {
                       </div>
                     </div>
                     <div>
-                      <ZoruLabel htmlFor={String(p.secretKey)}>
+                      <Label htmlFor={String(p.secretKey)}>
                         {p.secretLabel}
-                      </ZoruLabel>
+                      </Label>
                       <div className="mt-1.5">
-                        <ZoruInput
+                        <Input
                           id={String(p.secretKey)}
                           name={String(p.secretKey)}
                           type="password"
@@ -304,18 +304,18 @@ export default function SocialAuthIntegrationPage() {
             })}
 
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -327,7 +327,7 @@ export default function SocialAuthIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <IntegrationActivityFeed

@@ -31,7 +31,7 @@ const initialState = {
 function SubmitButton() {
   const [isPending, startTransition] = useTransition();
   return (
-    <ZoruButton type="submit" disabled={isPending}>
+    <Button type="submit" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -40,7 +40,7 @@ function SubmitButton() {
       ) : (
         'Sync Projects'
       )}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -75,12 +75,12 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
   }, [state, toast, onSuccess]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline">
+        <Button variant="outline">
           <RefreshCw className="mr-2 h-4 w-4" />
           Add WABA from Meta
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={action} ref={formRef}>
@@ -93,8 +93,8 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
 
           <div className="grid gap-4 py-4">
              <div className="space-y-2">
-                <ZoruLabel htmlFor="wabaId">WhatsApp Business Account ID</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="wabaId">WhatsApp Business Account ID</Label>
+                <Input
                     id="wabaId"
                     name="wabaId"
                     placeholder="e.g. 102345678901234"
@@ -106,8 +106,8 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 </p>
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="accessToken">Meta Access Token</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="accessToken">Meta Access Token</Label>
+              <Input
                 id="accessToken"
                 name="accessToken"
                 type="password"
@@ -119,8 +119,8 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
               </p>
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="appId">App ID</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="appId">App ID</Label>
+                <Input
                     id="appId"
                     name="appId"
                     placeholder="Your Meta App ID"
@@ -128,14 +128,14 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 />
             </div>
              <div className="space-y-2">
-                <ZoruLabel htmlFor="groupName">Group Name (Optional)</ZoruLabel>
-                <ZoruInput id="groupName" name="groupName" placeholder="e.g. My Agency's Clients" />
+                <Label htmlFor="groupName">Group Name (Optional)</Label>
+                <Input id="groupName" name="groupName" placeholder="e.g. My Agency's Clients" />
                 <p className="text-xs text-muted-foreground">The added project will be placed into this new group.</p>
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-            <ZoruButton type="submit" disabled={isPending}>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={isPending}>
                 {isPending ? (
                     <>
                     <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -144,10 +144,10 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 ) : (
                     'Add WABA'
                 )}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

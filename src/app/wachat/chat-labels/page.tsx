@@ -105,7 +105,7 @@ export default function ChatLabelsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -119,7 +119,7 @@ export default function ChatLabelsPage() {
             <ZoruBreadcrumbPage>Chat Labels</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="min-w-0">
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -130,14 +130,14 @@ export default function ChatLabelsPage() {
         </p>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[16px] text-zoru-ink">Create a label</h2>
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="color" value={selectedColor} />
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="label-name">Label name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="label-name">Label name</Label>
+            <Input
               id="label-name"
               name="name"
               placeholder="Label name"
@@ -164,19 +164,19 @@ export default function ChatLabelsPage() {
             ))}
           </div>
           <div>
-            <ZoruButton
+            <Button
               type="submit"
               size="md"
               disabled={isPending || !projectId}
             >
               <Plus />
               {isPending ? 'Saving...' : 'Create Label'}
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[16px] text-zoru-ink">
           Your Labels ({labels.length})
         </h2>
@@ -185,7 +185,7 @@ export default function ChatLabelsPage() {
             <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
         ) : labels.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Tag />}
             title="No labels yet"
             description="Create your first label using the form above."
@@ -216,7 +216,7 @@ export default function ChatLabelsPage() {
             ))}
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       <div className="h-6" />
     </div>

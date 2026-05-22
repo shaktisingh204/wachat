@@ -290,16 +290,16 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
               {row.name}
             </Link>
             {row.deprecated && (
-              <ZoruBadge variant="outline" className="text-rose-700">
+              <Badge variant="outline" className="text-rose-700">
                 Deprecated
-              </ZoruBadge>
+              </Badge>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-1">
             {row.tags.slice(0, 4).map((t) => (
-              <ZoruBadge key={t} variant="secondary" className="text-[10px]">
+              <Badge key={t} variant="secondary" className="text-[10px]">
                 {t}
-              </ZoruBadge>
+              </Badge>
             ))}
             {row.tags.length > 4 && (
               <span className="text-[10px] text-slate-500">+{row.tags.length - 4}</span>
@@ -313,7 +313,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
       id: "status",
       header: "Status",
       render: (row) => (
-        <ZoruBadge variant={STATUS_VARIANT[row.status]}>{row.status}</ZoruBadge>
+        <Badge variant={STATUS_VARIANT[row.status]}>{row.status}</Badge>
       ),
       width: "120px",
     },
@@ -330,7 +330,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
       header: "Preview",
       render: (row) => (
         <ZoruTooltipProvider>
-          <ZoruTooltip>
+          <Tooltip>
             <ZoruTooltipTrigger asChild>
               <span className="line-clamp-1 max-w-[320px] cursor-help text-xs text-slate-600">
                 {row.bodyPreview || <em className="text-slate-400">empty</em>}
@@ -339,7 +339,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
             <ZoruTooltipContent className="max-w-sm whitespace-pre-wrap text-left">
               {row.bodyPreview || "(empty)"}
             </ZoruTooltipContent>
-          </ZoruTooltip>
+          </Tooltip>
         </ZoruTooltipProvider>
       ),
     },
@@ -349,14 +349,14 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
       render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.dltRegistered && (
-            <ZoruBadge variant="outline" className="text-emerald-700">
+            <Badge variant="outline" className="text-emerald-700">
               <ShieldCheck className="mr-1 h-3 w-3" /> DLT
-            </ZoruBadge>
+            </Badge>
           )}
           {row.tendlcRegistered && (
-            <ZoruBadge variant="outline" className="text-blue-700">
+            <Badge variant="outline" className="text-blue-700">
               <ShieldCheck className="mr-1 h-3 w-3" /> 10DLC
-            </ZoruBadge>
+            </Badge>
           )}
           {!row.dltRegistered && !row.tendlcRegistered && (
             <span className="text-xs text-slate-400">—</span>
@@ -371,7 +371,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
       align: "right",
       render: (row) => (
         <ZoruTooltipProvider>
-          <ZoruTooltip>
+          <Tooltip>
             <ZoruTooltipTrigger asChild>
               <span className="cursor-help font-mono text-xs">
                 {row.variables.length}
@@ -382,7 +382,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
                 ? "No variables declared"
                 : row.variables.map((v) => `{{${v}}}`).join(", ")}
             </ZoruTooltipContent>
-          </ZoruTooltip>
+          </Tooltip>
         </ZoruTooltipProvider>
       ),
       width: "70px",
@@ -394,9 +394,9 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
       render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.locales.map((l) => (
-            <ZoruBadge key={l} variant="secondary" className="text-[10px]">
+            <Badge key={l} variant="secondary" className="text-[10px]">
               {l}
-            </ZoruBadge>
+            </Badge>
           ))}
         </div>
       ),
@@ -514,13 +514,13 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
               <Upload className="mr-1.5 h-3.5 w-3.5" />
               Import JSON
             </SabFilePickerButton>
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setImportOpen(true)}
             >
               Paste JSON
-            </ZoruButton>
+            </Button>
             <SabsmsExportMenu
               filename="sabsms-templates"
               toCsv={async () =>
@@ -592,7 +592,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
                 key={`${e.at}-${i}`}
                 className="flex items-start gap-3 rounded-md border border-slate-200 p-3"
               >
-                <ZoruBadge variant="outline">{e.kind}</ZoruBadge>
+                <Badge variant="outline">{e.kind}</Badge>
                 <div className="flex-1">
                   <p className="text-sm text-slate-700">{e.detail}</p>
                   <p className="text-xs text-slate-500">
@@ -606,7 +606,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
       </SabsmsDetailDrawer>
 
       {/* Inline tag editor */}
-      <ZoruDialog
+      <Dialog
         open={tagsEditorId !== null}
         onOpenChange={(open) => !open && setTagsEditorId(null)}
       >
@@ -620,8 +620,8 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="tags-input">Tags</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="tags-input">Tags</Label>
+            <Input
               id="tags-input"
               value={tagsDraft}
               onChange={(e) => setTagsDraft(e.target.value)}
@@ -629,16 +629,16 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setTagsEditorId(null)}>
+            <Button variant="outline" onClick={() => setTagsEditorId(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={saveTags}>Save</ZoruButton>
+            </Button>
+            <Button onClick={saveTags}>Save</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Import dialog */}
-      <ZoruDialog open={importOpen} onOpenChange={setImportOpen}>
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Import templates</ZoruDialogTitle>
@@ -647,28 +647,28 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
               Imports are created as drafts.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruTextarea
+          <Textarea
             value={importJson}
             onChange={(e) => setImportJson(e.target.value)}
             placeholder={`{\n  "templates": [\n    { "name": "Welcome", "category": "transactional", "bodies": [{ "locale": "en", "body": "Hi {{name}}!" }] }\n  ]\n}`}
             className="min-h-[220px] font-mono text-xs"
           />
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setImportOpen(false)}>
+            <Button variant="outline" onClick={() => setImportOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={handleImportFromText}
               disabled={!importJson.trim() || importBusy}
             >
               {importBusy ? "Importing…" : "Import"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Convert-to-drip suggestion */}
-      <ZoruDialog
+      <Dialog
         open={convertId !== null}
         onOpenChange={(open) => !open && setConvertId(null)}
       >
@@ -686,17 +686,17 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
             edit before saving.
           </p>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setConvertId(null)}>
+            <Button variant="outline" onClick={() => setConvertId(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton asChild>
+            </Button>
+            <Button asChild>
               <Link href={`/sabsms/drips/new?fromTemplate=${convertId ?? ""}`}>
                 Open drip builder
               </Link>
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

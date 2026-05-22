@@ -39,7 +39,7 @@ export default function WordCounterPage() {
 
   return (
     <ToolShell title="Word Counter" description="Count words, characters, sentences, and estimate reading time.">
-      <ZoruTextarea
+      <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste or type your content…"
@@ -47,12 +47,12 @@ export default function WordCounterPage() {
       />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {boxes.map((b) => (
-          <ZoruCard key={b.label}>
+          <Card key={b.label}>
             <ZoruCardContent className="p-4">
               <div className="text-2xl font-bold">{b.value}</div>
               <div className="text-xs text-muted-foreground">{b.label}</div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     </ToolShell>

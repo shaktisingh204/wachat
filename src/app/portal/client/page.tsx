@@ -74,7 +74,7 @@ export default async function ClientPortalDashboardPage() {
                     const Icon = tile.icon;
                     return (
                         <Link key={tile.label} href={tile.href}>
-                            <ZoruCard className="transition-colors hover:bg-zoru-surface-2">
+                            <Card className="transition-colors hover:bg-zoru-surface-2">
                                 <ZoruCardContent className="flex items-center justify-between p-4">
                                     <div>
                                         <div className="text-xs text-zoru-ink-muted">{tile.label}</div>
@@ -82,14 +82,14 @@ export default async function ClientPortalDashboardPage() {
                                     </div>
                                     <Icon className="h-5 w-5 text-zoru-ink-muted" />
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         </Link>
                     );
                 })}
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <ZoruCard className="lg:col-span-2">
+                <Card className="lg:col-span-2">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Recent Activity</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -122,9 +122,9 @@ export default async function ClientPortalDashboardPage() {
                             </ul>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Quick Links</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -145,7 +145,7 @@ export default async function ClientPortalDashboardPage() {
                             })}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

@@ -10,8 +10,8 @@ export function StartEditor({ node, onUpdate }: EditorProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <ZoruLabel htmlFor="triggerKeywords">Trigger Keywords</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="triggerKeywords">Trigger Keywords</Label>
+        <Input
           id="triggerKeywords"
           placeholder="e.g., help, menu"
           value={node.data.triggerKeywords || ''}
@@ -20,8 +20,8 @@ export function StartEditor({ node, onUpdate }: EditorProps) {
         <p className="text-xs text-muted-foreground">Comma-separated keywords to start this flow.</p>
       </div>
        <div className="space-y-2">
-        <ZoruLabel htmlFor="startMessage">Starting Message (Optional)</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="startMessage">Starting Message (Optional)</Label>
+        <Textarea
           id="startMessage"
           placeholder="e.g., Welcome! Let's get started."
           value={node.data.startMessage || ''}

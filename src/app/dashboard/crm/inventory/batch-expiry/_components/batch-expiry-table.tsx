@@ -133,7 +133,7 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
     return (
         <>
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                             <ZoruTableHead className="text-zoru-ink-muted">
@@ -208,24 +208,24 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruButton variant="ghost" size="icon" asChild>
+                                        <Button variant="ghost" size="icon" asChild>
                                             <Link href={`${BASE}/${b._id}/edit`}>
                                                 <Edit className="h-4 w-4" />
                                             </Link>
-                                        </ZoruButton>
-                                        <ZoruButton
+                                        </Button>
+                                        <Button
                                             variant="ghost"
                                             size="icon"
                                             onClick={() => setPendingDelete(b)}
                                         >
                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                        </ZoruButton>
+                                        </Button>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
 
             <ZoruAlertDialog

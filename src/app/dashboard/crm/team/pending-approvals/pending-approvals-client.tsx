@@ -138,26 +138,26 @@ export function PendingApprovalsClient({
 
   if (loadError) {
     return (
-      <ZoruCard className="p-8 text-center">
+      <Card className="p-8 text-center">
         <p className="text-sm text-zoru-danger">{loadError}</p>
-      </ZoruCard>
+      </Card>
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Pending approvals</ZoruPageTitle>
           <ZoruPageDescription>
             Review new client signups awaiting admin approval. Approve to activate, or reject with a reason.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <p className="text-[12.5px] text-zoru-ink-muted">Total pending</p>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
@@ -165,8 +165,8 @@ export function PendingApprovalsClient({
             </div>
           </div>
           <p className="mt-3 text-[26px] leading-none text-zoru-ink">{kpis.totalPending}</p>
-        </ZoruCard>
-        <ZoruCard className="p-6">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <p className="text-[12.5px] text-zoru-ink-muted">Oldest pending</p>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
@@ -176,38 +176,38 @@ export function PendingApprovalsClient({
           <p className="mt-3 text-[26px] leading-none text-zoru-ink">
             {kpis.oldestDays} day{kpis.oldestDays === 1 ? '' : 's'}
           </p>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <ZoruCard className="flex flex-wrap items-center justify-between gap-3 p-4">
+        <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
           <span className="text-sm text-zoru-ink-muted">
             {selected.size} selected
           </span>
           <div className="flex items-center gap-2">
-            <ZoruButton size="sm" onClick={handleBulkApprove} disabled={isPending}>
+            <Button size="sm" onClick={handleBulkApprove} disabled={isPending}>
               <Check className="h-4 w-4" strokeWidth={1.75} /> Approve all
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={() => openReject(Array.from(selected))}
               disabled={isPending}
             >
               <X className="h-4 w-4" strokeWidth={1.75} /> Reject all
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Table */}
-      <ZoruCard>
-        <ZoruTable>
+      <Card>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead className="w-10">
-                <ZoruCheckbox
+                <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
@@ -232,7 +232,7 @@ export function PendingApprovalsClient({
               rows.map((row) => (
                 <ZoruTableRow key={row._id}>
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={selected.has(row._id)}
                       onCheckedChange={() => toggleOne(row._id)}
                       aria-label={`Select ${row.name}`}
@@ -245,37 +245,37 @@ export function PendingApprovalsClient({
                     {new Date(row.signedUpAt).toLocaleString()}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge variant={row.daysPending > 7 ? 'destructive' : 'ghost'}>
+                    <Badge variant={row.daysPending > 7 ? 'destructive' : 'ghost'}>
                       {row.daysPending}d
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex items-center justify-end gap-2">
-                      <ZoruButton
+                      <Button
                         size="sm"
                         onClick={() => handleApprove(row._id)}
                         disabled={isPending}
                       >
                         Approve
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => openReject([row._id])}
                         disabled={isPending}
                       >
                         Reject
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))
             )}
           </ZoruTableBody>
-        </ZoruTable>
-      </ZoruCard>
+        </Table>
+      </Card>
 
-      <ZoruDialog open={rejectOpen !== null} onOpenChange={(o) => !o && setRejectOpen(null)}>
+      <Dialog open={rejectOpen !== null} onOpenChange={(o) => !o && setRejectOpen(null)}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Reject signup{rejectOpen && rejectOpen.ids.length > 1 ? 's' : ''}</ZoruDialogTitle>
@@ -283,22 +283,22 @@ export function PendingApprovalsClient({
               The user will be notified. Rejected accounts are kept for 30 days then auto-deleted.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruTextarea
+          <Textarea
             placeholder="Reason for rejection (optional)"
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             rows={4}
           />
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setRejectOpen(null)}>
+            <Button variant="outline" onClick={() => setRejectOpen(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleConfirmReject} disabled={isPending}>
+            </Button>
+            <Button onClick={handleConfirmReject} disabled={isPending}>
               Confirm reject
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

@@ -389,21 +389,21 @@ export function DiscussionsListClient({
                 }}
                 primaryAction={
                     <div className="flex gap-2">
-                        <ZoruButton asChild variant="outline">
+                        <Button asChild variant="outline">
                             <Link href="/dashboard/crm/workspace/discussions/categories">
                                 Categories
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link href="/dashboard/crm/workspace/discussions/new">
                                 <Plus className="h-4 w-4" /> New discussion
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
@@ -416,8 +416,8 @@ export function DiscussionsListClient({
                                 <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
                                 <ZoruSelectItem value="pinned">Pinned</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={filters.category || 'any'}
                             onValueChange={(v) =>
                                 updateFilter('category', v === 'any' ? '' : v)
@@ -434,15 +434,15 @@ export function DiscussionsListClient({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruInput
+                        </Select>
+                        <Input
                             type="date"
                             value={filters.fromIso}
                             onChange={(e) => updateFilter('fromIso', e.target.value)}
                             className="h-9 w-[150px]"
                             aria-label="From"
                         />
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={filters.toIso}
                             onChange={(e) => updateFilter('toIso', e.target.value)}
@@ -450,13 +450,13 @@ export function DiscussionsListClient({
                             aria-label="To"
                         />
                         {hasActiveFilters ? (
-                            <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                            <Button variant="ghost" size="sm" onClick={clearFilters}>
                                 <X className="h-3.5 w-3.5" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
-                        <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                        <Button variant="ghost" size="sm" onClick={exportCsv}>
                             Export CSV
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 bulkBar={
@@ -466,34 +466,34 @@ export function DiscussionsListClient({
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('close')}
                                 >
                                     Close
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('pin')}
                                 >
                                     <Pin className="h-3.5 w-3.5" /> Pin
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('delete')}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setSelected(new Set())}
                                 >
                                     Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -507,11 +507,11 @@ export function DiscussionsListClient({
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Start a thread to surface a question or proposal for the team.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/workspace/discussions/new">
                                     <Plus className="h-4 w-4" /> Start discussion
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -520,22 +520,22 @@ export function DiscussionsListClient({
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total"
                             value={mergedKpis.total}
                             icon={<MessagesSquare className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Open"
                             value={mergedKpis.active}
                             icon={<MessageSquare className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Closed"
                             value={mergedKpis.pending}
                             icon={<MessageSquare className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Replies this week"
                             value={mergedKpis.repliesThisWeek}
                             icon={<MessagesSquare className="h-4 w-4" />}
@@ -644,7 +644,7 @@ function DiscussionsTable({
                 <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                     <tr>
                         <th className="px-3 py-2">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all"
                                 checked={allSelected}
                                 onCheckedChange={(v) => onToggleAll(!!v)}
@@ -686,7 +686,7 @@ function DiscussionsTable({
                         return (
                             <tr key={d._id} className="hover:bg-zoru-surface">
                                 <td className="px-3 py-2">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         aria-label={`Select ${d.title}`}
                                         checked={checked}
                                         onCheckedChange={() => onToggleOne(d._id)}
@@ -699,9 +699,9 @@ function DiscussionsTable({
                                     />
                                 </td>
                                 <td className="px-3 py-2">
-                                    <ZoruBadge variant="ghost">
+                                    <Badge variant="ghost">
                                         {cat?.name ?? 'Uncategorized'}
-                                    </ZoruBadge>
+                                    </Badge>
                                 </td>
                                 <td className="px-3 py-2 text-zoru-ink-muted">
                                     {replies.length}
@@ -717,31 +717,31 @@ function DiscussionsTable({
                                 </td>
                                 <td className="px-3 py-2">
                                     {pinned ? (
-                                        <ZoruBadge variant="warning">
+                                        <Badge variant="warning">
                                             <Pin className="h-3 w-3" /> Pinned
-                                        </ZoruBadge>
+                                        </Badge>
                                     ) : (
                                         <span className="text-zoru-ink-muted">—</span>
                                     )}
                                 </td>
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex justify-end gap-1">
-                                        <ZoruButton
+                                        <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => onPin(d._id)}
                                             aria-label={pinned ? 'Unpin' : 'Pin'}
                                         >
                                             <Pin className="h-3.5 w-3.5" />
-                                        </ZoruButton>
-                                        <ZoruButton
+                                        </Button>
+                                        <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => onDelete(d._id)}
                                             aria-label={`Delete ${d.title}`}
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -782,7 +782,7 @@ function DiscussionsKanban({
                                 <h4 className="text-[12.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                     {col.name}
                                 </h4>
-                                <ZoruBadge variant="ghost">{items.length}</ZoruBadge>
+                                <Badge variant="ghost">{items.length}</Badge>
                             </div>
                             <div className="flex flex-col gap-2">
                                 {items.map((d) => {
@@ -793,7 +793,7 @@ function DiscussionsKanban({
                                             href={`/dashboard/crm/workspace/discussions/${d._id}`}
                                             className="block"
                                         >
-                                            <ZoruCard className="text-[12.5px] hover:bg-zoru-bg">
+                                            <Card className="text-[12.5px] hover:bg-zoru-bg">
                                                 <p className="font-semibold text-zoru-ink">
                                                     {d.title}
                                                 </p>
@@ -809,7 +809,7 @@ function DiscussionsKanban({
                                                     <span>·</span>
                                                     <span>{fmtDate(d.createdAt)}</span>
                                                 </div>
-                                            </ZoruCard>
+                                            </Card>
                                         </Link>
                                     );
                                 })}

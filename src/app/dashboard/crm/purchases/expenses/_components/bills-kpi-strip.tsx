@@ -49,7 +49,7 @@ export function BillsKpiStrip({
         onClick={() => onSelect('all')}
         ariaLabel="Show all unpaid bills"
       >
-        <ZoruStatCard
+        <StatCard
           label="Outstanding"
           value={fmtMoney(kpi.outstanding, currency)}
           period="non-paid balance"
@@ -61,7 +61,7 @@ export function BillsKpiStrip({
         onClick={() => onSelect('my-overdue')}
         ariaLabel="Show overdue bills"
       >
-        <ZoruStatCard
+        <StatCard
           label="Overdue"
           value={`${kpi.overdueCount.toLocaleString()} · ${fmtMoney(
             kpi.overdueAmount,
@@ -77,7 +77,7 @@ export function BillsKpiStrip({
         onClick={() => onSelect('paid-30d')}
         ariaLabel="Show bills paid this month"
       >
-        <ZoruStatCard
+        <StatCard
           label="Paid this month"
           value={`${kpi.paidThisMonthCount.toLocaleString()} · ${fmtMoney(
             kpi.paidThisMonthAmount,
@@ -92,14 +92,14 @@ export function BillsKpiStrip({
         onClick={() => onSelect('draft')}
         ariaLabel="Show draft bills"
       >
-        <ZoruStatCard
+        <StatCard
           label="Drafts"
           value={kpi.draftCount.toLocaleString()}
           period="not yet submitted"
           icon={<FileEdit />}
         />
       </KpiButton>
-      <ZoruStatCard
+      <StatCard
         label="Avg days to pay"
         value={
           kpi.avgDaysToPay != null ? `${kpi.avgDaysToPay.toFixed(1)} d` : '—'
@@ -107,20 +107,20 @@ export function BillsKpiStrip({
         period="receive → paid"
         icon={<Clock />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Total MTD"
         value={fmtMoney(kpi.mtdSpend, currency)}
         period="this month billed"
         icon={<TrendingUp />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Pending approval"
         value={kpi.pendingApprovalCount.toLocaleString()}
         period="awaiting approver"
         icon={<Hourglass />}
         invertDelta
       />
-      <ZoruStatCard
+      <StatCard
         label="Top vendor"
         value={
           kpi.topVendorId

@@ -33,7 +33,7 @@ export default function GeneralSettingsPage() {
   const { activeProject, isLoadingProject } = useProject();
 
   const breadcrumbs = (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -47,14 +47,14 @@ export default function GeneralSettingsPage() {
           <ZoruBreadcrumbPage>General settings</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 
   if (isLoadingProject) {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruSkeleton className="h-[420px] w-full" />
+        <Skeleton className="h-[420px] w-full" />
       </div>
     );
   }
@@ -63,14 +63,14 @@ export default function GeneralSettingsPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert className="h-10 w-10" />}
           title="Select a project first"
           description="Pick a project from the WaChat home page to manage its settings."
           action={
-            <ZoruButton onClick={() => router.push('/wachat')}>
+            <Button onClick={() => router.push('/wachat')}>
               Choose a project
-            </ZoruButton>
+            </Button>
           }
         />
       </div>
@@ -81,20 +81,20 @@ export default function GeneralSettingsPage() {
     <div className="flex min-h-full flex-col gap-6">
       {breadcrumbs}
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>General settings</ZoruPageTitle>
           <ZoruPageDescription>
             Project name, WABA ID, tags, and basic configuration.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent>
           <ProjectSettingsForm project={activeProject} />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

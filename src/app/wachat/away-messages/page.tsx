@@ -122,15 +122,15 @@ export default function AwayMessagesPage() {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruSkeleton className="h-3 w-52" />
+        <Skeleton className="h-3 w-52" />
         <div className="mt-5 space-y-3">
-          <ZoruSkeleton className="h-9 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-9 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
         <div className="mt-8 grid gap-4">
-          <ZoruSkeleton className="h-24" />
-          <ZoruSkeleton className="h-40" />
-          <ZoruSkeleton className="h-56" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-40" />
+          <Skeleton className="h-56" />
         </div>
       </div>
     );
@@ -138,7 +138,7 @@ export default function AwayMessagesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -152,9 +152,9 @@ export default function AwayMessagesPage() {
             <ZoruBreadcrumbPage>Away Messages</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat</ZoruPageEyebrow>
           <ZoruPageTitle>Away Messages</ZoruPageTitle>
@@ -164,15 +164,15 @@ export default function AwayMessagesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} disabled={isSaving}>
             <Save /> {isSaving ? 'Saving…' : 'Save'}
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 grid gap-4">
         {/* Activate switch */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-[15px] text-zoru-ink">Enable away message</h2>
@@ -180,19 +180,19 @@ export default function AwayMessagesPage() {
                 Automatically reply when you are not available.
               </p>
             </div>
-            <ZoruSwitch
+            <Switch
               checked={enabled}
               onCheckedChange={setEnabled}
               aria-label="Enable away message"
             />
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Message body */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex flex-col gap-3">
-            <ZoruLabel htmlFor="away-body">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="away-body">Message</Label>
+            <Textarea
               id="away-body"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -201,13 +201,13 @@ export default function AwayMessagesPage() {
               className="min-h-[96px]"
             />
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Schedule */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex flex-col gap-3">
             <h2 className="text-[15px] text-zoru-ink">Schedule</h2>
-            <ZoruRadioGroup
+            <RadioGroup
               value={schedule}
               onValueChange={(v) => setSchedule(v as Schedule)}
               className="grid gap-2"
@@ -220,13 +220,13 @@ export default function AwayMessagesPage() {
                   description={opt.desc}
                 />
               ))}
-            </ZoruRadioGroup>
+            </RadioGroup>
 
             {schedule === 'custom' && (
               <div className="mt-2 grid grid-cols-2 gap-3 sm:max-w-md">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="time-from">From</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="time-from">From</Label>
+                  <Input
                     id="time-from"
                     type="time"
                     value={customStart}
@@ -234,8 +234,8 @@ export default function AwayMessagesPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="time-to">To</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="time-to">To</Label>
+                  <Input
                     id="time-to"
                     type="time"
                     value={customEnd}
@@ -245,7 +245,7 @@ export default function AwayMessagesPage() {
               </div>
             )}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

@@ -26,7 +26,7 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
 
   return (
     <div className="w-64">
-      <ZoruCard className="shadow-none border-0 bg-transparent">
+      <Card className="shadow-none border-0 bg-transparent">
         <ZoruCardHeader className="p-2">
             <div className="flex items-center gap-2">
                  <IndianRupee className="h-5 w-5 text-primary"/>
@@ -43,7 +43,7 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
               <span className="font-mono">{item.currency} {(parseFloat(item.item_price) * parseInt(item.quantity)).toFixed(2)}</span>
             </div>
           ))}
-          <ZoruSeparator className="my-2"/>
+          <Separator className="my-2"/>
           <div className="flex justify-between items-center font-bold pt-1">
               <span>Total</span>
               <span>{order.product_items[0]?.currency} {totalAmount.toFixed(2)}</span>
@@ -54,7 +54,7 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
                 <p>{order.text}</p>
              </ZoruCardFooter>
          )}
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

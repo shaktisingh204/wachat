@@ -27,7 +27,7 @@ export default function CustomEcommerceDashboardRedirect() {
       <p className="text-[13px] text-zoru-ink-muted">
         Redirecting to your shops…
       </p>
-      <ZoruSkeleton className="h-4 w-40" />
+      <Skeleton className="h-4 w-40" />
     </div>
   );
 }

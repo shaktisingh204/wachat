@@ -28,12 +28,12 @@ export default function ServerLocationPage() {
   return (
     <ToolShell title="Server Location Checker" description="Resolve server IPs via local DNS (no third-party geolocation API).">
       <div className="flex gap-2">
-        <ZoruInput value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Locate'}</ZoruButton>
+        <Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Locate'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {data && (
-        <ZoruCard><ZoruCardContent className="p-4 text-sm space-y-2">
+        <Card><ZoruCardContent className="p-4 text-sm space-y-2">
           <div><span className="font-semibold">Host:</span> {data.host}</div>
           <div>
             <span className="font-semibold">IPv4 addresses:</span>
@@ -46,7 +46,7 @@ export default function ServerLocationPage() {
           <div className="text-xs text-muted-foreground pt-2">
             GeoIP requires an offline MaxMind database or paid API; not included in local-only mode.
           </div>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

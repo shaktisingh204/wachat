@@ -75,11 +75,11 @@ export function HolidaysTable({
 
   return (
     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">
             <ZoruTableHead className="w-10">
-              <ZoruCheckbox
+              <Checkbox
                 aria-label="Select all rows on this page"
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
@@ -112,7 +112,7 @@ export function HolidaysTable({
               return (
                 <ZoruTableRow key={id} className="border-zoru-line">
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       aria-label={`Select ${h.name}`}
                       checked={selected.has(id)}
                       onCheckedChange={() => onToggleOne(id)}
@@ -153,30 +153,30 @@ export function HolidaysTable({
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex justify-end gap-1">
-                      <ZoruButton variant="ghost" size="icon" asChild>
+                      <Button variant="ghost" size="icon" asChild>
                         <Link
                           href={`/dashboard/hrm/payroll/holidays/${id}`}
                           aria-label="View"
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton variant="ghost" size="icon" asChild>
+                      </Button>
+                      <Button variant="ghost" size="icon" asChild>
                         <Link
                           href={`/dashboard/hrm/payroll/holidays/${id}/edit`}
                           aria-label="Edit"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onDelete(id)}
                         aria-label="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -184,7 +184,7 @@ export function HolidaysTable({
             })
           )}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }

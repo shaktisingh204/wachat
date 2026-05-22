@@ -184,7 +184,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<CalendarDays />}
           title="No project selected"
           description="Pick a Facebook page / project to manage its events."
@@ -195,7 +195,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -209,7 +209,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Events</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -219,47 +219,47 @@ export default function FacebookEventsPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
-          <ZoruButton onClick={() => setCreateOpen(true)}>
+          </Button>
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New event
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load events</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {loading && events.length === 0 ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          <ZoruSkeleton className="h-40 w-full" />
-          <ZoruSkeleton className="h-40 w-full" />
-          <ZoruSkeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
         </div>
       ) : events.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<CalendarDays />}
           title="No upcoming events"
           description="Create your first event to gather RSVPs from your Page audience."
           action={
-            <ZoruButton onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" /> New event
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {events.map((ev) => (
             <li key={ev.id}>
-              <ZoruCard className="flex h-full flex-col overflow-hidden">
+              <Card className="flex h-full flex-col overflow-hidden">
                 <button
                   type="button"
                   onClick={() => openDetails(ev)}
@@ -290,20 +290,20 @@ export default function FacebookEventsPage(): React.JSX.Element {
                       ) : null}
                     </div>
                     <div className="mt-auto flex items-center gap-2 pt-2">
-                      <ZoruBadge variant="success">
+                      <Badge variant="success">
                         <Users className="h-3 w-3" />
                         {ev.attending_count ?? 0} attending
-                      </ZoruBadge>
-                      {ev.is_online ? <ZoruBadge variant="info">Online</ZoruBadge> : null}
+                      </Badge>
+                      {ev.is_online ? <Badge variant="info">Online</Badge> : null}
                     </div>
                   </div>
                 </button>
                 <div className="flex items-center justify-end border-t border-zoru-line p-2">
-                  <ZoruDropdownMenu>
+                  <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                      <ZoruButton variant="ghost" size="icon-sm" aria-label="Event actions">
+                      <Button variant="ghost" size="icon-sm" aria-label="Event actions">
                         <MoreHorizontal className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="end">
                       <ZoruDropdownMenuItem onSelect={() => openDetails(ev)}>
@@ -316,16 +316,16 @@ export default function FacebookEventsPage(): React.JSX.Element {
                         <Trash2 className="mr-2 h-4 w-4" /> Cancel event
                       </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                  </ZoruDropdownMenu>
+                  </DropdownMenu>
                 </div>
-              </ZoruCard>
+              </Card>
             </li>
           ))}
         </ul>
       )}
 
       {/* ── New event dialog ── */}
-      <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>New event</ZoruDialogTitle>
@@ -338,21 +338,21 @@ export default function FacebookEventsPage(): React.JSX.Element {
             className="space-y-3"
           >
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="event-name">Name</ZoruLabel>
-              <ZoruInput id="event-name" name="name" required maxLength={150} />
+              <Label htmlFor="event-name">Name</Label>
+              <Input id="event-name" name="name" required maxLength={150} />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="event-desc">Description</ZoruLabel>
-              <ZoruTextarea id="event-desc" name="description" rows={3} />
+              <Label htmlFor="event-desc">Description</Label>
+              <Textarea id="event-desc" name="description" rows={3} />
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="event-place">Place</ZoruLabel>
-                <ZoruInput id="event-place" name="place" placeholder="Venue or city" />
+                <Label htmlFor="event-place">Place</Label>
+                <Input id="event-place" name="place" placeholder="Venue or city" />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="event-start">Starts at</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="event-start">Starts at</Label>
+                <Input
                   id="event-start"
                   name="start_time"
                   type="datetime-local"
@@ -361,24 +361,24 @@ export default function FacebookEventsPage(): React.JSX.Element {
               </div>
             </div>
             <ZoruDialogFooter>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 onClick={() => setCreateOpen(false)}
                 disabled={submitting}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={submitting}>
+              </Button>
+              <Button type="submit" disabled={submitting}>
                 {submitting ? 'Creating…' : 'Create event'}
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Details sheet ── */}
-      <ZoruSheet
+      <Sheet
         open={!!activeEvent}
         onOpenChange={(open) => !open && setActiveEvent(null)}
       >
@@ -430,24 +430,24 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 </div>
               ) : null}
               <div className="grid grid-cols-3 gap-3">
-                <ZoruCard className="p-3">
+                <Card className="p-3">
                   <p className="text-xs text-zoru-ink-muted">Attending</p>
                   <p className="text-lg text-zoru-ink">
                     {activeEvent.attending_count ?? 0}
                   </p>
-                </ZoruCard>
-                <ZoruCard className="p-3">
+                </Card>
+                <Card className="p-3">
                   <p className="text-xs text-zoru-ink-muted">Interested</p>
                   <p className="text-lg text-zoru-ink">
                     {activeEvent.interested_count ?? 0}
                   </p>
-                </ZoruCard>
-                <ZoruCard className="p-3">
+                </Card>
+                <Card className="p-3">
                   <p className="text-xs text-zoru-ink-muted">Maybe</p>
                   <p className="text-lg text-zoru-ink">
                     {activeEvent.maybe_count ?? 0}
                   </p>
-                </ZoruCard>
+                </Card>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
@@ -455,8 +455,8 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 </p>
                 {attendeeLoading ? (
                   <div className="mt-2 space-y-2">
-                    <ZoruSkeleton className="h-4 w-3/4" />
-                    <ZoruSkeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-2/3" />
                   </div>
                 ) : attendees.length === 0 ? (
                   <p className="text-xs text-zoru-ink-muted">No attendees yet.</p>
@@ -474,26 +474,26 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 )}
               </div>
               <div className="flex gap-2 pt-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   className="flex-1"
                   onClick={() => setConfirmDelete(activeEvent)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" /> Cancel event
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   className="flex-1"
                   onClick={() => setActiveEvent(null)}
                 >
                   Close
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       {/* ── Cancel/delete confirmation ── */}
       <ZoruAlertDialog

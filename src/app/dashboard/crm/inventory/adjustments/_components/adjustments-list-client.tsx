@@ -267,11 +267,11 @@ export function AdjustmentsListClient() {
                     placeholder: 'Search adjustment #, reference, notes…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/inventory/adjustments/new">
                             <Plus className="h-4 w-4" /> New Adjustment
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <AdjustmentsFiltersRow
@@ -325,11 +325,11 @@ export function AdjustmentsListClient() {
                                 Record stock corrections — damages, counts, receipts —
                                 with full approval and audit trail.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/inventory/adjustments/new">
                                     <Plus className="h-4 w-4" /> New Adjustment
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

@@ -113,7 +113,7 @@ export default function ResponseTimeTrackerPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -127,7 +127,7 @@ export default function ResponseTimeTrackerPage() {
             <ZoruBreadcrumbPage>Response Time Tracker</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -138,36 +138,36 @@ export default function ResponseTimeTrackerPage() {
             Monitor how quickly your team responds to customer messages.
           </p>
         </div>
-        <ZoruButton variant="outline" size="sm" onClick={load} disabled={isPending}>
+        <Button variant="outline" size="sm" onClick={load} disabled={isPending}>
           <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-        </ZoruButton>
+        </Button>
       </div>
 
       {isPending && agents.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[120px]" />
+            <Skeleton key={i} className="h-[120px]" />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Total Messages"
             value={totalMsgs.toLocaleString()}
             icon={<BarChart3 />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Avg Response"
             value={fmtMs(avgResp)}
             icon={<CircleCheck />}
             period="Lower is better"
           />
-          <ZoruStatCard
+          <StatCard
             label="Fastest Agent"
             value={fmtMs(fastest)}
             icon={<CircleCheck />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Slowest Agent"
             value={fmtMs(slowest)}
             icon={<TriangleAlert />}
@@ -175,7 +175,7 @@ export default function ResponseTimeTrackerPage() {
         </div>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Per-Agent Breakdown</ZoruCardTitle>
         </ZoruCardHeader>
@@ -183,17 +183,17 @@ export default function ResponseTimeTrackerPage() {
           {isPending && agents.length === 0 ? (
             <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="h-10" />
+                <Skeleton key={i} className="h-10" />
               ))}
             </div>
           ) : agents.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Users />}
               title="No agent performance yet"
               description="Performance data will appear once agents start responding to chats."
             />
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead>Agent</ZoruTableHead>
@@ -214,29 +214,29 @@ export default function ResponseTimeTrackerPage() {
                       {(a.messagesSent ?? 0).toLocaleString()}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruBadge variant={speedTone(a.avgResponseMs || 0)}>
+                      <Badge variant={speedTone(a.avgResponseMs || 0)}>
                         {speedLabel(a.avgResponseMs || 0)}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setDrillAgent(a)}
                       >
                         <Eye /> View
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Per-agent drill-in sheet */}
-      <ZoruSheet
+      <Sheet
         open={!!drillAgent}
         onOpenChange={(open) => {
           if (!open) setDrillAgent(null);
@@ -251,21 +251,21 @@ export default function ResponseTimeTrackerPage() {
           </ZoruSheetHeader>
           {drillAgent && (
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <ZoruStatCard
+              <StatCard
                 label="Avg Response"
                 value={fmtMs(drillAgent.avgResponseMs)}
                 period="Lower is better"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Messages Sent"
                 value={(drillAgent.messagesSent ?? 0).toLocaleString()}
               />
-              <ZoruStatCard
+              <StatCard
                 label="Status"
                 value={speedLabel(drillAgent.avgResponseMs || 0)}
               />
               {typeof drillAgent.totalConversations === 'number' && (
-                <ZoruStatCard
+                <StatCard
                   label="Conversations"
                   value={drillAgent.totalConversations.toLocaleString()}
                 />
@@ -273,7 +273,7 @@ export default function ResponseTimeTrackerPage() {
             </div>
           )}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       <div className="h-6" />
     </div>

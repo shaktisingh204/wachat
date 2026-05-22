@@ -23,15 +23,15 @@ export default function HreflangGeneratorPage() {
       <div className="space-y-2">
         {rows.map((r, i) => (
           <div key={i} className="flex gap-2">
-            <ZoruInput className="w-28" value={r.lang} onChange={(e) => update(i, 'lang', e.target.value)} placeholder="en-us" />
-            <ZoruInput value={r.url} onChange={(e) => update(i, 'url', e.target.value)} placeholder="https://example.com/en" />
-            <ZoruButton variant="ghost" onClick={() => remove(i)}>×</ZoruButton>
+            <Input className="w-28" value={r.lang} onChange={(e) => update(i, 'lang', e.target.value)} placeholder="en-us" />
+            <Input value={r.url} onChange={(e) => update(i, 'url', e.target.value)} placeholder="https://example.com/en" />
+            <Button variant="ghost" onClick={() => remove(i)}>×</Button>
           </div>
         ))}
-        <ZoruButton variant="outline" onClick={add}>+ Add language</ZoruButton>
+        <Button variant="outline" onClick={add}>+ Add language</Button>
       </div>
-      <ZoruTextarea readOnly value={out} className="min-h-[200px] font-mono text-xs" />
-      <ZoruButton onClick={() => navigator.clipboard.writeText(out)}>Copy</ZoruButton>
+      <Textarea readOnly value={out} className="min-h-[200px] font-mono text-xs" />
+      <Button onClick={() => navigator.clipboard.writeText(out)}>Copy</Button>
     </ToolShell>
   );
 }

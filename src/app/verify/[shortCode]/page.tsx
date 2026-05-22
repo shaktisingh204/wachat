@@ -26,7 +26,7 @@ export default function VerifyLinkPage({ params }: { params: { shortCode: string
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
-      <ZoruCard className="w-full max-w-sm p-8">
+      <Card className="w-full max-w-sm p-8">
         <div className="flex flex-col items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
             <Lock className="h-5 w-5 text-zinc-400" />
@@ -39,10 +39,10 @@ export default function VerifyLinkPage({ params }: { params: { shortCode: string
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="password" className="text-[12.5px] text-zoru-ink-muted">
+            <Label htmlFor="password" className="text-[12.5px] text-zoru-ink-muted">
               Password
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="password"
               type="password"
               placeholder="Enter password"
@@ -55,12 +55,12 @@ export default function VerifyLinkPage({ params }: { params: { shortCode: string
               <p className="text-[12px] text-zoru-danger-ink">{error}</p>
             ) : null}
           </div>
-          <ZoruButton type="submit" className="w-full" disabled={isPending || !password}>
+          <Button type="submit" className="w-full" disabled={isPending || !password}>
             {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             Continue
-          </ZoruButton>
+          </Button>
         </form>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

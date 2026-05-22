@@ -79,7 +79,7 @@ export const ProductAddToCartRenderer: React.FC<ProductBlockProps> = ({ product,
     if (!product) return (
          <div className="flex items-center gap-4">
             <div className="w-24 h-10 border rounded-md"></div>
-            <ZoruButton size="lg" className="flex-1">Add to Cart</ZoruButton>
+            <Button size="lg" className="flex-1">Add to Cart</Button>
         </div>
     );
     return <AddToCartButton product={product} />;

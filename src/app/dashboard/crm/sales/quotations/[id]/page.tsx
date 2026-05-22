@@ -145,11 +145,11 @@ export default async function QuotationDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this quotation — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/quotations">
               <ArrowLeft className="h-4 w-4" /> Back to Quotations
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -189,7 +189,7 @@ export default async function QuotationDetailPage({
       rightRail={
         <>
           {/* Status flow visualizer */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Status flow</ZoruCardTitle>
             </ZoruCardHeader>
@@ -203,7 +203,7 @@ export default async function QuotationDetailPage({
                 ) : null}
               </ol>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Lineage rail */}
           <LineageRail
@@ -224,7 +224,7 @@ export default async function QuotationDetailPage({
           />
 
           {/* At a glance + quick edits */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>At a glance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -259,10 +259,10 @@ export default async function QuotationDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Related entities */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -274,9 +274,9 @@ export default async function QuotationDetailPage({
                 <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
                   <ShoppingCart className="h-4 w-4" /> Sales orders
                 </span>
-                <ZoruBadge variant="secondary">
+                <Badge variant="secondary">
                   {relatedCounts.salesOrders}
-                </ZoruBadge>
+                </Badge>
               </Link>
               <Link
                 href={`/dashboard/crm/sales/invoices?quotationId=${quotationId}`}
@@ -285,21 +285,21 @@ export default async function QuotationDetailPage({
                 <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
                   <Receipt className="h-4 w-4" /> Invoices
                 </span>
-                <ZoruBadge variant="secondary">
+                <Badge variant="secondary">
                   {relatedCounts.invoices}
-                </ZoruBadge>
+                </Badge>
               </Link>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link
               href={`/dashboard/crm/sales/quotations/${quotationId}/activity`}
             >
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={
@@ -311,7 +311,7 @@ export default async function QuotationDetailPage({
       </p>
 
       {/* Overview */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -321,7 +321,7 @@ export default async function QuotationDetailPage({
               {quotation.quotationNo}
             </DetailField>
             <DetailField label="Status">
-              <ZoruBadge variant="secondary">{status}</ZoruBadge>
+              <Badge variant="secondary">{status}</Badge>
             </DetailField>
             <DetailField label="Date">{fmtDate(quotation.date)}</DetailField>
             <DetailField label="Valid until">
@@ -339,10 +339,10 @@ export default async function QuotationDetailPage({
             </DetailField>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Customer */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Customer</ZoruCardTitle>
         </ZoruCardHeader>
@@ -371,10 +371,10 @@ export default async function QuotationDetailPage({
             </DetailField>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Line items</ZoruCardTitle>
         </ZoruCardHeader>
@@ -445,10 +445,10 @@ export default async function QuotationDetailPage({
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Money summary */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Money summary</ZoruCardTitle>
         </ZoruCardHeader>
@@ -539,11 +539,11 @@ export default async function QuotationDetailPage({
             </div>
           </dl>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Terms */}
       {quotation.termsAndConditions ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Terms &amp; conditions</ZoruCardTitle>
           </ZoruCardHeader>
@@ -552,11 +552,11 @@ export default async function QuotationDetailPage({
               {quotation.termsAndConditions}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Notes */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Notes</ZoruCardTitle>
         </ZoruCardHeader>
@@ -571,11 +571,11 @@ export default async function QuotationDetailPage({
             </p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Attachments — surfaced from customFields stash when present */}
       {Array.isArray((cfValues._attachments as unknown) as string[]) ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Attachments</ZoruCardTitle>
           </ZoruCardHeader>
@@ -595,30 +595,30 @@ export default async function QuotationDetailPage({
               ))}
             </ul>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Tags */}
       {Array.isArray((cfValues._tags as unknown) as string[]) ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Tags</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
             <div className="flex flex-wrap gap-2">
               {(cfValues._tags as string[]).map((t) => (
-                <ZoruBadge key={t} variant="outline">
+                <Badge key={t} variant="outline">
                   {t}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Custom fields */}
       {customFields.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Custom fields</ZoruCardTitle>
           </ZoruCardHeader>
@@ -641,7 +641,7 @@ export default async function QuotationDetailPage({
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* TODO 1D.2: <CrmNotes recordType="quotation"> composer — needs the

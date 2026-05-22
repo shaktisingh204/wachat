@@ -64,13 +64,13 @@ function PageSkeleton() {
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex items-center justify-between">
-        <ZoruSkeleton className="h-10 w-48" />
-        <ZoruSkeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-10 w-64" />
       </div>
       <div className="grid flex-1 grid-cols-12 gap-4">
-        <ZoruSkeleton className="col-span-2 h-full" />
-        <ZoruSkeleton className="col-span-7 h-full" />
-        <ZoruSkeleton className="col-span-3 h-full" />
+        <Skeleton className="col-span-2 h-full" />
+        <Skeleton className="col-span-7 h-full" />
+        <Skeleton className="col-span-3 h-full" />
       </div>
     </div>
   );
@@ -385,9 +385,9 @@ function CreateMetaFlowPageContent() {
   }, [flowId, toast]);
 
   const statusChip = useMemo(() => {
-    if (isPublished) return <ZoruBadge variant="success">PUBLISHED</ZoruBadge>;
-    if (isDeprecated) return <ZoruBadge variant="danger">DEPRECATED</ZoruBadge>;
-    return <ZoruBadge variant="ghost">DRAFT</ZoruBadge>;
+    if (isPublished) return <Badge variant="success">PUBLISHED</Badge>;
+    if (isDeprecated) return <Badge variant="danger">DEPRECATED</Badge>;
+    return <Badge variant="ghost">DRAFT</Badge>;
   }, [isPublished, isDeprecated]);
 
   if (isLoading) return <PageSkeleton />;
@@ -400,13 +400,13 @@ function CreateMetaFlowPageContent() {
         <header className="flex flex-shrink-0 flex-col gap-0 border-b border-zoru-line bg-zoru-bg">
           <div className="flex items-center justify-between gap-3 p-3">
             <div className="flex min-w-0 items-center gap-4">
-              <ZoruButton variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild>
                 <Link href="/wachat/flows">
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Link>
-              </ZoruButton>
+              </Button>
               <div className="h-6 w-px bg-zoru-line" />
-              <ZoruInput
+              <Input
                 aria-label="Flow name"
                 value={flowName}
                 onChange={(e) => setFlowName(e.target.value)}
@@ -422,7 +422,7 @@ function CreateMetaFlowPageContent() {
             </div>
 
             <div className="flex items-center gap-3">
-              <ZoruSelect value={category} onValueChange={setCategory} disabled={disableEdits}>
+              <Select value={category} onValueChange={setCategory} disabled={disableEdits}>
                 <ZoruSelectTrigger className="h-8 w-[170px]">
                   <ZoruSelectValue placeholder="Category" />
                 </ZoruSelectTrigger>
@@ -433,9 +433,9 @@ function CreateMetaFlowPageContent() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
 
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 disabled={savingDraft || disableEdits || !isDraft}
@@ -452,9 +452,9 @@ function CreateMetaFlowPageContent() {
                   <Save className="h-4 w-4" />
                 )}
                 Save draft
-              </ZoruButton>
+              </Button>
 
-              <ZoruButton
+              <Button
                 size="sm"
                 disabled={publishing || disableEdits || !isDraft}
                 onClick={runPublish}
@@ -466,9 +466,9 @@ function CreateMetaFlowPageContent() {
                   <Upload className="h-4 w-4" />
                 )}
                 Publish
-              </ZoruButton>
+              </Button>
 
-              <ZoruButton
+              <Button
                 variant="secondary"
                 size="sm"
                 disabled={previewing || !flowId}
@@ -480,10 +480,10 @@ function CreateMetaFlowPageContent() {
                   <Eye className="h-4 w-4" />
                 )}
                 Preview
-              </ZoruButton>
+              </Button>
 
               {isPublished ? (
-                <ZoruButton
+                <Button
                   variant="destructive"
                   size="sm"
                   disabled={deprecating}
@@ -495,19 +495,19 @@ function CreateMetaFlowPageContent() {
                     <Archive className="h-4 w-4" />
                   )}
                   Deprecate
-                </ZoruButton>
+                </Button>
               ) : null}
             </div>
           </div>
 
           <div className="flex items-center gap-3 border-t border-zoru-line bg-zoru-surface px-3 py-1.5">
-            <ZoruLabel
+            <Label
               htmlFor="endpoint_uri"
               className="text-[11px] uppercase tracking-wide text-zoru-ink-muted"
             >
               Endpoint URI
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="endpoint_uri"
               value={endpointUri}
               onChange={(e) => setEndpointUri(e.target.value)}
@@ -516,7 +516,7 @@ function CreateMetaFlowPageContent() {
               className="h-7 flex-1 font-mono text-[11.5px]"
             />
             {project?.phoneNumbers?.[0]?.id ? (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -530,7 +530,7 @@ function CreateMetaFlowPageContent() {
                 title="Fill with this project's first phone number endpoint"
               >
                 Auto-fill
-              </ZoruButton>
+              </Button>
             ) : null}
             <span className="text-[10.5px] text-zoru-ink-muted">For data_exchange screens</span>
           </div>

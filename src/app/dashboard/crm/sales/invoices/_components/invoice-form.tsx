@@ -88,7 +88,7 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       disabled={pending}
       onClick={() => setIntent(intent)}
@@ -104,7 +104,7 @@ function SubmitButton({
           : editing
             ? 'Save changes'
             : 'Create invoice'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -266,7 +266,7 @@ export function InvoiceForm({
       />
 
       {customFields.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Custom fields
           </h3>
@@ -280,14 +280,14 @@ export function InvoiceForm({
               />
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* TODO 1D.3: live preview pane deferred — would render a stylised
           PDF-like preview alongside the form. */}
 
       <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               f.editing
@@ -297,7 +297,7 @@ export function InvoiceForm({
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton
           editing={f.editing}
           intent="save"

@@ -52,8 +52,8 @@ export function BlockInspector({
           {selected ? `Edit ${selected.type}` : 'Document'}
         </p>
       </header>
-      <ZoruSeparator />
-      <ZoruScrollArea className="flex-1">
+      <Separator />
+      <ScrollArea className="flex-1">
         <div className="space-y-4 p-4">
           {selected ? (
             <BlockFields block={selected} onChange={onChange} />
@@ -61,7 +61,7 @@ export function BlockInspector({
             <DocumentSettingsForm settings={doc.settings} onChange={onSettingsChange} />
           )}
         </div>
-      </ZoruScrollArea>
+      </ScrollArea>
     </aside>
   );
 }
@@ -83,34 +83,34 @@ function DocumentSettingsForm({
   return (
     <div className="space-y-4">
       <Field label="Preheader (preview text)">
-        <ZoruInput
+        <Input
           value={settings.preheader ?? ''}
           onChange={(e) => set('preheader', e.target.value)}
           placeholder="Shown in inbox preview"
         />
       </Field>
       <Field label="Font family">
-        <ZoruInput
+        <Input
           value={settings.fontFamily ?? ''}
           onChange={(e) => set('fontFamily', e.target.value)}
         />
       </Field>
       <Field label="Width (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={settings.width ?? 600}
           onChange={(e) => set('width', Number(e.target.value) || 600)}
         />
       </Field>
       <Field label="Page background">
-        <ZoruInput
+        <Input
           type="color"
           value={settings.backgroundColor ?? '#f4f4f7'}
           onChange={(e) => set('backgroundColor', e.target.value)}
         />
       </Field>
       <Field label="Content background">
-        <ZoruInput
+        <Input
           type="color"
           value={settings.contentBackgroundColor ?? '#ffffff'}
           onChange={(e) => set('contentBackgroundColor', e.target.value)}
@@ -156,7 +156,7 @@ function BlockFields({
     case 'html':
       return <HtmlFields props={props} setProp={setProp} />;
     default:
-      return <ZoruEmptyState compact title="No fields" description={`Block type "${block.type}" has no editor.`} />;
+      return <EmptyState compact title="No fields" description={`Block type "${block.type}" has no editor.`} />;
   }
 }
 
@@ -175,7 +175,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <ZoruLabel>{label}</ZoruLabel>
+      <Label>{label}</Label>
       {children}
       {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
     </div>
@@ -190,7 +190,7 @@ function AlignSelect({
   onChange: (v: string) => void;
 }) {
   return (
-    <ZoruSelect value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={onChange}>
       <ZoruSelectTrigger>
         <ZoruSelectValue />
       </ZoruSelectTrigger>
@@ -199,7 +199,7 @@ function AlignSelect({
         <ZoruSelectItem value="center">Center</ZoruSelectItem>
         <ZoruSelectItem value="right">Right</ZoruSelectItem>
       </ZoruSelectContent>
-    </ZoruSelect>
+    </Select>
   );
 }
 
@@ -228,7 +228,7 @@ function TextFields({ props, setProp }: { props: Record<string, unknown>; setPro
   return (
     <div className="space-y-4">
       <Field label="Content" hint="Plain text. Use merge tags for personalization.">
-        <ZoruTextarea
+        <Textarea
           ref={taRef}
           value={content}
           rows={6}
@@ -239,21 +239,21 @@ function TextFields({ props, setProp }: { props: Record<string, unknown>; setPro
         </div>
       </Field>
       <Field label="Text color">
-        <ZoruInput
+        <Input
           type="color"
           value={(props.color as string) ?? '#1a1a1a'}
           onChange={(e) => setProp('color', e.target.value)}
         />
       </Field>
       <Field label="Font size (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.fontSize as number) ?? 16}
           onChange={(e) => setProp('fontSize', Number(e.target.value) || 16)}
         />
       </Field>
       <Field label="Padding (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.padding as number) ?? 12}
           onChange={(e) => setProp('padding', Number(e.target.value) || 0)}
@@ -288,20 +288,20 @@ function ImageFields({ props, setProp }: { props: Record<string, unknown>; setPr
         </SabFilePickerButton>
       </Field>
       <Field label="Alt text">
-        <ZoruInput
+        <Input
           value={(props.alt as string) ?? ''}
           onChange={(e) => setProp('alt', e.target.value)}
         />
       </Field>
       <Field label="Width (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.width as number) ?? 600}
           onChange={(e) => setProp('width', Number(e.target.value) || 600)}
         />
       </Field>
       <Field label="Link URL (optional)">
-        <ZoruInput
+        <Input
           value={(props.href as string) ?? ''}
           onChange={(e) => setProp('href', e.target.value)}
           placeholder="https://"
@@ -314,7 +314,7 @@ function ImageFields({ props, setProp }: { props: Record<string, unknown>; setPr
         />
       </Field>
       <Field label="Padding (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.padding as number) ?? 12}
           onChange={(e) => setProp('padding', Number(e.target.value) || 0)}
@@ -328,41 +328,41 @@ function ButtonFields({ props, setProp }: { props: Record<string, unknown>; setP
   return (
     <div className="space-y-4">
       <Field label="Label">
-        <ZoruInput
+        <Input
           value={(props.label as string) ?? ''}
           onChange={(e) => setProp('label', e.target.value)}
         />
       </Field>
       <Field label="Link URL">
-        <ZoruInput
+        <Input
           value={(props.href as string) ?? ''}
           onChange={(e) => setProp('href', e.target.value)}
           placeholder="https://"
         />
       </Field>
       <Field label="Background color">
-        <ZoruInput
+        <Input
           type="color"
           value={(props.backgroundColor as string) ?? '#111827'}
           onChange={(e) => setProp('backgroundColor', e.target.value)}
         />
       </Field>
       <Field label="Text color">
-        <ZoruInput
+        <Input
           type="color"
           value={(props.textColor as string) ?? '#ffffff'}
           onChange={(e) => setProp('textColor', e.target.value)}
         />
       </Field>
       <Field label="Padding (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.padding as number) ?? 12}
           onChange={(e) => setProp('padding', Number(e.target.value) || 0)}
         />
       </Field>
       <Field label="Border radius (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.borderRadius as number) ?? 6}
           onChange={(e) => setProp('borderRadius', Number(e.target.value) || 0)}
@@ -413,7 +413,7 @@ function ColumnsFields({
   return (
     <div className="space-y-4">
       <Field label="Number of columns (1–4)">
-        <ZoruInput
+        <Input
           type="number"
           min={1}
           max={4}
@@ -422,7 +422,7 @@ function ColumnsFields({
         />
       </Field>
       <Field label="Gap (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.gap as number) ?? 12}
           onChange={(e) =>
@@ -431,7 +431,7 @@ function ColumnsFields({
         />
       </Field>
       <Field label="Padding (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.padding as number) ?? 12}
           onChange={(e) =>
@@ -439,13 +439,13 @@ function ColumnsFields({
           }
         />
       </Field>
-      <ZoruSeparator />
+      <Separator />
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Column content
       </p>
       {Array.from({ length: columns }).map((_, idx) => (
         <Field key={idx} label={`Column ${idx + 1} text`}>
-          <ZoruTextarea
+          <Textarea
             rows={3}
             value={(children[idx]?.props as Record<string, unknown> | undefined)?.content as string ?? ''}
             onChange={(e) => setChildContent(idx, e.target.value)}
@@ -460,21 +460,21 @@ function DividerFields({ props, setProp }: { props: Record<string, unknown>; set
   return (
     <div className="space-y-4">
       <Field label="Color">
-        <ZoruInput
+        <Input
           type="color"
           value={(props.color as string) ?? '#e5e7eb'}
           onChange={(e) => setProp('color', e.target.value)}
         />
       </Field>
       <Field label="Thickness (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.thickness as number) ?? 1}
           onChange={(e) => setProp('thickness', Number(e.target.value) || 1)}
         />
       </Field>
       <Field label="Padding (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.padding as number) ?? 12}
           onChange={(e) => setProp('padding', Number(e.target.value) || 0)}
@@ -487,7 +487,7 @@ function DividerFields({ props, setProp }: { props: Record<string, unknown>; set
 function SpacerFields({ props, setProp }: { props: Record<string, unknown>; setProp: SetProp }) {
   return (
     <Field label="Height (px)">
-      <ZoruInput
+      <Input
         type="number"
         value={(props.height as number) ?? 24}
         onChange={(e) => setProp('height', Number(e.target.value) || 0)}
@@ -520,21 +520,21 @@ function SocialFields({ props, setProp }: { props: Record<string, unknown>; setP
         />
       </Field>
       <Field label="Padding (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.padding as number) ?? 12}
           onChange={(e) => setProp('padding', Number(e.target.value) || 0)}
         />
       </Field>
-      <ZoruSeparator />
+      <Separator />
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Networks
       </p>
       {networks.map((n, idx) => (
         <div key={idx} className="space-y-2 rounded border border-border p-2">
           <div className="flex items-center justify-between">
-            <ZoruLabel>Network {idx + 1}</ZoruLabel>
-            <ZoruButton
+            <Label>Network {idx + 1}</Label>
+            <Button
               type="button"
               variant="ghost"
               size="icon-sm"
@@ -542,23 +542,23 @@ function SocialFields({ props, setProp }: { props: Record<string, unknown>; setP
               onClick={() => removeNetwork(idx)}
             >
               <Trash2 className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
-          <ZoruInput
+          <Input
             value={n.network}
             onChange={(e) => updateNetwork(idx, { network: e.target.value })}
             placeholder="twitter, instagram, …"
           />
-          <ZoruInput
+          <Input
             value={n.url}
             onChange={(e) => updateNetwork(idx, { url: e.target.value })}
             placeholder="https://"
           />
         </div>
       ))}
-      <ZoruButton type="button" variant="outline" onClick={addNetwork}>
+      <Button type="button" variant="outline" onClick={addNetwork}>
         <Plus /> Add network
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -575,21 +575,21 @@ function VideoFields({ props, setProp }: { props: Record<string, unknown>; setPr
         </SabFilePickerButton>
       </Field>
       <Field label="Video URL">
-        <ZoruInput
+        <Input
           value={(props.src as string) ?? ''}
           onChange={(e) => setProp('src', e.target.value)}
           placeholder="https://"
         />
       </Field>
       <Field label="Click-through URL">
-        <ZoruInput
+        <Input
           value={(props.href as string) ?? ''}
           onChange={(e) => setProp('href', e.target.value)}
           placeholder="https://"
         />
       </Field>
       <Field label="Width (px)">
-        <ZoruInput
+        <Input
           type="number"
           value={(props.width as number) ?? 600}
           onChange={(e) => setProp('width', Number(e.target.value) || 600)}
@@ -603,32 +603,32 @@ function FooterFields({ props, setProp }: { props: Record<string, unknown>; setP
   return (
     <div className="space-y-4">
       <Field label="Company name">
-        <ZoruInput
+        <Input
           value={(props.companyName as string) ?? ''}
           onChange={(e) => setProp('companyName', e.target.value)}
         />
       </Field>
       <Field label="Address">
-        <ZoruTextarea
+        <Textarea
           rows={2}
           value={(props.address as string) ?? ''}
           onChange={(e) => setProp('address', e.target.value)}
         />
       </Field>
       <Field label="Unsubscribe link text">
-        <ZoruInput
+        <Input
           value={(props.unsubscribeText as string) ?? ''}
           onChange={(e) => setProp('unsubscribeText', e.target.value)}
         />
       </Field>
       <Field label="Unsubscribe URL" hint="Use {{unsubscribeUrl}} merge tag.">
-        <ZoruInput
+        <Input
           value={(props.unsubscribeUrl as string) ?? '{{unsubscribeUrl}}'}
           onChange={(e) => setProp('unsubscribeUrl', e.target.value)}
         />
       </Field>
       <Field label="Text color">
-        <ZoruInput
+        <Input
           type="color"
           value={(props.color as string) ?? '#6b7280'}
           onChange={(e) => setProp('color', e.target.value)}
@@ -641,7 +641,7 @@ function FooterFields({ props, setProp }: { props: Record<string, unknown>; setP
 function HtmlFields({ props, setProp }: { props: Record<string, unknown>; setProp: SetProp }) {
   return (
     <Field label="Raw HTML" hint="Used verbatim. Be careful.">
-      <ZoruTextarea
+      <Textarea
         rows={10}
         value={(props.html as string) ?? ''}
         onChange={(e) => setProp('html', e.target.value)}

@@ -118,14 +118,14 @@ export default function MessageTemplatesLibraryPage() {
       return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-44 w-full" />
+            <Skeleton key={i} className="h-44 w-full" />
           ))}
         </div>
       );
     }
     if (rows.length === 0) {
       return (
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleX />}
           title={
             tab === 'project'
@@ -144,7 +144,7 @@ export default function MessageTemplatesLibraryPage() {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((t) => (
-          <ZoruCard
+          <Card
             key={t.id}
             variant="elevated"
             className="flex flex-col"
@@ -154,31 +154,31 @@ export default function MessageTemplatesLibraryPage() {
                 <h3 className="text-[14px] font-semibold capitalize text-zoru-ink">
                   {t.name.replace(/_/g, ' ')}
                 </h3>
-                <ZoruBadge
+                <Badge
                   variant={TONE_MAP[t.category] || 'secondary'}
                   className="capitalize"
                 >
                   {t.category.toLowerCase()}
-                </ZoruBadge>
+                </Badge>
               </div>
               <p className="line-clamp-3 flex-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                 {t.body}
               </p>
               <div className="mt-3 flex items-center gap-2">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   onClick={() => handleCopy(t.body, t.id, t.name)}
                 >
                   {copiedId === t.id ? <Check /> : <Copy />}
                   {copiedId === t.id ? 'Copied!' : 'Copy'}
-                </ZoruButton>
-                <ZoruButton size="sm" onClick={() => setCloneTarget(t)}>
+                </Button>
+                <Button size="sm" onClick={() => setCloneTarget(t)}>
                   Use template
-                </ZoruButton>
+                </Button>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
     );
@@ -186,7 +186,7 @@ export default function MessageTemplatesLibraryPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -206,9 +206,9 @@ export default function MessageTemplatesLibraryPage() {
             <ZoruBreadcrumbPage>Message library</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false}>
+      <PageHeader bordered={false}>
         <ZoruPageHeading>
           <ZoruPageTitle>Message templates library</ZoruPageTitle>
           <ZoruPageDescription>
@@ -218,7 +218,7 @@ export default function MessageTemplatesLibraryPage() {
         </ZoruPageHeading>
         <ZoruPageActions>
           {tab === 'project' && (
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={load}
@@ -230,10 +230,10 @@ export default function MessageTemplatesLibraryPage() {
                 <RefreshCw />
               )}
               Refresh
-            </ZoruButton>
+            </Button>
           )}
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Segmented toggle (no tabs) — switches between project + premade. */}
       <div className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1">
@@ -268,7 +268,7 @@ export default function MessageTemplatesLibraryPage() {
       </div>
 
       {/* Clone-to-account dialog */}
-      <ZoruDialog
+      <Dialog
         open={Boolean(cloneTarget)}
         onOpenChange={(open) => !open && setCloneTarget(null)}
       >
@@ -284,13 +284,13 @@ export default function MessageTemplatesLibraryPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setCloneTarget(null)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={async () => {
                 if (cloneTarget) {
                   await handleCopy(
@@ -303,10 +303,10 @@ export default function MessageTemplatesLibraryPage() {
               }}
             >
               <Copy /> Copy &amp; close
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

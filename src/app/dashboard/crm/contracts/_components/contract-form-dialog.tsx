@@ -52,7 +52,7 @@ export function ContractFormDialog({
   action,
 }: ContractFormDialogProps) {
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-2xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="text-foreground">
@@ -70,10 +70,10 @@ export function ContractFormDialog({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <ZoruLabel className="text-foreground">
+              <Label className="text-foreground">
                 Title <span className="text-destructive">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 name="title"
                 required
                 defaultValue={editing?.title || ''}
@@ -81,7 +81,7 @@ export function ContractFormDialog({
               />
             </div>
             <div>
-              <ZoruLabel className="text-foreground">Client</ZoruLabel>
+              <Label className="text-foreground">Client</Label>
               <div className="mt-1.5">
                 <EntityFormField
                   entity="client"
@@ -94,10 +94,10 @@ export function ContractFormDialog({
               </div>
             </div>
             <div>
-              <ZoruLabel className="text-foreground">
+              <Label className="text-foreground">
                 Status <span className="text-destructive">*</span>
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 name="status"
                 defaultValue={editing?.status || 'draft'}
               >
@@ -111,11 +111,11 @@ export function ContractFormDialog({
                   <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
                   <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel className="text-foreground">Value</ZoruLabel>
-              <ZoruInput
+              <Label className="text-foreground">Value</Label>
+              <Input
                 type="number"
                 name="value"
                 defaultValue={editing?.value ?? ''}
@@ -123,7 +123,7 @@ export function ContractFormDialog({
               />
             </div>
             <div>
-              <ZoruLabel className="text-foreground">Currency</ZoruLabel>
+              <Label className="text-foreground">Currency</Label>
               <div className="mt-1.5">
                 <EntityFormField
                   entity="currency"
@@ -134,8 +134,8 @@ export function ContractFormDialog({
               </div>
             </div>
             <div>
-              <ZoruLabel className="text-foreground">Start Date</ZoruLabel>
-              <ZoruInput
+              <Label className="text-foreground">Start Date</Label>
+              <Input
                 type="date"
                 name="startDate"
                 defaultValue={
@@ -149,8 +149,8 @@ export function ContractFormDialog({
               />
             </div>
             <div>
-              <ZoruLabel className="text-foreground">End Date</ZoruLabel>
-              <ZoruInput
+              <Label className="text-foreground">End Date</Label>
+              <Input
                 type="date"
                 name="endDate"
                 defaultValue={
@@ -164,8 +164,8 @@ export function ContractFormDialog({
               />
             </div>
             <div className="md:col-span-2">
-              <ZoruLabel className="text-foreground">Body</ZoruLabel>
-              <ZoruTextarea
+              <Label className="text-foreground">Body</Label>
+              <Textarea
                 name="body"
                 rows={6}
                 defaultValue={editing?.body || ''}
@@ -175,19 +175,19 @@ export function ContractFormDialog({
           </div>
 
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isSaving}>
+            </Button>
+            <Button type="submit" disabled={isSaving}>
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

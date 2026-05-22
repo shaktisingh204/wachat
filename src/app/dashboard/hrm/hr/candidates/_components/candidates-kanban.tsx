@@ -55,7 +55,7 @@ export function CandidatesKanban({
         const items = buckets.get(s.key) || [];
         return (
           <div key={s.key} className="min-w-[240px] w-[240px] shrink-0">
-            <ZoruCard className="p-0 h-full">
+            <Card className="p-0 h-full">
               <ZoruCardHeader className="pb-2">
                 <ZoruCardTitle className="flex items-center justify-between text-[13px]">
                   <span>{s.label}</span>
@@ -101,7 +101,7 @@ export function CandidatesKanban({
                   ))
                 )}
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </div>
         );
       })}

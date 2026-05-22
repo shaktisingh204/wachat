@@ -61,7 +61,7 @@ export default function LeaveSettingsPage() {
       title="Leave Settings"
       subtitle="Configure how leave applications behave across the organization."
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading ? (
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading…
@@ -111,7 +111,7 @@ export default function LeaveSettingsPage() {
             />
 
             <div className="flex justify-end md:col-span-2">
-              <ZoruButton
+              <Button
                 type="submit"
                 disabled={isSaving}
               >
@@ -121,11 +121,11 @@ export default function LeaveSettingsPage() {
                   <Save className="h-4 w-4" />
                 )}
                 Save Settings
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }
@@ -141,8 +141,8 @@ function Numeric({
 }) {
   return (
     <div>
-      <ZoruLabel className="text-zoru-ink">{label}</ZoruLabel>
-      <ZoruInput
+      <Label className="text-zoru-ink">{label}</Label>
+      <Input
         type="number"
         min="0"
         value={value ?? 0}
@@ -164,8 +164,8 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2.5">
-      <ZoruLabel className="text-[13px] text-zoru-ink">{label}</ZoruLabel>
-      <ZoruSwitch checked={Boolean(checked)} onCheckedChange={onChange} />
+      <Label className="text-[13px] text-zoru-ink">{label}</Label>
+      <Switch checked={Boolean(checked)} onCheckedChange={onChange} />
     </div>
   );
 }

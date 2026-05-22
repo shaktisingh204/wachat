@@ -20,7 +20,7 @@ import { LoaderCircle,
  *
  * Layout:
  *   1. Header — vendor (via <EntityFormField>), related RFQ id (plain
- *      <ZoruInput> since RFQ isn't a registered EntityKey yet),
+ *      <Input> since RFQ isn't a registered EntityKey yet),
  *      currency, valid-until date, vendor display name.
  *   2. Line Items — editable table with item picker, qty, unit price
  *      (rate), and lead time per row.
@@ -119,10 +119,10 @@ function fmtMoney(value: number, currency: string): string {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create vendor bid'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -211,15 +211,15 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
       <input type="hidden" name="rfqId" value={rfqId} />
 
       {/* ─── Header ─────────────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>
+            <Label>
               Vendor <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="vendor"
@@ -235,14 +235,14 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             </p>
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Related RFQ <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               {editing ? (
                 <>
                   <input type="hidden" value={rfqId} />
-                  <ZoruInput
+                  <Input
                     value={rfqId}
                     readOnly
                     className="font-mono text-[12.5px]"
@@ -266,7 +266,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             ) : null}
           </div>
           <div>
-            <ZoruLabel>Currency</ZoruLabel>
+            <Label>Currency</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="currency"
@@ -277,8 +277,8 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="validUntil">Valid until</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="validUntil">Valid until</Label>
+            <Input
               id="validUntil"
               name="validUntil"
               type="date"
@@ -295,18 +295,18 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             </p>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Line Items ─────────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Line items <span className="text-zoru-danger-ink">*</span>
           </h3>
-          <ZoruButton type="button" size="sm" variant="outline" onClick={addLine}>
+          <Button type="button" size="sm" variant="outline" onClick={addLine}>
             <Plus className="h-3.5 w-3.5" />
             Add line
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="overflow-x-auto">
@@ -353,7 +353,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                     />
                   </td>
                   <td className="py-2 pr-2">
-                    <ZoruInput
+                    <Input
                       value={line.qty}
                       onChange={(e) =>
                         updateLine(line.key, { qty: e.target.value })
@@ -365,7 +365,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                     />
                   </td>
                   <td className="py-2 pr-2">
-                    <ZoruInput
+                    <Input
                       value={line.rate}
                       onChange={(e) =>
                         updateLine(line.key, { rate: e.target.value })
@@ -377,7 +377,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                     />
                   </td>
                   <td className="py-2 pr-2">
-                    <ZoruInput
+                    <Input
                       value={line.leadTimeDays}
                       onChange={(e) =>
                         updateLine(line.key, { leadTimeDays: e.target.value })
@@ -389,7 +389,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                     />
                   </td>
                   <td className="py-2 pr-2 min-w-[160px]">
-                    <ZoruInput
+                    <Input
                       value={line.notes}
                       onChange={(e) =>
                         updateLine(line.key, { notes: e.target.value })
@@ -403,7 +403,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                     {fmtMoney(lineTotals[idx] || 0, currency)}
                   </td>
                   <td className="py-2 pl-1">
-                    <ZoruButton
+                    <Button
                       type="button"
                       size="sm"
                       variant="ghost"
@@ -412,17 +412,17 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                       className="text-zoru-danger-ink"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Totals ─────────────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Totals
         </h3>
@@ -448,16 +448,16 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Status + terms ─────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Status</ZoruLabel>
+            <Label>Status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="vendorBidStatus"
@@ -473,8 +473,8 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             </p>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="terms">Terms</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="terms">Terms</Label>
+            <Textarea
               id="terms"
               name="terms"
               defaultValue={initial?.terms ?? ''}
@@ -485,10 +485,10 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -498,7 +498,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

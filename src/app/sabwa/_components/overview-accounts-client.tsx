@@ -163,15 +163,15 @@ function RenameDialog({
   };
 
   return (
-    <ZoruDialog open={!!session} onOpenChange={onOpenChange}>
+    <Dialog open={!!session} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Rename account</ZoruDialogTitle>
         </ZoruDialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="sabwa-rename-label">Label</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sabwa-rename-label">Label</Label>
+            <Input
               id="sabwa-rename-label"
               autoFocus
               maxLength={80}
@@ -181,21 +181,21 @@ function RenameDialog({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={pending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={pending || !value.trim()}>
+            </Button>
+            <Button type="submit" disabled={pending || !value.trim()}>
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -243,16 +243,16 @@ function AccountRow({
       <div className="min-w-0 flex-1 basis-[200px]">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-[14px] text-zoru-ink">{label}</p>
-          <ZoruBadge
+          <Badge
             variant={statusVariant(session.status)}
             className="text-[10px]"
           >
             {statusLabel(session.status)}
-          </ZoruBadge>
+          </Badge>
           {isActive && (
-            <ZoruBadge variant="default" className="text-[10px]">
+            <Badge variant="default" className="text-[10px]">
               Active
-            </ZoruBadge>
+            </Badge>
           )}
         </div>
         <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
@@ -261,7 +261,7 @@ function AccountRow({
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-1">
-        <ZoruButton
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -269,8 +269,8 @@ function AccountRow({
           onClick={onRename}
         >
           <Pencil />
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -278,7 +278,7 @@ function AccountRow({
           onClick={onLogout}
         >
           <LogOut />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );
@@ -398,7 +398,7 @@ export function OverviewAccountsClient() {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -414,7 +414,7 @@ export function OverviewAccountsClient() {
             </ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
@@ -432,15 +432,15 @@ export function OverviewAccountsClient() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/sabwa">
-            <ZoruButton variant="outline" size="md">
+            <Button variant="outline" size="md">
               Change project
-            </ZoruButton>
+            </Button>
           </Link>
           <Link href="/sabwa/connect">
-            <ZoruButton size="md">
+            <Button size="md">
               <Plus />
               Connect WhatsApp
-            </ZoruButton>
+            </Button>
           </Link>
         </div>
       </div>
@@ -457,20 +457,20 @@ export function OverviewAccountsClient() {
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <Link href="/sabwa/inbox">
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   Open inbox
                   <ArrowRight />
-                </ZoruButton>
+                </Button>
               </Link>
               <Link href="/sabwa/chats">
-                <ZoruButton variant="ghost" size="sm">
+                <Button variant="ghost" size="sm">
                   Chats
-                </ZoruButton>
+                </Button>
               </Link>
               <Link href="/sabwa/broadcasts">
-                <ZoruButton variant="ghost" size="sm">
+                <Button variant="ghost" size="sm">
                   Broadcasts
-                </ZoruButton>
+                </Button>
               </Link>
             </div>
           </div>
@@ -490,20 +490,20 @@ export function OverviewAccountsClient() {
         {showSkeleton ? (
           <div className="space-y-2">
             {Array.from({ length: 2 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-[72px]" />
+              <Skeleton key={i} className="h-[72px]" />
             ))}
           </div>
         ) : sessions.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Sparkles />}
             title="No WhatsApp accounts linked yet"
             description="Connect a personal WhatsApp number to start using Inbox, Chats, Broadcasts, and AI for this project."
             action={
               <Link href="/sabwa/connect">
-                <ZoruButton size="md">
+                <Button size="md">
                   <QrCode />
                   Connect WhatsApp
-                </ZoruButton>
+                </Button>
               </Link>
             }
           />

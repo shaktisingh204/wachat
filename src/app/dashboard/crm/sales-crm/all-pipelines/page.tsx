@@ -335,12 +335,12 @@ export default function SalesPipelinePage() {
                 }}
                 primaryAction={
                     <>
-                        <ZoruButton variant="outline" onClick={() => setIsEditOpen(true)}>
+                        <Button variant="outline" onClick={() => setIsEditOpen(true)}>
                             Edit Pipelines
-                        </ZoruButton>
-                        <ZoruButton onClick={() => setIsCreateOpen(true)}>
+                        </Button>
+                        <Button onClick={() => setIsCreateOpen(true)}>
                             <Plus className="h-4 w-4" /> New Pipeline
-                        </ZoruButton>
+                        </Button>
                     </>
                 }
                 filters={
@@ -389,9 +389,9 @@ export default function SalesPipelinePage() {
                                     ? 'Try clearing your filters or create a new pipeline.'
                                     : "You haven't created any pipelines yet. Get started by creating one."}
                             </p>
-                            <ZoruButton onClick={() => setIsCreateOpen(true)}>
+                            <Button onClick={() => setIsCreateOpen(true)}>
                                 <Plus className="h-4 w-4" /> Create Your First Pipeline
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -412,25 +412,25 @@ export default function SalesPipelinePage() {
             >
                 <div className="flex flex-col gap-4">
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total pipelines"
                             value={kpis.total.toLocaleString()}
                             icon={<Layers />}
                             period="across this tenant"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Deals in flight"
                             value={formatCurrency(kpis.inFlightValue, subtitleCurrency)}
                             icon={<TrendingUp />}
                             period="open deals · all pipelines"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Average velocity"
                             value={`${kpis.avgVelocityDays.toLocaleString()} days`}
                             icon={<Activity />}
                             period="time deals spend open"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Top pipeline"
                             value={kpis.topPipelineName || '—'}
                             icon={<Trophy />}
@@ -479,13 +479,13 @@ interface PipelinesFiltersRowProps {
 
 function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
-                    </ZoruLabel>
-                    <ZoruSelect
+                    </Label>
+                    <Select
                         value={props.statusFilter}
                         onValueChange={(v) => props.onStatusChange(v as PipelineStatusFilter)}
                     >
@@ -498,14 +498,14 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                             <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                             <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Owner
-                    </ZoruLabel>
-                    <ZoruSelect
+                    </Label>
+                    <Select
                         value={props.ownerFilter}
                         onValueChange={(v) => props.onOwnerChange(v as 'all' | 'mine')}
                     >
@@ -516,13 +516,13 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                             <ZoruSelectItem value="all">Any owner</ZoruSelectItem>
                             <ZoruSelectItem value="mine">Mine</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="space-y-1 md:col-span-1 lg:col-span-2">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Created
-                    </ZoruLabel>
+                    </Label>
                     <ZoruDateRangePicker
                         value={props.dateRange}
                         onChange={props.onDateRangeChange}
@@ -531,18 +531,18 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-4">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
                             onClick={props.onClear}
                         >
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -563,11 +563,11 @@ function PipelinesBulkBar(props: PipelinesBulkBarProps): React.JSX.Element {
                 {props.count} selected
             </span>
             <span className="flex-1" />
-            <ZoruDropdownMenu>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton size="sm" variant="outline">
+                    <Button size="sm" variant="outline">
                         <Download className="h-3.5 w-3.5" /> Export
-                    </ZoruButton>
+                    </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuItem onClick={props.onExportCsv}>
@@ -577,13 +577,13 @@ function PipelinesBulkBar(props: PipelinesBulkBarProps): React.JSX.Element {
                         Export as XLSX
                     </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
-            <ZoruButton size="sm" variant="destructive" onClick={props.onDelete}>
+            </DropdownMenu>
+            <Button size="sm" variant="destructive" onClick={props.onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={props.onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={props.onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -603,7 +603,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-2 px-1 text-[12px] text-zoru-ink-muted">
-                <ZoruCheckbox
+                <Checkbox
                     aria-label="Select all on this page"
                     checked={props.allSelected}
                     onCheckedChange={(c) => props.onToggleAll(c === true)}
@@ -616,7 +616,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                     const status = getPipelineStatus(p);
                     const isSelected = props.selectedIds.has(id);
                     return (
-                        <ZoruCard
+                        <Card
                             key={id}
                             className={
                                 isSelected
@@ -626,7 +626,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                         >
                             <ZoruCardContent className="space-y-3 pt-4">
                                 <div className="flex items-start gap-3">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         aria-label={`Select ${p.name}`}
                                         checked={isSelected}
                                         onCheckedChange={() => props.onToggleOne(id)}
@@ -638,11 +638,11 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                                             subtitle={`${getStageCount(p)} stage${getStageCount(p) === 1 ? '' : 's'}`}
                                         />
                                     </div>
-                                    <ZoruBadge
+                                    <Badge
                                         variant={status === 'active' ? 'default' : 'secondary'}
                                     >
                                         {status}
-                                    </ZoruBadge>
+                                    </Badge>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                                     {(p.stages ?? []).slice(0, 6).map((stage) => (
@@ -668,7 +668,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                                     </Link>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     );
                 })}
             </div>

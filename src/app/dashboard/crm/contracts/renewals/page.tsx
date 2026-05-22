@@ -69,10 +69,10 @@ function DaysRemaining({ toDate }: { toDate: Date | undefined }) {
   const days = daysUntil(toDate);
   if (days === null) return <span className="text-muted-foreground">—</span>;
   if (days < 0)
-    return <ZoruBadge variant="destructive">Expired {Math.abs(days)}d ago</ZoruBadge>;
-  if (days <= 30) return <ZoruBadge variant="warning">{days}d left</ZoruBadge>;
-  if (days <= 60) return <ZoruBadge variant="info">{days}d left</ZoruBadge>;
-  return <ZoruBadge variant="outline">{days}d left</ZoruBadge>;
+    return <Badge variant="destructive">Expired {Math.abs(days)}d ago</Badge>;
+  if (days <= 30) return <Badge variant="warning">{days}d left</Badge>;
+  if (days <= 60) return <Badge variant="info">{days}d left</Badge>;
+  return <Badge variant="outline">{days}d left</Badge>;
 }
 
 /* ─── KPI card ─────────────────────────────────────────────────────── */
@@ -275,10 +275,10 @@ export default function ContractRenewalsPage() {
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Renewal date — from
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 type="date"
                 className="h-8 w-[140px] text-[13px]"
                 value={fromDate}
@@ -286,10 +286,10 @@ export default function ContractRenewalsPage() {
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Renewal date — to
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 type="date"
                 className="h-8 w-[140px] text-[13px]"
                 value={toDate}
@@ -297,7 +297,7 @@ export default function ContractRenewalsPage() {
               />
             </div>
             {filtersActive ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -307,28 +307,28 @@ export default function ContractRenewalsPage() {
                 }}
               >
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
-              <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
-              <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+              <Badge variant="info">{selected.size} selected</Badge>
+              <Button size="sm" variant="outline" onClick={handleExportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setBulkDeletePending(true)}
                 disabled={bulkPending}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -361,18 +361,18 @@ export default function ContractRenewalsPage() {
 
         {/* Export */}
         <div className="flex items-center justify-end">
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
@@ -391,7 +391,7 @@ export default function ContractRenewalsPage() {
                   [...Array(4)].map((_, i) => (
                     <ZoruTableRow key={i} className="border-zoru-line">
                       <ZoruTableCell colSpan={7}>
-                        <ZoruSkeleton className="h-8 w-full" />
+                        <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -410,7 +410,7 @@ export default function ContractRenewalsPage() {
                   filtered.map((r) => (
                     <ZoruTableRow key={r._id} className="border-zoru-line">
                       <ZoruTableCell className="pl-3">
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(r._id)}
                           onCheckedChange={() => toggleRow(r._id)}
                           aria-label={`Select renewal ${r._id}`}
@@ -435,22 +435,22 @@ export default function ContractRenewalsPage() {
                         <DaysRemaining toDate={r.to_date} />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeletingId(r._id)}
                           aria-label="Delete renewal"
                         >
                           <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
       </EntityListShell>
 
       {/* Single delete */}

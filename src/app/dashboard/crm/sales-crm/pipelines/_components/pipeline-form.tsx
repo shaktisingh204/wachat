@@ -58,14 +58,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create pipeline'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -157,7 +157,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="pipelineId" value={initialData!._id} />
@@ -170,8 +170,8 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                 {/* Name */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Pipeline name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Pipeline name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -180,7 +180,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Accent color</ZoruLabel>
+                        <Label>Accent color</Label>
                         <input type="hidden" name="color" value={accentColor} />
                         <ZoruColorPicker value={accentColor} onChange={setAccentColor} />
                     </div>
@@ -188,8 +188,8 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={2}
@@ -201,7 +201,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                 {/* Entity kind + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Applies to</ZoruLabel>
+                        <Label>Applies to</Label>
                         <EnumFormField
                             enumName="pipelineEntityKind"
                             name="entityKindPicker"
@@ -216,7 +216,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="activeDraftArchived"
                             name="statusPicker"
@@ -233,21 +233,21 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
 
                 {/* Default flag */}
                 <div className="flex items-center gap-2">
-                    <ZoruCheckbox
+                    <Checkbox
                         id="isDefault"
                         checked={isDefault}
                         onCheckedChange={(v) => setIsDefault(!!v)}
                     />
-                    <ZoruLabel htmlFor="isDefault" className="cursor-pointer">
+                    <Label htmlFor="isDefault" className="cursor-pointer">
                         Make this the default pipeline
-                    </ZoruLabel>
+                    </Label>
                 </div>
 
                 {/* Stages repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Stages *</ZoruLabel>
-                        <ZoruButton
+                        <Label>Stages *</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -255,7 +255,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add stage
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {stages.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -282,14 +282,14 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                                             {idx + 1}
                                         </span>
                                     </div>
-                                    <ZoruInput
+                                    <Input
                                         placeholder="Stage name"
                                         value={s.name}
                                         onChange={(e) =>
                                             updateStage(idx, 'name', e.target.value)
                                         }
                                     />
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         placeholder="Probability %"
                                         min={0}
@@ -309,21 +309,21 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                                             )
                                         }
                                     />
-                                    <ZoruInput
+                                    <Input
                                         placeholder="Color (e.g. #3B82F6)"
                                         value={s.color ?? ''}
                                         onChange={(e) =>
                                             updateStage(idx, 'color', e.target.value)
                                         }
                                     />
-                                    <ZoruInput
+                                    <Input
                                         placeholder="Conditions / routing rule"
                                         value={s.conditions ?? ''}
                                         onChange={(e) =>
                                             updateStage(idx, 'conditions', e.target.value)
                                         }
                                     />
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -331,7 +331,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                                         aria-label="Remove stage"
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -340,15 +340,15 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to pipelines
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

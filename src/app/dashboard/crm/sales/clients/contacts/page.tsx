@@ -376,24 +376,24 @@ export default function ClientContactsPage() {
       }}
       primaryAction={
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+          <Button variant="outline" size="sm" onClick={onExportCsv}>
             <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
             CSV
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={onExportXlsx}>
             <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />
             XLSX
-          </ZoruButton>
-          <ZoruButton onClick={openNew}>
+          </Button>
+          <Button onClick={openNew}>
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Contact
-          </ZoruButton>
+          </Button>
         </div>
       }
       filters={
         <>
           <div className="w-40">
-            <ZoruSelect
+            <Select
               value={typeFilter}
               onValueChange={(v) => setTypeFilter(v as typeof typeFilter)}
             >
@@ -407,10 +407,10 @@ export default function ClientContactsPage() {
                   Secondary only
                 </ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="w-56">
-            <ZoruSelect
+            <Select
               value={clientFilter || 'all'}
               onValueChange={(v) => setClientFilter(v === 'all' ? '' : v)}
             >
@@ -425,22 +425,22 @@ export default function ClientContactsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               className="h-9 w-[160px]"
             />
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
@@ -456,22 +456,22 @@ export default function ClientContactsPage() {
               {selected.size} selected
             </span>
             <div className="flex items-center gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={onExportCsv}
               >
                 <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Export CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkArchive' })}
@@ -479,8 +479,8 @@ export default function ClientContactsPage() {
               >
                 <Archive className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Archive
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkDelete' })}
@@ -491,7 +491,7 @@ export default function ClientContactsPage() {
                   strokeWidth={1.75}
                 />
                 Delete
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null
@@ -525,7 +525,7 @@ export default function ClientContactsPage() {
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           {isLoading && rows.length === 0 ? (
             <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
               Loading…
@@ -542,7 +542,7 @@ export default function ClientContactsPage() {
                 <thead>
                   <tr className="border-b border-zoru-line bg-zoru-surface-2">
                     <th className="w-10 px-3 py-3">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allOnPageSelected}
                         onCheckedChange={(c) =>
                           toggleAllOnPage(Boolean(c))
@@ -589,7 +589,7 @@ export default function ClientContactsPage() {
                         className="border-b border-zoru-line last:border-0"
                       >
                         <td className="px-3 py-3">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSel}
                             onCheckedChange={(c) => {
                               setSelected((s) => {
@@ -629,15 +629,15 @@ export default function ClientContactsPage() {
                           {r.phone || '—'}
                         </td>
                         <td className="px-4 py-3">
-                          <ZoruBadge
+                          <Badge
                             variant={primary ? 'success' : 'secondary'}
                           >
                             {primary ? 'Primary' : 'Secondary'}
-                          </ZoruBadge>
+                          </Badge>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openEdit(r)}
@@ -647,8 +647,8 @@ export default function ClientContactsPage() {
                                 strokeWidth={1.75}
                               />
                               Edit
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() =>
@@ -665,7 +665,7 @@ export default function ClientContactsPage() {
                                 strokeWidth={1.75}
                               />
                               Delete
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -682,15 +682,15 @@ export default function ClientContactsPage() {
                 Page {pageSafe} of {totalPages} · {filtered.length} contacts
               </span>
               <div className="flex items-center gap-1">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe >= totalPages}
@@ -699,33 +699,33 @@ export default function ClientContactsPage() {
                   }
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Add/Edit modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <ZoruCard className="w-full max-w-xl p-6">
+          <Card className="w-full max-w-xl p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[16px] text-zoru-ink">
                 {editing ? 'Edit Contact' : 'Add Contact'}
               </h2>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setOpen(false)}
               >
                 <X className="h-4 w-4" strokeWidth={1.75} />
                 Close
-              </ZoruButton>
+              </Button>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="md:col-span-2">
-                <ZoruLabel>Client *</ZoruLabel>
+                <Label>Client *</Label>
                 <div className="mt-1.5">
                   <EntityFormField
                     entity="client"
@@ -739,8 +739,8 @@ export default function ClientContactsPage() {
                 </div>
               </div>
               <div>
-                <ZoruLabel>Name *</ZoruLabel>
-                <ZoruInput
+                <Label>Name *</Label>
+                <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="mt-1.5"
@@ -748,16 +748,16 @@ export default function ClientContactsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Job Title</ZoruLabel>
-                <ZoruInput
+                <Label>Job Title</Label>
+                <Input
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
                   className="mt-1.5"
                 />
               </div>
               <div>
-                <ZoruLabel>Email</ZoruLabel>
-                <ZoruInput
+                <Label>Email</Label>
+                <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -765,16 +765,16 @@ export default function ClientContactsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Phone</ZoruLabel>
-                <ZoruInput
+                <Label>Phone</Label>
+                <Input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="mt-1.5"
                 />
               </div>
               <div>
-                <ZoruLabel>Primary Contact</ZoruLabel>
-                <ZoruSelect
+                <Label>Primary Contact</Label>
+                <Select
                   value={isPrimary}
                   onValueChange={(v) => setIsPrimary(v as 'yes' | 'no')}
                 >
@@ -785,16 +785,16 @@ export default function ClientContactsPage() {
                     <ZoruSelectItem value="no">No</ZoruSelectItem>
                     <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="flex justify-end gap-2 pt-2 md:col-span-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   onClick={handleSave}
                   disabled={isMutating || !name.trim() || !clientId}
                 >
@@ -805,10 +805,10 @@ export default function ClientContactsPage() {
                     />
                   ) : null}
                   {editing ? 'Update' : 'Create'}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       )}
 
@@ -868,7 +868,7 @@ function KpiCard({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-2 text-zoru-ink-muted">
         {icon}
         <p className="text-[12.5px] font-medium">{label}</p>
@@ -884,6 +884,6 @@ function KpiCard({
           {hint}
         </p>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }

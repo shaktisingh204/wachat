@@ -108,14 +108,14 @@ function toOptionalDateInput(value: unknown): string {
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -255,16 +255,16 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
             />
 
             {/* ── Route ───────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Route</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-4">
                     <div className="grid items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="fromWarehouseId">
+                            <Label htmlFor="fromWarehouseId">
                                 From warehouse *
-                            </ZoruLabel>
+                            </Label>
                             <EntityFormField
                                 entity="warehouse"
                                 name="fromWarehouseId"
@@ -290,9 +290,9 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             <ArrowRight className="h-5 w-5" />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="toWarehouseId">
+                            <Label htmlFor="toWarehouseId">
                                 To warehouse *
-                            </ZoruLabel>
+                            </Label>
                             <EntityFormField
                                 entity="warehouse"
                                 name="toWarehouseId"
@@ -325,10 +325,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                     ) : null}
                     <div className="grid gap-4 sm:grid-cols-3">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="transferDate">
+                            <Label htmlFor="transferDate">
                                 Transfer date *
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="transferDate"
                                 name="transferDate"
                                 type="date"
@@ -337,10 +337,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="expectedDate">
+                            <Label htmlFor="expectedDate">
                                 Expected at destination
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="expectedDate"
                                 name="expectedDate"
                                 type="date"
@@ -350,7 +350,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="reason">Reason</ZoruLabel>
+                            <Label htmlFor="reason">Reason</Label>
                             <select
                                 id="reason"
                                 name="reason"
@@ -366,10 +366,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Line items ──────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
                         <ZoruCardTitle>Items</ZoruCardTitle>
@@ -380,14 +380,14 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             </span>
                         </p>
                     </div>
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={addRow}
                     >
                         <Plus className="mr-1.5 h-3.5 w-3.5" /> Add item
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="overflow-x-auto rounded-md border border-zoru-line">
@@ -444,7 +444,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="any"
@@ -463,7 +463,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2">
-                                            <ZoruInput
+                                            <Input
                                                 name={`lineItems[${idx}][unit]`}
                                                 value={row.unit}
                                                 onChange={(e) =>
@@ -478,7 +478,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                             />
                                         </td>
                                         <td className="px-2 py-2 text-right">
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
@@ -489,7 +489,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                                 aria-label="Remove line"
                                             >
                                                 <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                            </ZoruButton>
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
@@ -497,10 +497,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         </table>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Approval workflow ───────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Approval workflow</ZoruCardTitle>
                     <p className="text-[12px] text-zoru-ink-muted">
@@ -510,7 +510,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                            <Label htmlFor="status">Status</Label>
                             <EnumFormField
                                 enumName="stockTransferStatus"
                                 name="status"
@@ -523,7 +523,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="requesterId">Requester</ZoruLabel>
+                            <Label htmlFor="requesterId">Requester</Label>
                             <EntityFormField
                                 entity="employee"
                                 name="requesterId"
@@ -539,7 +539,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="approverId">Approver</ZoruLabel>
+                            <Label htmlFor="approverId">Approver</Label>
                             <EntityFormField
                                 entity="employee"
                                 name="approverId"
@@ -555,9 +555,9 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="receivedById">
+                            <Label htmlFor="receivedById">
                                 Received by
-                            </ZoruLabel>
+                            </Label>
                             <EntityFormField
                                 entity="employee"
                                 name="receivedById"
@@ -573,10 +573,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="receivedDate">
+                            <Label htmlFor="receivedDate">
                                 Received date
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="receivedDate"
                                 name="receivedDate"
                                 type="date"
@@ -587,18 +587,18 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Logistics ───────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Logistics</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="carrier">Carrier</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="carrier">Carrier</Label>
+                            <Input
                                 id="carrier"
                                 name="carrier"
                                 defaultValue={initial?.carrier ?? ''}
@@ -606,10 +606,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="trackingNumber">
+                            <Label htmlFor="trackingNumber">
                                 Tracking number
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="trackingNumber"
                                 name="trackingNumber"
                                 defaultValue={initial?.trackingNumber ?? ''}
@@ -618,10 +618,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Attachments ─────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
                         <ZoruCardTitle>Attachments</ZoruCardTitle>
@@ -661,7 +661,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                     <span className="truncate text-zoru-ink">
                                         {a.name}
                                     </span>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -669,7 +669,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                         aria-label={`Remove ${a.name}`}
                                     >
                                         <X className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                     <input
                                         type="hidden"
                                         name={`attachments[${idx}][id]`}
@@ -708,15 +708,15 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         </p>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Notes ───────────────────────────────────────────── */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Notes</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <ZoruTextarea
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -724,24 +724,24 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         defaultValue={initial?.notes ?? ''}
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ── Sticky footer ───────────────────────────────────── */}
             <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link href={BASE}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <div className="flex items-center gap-2">
                     {!isEditing ? (
-                        <ZoruButton
+                        <Button
                             type="submit"
                             variant="outline"
                             onClick={() => setSaveAndNew(true)}
                         >
                             Save & New
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     <SubmitButton
                         label={isEditing ? 'Save changes' : 'Create transfer'}

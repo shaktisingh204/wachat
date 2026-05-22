@@ -241,10 +241,10 @@ export function WorkingFeaturePage({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
+          <Button variant="outline" size="sm" onClick={exportCsv}>
             <Download className="h-4 w-4" /> Export
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => {
@@ -254,33 +254,33 @@ export function WorkingFeaturePage({
             }}
           >
             <RefreshCw className="h-4 w-4" /> Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
-          <ZoruCard key={item.label} className="p-4">
+          <Card key={item.label} className="p-4">
             <p className="text-[12px] text-zoru-ink-muted">{item.label}</p>
             <p className="mt-2 text-[26px] font-semibold text-zoru-ink">{item.value}</p>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-1 flex-col gap-2 sm:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                <ZoruInput
+                <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search records"
                   className="pl-9"
                 />
               </div>
-              <ZoruSelect value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={setStatus}>
                 <ZoruSelectTrigger className="w-full sm:w-44">
                   <ZoruSelectValue placeholder="Status" />
                 </ZoruSelectTrigger>
@@ -290,12 +290,12 @@ export function WorkingFeaturePage({
                   <ZoruSelectItem value="Draft">Draft</ZoruSelectItem>
                   <ZoruSelectItem value="Paused">Paused</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
 
           <div className="mt-5 overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Name</ZoruTableHead>
@@ -312,16 +312,16 @@ export function WorkingFeaturePage({
                     <ZoruTableCell className="font-medium">{row.name}</ZoruTableCell>
                     <ZoruTableCell>{row.owner}</ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={STATUS_VARIANT[row.status] ?? 'default'}>
+                      <Badge variant={STATUS_VARIANT[row.status] ?? 'default'}>
                         {row.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>{row.channel}</ZoruTableCell>
                     <ZoruTableCell>{row.updatedAt}</ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton variant="ghost" size="icon" onClick={() => removeRecord(row.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => removeRecord(row.id)}>
                         <Trash2 className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
@@ -333,37 +333,37 @@ export function WorkingFeaturePage({
                   </ZoruTableRow>
                 ) : null}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
 
         <div className="flex flex-col gap-4">
-          <ZoruCard className="p-5">
+          <Card className="p-5">
             <div className="flex items-center gap-2">
               <Plus className="h-4 w-4 text-zoru-ink-muted" />
               <h2 className="text-[15px] font-semibold text-zoru-ink">{primaryActionLabel}</h2>
             </div>
             <div className="mt-4 flex flex-col gap-3">
               <div>
-                <ZoruLabel>Name</ZoruLabel>
-                <ZoruInput value={newName} onChange={(event) => setNewName(event.target.value)} />
+                <Label>Name</Label>
+                <Input value={newName} onChange={(event) => setNewName(event.target.value)} />
               </div>
               <div>
-                <ZoruLabel>Notes</ZoruLabel>
-                <ZoruTextarea
+                <Label>Notes</Label>
+                <Textarea
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
                   placeholder="Internal note, audience rule, setup detail..."
                   rows={4}
                 />
               </div>
-              <ZoruButton onClick={addRecord}>
+              <Button onClick={addRecord}>
                 <CheckCircle2 className="h-4 w-4" /> Save record
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-5">
+          <Card className="p-5">
             <div className="flex items-center gap-2">
               <Settings className="h-4 w-4 text-zoru-ink-muted" />
               <h2 className="text-[15px] font-semibold text-zoru-ink">Settings</h2>
@@ -377,7 +377,7 @@ export function WorkingFeaturePage({
                       {item.description}
                     </p>
                   </div>
-                  <ZoruSwitch
+                  <Switch
                     checked={enabled[item.label] ?? false}
                     onCheckedChange={(checked) =>
                       setEnabled((prev) => ({ ...prev, [item.label]: checked }))
@@ -385,31 +385,31 @@ export function WorkingFeaturePage({
                   />
                 </div>
               ))}
-              <ZoruButton
+              <Button
                 variant="outline"
                 onClick={() => toast({ title: 'Settings saved', description: `${title} preferences updated.` })}
               >
                 <Save className="h-4 w-4" /> Save settings
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
 
           {quickLinks.length ? (
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-zoru-ink-muted" />
                 <h2 className="text-[15px] font-semibold text-zoru-ink">Shortcuts</h2>
               </div>
               <div className="mt-3 flex flex-col gap-2">
                 {quickLinks.map((link) => (
-                  <ZoruButton key={link.href} variant="ghost" asChild className="justify-start">
+                  <Button key={link.href} variant="ghost" asChild className="justify-start">
                     <a href={link.href}>
                       <ExternalLink className="h-4 w-4" /> {link.label}
                     </a>
-                  </ZoruButton>
+                  </Button>
                 ))}
               </div>
-            </ZoruCard>
+            </Card>
           ) : null}
         </div>
       </div>

@@ -112,12 +112,12 @@ export function AssignGroupSheet({
   }, []);
 
   return (
-    <ZoruSheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <ZoruSheetTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <UserCheck className="h-4 w-4" />
           Manage Assignments
-        </ZoruButton>
+        </Button>
       </ZoruSheetTrigger>
 
       <ZoruSheetContent side="right" className="flex w-[420px] flex-col sm:max-w-[420px]">
@@ -132,8 +132,8 @@ export function AssignGroupSheet({
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto py-4">
           {/* Employee picker */}
           <div className="space-y-2">
-            <ZoruLabel htmlFor="emp-select">Employee</ZoruLabel>
-            <ZoruSelect value={employeeId} onValueChange={setEmployeeId}>
+            <Label htmlFor="emp-select">Employee</Label>
+            <Select value={employeeId} onValueChange={setEmployeeId}>
               <ZoruSelectTrigger id="emp-select">
                 <ZoruSelectValue placeholder="Select employee…" />
               </ZoruSelectTrigger>
@@ -149,13 +149,13 @@ export function AssignGroupSheet({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
 
           {/* Group picker */}
           <div className="space-y-2">
-            <ZoruLabel htmlFor="grp-select">Permission Group</ZoruLabel>
-            <ZoruSelect value={groupId} onValueChange={setGroupId}>
+            <Label htmlFor="grp-select">Permission Group</Label>
+            <Select value={groupId} onValueChange={setGroupId}>
               <ZoruSelectTrigger id="grp-select">
                 <ZoruSelectValue placeholder="None (remove assignment)" />
               </ZoruSelectTrigger>
@@ -166,7 +166,7 @@ export function AssignGroupSheet({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <p className="text-[11px] text-zoru-ink-muted">
               Leave blank to remove the employee&apos;s current group.
             </p>
@@ -200,18 +200,18 @@ export function AssignGroupSheet({
         </div>
 
         <ZoruSheetFooter className="gap-2 pt-4">
-          <ZoruButton
+          <Button
             variant="ghost"
             onClick={() => handleOpenChange(false)}
             disabled={saving}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleSave} disabled={saving || !employeeId}>
+          </Button>
+          <Button onClick={handleSave} disabled={saving || !employeeId}>
             {saving ? 'Saving…' : 'Save'}
-          </ZoruButton>
+          </Button>
         </ZoruSheetFooter>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }

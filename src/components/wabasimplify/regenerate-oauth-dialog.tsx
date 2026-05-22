@@ -30,9 +30,9 @@ const initialState: any = { message: undefined, error: undefined, oauth_url: und
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : 'Regenerate Link'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -86,23 +86,23 @@ export function RegenerateOauthDialog({ project, config, onSuccess }: Regenerate
           </AlertDescription>
         </Alert>
         <ZoruDialogFooter>
-          <ZoruButton asChild>
+          <Button asChild>
             <a href={state.oauth_url} target="_blank" rel="noopener noreferrer" onClick={() => handleOpenChange(false)}>
               Complete Onboarding
             </a>
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
     )
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <LinkIcon className="mr-2 h-4 w-4" />
           Regenerate Link
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
@@ -116,8 +116,8 @@ export function RegenerateOauthDialog({ project, config, onSuccess }: Regenerate
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="redirect_url">Redirect URL</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="redirect_url">Redirect URL</Label>
+              <Input
                 id="redirect_url"
                 name="redirect_url"
                 type="url"
@@ -127,11 +127,11 @@ export function RegenerateOauthDialog({ project, config, onSuccess }: Regenerate
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

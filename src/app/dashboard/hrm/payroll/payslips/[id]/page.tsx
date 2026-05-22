@@ -67,7 +67,7 @@ export default async function PayslipDetailPage({
             status={{ label: status, tone }}
             back={{ href: BASE, label: 'Payslips' }}
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Breakdown
@@ -190,7 +190,7 @@ export default async function PayslipDetailPage({
                         {inr.format(payslip.net ?? 0)}
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

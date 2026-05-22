@@ -72,11 +72,11 @@ export function WarehousesTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all"
                                 checked={
                                     allSelected
@@ -104,7 +104,7 @@ export function WarehousesTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={10}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -131,7 +131,7 @@ export function WarehousesTable({
                         ))
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }
@@ -168,7 +168,7 @@ function WarehouseRow({
             ].join(' ')}
         >
             <ZoruTableCell>
-                <ZoruCheckbox
+                <Checkbox
                     aria-label={`Select ${w.name}`}
                     checked={selected}
                     onCheckedChange={() => onToggle(id)}
@@ -185,9 +185,9 @@ function WarehouseRow({
                 />
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px]">
-                <ZoruBadge variant="secondary">
+                <Badge variant="secondary">
                     {warehouseTypeLabel(w.type)}
-                </ZoruBadge>
+                </Badge>
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                 {w.city || '—'}
@@ -214,7 +214,7 @@ function WarehouseRow({
             </ZoruTableCell>
             <ZoruTableCell>
                 {w.isDefault ? (
-                    <ZoruBadge variant="info">Default</ZoruBadge>
+                    <Badge variant="info">Default</Badge>
                 ) : (
                     <span className="text-[12.5px] text-zoru-ink-muted">—</span>
                 )}
@@ -226,7 +226,7 @@ function WarehouseRow({
                 />
             </ZoruTableCell>
             <ZoruTableCell className="text-right">
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
                         <button
                             type="button"
@@ -270,7 +270,7 @@ function WarehouseRow({
                             Delete
                         </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
             </ZoruTableCell>
         </ZoruTableRow>
     );

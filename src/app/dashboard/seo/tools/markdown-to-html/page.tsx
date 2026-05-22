@@ -34,8 +34,8 @@ export default function MarkdownToHtmlPage() {
 
   return (
     <ToolShell title="Markdown to HTML" description="Convert Markdown to HTML (basic subset: headings, bold, italic, links, lists, code).">
-      <ZoruTextarea value={md} onChange={(e) => setMd(e.target.value)} className="min-h-[220px] font-mono text-xs" />
-      <ZoruTextarea readOnly value={html} className="min-h-[220px] font-mono text-xs" />
+      <Textarea value={md} onChange={(e) => setMd(e.target.value)} className="min-h-[220px] font-mono text-xs" />
+      <Textarea readOnly value={html} className="min-h-[220px] font-mono text-xs" />
     </ToolShell>
   );
 }

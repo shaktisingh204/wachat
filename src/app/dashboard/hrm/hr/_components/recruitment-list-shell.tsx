@@ -276,7 +276,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
               : '',
           ].join(' ')}
         >
-          <ZoruStatCard label={k.label} value={k.value} icon={k.icon} />
+          <StatCard label={k.label} value={k.value} icon={k.icon} />
         </button>
       ))}
     </div>
@@ -315,7 +315,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
       {filters.map((f) => {
         if (f.type === 'select') {
           return (
-            <ZoruSelect
+            <Select
               key={f.key}
               value={filterValues[f.key] || '__all'}
               onValueChange={(v) =>
@@ -333,12 +333,12 @@ export function RecruitmentListShell<T extends { _id: string }>({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           );
         }
         if (f.type === 'date') {
           return (
-            <ZoruInput
+            <Input
               key={f.key}
               type="date"
               value={filterValues[f.key] || ''}
@@ -349,7 +349,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
           );
         }
         return (
-          <ZoruInput
+          <Input
             key={f.key}
             value={filterValues[f.key] || ''}
             onChange={(e) => onFilterChange(f.key, e.target.value)}
@@ -360,14 +360,14 @@ export function RecruitmentListShell<T extends { _id: string }>({
         );
       })}
       {hasActiveFilters ? (
-        <ZoruButton
+        <Button
           variant="ghost"
           size="sm"
           onClick={onClearFilters}
           className="text-[12px]"
         >
           Clear all
-        </ZoruButton>
+        </Button>
       ) : null}
     </>
   );
@@ -379,22 +379,22 @@ export function RecruitmentListShell<T extends { _id: string }>({
         {selected.size} selected
       </span>
       <div className="flex flex-wrap items-center gap-1">
-        <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+        <Button variant="ghost" size="sm" onClick={exportCsv}>
           <Download className="h-3.5 w-3.5" />
           Export
-        </ZoruButton>
+        </Button>
         {onBulkArchive ? (
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => onBulkArchive(Array.from(selected))}
           >
             <Archive className="h-3.5 w-3.5" />
             Archive
-          </ZoruButton>
+          </Button>
         ) : null}
         {onBulkDelete ? (
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => setBulkDeleteOpen(true)}
@@ -402,15 +402,15 @@ export function RecruitmentListShell<T extends { _id: string }>({
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete
-          </ZoruButton>
+          </Button>
         ) : null}
-        <ZoruButton
+        <Button
           variant="ghost"
           size="sm"
           onClick={() => setSelected(new Set())}
         >
           Clear
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   ) : null;
@@ -419,14 +419,14 @@ export function RecruitmentListShell<T extends { _id: string }>({
   const isTableView = !activeView || activeView === 'table' || !customView;
 
   const tableBody = (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <ZoruCardContent className="p-0">
         <div className="overflow-x-auto">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={
                       rows.length > 0 && selected.size === rows.length
                     }
@@ -461,7 +461,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
                   return (
                     <ZoruTableRow key={id}>
                       <ZoruTableCell className="w-10">
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(id)}
                           onCheckedChange={() => toggleOne(id)}
                           aria-label={`Select ${id}`}
@@ -479,23 +479,23 @@ export function RecruitmentListShell<T extends { _id: string }>({
                       ))}
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" asChild>
+                          <Button variant="ghost" size="sm" asChild>
                             <Link
                               href={href}
                               aria-label={`Open ${singular.toLowerCase()}`}
                             >
                               View
                             </Link>
-                          </ZoruButton>
+                          </Button>
                           {onDelete ? (
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="sm"
                               aria-label="Delete"
                               onClick={() => setDeletingId(id)}
                             >
                               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           ) : null}
                         </div>
                       </ZoruTableCell>
@@ -504,10 +504,10 @@ export function RecruitmentListShell<T extends { _id: string }>({
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 
   return (
@@ -522,11 +522,11 @@ export function RecruitmentListShell<T extends { _id: string }>({
           placeholder: `Search ${singular.toLowerCase()}…`,
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href={`${basePath}/new`}>
               <Plus className="h-4 w-4" /> New {singular}
             </Link>
-          </ZoruButton>
+          </Button>
         }
         filters={filterRow}
         bulkBar={bulkBar}

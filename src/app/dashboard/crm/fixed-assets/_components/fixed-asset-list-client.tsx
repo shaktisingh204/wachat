@@ -322,14 +322,14 @@ export function FixedAssetListClient({
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by code, name, location…"
             className="h-9 pl-9 text-[13px]"
           />
         </div>
-        <ZoruSelect
+        <Select
           value={statusFilter}
           onValueChange={(v) =>
             setStatusFilter(v as 'all' | 'active' | 'retired')
@@ -343,8 +343,8 @@ export function FixedAssetListClient({
             <ZoruSelectItem value="active">Active</ZoruSelectItem>
             <ZoruSelectItem value="retired">Retired</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={categoryFilter} onValueChange={setCategoryFilter}>
+        </Select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Category" />
           </ZoruSelectTrigger>
@@ -356,8 +356,8 @@ export function FixedAssetListClient({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={custodianFilter} onValueChange={setCustodianFilter}>
+        </Select>
+        <Select value={custodianFilter} onValueChange={setCustodianFilter}>
           <ZoruSelectTrigger className="h-9 w-[180px] text-[13px]">
             <ZoruSelectValue placeholder="Custodian" />
           </ZoruSelectTrigger>
@@ -369,8 +369,8 @@ export function FixedAssetListClient({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={locationFilter} onValueChange={setLocationFilter}>
+        </Select>
+        <Select value={locationFilter} onValueChange={setLocationFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Location" />
           </ZoruSelectTrigger>
@@ -382,15 +382,15 @@ export function FixedAssetListClient({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruInput
+        </Select>
+        <Input
           type="date"
           value={purchaseFrom}
           onChange={(e) => setPurchaseFrom(e.target.value)}
           className="h-9 w-[150px] text-[13px]"
           aria-label="Purchase from"
         />
-        <ZoruInput
+        <Input
           type="date"
           value={purchaseTo}
           onChange={(e) => setPurchaseTo(e.target.value)}
@@ -398,9 +398,9 @@ export function FixedAssetListClient({
           aria-label="Purchase to"
         />
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
@@ -411,30 +411,30 @@ export function FixedAssetListClient({
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
-            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="destructive"
               onClick={() => setBulkConfirmOpen(true)}
               disabled={bulkDeleting}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {error ? (
           <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
             <AlertCircle className="h-4 w-4 shrink-0" />
@@ -442,11 +442,11 @@ export function FixedAssetListClient({
           </div>
         ) : null}
 
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead className="w-8">
-                <ZoruCheckbox
+                <Checkbox
                   checked={headChecked}
                   onCheckedChange={(c) => toggleAll(Boolean(c))}
                   aria-label="Select all"
@@ -483,7 +483,7 @@ export function FixedAssetListClient({
                 return (
                   <ZoruTableRow key={id}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={checked}
                         onCheckedChange={() => toggleOne(id)}
                         aria-label={`Select asset ${asset.code}`}
@@ -521,7 +521,7 @@ export function FixedAssetListClient({
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {asset.condition ? (
-                        <ZoruBadge variant="outline">{asset.condition}</ZoruBadge>
+                        <Badge variant="outline">{asset.condition}</Badge>
                       ) : (
                         <span className="text-[12.5px] text-zoru-ink-muted">—</span>
                       )}
@@ -537,19 +537,19 @@ export function FixedAssetListClient({
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton size="sm" variant="ghost" asChild>
+                        <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/fixed-assets/${id}/edit`}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(asset)}
                           className="text-zoru-danger-ink"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -557,10 +557,10 @@ export function FixedAssetListClient({
               })
             )}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-      </ZoruCard>
+      </Card>
 
       <FixedAssetSingleDeleteDialog
         open={pendingDelete !== null}

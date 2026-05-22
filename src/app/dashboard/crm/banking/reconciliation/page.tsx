@@ -51,12 +51,12 @@ export default async function BankReconciliationPage() {
       title="Bank Reconciliation"
       subtitle="Match your bank statement transactions with your company's book entries."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/banking/reconciliation/new">
             <Plus className="h-4 w-4" />
             New reconciliation
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       <ReconciliationListClient kpis={kpis} records={records} />

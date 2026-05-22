@@ -173,15 +173,15 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Header
                 </h2>
                 <div className="grid gap-4 md:grid-cols-3">
                     <div>
-                        <ZoruLabel>Employee *</ZoruLabel>
+                        <Label>Employee *</Label>
                         {/* TODO 1E.sweep: dynamic list — needs EntityKey "employee" (already exists; just swap to <EntityFormField entity="employee">) */}
-                        <ZoruSelect value={employeeId || undefined} onValueChange={setEmployeeId}>
+                        <Select value={employeeId || undefined} onValueChange={setEmployeeId}>
                             <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                                 <ZoruSelectValue placeholder="Select employee" />
                             </ZoruSelectTrigger>
@@ -192,11 +192,11 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div>
-                        <ZoruLabel>Week start *</ZoruLabel>
-                        <ZoruInput
+                        <Label>Week start *</Label>
+                        <Input
                             type="date"
                             value={weekStart}
                             onChange={(e) => setWeekStart(e.target.value)}
@@ -205,8 +205,8 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                         />
                     </div>
                     <div>
-                        <ZoruLabel>Week end</ZoruLabel>
-                        <ZoruInput
+                        <Label>Week end</Label>
+                        <Input
                             type="date"
                             value={weekEnd}
                             onChange={(e) => setWeekEnd(e.target.value)}
@@ -214,9 +214,9 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
                     <h2 className="text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                         Daily hours
@@ -228,8 +228,8 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-7">
                     {DAYS.map((label, idx) => (
                         <div key={label}>
-                            <ZoruLabel>{label}</ZoruLabel>
-                            <ZoruInput
+                            <Label>{label}</Label>
+                            <Input
                                 type="number"
                                 step="0.25"
                                 min="0"
@@ -240,16 +240,16 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                         </div>
                     ))}
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <h2 className="text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                         Project breakdowns
                     </h2>
-                    <ZoruButton type="button" variant="outline" size="sm" onClick={addProject}>
+                    <Button type="button" variant="outline" size="sm" onClick={addProject}>
                         <Plus className="mr-1.5 h-3.5 w-3.5" /> Add project
-                    </ZoruButton>
+                    </Button>
                 </div>
                 {projects.length === 0 ? (
                     <p className="text-[13px] text-zoru-ink-muted">
@@ -263,8 +263,8 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                 className="grid items-end gap-3 md:grid-cols-[1fr_140px_auto]"
                             >
                                 <div>
-                                    <ZoruLabel>Project ID</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Project ID</Label>
+                                    <Input
                                         value={p.projectId}
                                         onChange={(e) =>
                                             updateProject(i, { projectId: e.target.value })
@@ -274,8 +274,8 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                     />
                                 </div>
                                 <div>
-                                    <ZoruLabel>Hours</ZoruLabel>
-                                    <ZoruInput
+                                    <Label>Hours</Label>
+                                    <Input
                                         type="number"
                                         step="0.25"
                                         min="0"
@@ -286,27 +286,27 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                         className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                     />
                                 </div>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => removeProject(i)}
                                 >
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ))}
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Status & notes
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 name="status-picker"
@@ -321,8 +321,8 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label>Notes</Label>
+                        <Textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             rows={3}
@@ -330,24 +330,24 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div className="flex justify-end gap-2">
-                <ZoruButton
+                <Button
                     type="button"
                     variant="outline"
                     onClick={() => router.push('/dashboard/hrm/hr/timesheets')}
                 >
                     Cancel
-                </ZoruButton>
-                <ZoruButton type="submit" disabled={isSaving}>
+                </Button>
+                <Button type="submit" disabled={isSaving}>
                     {isSaving ? (
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                         <Save className="mr-2 h-4 w-4" />
                     )}
                     {initial?._id ? 'Save changes' : 'Create timesheet'}
-                </ZoruButton>
+                </Button>
             </div>
         </form>
     );

@@ -36,24 +36,24 @@ export default function UrlParserPage() {
   return (
     <ToolShell title="URL Parser" description="Break a URL into its component parts using the WHATWG URL parser.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="https://user:pass@example.com:8080/path?x=1#hash"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={!url}>
+        <Button onClick={run} disabled={!url}>
           Parse
-        </ZoruButton>
+        </Button>
       </div>
 
       {error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {parts && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4">
             <table className="w-full text-sm">
               <tbody>
@@ -66,7 +66,7 @@ export default function UrlParserPage() {
               </tbody>
             </table>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

@@ -85,30 +85,30 @@ export default function BrokenLinkCheckerPage() {
   return (
     <ToolShell title="Broken Link Checker" description="Fetch a page and verify its outgoing links (first 30).">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={loading || !url}>
+        <Button onClick={run} disabled={loading || !url}>
           {loading ? 'Fetching…' : 'Fetch Links'}
-        </ZoruButton>
+        </Button>
       </div>
 
       {error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {rows && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">{rows.length} links</div>
-              <ZoruButton size="sm" variant="outline" onClick={checkAll}>
+              <Button size="sm" variant="outline" onClick={checkAll}>
                 Check all
-              </ZoruButton>
+              </Button>
             </div>
             <div className="space-y-2">
               {rows.map((row, i) => (
@@ -118,23 +118,23 @@ export default function BrokenLinkCheckerPage() {
                     {row.text && <div className="text-muted-foreground truncate">{row.text}</div>}
                   </div>
                   <StatusBadge row={row} />
-                  <ZoruButton size="sm" variant="ghost" onClick={() => checkOne(i)}>
+                  <Button size="sm" variant="ghost" onClick={() => checkOne(i)}>
                     Check
-                  </ZoruButton>
+                  </Button>
                 </div>
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );
 }
 
 function StatusBadge({ row }: { row: LinkRow }) {
-  if (row.state === 'idle') return <ZoruBadge variant="secondary">Pending</ZoruBadge>;
-  if (row.state === 'checking') return <ZoruBadge variant="secondary">Checking…</ZoruBadge>;
+  if (row.state === 'idle') return <Badge variant="secondary">Pending</Badge>;
+  if (row.state === 'checking') return <Badge variant="secondary">Checking…</Badge>;
   if (row.state === 'ok')
-    return <ZoruBadge className="bg-green-600 hover:bg-green-600">OK {row.status}</ZoruBadge>;
-  return <ZoruBadge variant="destructive">Broken {row.status ?? ''}</ZoruBadge>;
+    return <Badge className="bg-green-600 hover:bg-green-600">OK {row.status}</Badge>;
+  return <Badge variant="destructive">Broken {row.status ?? ''}</Badge>;
 }

@@ -184,7 +184,7 @@ export function KeyboardShortcuts({ enabled = true }: KeyboardShortcutsProps) {
 
 function ShortcutsCheatSheet({ onClose }: { onClose: () => void }) {
   return (
-    <ZoruDialog open onOpenChange={(next) => (next ? null : onClose())}>
+    <Dialog open onOpenChange={(next) => (next ? null : onClose())}>
       <ZoruDialogContent className="sm:max-w-2xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Keyboard shortcuts</ZoruDialogTitle>
@@ -201,12 +201,12 @@ function ShortcutsCheatSheet({ onClose }: { onClose: () => void }) {
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose}>
             Close
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

@@ -129,7 +129,7 @@ export default function ContactGroupsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -149,7 +149,7 @@ export default function ContactGroupsPage() {
             <ZoruBreadcrumbPage>Groups</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-end justify-between gap-6">
         <div className="min-w-0">
@@ -160,11 +160,11 @@ export default function ContactGroupsPage() {
             Organise contacts into groups for targeted broadcasts.
           </p>
         </div>
-        <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <ZoruDialogTrigger asChild>
-            <ZoruButton size="sm">
+            <Button size="sm">
               <Plus /> New Group
-            </ZoruButton>
+            </Button>
           </ZoruDialogTrigger>
           <ZoruDialogContent>
             <ZoruDialogHeader>
@@ -175,10 +175,10 @@ export default function ContactGroupsPage() {
             </ZoruDialogHeader>
             <form onSubmit={handleCreate} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="group-name" required>
+                <Label htmlFor="group-name" required>
                   Name
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="group-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -187,8 +187,8 @@ export default function ContactGroupsPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="group-description">Description</ZoruLabel>
-                <ZoruTextarea
+                <Label htmlFor="group-description">Description</Label>
+                <Textarea
                   id="group-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -196,44 +196,44 @@ export default function ContactGroupsPage() {
                 />
               </div>
               <ZoruDialogFooter>
-                <ZoruButton
+                <Button
                   type="button"
                   variant="outline"
                   onClick={() => setCreateOpen(false)}
                 >
                   Cancel
-                </ZoruButton>
-                <ZoruButton type="submit" disabled={submitting || !name.trim()}>
+                </Button>
+                <Button type="submit" disabled={submitting || !name.trim()}>
                   {submitting ? <Loader2 className="animate-spin" /> : null}
                   Create group
-                </ZoruButton>
+                </Button>
               </ZoruDialogFooter>
             </form>
           </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
       </div>
 
       {isLoadingInitial ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-32" />
+            <Skeleton key={i} className="h-32" />
           ))}
         </div>
       ) : groups.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Users />}
           title="No groups yet"
           description="Create your first group to start segmenting contacts."
           action={
-            <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+            <Button size="sm" onClick={() => setCreateOpen(true)}>
               <Plus /> Create group
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((g) => (
-            <ZoruCard
+            <Card
               key={g._id}
               className="flex flex-col gap-3 p-5"
             >
@@ -255,14 +255,14 @@ export default function ContactGroupsPage() {
                 </div>
                 <ZoruAlertDialog>
                   <ZoruAlertDialogTrigger asChild>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="icon-sm"
                       className="text-zoru-ink-muted hover:text-zoru-danger"
                       aria-label="Delete group"
                     >
                       <Trash2 />
-                    </ZoruButton>
+                    </Button>
                   </ZoruAlertDialogTrigger>
                   <ZoruAlertDialogContent>
                     <ZoruAlertDialogHeader>
@@ -287,16 +287,16 @@ export default function ContactGroupsPage() {
                 </ZoruAlertDialog>
               </div>
               <div className="flex items-center justify-between border-t border-zoru-line pt-3 text-[12px] text-zoru-ink-muted">
-                <ZoruBadge variant="secondary">
+                <Badge variant="secondary">
                   {g.memberCount ?? 0} members
-                </ZoruBadge>
+                </Badge>
                 <span>
                   {g.createdAt
                     ? new Date(g.createdAt).toLocaleDateString()
                     : '—'}
                 </span>
               </div>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       )}

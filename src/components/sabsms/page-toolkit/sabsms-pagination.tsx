@@ -45,7 +45,7 @@ export function SabsmsPagination({
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-slate-500">Rows</span>
-          <ZoruSelect
+          <Select
             value={String(pageSize)}
             onValueChange={(v) => onPageSizeChange?.(parseInt(v, 10))}
           >
@@ -59,10 +59,10 @@ export function SabsmsPagination({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
         <div className="flex items-center gap-1">
-          <ZoruButton
+          <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
@@ -71,8 +71,8 @@ export function SabsmsPagination({
             aria-label="First page"
           >
             <ChevronsLeft className="h-4 w-4" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
@@ -81,11 +81,11 @@ export function SabsmsPagination({
             aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
           <span className="px-2 text-xs">
             Page {page + 1} of {totalPages}
           </span>
-          <ZoruButton
+          <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
@@ -94,8 +94,8 @@ export function SabsmsPagination({
             aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
@@ -104,7 +104,7 @@ export function SabsmsPagination({
             aria-label="Last page"
           >
             <ChevronsRight className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     </div>

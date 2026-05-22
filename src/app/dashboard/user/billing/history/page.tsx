@@ -54,20 +54,20 @@ export default function BillingHistoryPage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
+                <Button variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/user/billing"><ChevronLeft className="mr-2 h-4 w-4" />Back to Billing</Link>
-                </ZoruButton>
+                </Button>
                 <h1 className="text-3xl font-bold font-headline">Billing History</h1>
                 <p className="text-muted-foreground">A record of all your plan upgrades and credit purchases.</p>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Your Transactions</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="border rounded-md">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Date</ZoruTableHead>
@@ -93,11 +93,11 @@ export default function BillingHistoryPage() {
                                             <ZoruTableCell>{t.reason}</ZoruTableCell>
                                             <ZoruTableCell>₹{(t.amount / 100).toFixed(2)}</ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant={t.type === 'CREDIT' ? 'default' : 'secondary'}>
+                                                <Badge variant={t.type === 'CREDIT' ? 'default' : 'secondary'}>
                                                     {t.type}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </ZoruTableCell>
-                                            <ZoruTableCell><ZoruBadge variant={getStatusVariant(t.status)}>{t.status}</ZoruBadge></ZoruTableCell>
+                                            <ZoruTableCell><Badge variant={getStatusVariant(t.status)}>{t.status}</Badge></ZoruTableCell>
                                         </ZoruTableRow>
                                     ))
                                 ) : (
@@ -111,10 +111,10 @@ export default function BillingHistoryPage() {
                                     </ZoruTableRow>
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

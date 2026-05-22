@@ -20,10 +20,10 @@ export const FacebookChatMessage = React.memo(function FacebookChatMessage({ mes
     return (
         <div className={cn("flex items-end gap-2 group/message", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
-                 <ZoruAvatar className="h-8 w-8 self-end">
+                 <Avatar className="h-8 w-8 self-end">
                     <ZoruAvatarImage src={`https://graph.facebook.com/${participant.id}/picture`} alt={participant.name}/>
                     <ZoruAvatarFallback>{participant.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
             )}
             <div
                 className={cn(

@@ -132,7 +132,7 @@ export function ImportsTable({
       id: "status",
       header: "Status",
       render: (r) => (
-        <ZoruBadge variant={statusVariant(r.status)}>{r.status}</ZoruBadge>
+        <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
       ),
     },
     {
@@ -149,7 +149,7 @@ export function ImportsTable({
             : 0;
         return (
           <div className="min-w-[140px] space-y-1">
-            <ZoruProgress value={pct} className="h-1.5" />
+            <Progress value={pct} className="h-1.5" />
             <p className="text-[10px] text-slate-500">
               {r.counts.imported.toLocaleString()} / {r.counts.total.toLocaleString()}
               {r.counts.failed > 0 && (
@@ -169,9 +169,9 @@ export function ImportsTable({
         r.options.bulkTags.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {r.options.bulkTags.slice(0, 3).map((t) => (
-              <ZoruBadge key={t} variant="outline" className="text-[10px]">
+              <Badge key={t} variant="outline" className="text-[10px]">
                 {t}
-              </ZoruBadge>
+              </Badge>
             ))}
             {r.options.bulkTags.length > 3 && (
               <span className="text-[10px] text-slate-500">

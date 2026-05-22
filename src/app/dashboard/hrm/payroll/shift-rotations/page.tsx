@@ -60,20 +60,20 @@ export default function ShiftRotationsPage() {
       subtitle="Define cyclical shift sequences to automate assignment."
       primaryAction={
         <Link href="/dashboard/hrm/payroll/shift-rotations/automate">
-          <ZoruButton>
+          <Button>
             <Play className="h-4 w-4" strokeWidth={1.75} />
             Automate Shift
-          </ZoruButton>
+          </Button>
         </Link>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">Create Rotation</h2>
         <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_2fr_auto]">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">Name</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[12px] text-zoru-ink-muted">Name</Label>
+            <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -81,26 +81,26 @@ export default function ShiftRotationsPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">Description</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[12px] text-zoru-ink-muted">Description</Label>
+            <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional"
             />
           </div>
           <div className="flex items-end">
-            <ZoruButton
+            <Button
               type="submit"
               disabled={pending}
             >
               <Plus className="h-4 w-4" strokeWidth={1.75} />
               Add
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">All Rotations</h2>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full border-collapse text-[13px]">
@@ -129,25 +129,25 @@ export default function ShiftRotationsPage() {
                       {r.description || '—'}
                     </td>
                     <td className="px-4 py-2.5">
-                      <ZoruBadge variant={r.is_active ? 'success' : 'secondary'}>
+                      <Badge variant={r.is_active ? 'success' : 'secondary'}>
                         {r.is_active ? 'active' : 'inactive'}
-                      </ZoruBadge>
+                      </Badge>
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/dashboard/hrm/payroll/shift-rotations/${r._id}`}>
-                          <ZoruButton variant="outline" size="icon" aria-label="Edit rotation">
+                          <Button variant="outline" size="icon" aria-label="Edit rotation">
                             <Edit className="h-4 w-4" />
-                          </ZoruButton>
+                          </Button>
                         </Link>
-                        <ZoruButton
+                        <Button
                           variant="outline"
                           size="icon"
                           aria-label="Delete rotation"
                           onClick={() => handleDelete(r._id)}
                         >
                           <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -162,7 +162,7 @@ export default function ShiftRotationsPage() {
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

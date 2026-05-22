@@ -70,14 +70,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create RFQ'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -176,7 +176,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
     const rfqNumber = (initialData as unknown as { rfqNumber?: string })?.rfqNumber ?? '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="rfqId" value={initialData!._id} />
@@ -189,8 +189,8 @@ export function RfqForm({ initialData }: RfqFormProps) {
                 {/* Header row */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="rfqNumber">RFQ number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="rfqNumber">RFQ number</Label>
+                        <Input
                             id="rfqNumber"
                             name="rfqNumber"
                             placeholder="Auto-generated"
@@ -199,7 +199,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <Label htmlFor="status-trigger">Status</Label>
                         <EnumFormField
                             enumName="rfqStatusV2"
                             name="__status_picker"
@@ -211,8 +211,8 @@ export function RfqForm({ initialData }: RfqFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
                         id="title"
                         name="title"
                         required
@@ -223,8 +223,8 @@ export function RfqForm({ initialData }: RfqFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="deadline">Deadline</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="deadline">Deadline</Label>
+                        <Input
                             id="deadline"
                             name="deadline"
                             type="date"
@@ -232,8 +232,8 @@ export function RfqForm({ initialData }: RfqFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="requiredBy">Required by</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="requiredBy">Required by</Label>
+                        <Input
                             id="requiredBy"
                             name="requiredBy"
                             type="date"
@@ -245,15 +245,15 @@ export function RfqForm({ initialData }: RfqFormProps) {
                 {/* Line items */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Line items *</ZoruLabel>
-                        <ZoruButton
+                        <Label>Line items *</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={addRow}
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add row
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="rounded-lg border border-zoru-line">
                         <div className="grid grid-cols-12 gap-2 border-b border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] font-medium text-zoru-ink-muted">
@@ -269,7 +269,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                 key={i}
                                 className="grid grid-cols-12 gap-2 border-b border-zoru-line px-3 py-2 last:border-b-0"
                             >
-                                <ZoruInput
+                                <Input
                                     className="col-span-3"
                                     placeholder="catalogue id"
                                     value={row.itemId}
@@ -277,7 +277,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                         updateRow(i, { itemId: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-3"
                                     placeholder="Optional"
                                     value={row.description}
@@ -285,7 +285,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                         updateRow(i, { description: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     type="number"
                                     min={0}
@@ -296,7 +296,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                         })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-1"
                                     placeholder="ea"
                                     value={row.unit}
@@ -304,7 +304,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                         updateRow(i, { unit: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     placeholder="Spec notes"
                                     value={row.specs}
@@ -313,7 +313,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                     }
                                 />
                                 <div className="col-span-1 flex items-center justify-end">
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -321,7 +321,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                         disabled={items.length === 1}
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -330,8 +330,8 @@ export function RfqForm({ initialData }: RfqFormProps) {
 
                 {/* Invited vendors */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="invitedVendors">Invited vendors</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="invitedVendors">Invited vendors</Label>
+                    <Input
                         id="invitedVendors"
                         placeholder="Comma-separated vendor ids"
                         value={invitedVendors}
@@ -342,8 +342,8 @@ export function RfqForm({ initialData }: RfqFormProps) {
                 {/* Terms / notes */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="terms">Terms</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="terms">Terms</Label>
+                        <Textarea
                             id="terms"
                             name="terms"
                             rows={4}
@@ -352,8 +352,8 @@ export function RfqForm({ initialData }: RfqFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={4}
@@ -364,7 +364,7 @@ export function RfqForm({ initialData }: RfqFormProps) {
 
                 {/* Attachments */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Attachments</ZoruLabel>
+                    <Label>Attachments</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton onPick={onAttach}>
                             <FileUp className="mr-1.5 h-4 w-4" />
@@ -391,14 +391,14 @@ export function RfqForm({ initialData }: RfqFormProps) {
                                     >
                                         {a.name ?? a.fileId ?? a.url}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => removeAttachment(i)}
                                     >
                                         Remove
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -406,15 +406,15 @@ export function RfqForm({ initialData }: RfqFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to RFQs
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

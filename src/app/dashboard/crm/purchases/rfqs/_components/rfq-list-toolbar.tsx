@@ -72,14 +72,14 @@ export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('open')}
         aria-label="Filter to active (open) RFQs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Total active"
           value={kpi.totalActive.toLocaleString()}
           period="status = open"
           icon={<Zap />}
         />
       </button>
-      <ZoruStatCard
+      <StatCard
         label="Awaiting responses"
         value={kpi.awaitingResponses.toLocaleString()}
         period="open & not past deadline"
@@ -92,13 +92,13 @@ export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('closed')}
         aria-label="Filter to closed RFQs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Closed"
           value={kpi.closed.toLocaleString()}
           period="status = closed"
         />
       </button>
-      <ZoruStatCard
+      <StatCard
         label="Avg response"
         value={
           kpi.avgResponseHours != null
@@ -116,7 +116,7 @@ export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('draft')}
         aria-label="Filter to draft RFQs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Draft"
           value={kpi.draft.toLocaleString()}
           period="status = draft"
@@ -129,7 +129,7 @@ export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('open')}
         aria-label="Filter to open RFQs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Open"
           value={kpi.open.toLocaleString()}
           period="status = open"
@@ -141,7 +141,7 @@ export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('awarded')}
         aria-label="Filter to awarded RFQs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Awarded"
           value={kpi.awarded.toLocaleString()}
           period="status = awarded"
@@ -153,7 +153,7 @@ export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('cancelled')}
         aria-label="Filter to cancelled RFQs"
       >
-        <ZoruStatCard
+        <StatCard
           label="Cancelled"
           value={kpi.cancelled.toLocaleString()}
           period="status = cancelled"
@@ -193,7 +193,7 @@ export function RfqListToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
       <div className="relative w-full max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search by title or terms…"
@@ -203,7 +203,7 @@ export function RfqListToolbar({
       </div>
 
       <div className="flex items-center gap-1.5">
-        <ZoruSelect value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
+        <Select value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
           <ZoruSelectTrigger className="h-9 w-[200px]" aria-label="Saved view">
             <ZoruSelectValue placeholder="Saved view" />
           </ZoruSelectTrigger>
@@ -214,9 +214,9 @@ export function RfqListToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruSelect value={density} onValueChange={(v) => onDensityChange(v as Density)}>
+        <Select value={density} onValueChange={(v) => onDensityChange(v as Density)}>
           <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -225,10 +225,10 @@ export function RfqListToolbar({
             <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
             <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-          <ZoruButton
+          <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}
             size="sm"
@@ -237,18 +237,18 @@ export function RfqListToolbar({
             aria-label="Table view"
           >
             <TableIcon className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+        <Button variant="outline" size="sm" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export
-        </ZoruButton>
+        </Button>
 
-        <ZoruButton size="sm" asChild>
+        <Button size="sm" asChild>
           <Link href="/dashboard/crm/purchases/rfqs/new">
             <Plus className="h-3.5 w-3.5" /> New RFQ
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

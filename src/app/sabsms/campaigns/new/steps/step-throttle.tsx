@@ -47,7 +47,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
 
   return (
     <div className="space-y-5">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Throughput</ZoruCardTitle>
           <ZoruCardDescription>
@@ -57,12 +57,12 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
         <ZoruCardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <ZoruLabel htmlFor="throttle-rps">
+              <Label htmlFor="throttle-rps">
                 Messages per second
-              </ZoruLabel>
-              <ZoruBadge variant="secondary">
+              </Label>
+              <Badge variant="secondary">
                 {draft.throttlePerSecond ?? 10} msg/s
-              </ZoruBadge>
+              </Badge>
             </div>
             <input
               id="throttle-rps"
@@ -79,10 +79,10 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
           </div>
 
           <div className="space-y-2">
-            <ZoruLabel htmlFor="throttle-per-provider">
+            <Label htmlFor="throttle-per-provider">
               Per-provider cap (msg/s)
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="throttle-per-provider"
               type="number"
               min={0}
@@ -101,9 +101,9 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
             </p>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Quiet hours</ZoruCardTitle>
           <ZoruCardDescription>
@@ -119,7 +119,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
                 key={i}
                 className="grid grid-cols-1 gap-2 rounded border border-slate-200 p-2 md:grid-cols-[100px_1fr_1fr_auto] md:items-center"
               >
-                <ZoruInput
+                <Input
                   value={w.country}
                   maxLength={2}
                   onChange={(e) =>
@@ -127,37 +127,37 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
                   }
                   placeholder="US"
                 />
-                <ZoruInput
+                <Input
                   type="time"
                   value={w.start}
                   onChange={(e) => updateWindow(i, { start: e.target.value })}
                 />
-                <ZoruInput
+                <Input
                   type="time"
                   value={w.end}
                   onChange={(e) => updateWindow(i, { end: e.target.value })}
                 />
-                <ZoruButton
+                <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => removeWindow(i)}
                 >
                   Remove
-                </ZoruButton>
+                </Button>
               </div>
             ))
           )}
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={addWindow}
           >
             Add window
-          </ZoruButton>
+          </Button>
 
-          <ZoruSeparator />
+          <Separator />
 
           <label className="flex items-center justify-between gap-3">
             <span className="text-sm text-slate-700">
@@ -167,7 +167,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
                 not the campaign country.
               </span>
             </span>
-            <ZoruSwitch
+            <Switch
               checked={draft.perRecipientTzQuietHours}
               onCheckedChange={(v) =>
                 onChange({ perRecipientTzQuietHours: Boolean(v) })
@@ -175,7 +175,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
             />
           </label>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

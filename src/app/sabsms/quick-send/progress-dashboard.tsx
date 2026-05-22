@@ -149,18 +149,18 @@ export function QuickSendProgressDashboard({
   }
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
         <div className="space-y-1">
           <ZoruCardTitle>Run progress</ZoruCardTitle>
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
             <code className="rounded bg-slate-100 px-2 py-0.5">{runId}</code>
             {run && (
-              <ZoruBadge variant={terminal ? "secondary" : "default"}>
+              <Badge variant={terminal ? "secondary" : "default"}>
                 {run.status}
-              </ZoruBadge>
+              </Badge>
             )}
-            {run?.dryRun && <ZoruBadge variant="secondary">dry-run</ZoruBadge>}
+            {run?.dryRun && <Badge variant="secondary">dry-run</Badge>}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -169,9 +169,9 @@ export function QuickSendProgressDashboard({
             toCsv={exportFailuresCsv}
             filename={`sabsms-quick-send-failures-${runId}`}
           />
-          <ZoruButton variant="ghost" size="sm" onClick={onClose}>
+          <Button variant="ghost" size="sm" onClick={onClose}>
             Close
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
@@ -182,7 +182,7 @@ export function QuickSendProgressDashboard({
         )}
 
         <div>
-          <ZoruProgress value={pct} />
+          <Progress value={pct} />
           <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-600">
             <span>
               {processed} / {run?.total ?? 0} processed
@@ -196,48 +196,48 @@ export function QuickSendProgressDashboard({
 
         <div className="flex flex-wrap gap-2">
           {run?.status === "running" && (
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={handlePause}
               disabled={busy !== null}
             >
               Pause
-            </ZoruButton>
+            </Button>
           )}
           {run?.status === "paused" && (
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={handleResume}
               disabled={busy !== null}
             >
               Resume
-            </ZoruButton>
+            </Button>
           )}
           {!terminal && (
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={handleCancel}
               disabled={busy !== null}
             >
               Cancel
-            </ZoruButton>
+            </Button>
           )}
           {terminal && (run?.failed ?? 0) > 0 && (
-            <ZoruButton
+            <Button
               size="sm"
               onClick={handleReattempt}
               disabled={busy !== null}
             >
               Re-attempt failures
-            </ZoruButton>
+            </Button>
           )}
         </div>
 
         <div className="overflow-hidden rounded border border-slate-200">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-16">Line</ZoruTableHead>
@@ -256,9 +256,9 @@ export function QuickSendProgressDashboard({
                     {r.phone}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge variant={statusBadgeVariant(r.status)}>
+                    <Badge variant={statusBadgeVariant(r.status)}>
                       {r.status}
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell className="max-w-[320px] truncate text-xs text-slate-600">
                     {r.status === "failed" ? (
@@ -286,7 +286,7 @@ export function QuickSendProgressDashboard({
                 </ZoruTableRow>
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
 
         <SabsmsDetailDrawer
@@ -313,7 +313,7 @@ export function QuickSendProgressDashboard({
                 <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Status
                 </div>
-                <ZoruBadge variant="destructive">{drawerRow.status}</ZoruBadge>
+                <Badge variant="destructive">{drawerRow.status}</Badge>
               </div>
               <div>
                 <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -327,6 +327,6 @@ export function QuickSendProgressDashboard({
           )}
         </SabsmsDetailDrawer>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

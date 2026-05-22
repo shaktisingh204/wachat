@@ -86,7 +86,7 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
   return (
     <div className="space-y-4">
       {revealed ? (
-        <ZoruAlert variant="warning">
+        <Alert variant="warning">
           <TriangleAlert className="h-4 w-4" />
           <div className="space-y-2">
             <p className="font-semibold text-sm">Save this key now — you won&apos;t see it again.</p>
@@ -94,53 +94,53 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
               <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
                 {revealed}
               </code>
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => navigator.clipboard.writeText(revealed)}
               >
                 <Copy className="h-3 w-3 mr-1" /> Copy
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setRevealed(null)}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setRevealed(null)}>
                 Dismiss
-              </ZoruButton>
+              </Button>
             </div>
           </div>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Generate new key</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruInput
+            <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. production webhook"
               className="flex-1 min-w-[200px]"
               disabled={busy}
             />
-            <ZoruButton
+            <Button
               onClick={handleCreate}
               disabled={busy || !name.trim()}
             >
               {busy ? 'Working…' : 'Generate'}
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
-      <ZoruCard>
-        <ZoruTable>
+      <Card>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>Name</ZoruTableHead>
@@ -155,7 +155,7 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
             {keys.length === 0 ? (
               <ZoruTableRow>
                 <ZoruTableCell colSpan={6}>
-                  <ZoruEmptyState
+                  <EmptyState
                     icon={<Key className="h-8 w-8" />}
                     title="No keys yet"
                     description="Generate a key above to get started."
@@ -173,14 +173,14 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {k.revoked ? (
-                    <ZoruBadge variant="destructive">Revoked</ZoruBadge>
+                    <Badge variant="destructive">Revoked</Badge>
                   ) : (
-                    <ZoruBadge variant="success">Active</ZoruBadge>
+                    <Badge variant="success">Active</Badge>
                   )}
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   {!k.revoked ? (
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRevoke(k._id)}
@@ -188,14 +188,14 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
                       className="text-zoru-danger hover:text-zoru-danger"
                     >
                       Revoke
-                    </ZoruButton>
+                    </Button>
                   ) : null}
                 </ZoruTableCell>
               </ZoruTableRow>
             ))}
           </ZoruTableBody>
-        </ZoruTable>
-      </ZoruCard>
+        </Table>
+      </Card>
     </div>
   );
 }

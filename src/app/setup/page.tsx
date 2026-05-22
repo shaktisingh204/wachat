@@ -35,7 +35,7 @@ export default function SetupPage() {
   if (!appId || !configId) {
     return (
       <div className="flex items-center justify-center min-h-screen px-4">
-        <ZoruAlert variant="destructive" className="max-w-lg w-full">
+        <Alert variant="destructive" className="max-w-lg w-full">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Configuration Error</ZoruAlertTitle>
           <ZoruAlertDescription className="space-y-2">
@@ -50,7 +50,7 @@ export default function SetupPage() {
               Please configure them in your <code>.env</code> file.
             </p>
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default function SetupPage() {
       </div>
 
       <div className="w-full max-w-lg">
-        <ZoruCard className="flex flex-col text-center card-gradient card-gradient-green">
+        <Card className="flex flex-col text-center card-gradient card-gradient-green">
           <ZoruCardHeader>
             <ZoruCardTitle>Guided Setup (Recommended)</ZoruCardTitle>
             <ZoruCardDescription>
@@ -90,22 +90,22 @@ export default function SetupPage() {
 
           <ZoruCardFooter>
             <div className="flex items-center space-x-2">
-              <ZoruCheckbox
+              <Checkbox
                 id="include-catalog"
                 checked={includeCatalog}
                 onCheckedChange={(checked) =>
                   setIncludeCatalog(Boolean(checked))
                 }
               />
-              <ZoruLabel
+              <Label
                 htmlFor="include-catalog"
                 className="text-sm font-normal"
               >
                 Include permissions for Catalog Management
-              </ZoruLabel>
+              </Label>
             </div>
           </ZoruCardFooter>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

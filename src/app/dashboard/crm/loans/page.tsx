@@ -105,11 +105,11 @@ export default async function LoansPage() {
       title="Loans & Advances"
       subtitle="Employee advances, customer and vendor loans with EMI and NPA tracking."
       primaryAction={
-        <ZoruButton variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/crm/loans/new">
             <Plus className="h-4 w-4" /> New loan
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       {loadError ? (

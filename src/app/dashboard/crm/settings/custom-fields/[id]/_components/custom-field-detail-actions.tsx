@@ -34,7 +34,7 @@ export function CustomFieldFlagToggle({
   const { toast } = useZoruToast();
 
   return (
-    <ZoruButton
+    <Button
       variant="outline"
       disabled={pending}
       onClick={() =>
@@ -57,7 +57,7 @@ export function CustomFieldFlagToggle({
     >
       <Star className="mr-2 h-4 w-4" />
       {required ? 'Unset required' : 'Set required'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -74,7 +74,7 @@ export function CustomFieldDetailActions({
   const archive = isActive;
 
   return (
-    <ZoruButton
+    <Button
       variant="outline"
       disabled={pending}
       onClick={() =>
@@ -101,6 +101,6 @@ export function CustomFieldDetailActions({
         <ArchiveRestore className="mr-2 h-4 w-4" />
       )}
       {archive ? 'Archive' : 'Restore'}
-    </ZoruButton>
+    </Button>
   );
 }

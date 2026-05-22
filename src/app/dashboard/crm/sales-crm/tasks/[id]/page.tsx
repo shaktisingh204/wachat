@@ -202,8 +202,8 @@ export default function TaskDetailPage() {
     if (isPending && !task) {
         return (
             <div className="flex w-full flex-col gap-6">
-                <ZoruSkeleton className="h-10 w-72" />
-                <ZoruSkeleton className="h-[500px] w-full" />
+                <Skeleton className="h-10 w-72" />
+                <Skeleton className="h-[500px] w-full" />
             </div>
         );
     }
@@ -216,9 +216,9 @@ export default function TaskDetailPage() {
                     The task you&apos;re looking for has been removed or you don&apos;t
                     have access.
                 </p>
-                <ZoruButton asChild variant="outline" className="w-fit">
+                <Button asChild variant="outline" className="w-fit">
                     <Link href="/dashboard/crm/sales-crm/tasks">Back to tasks</Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -294,7 +294,7 @@ export default function TaskDetailPage() {
                 }
             >
                 {/* ─── Overview ─────────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Overview</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -371,20 +371,20 @@ export default function TaskDetailPage() {
                             </div>
                         ) : null}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Checklist ────────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Checklist</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <TaskChecklist taskId={taskId} items={checklist} />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Attachments ──────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Attachments</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -413,10 +413,10 @@ export default function TaskDetailPage() {
                             </ul>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Reminders ────────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Reminders</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -443,10 +443,10 @@ export default function TaskDetailPage() {
                             </ul>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Notes ────────────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -466,7 +466,7 @@ export default function TaskDetailPage() {
                             to update the description.
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </EntityDetailShell>
 
             <ConfirmDialog

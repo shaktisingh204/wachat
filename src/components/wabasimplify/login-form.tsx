@@ -124,12 +124,12 @@ async function postTwoFa(code: string): Promise<void> {
 
 function SubmitButton({ isPending }: { isPending: boolean }) {
     return (
-        <ZoruButton type="submit" className="w-full h-11 text-base" disabled={isPending}>
+        <Button type="submit" className="w-full h-11 text-base" disabled={isPending}>
             {isPending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
             Sign in
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -279,7 +279,7 @@ export function LoginForm() {
     }
 
     return (
-        <ZoruCard className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
+        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
             <form onSubmit={handleLogin} noValidate>
                 <ZoruCardHeader className="space-y-2">
                     <ZoruCardTitle className="text-2xl font-bold font-headline">
@@ -293,16 +293,16 @@ export function LoginForm() {
 
                 <ZoruCardContent className="space-y-5">
                     {error && (
-                        <ZoruAlert variant="destructive">
+                        <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
                             <ZoruAlertTitle>Sign-in failed</ZoruAlertTitle>
                             <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                        </ZoruAlert>
+                        </Alert>
                     )}
 
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="email">Email</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="email">Email</Label>
+                        <Input
                             id="email"
                             name="email"
                             type="email"
@@ -315,7 +315,7 @@ export function LoginForm() {
 
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <ZoruLabel htmlFor="password">Password</ZoruLabel>
+                            <Label htmlFor="password">Password</Label>
                             <Link
                                 href="/forgot-password"
                                 className="text-xs text-muted-foreground hover:text-primary"
@@ -324,7 +324,7 @@ export function LoginForm() {
                             </Link>
                         </div>
                         <div className="relative">
-                            <ZoruInput
+                            <Input
                                 id="password"
                                 name="password"
                                 type={showPassword ? 'text' : 'password'}
@@ -367,7 +367,7 @@ export function LoginForm() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             type="button"
                             disabled={isPending}
@@ -375,8 +375,8 @@ export function LoginForm() {
                         >
                             <GoogleIcon />
                             Google
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             type="button"
                             disabled={isPending}
@@ -384,7 +384,7 @@ export function LoginForm() {
                         >
                             <FacebookIcon />
                             Facebook
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardContent>
 
@@ -400,7 +400,7 @@ export function LoginForm() {
                     </p>
                 </ZoruCardFooter>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -507,7 +507,7 @@ function TwoFaPanel(props: {
               : 'Open your authenticator app and enter the 6-digit code.';
 
     return (
-        <ZoruCard className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
+        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
             <form onSubmit={handleSubmit} noValidate>
                 <ZoruCardHeader className="space-y-2">
                     <ZoruCardTitle className="text-2xl font-bold font-headline">
@@ -518,18 +518,18 @@ function TwoFaPanel(props: {
 
                 <ZoruCardContent className="space-y-5">
                     {error && (
-                        <ZoruAlert variant="destructive">
+                        <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
                             <ZoruAlertTitle>Verification failed</ZoruAlertTitle>
                             <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                        </ZoruAlert>
+                        </Alert>
                     )}
 
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="two-fa-code">
+                        <Label htmlFor="two-fa-code">
                             {mode === 'backup' ? 'Backup code' : 'Verification code'}
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             ref={inputRef}
                             id="two-fa-code"
                             name="code"
@@ -553,7 +553,7 @@ function TwoFaPanel(props: {
                         />
                     </div>
 
-                    <ZoruButton
+                    <Button
                         type="submit"
                         className="w-full h-11 text-base"
                         disabled={isPending || code.trim().length === 0}
@@ -562,7 +562,7 @@ function TwoFaPanel(props: {
                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         Verify
-                    </ZoruButton>
+                    </Button>
 
                     <div className="flex flex-col items-center gap-2 text-sm">
                         <button
@@ -604,7 +604,7 @@ function TwoFaPanel(props: {
                     </button>
                 </ZoruCardFooter>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }
 

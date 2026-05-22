@@ -53,7 +53,7 @@ export function ZoruFileToolbar({
         className,
       )}
     >
-      <ZoruInput
+      <Input
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
         leadingSlot={<Search />}
@@ -65,28 +65,28 @@ export function ZoruFileToolbar({
         <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] bg-zoru-surface-2 px-2 py-1 text-xs text-zoru-ink">
           <span className="font-medium">{selectionCount} selected</span>
           {onDeleteSelection && (
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="ghost" size="sm">
+                <Button variant="ghost" size="sm">
                   Bulk action
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent>
                 <ZoruDropdownMenuItem destructive onClick={onDeleteSelection}>
                   <Trash2 /> Delete selected
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           )}
           {onClearSelection && (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Clear selection"
               onClick={onClearSelection}
             >
               <X />
-            </ZoruButton>
+            </Button>
           )}
         </div>
       )}
@@ -119,9 +119,9 @@ export function ZoruFileToolbar({
           </button>
         </div>
         {onUpload && (
-          <ZoruButton onClick={onUpload}>
+          <Button onClick={onUpload}>
             <Upload /> Upload
-          </ZoruButton>
+          </Button>
         )}
       </div>
     </div>

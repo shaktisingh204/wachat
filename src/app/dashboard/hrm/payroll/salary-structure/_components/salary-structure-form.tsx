@@ -50,14 +50,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create structure'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -123,7 +123,7 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -140,8 +140,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                 {/* Row 1: Employee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID *</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             required
@@ -150,8 +150,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             placeholder="Display label"
@@ -163,8 +163,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                 {/* Row 2: Effective from + status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="effectiveFrom">Effective from</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="effectiveFrom">Effective from</Label>
+                        <Input
                             id="effectiveFrom"
                             name="effectiveFrom"
                             type="date"
@@ -172,7 +172,7 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="activeArchived"
@@ -190,8 +190,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                     </div>
                     <div className="grid gap-4 sm:grid-cols-4">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="basic">Basic *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="basic">Basic *</Label>
+                            <Input
                                 id="basic"
                                 name="basic"
                                 type="number"
@@ -201,8 +201,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="hra">HRA</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="hra">HRA</Label>
+                            <Input
                                 id="hra"
                                 name="hra"
                                 type="number"
@@ -211,8 +211,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="da">DA</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="da">DA</Label>
+                            <Input
                                 id="da"
                                 name="da"
                                 type="number"
@@ -221,8 +221,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="otherAllowances">Other allowances</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="otherAllowances">Other allowances</Label>
+                            <Input
                                 id="otherAllowances"
                                 name="otherAllowances"
                                 type="number"
@@ -242,8 +242,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                     </div>
                     <div className="grid gap-4 sm:grid-cols-4">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="pfEmployer">PF (employer)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="pfEmployer">PF (employer)</Label>
+                            <Input
                                 id="pfEmployer"
                                 name="pfEmployer"
                                 type="number"
@@ -251,8 +251,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="pfEmployee">PF (employee)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="pfEmployee">PF (employee)</Label>
+                            <Input
                                 id="pfEmployee"
                                 name="pfEmployee"
                                 type="number"
@@ -263,8 +263,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="esi">ESI</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="esi">ESI</Label>
+                            <Input
                                 id="esi"
                                 name="esi"
                                 type="number"
@@ -273,8 +273,8 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="professionalTax">Professional tax</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="professionalTax">Professional tax</Label>
+                            <Input
                                 id="professionalTax"
                                 name="professionalTax"
                                 type="number"
@@ -303,15 +303,15 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to list
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

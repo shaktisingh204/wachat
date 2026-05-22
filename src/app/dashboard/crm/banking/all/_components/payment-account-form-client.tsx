@@ -101,7 +101,7 @@ export function PaymentAccountFormClient({
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="accountType">Type *</ZoruLabel>
+                                <Label htmlFor="accountType">Type *</Label>
                                 <EnumFormField
                                     name="accountType"
                                     enumName="paymentAccountType"
@@ -113,8 +113,8 @@ export function PaymentAccountFormClient({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="accountName">Account name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="accountName">Account name *</Label>
+                                <Input
                                     id="accountName"
                                     name="accountName"
                                     required
@@ -123,7 +123,7 @@ export function PaymentAccountFormClient({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="currency">Currency *</ZoruLabel>
+                                <Label htmlFor="currency">Currency *</Label>
                                 <EntityFormField
                                     entity="currency"
                                     name="currency"
@@ -144,8 +144,8 @@ export function PaymentAccountFormClient({
                               children: (
                                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                       <div className="space-y-2">
-                                          <ZoruLabel>Bank name</ZoruLabel>
-                                          <ZoruInput
+                                          <Label>Bank name</Label>
+                                          <Input
                                               placeholder="e.g. HDFC Bank"
                                               value={bankDetails.bankName ?? ''}
                                               onChange={(e) =>
@@ -157,8 +157,8 @@ export function PaymentAccountFormClient({
                                           />
                                       </div>
                                       <div className="space-y-2">
-                                          <ZoruLabel>Account holder</ZoruLabel>
-                                          <ZoruInput
+                                          <Label>Account holder</Label>
+                                          <Input
                                               value={bankDetails.accountHolder ?? ''}
                                               onChange={(e) =>
                                                   setBankDetails((prev) => ({
@@ -169,8 +169,8 @@ export function PaymentAccountFormClient({
                                           />
                                       </div>
                                       <div className="space-y-2">
-                                          <ZoruLabel>Account number</ZoruLabel>
-                                          <ZoruInput
+                                          <Label>Account number</Label>
+                                          <Input
                                               value={bankDetails.accountNumber ?? ''}
                                               onChange={(e) =>
                                                   setBankDetails((prev) => ({
@@ -181,8 +181,8 @@ export function PaymentAccountFormClient({
                                           />
                                       </div>
                                       <div className="space-y-2">
-                                          <ZoruLabel>IFSC</ZoruLabel>
-                                          <ZoruInput
+                                          <Label>IFSC</Label>
+                                          <Input
                                               value={bankDetails.ifsc ?? ''}
                                               onChange={(e) =>
                                                   setBankDetails((prev) => ({
@@ -193,7 +193,7 @@ export function PaymentAccountFormClient({
                                           />
                                       </div>
                                       <div className="space-y-2">
-                                          <ZoruLabel>Bank account type</ZoruLabel>
+                                          <Label>Bank account type</Label>
                                           {/* Value is part of the JSON-serialized `bankAccountDetails`
                                               hidden input — we use a throw-away field name on the picker so
                                               FormData stays untouched, and mirror the picked id into local state. */}
@@ -214,8 +214,8 @@ export function PaymentAccountFormClient({
                                           />
                                       </div>
                                       <div className="space-y-2">
-                                          <ZoruLabel>SWIFT</ZoruLabel>
-                                          <ZoruInput
+                                          <Label>SWIFT</Label>
+                                          <Input
                                               value={bankDetails.swiftCode ?? ''}
                                               onChange={(e) =>
                                                   setBankDetails((prev) => ({
@@ -226,8 +226,8 @@ export function PaymentAccountFormClient({
                                           />
                                       </div>
                                       <div className="space-y-2 md:col-span-2">
-                                          <ZoruLabel>IBAN</ZoruLabel>
-                                          <ZoruInput
+                                          <Label>IBAN</Label>
+                                          <Input
                                               value={bankDetails.ibanCode ?? ''}
                                               onChange={(e) =>
                                                   setBankDetails((prev) => ({
@@ -249,8 +249,8 @@ export function PaymentAccountFormClient({
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="openingBalance">Opening balance *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="openingBalance">Opening balance *</Label>
+                                <Input
                                     id="openingBalance"
                                     name="openingBalance"
                                     type="number"
@@ -262,8 +262,8 @@ export function PaymentAccountFormClient({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>As of *</ZoruLabel>
-                                <ZoruDatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} />
+                                <Label>As of *</Label>
+                                <DatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} />
                             </div>
                         </div>
                     ),
@@ -281,7 +281,7 @@ export function PaymentAccountFormClient({
                                         Selected by default on new payments / receipts.
                                     </p>
                                 </div>
-                                <ZoruSwitch name="isDefault" defaultChecked={initial?.isDefault ?? false} />
+                                <Switch name="isDefault" defaultChecked={initial?.isDefault ?? false} />
                             </label>
                             <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
                                 <div>
@@ -290,7 +290,7 @@ export function PaymentAccountFormClient({
                                         Inactive accounts stay in history but hide from pickers.
                                     </p>
                                 </div>
-                                <ZoruSwitch
+                                <Switch
                                     name="status"
                                     defaultChecked={initial ? initial.status === 'active' : true}
                                 />

@@ -86,7 +86,7 @@ export function ServiceContractScheduleDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Schedule a service visit</ZoruDialogTitle>
@@ -96,8 +96,8 @@ export function ServiceContractScheduleDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="sched-date">Visit date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sched-date">Visit date</Label>
+            <Input
               id="sched-date"
               type="datetime-local"
               value={date}
@@ -106,8 +106,8 @@ export function ServiceContractScheduleDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="sched-tech">Technician</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sched-tech">Technician</Label>
+            <Input
               id="sched-tech"
               value={technician}
               onChange={(e) => setTechnician(e.target.value)}
@@ -117,15 +117,15 @@ export function ServiceContractScheduleDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Schedule'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -185,7 +185,7 @@ export function ServiceContractRenewDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Renew service contract</ZoruDialogTitle>
@@ -195,8 +195,8 @@ export function ServiceContractRenewDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="renew-start">New start date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="renew-start">New start date</Label>
+            <Input
               id="renew-start"
               type="date"
               value={startDate}
@@ -205,8 +205,8 @@ export function ServiceContractRenewDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="renew-end">New end date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="renew-end">New end date</Label>
+            <Input
               id="renew-end"
               type="date"
               value={endDate}
@@ -216,15 +216,15 @@ export function ServiceContractRenewDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Renew'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -268,7 +268,7 @@ export function ServiceContractSendDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Send contract to customer</ZoruDialogTitle>
@@ -278,8 +278,8 @@ export function ServiceContractSendDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="sc-to">Recipient email</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sc-to">Recipient email</Label>
+            <Input
               id="sc-to"
               type="email"
               value={to}
@@ -289,8 +289,8 @@ export function ServiceContractSendDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="sc-msg">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="sc-msg">Message</Label>
+            <Textarea
               id="sc-msg"
               rows={4}
               value={message}
@@ -300,12 +300,12 @@ export function ServiceContractSendDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit}>Open mail client</ZoruButton>
+          </Button>
+          <Button onClick={onSubmit}>Open mail client</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

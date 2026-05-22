@@ -418,11 +418,11 @@ export function SubscriptionListClient({
           placeholder: 'Search subscriptions…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/subscriptions/new">
               <Plus className="h-4 w-4" /> New subscription
             </Link>
-          </ZoruButton>
+          </Button>
         }
         bulkBar={
           selected.size > 0 ? (
@@ -447,11 +447,11 @@ export function SubscriptionListClient({
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Create a recurring billing agreement to start collecting MRR.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/subscriptions/new">
                   <Plus className="h-4 w-4" /> New subscription
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -473,7 +473,7 @@ export function SubscriptionListClient({
             </div>
           ) : null}
 
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             <SubscriptionFilters
               filtersActive={filtersActive}
               onClearAll={clearFilters}
@@ -487,11 +487,11 @@ export function SubscriptionListClient({
               onRenewalFilter={setRenewalFilter}
             />
 
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-[36px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
@@ -530,7 +530,7 @@ export function SubscriptionListClient({
                         data-state={isSelected ? 'selected' : undefined}
                       >
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${displayLabel(sub)}`}
@@ -591,8 +591,8 @@ export function SubscriptionListClient({
                   })
                 )}
               </ZoruTableBody>
-            </ZoruTable>
-          </ZoruCard>
+            </Table>
+          </Card>
         </div>
       </EntityListShell>
 

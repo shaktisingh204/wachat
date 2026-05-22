@@ -27,20 +27,20 @@ export default function PageSpeedPage() {
 
   return (
     <ToolShell title="Page Speed Insights" description="Core Web Vitals placeholder (plug in Google PSI API for real data).">
-      <ZoruCard className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+      <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
         <ZoruCardContent className="p-3 text-xs">Production speed data requires the Google PageSpeed Insights API key. Values shown are deterministic placeholders.</ZoruCardContent>
-      </ZoruCard>
+      </Card>
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <ZoruButton onClick={run}>Measure</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <Button onClick={run}>Measure</Button>
       </div>
       {data && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{data.performance}</div><div className="text-xs text-muted-foreground">Performance</div></ZoruCardContent></ZoruCard>
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.lcp}s</div><div className="text-xs text-muted-foreground">LCP</div></ZoruCardContent></ZoruCard>
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.fid}ms</div><div className="text-xs text-muted-foreground">FID</div></ZoruCardContent></ZoruCard>
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.cls}</div><div className="text-xs text-muted-foreground">CLS</div></ZoruCardContent></ZoruCard>
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.ttfb}ms</div><div className="text-xs text-muted-foreground">TTFB</div></ZoruCardContent></ZoruCard>
+          <Card><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{data.performance}</div><div className="text-xs text-muted-foreground">Performance</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.lcp}s</div><div className="text-xs text-muted-foreground">LCP</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.fid}ms</div><div className="text-xs text-muted-foreground">FID</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.cls}</div><div className="text-xs text-muted-foreground">CLS</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.ttfb}ms</div><div className="text-xs text-muted-foreground">TTFB</div></ZoruCardContent></Card>
         </div>
       )}
     </ToolShell>

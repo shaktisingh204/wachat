@@ -279,16 +279,16 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
                 }}
                 primaryAction={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="ghost" size="sm" asChild>
+                        <Button variant="ghost" size="sm" asChild>
                             <Link href="/dashboard/crm/inventory/bom">
                                 <Factory className="h-4 w-4" /> BOMs
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link href="/dashboard/crm/inventory/production-orders/new">
                                 <Plus className="h-4 w-4" /> New order
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
@@ -332,11 +332,11 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Create one from a BOM to start tracking manufacturing job cards.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/inventory/production-orders/new">
                                     <Plus className="h-4 w-4" /> New order
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

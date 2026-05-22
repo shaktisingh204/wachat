@@ -186,16 +186,16 @@ export function RequirementsStep({
     return (
         <form onSubmit={submit} className="space-y-6" noValidate>
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Almost there</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             )}
 
             <div className="space-y-3">
                 <div className="flex items-end justify-between">
-                    <ZoruLabel>Modules to turn on *</ZoruLabel>
+                    <Label>Modules to turn on *</Label>
                     <span className="text-xs text-muted-foreground">
                         {selected.length} selected
                     </span>
@@ -243,10 +243,10 @@ export function RequirementsStep({
 
             <div className="grid gap-5 lg:grid-cols-2">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="primaryGoal">
+                    <Label htmlFor="primaryGoal">
                         What's the #1 outcome you want in 90 days? *
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                         id="primaryGoal"
                         value={primaryGoal}
                         onChange={(e) => setPrimaryGoal(e.target.value)}
@@ -258,10 +258,10 @@ export function RequirementsStep({
 
                 <div className="space-y-5">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="currentTools">
+                        <Label htmlFor="currentTools">
                             Tools you use today (optional)
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="currentTools"
                             value={currentTools}
                             onChange={(e) => setCurrentTools(e.target.value)}
@@ -270,7 +270,7 @@ export function RequirementsStep({
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>When are you looking to go live?</ZoruLabel>
+                        <Label>When are you looking to go live?</Label>
                         <div className="flex flex-wrap gap-2">
                             {TIMELINES.map((t) => {
                                 const active = timeline === t;
@@ -297,15 +297,15 @@ export function RequirementsStep({
             </div>
 
             <div className="flex justify-between pt-2">
-                <ZoruButton
+                <Button
                     type="button"
                     variant="ghost"
                     onClick={onBack}
                     disabled={isPending}
                 >
                     Back
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     type="submit"
                     className="h-11 px-6 text-base"
                     disabled={isPending}
@@ -314,7 +314,7 @@ export function RequirementsStep({
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Continue
-                </ZoruButton>
+                </Button>
             </div>
         </form>
     );

@@ -89,7 +89,7 @@ export default function EmailNotificationsPage() {
                 >
                   <ev.icon className="h-4 w-4 text-zoru-ink-muted" />
                   <span className="flex-1 text-sm">{ev.label}</span>
-                  <ZoruSwitch
+                  <Switch
                     checked={on}
                     onCheckedChange={(v) =>
                       setDraft({
@@ -115,9 +115,9 @@ export default function EmailNotificationsPage() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {on.map((e) => (
-                  <ZoruBadge key={e.key} variant="outline">
+                  <Badge key={e.key} variant="outline">
                     {e.label}
-                  </ZoruBadge>
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function EmailNotificationsPage() {
           >;
           const on = EVENT_CATALOG.filter((e) => events[e.key]);
           return (
-            <ZoruCard>
+            <Card>
               <ZoruCardContent className="p-6 space-y-4">
                 <div>
                   <p className="text-sm text-zoru-ink-muted">
@@ -159,28 +159,28 @@ export default function EmailNotificationsPage() {
                       <span className="text-sm text-zoru-ink-muted">None</span>
                     ) : (
                       on.map((e) => (
-                        <ZoruBadge key={e.key} variant="outline">
+                        <Badge key={e.key} variant="outline">
                           <e.icon className="h-3 w-3" />
                           {e.label}
-                        </ZoruBadge>
+                        </Badge>
                       ))
                     )}
                   </div>
                 </div>
                 <div className="flex justify-end gap-2">
-                  <ZoruButton variant="outline" asChild>
+                  <Button variant="outline" asChild>
                     <Link href="/dashboard/email/templates">
                       <Mail className="h-4 w-4" />
                       Edit templates
                       <ArrowUpRight className="h-4 w-4" />
                     </Link>
-                  </ZoruButton>
-                  <ZoruButton variant="ghost" onClick={onReconnect}>
+                  </Button>
+                  <Button variant="ghost" onClick={onReconnect}>
                     Edit
-                  </ZoruButton>
+                  </Button>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           );
         }}
       />

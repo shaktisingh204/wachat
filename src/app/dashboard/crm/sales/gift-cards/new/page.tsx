@@ -21,14 +21,14 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save Gift Card
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -55,13 +55,13 @@ export default function NewGiftCardPage() {
         >
 
             <form action={formAction}>
-                <ZoruCard className="p-6 space-y-6">
+                <Card className="p-6 space-y-6">
                     {/* Code */}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="code" className="text-zoru-ink">
+                        <Label htmlFor="code" className="text-zoru-ink">
                             Gift Card Code
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="code"
                             name="code"
                             placeholder="e.g. SUMMER25 — leave blank to auto-generate"
@@ -75,7 +75,7 @@ export default function NewGiftCardPage() {
                     {/* Issued To + Email */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <ZoruLabel className="text-zoru-ink">Issued To</ZoruLabel>
+                            <Label className="text-zoru-ink">Issued To</Label>
                             <EntityFormField
                                 entity="client"
                                 name="clientId"
@@ -83,10 +83,10 @@ export default function NewGiftCardPage() {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="issuedToEmail" className="text-zoru-ink">
+                            <Label htmlFor="issuedToEmail" className="text-zoru-ink">
                                 Customer Email
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="issuedToEmail"
                                 name="issuedToEmail"
                                 type="email"
@@ -99,10 +99,10 @@ export default function NewGiftCardPage() {
                     {/* Value + Expiry */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="value" className="text-zoru-ink">
+                            <Label htmlFor="value" className="text-zoru-ink">
                                 Value (₹) *
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="value"
                                 name="value"
                                 type="number"
@@ -113,10 +113,10 @@ export default function NewGiftCardPage() {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="expiryDate" className="text-zoru-ink">
+                            <Label htmlFor="expiryDate" className="text-zoru-ink">
                                 Expiry Date
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="expiryDate"
                                 name="expiryDate"
                                 type="date"
@@ -132,17 +132,17 @@ export default function NewGiftCardPage() {
                             type="checkbox"
                             className="h-4 w-4 rounded border-zoru-line accent-zoru-ink"
                         />
-                        <ZoruLabel htmlFor="transferable" className="text-zoru-ink cursor-pointer">
+                        <Label htmlFor="transferable" className="text-zoru-ink cursor-pointer">
                             Transferable
-                        </ZoruLabel>
+                        </Label>
                     </div>
 
                     {/* Notes */}
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes" className="text-zoru-ink">
+                        <Label htmlFor="notes" className="text-zoru-ink">
                             Notes
-                        </ZoruLabel>
-                        <ZoruTextarea
+                        </Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             placeholder="Optional internal notes about this gift card…"
@@ -153,7 +153,7 @@ export default function NewGiftCardPage() {
                     <div className="flex justify-end pt-2">
                         <SaveButton />
                     </div>
-                </ZoruCard>
+                </Card>
             </form>
         </EntityDetailShell>
     );

@@ -94,10 +94,10 @@ export function QuotationLineItemsEditor({
             Pick an item per row, or leave the picker blank and use the description.
           </p>
         </div>
-        <ZoruButton type="button" variant="outline" size="sm" onClick={onAdd}>
+        <Button type="button" variant="outline" size="sm" onClick={onAdd}>
           <PlusCircle className="h-4 w-4" />
           Add line
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -162,7 +162,7 @@ export function QuotationLineItemsEditor({
                         });
                       }}
                     />
-                    <ZoruInput
+                    <Input
                       value={row.description ?? ''}
                       onChange={(e) =>
                         onPatch(row.rowKey, { description: e.target.value })
@@ -208,7 +208,7 @@ export function QuotationLineItemsEditor({
                     {fmtMoney(lineTotal)}
                   </td>
                   <td className="p-2">
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon"
@@ -216,7 +216,7 @@ export function QuotationLineItemsEditor({
                       aria-label="Remove line"
                     >
                       <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                    </ZoruButton>
+                    </Button>
                   </td>
                 </tr>
               );
@@ -225,9 +225,9 @@ export function QuotationLineItemsEditor({
         </table>
       </div>
 
-      <ZoruLabel className="block text-[11px] text-zoru-ink-muted">
+      <Label className="block text-[11px] text-zoru-ink-muted">
         Discount / shipping / adjustment / round-off — captured in the Summary card below.
-      </ZoruLabel>
+      </Label>
     </>
   );
 }
@@ -246,7 +246,7 @@ function NumberCell({
 }) {
   return (
     <td className="p-2">
-      <ZoruInput
+      <Input
         type="number"
         step="0.01"
         value={value}

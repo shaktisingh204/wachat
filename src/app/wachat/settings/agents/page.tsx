@@ -43,7 +43,7 @@ export default function AgentsSettingsPage() {
   }, []);
 
   const breadcrumbs = (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -57,14 +57,14 @@ export default function AgentsSettingsPage() {
           <ZoruBreadcrumbPage>Agents & roles</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 
   if (isLoadingProject) {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruSkeleton className="h-[420px] w-full" />
+        <Skeleton className="h-[420px] w-full" />
       </div>
     );
   }
@@ -73,11 +73,11 @@ export default function AgentsSettingsPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert className="h-10 w-10" />}
           title="Select a project first"
           description="Pick a project from the WaChat home page to manage agents."
-          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
       </div>
     );
@@ -87,24 +87,24 @@ export default function AgentsSettingsPage() {
     <div className="flex min-h-full flex-col gap-6">
       {breadcrumbs}
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Agents & roles</ZoruPageTitle>
           <ZoruPageDescription>
             Invite teammates and configure role-based permissions.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent>
           {user ? (
             <AgentsRolesSettingsTab project={activeProject} user={user} />
           ) : (
-            <ZoruSkeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

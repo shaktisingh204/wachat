@@ -44,10 +44,10 @@ const passwordInitialState = { message: undefined, error: undefined };
 function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
             {children}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -75,16 +75,16 @@ function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="name">Full Name</ZoruLabel>
-                    <ZoruInput id="name" name="name" defaultValue={user.name} required maxLength={50} pattern="^[a-zA-Z\s'-]+$" title="Name can only contain letters, spaces, apostrophes, and hyphens." />
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input id="name" name="name" defaultValue={user.name} required maxLength={50} pattern="^[a-zA-Z\s'-]+$" title="Name can only contain letters, spaces, apostrophes, and hyphens." />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="email">Email</ZoruLabel>
-                    <ZoruInput id="email" name="email" value={user.email} disabled />
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" name="email" value={user.email} disabled />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel>Account Created</ZoruLabel>
-                    <ZoruInput value={new Date(user.createdAt).toLocaleString()} disabled />
+                    <Label>Account Created</Label>
+                    <Input value={new Date(user.createdAt).toLocaleString()} disabled />
                 </div>
             </ZoruCardContent>
             <ZoruCardFooter>
@@ -116,16 +116,16 @@ function BusinessProfileForm({ user }: { user: Omit<User, 'password'> }) {
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="businessName">Business Name</ZoruLabel>
-                    <ZoruInput id="businessName" name="businessName" defaultValue={user.businessProfile?.name} />
+                    <Label htmlFor="businessName">Business Name</Label>
+                    <Input id="businessName" name="businessName" defaultValue={user.businessProfile?.name} />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="businessAddress">Address</ZoruLabel>
-                    <ZoruTextarea id="businessAddress" name="businessAddress" defaultValue={user.businessProfile?.address} />
+                    <Label htmlFor="businessAddress">Address</Label>
+                    <Textarea id="businessAddress" name="businessAddress" defaultValue={user.businessProfile?.address} />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="businessGstin">GSTIN</ZoruLabel>
-                    <ZoruInput id="businessGstin" name="businessGstin" defaultValue={user.businessProfile?.gstin} />
+                    <Label htmlFor="businessGstin">GSTIN</Label>
+                    <Input id="businessGstin" name="businessGstin" defaultValue={user.businessProfile?.gstin} />
                 </div>
             </ZoruCardContent>
             <ZoruCardFooter>
@@ -158,17 +158,17 @@ function PasswordForm() {
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4">
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="currentPassword">Current Password</ZoruLabel>
-                    <ZoruInput id="currentPassword" name="currentPassword" type="password" required autoComplete="current-password" />
+                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <Input id="currentPassword" name="currentPassword" type="password" required autoComplete="current-password" />
                 </div>
-                <ZoruSeparator />
+                <Separator />
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="newPassword">New Password</ZoruLabel>
-                    <ZoruInput id="newPassword" name="newPassword" type="password" required autoComplete="new-password" />
+                    <Label htmlFor="newPassword">New Password</Label>
+                    <Input id="newPassword" name="newPassword" type="password" required autoComplete="new-password" />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="confirmPassword">Confirm New Password</ZoruLabel>
-                    <ZoruInput id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
+                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Input id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
                 </div>
             </ZoruCardContent>
             <ZoruCardFooter>
@@ -186,7 +186,7 @@ function OnboardingDetailsCard({ user }: { user: Omit<User, 'password'> }) {
     const modules = ob.requirements?.modules ?? user.enabledModules ?? [];
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardHeader>
                 <ZoruCardTitle className="flex items-center gap-2">
                     <Layers className="h-5 w-5" />
@@ -200,16 +200,16 @@ function OnboardingDetailsCard({ user }: { user: Omit<User, 'password'> }) {
                 {/* Status */}
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-muted-foreground">Status</span>
-                    <ZoruBadge variant={isComplete ? 'default' : 'secondary'}>
+                    <Badge variant={isComplete ? 'default' : 'secondary'}>
                         {isComplete ? (
                             <><CheckCircle2 className="mr-1 h-3 w-3" /> Complete</>
                         ) : (
                             <><Clock className="mr-1 h-3 w-3" /> In progress ({ob.status})</>
                         )}
-                    </ZoruBadge>
+                    </Badge>
                 </div>
 
-                <ZoruSeparator />
+                <Separator />
 
                 {/* Profile info */}
                 {ob.profile && (
@@ -269,7 +269,7 @@ function OnboardingDetailsCard({ user }: { user: Omit<User, 'password'> }) {
                         {modules.length > 0 && (
                             <div className="flex flex-wrap gap-1.5">
                                 {modules.map((m) => (
-                                    <ZoruBadge key={m} variant="outline" className="text-xs">{m}</ZoruBadge>
+                                    <Badge key={m} variant="outline" className="text-xs">{m}</Badge>
                                 ))}
                             </div>
                         )}
@@ -299,7 +299,7 @@ function OnboardingDetailsCard({ user }: { user: Omit<User, 'password'> }) {
                     </div>
                 )}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -307,49 +307,49 @@ function ProfilePageSkeleton() {
     return (
         <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-8 items-start">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
-                        <ZoruSkeleton className="h-6 w-1/3" />
-                        <ZoruSkeleton className="h-4 w-2/3 mt-2" />
+                        <Skeleton className="h-6 w-1/3" />
+                        <Skeleton className="h-4 w-2/3 mt-2" />
                     </ZoruCardHeader>
                     <ZoruCardContent className="space-y-4">
-                        <ZoruSkeleton className="h-10 w-full" />
-                        <ZoruSkeleton className="h-10 w-full" />
-                        <ZoruSkeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
                     </ZoruCardContent>
                     <ZoruCardFooter>
-                        <ZoruSkeleton className="h-10 w-32" />
+                        <Skeleton className="h-10 w-32" />
                     </ZoruCardFooter>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader>
-                        <ZoruSkeleton className="h-6 w-1/3" />
-                        <ZoruSkeleton className="h-4 w-2/3 mt-2" />
+                        <Skeleton className="h-6 w-1/3" />
+                        <Skeleton className="h-4 w-2/3 mt-2" />
                     </ZoruCardHeader>
                     <ZoruCardContent className="space-y-4">
-                        <ZoruSkeleton className="h-10 w-full" />
-                        <ZoruSkeleton className="h-10 w-full" />
-                        <ZoruSkeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
                     </ZoruCardContent>
                     <ZoruCardFooter>
-                        <ZoruSkeleton className="h-10 w-36" />
+                        <Skeleton className="h-10 w-36" />
                     </ZoruCardFooter>
-                </ZoruCard>
+                </Card>
             </div>
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
-                    <ZoruSkeleton className="h-6 w-1/3" />
-                    <ZoruSkeleton className="h-4 w-2/3 mt-2" />
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-4 w-2/3 mt-2" />
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
-                    <ZoruSkeleton className="h-10 w-full" />
-                    <ZoruSkeleton className="h-20 w-full" />
-                    <ZoruSkeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-10 w-full" />
                 </ZoruCardContent>
                 <ZoruCardFooter>
-                    <ZoruSkeleton className="h-10 w-48" />
+                    <Skeleton className="h-10 w-48" />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -374,24 +374,24 @@ export default function ProfilePage() {
 
     if (!user) {
         return (
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2"><AlertCircle /> Error</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <p>Could not load user profile. You may need to log in again.</p>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         )
     }
 
     return (
         <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-8 items-start">
-                <ZoruCard><ProfileForm user={user} /></ZoruCard>
-                <ZoruCard><PasswordForm /></ZoruCard>
+                <Card><ProfileForm user={user} /></Card>
+                <Card><PasswordForm /></Card>
             </div>
-            <ZoruCard><BusinessProfileForm user={user} /></ZoruCard>
+            <Card><BusinessProfileForm user={user} /></Card>
             <OnboardingDetailsCard user={user} />
         </div>
     )

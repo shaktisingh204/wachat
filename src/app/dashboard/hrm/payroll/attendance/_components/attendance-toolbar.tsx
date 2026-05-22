@@ -54,7 +54,7 @@ export function AttendanceToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
       <div className="relative w-full max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search employee, notes…"
@@ -64,7 +64,7 @@ export function AttendanceToolbar({
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">
-        <ZoruSelect
+        <Select
           value={preset ?? 'today'}
           onValueChange={(v) => onPresetChange(v as AttendancePresetKey)}
         >
@@ -78,10 +78,10 @@ export function AttendanceToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-          <ZoruButton
+          <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}
             size="sm"
@@ -90,8 +90,8 @@ export function AttendanceToolbar({
             aria-label="Table view"
           >
             <TableIcon className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant={view === 'by-employee' ? 'default' : 'ghost'}
             size="sm"
@@ -100,8 +100,8 @@ export function AttendanceToolbar({
             aria-label="Calendar by employee"
           >
             <CalendarDays className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant={view === 'by-date' ? 'default' : 'ghost'}
             size="sm"
@@ -110,18 +110,18 @@ export function AttendanceToolbar({
             aria-label="Calendar by date"
           >
             <CalendarRange className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+        <Button variant="outline" size="sm" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export
-        </ZoruButton>
+        </Button>
 
-        <ZoruButton size="sm" asChild>
+        <Button size="sm" asChild>
           <Link href="/dashboard/hrm/payroll/attendance/new">
             <Plus className="h-3.5 w-3.5" /> New record
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

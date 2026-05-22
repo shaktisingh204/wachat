@@ -86,7 +86,7 @@ function StatusPill({ status, label }: { status?: string; label?: string }) {
           ? 'danger'
           : 'ghost';
   return (
-    <ZoruBadge variant={variant} className="text-[10px] uppercase tracking-wider">
+    <Badge variant={variant} className="text-[10px] uppercase tracking-wider">
       <span
         className={cn(
           'h-1.5 w-1.5 rounded-full',
@@ -97,7 +97,7 @@ function StatusPill({ status, label }: { status?: string; label?: string }) {
         )}
       />
       {text}
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -190,7 +190,7 @@ export default function HealthPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -204,10 +204,10 @@ export default function HealthPage() {
             <ZoruBreadcrumbPage>Account health</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Account health</ZoruPageTitle>
             <ZoruPageDescription>
@@ -215,16 +215,16 @@ export default function HealthPage() {
               quality.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton size="sm" variant="outline" onClick={fetchHealth} disabled={isPending}>
+        </PageHeader>
+        <Button size="sm" variant="outline" onClick={fetchHealth} disabled={isPending}>
           <RefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} />
           Refresh
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* Overall messaging status */}
       {wabaHealth && (
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           <div className="flex items-center gap-4 border-b border-zoru-line bg-zoru-surface px-6 py-5">
             <div
               className={cn(
@@ -317,7 +317,7 @@ export default function HealthPage() {
               })}
             </div>
           )}
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Phone numbers */}
@@ -326,7 +326,7 @@ export default function HealthPage() {
           <h2 className="text-sm text-zoru-ink">Phone numbers</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {phoneHealths.map((phone) => (
-              <ZoruCard key={phone.phoneNumberId} className="p-5">
+              <Card key={phone.phoneNumberId} className="p-5">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
                     <Phone className="h-4 w-4" />
@@ -372,7 +372,7 @@ export default function HealthPage() {
 
                   {pinPhoneId === phone.phoneNumberId ? (
                     <div className="flex items-center gap-1.5">
-                      <ZoruInput
+                      <Input
                         type="text"
                         value={pinInput}
                         onChange={(e) =>
@@ -382,14 +382,14 @@ export default function HealthPage() {
                         maxLength={6}
                         className="h-7 w-16 px-1.5 text-center font-mono text-[11px]"
                       />
-                      <ZoruButton
+                      <Button
                         size="sm"
                         onClick={() => handleSetPin(phone.phoneNumberId)}
                         disabled={isPending || pinInput.length !== 6}
                       >
                         Set
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => {
@@ -398,34 +398,34 @@ export default function HealthPage() {
                         }}
                       >
                         Cancel
-                      </ZoruButton>
+                      </Button>
                     </div>
                   ) : (
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => setPinPhoneId(phone.phoneNumberId)}
                     >
                       <Lock className="h-3 w-3" />
                       2FA PIN
-                    </ZoruButton>
+                    </Button>
                   )}
                 </div>
-              </ZoruCard>
+              </Card>
             ))}
           </div>
         </>
       )}
 
       {isPending && !wabaHealth && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<RefreshCw className="h-8 w-8 animate-spin" />}
           title="Loading account health…"
         />
       )}
 
       {!isPending && !wabaHealth && !activeProject?._id && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Activity className="h-12 w-12" />}
           title="No project selected"
           description="Select a project to view account health."

@@ -187,7 +187,7 @@ export default function MediaLibraryPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -201,7 +201,7 @@ export default function MediaLibraryPage() {
             <ZoruBreadcrumbPage>Media library</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5">
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -218,7 +218,7 @@ export default function MediaLibraryPage() {
         {isPending && media.length === 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="aspect-[4/3]" />
+              <Skeleton key={i} className="aspect-[4/3]" />
             ))}
           </div>
         ) : (
@@ -240,7 +240,7 @@ export default function MediaLibraryPage() {
               });
             }}
             empty={
-              <ZoruEmptyState
+              <EmptyState
                 icon={<ImageIcon />}
                 title="No media yet"
                 description="Upload images, videos, documents, or audio to reuse across messages."

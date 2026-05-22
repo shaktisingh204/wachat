@@ -155,7 +155,7 @@ export default function ContactBlacklistPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -175,7 +175,7 @@ export default function ContactBlacklistPage() {
             <ZoruBreadcrumbPage>Blacklist</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-end justify-between gap-6">
         <div>
@@ -186,16 +186,16 @@ export default function ContactBlacklistPage() {
             Block phone numbers from sending messages to your project.
           </p>
         </div>
-        <ZoruBadge variant="secondary">{numbers.length} blocked</ZoruBadge>
+        <Badge variant="secondary">{numbers.length} blocked</Badge>
       </div>
 
       {/* Add form */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h2 className="mb-3 text-[15px] text-zoru-ink">Add a number</h2>
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex min-w-[260px] flex-1 flex-col gap-1.5">
-            <ZoruLabel htmlFor="bl-phone">Phone number</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="bl-phone">Phone number</Label>
+            <Input
               id="bl-phone"
               type="text"
               value={phone}
@@ -205,19 +205,19 @@ export default function ContactBlacklistPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <ZoruButton
+            <Button
               size="sm"
               onClick={handleAdd}
               disabled={!phone.trim() || isMutating}
             >
               <Plus /> Add
-            </ZoruButton>
+            </Button>
 
-            <ZoruDialog open={bulkOpen} onOpenChange={setBulkOpen}>
+            <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
               <ZoruDialogTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   <Upload /> Bulk
-                </ZoruButton>
+                </Button>
               </ZoruDialogTrigger>
               <ZoruDialogContent>
                 <ZoruDialogHeader>
@@ -227,7 +227,7 @@ export default function ContactBlacklistPage() {
                     blocked from contacting this project.
                   </ZoruDialogDescription>
                 </ZoruDialogHeader>
-                <ZoruTextarea
+                <Textarea
                   rows={6}
                   value={bulkText}
                   onChange={(e) => setBulkText(e.target.value)}
@@ -235,13 +235,13 @@ export default function ContactBlacklistPage() {
                   className="min-h-[160px]"
                 />
                 <ZoruDialogFooter>
-                  <ZoruButton
+                  <Button
                     variant="outline"
                     onClick={() => setBulkOpen(false)}
                   >
                     Cancel
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     onClick={handleBulkAdd}
                     disabled={!bulkText.trim() || isMutating}
                   >
@@ -249,22 +249,22 @@ export default function ContactBlacklistPage() {
                       <Loader2 className="animate-spin" />
                     ) : null}
                     Add all
-                  </ZoruButton>
+                  </Button>
                 </ZoruDialogFooter>
               </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {isLoadingInitial ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-12 w-full" />
+            <Skeleton key={i} className="h-12 w-full" />
           ))}
         </div>
       ) : numbers.length > 0 ? (
-        <ZoruCard className="overflow-x-auto p-0">
+        <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -285,14 +285,14 @@ export default function ContactBlacklistPage() {
                   <td className="px-5 py-3 text-right">
                     <ZoruAlertDialog>
                       <ZoruAlertDialogTrigger asChild>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           className="text-zoru-danger hover:bg-zoru-danger/10"
                           disabled={isMutating}
                         >
                           <Trash2 /> Remove
-                        </ZoruButton>
+                        </Button>
                       </ZoruAlertDialogTrigger>
                       <ZoruAlertDialogContent>
                         <ZoruAlertDialogHeader>
@@ -322,9 +322,9 @@ export default function ContactBlacklistPage() {
               ))}
             </tbody>
           </table>
-        </ZoruCard>
+        </Card>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<ShieldBan />}
           title="No numbers blacklisted"
           description="Add phone numbers above to block them from contacting this project."

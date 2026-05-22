@@ -33,7 +33,7 @@ export function AttendanceKpiStrip({
         onClick={() => onSelect('today')}
         ariaLabel="Show present punches today"
       >
-        <ZoruStatCard
+        <StatCard
           label="Present today"
           value={kpi.presentToday.toLocaleString()}
           period="on duty"
@@ -45,7 +45,7 @@ export function AttendanceKpiStrip({
         onClick={() => onSelect('leave-only')}
         ariaLabel="Show employees on leave today"
       >
-        <ZoruStatCard
+        <StatCard
           label="On leave today"
           value={kpi.onLeaveToday.toLocaleString()}
           period="approved leave"
@@ -57,7 +57,7 @@ export function AttendanceKpiStrip({
         onClick={() => onSelect('late-only')}
         ariaLabel="Show late punches today"
       >
-        <ZoruStatCard
+        <StatCard
           label="Late today"
           value={kpi.lateToday.toLocaleString()}
           period="behind schedule"
@@ -70,7 +70,7 @@ export function AttendanceKpiStrip({
         onClick={() => onSelect('reset')}
         ariaLabel="Show absent today"
       >
-        <ZoruStatCard
+        <StatCard
           label="Absent today"
           value={kpi.absentToday.toLocaleString()}
           period="no punch yet"
@@ -78,7 +78,7 @@ export function AttendanceKpiStrip({
           invertDelta
         />
       </KpiButton>
-      <ZoruStatCard
+      <StatCard
         label="Avg hours / day"
         value={
           kpi.avgHoursThisWeek != null

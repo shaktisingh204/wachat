@@ -179,7 +179,7 @@ export default function CommerceApiPage() {
       />
 
       {/* ── Integration config ── */}
-      <ZoruCard className="mt-6">
+      <Card className="mt-6">
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2 text-base">
             <Server className="h-4 w-4" /> Integration configuration
@@ -191,16 +191,16 @@ export default function CommerceApiPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="grid gap-5">
           <div className="grid gap-1.5">
-            <ZoruLabel htmlFor="api-key">Commerce API key</ZoruLabel>
+            <Label htmlFor="api-key">Commerce API key</Label>
             <div className="flex gap-2">
-              <ZoruInput
+              <Input
                 id="api-key"
                 value={keyValue}
                 readOnly
                 type={showKey ? "text" : "password"}
                 className="font-mono text-xs"
               />
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="icon"
@@ -208,8 +208,8 @@ export default function CommerceApiPage() {
                 onClick={() => setShowKey((v) => !v)}
               >
                 {showKey ? <EyeOff /> : <Eye />}
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 type="button"
                 variant="outline"
                 size="icon"
@@ -217,7 +217,7 @@ export default function CommerceApiPage() {
                 onClick={handleCopy}
               >
                 <Copy />
-              </ZoruButton>
+              </Button>
             </div>
             <p className="text-[11.5px] text-zoru-ink-muted">
               Treat this value as a secret. Rotate it if it has ever been
@@ -226,8 +226,8 @@ export default function CommerceApiPage() {
           </div>
 
           <div className="grid gap-1.5">
-            <ZoruLabel htmlFor="webhook-url">Webhook URL</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="webhook-url">Webhook URL</Label>
+            <Input
               id="webhook-url"
               type="url"
               placeholder="https://example.com/webhooks/meta-commerce"
@@ -237,8 +237,8 @@ export default function CommerceApiPage() {
           </div>
 
           <div className="grid gap-1.5">
-            <ZoruLabel htmlFor="signing-secret">Signing secret</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="signing-secret">Signing secret</Label>
+            <Input
               id="signing-secret"
               type="password"
               placeholder="Used to verify Meta webhook signatures"
@@ -256,7 +256,7 @@ export default function CommerceApiPage() {
                 Pull catalog changes from Meta every 30 minutes.
               </p>
             </div>
-            <ZoruSwitch
+            <Switch
               id="auto-sync"
               checked={autoSync}
               onCheckedChange={setAutoSync}
@@ -264,21 +264,21 @@ export default function CommerceApiPage() {
           </div>
         </ZoruCardContent>
         <ZoruCardFooter className="flex flex-wrap items-center justify-between gap-3">
-          <ZoruButton
+          <Button
             variant="outline"
             onClick={() => setRotateOpen(true)}
           >
             <RotateCw />
             Rotate API key
-          </ZoruButton>
-          <ZoruButton onClick={handleSave}>
+          </Button>
+          <Button onClick={handleSave}>
             <KeyRound />
             Save configuration
-          </ZoruButton>
+          </Button>
         </ZoruCardFooter>
-      </ZoruCard>
+      </Card>
 
-      <ZoruAlert className="mt-6">
+      <Alert className="mt-6">
         <KeyRound className="h-4 w-4" />
         <ZoruAlertTitle>Need to wire a webhook?</ZoruAlertTitle>
         <ZoruAlertDescription>
@@ -292,7 +292,7 @@ export default function CommerceApiPage() {
           . Configure your endpoint there and return here to plug in the
           signing secret.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
 
       {/* ── API reference cards ── */}
       <section className="mt-8">
@@ -307,7 +307,7 @@ export default function CommerceApiPage() {
           {API_AREAS.map((area) => {
             const Icon = area.icon;
             return (
-              <ZoruCard key={area.title} className="flex h-full flex-col">
+              <Card key={area.title} className="flex h-full flex-col">
                 <ZoruCardHeader>
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 text-zoru-ink">
@@ -321,12 +321,12 @@ export default function CommerceApiPage() {
                 </ZoruCardHeader>
                 <ZoruCardContent className="mt-auto flex flex-wrap gap-2">
                   {area.apis.map((api) => (
-                    <ZoruBadge key={api} variant="outline">
+                    <Badge key={api} variant="outline">
                       {api}
-                    </ZoruBadge>
+                    </Badge>
                   ))}
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>

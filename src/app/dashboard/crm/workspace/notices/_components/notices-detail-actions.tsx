@@ -62,35 +62,35 @@ export function NoticesDetailActions({
 
     return (
         <>
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/workspace/notices/${noticeId}/edit`}>
                     <Pencil className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
+            </Button>
             {/* TODO 1D.2: dedicated togglePinNotice server action.
                 Use the edit form for now. */}
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/workspace/notices/${noticeId}/edit`}>
                     <Pin className="h-3.5 w-3.5" /> Pin
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={handleMarkRead}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleMarkRead}>
                 <Eye className="h-3.5 w-3.5" /> Mark read
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={handleCopy}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleCopy}>
                 <Link2 className="h-3.5 w-3.5" /> Copy link
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={handleCopy}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleCopy}>
                 <Copy className="h-3.5 w-3.5" /> Share
-            </ZoruButton>
-            <ZoruButton asChild variant="ghost" size="sm">
+            </Button>
+            <Button asChild variant="ghost" size="sm">
                 <Link href={`/dashboard/crm/workspace/notices/${noticeId}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={confirmDelete}

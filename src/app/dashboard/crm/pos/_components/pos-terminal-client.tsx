@@ -321,11 +321,11 @@ export function PosTerminalClient({
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
             {/* Left 60% — item picker */}
-            <ZoruCard className="md:col-span-3">
+            <Card className="md:col-span-3">
                 <ZoruCardContent className="flex flex-col gap-3 p-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                        <ZoruInput
+                        <Input
                             value={query}
                             onChange={(e) => void onSearch(e.target.value)}
                             placeholder="Scan barcode or search by name / SKU…"
@@ -366,33 +366,33 @@ export function PosTerminalClient({
                         )}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Right 40% — cart panel */}
-            <ZoruCard className="md:col-span-2">
+            <Card className="md:col-span-2">
                 <ZoruCardContent className="flex flex-col gap-3 p-4">
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-medium text-zoru-ink">
                             Cart {prefillHold ? '· recalled' : ''}
                         </p>
                         {cart.length > 0 ? (
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => setCart([])}
                             >
                                 <X className="h-3.5 w-3.5" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <ZoruLabel htmlFor="customerName" className="text-[11px]">
+                        <Label htmlFor="customerName" className="text-[11px]">
                             Customer
-                        </ZoruLabel>
+                        </Label>
                         <div className="relative">
                             <UserPlus className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-                            <ZoruInput
+                            <Input
                                 id="customerName"
                                 value={customerName}
                                 onChange={(e) => setCustomerName(e.target.value)}
@@ -428,7 +428,7 @@ export function PosTerminalClient({
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="flex items-center gap-1">
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 size="sm"
                                                 variant="outline"
@@ -438,11 +438,11 @@ export function PosTerminalClient({
                                                 }
                                             >
                                                 <Minus className="h-3 w-3" />
-                                            </ZoruButton>
+                                            </Button>
                                             <span className="w-6 text-center text-[12px] tabular-nums">
                                                 {line.qty}
                                             </span>
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 size="sm"
                                                 variant="outline"
@@ -452,9 +452,9 @@ export function PosTerminalClient({
                                                 }
                                             >
                                                 <Plus className="h-3 w-3" />
-                                            </ZoruButton>
+                                            </Button>
                                         </div>
-                                        <ZoruInput
+                                        <Input
                                             type="number"
                                             value={String(line.rate)}
                                             onChange={(e) =>
@@ -525,13 +525,13 @@ export function PosTerminalClient({
                         {paymentMethod === 'split' ? (
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="flex flex-col gap-1">
-                                    <ZoruLabel
+                                    <Label
                                         htmlFor="splitCash"
                                         className="text-[11px]"
                                     >
                                         Cash
-                                    </ZoruLabel>
-                                    <ZoruInput
+                                    </Label>
+                                    <Input
                                         id="splitCash"
                                         type="number"
                                         value={splitCash}
@@ -544,13 +544,13 @@ export function PosTerminalClient({
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <ZoruLabel
+                                    <Label
                                         htmlFor="splitCard"
                                         className="text-[11px]"
                                     >
                                         Card
-                                    </ZoruLabel>
-                                    <ZoruInput
+                                    </Label>
+                                    <Input
                                         id="splitCard"
                                         type="number"
                                         value={splitCard}
@@ -563,13 +563,13 @@ export function PosTerminalClient({
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <ZoruLabel
+                                    <Label
                                         htmlFor="splitUpi"
                                         className="text-[11px]"
                                     >
                                         UPI
-                                    </ZoruLabel>
-                                    <ZoruInput
+                                    </Label>
+                                    <Input
                                         id="splitUpi"
                                         type="number"
                                         value={splitUpi}
@@ -586,10 +586,10 @@ export function PosTerminalClient({
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <ZoruLabel htmlFor="holdReason" className="text-[11px]">
+                        <Label htmlFor="holdReason" className="text-[11px]">
                             Hold reason (optional)
-                        </ZoruLabel>
-                        <ZoruTextarea
+                        </Label>
+                        <Textarea
                             id="holdReason"
                             value={holdReason}
                             onChange={(e) => setHoldReason(e.target.value)}
@@ -599,7 +599,7 @@ export function PosTerminalClient({
                     </div>
 
                     <div className="flex gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             className="flex-1"
@@ -607,8 +607,8 @@ export function PosTerminalClient({
                             onClick={onHold}
                         >
                             <PauseCircle className="h-4 w-4" /> Hold ticket
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             className="flex-1"
                             disabled={submitting || cart.length === 0}
@@ -617,12 +617,12 @@ export function PosTerminalClient({
                             {submitting
                                 ? 'Processing…'
                                 : `Checkout · ${fmtMoney(totals.total)}`}
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruDialog
+            <Dialog
                 open={receipt !== null}
                 onOpenChange={(open) => {
                     if (!open) setReceipt(null);
@@ -660,18 +660,18 @@ export function PosTerminalClient({
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             onClick={() => setReceipt(null)}
                         >
                             Close
-                        </ZoruButton>
-                        <ZoruButton onClick={() => window.print()}>
+                        </Button>
+                        <Button onClick={() => window.print()}>
                             <Printer className="h-4 w-4" /> Print
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

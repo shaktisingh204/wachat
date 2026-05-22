@@ -148,15 +148,15 @@ export default function TeamOverviewPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbPage>Team</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Team</ZoruPageTitle>
                     <ZoruPageDescription>
@@ -164,12 +164,12 @@ export default function TeamOverviewPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <Link href="/dashboard/team/manage-users">
-                    <ZoruButton size="sm">
+                    <Button size="sm">
                         <UserPlus className="h-4 w-4" />
                         Invite member
-                    </ZoruButton>
+                    </Button>
                 </Link>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* Stat cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -201,7 +201,7 @@ export default function TeamOverviewPage() {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {MODULE_TILES.map((tile) => (
                         <Link key={tile.href} href={tile.href} className="group">
-                            <ZoruCard className="h-full p-6 transition-shadow group-hover:shadow-md">
+                            <Card className="h-full p-6 transition-shadow group-hover:shadow-md">
                                 <div
                                     className={cn(
                                         'mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white',
@@ -217,14 +217,14 @@ export default function TeamOverviewPage() {
                                 <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                                     {tile.description}
                                 </p>
-                            </ZoruCard>
+                            </Card>
                         </Link>
                     ))}
                 </div>
             </div>
 
             {/* Recent invites */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-[14px] text-zoru-ink">Recent invitations</h2>
@@ -233,17 +233,17 @@ export default function TeamOverviewPage() {
                         </p>
                     </div>
                     <Link href="/dashboard/team/invites">
-                        <ZoruButton variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm">
                             See all
                             <ArrowUpRight className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                     </Link>
                 </div>
                 {loading ? (
                     <div className="mt-4 space-y-2">
-                        <ZoruSkeleton className="h-12 w-full" />
-                        <ZoruSkeleton className="h-12 w-full" />
-                        <ZoruSkeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
                     </div>
                 ) : data.recentInvites.length === 0 ? (
                     <div className="mt-4 rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2/50 p-6 text-center text-[13px] text-zoru-ink-muted">
@@ -267,7 +267,7 @@ export default function TeamOverviewPage() {
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -286,7 +286,7 @@ function StatCard({
     loading: boolean;
 }) {
     return (
-        <ZoruCard variant="soft" className="p-6">
+        <Card variant="soft" className="p-6">
             <div className="flex items-start justify-between">
                 <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                     {label}
@@ -303,15 +303,15 @@ function StatCard({
                 </div>
             </div>
             <p className="mt-2 text-[28px] leading-none text-zoru-ink">
-                {loading ? <ZoruSkeleton className="inline-block h-7 w-12" /> : value}
+                {loading ? <Skeleton className="inline-block h-7 w-12" /> : value}
             </p>
-        </ZoruCard>
+        </Card>
     );
 }
 
 function InviteStatusBadge({ status }: { status: InvitationView['status'] | 'expired' }) {
-    if (status === 'accepted') return <ZoruBadge variant="success">Accepted</ZoruBadge>;
-    if (status === 'expired') return <ZoruBadge variant="danger">Expired</ZoruBadge>;
-    if (status === 'revoked') return <ZoruBadge variant="ghost">Revoked</ZoruBadge>;
-    return <ZoruBadge variant="warning">Pending</ZoruBadge>;
+    if (status === 'accepted') return <Badge variant="success">Accepted</Badge>;
+    if (status === 'expired') return <Badge variant="danger">Expired</Badge>;
+    if (status === 'revoked') return <Badge variant="ghost">Revoked</Badge>;
+    return <Badge variant="warning">Pending</Badge>;
 }

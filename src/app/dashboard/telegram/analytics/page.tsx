@@ -356,7 +356,7 @@ export default function Page() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -372,10 +372,10 @@ export default function Page() {
                         <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <div className="flex flex-wrap items-start justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
                     <ZoruPageHeading>
                         <span
@@ -390,9 +390,9 @@ export default function Page() {
                         Read-only KPIs and leaderboards aggregated across every bot in
                         this workspace.
                     </ZoruPageDescription>
-                </ZoruPageHeader>
+                </PageHeader>
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={handleExport}
@@ -404,12 +404,12 @@ export default function Page() {
                             <Download className="h-3.5 w-3.5" />
                         )}
                         Export CSV
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             {/* Filters */}
-            <ZoruCard className="flex flex-wrap items-end gap-3 p-4">
+            <Card className="flex flex-wrap items-end gap-3 p-4">
                 <div className="flex flex-col gap-1">
                     <label className="text-xs text-zoru-ink-muted">Date range</label>
                     <ZoruDateRangePicker
@@ -442,7 +442,7 @@ export default function Page() {
                 </div>
                 <div className="flex flex-col gap-1">
                     <label className="text-xs text-zoru-ink-muted">Bot</label>
-                    <ZoruSelect
+                    <Select
                         value={botId || '__all__'}
                         onValueChange={(v) => setBotId(v === '__all__' ? '' : v)}
                     >
@@ -457,7 +457,7 @@ export default function Page() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="ml-auto flex flex-wrap items-center gap-1.5">
                     <Filter className="h-3.5 w-3.5 text-zoru-ink-subtle" aria-hidden />
@@ -472,10 +472,10 @@ export default function Page() {
                         </span>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {hasNoProject && (
-                <ZoruEmptyState
+                <EmptyState
                     icon={<Bot className="h-6 w-6" aria-hidden />}
                     title="Choose a project"
                     description="Telegram analytics is scoped to a workspace. Pick an active project from the sidebar to load data."
@@ -489,7 +489,7 @@ export default function Page() {
                         {kpis.map((k) => {
                             const Icon = k.icon;
                             return (
-                                <ZoruCard key={k.label} className="flex items-start gap-3 p-4">
+                                <Card key={k.label} className="flex items-start gap-3 p-4">
                                     <span
                                         aria-hidden
                                         className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)]"
@@ -503,7 +503,7 @@ export default function Page() {
                                         </div>
                                         <div className="text-[20px] leading-tight tabular-nums text-zoru-ink">
                                             {isLoading ? (
-                                                <ZoruSkeleton className="h-5 w-16" />
+                                                <Skeleton className="h-5 w-16" />
                                             ) : k.isText ? (
                                                 (k.value as string)
                                             ) : (
@@ -516,7 +516,7 @@ export default function Page() {
                                             </div>
                                         )}
                                     </div>
-                                </ZoruCard>
+                                </Card>
                             );
                         })}
                     </div>
@@ -546,12 +546,12 @@ export default function Page() {
                     </div>
 
                     {topLevelError && (
-                        <ZoruCard className="border-zoru-danger/40 p-4 text-sm text-zoru-danger">
+                        <Card className="border-zoru-danger/40 p-4 text-sm text-zoru-danger">
                             <div className="flex items-center gap-2">
                                 <BadgeAlert className="h-4 w-4" aria-hidden />
                                 <span>Data load issue: {topLevelError}</span>
                             </div>
-                        </ZoruCard>
+                        </Card>
                     )}
 
                     {view === 'overview' && (
@@ -693,7 +693,7 @@ function OverviewView({
                 </ResponsiveContainer>
             </ChartCard>
 
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h3 className="mb-3 text-[14px] text-zoru-ink">Top commands</h3>
                 {isLoading ? (
                     <SkeletonRows />
@@ -707,14 +707,14 @@ function OverviewView({
                                 className="flex items-center justify-between gap-2 text-sm"
                             >
                                 <span className="truncate text-zoru-ink">/{c.key}</span>
-                                <ZoruBadge variant="secondary">{c.count}</ZoruBadge>
+                                <Badge variant="secondary">{c.count}</Badge>
                             </li>
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h3 className="mb-3 text-[14px] text-zoru-ink">Top contacts</h3>
                 {isLoading ? (
                     <SkeletonRows />
@@ -728,12 +728,12 @@ function OverviewView({
                                 className="flex items-center justify-between gap-2 text-sm"
                             >
                                 <span className="truncate text-zoru-ink">{c.title}</span>
-                                <ZoruBadge variant="secondary">{c.messages}</ZoruBadge>
+                                <Badge variant="secondary">{c.messages}</Badge>
                             </li>
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -797,7 +797,7 @@ function MessagesView({
                 </ResponsiveContainer>
             </ChartCard>
 
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h3 className="mb-3 text-[14px] text-zoru-ink">Top contacts by volume</h3>
                 {isLoading ? (
                     <SkeletonRows />
@@ -806,7 +806,7 @@ function MessagesView({
                         No message activity in this range.
                     </p>
                 ) : (
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow>
                                 <ZoruTableHead>Contact</ZoruTableHead>
@@ -827,9 +827,9 @@ function MessagesView({
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -879,7 +879,7 @@ function BroadcastsView({
                 </ResponsiveContainer>
             </ChartCard>
 
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h3 className="mb-3 text-[14px] text-zoru-ink">Top error codes</h3>
                 {isLoading ? (
                     <SkeletonRows />
@@ -895,12 +895,12 @@ function BroadcastsView({
                                 className="flex items-center justify-between gap-3 text-sm"
                             >
                                 <span className="truncate text-zoru-ink">{c.label}</span>
-                                <ZoruBadge variant="danger">{c.count}</ZoruBadge>
+                                <Badge variant="danger">{c.count}</Badge>
                             </li>
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -939,7 +939,7 @@ function CommandsView({
                     </BarChart>
                 </ResponsiveContainer>
             </ChartCard>
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h3 className="mb-3 text-[14px] text-zoru-ink">Command catalogue</h3>
                 {isLoading ? (
                     <SkeletonRows />
@@ -948,7 +948,7 @@ function CommandsView({
                         No commands have been declared yet.
                     </p>
                 ) : (
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow>
                                 <ZoruTableHead>Command</ZoruTableHead>
@@ -969,9 +969,9 @@ function CommandsView({
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -1074,7 +1074,7 @@ function FunnelView({
     ];
     const top = Math.max(stages[0]?.value ?? 0, 1);
     return (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
             <h3 className="mb-4 text-[14px] text-zoru-ink">Conversion funnel</h3>
             {isLoading ? (
                 <SkeletonRows />
@@ -1099,9 +1099,9 @@ function FunnelView({
                                             {fmtNumber(s.value)}
                                         </span>
                                         {conv !== null && (
-                                            <ZoruBadge variant="secondary">
+                                            <Badge variant="secondary">
                                                 {fmtPercent(conv)}
-                                            </ZoruBadge>
+                                            </Badge>
                                         )}
                                     </span>
                                 </div>
@@ -1119,7 +1119,7 @@ function FunnelView({
                     })}
                 </div>
             )}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -1141,7 +1141,7 @@ function ChartCard({
     children: React.ReactNode;
 }) {
     return (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
             <h3 className="mb-3 text-[14px] text-zoru-ink">{title}</h3>
             <div style={{ height }} className="w-full">
                 {isLoading ? (
@@ -1156,7 +1156,7 @@ function ChartCard({
                     children
                 )}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -1165,8 +1165,8 @@ function SkeletonRows() {
         <ul className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
                 <li key={i} className="flex items-center justify-between gap-2">
-                    <ZoruSkeleton className="h-4 w-2/3" />
-                    <ZoruSkeleton className="h-4 w-10" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-10" />
                 </li>
             ))}
         </ul>
@@ -1187,12 +1187,12 @@ function MetricTile({
     hint?: string;
 }) {
     return (
-        <ZoruCard className="p-4">
+        <Card className="p-4">
             <TelegramProjectGate />
             <div className="text-[11.5px] text-zoru-ink-muted">{label}</div>
             <div className="text-[20px] leading-tight tabular-nums text-zoru-ink">
                 {isLoading ? (
-                    <ZoruSkeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
                 ) : asText ? (
                     (value as string)
                 ) : (
@@ -1200,6 +1200,6 @@ function MetricTile({
                 )}
             </div>
             {hint && <div className="text-[11px] text-zoru-ink-subtle">{hint}</div>}
-        </ZoruCard>
+        </Card>
     );
 }

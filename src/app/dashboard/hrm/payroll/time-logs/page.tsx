@@ -262,13 +262,13 @@ export default function TimeLogsPage() {
       title="Time Logs"
       subtitle="Track, start, stop, and approve employee time entries."
       primaryAction={
-        <ZoruButton
+        <Button
           variant="outline"
           onClick={() => setManualOpen(true)}
         >
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           Add Manual Entry
-        </ZoruButton>
+        </Button>
       }
     >
 
@@ -289,23 +289,23 @@ export default function TimeLogsPage() {
               </p>
             </div>
           </div>
-          <ZoruButton
+          <Button
             variant="outline"
             disabled={isActing}
             onClick={() => handleStopTimer(String(runningLog._id))}
           >
             <Square className="h-3.5 w-3.5 fill-current text-amber-500" strokeWidth={1.75} />
             Stop Timer
-          </ZoruButton>
+          </Button>
         </div>
       )}
 
       {/* ── Start Timer Card ── */}
       {!runningLog && (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex flex-wrap items-center gap-3">
             <Timer className="h-5 w-5 shrink-0 text-zoru-ink-muted" strokeWidth={1.75} />
-            <ZoruInput
+            <Input
               placeholder="What are you working on? (optional memo)"
               className="h-9 min-w-[220px] flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px] placeholder:text-zoru-ink-muted focus-visible:ring-primary"
               value={memo}
@@ -314,19 +314,19 @@ export default function TimeLogsPage() {
                 if (e.key === 'Enter') handleStartTimer();
               }}
             />
-            <ZoruButton
+            <Button
               disabled={isActing}
               onClick={handleStartTimer}
             >
               <Play className="h-4 w-4 fill-current" strokeWidth={1.75} />
               Start Timer
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* ── Logs Table Card ── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {/* Card header + filters */}
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -340,7 +340,7 @@ export default function TimeLogsPage() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Filter className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
-            <ZoruInput
+            <Input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
@@ -348,34 +348,34 @@ export default function TimeLogsPage() {
               aria-label="From date"
             />
             <span className="text-[12px] text-zoru-ink-muted">to</span>
-            <ZoruInput
+            <Input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
               className="h-9 w-[150px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               aria-label="To date"
             />
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={load}
               disabled={isLoading}
             >
               Apply
-            </ZoruButton>
+            </Button>
             {(fromDate || toDate) && (
-              <ZoruButton
+              <Button
                 variant="outline"
                 onClick={() => { setFromDate(''); setToDate(''); }}
               >
                 Clear
-              </ZoruButton>
+              </Button>
             )}
           </div>
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
@@ -461,27 +461,27 @@ export default function TimeLogsPage() {
 
                       {/* Status */}
                       <ZoruTableCell>
-                        <ZoruBadge variant={variant}>
+                        <Badge variant={variant}>
                           {label}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
 
                       {/* Actions */}
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           {isRunning && (
-                            <ZoruButton variant="outline" size="sm" title="Stop Timer" disabled={isActing} onClick={() => handleStopTimer(id)}>
+                            <Button variant="outline" size="sm" title="Stop Timer" disabled={isActing} onClick={() => handleStopTimer(id)}>
                               <Square className="h-3.5 w-3.5 fill-current text-amber-500" />
-                            </ZoruButton>
+                            </Button>
                           )}
                           {isPending && (
                             <>
-                              <ZoruButton variant="outline" size="sm" title="Approve" disabled={isActing} onClick={() => handleApprove(id)}>
+                              <Button variant="outline" size="sm" title="Approve" disabled={isActing} onClick={() => handleApprove(id)}>
                                 <Check className="h-3.5 w-3.5 text-emerald-500" />
-                              </ZoruButton>
-                              <ZoruButton variant="outline" size="sm" title="Reject" disabled={isActing} onClick={() => handleReject(id)}>
+                              </Button>
+                              <Button variant="outline" size="sm" title="Reject" disabled={isActing} onClick={() => handleReject(id)}>
                                 <X className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                              </ZoruButton>
+                              </Button>
                             </>
                           )}
                         </div>
@@ -491,12 +491,12 @@ export default function TimeLogsPage() {
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ── Manual Entry Dialog ── */}
-      <ZoruDialog open={manualOpen} onOpenChange={setManualOpen}>
+      <Dialog open={manualOpen} onOpenChange={setManualOpen}>
         <ZoruDialogContent className="bg-zoru-bg sm:max-w-[440px]">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-[16px] text-zoru-ink">
@@ -509,7 +509,7 @@ export default function TimeLogsPage() {
               <label className="text-[12.5px] font-medium text-zoru-ink-muted">
                 Start Time <span className="text-zoru-danger-ink">*</span>
               </label>
-              <ZoruInput
+              <Input
                 type="datetime-local"
                 value={manualStart}
                 onChange={(e) => setManualStart(e.target.value)}
@@ -521,7 +521,7 @@ export default function TimeLogsPage() {
               <label className="text-[12.5px] font-medium text-zoru-ink-muted">
                 End Time <span className="text-zoru-danger-ink">*</span>
               </label>
-              <ZoruInput
+              <Input
                 type="datetime-local"
                 value={manualEnd}
                 onChange={(e) => setManualEnd(e.target.value)}
@@ -542,7 +542,7 @@ export default function TimeLogsPage() {
               <label className="text-[12.5px] font-medium text-zoru-ink-muted">
                 Memo
               </label>
-              <ZoruInput
+              <Input
                 placeholder="What did you work on?"
                 value={manualMemo}
                 onChange={(e) => setManualMemo(e.target.value)}
@@ -552,15 +552,15 @@ export default function TimeLogsPage() {
           </div>
 
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton variant="outline" onClick={() => setManualOpen(false)} disabled={isSavingManual}>
+            <Button variant="outline" onClick={() => setManualOpen(false)} disabled={isSavingManual}>
               Cancel
-            </ZoruButton>
-            <ZoruButton disabled={isSavingManual || !manualStart || !manualEnd} onClick={handleManualSave}>
+            </Button>
+            <Button disabled={isSavingManual || !manualStart || !manualEnd} onClick={handleManualSave}>
               {isSavingManual ? 'Saving…' : 'Save Entry'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

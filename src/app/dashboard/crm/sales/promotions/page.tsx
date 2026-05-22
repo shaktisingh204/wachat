@@ -90,12 +90,12 @@ export default async function PromotionsPage({
       title="Promotions"
       subtitle="Manage discount codes, scheduled offers, and redemption windows."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/sales/promotions/new">
             <Plus className="h-4 w-4" />
             New promotion
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       <PromotionListClient

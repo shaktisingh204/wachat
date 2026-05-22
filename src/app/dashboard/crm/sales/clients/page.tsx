@@ -300,21 +300,21 @@ export default function CrmClientsPage() {
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setPendingBulkArchive(true)}
                 disabled={busy}
               >
                 <Archive className="h-3.5 w-3.5" /> Archive
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={bulkExportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkExportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={bulkExportXlsx}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkExportXlsx}>
                 <Download className="h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 className="text-zoru-danger-ink"
@@ -322,10 +322,10 @@ export default function CrmClientsPage() {
                 disabled={busy}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -348,11 +348,11 @@ export default function CrmClientsPage() {
           </div>
         ) : null}
 
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           {/* Filter / tab bar */}
           <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
             <div className="flex gap-1">
-              <ZoruButton
+              <Button
                 size="sm"
                 variant={activeTab === 'active' ? 'default' : 'outline'}
                 onClick={() => {
@@ -362,8 +362,8 @@ export default function CrmClientsPage() {
                 }}
               >
                 Active
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant={activeTab === 'archived' ? 'default' : 'outline'}
                 onClick={() => {
@@ -373,18 +373,18 @@ export default function CrmClientsPage() {
                 }}
               >
                 Archived
-              </ZoruButton>
+              </Button>
             </div>
             <div className="relative max-w-xs flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-              <ZoruInput
+              <Input
                 placeholder="Search by name, industry, or website…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-9 pl-9 text-[13px]"
               />
             </div>
-            <ZoruSelect
+            <Select
               value={industryFilter || '__all'}
               onValueChange={(v) => setIndustryFilter(v === '__all' ? '' : v)}
             >
@@ -398,8 +398,8 @@ export default function CrmClientsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={statusFilter || '__all'}
               onValueChange={(v) => setStatusFilter(v === '__all' ? '' : v)}
             >
@@ -413,9 +413,9 @@ export default function CrmClientsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {hasFilterActive ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -425,15 +425,15 @@ export default function CrmClientsPage() {
                 className="text-[12px] text-zoru-ink-muted"
               >
                 <X className="h-3.5 w-3.5" /> Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
 
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-[36px]">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected}
                     onCheckedChange={toggleAll}
                     aria-label="Select all"
@@ -451,7 +451,7 @@ export default function CrmClientsPage() {
                 [...Array(5)].map((_, i) => (
                   <ZoruTableRow key={i} className="border-zoru-line">
                     <ZoruTableCell colSpan={6}>
-                      <ZoruSkeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
@@ -468,7 +468,7 @@ export default function CrmClientsPage() {
                       data-state={isSelected ? 'selected' : undefined}
                     >
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(id)}
                           aria-label={`Select ${account.name}`}
@@ -492,41 +492,41 @@ export default function CrmClientsPage() {
                         {account.phone || '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge
+                        <Badge
                           variant={status === 'archived' ? 'ghost' : 'success'}
                           className="capitalize"
                         >
                           {status}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton
+                          <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => router.push(`/dashboard/crm/accounts/${id}/edit`)}
                             aria-label="Edit account"
                           >
                             <Edit className="h-3.5 w-3.5" />
-                          </ZoruButton>
+                          </Button>
                           {status !== 'archived' ? (
-                            <ZoruButton
+                            <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => handleArchiveAccount(id)}
                               aria-label="Archive account"
                             >
                               <Archive className="h-3.5 w-3.5" />
-                            </ZoruButton>
+                            </Button>
                           ) : (
-                            <ZoruButton
+                            <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => handleUnarchiveAccount(id)}
                               aria-label="Restore account"
                             >
                               <ArchiveRestore className="h-3.5 w-3.5" />
-                            </ZoruButton>
+                            </Button>
                           )}
                         </div>
                       </ZoruTableCell>
@@ -546,7 +546,7 @@ export default function CrmClientsPage() {
                 </ZoruTableRow>
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
 
           {/* Pagination */}
           {totalPages > 1 ? (
@@ -555,26 +555,26 @@ export default function CrmClientsPage() {
                 Page {currentPage} of {totalPages}
               </span>
               <div className="flex gap-2">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={currentPage <= 1}
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 >
                   Previous
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={currentPage >= totalPages}
                   onClick={() => setCurrentPage((p) => p + 1)}
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       </EntityListShell>
 
       {/* Bulk archive */}

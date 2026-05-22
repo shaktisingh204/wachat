@@ -264,7 +264,7 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
         {/* Main column */}
         <main className="min-w-0 flex-1 space-y-6">
           {/* Overview */}
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Overview
             </h2>
@@ -298,10 +298,10 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
               <DetailField label="Next step">{deal.nextStep || '—'}</DetailField>
               <DetailField label="Loss reason">{deal.lossReason || '—'}</DetailField>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Money breakdown */}
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Money breakdown
             </h2>
@@ -316,11 +316,11 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
               <Stat label="Deal age" value={dealAge != null ? `${dealAge} d` : '—'} />
               <Stat label="Stage age" value={stageAge != null ? `${stageAge} d` : '—'} />
             </dl>
-          </ZoruCard>
+          </Card>
 
           {/* Products */}
           {Array.isArray(deal.products) && deal.products.length > 0 ? (
-            <ZoruCard className="p-6">
+            <Card className="p-6">
               <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Products
               </h2>
@@ -349,36 +349,36 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
                   </tbody>
                 </table>
               </div>
-            </ZoruCard>
+            </Card>
           ) : null}
 
           {/* Notes composer */}
           <CrmNotes recordId={dealIdStr} recordType="deal" notes={notesForComposer} />
 
           {/* Tags */}
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Tags
             </h2>
             {Array.isArray(deal.labels) && deal.labels.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {deal.labels.map((t) => (
-                  <ZoruBadge key={t} variant="outline">
+                  <Badge key={t} variant="outline">
                     {t}
-                  </ZoruBadge>
+                  </Badge>
                 ))}
               </div>
             ) : (
               <p className="text-[13px] text-zoru-ink-muted">No tags yet.</p>
             )}
-          </ZoruCard>
+          </Card>
         </main>
 
         {/* Right rail */}
         <aside className="w-full md:w-80 md:shrink-0">
           <div className="space-y-4 md:sticky md:top-4">
             {/* Pipeline progress */}
-            <ZoruCard className="p-4">
+            <Card className="p-4">
               <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Pipeline progress
               </h3>
@@ -410,10 +410,10 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
                   );
                 })}
               </ol>
-            </ZoruCard>
+            </Card>
 
             {/* Owner + stage + status — inline quick-edits */}
-            <ZoruCard className="p-4">
+            <Card className="p-4">
               <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 At a glance
               </h3>
@@ -440,7 +440,7 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
                   <span>{fmtDate(deal.updatedAt)}</span>
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
 
             {/* Related entities — live counts */}
             <DealRelatedRail dealId={dealIdStr} accountId={accountId} initial={related} />
@@ -451,12 +451,12 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
               lineage={deal.lineage ?? []}
             />
 
-            <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+            <Button size="sm" variant="ghost" asChild className="w-full">
               <Link href={`/dashboard/crm/sales-crm/deals/${dealIdStr}/activity`}>
                 <ClipboardList className="h-3.5 w-3.5" />
                 View full activity log
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         </aside>
       </div>

@@ -180,7 +180,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Bot />}
           title="No project selected"
           description="Pick a Facebook project to manage its chatbot agents."
@@ -191,7 +191,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -205,7 +205,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Agents</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -215,31 +215,31 @@ export default function FacebookAgentsPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
-          <ZoruButton onClick={() => setDialogOpen(true)}>
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> New agent
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load agents</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {loading && agents.length === 0 ? (
         <div className="grid gap-3 md:grid-cols-2">
-          <ZoruSkeleton className="h-28 w-full" />
-          <ZoruSkeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
         </div>
       ) : agents.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Bot />}
           title="No agents yet"
           description="Create your first chatbot agent to handle Messenger replies."
@@ -250,19 +250,19 @@ export default function FacebookAgentsPage(): React.JSX.Element {
             const id = getAgentId(a);
             return (
               <li key={id || a.name}>
-                <ZoruCard className="flex h-full flex-col gap-3 p-4">
+                <Card className="flex h-full flex-col gap-3 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="line-clamp-1 text-base text-zoru-ink">{a.name}</p>
-                      <ZoruBadge
+                      <Badge
                         variant={a.isActive ? 'success' : 'ghost'}
                         className="mt-1"
                       >
                         {a.isActive ? 'Active' : 'Paused'}
-                      </ZoruBadge>
+                      </Badge>
                     </div>
                     <div className="flex items-center gap-1">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onToggleActive(a)}
@@ -274,8 +274,8 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                         ) : (
                           <Play className="h-4 w-4" />
                         )}
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onDelete(a)}
@@ -283,7 +283,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                         aria-label="Delete agent"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
                   {a.personality ? (
@@ -296,14 +296,14 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                       Model: <span className="text-zoru-ink">{a.model}</span>
                     </p>
                   ) : null}
-                </ZoruCard>
+                </Card>
               </li>
             );
           })}
         </ul>
       )}
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>New agent</ZoruDialogTitle>
@@ -314,8 +314,8 @@ export default function FacebookAgentsPage(): React.JSX.Element {
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <ZoruLabel htmlFor="agent-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="agent-name">Name</Label>
+              <Input
                 id="agent-name"
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
@@ -323,8 +323,8 @@ export default function FacebookAgentsPage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <ZoruLabel htmlFor="agent-prompt">Persona / system prompt</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="agent-prompt">Persona / system prompt</Label>
+              <Textarea
                 id="agent-prompt"
                 rows={4}
                 value={form.personality}
@@ -335,8 +335,8 @@ export default function FacebookAgentsPage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <ZoruLabel htmlFor="agent-welcome">Welcome message (optional)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="agent-welcome">Welcome message (optional)</Label>
+              <Input
                 id="agent-welcome"
                 value={form.welcomeMessage}
                 onChange={(e) =>
@@ -346,8 +346,8 @@ export default function FacebookAgentsPage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Model</ZoruLabel>
-              <ZoruSelect
+              <Label>Model</Label>
+              <Select
                 value={form.model}
                 onValueChange={(v) => setForm((p) => ({ ...p, model: v }))}
               >
@@ -361,7 +361,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <p className="text-[11px] text-zoru-ink-muted">
               Note: the Rust backend currently uses a single project-wide model;
@@ -370,19 +370,19 @@ export default function FacebookAgentsPage(): React.JSX.Element {
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setDialogOpen(false)}
               disabled={mutating}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={onCreate} disabled={mutating}>
+            </Button>
+            <Button onClick={onCreate} disabled={mutating}>
               {mutating ? 'Creating…' : 'Create agent'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

@@ -120,9 +120,9 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
 
   return (
     <>
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
-          <ZoruButton variant="outline" size="sm">
+          <Button variant="outline" size="sm">
             <Bookmark className="mr-1.5 h-3.5 w-3.5" />
             Views
             {pinned.length > 0 && (
@@ -130,7 +130,7 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
                 ({pinned.length} pinned)
               </span>
             )}
-          </ZoruButton>
+          </Button>
         </ZoruDropdownMenuTrigger>
         <ZoruDropdownMenuContent align="end" className="w-64">
           <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
@@ -164,9 +164,9 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
             <BookmarkPlus className="mr-2 h-4 w-4" /> Save current view…
           </ZoruDropdownMenuItem>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruDialog open={saveOpen} onOpenChange={setSaveOpen}>
+      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Save current view</ZoruDialogTitle>
@@ -175,8 +175,8 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="sabsms-view-name">Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sabsms-view-name">Name</Label>
+            <Input
               id="sabsms-view-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -185,15 +185,15 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setSaveOpen(false)}>
+            <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={saveCurrent} disabled={!name.trim()}>
+            </Button>
+            <Button onClick={saveCurrent} disabled={!name.trim()}>
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }

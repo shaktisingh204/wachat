@@ -218,7 +218,7 @@ export function EWayBillsClient({ bills }: Props) {
         <div className="flex flex-col gap-3">
             {/* Filter row */}
             <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2">
-                <ZoruInput
+                <Input
                     placeholder="Search EWB no, GSTIN, vehicle…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -257,7 +257,7 @@ export function EWayBillsClient({ bills }: Props) {
                     />
                 </label>
                 {(search || statusFilter !== 'all' || dateFrom || dateTo) && (
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
@@ -269,7 +269,7 @@ export function EWayBillsClient({ bills }: Props) {
                     >
                         <X className="h-3.5 w-3.5" />
                         Clear
-                    </ZoruButton>
+                    </Button>
                 )}
             </div>
 
@@ -277,53 +277,53 @@ export function EWayBillsClient({ bills }: Props) {
             {selectionCount > 0 && (
                 <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-[13px]">
                     <span className="font-medium">{selectionCount} selected</span>
-                    <ZoruButton
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={handleCsv}
                     >
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={handleXlsx}
                     >
                         <Download className="h-3.5 w-3.5" />
                         Export XLSX
-                    </ZoruButton>
+                    </Button>
                     {cancelableSelected.length > 0 && (
-                        <ZoruButton
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={openBulkCancel}
                         >
                             Cancel {cancelableSelected.length} active
-                        </ZoruButton>
+                        </Button>
                     )}
-                    <ZoruButton
+                    <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setSelected(new Set())}
                     >
                         <X className="h-3.5 w-3.5" />
                         Clear selection
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
             {/* Export all (no selection) */}
             {selectionCount === 0 && filtered.length > 0 && (
                 <div className="flex items-center justify-end gap-2">
-                    <ZoruButton size="sm" variant="outline" onClick={handleCsv}>
+                    <Button size="sm" variant="outline" onClick={handleCsv}>
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" onClick={handleXlsx}>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleXlsx}>
                         <Download className="h-3.5 w-3.5" />
                         Export XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
@@ -340,7 +340,7 @@ export function EWayBillsClient({ bills }: Props) {
                         <thead>
                             <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
                                 <th className="px-2 py-2">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                         onCheckedChange={toggleAll}
                                         aria-label="Select all"
@@ -362,7 +362,7 @@ export function EWayBillsClient({ bills }: Props) {
                                     className={`border-b border-border/60 ${selected.has(b._id) ? 'bg-muted/30' : ''}`}
                                 >
                                     <td className="px-2 py-2">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={selected.has(b._id)}
                                             onCheckedChange={() => toggleRow(b._id)}
                                             aria-label={`Select ${b.ewbNo}`}
@@ -386,9 +386,9 @@ export function EWayBillsClient({ bills }: Props) {
                                     </td>
                                     <td className="px-2 py-2">{fmtDate(b.validUpto)}</td>
                                     <td className="px-2 py-2">
-                                        <ZoruBadge variant={statusVariant(b.status)}>
+                                        <Badge variant={statusVariant(b.status)}>
                                             {b.status}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </td>
                                     <td className="px-2 py-2">
                                         <EWayBillRowActions id={b._id} status={b.status} />
@@ -415,7 +415,7 @@ export function EWayBillsClient({ bills }: Props) {
                             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                                 Cancellation reason (required)
                             </span>
-                            <ZoruInput
+                            <Input
                                 value={cancelReason}
                                 onChange={(e) => setCancelReason(e.target.value)}
                                 placeholder="e.g. Incorrect consignment details"
@@ -426,14 +426,14 @@ export function EWayBillsClient({ bills }: Props) {
                             <p className="mt-2 text-[12.5px] text-destructive">{cancelError}</p>
                         )}
                         <div className="mt-4 flex justify-end gap-2">
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 onClick={() => setConfirmOpen(false)}
                                 disabled={cancelling}
                             >
                                 Back
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 onClick={executeBulkCancel}
                                 disabled={cancelling || !cancelReason.trim()}
                             >
@@ -441,7 +441,7 @@ export function EWayBillsClient({ bills }: Props) {
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : null}
                                 Confirm cancel
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -52,10 +52,10 @@ const saveInitialState: any = { message: null, error: null };
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {isEditing ? 'Save Slab' : 'Add Slab'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -76,12 +76,12 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
     }, [state, toast, onSave]);
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
                 {slab ? (
-                    <ZoruButton variant="ghost" size="icon"><Edit className="h-4 w-4" /></ZoruButton>
+                    <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
                 ) : (
-                    <ZoruButton><Plus className="h-4 w-4" />Add New Slab</ZoruButton>
+                    <Button><Plus className="h-4 w-4" />Add New Slab</Button>
                 )}
             </ZoruDialogTrigger>
             <ZoruDialogContent>
@@ -92,41 +92,41 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <ZoruLabel>State <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-                            <ZoruSelect name="state" required defaultValue={slab?.state}>
+                            <Label>State <span className="text-zoru-danger-ink">*</span></Label>
+                            <Select name="state" required defaultValue={slab?.state}>
                                 <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                                     <ZoruSelectValue placeholder="Select a state..." />
                                 </ZoruSelectTrigger>
                                 <ZoruSelectContent className="max-h-60">
                                     {indianStates.map(s => <ZoruSelectItem key={s} value={s}>{s}</ZoruSelectItem>)}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Min. Monthly Salary (₹) <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-                                <ZoruInput type="number" name="minSalary" defaultValue={slab?.minSalary} required
+                                <Label>Min. Monthly Salary (₹) <span className="text-zoru-danger-ink">*</span></Label>
+                                <Input type="number" name="minSalary" defaultValue={slab?.minSalary} required
                                     className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Max. Monthly Salary (₹) <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-                                <ZoruInput type="number" name="maxSalary" defaultValue={slab?.maxSalary} required
+                                <Label>Max. Monthly Salary (₹) <span className="text-zoru-danger-ink">*</span></Label>
+                                <Input type="number" name="maxSalary" defaultValue={slab?.maxSalary} required
                                     className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Monthly Tax Amount (₹) <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-                            <ZoruInput type="number" name="taxAmount" defaultValue={slab?.taxAmount} required
+                            <Label>Monthly Tax Amount (₹) <span className="text-zoru-danger-ink">*</span></Label>
+                            <Input type="number" name="taxAmount" defaultValue={slab?.taxAmount} required
                                 className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
                         <SubmitButton isEditing={!!slab} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -149,9 +149,9 @@ function DeleteSlabButton({ slabId, onDeleted }: { slabId: string; onDeleted: ()
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="ghost" size="icon" className="text-zoru-danger-ink hover:text-zoru-danger-ink">
+                <Button variant="ghost" size="icon" className="text-zoru-danger-ink hover:text-zoru-danger-ink">
                     <Trash2 className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -197,27 +197,27 @@ export default function ProfessionalTaxPage() {
         >
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total PT Liability</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalPT.toLocaleString('en-IN')}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Current month across all employees</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">States Configured</p>
                     <div className="mt-2 text-2xl text-zoru-ink">{statesCount}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{slabs.length} total slabs defined</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
+                </Card>
+                <Card className="p-6">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Employees Applicable</p>
                     <div className="mt-2 text-2xl text-zoru-ink">{report.length}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">with matching state slab</p>
-                </ZoruCard>
+                </Card>
             </div>
 
             <div className="grid items-start gap-6 lg:grid-cols-3">
                 {/* PT Report table — 2 columns wide */}
                 <div className="lg:col-span-2">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <div className="mb-4">
                             <h2 className="text-[16px] text-zoru-ink">Professional Tax Report</h2>
                             <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -250,7 +250,7 @@ export default function ProfessionalTaxPage() {
                                                     <div className="text-[11.5px] text-zoru-ink-muted">{item.designation ?? '—'}</div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <ZoruBadge variant="secondary">{item.state}</ZoruBadge>
+                                                    <Badge variant="secondary">{item.state}</Badge>
                                                 </td>
                                                 <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.grossSalary)}
@@ -283,12 +283,12 @@ export default function ProfessionalTaxPage() {
                                 )}
                             </table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
 
                 {/* Slabs panel */}
                 <div className="lg:col-span-1">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <div>
                                 <h2 className="text-[16px] text-zoru-ink">Tax Slabs</h2>
@@ -307,7 +307,7 @@ export default function ProfessionalTaxPage() {
                                     <div key={slab._id.toString()} className="flex items-start justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2">
-                                                <ZoruBadge variant="secondary">{slab.state}</ZoruBadge>
+                                                <Badge variant="secondary">{slab.state}</Badge>
                                             </div>
                                             <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
                                                 ₹{slab.minSalary.toLocaleString('en-IN')} – ₹{slab.maxSalary.toLocaleString('en-IN')}
@@ -328,7 +328,7 @@ export default function ProfessionalTaxPage() {
                                 No slabs configured. Click &ldquo;Add New Slab&rdquo; to start.
                             </div>
                         )}
-                    </ZoruCard>
+                    </Card>
                 </div>
             </div>
         </EntityListShell>

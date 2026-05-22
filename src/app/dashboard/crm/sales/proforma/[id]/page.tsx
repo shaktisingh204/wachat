@@ -86,16 +86,16 @@ export default async function ProformaDetailPage({
             status={{ label: status, tone }}
             back={{ href: '/dashboard/crm/sales/proforma', label: 'Back to proforma' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`/dashboard/crm/sales/proforma/${id}/edit`}>
                         <Pencil className="h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
             audit={<EntityAuditTimeline entityKind="proforma" entityId={id} />}
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Proforma details
                 </h2>
@@ -173,7 +173,7 @@ export default async function ProformaDetailPage({
                         </div>
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

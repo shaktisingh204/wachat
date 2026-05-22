@@ -45,7 +45,7 @@ import {
  *     this component never renders a modal itself.
  *
  * Visual: matches the zoru-ui input frame so pickers sit naturally
- * alongside `<ZoruInput>`/`<ZoruSelect>` in CRM forms.
+ * alongside `<Input>`/`<Select>` in CRM forms.
  */
 
 import * as React from 'react';
@@ -254,14 +254,14 @@ function ChipRow({
   const { primary, secondary, tertiary, avatarUrl } = item.chip;
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <ZoruAvatar className="h-6 w-6 shrink-0">
+      <Avatar className="h-6 w-6 shrink-0">
         {avatarUrl ? (
           <ZoruAvatarImage src={avatarUrl} alt={primary} />
         ) : null}
         <ZoruAvatarFallback className="bg-zoru-surface-2 text-[10px] text-zoru-ink-muted">
           {initials(primary) || '·'}
         </ZoruAvatarFallback>
-      </ZoruAvatar>
+      </Avatar>
       <div className="flex min-w-0 flex-col leading-tight">
         <span className="truncate text-sm text-zoru-ink">{primary}</span>
         {showMeta && (secondary || tertiary) ? (
@@ -674,7 +674,7 @@ export function EntityPicker({
         </label>
       ) : null}
 
-      <ZoruPopover open={open} onOpenChange={(o) => !disabled && setOpen(o)}>
+      <Popover open={open} onOpenChange={(o) => !disabled && setOpen(o)}>
         <ZoruPopoverTrigger asChild>
           <button
             ref={triggerRef}
@@ -900,7 +900,7 @@ export function EntityPicker({
             </ZoruCommandList>
           </ZoruCommand>
         </ZoruPopoverContent>
-      </ZoruPopover>
+      </Popover>
 
       <QuickCreateDialog
         open={quickCreateOpen}

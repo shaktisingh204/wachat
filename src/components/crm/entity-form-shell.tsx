@@ -11,7 +11,7 @@ import { useFormStatus } from 'react-dom';
  *
  * - Wraps a single `<form action={action}>` around all sections so server
  *   actions Just Work; no client-side form library required.
- * - Each section renders as a `<ZoruCard>` with header + body.
+ * - Each section renders as a `<Card>` with header + body.
  * - Sticky bottom bar renders cancel (when `cancelHref`) + submit. The
  *   submit button reflects pending state via `useFormStatus` from
  *   react-dom and swaps in a spinning `<LoaderCircle>` icon.
@@ -88,7 +88,7 @@ interface SubmitButtonProps {
 function SubmitButton({ label }: SubmitButtonProps): React.JSX.Element {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <>
                     <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -97,7 +97,7 @@ function SubmitButton({ label }: SubmitButtonProps): React.JSX.Element {
             ) : (
                 <span>{label}</span>
             )}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -146,7 +146,7 @@ export function EntityFormShell({
             {/* Sections */}
             <div className="flex flex-col gap-4">
                 {sections.map((section) => (
-                    <ZoruCard key={section.id} className="p-0">
+                    <Card key={section.id} className="p-0">
                         <ZoruCardHeader>
                             <ZoruCardTitle>{section.title}</ZoruCardTitle>
                             {section.description ? (
@@ -154,7 +154,7 @@ export function EntityFormShell({
                             ) : null}
                         </ZoruCardHeader>
                         <ZoruCardContent>{section.children}</ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 ))}
             </div>
 
@@ -180,9 +180,9 @@ export function EntityFormShell({
             <div className="sticky bottom-0 bg-zoru-bg border-t border-zoru-line py-3">
                 <div className="flex items-center justify-end gap-2">
                     {cancelHref ? (
-                        <ZoruButton asChild variant="ghost">
+                        <Button asChild variant="ghost">
                             <Link href={cancelHref}>Cancel</Link>
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     <SubmitButton label={submitLabel} />
                 </div>

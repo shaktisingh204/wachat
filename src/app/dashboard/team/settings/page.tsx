@@ -89,7 +89,7 @@ export default function TeamSettingsPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
@@ -99,23 +99,23 @@ export default function TeamSettingsPage() {
                         <ZoruBreadcrumbPage>Workspace settings</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Workspace settings</ZoruPageTitle>
                     <ZoruPageDescription>
                         Defaults for invites, agent routing, and business hours.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-                <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
+                <Button size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {saving ? 'Saving…' : 'Save settings'}
-                </ZoruButton>
-            </ZoruPageHeader>
+                </Button>
+            </PageHeader>
 
             {/* Invitations */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     icon={<Mail className="h-4 w-4" />}
                     title="Invitations"
@@ -123,7 +123,7 @@ export default function TeamSettingsPage() {
                 />
                 <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Default role for new members">
-                        <ZoruSelect
+                        <Select
                             value={settings.defaultRole}
                             onValueChange={(v) => update('defaultRole', v as Settings['defaultRole'])}
                         >
@@ -134,10 +134,10 @@ export default function TeamSettingsPage() {
                                 <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
                                 <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <Field label="Invitation TTL (days)">
-                        <ZoruInput
+                        <Input
                             type="number"
                             min={1}
                             max={30}
@@ -150,30 +150,30 @@ export default function TeamSettingsPage() {
                 </div>
                 <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
                     <div>
-                        <ZoruLabel htmlFor="approval" className="text-[13px] text-zoru-ink">
+                        <Label htmlFor="approval" className="text-[13px] text-zoru-ink">
                             Require admin approval
-                        </ZoruLabel>
+                        </Label>
                         <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                             Members can invite, but admins must approve before the email is sent.
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         id="approval"
                         checked={settings.requireInviteApproval}
                         onCheckedChange={(v) => update('requireInviteApproval', v)}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Agent routing */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     icon={<ShieldCheck className="h-4 w-4" />}
                     title="Agent defaults"
                     description="Signature and routing behaviour for chat + inbox modules."
                 />
                 <Field label="Signature appended to agent messages">
-                    <ZoruInput
+                    <Input
                         placeholder="— {agentName}, Support"
                         value={settings.agentSignature}
                         onChange={(e) => update('agentSignature', e.target.value)}
@@ -181,23 +181,23 @@ export default function TeamSettingsPage() {
                 </Field>
                 <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
                     <div>
-                        <ZoruLabel htmlFor="round-robin" className="text-[13px] text-zoru-ink">
+                        <Label htmlFor="round-robin" className="text-[13px] text-zoru-ink">
                             Round-robin new conversations
-                        </ZoruLabel>
+                        </Label>
                         <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                             Distribute incoming chats evenly among online agents.
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         id="round-robin"
                         checked={settings.autoAssignRound}
                         onCheckedChange={(v) => update('autoAssignRound', v)}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Business hours */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionHeader
                     icon={<Clock className="h-4 w-4" />}
                     title="Business hours"
@@ -205,14 +205,14 @@ export default function TeamSettingsPage() {
                 />
                 <div className="mb-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
                     <div>
-                        <ZoruLabel htmlFor="bh-enabled" className="text-[13px] text-zoru-ink">
+                        <Label htmlFor="bh-enabled" className="text-[13px] text-zoru-ink">
                             Enable business hours
-                        </ZoruLabel>
+                        </Label>
                         <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                             When off, agents are treated as always available.
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         id="bh-enabled"
                         checked={settings.businessHoursEnabled}
                         onCheckedChange={(v) => update('businessHoursEnabled', v)}
@@ -220,7 +220,7 @@ export default function TeamSettingsPage() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
                     <Field label="Opens">
-                        <ZoruInput
+                        <Input
                             type="time"
                             value={settings.businessHoursOpen}
                             onChange={(e) => update('businessHoursOpen', e.target.value)}
@@ -228,7 +228,7 @@ export default function TeamSettingsPage() {
                         />
                     </Field>
                     <Field label="Closes">
-                        <ZoruInput
+                        <Input
                             type="time"
                             value={settings.businessHoursClose}
                             onChange={(e) => update('businessHoursClose', e.target.value)}
@@ -236,7 +236,7 @@ export default function TeamSettingsPage() {
                         />
                     </Field>
                     <Field label="Timezone">
-                        <ZoruSelect
+                        <Select
                             value={settings.timezone}
                             onValueChange={(v) => update('timezone', v)}
                             disabled={!settings.businessHoursEnabled}
@@ -251,10 +251,10 @@ export default function TeamSettingsPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -284,7 +284,7 @@ function SectionHeader({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <ZoruLabel className="mb-1.5 block text-[12.5px] text-zoru-ink">{label}</ZoruLabel>
+            <Label className="mb-1.5 block text-[12.5px] text-zoru-ink">{label}</Label>
             {children}
         </div>
     );

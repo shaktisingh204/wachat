@@ -83,7 +83,7 @@ export default function ChatRatingsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -97,7 +97,7 @@ export default function ChatRatingsPage() {
             <ZoruBreadcrumbPage>Chat Ratings</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -116,7 +116,7 @@ export default function ChatRatingsPage() {
 
       {/* Summary stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <ZoruCard className="flex items-center gap-4 p-5">
+        <Card className="flex items-center gap-4 p-5">
           <span className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
             <Star className="h-6 w-6 fill-zoru-ink text-zoru-ink" strokeWidth={1.75} />
           </span>
@@ -127,24 +127,24 @@ export default function ChatRatingsPage() {
               {summary.avg ? <Stars count={Math.round(summary.avg)} /> : null}
             </div>
           </div>
-        </ZoruCard>
-        <ZoruCard className="flex items-center gap-4 p-5">
+        </Card>
+        <Card className="flex items-center gap-4 p-5">
           <div>
             <div className="text-[12px] text-zoru-ink-muted">Total Ratings</div>
             <div className="text-[26px] text-zoru-ink leading-tight">{total}</div>
           </div>
-        </ZoruCard>
-        <ZoruCard className="flex flex-col gap-1 p-5">
+        </Card>
+        <Card className="flex flex-col gap-1 p-5">
           {dist.map((d) => (
             <div key={d.stars} className="text-[12px] text-zoru-ink-muted">
               {d.stars}-star: <span className="text-zoru-ink">{d.count}</span>
             </div>
           ))}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Distribution chart */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h2 className="mb-4 text-[15px] text-zoru-ink">Rating Distribution</h2>
         <div className="space-y-2.5">
           {dist.map((d) => (
@@ -164,10 +164,10 @@ export default function ChatRatingsPage() {
             </div>
           ))}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Recent ratings */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h2 className="mb-4 text-[15px] text-zoru-ink">Recent Ratings</h2>
         {ratings.length === 0 && !isPending && (
           <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
@@ -195,7 +195,7 @@ export default function ChatRatingsPage() {
             </div>
           ))}
         </div>
-      </ZoruCard>
+      </Card>
       <div className="h-6" />
     </div>
   );

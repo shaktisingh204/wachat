@@ -63,12 +63,12 @@ export function TaskDetailActions({
 }: TaskDetailActionsProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/sales-crm/tasks/${taskId}/edit`}>
                     <Edit className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={onComplete}
@@ -80,17 +80,17 @@ export function TaskDetailActions({
                     <CheckCircle2 className="h-3.5 w-3.5" />
                 )}
                 Complete
-            </ZoruButton>
-            <ZoruDropdownMenu>
+            </Button>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton variant="outline" size="sm" disabled={snoozing}>
+                    <Button variant="outline" size="sm" disabled={snoozing}>
                         {snoozing ? (
                             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                         ) : (
                             <Clock className="h-3.5 w-3.5" />
                         )}
                         Snooze <ChevronDown className="h-3 w-3" />
-                    </ZoruButton>
+                    </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuLabel>Push the due date forward</ZoruDropdownMenuLabel>
@@ -113,28 +113,28 @@ export function TaskDetailActions({
                         </Link>
                     </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
-            <ZoruButton variant="outline" size="sm" onClick={onReassign}>
+            </DropdownMenu>
+            <Button variant="outline" size="sm" onClick={onReassign}>
                 <UserPlus className="h-3.5 w-3.5" /> Reassign
-            </ZoruButton>
+            </Button>
             {assigneeEmail ? (
-                <ZoruButton asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm">
                     <a href={`mailto:${assigneeEmail}`}>
                         <Mail className="h-3.5 w-3.5" /> Email assignee
                     </a>
-                </ZoruButton>
+                </Button>
             ) : null}
-            <ZoruButton variant="outline" size="sm" onClick={onArchive}>
+            <Button variant="outline" size="sm" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> {archived ? 'Restore' : 'Archive'}
-            </ZoruButton>
-            <ZoruButton asChild variant="outline" size="sm">
+            </Button>
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/sales-crm/tasks/${taskId}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="destructive" size="sm" onClick={onDelete}>
+            </Button>
+            <Button variant="destructive" size="sm" onClick={onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

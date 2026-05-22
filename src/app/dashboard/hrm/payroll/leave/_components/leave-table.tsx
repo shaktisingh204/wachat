@@ -65,11 +65,11 @@ export function LeaveTable({
 
   return (
     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">
             <ZoruTableHead className="w-10">
-              <ZoruCheckbox
+              <Checkbox
                 aria-label="Select all rows on this page"
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
@@ -91,7 +91,7 @@ export function LeaveTable({
           {rows.map((row) => (
             <ZoruTableRow key={row._id} className="border-zoru-line">
               <ZoruTableCell>
-                <ZoruCheckbox
+                <Checkbox
                   aria-label={`Select leave for ${row.employeeName}`}
                   checked={selected.has(row._id)}
                   onCheckedChange={() => onToggleOne(row._id)}
@@ -163,28 +163,28 @@ export function LeaveTable({
               </ZoruTableCell>
               <ZoruTableCell>
                 <div className="flex justify-end gap-1">
-                  <ZoruButton variant="ghost" size="icon" asChild>
+                  <Button variant="ghost" size="icon" asChild>
                     <Link
                       href={`/dashboard/hrm/payroll/leave/${row._id}`}
                       aria-label="View"
                     >
                       <Eye className="h-3.5 w-3.5" />
                     </Link>
-                  </ZoruButton>
-                  <ZoruButton variant="ghost" size="icon" asChild>
+                  </Button>
+                  <Button variant="ghost" size="icon" asChild>
                     <Link
                       href={`/dashboard/hrm/payroll/leave/${row._id}/edit`}
                       aria-label="Edit"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Link>
-                  </ZoruButton>
+                  </Button>
                 </div>
               </ZoruTableCell>
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }

@@ -124,9 +124,9 @@ export default function TicketCustomFormsPage() {
           key: 'is_required',
           label: 'Required',
           render: (r) => (
-            <ZoruBadge variant={r.is_required ? 'warning' : 'ghost'}>
+            <Badge variant={r.is_required ? 'warning' : 'ghost'}>
               {r.is_required ? 'Yes' : 'No'}
-            </ZoruBadge>
+            </Badge>
           ),
         },
       ]}

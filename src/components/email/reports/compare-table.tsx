@@ -30,7 +30,7 @@ function pct(rate: number | undefined): string {
 export function CompareTable({ rows }: CompareTableProps) {
   if (rows.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Scale />}
         title="Nothing to compare"
         description="Select two or more campaigns to see side-by-side metrics."
@@ -39,8 +39,8 @@ export function CompareTable({ rows }: CompareTableProps) {
   }
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <ZoruTable>
+    <Card className="overflow-hidden p-0">
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Campaign</ZoruTableHead>
@@ -67,7 +67,7 @@ export function CompareTable({ rows }: CompareTableProps) {
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
-      </ZoruTable>
-    </ZoruCard>
+      </Table>
+    </Card>
   );
 }

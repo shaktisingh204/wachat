@@ -66,7 +66,7 @@ export default async function LogsPage({
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
@@ -76,9 +76,9 @@ export default async function LogsPage({
             <ZoruBreadcrumbPage>Request log</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Request log</ZoruPageTitle>
           <ZoruPageDescription>
@@ -88,45 +88,45 @@ export default async function LogsPage({
             <code className="font-mono">?minStatus=400</code>.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="pt-4">
           <form method="get" className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
-            <ZoruInput
+            <Input
               name="path"
               defaultValue={params.path ?? ''}
               placeholder="path (e.g. /api/v1/me)"
               className="font-mono"
             />
-            <ZoruInput
+            <Input
               name="keyId"
               defaultValue={params.keyId ?? ''}
               placeholder="key id"
               className="font-mono"
             />
-            <ZoruInput
+            <Input
               name="minStatus"
               type="number"
               defaultValue={params.minStatus ?? ''}
               placeholder="min status (e.g. 400)"
             />
-            <ZoruButton type="submit">
+            <Button type="submit">
               <Filter className="h-4 w-4 mr-1" /> Filter
-            </ZoruButton>
+            </Button>
           </form>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {!res.success ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>{res.error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : (
         <>
-          <ZoruCard>
-            <ZoruTable>
+          <Card>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>When</ZoruTableHead>
@@ -172,8 +172,8 @@ export default async function LogsPage({
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
-          </ZoruCard>
+            </Table>
+          </Card>
 
           {nextUrl ? (
             <div className="flex justify-end">

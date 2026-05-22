@@ -111,13 +111,13 @@ const CONSENT_FACET = {
 function formatConsent(c: ContactRow["consent"]) {
   switch (c) {
     case "double":
-      return <ZoruBadge variant="default">Double</ZoruBadge>;
+      return <Badge variant="default">Double</Badge>;
     case "single":
-      return <ZoruBadge variant="secondary">Single</ZoruBadge>;
+      return <Badge variant="secondary">Single</Badge>;
     case "opt_out":
-      return <ZoruBadge variant="destructive">Opted out</ZoruBadge>;
+      return <Badge variant="destructive">Opted out</Badge>;
     default:
-      return <ZoruBadge variant="outline">None</ZoruBadge>;
+      return <Badge variant="outline">None</Badge>;
   }
 }
 
@@ -403,9 +403,9 @@ export function ContactsTable({
       header: "Source",
       width: "90px",
       render: (r) => (
-        <ZoruBadge variant="outline" className="text-[10px] uppercase">
+        <Badge variant="outline" className="text-[10px] uppercase">
           {r.source}
-        </ZoruBadge>
+        </Badge>
       ),
     },
     {
@@ -439,9 +439,9 @@ export function ContactsTable({
       render: (r) => (
         <div className="flex flex-wrap gap-1">
           {r.tags.slice(0, 3).map((t) => (
-            <ZoruBadge key={t} variant="secondary" className="text-[10px]">
+            <Badge key={t} variant="secondary" className="text-[10px]">
               {t}
-            </ZoruBadge>
+            </Badge>
           ))}
           {r.tags.length > 3 && (
             <span className="text-xs text-slate-400">
@@ -476,14 +476,14 @@ export function ContactsTable({
       render: (r) => (
         <div className="flex gap-1">
           {r.isVoip && (
-            <ZoruBadge variant="outline" className="text-[10px]">
+            <Badge variant="outline" className="text-[10px]">
               VoIP
-            </ZoruBadge>
+            </Badge>
           )}
           {r.isDisposable && (
-            <ZoruBadge variant="destructive" className="text-[10px]">
+            <Badge variant="destructive" className="text-[10px]">
               Disp.
-            </ZoruBadge>
+            </Badge>
           )}
         </div>
       ),
@@ -541,14 +541,14 @@ export function ContactsTable({
                 rows.map((r) => JSON.stringify(r)).join("\n")
               }
             />
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setImportOpen(true)}
               disabled={busy !== null}
             >
               Import CSV
-            </ZoruButton>
+            </Button>
           </div>
         }
       />
@@ -652,7 +652,7 @@ export function ContactsTable({
       />
 
       {/* Tag editor */}
-      <ZoruDialog
+      <Dialog
         open={tagEditor.open}
         onOpenChange={(o) => setTagEditor((prev) => ({ ...prev, open: o }))}
       >
@@ -663,7 +663,7 @@ export function ContactsTable({
               Comma-separated. Maximum 63 characters per tag.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruInput
+          <Input
             value={tagEditor.draft}
             onChange={(e) =>
               setTagEditor((prev) => ({ ...prev, draft: e.target.value }))
@@ -671,21 +671,21 @@ export function ContactsTable({
             placeholder="vip, india-tier-1"
           />
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() =>
                 setTagEditor({ open: false, draft: "" })
               }
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={commitTagEditor}>Save</ZoruButton>
+            </Button>
+            <Button onClick={commitTagEditor}>Save</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Phone editor */}
-      <ZoruDialog
+      <Dialog
         open={phoneEditor.open}
         onOpenChange={(o) =>
           setPhoneEditor((prev) => ({ ...prev, open: o }))
@@ -698,8 +698,8 @@ export function ContactsTable({
               Phones must be E.164 (start with `+`, country code, then number).
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruLabel htmlFor="phone-input">Phone</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="phone-input">Phone</Label>
+          <Input
             id="phone-input"
             value={phoneEditor.draft}
             onChange={(e) =>
@@ -708,16 +708,16 @@ export function ContactsTable({
             placeholder="+14155551212"
           />
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setPhoneEditor({ open: false, draft: "" })}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={commitPhoneEditor}>Save</ZoruButton>
+            </Button>
+            <Button onClick={commitPhoneEditor}>Save</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Audit drawer */}
       <SabsmsDetailDrawer

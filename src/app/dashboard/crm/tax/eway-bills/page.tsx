@@ -35,12 +35,12 @@ export default async function EWayBillsPage() {
             title="E-way bills"
             subtitle="Generate, cancel, extend and update e-way bills for goods movement."
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href="/dashboard/crm/tax/eway-bills/new">
                         <Plus className="h-4 w-4" />
                         Generate e-way bill
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             {/* KPI strip */}
@@ -51,14 +51,14 @@ export default async function EWayBillsPage() {
             </div>
 
             {/* Table card — delegated to client for filter + selection + export */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>All e-way bills</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <EWayBillsClient bills={bills} />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }
@@ -73,7 +73,7 @@ function Kpi({
     variant: 'success' | 'warning' | 'danger';
 }) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="flex items-center justify-between py-4">
                 <div className="flex flex-col gap-1">
                     <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
@@ -81,8 +81,8 @@ function Kpi({
                     </span>
                     <span className="text-2xl font-semibold">{value}</span>
                 </div>
-                <ZoruBadge variant={variant}>{label}</ZoruBadge>
+                <Badge variant={variant}>{label}</Badge>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

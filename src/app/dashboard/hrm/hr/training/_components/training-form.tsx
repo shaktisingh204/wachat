@@ -80,14 +80,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create training'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -160,7 +160,7 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -176,8 +176,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -189,8 +189,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                 {/* Row 2: Type + Delivery mode */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="trainingType-trigger">Type</ZoruLabel>
-                        <ZoruSelect value={trainingType} onValueChange={setTrainingType}>
+                        <Label htmlFor="trainingType-trigger">Type</Label>
+                        <Select value={trainingType} onValueChange={setTrainingType}>
                             <ZoruSelectTrigger id="trainingType-trigger">
                                 <ZoruSelectValue placeholder="Pick a type…" />
                             </ZoruSelectTrigger>
@@ -201,11 +201,11 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="deliveryMode-trigger">Delivery</ZoruLabel>
-                        <ZoruSelect value={deliveryMode} onValueChange={setDeliveryMode}>
+                        <Label htmlFor="deliveryMode-trigger">Delivery</Label>
+                        <Select value={deliveryMode} onValueChange={setDeliveryMode}>
                             <ZoruSelectTrigger id="deliveryMode-trigger">
                                 <ZoruSelectValue placeholder="Pick a mode…" />
                             </ZoruSelectTrigger>
@@ -216,14 +216,14 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Row 3: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={4}
@@ -235,7 +235,7 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                 {/* Row 4: Trainer (entity picker dual-writes trainerName) + Provider */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Trainer</ZoruLabel>
+                        <Label>Trainer</Label>
                         <EntityFormField
                             entity="employee"
                             name="trainerId"
@@ -247,8 +247,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="provider">Provider</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="provider">Provider</Label>
+                        <Input
                             id="provider"
                             name="provider"
                             placeholder="e.g. Coursera, Internal"
@@ -260,8 +260,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                 {/* Row 5: Dates + Duration */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startDate">Start date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startDate">Start date</Label>
+                        <Input
                             id="startDate"
                             name="startDate"
                             type="date"
@@ -269,8 +269,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="endDate">End date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endDate">End date</Label>
+                        <Input
                             id="endDate"
                             name="endDate"
                             type="date"
@@ -278,8 +278,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="durationHours">Duration (hours)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="durationHours">Duration (hours)</Label>
+                        <Input
                             id="durationHours"
                             name="durationHours"
                             type="number"
@@ -293,8 +293,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                 {/* Row 6: Location + Max participants */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="location">Location</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="location">Location</Label>
+                        <Input
                             id="location"
                             name="location"
                             placeholder="Room / city / virtual link"
@@ -302,8 +302,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="maxParticipants">Max participants</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="maxParticipants">Max participants</Label>
+                        <Input
                             id="maxParticipants"
                             name="maxParticipants"
                             type="number"
@@ -316,8 +316,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                 {/* Row 7: Cost + Currency */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="costPerPerson">Cost per person</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="costPerPerson">Cost per person</Label>
+                        <Input
                             id="costPerPerson"
                             name="costPerPerson"
                             type="number"
@@ -327,7 +327,7 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -340,7 +340,7 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
 
                 {/* Row 8: Materials (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Materials</ZoruLabel>
+                    <Label>Materials</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -360,14 +360,14 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                                 >
                                     {materialsName || materialsUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearMaterials}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -380,8 +380,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                 {/* Row 9: Tags + Department ids */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
                             id="tags"
                             name="tags"
                             placeholder="comma, separated, tags"
@@ -389,7 +389,7 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Departments</ZoruLabel>
+                        <Label>Departments</Label>
                         <EntityMultiFormField
                             entity="department"
                             name="departmentIds"
@@ -407,27 +407,27 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                 {/* Row 10: Flags + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isMandatory"
                             name="isMandatory"
                             defaultChecked={!!initialData?.isMandatory}
                         />
-                        <ZoruLabel htmlFor="isMandatory" className="cursor-pointer">
+                        <Label htmlFor="isMandatory" className="cursor-pointer">
                             Mandatory
-                        </ZoruLabel>
+                        </Label>
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="certificationProvided"
                             name="certificationProvided"
                             defaultChecked={!!initialData?.certificationProvided}
                         />
-                        <ZoruLabel htmlFor="certificationProvided" className="cursor-pointer">
+                        <Label htmlFor="certificationProvided" className="cursor-pointer">
                             Certification provided
-                        </ZoruLabel>
+                        </Label>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         {/* TODO 1E.sweep: trainingStatus catalogue uses 'planned' slug; training crate uses 'planned' too — verify before locking inline-create off. */}
                         <EnumFormField
                             enumName="trainingStatus"
@@ -445,8 +445,8 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
 
                 {/* Row 11: Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -457,15 +457,15 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to training
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

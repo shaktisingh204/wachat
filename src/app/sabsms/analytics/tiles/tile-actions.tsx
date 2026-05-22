@@ -67,16 +67,16 @@ export function TileActions({
 
   return (
     <>
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon"
             className="h-6 w-6"
             aria-label={`More actions for ${metric}`}
           >
             <MoreHorizontal className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </ZoruDropdownMenuTrigger>
         <ZoruDropdownMenuContent align="end">
           <ZoruDropdownMenuLabel>{metric}</ZoruDropdownMenuLabel>
@@ -88,7 +88,7 @@ export function TileActions({
             Export tile as PDF
           </ZoruDropdownMenuItem>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
       <SabsmsDetailDrawer
         open={open}

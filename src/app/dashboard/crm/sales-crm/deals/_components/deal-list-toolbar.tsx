@@ -68,23 +68,23 @@ function fmtMoney(value?: number | null, currency = 'INR'): string {
 export function DealKpiStrip({ kpi, defaultCurrency, winRate, onWinRateClick }: KpiStripProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-      <ZoruStatCard
+      <StatCard
         label="Open deals"
         value={kpi.openCount.toLocaleString()}
         period="currently active"
         icon={<Trophy />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Open pipeline"
         value={fmtMoney(kpi.openValue, defaultCurrency)}
         period="sum of open"
       />
-      <ZoruStatCard
+      <StatCard
         label="Won this month"
         value={fmtMoney(kpi.wonThisMonth, defaultCurrency)}
         period="closed-won"
       />
-      <ZoruStatCard
+      <StatCard
         label="Lost this month"
         value={fmtMoney(kpi.lostThisMonth, defaultCurrency)}
         period="closed-lost"
@@ -96,13 +96,13 @@ export function DealKpiStrip({ kpi, defaultCurrency, winRate, onWinRateClick }: 
         className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
         aria-label="Filter to won deals"
       >
-        <ZoruStatCard
+        <StatCard
           label="Win rate"
           value={winRate != null ? `${winRate}%` : '—'}
           period="won / (won + lost)"
         />
       </button>
-      <ZoruStatCard
+      <StatCard
         label="Avg cycle"
         value={kpi.avgCycleDays > 0 ? `${kpi.avgCycleDays.toFixed(1)} d` : '—'}
         period="created → close"
@@ -138,7 +138,7 @@ export function DealListToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
       <div className="relative w-full max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search title or client…"
@@ -149,7 +149,7 @@ export function DealListToolbar({
 
       <div className="flex items-center gap-1.5">
         {/* Presets */}
-        <ZoruSelect value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
+        <Select value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
           <ZoruSelectTrigger className="h-9 w-[180px]">
             <ZoruSelectValue placeholder="Saved view" />
           </ZoruSelectTrigger>
@@ -160,10 +160,10 @@ export function DealListToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         {/* Density */}
-        <ZoruSelect value={density} onValueChange={(v) => onDensityChange(v as Density)}>
+        <Select value={density} onValueChange={(v) => onDensityChange(v as Density)}>
           <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -172,11 +172,11 @@ export function DealListToolbar({
             <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
             <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         {/* View switcher */}
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-          <ZoruButton
+          <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}
             size="sm"
@@ -185,8 +185,8 @@ export function DealListToolbar({
             aria-label="Table view"
           >
             <TableIcon className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant={view === 'kanban' ? 'default' : 'ghost'}
             size="sm"
@@ -195,8 +195,8 @@ export function DealListToolbar({
             aria-label="Kanban view"
           >
             <Columns3 className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant={view === 'calendar' ? 'default' : 'ghost'}
             size="sm"
@@ -205,24 +205,24 @@ export function DealListToolbar({
             aria-label="Calendar view"
           >
             <CalendarRange className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+        <Button variant="outline" size="sm" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export
-        </ZoruButton>
+        </Button>
 
-        <ZoruButton variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/crm/sales-crm/deals/duplicates">
             <Copy className="h-3.5 w-3.5" /> Find duplicates
           </Link>
-        </ZoruButton>
+        </Button>
 
-        <ZoruButton size="sm" asChild>
+        <Button size="sm" asChild>
           <Link href="/dashboard/crm/sales-crm/deals/new">
             <Plus className="h-3.5 w-3.5" /> New deal
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

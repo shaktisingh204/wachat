@@ -196,18 +196,18 @@ export function ActivityFeed({
       title="User Activity"
       subtitle="A chronological feed of everything your teammates do across the CRM."
       primaryAction={
-        <ZoruButton variant="ghost" onClick={handleSubscribe}>
+        <Button variant="ghost" onClick={handleSubscribe}>
           <Settings className="h-4 w-4" />
           Subscriptions
-        </ZoruButton>
+        </Button>
       }
       filters={
         <div className="flex flex-wrap items-end gap-2">
           <div className="w-40">
-            <ZoruLabel className="text-[11px]" htmlFor="act-actor">
+            <Label className="text-[11px]" htmlFor="act-actor">
               Actor
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="act-actor"
               value={filters.actor}
               onChange={(e) => setFilters((f) => ({ ...f, actor: e.target.value }))}
@@ -215,8 +215,8 @@ export function ActivityFeed({
             />
           </div>
           <div className="w-40">
-            <ZoruLabel className="text-[11px]">Entity kind</ZoruLabel>
-            <ZoruSelect
+            <Label className="text-[11px]">Entity kind</Label>
+            <Select
               value={filters.resourceType || 'all'}
               onValueChange={(v) =>
                 setFilters((f) => ({ ...f, resourceType: v === 'all' ? '' : v }))
@@ -233,13 +233,13 @@ export function ActivityFeed({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="w-36">
-            <ZoruLabel className="text-[11px]" htmlFor="act-action">
+            <Label className="text-[11px]" htmlFor="act-action">
               Action
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="act-action"
               value={filters.action}
               onChange={(e) => setFilters((f) => ({ ...f, action: e.target.value }))}
@@ -247,10 +247,10 @@ export function ActivityFeed({
             />
           </div>
           <div className="w-36">
-            <ZoruLabel className="text-[11px]" htmlFor="act-from">
+            <Label className="text-[11px]" htmlFor="act-from">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="act-from"
               type="date"
               value={filters.from}
@@ -258,10 +258,10 @@ export function ActivityFeed({
             />
           </div>
           <div className="w-36">
-            <ZoruLabel className="text-[11px]" htmlFor="act-to">
+            <Label className="text-[11px]" htmlFor="act-to">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="act-to"
               type="date"
               value={filters.to}
@@ -276,13 +276,13 @@ export function ActivityFeed({
             />
             Involving me
           </label>
-          <ZoruButton size="sm" onClick={applyFilters} className="mb-1">
+          <Button size="sm" onClick={applyFilters} className="mb-1">
             <Filter className="h-3.5 w-3.5" /> Apply
-          </ZoruButton>
+          </Button>
           {hasFilters ? (
-            <ZoruButton variant="ghost" size="sm" onClick={clearFilters} className="mb-1">
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="mb-1">
               <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
       }
@@ -302,13 +302,13 @@ export function ActivityFeed({
     >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-          <ZoruStatCard label="Events today" value={kpis.today.toLocaleString()} />
-          <ZoruStatCard label="Events this week" value={kpis.week.toLocaleString()} />
-          <ZoruStatCard
+          <StatCard label="Events today" value={kpis.today.toLocaleString()} />
+          <StatCard label="Events this week" value={kpis.week.toLocaleString()} />
+          <StatCard
             label="Unique actors today"
             value={kpis.uniqueActors.toLocaleString()}
           />
-          <ZoruStatCard label="Top entity (week)" value={kpis.topEntity} />
+          <StatCard label="Top entity (week)" value={kpis.topEntity} />
         </div>
         {BUCKETS_ORDER.map((b) =>
           bucketed[b].length === 0 ? null : (
@@ -322,27 +322,27 @@ export function ActivityFeed({
 
 function BucketCard({ title, rows }: { title: string; rows: Row[] }): React.JSX.Element {
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <div className="border-b border-zoru-line p-4">
         <div className="flex items-center gap-2">
           <h2 className="text-[14px] font-semibold text-zoru-ink">{title}</h2>
-          <ZoruBadge variant="secondary">{rows.length}</ZoruBadge>
+          <Badge variant="secondary">{rows.length}</Badge>
         </div>
       </div>
       <ul className="divide-y divide-zoru-line">
         {rows.map((a) => (
           <li key={a._id} className="flex items-start gap-3 p-4">
-            <ZoruAvatar className="h-8 w-8">
+            <Avatar className="h-8 w-8">
               <ZoruAvatarFallback>
                 <UserIcon className="h-4 w-4" />
               </ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2 text-[13px] text-zoru-ink">
                 <span className="font-medium">{a.actor_user_id}</span>
-                <ZoruBadge variant="secondary">{a.action}</ZoruBadge>
+                <Badge variant="secondary">{a.action}</Badge>
                 {a.resource_type ? (
-                  <ZoruBadge variant="secondary">{a.resource_type}</ZoruBadge>
+                  <Badge variant="secondary">{a.resource_type}</Badge>
                 ) : null}
                 {a.resource_id ? (
                   <span className="font-mono text-[11.5px] text-zoru-ink-muted">
@@ -360,6 +360,6 @@ function BucketCard({ title, rows }: { title: string; rows: Row[] }): React.JSX.
           </li>
         ))}
       </ul>
-    </ZoruCard>
+    </Card>
   );
 }

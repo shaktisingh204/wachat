@@ -77,17 +77,17 @@ const initialFormState: { message?: string; error?: string; shopId?: string } =
 function PageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-end justify-between">
         <div className="space-y-2">
-          <ZoruSkeleton className="h-9 w-64" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-9 w-64" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <ZoruSkeleton className="h-9 w-40 rounded-full" />
+        <Skeleton className="h-9 w-40 rounded-full" />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-44" />
+          <Skeleton key={i} className="h-44" />
         ))}
       </div>
     </div>
@@ -109,7 +109,7 @@ function ShopCard({ project }: { project: WithId<Project> }) {
   };
 
   return (
-    <ZoruCard className="flex flex-col p-5">
+    <Card className="flex flex-col p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
           <FacebookGlyph className="h-5 w-5" />
@@ -127,21 +127,21 @@ function ShopCard({ project }: { project: WithId<Project> }) {
         Manage products, pages, and automation for this Facebook Page.
       </p>
       <div className="mt-4">
-        <ZoruButton onClick={handleManageShop} className="w-full">
+        <Button onClick={handleManageShop} className="w-full">
           Manage shop <ArrowRight />
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
 function CreateShopSubmit() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="animate-spin" /> : null}
       Create shop
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -185,7 +185,7 @@ function CreateShopDialog({
   }, [state, toast, onSuccess, onOpenChange]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="projectId" value={selectedProjectId} />
@@ -197,8 +197,8 @@ function CreateShopDialog({
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="ecomm-shop-project">Facebook page</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="ecomm-shop-project">Facebook page</Label>
+            <Select
               value={selectedProjectId}
               onValueChange={setSelectedProjectId}
             >
@@ -212,11 +212,11 @@ function CreateShopDialog({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="ecomm-shop-name">Shop name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ecomm-shop-name">Shop name</Label>
+            <Input
               id="ecomm-shop-name"
               name="name"
               placeholder="e.g., My T-Shirt Store"
@@ -225,8 +225,8 @@ function CreateShopDialog({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="ecomm-shop-currency">Currency</ZoruLabel>
-            <ZoruSelect value={currency} onValueChange={setCurrency}>
+            <Label htmlFor="ecomm-shop-currency">Currency</Label>
+            <Select value={currency} onValueChange={setCurrency}>
               <ZoruSelectTrigger id="ecomm-shop-currency">
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -236,21 +236,21 @@ function CreateShopDialog({
                 <ZoruSelectItem value="INR">INR — Indian Rupee</ZoruSelectItem>
                 <ZoruSelectItem value="GBP">GBP — British Pound</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <CreateShopSubmit />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -289,7 +289,7 @@ export default function CustomEcommerceShopListPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -305,7 +305,7 @@ export default function CustomEcommerceShopListPage() {
             <ZoruBreadcrumbPage>Custom Shops</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="relative mt-5">
         <FeatureLockOverlay
@@ -313,7 +313,7 @@ export default function CustomEcommerceShopListPage() {
           featureName="Custom E-commerce"
         />
         <FeatureLock isAllowed={isAllowed}>
-          <ZoruPageHeader>
+          <PageHeader>
             <ZoruPageHeading>
               <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
               <ZoruPageTitle>Custom Shops</ZoruPageTitle>
@@ -323,14 +323,14 @@ export default function CustomEcommerceShopListPage() {
               </ZoruPageDescription>
             </ZoruPageHeading>
             <ZoruPageActions>
-              <ZoruButton
+              <Button
                 onClick={() => setCreateOpen(true)}
                 disabled={projects.length === 0}
               >
                 <Plus /> Create new shop
-              </ZoruButton>
+              </Button>
             </ZoruPageActions>
-          </ZoruPageHeader>
+          </PageHeader>
 
           <div className="mt-6">
             {projects.length > 0 ? (
@@ -340,16 +340,16 @@ export default function CustomEcommerceShopListPage() {
                 ))}
               </div>
             ) : (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Store />}
                 title="No Facebook pages connected"
                 description="Connect your Facebook account on the Meta Suite Connections page to start building custom shops."
                 action={
-                  <ZoruButton asChild>
+                  <Button asChild>
                     <Link href="/dashboard/facebook/all-projects">
                       Open Connections <ArrowRight />
                     </Link>
-                  </ZoruButton>
+                  </Button>
                 }
               />
             )}

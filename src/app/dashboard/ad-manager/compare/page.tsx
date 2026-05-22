@@ -95,11 +95,11 @@ export default function CampaignComparePage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Compare" />
-                <ZoruAlert>
+                <Alert>
                     <CircleAlert className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to compare campaigns.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -123,40 +123,40 @@ export default function CampaignComparePage() {
                     <div className="flex gap-2 items-center">
                         <GitCompareArrows className="h-5 w-5 text-muted-foreground" />
                         {selected.size > 0 && (
-                            <ZoruButton variant="outline" size="sm" onClick={clearAll}>
+                            <Button variant="outline" size="sm" onClick={clearAll}>
                                 <X className="h-4 w-4 mr-1" /> Clear
-                            </ZoruButton>
+                            </Button>
                         )}
-                        <ZoruButton onClick={runComparison} disabled={comparing || selected.size < 2}>
+                        <Button onClick={runComparison} disabled={comparing || selected.size < 2}>
                             {comparing ? 'Comparing...' : `Compare (${selected.size})`}
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
             />
 
             {loadingList ? (
-                <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <ZoruSkeleton key={i} className="h-10" />)}</div>
+                <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader><ZoruCardTitle className="text-base">Select campaigns</ZoruCardTitle></ZoruCardHeader>
                     <ZoruCardContent className="max-h-60 overflow-y-auto space-y-2">
                         {campaigns.length === 0 ? (
                             <p className="text-sm text-muted-foreground">No campaigns found.</p>
                         ) : campaigns.map((c) => (
                             <label key={c.id} className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded p-1.5">
-                                <ZoruCheckbox checked={selected.has(c.id)} onCheckedChange={() => toggle(c.id)} />
+                                <Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggle(c.id)} />
                                 <span className="text-sm flex-1 truncate">{c.name}</span>
                                 <span className="text-xs text-muted-foreground">{c.status}</span>
                             </label>
                         ))}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {results.length > 0 && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0 overflow-x-auto">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead className="sticky left-0 bg-background z-10">Metric</ZoruTableHead>
@@ -189,9 +189,9 @@ export default function CampaignComparePage() {
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

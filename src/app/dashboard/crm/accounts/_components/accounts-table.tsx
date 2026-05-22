@@ -83,11 +83,11 @@ export function AccountsTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-10">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={allSelected}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
                                 aria-label="Select all"
@@ -130,7 +130,7 @@ export function AccountsTable({
                         ? Array.from({ length: 5 }).map((_, i) => (
                               <ZoruTableRow key={i} className="border-zoru-line">
                                   <ZoruTableCell colSpan={11}>
-                                      <ZoruSkeleton className="h-10 w-full" />
+                                      <Skeleton className="h-10 w-full" />
                                   </ZoruTableCell>
                               </ZoruTableRow>
                           ))
@@ -145,7 +145,7 @@ export function AccountsTable({
                                         className="border-zoru-line"
                                     >
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selectedIds.has(id)}
                                                 onCheckedChange={() =>
                                                     onToggleOne(id)
@@ -252,7 +252,7 @@ export function AccountsTable({
                                                 : '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right">
-                                            <ZoruDropdownMenu>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
                                                     <button
                                                         type="button"
@@ -291,13 +291,13 @@ export function AccountsTable({
                                                             : 'Archive'}
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 );
                             })}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

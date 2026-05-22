@@ -274,15 +274,15 @@ export function AnnouncementsListClient({
                     placeholder: 'Search title or body…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/workspace/announcements/new">
                             <Plus className="h-4 w-4" /> New announcement
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <Select
                             value={statusFilter}
                             onValueChange={(v) =>
                                 setStatusFilter(v as CrmAnnouncementStatus | 'all')
@@ -298,8 +298,8 @@ export function AnnouncementsListClient({
                                 <ZoruSelectItem value="published">Published</ZoruSelectItem>
                                 <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={audienceFilter}
                             onValueChange={(v) => setAudienceFilter(v)}
                         >
@@ -313,23 +313,23 @@ export function AnnouncementsListClient({
                                 <ZoruSelectItem value="team">Team</ZoruSelectItem>
                                 <ZoruSelectItem value="role">Role</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                         <label className="flex cursor-pointer items-center gap-1.5 text-[13px] text-zoru-ink">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={pinnedOnly}
                                 onCheckedChange={(v) => setPinnedOnly(!!v)}
                                 aria-label="Pinned only"
                             />
                             Pinned only
                         </label>
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={fromIso}
                             onChange={(e) => setFromIso(e.target.value)}
                             className="h-9 w-[150px]"
                             aria-label="Published from"
                         />
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={toIso}
                             onChange={(e) => setToIso(e.target.value)}
@@ -337,13 +337,13 @@ export function AnnouncementsListClient({
                             aria-label="Published to"
                         />
                         {hasActiveFilters ? (
-                            <ZoruButton variant="ghost" size="sm" onClick={clear}>
+                            <Button variant="ghost" size="sm" onClick={clear}>
                                 <X className="h-3.5 w-3.5" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
-                        <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                        <Button variant="ghost" size="sm" onClick={exportCsv}>
                             Export CSV
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 bulkBar={
@@ -353,34 +353,34 @@ export function AnnouncementsListClient({
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('publish')}
                                 >
                                     <Send className="h-3.5 w-3.5" /> Publish
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('archive')}
                                 >
                                     <Archive className="h-3.5 w-3.5" /> Archive
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirmMode('delete')}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setSelected(new Set())}
                                 >
                                     Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -394,11 +394,11 @@ export function AnnouncementsListClient({
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Draft and publish your first company announcement.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/workspace/announcements/new">
                                     <Plus className="h-4 w-4" /> Create announcement
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -407,22 +407,22 @@ export function AnnouncementsListClient({
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total"
                             value={kpis.total}
                             icon={<Megaphone className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Active / Pinned"
                             value={kpis.activeOrPinned}
                             icon={<Pin className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Published this month"
                             value={kpis.publishedThisMonth}
                             icon={<Send className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Drafts"
                             value={kpis.drafts}
                             icon={<Megaphone className="h-4 w-4" />}
@@ -435,7 +435,7 @@ export function AnnouncementsListClient({
                             <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                                 <tr>
                                     <th className="px-3 py-2">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label="Select all"
                                             checked={allSelected}
                                             onCheckedChange={(v) => toggleAll(!!v)}
@@ -479,7 +479,7 @@ export function AnnouncementsListClient({
                                     return (
                                         <tr key={a._id} className="hover:bg-zoru-surface">
                                             <td className="px-3 py-2">
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     aria-label={`Select ${a.title}`}
                                                     checked={checked}
                                                     onCheckedChange={() => toggleOne(a._id)}
@@ -499,9 +499,9 @@ export function AnnouncementsListClient({
                                             </td>
                                             <td className="px-3 py-2">
                                                 {a.pinned ? (
-                                                    <ZoruBadge variant="warning">
+                                                    <Badge variant="warning">
                                                         <Pin className="h-3 w-3" /> Pinned
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 ) : (
                                                     <span className="text-zoru-ink-muted">—</span>
                                                 )}
@@ -517,21 +517,21 @@ export function AnnouncementsListClient({
                                             </td>
                                             <td className="px-3 py-2 text-right">
                                                 <div className="flex justify-end gap-1">
-                                                    <ZoruButton variant="ghost" size="sm" asChild>
+                                                    <Button variant="ghost" size="sm" asChild>
                                                         <Link
                                                             href={`/dashboard/crm/workspace/announcements/${a._id}/edit`}
                                                         >
                                                             Edit
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => setPendingDelete(a._id)}
                                                         aria-label={`Delete ${a.title}`}
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>

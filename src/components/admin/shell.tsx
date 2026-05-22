@@ -220,7 +220,7 @@ export function AdminPagination({
                 Page {currentPage} of {pages}
             </span>
             <div className="flex gap-2">
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     asChild
@@ -228,8 +228,8 @@ export function AdminPagination({
                     className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
                 >
                     <Link href={`${basePath}?page=${currentPage - 1}${sep}`}>Previous</Link>
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="outline"
                     size="sm"
                     asChild
@@ -237,7 +237,7 @@ export function AdminPagination({
                     className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
                 >
                     <Link href={`${basePath}?page=${currentPage + 1}${sep}`}>Next</Link>
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );

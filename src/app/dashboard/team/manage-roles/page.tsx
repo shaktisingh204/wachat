@@ -251,10 +251,10 @@ function SaveBar() {
             <p className="pl-2 text-[12.5px] text-zoru-ink-muted">
                 Toggle permissions for every role, then save to sync all members.
             </p>
-            <ZoruButton type="submit" size="md" disabled={pending}>
+            <Button type="submit" size="md" disabled={pending}>
                 {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {pending ? 'Saving…' : 'Save permissions'}
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -264,9 +264,9 @@ function SaveBar() {
 function PageSkeleton() {
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruSkeleton className="h-5 w-60" />
-            <ZoruSkeleton className="h-10 w-80" />
-            <ZoruSkeleton className="h-[420px] w-full rounded-2xl" />
+            <Skeleton className="h-5 w-60" />
+            <Skeleton className="h-10 w-80" />
+            <Skeleton className="h-[420px] w-full rounded-2xl" />
         </div>
     );
 }
@@ -298,12 +298,12 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton size="sm">
+                <Button size="sm">
                     <Plus className="h-4 w-4" />
                     New role
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
@@ -313,10 +313,10 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <div className="py-2">
-                    <ZoruLabel htmlFor="roleName" className="mb-1.5 block text-[12.5px] text-zoru-ink">
+                    <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] text-zoru-ink">
                         Role name
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         id="roleName"
                         value={roleName}
                         onChange={(e) => setRoleName(e.target.value)}
@@ -324,16 +324,16 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                     />
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                    <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={handleAddRole} disabled={isPending}>
+                    </Button>
+                    <Button size="sm" onClick={handleAddRole} disabled={isPending}>
                         {isPending && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Create role
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -421,7 +421,7 @@ function RoleCard({
     }, [permissions]);
 
     return (
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
@@ -440,7 +440,7 @@ function RoleCard({
                             {enabledCount} permission{enabledCount === 1 ? '' : 's'} granted
                         </p>
                     </div>
-                    {role.id === 'agent' && <ZoruBadge variant="ghost">System</ZoruBadge>}
+                    {role.id === 'agent' && <Badge variant="ghost">System</Badge>}
                 </div>
                 <div className="flex items-center gap-2">
                     <DeleteRoleButton role={role} onRoleDeleted={onRoleDeleted} />
@@ -482,9 +482,9 @@ function RoleCard({
                                             <h3 className="text-[13.5px] text-zoru-ink">
                                                 {cat.label} permissions
                                             </h3>
-                                            <ZoruBadge variant="ghost">
+                                            <Badge variant="ghost">
                                                 {cat.modules.length} modules
-                                            </ZoruBadge>
+                                            </Badge>
                                         </div>
                                         <div className="overflow-hidden rounded-xl border border-zoru-line">
                                             <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-zoru-surface-2/50 px-4 py-2.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -504,7 +504,7 @@ function RoleCard({
                                                         <span>{mod.name}</span>
                                                         {actions.map((action) => (
                                                             <div key={action} className="flex justify-center">
-                                                                <ZoruCheckbox
+                                                                <Checkbox
                                                                     name={`${role.id}_${mod.id}_${action}`}
                                                                     defaultChecked={
                                                                         permissions[mod.id]?.[action] ?? false
@@ -523,7 +523,7 @@ function RoleCard({
                     </div>
                 </div>
             )}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -582,7 +582,7 @@ export default function ManageRolesPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
@@ -592,9 +592,9 @@ export default function ManageRolesPage() {
                         <ZoruBreadcrumbPage>Roles & permissions</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Roles & permissions</ZoruPageTitle>
                     <ZoruPageDescription>
@@ -602,27 +602,27 @@ export default function ManageRolesPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <AddRoleDialog onRoleAdded={fetchUser} />
-            </ZoruPageHeader>
+            </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <ZoruCard variant="soft" className="p-6">
+                <Card variant="soft" className="p-6">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">Roles</p>
                     <p className="mt-1 text-[22px] text-zoru-ink">{allRoles.length}</p>
-                </ZoruCard>
-                <ZoruCard variant="soft" className="p-6">
+                </Card>
+                <Card variant="soft" className="p-6">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                         Permissions granted
                     </p>
                     <p className="mt-1 text-[22px] text-zoru-ink">{totalGranted}</p>
-                </ZoruCard>
-                <ZoruCard variant="soft" className="p-6">
+                </Card>
+                <Card variant="soft" className="p-6">
                     <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                         Modules covered
                     </p>
                     <p className="mt-1 text-[22px] text-zoru-ink">
                         {Object.values(permissionCategories).reduce((n, c) => n + c.modules.length, 0)}
                     </p>
-                </ZoruCard>
+                </Card>
             </div>
 
             <form action={formAction} className="flex flex-1 flex-col">
@@ -639,7 +639,7 @@ export default function ManageRolesPage() {
                 <SaveBar />
             </form>
 
-            <ZoruCard variant="soft" className="flex items-start gap-3 p-6">
+            <Card variant="soft" className="flex items-start gap-3 p-6">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-ink text-zoru-bg">
                     <Check className="h-4 w-4" />
                 </div>
@@ -651,7 +651,7 @@ export default function ManageRolesPage() {
                         but their permissions can still be tuned per module.
                     </p>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

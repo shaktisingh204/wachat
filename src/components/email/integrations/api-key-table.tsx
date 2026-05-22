@@ -40,7 +40,7 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
 
   if (keys.length === 0) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<KeyRound />}
         title="No API keys yet"
         description="Create an API key to send transactional mail and access reports programmatically."
@@ -61,8 +61,8 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
   };
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <ZoruTable>
+    <Card className="overflow-hidden p-0">
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Name</ZoruTableHead>
@@ -78,7 +78,7 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
               <ZoruTableCell className="font-medium text-zoru-ink">
                 {k.name}
                 {k.revokedAt ? (
-                  <ZoruBadge variant="destructive" className="ml-2">Revoked</ZoruBadge>
+                  <Badge variant="destructive" className="ml-2">Revoked</Badge>
                 ) : null}
               </ZoruTableCell>
               <ZoruTableCell>
@@ -89,7 +89,7 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
               <ZoruTableCell>
                 <div className="flex flex-wrap gap-1">
                   {k.scopes.map((s) => (
-                    <ZoruBadge key={s} variant="secondary">{s}</ZoruBadge>
+                    <Badge key={s} variant="secondary">{s}</Badge>
                   ))}
                 </div>
               </ZoruTableCell>
@@ -101,14 +101,14 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
               <ZoruTableCell className="text-right">
                 <ZoruAlertDialog>
                   <ZoruAlertDialogTrigger asChild>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="icon"
                       disabled={pending || !!k.revokedAt}
                       aria-label="Revoke API key"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                   </ZoruAlertDialogTrigger>
                   <ZoruAlertDialogContent>
                     <ZoruAlertDialogHeader>
@@ -132,7 +132,7 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
-      </ZoruTable>
-    </ZoruCard>
+      </Table>
+    </Card>
   );
 }

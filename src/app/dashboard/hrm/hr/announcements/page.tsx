@@ -158,12 +158,12 @@ export default function AnnouncementsListPage() {
                     title="Announcements"
                     subtitle="Company-wide updates, news, and pinned messages."
                     primaryAction={
-                        <ZoruButton asChild>
+                        <Button asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New
                                 announcement
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -195,7 +195,7 @@ export default function AnnouncementsListPage() {
                     loading={isLoading && items.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">
@@ -310,7 +310,7 @@ export default function AnnouncementsListPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         asChild
@@ -321,8 +321,8 @@ export default function AnnouncementsListPage() {
                                                         >
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label={`Delete ${a.title}`}
@@ -331,14 +331,14 @@ export default function AnnouncementsListPage() {
                                                         }
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
             </EntityListShell>
 

@@ -84,24 +84,24 @@ export default async function JobDetailPage({
             status={{ label: pretty(status), tone }}
             back={{ href: BASE, label: 'Jobs' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${jobId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
                     {tags.map((t) => (
-                        <ZoruBadge key={t} variant="ghost">
+                        <Badge key={t} variant="ghost">
                             {t}
-                        </ZoruBadge>
+                        </Badge>
                     ))}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -161,11 +161,11 @@ export default async function JobDetailPage({
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Public posting link */}
             {job.publishUrl ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
                         <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
                         Public posting
@@ -178,11 +178,11 @@ export default async function JobDetailPage({
                     >
                         {job.publishUrl}
                     </a>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Description */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Description
                 </div>
@@ -195,30 +195,30 @@ export default async function JobDetailPage({
                         No description.
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Responsibilities */}
             {job.responsibilities ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Responsibilities
                     </div>
                     <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
                         {job.responsibilities}
                     </pre>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Requirements */}
             {job.requirements ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Requirements
                     </div>
                     <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
                         {job.requirements}
                     </pre>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

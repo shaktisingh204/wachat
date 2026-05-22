@@ -96,10 +96,10 @@ function FilterGroupEditor({ group, onChange, depth, onRemove }: GroupProps) {
   return (
     <div className={depth === 0 ? 'space-y-3' : 'rounded-lg border border-zoru-line bg-zoru-surface-raised p-3 space-y-3'}>
       <div className="flex items-center gap-2">
-        <ZoruLabel className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+        <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
           Match
-        </ZoruLabel>
-        <ZoruSelect
+        </Label>
+        <Select
           value={group.combinator}
           onValueChange={(v) => onChange({ ...group, combinator: v as FilterCombinator })}
         >
@@ -110,14 +110,14 @@ function FilterGroupEditor({ group, onChange, depth, onRemove }: GroupProps) {
             <ZoruSelectItem value="AND">all</ZoruSelectItem>
             <ZoruSelectItem value="OR">any</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruBadge variant="outline" className="text-xs">
+        </Select>
+        <Badge variant="outline" className="text-xs">
           {group.filters.length} rule{group.filters.length === 1 ? '' : 's'}
-        </ZoruBadge>
+        </Badge>
         {onRemove ? (
-          <ZoruButton type="button" variant="ghost" size="icon" onClick={onRemove} className="ml-auto">
+          <Button type="button" variant="ghost" size="icon" onClick={onRemove} className="ml-auto">
             <Trash2 className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
@@ -146,22 +146,22 @@ function FilterGroupEditor({ group, onChange, depth, onRemove }: GroupProps) {
       </div>
 
       <div className="flex gap-2">
-        <ZoruButton
+        <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={() => onChange({ ...group, filters: [...group.filters, makeLeaf()] })}
         >
           <Plus className="h-3 w-3" /> Add rule
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => onChange({ ...group, filters: [...group.filters, makeGroup()] })}
         >
           <Plus className="h-3 w-3" /> Add group
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );
@@ -177,7 +177,7 @@ function FilterLeafEditor({ leaf, onChange, onRemove }: LeafProps) {
   const needsValue = !['exists', 'not_exists'].includes(leaf.op);
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruSelect
+      <Select
         value={leaf.field}
         onValueChange={(v) => onChange({ ...leaf, field: v })}
       >
@@ -191,9 +191,9 @@ function FilterLeafEditor({ leaf, onChange, onRemove }: LeafProps) {
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
 
-      <ZoruSelect
+      <Select
         value={leaf.op}
         onValueChange={(v) => onChange({ ...leaf, op: v as EmailFilterOp })}
       >
@@ -207,10 +207,10 @@ function FilterLeafEditor({ leaf, onChange, onRemove }: LeafProps) {
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
 
       {needsValue ? (
-        <ZoruInput
+        <Input
           className="w-56"
           value={typeof leaf.value === 'string' || typeof leaf.value === 'number' ? String(leaf.value) : ''}
           onChange={(e) => onChange({ ...leaf, value: e.target.value })}
@@ -218,9 +218,9 @@ function FilterLeafEditor({ leaf, onChange, onRemove }: LeafProps) {
         />
       ) : null}
 
-      <ZoruButton type="button" variant="ghost" size="icon" onClick={onRemove} className="ml-auto">
+      <Button type="button" variant="ghost" size="icon" onClick={onRemove} className="ml-auto">
         <Trash2 className="h-4 w-4" />
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

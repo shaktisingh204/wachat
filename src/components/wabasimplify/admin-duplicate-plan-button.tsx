@@ -38,7 +38,7 @@ export function AdminDuplicatePlanButton({
     };
 
     return (
-        <ZoruButton
+        <Button
             variant="ghost"
             size="icon"
             onClick={handleClick}
@@ -51,6 +51,6 @@ export function AdminDuplicatePlanButton({
             ) : (
                 <Copy className="h-4 w-4" />
             )}
-        </ZoruButton>
+        </Button>
     );
 }

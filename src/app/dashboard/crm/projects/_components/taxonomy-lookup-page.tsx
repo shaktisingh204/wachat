@@ -275,44 +275,44 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
         search={{ value: q, onChange: setQ, placeholder: `Search ${title.toLowerCase()}…` }}
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="sm" onClick={() => onExportCsv(filtered)}>
+            <Button variant="outline" size="sm" onClick={() => onExportCsv(filtered)}>
               <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
               CSV
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={() => onExportXlsx(filtered)}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => onExportXlsx(filtered)}>
               <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />
               XLSX
-            </ZoruButton>
-            <ZoruButton onClick={openNew}>
+            </Button>
+            <Button onClick={openNew}>
               <Plus className="h-4 w-4" strokeWidth={1.75} />
               New {singular}
-            </ZoruButton>
+            </Button>
           </div>
         }
         filters={
           <>
             {hasColor ? (
               <div className="w-44">
-                <ZoruSelect value={colorFilter} onValueChange={(v) => setColorFilter(v as typeof colorFilter)}>
+                <Select value={colorFilter} onValueChange={(v) => setColorFilter(v as typeof colorFilter)}>
                   <ZoruSelectTrigger><ZoruSelectValue placeholder="Color" /></ZoruSelectTrigger>
                   <ZoruSelectContent>
                     <ZoruSelectItem value="all">All colors</ZoruSelectItem>
                     <ZoruSelectItem value="has">Has color</ZoruSelectItem>
                     <ZoruSelectItem value="none">No color</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             ) : null}
             {hasStatus ? (
               <div className="w-44">
-                <ZoruSelect value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
                   <ZoruSelectTrigger><ZoruSelectValue placeholder="Status" /></ZoruSelectTrigger>
                   <ZoruSelectContent>
                     <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
                     <ZoruSelectItem value="active">Active</ZoruSelectItem>
                     <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             ) : null}
           </>
@@ -322,21 +322,21 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
             <div className="flex items-center justify-between gap-3">
               <span className="text-[12.5px] text-zoru-ink-muted">{selected.size} selected</span>
               <div className="flex items-center gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={() => setSelected(new Set())}>
+                <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
                   Clear
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onExportCsv(rows.filter((r) => selected.has(r._id)))}
                 >
                   <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
                   Export selected
-                </ZoruButton>
-                <ZoruButton variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
                   <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
                   Delete selected
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -345,17 +345,17 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
       >
         <div className="flex flex-col gap-4">
           <div className="grid gap-3 md:grid-cols-3">
-            <ZoruStatCard
+            <StatCard
               label={`Total ${title.toLowerCase()}`}
               value={kpiTotal.toLocaleString('en-IN')}
               icon={<Icon className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label={hasColor ? 'With color' : 'With description'}
               value={kpiInUse.toLocaleString('en-IN')}
               icon={<Icon className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Recently added"
               value={kpiRecent.toLocaleString('en-IN')}
               icon={<Icon className="h-4 w-4" />}
@@ -363,13 +363,13 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
             />
           </div>
 
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[13px]">
                 <thead>
                   <tr className="border-b border-zoru-line bg-zoru-surface-2">
                     <th className="w-10 px-3 py-3">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allOnPageSelected}
                         onCheckedChange={(c) => toggleAllOnPage(Boolean(c))}
                         aria-label="Select all on page"
@@ -399,7 +399,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                       return (
                         <tr key={row._id} className="border-b border-zoru-line last:border-0">
                           <td className="px-3 py-3">
-                            <ZoruCheckbox
+                            <Checkbox
                               checked={isSel}
                               onCheckedChange={(c) => {
                                 setSelected((s) => {
@@ -443,14 +443,14 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                           ))}
                           <td className="px-4 py-3">
                             <div className="flex justify-end gap-1">
-                              <ZoruButton variant="outline" size="sm" onClick={() => openEdit(row)}>
+                              <Button variant="outline" size="sm" onClick={() => openEdit(row)}>
                                 <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                                 Edit
-                              </ZoruButton>
-                              <ZoruButton variant="outline" size="sm" onClick={() => setPendingDelete(row)}>
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => setPendingDelete(row)}>
                                 <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
                                 Delete
-                              </ZoruButton>
+                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -472,7 +472,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                 },
               }}
             />
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 
@@ -538,10 +538,10 @@ function RowDrawerBody<R extends TaxonomyRow>({
           </div>
         ) : null}
       </dl>
-      <ZoruButton onClick={onEdit} variant="outline" size="sm">
+      <Button onClick={onEdit} variant="outline" size="sm">
         <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
         Edit
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -575,7 +575,7 @@ function TaxonomyDialog<R extends TaxonomyRow>({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-xl">
         <form onSubmit={handleSubmit}>
           {isEditing ? <input type="hidden" name="_id" value={editing!._id} /> : null}
@@ -594,12 +594,12 @@ function TaxonomyDialog<R extends TaxonomyRow>({
                   key={f.name}
                   className={f.fullWidth ? 'space-y-2 sm:col-span-2' : 'space-y-2'}
                 >
-                  <ZoruLabel htmlFor={f.name}>
+                  <Label htmlFor={f.name}>
                     {f.label}
                     {f.required ? ' *' : null}
-                  </ZoruLabel>
+                  </Label>
                   {f.type === 'textarea' ? (
-                    <ZoruTextarea
+                    <Textarea
                       id={f.name}
                       name={f.name}
                       rows={3}
@@ -608,7 +608,7 @@ function TaxonomyDialog<R extends TaxonomyRow>({
                       defaultValue={defaultVal}
                     />
                   ) : (
-                    <ZoruInput
+                    <Input
                       id={f.name}
                       name={f.name}
                       type={f.type === 'color' ? 'text' : 'text'}
@@ -618,23 +618,23 @@ function TaxonomyDialog<R extends TaxonomyRow>({
                     />
                   )}
                   {f.type === 'color' ? (
-                    <ZoruBadge variant="secondary">Hex color e.g. #2563eb</ZoruBadge>
+                    <Badge variant="secondary">Hex color e.g. #2563eb</Badge>
                   ) : null}
                 </div>
               );
             })}
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={pending}>
+            </Button>
+            <Button type="submit" disabled={pending}>
               {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
               {isEditing ? 'Save changes' : `Create ${singular.toLowerCase()}`}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

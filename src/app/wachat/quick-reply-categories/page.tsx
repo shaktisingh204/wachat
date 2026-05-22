@@ -151,7 +151,7 @@ export default function QuickReplyCategoriesPage() {
         id: 'count',
         header: 'Replies',
         cell: ({ row }) => (
-          <ZoruBadge variant="outline">{row.original.count ?? 0}</ZoruBadge>
+          <Badge variant="outline">{row.original.count ?? 0}</Badge>
         ),
       },
       {
@@ -159,22 +159,22 @@ export default function QuickReplyCategoriesPage() {
         header: '',
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Edit"
               onClick={() => openEdit(row.original)}
             >
               <Pencil />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Delete"
               onClick={() => setDeleting(row.original)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -184,7 +184,7 @@ export default function QuickReplyCategoriesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -198,9 +198,9 @@ export default function QuickReplyCategoriesPage() {
             <ZoruBreadcrumbPage>Quick Reply Categories</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat · {activeProject?.name ?? 'Project'}</ZoruPageEyebrow>
           <ZoruPageTitle>Quick Reply Categories</ZoruPageTitle>
@@ -210,44 +210,44 @@ export default function QuickReplyCategoriesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={openCreate}>
+          <Button onClick={openCreate}>
             <Plus /> New category
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6">
         {isPending && categories.length === 0 ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-12" />
+              <Skeleton key={i} className="h-12" />
             ))}
           </div>
         ) : categories.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Tag />}
             title="No categories yet"
             description="Group your quick replies under categories to make them easier to find."
             action={
-              <ZoruButton onClick={openCreate}>
+              <Button onClick={openCreate}>
                 <Plus /> New category
-              </ZoruButton>
+              </Button>
             }
           />
         ) : (
-          <ZoruCard className="p-4">
-            <ZoruDataTable
+          <Card className="p-4">
+            <DataTable
               columns={columns}
               data={categories}
               filterColumn="name"
               filterPlaceholder="Search categories…"
             />
-          </ZoruCard>
+          </Card>
         )}
       </div>
 
       {/* Create / edit category dialog */}
-      <ZoruDialog
+      <Dialog
         open={createOpen}
         onOpenChange={(open) => {
           setCreateOpen(open);
@@ -268,8 +268,8 @@ export default function QuickReplyCategoriesPage() {
           </ZoruDialogHeader>
 
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="category-name">Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="category-name">Name</Label>
+            <Input
               id="category-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -282,7 +282,7 @@ export default function QuickReplyCategoriesPage() {
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => {
                 setCreateOpen(false);
@@ -291,13 +291,13 @@ export default function QuickReplyCategoriesPage() {
               }}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isPending || !name.trim()}>
+            </Button>
+            <Button onClick={handleSave} disabled={isPending || !name.trim()}>
               {editing ? 'Save changes' : 'Create category'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Delete category alert */}
       <ZoruAlertDialog

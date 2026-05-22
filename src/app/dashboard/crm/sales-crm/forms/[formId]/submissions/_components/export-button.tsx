@@ -55,12 +55,12 @@ export function ExportButton({ formId, filters }: ExportButtonProps) {
     };
 
     return (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" disabled={pending}>
+                <Button variant="outline" disabled={pending}>
                     <Download className="h-4 w-4" />
                     {pending ? 'Exporting…' : 'Export'}
-                </ZoruButton>
+                </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuItem onClick={() => run('csv')}>
@@ -70,6 +70,6 @@ export function ExportButton({ formId, filters }: ExportButtonProps) {
                     <FileSpreadsheet className="h-4 w-4" /> XLSX
                 </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
     );
 }

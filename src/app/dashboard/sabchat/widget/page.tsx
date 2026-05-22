@@ -35,7 +35,7 @@ import type { WithId,
  */
 
 function WidgetSkeleton() {
-  return <ZoruSkeleton className="h-[600px] w-full" />;
+  return <Skeleton className="h-[600px] w-full" />;
 }
 
 export default function SabChatWidgetPage() {
@@ -51,7 +51,7 @@ export default function SabChatWidgetPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -67,27 +67,27 @@ export default function SabChatWidgetPage() {
             <ZoruBreadcrumbPage>Widget</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Widget</ZoruPageTitle>
           <ZoruPageDescription>
             Configure and embed the SabChat widget on your website.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {isLoading ? (
         <WidgetSkeleton />
       ) : !user ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <MessageCircle />
           <ZoruAlertTitle>Not signed in</ZoruAlertTitle>
           <ZoruAlertDescription>
             You must be logged in to configure the chat widget.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : (
         <ZoruSabChatWidgetGenerator user={user} />
       )}

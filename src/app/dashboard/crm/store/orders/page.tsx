@@ -234,13 +234,13 @@ export default function StoreOrdersPage(): React.JSX.Element {
                 title="Store orders"
                 subtitle="Orders captured from the storefront — payment and fulfillment state."
                 filters={
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Storefront
-                                </ZoruLabel>
-                                <ZoruSelect value={storefrontFilter} onValueChange={setStorefrontFilter}>
+                                </Label>
+                                <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
                                     <ZoruSelectTrigger>
                                         <ZoruSelectValue placeholder="All storefronts" />
                                     </ZoruSelectTrigger>
@@ -252,13 +252,13 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="min-w-[160px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Status
-                                </ZoruLabel>
-                                <ZoruSelect
+                                </Label>
+                                <Select
                                     value={statusFilter}
                                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                                 >
@@ -273,16 +273,16 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                         <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
                                         <ZoruSelectItem value="refunded">Refunded</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="min-w-[220px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Date placed
-                                </ZoruLabel>
+                                </Label>
                                 <ZoruDateRangePicker value={dateRange} onChange={setDateRange} />
                             </div>
                             {hasActiveFilters ? (
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
@@ -291,38 +291,38 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                     }}
                                 >
                                     Clear filters
-                                </ZoruButton>
+                                </Button>
                             ) : null}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 }
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
                             <span className="flex-1" />
-                            <ZoruButton size="sm" variant="outline" onClick={handleBulkFulfill}>
+                            <Button size="sm" variant="outline" onClick={handleBulkFulfill}>
                                 Fulfill
-                            </ZoruButton>
-                            <ZoruButton size="sm" variant="outline" onClick={handleBulkCancel}>
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={handleBulkCancel}>
                                 Cancel
-                            </ZoruButton>
-                            <ZoruDropdownMenu>
+                            </Button>
+                            <DropdownMenu>
                                 <ZoruDropdownMenuTrigger asChild>
-                                    <ZoruButton size="sm" variant="outline">
+                                    <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruDropdownMenuTrigger>
                                 <ZoruDropdownMenuContent align="end">
                                     <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
                                 </ZoruDropdownMenuContent>
-                            </ZoruDropdownMenu>
-                            <ZoruButton size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                            </DropdownMenu>
+                            <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
-                            </ZoruButton>
-                            <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -339,11 +339,11 @@ export default function StoreOrdersPage(): React.JSX.Element {
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                        <ZoruStatCard label="Total orders" value={kpis.total.toLocaleString()} icon={<ShoppingBag />} />
-                        <ZoruStatCard label="Pending" value={kpis.pending.toLocaleString()} icon={<ShoppingBag />} period="awaiting action" />
-                        <ZoruStatCard label="Fulfilled" value={kpis.fulfilled.toLocaleString()} icon={<ShoppingBag />} period="shipped" />
-                        <ZoruStatCard label="Cancelled" value={kpis.cancelled.toLocaleString()} icon={<ShoppingBag />} period="cancelled / refunded" />
-                        <ZoruStatCard
+                        <StatCard label="Total orders" value={kpis.total.toLocaleString()} icon={<ShoppingBag />} />
+                        <StatCard label="Pending" value={kpis.pending.toLocaleString()} icon={<ShoppingBag />} period="awaiting action" />
+                        <StatCard label="Fulfilled" value={kpis.fulfilled.toLocaleString()} icon={<ShoppingBag />} period="shipped" />
+                        <StatCard label="Cancelled" value={kpis.cancelled.toLocaleString()} icon={<ShoppingBag />} period="cancelled / refunded" />
+                        <StatCard
                             label="Revenue"
                             value={fmtMoney(kpis.revenue)}
                             icon={<ShoppingBag />}
@@ -352,12 +352,12 @@ export default function StoreOrdersPage(): React.JSX.Element {
                     </div>
 
                     {filtered.length > 0 ? (
-                        <ZoruCard className="overflow-hidden p-0">
-                            <ZoruTable>
+                        <Card className="overflow-hidden p-0">
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
@@ -381,7 +381,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         aria-label={`Select ${orderNo}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
@@ -405,14 +405,14 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                                     {fmtDate(o.createdAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+                                                    <Badge variant={statusVariant(status)}>{status}</Badge>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })}
                                 </ZoruTableBody>
-                            </ZoruTable>
-                        </ZoruCard>
+                            </Table>
+                        </Card>
                     ) : null}
                 </div>
             </EntityListShell>

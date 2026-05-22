@@ -133,7 +133,7 @@ function ToggleGroup<V extends string>({
         const Icon = opt.icon;
         const active = opt.value === value;
         return (
-          <ZoruButton
+          <Button
             key={opt.value}
             type="button"
             variant={active ? 'default' : 'ghost'}
@@ -144,7 +144,7 @@ function ToggleGroup<V extends string>({
           >
             <Icon className="h-3.5 w-3.5" />
             {opt.label}
-          </ZoruButton>
+          </Button>
         );
       })}
     </div>

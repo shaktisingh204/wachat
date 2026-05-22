@@ -89,7 +89,7 @@ export function EmailCampaignsClient() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -99,24 +99,24 @@ export function EmailCampaignsClient() {
           <ZoruPageDescription>Compose, schedule and send broadcasts to your audience.</ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New campaign
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loading ? (
-        <ZoruSkeleton className="h-96 w-full" />
+        <Skeleton className="h-96 w-full" />
       ) : campaigns.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Mail />}
           title="No campaigns yet"
           description="Create your first campaign to start reaching subscribers."
-          action={<ZoruButton onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New campaign</ZoruButton>}
+          action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New campaign</Button>}
         />
       ) : (
-        <ZoruCard className="p-0 overflow-hidden">
-          <ZoruTable>
+        <Card className="p-0 overflow-hidden">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Name</ZoruTableHead>
@@ -137,7 +137,7 @@ export function EmailCampaignsClient() {
                   </ZoruTableCell>
                   <ZoruTableCell className="truncate max-w-sm">{c.subject}</ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge variant={STATUS_VARIANTS[c.status] ?? 'outline'}>{c.status}</ZoruBadge>
+                    <Badge variant={STATUS_VARIANTS[c.status] ?? 'outline'}>{c.status}</Badge>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-zoru-ink-muted text-sm">
                     {c.sentAt
@@ -147,11 +147,11 @@ export function EmailCampaignsClient() {
                         : '—'}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon">
                           <MoreHorizontal className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruDropdownMenuTrigger>
                       <ZoruDropdownMenuContent align="end">
                         <ZoruDropdownMenuItem onSelect={() => handleSend(c)} disabled={c.status !== 'draft'}>
@@ -166,13 +166,13 @@ export function EmailCampaignsClient() {
                           <Trash2 className="h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       )}
 
       <NewCampaignDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={refresh} />
@@ -216,7 +216,7 @@ function NewCampaignDialog({ open, onOpenChange, onCreated }: NewCampaignDialogP
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-2xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>New campaign</ZoruDialogTitle>
@@ -224,36 +224,36 @@ function NewCampaignDialog({ open, onOpenChange, onCreated }: NewCampaignDialogP
         </ZoruDialogHeader>
         <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
           <div className="space-y-1">
-            <ZoruLabel htmlFor="c-name">Internal name</ZoruLabel>
-            <ZoruInput id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Black Friday — Day 1" />
+            <Label htmlFor="c-name">Internal name</Label>
+            <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Black Friday — Day 1" />
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="c-subj">Subject line</ZoruLabel>
-            <ZoruInput id="c-subj" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="🔥 24h only: 40% off everything" />
+            <Label htmlFor="c-subj">Subject line</Label>
+            <Input id="c-subj" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="🔥 24h only: 40% off everything" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <ZoruLabel htmlFor="c-fn">From name</ZoruLabel>
-              <ZoruInput id="c-fn" value={fromName} onChange={(e) => setFromName(e.target.value)} placeholder="Acme" />
+              <Label htmlFor="c-fn">From name</Label>
+              <Input id="c-fn" value={fromName} onChange={(e) => setFromName(e.target.value)} placeholder="Acme" />
             </div>
             <div className="space-y-1">
-              <ZoruLabel htmlFor="c-fe">From email</ZoruLabel>
-              <ZoruInput id="c-fe" type="email" value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} placeholder="hello@acme.com" />
+              <Label htmlFor="c-fe">From email</Label>
+              <Input id="c-fe" type="email" value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} placeholder="hello@acme.com" />
             </div>
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="c-body">Body (HTML)</ZoruLabel>
-            <ZoruTextarea id="c-body" value={body} onChange={(e) => setBody(e.target.value)} rows={8} className="font-mono text-xs" />
+            <Label htmlFor="c-body">Body (HTML)</Label>
+            <Textarea id="c-body" value={body} onChange={(e) => setBody(e.target.value)} rows={8} className="font-mono text-xs" />
             <p className="text-xs text-zoru-ink-muted">Use the template builder for richer content. Merge tags: <code>{'{{'} firstName {'}}'}</code>, <code>{'{{'} email {'}}'}</code>, <code>{'{{'} unsubscribeUrl {'}}'}</code>.</p>
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</ZoruButton>
-          <ZoruButton onClick={submit} disabled={pending}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</Button>
+          <Button onClick={submit} disabled={pending}>
             {pending ? 'Saving…' : 'Create draft'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

@@ -53,11 +53,11 @@ export default async function DesignationDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this designation — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/hrm/payroll/designations">
               <ArrowLeft className="h-4 w-4" /> Back
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -82,15 +82,15 @@ export default async function DesignationDetailPage({
         label: 'Designations',
       }}
       actions={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href={`/dashboard/hrm/payroll/designations/${id}/edit`}>
             <Pencil className="h-4 w-4" /> Edit
           </Link>
-        </ZoruButton>
+        </Button>
       }
       audit={<EntityAuditTimeline entityKind="designation" entityId={id} />}
       rightRail={
-        <ZoruCard className="p-4">
+        <Card className="p-4">
           <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Holders
           </h3>
@@ -100,10 +100,10 @@ export default async function DesignationDetailPage({
           <p className="mt-1 text-[12px] text-zoru-ink-muted">
             Employee{employees.length === 1 ? '' : 's'} currently in this role.
           </p>
-        </ZoruCard>
+        </Card>
       }
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Name">{item.name}</Field>
           <Field label="Code">{item.code || '—'}</Field>
@@ -136,7 +136,7 @@ export default async function DesignationDetailPage({
           </Field>
           <Field label="Color">
             {item.color ? (
-              <ZoruBadge variant="outline">{item.color}</ZoruBadge>
+              <Badge variant="outline">{item.color}</Badge>
             ) : (
               '—'
             )}
@@ -145,7 +145,7 @@ export default async function DesignationDetailPage({
             <Field label="Description">{item.description || '—'}</Field>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

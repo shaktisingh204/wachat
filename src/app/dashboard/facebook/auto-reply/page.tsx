@@ -75,14 +75,14 @@ const initialState: { success: boolean; error?: string } = {
 function PageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5">
-        <ZoruSkeleton className="h-9 w-72" />
-        <ZoruSkeleton className="mt-2 h-4 w-96" />
+        <Skeleton className="h-9 w-72" />
+        <Skeleton className="mt-2 h-4 w-96" />
       </div>
       <div className="mt-6 space-y-4">
-        <ZoruSkeleton className="h-16 w-full" />
-        <ZoruSkeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
       </div>
     </div>
   );
@@ -91,10 +91,10 @@ function PageSkeleton() {
 function SubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <Save />}
       {children}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -149,7 +149,7 @@ function CommentAutomationForm({
         value={moderationEnabled ? "on" : ""}
       />
 
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-zoru-ink">
@@ -161,7 +161,7 @@ function CommentAutomationForm({
               as the legacy automation form — only the UI changed.
             </p>
           </div>
-          <ZoruSwitch
+          <Switch
             id="comment-enabled"
             checked={enabled}
             onCheckedChange={setEnabled}
@@ -169,9 +169,9 @@ function CommentAutomationForm({
           />
         </div>
 
-        <ZoruSeparator className="my-5" />
+        <Separator className="my-5" />
 
-        <ZoruAccordion type="multiple" defaultValue={["replies"]}>
+        <Accordion type="multiple" defaultValue={["replies"]}>
           <ZoruAccordionItem value="replies">
             <ZoruAccordionTrigger>
               <span className="flex items-center gap-2">
@@ -180,7 +180,7 @@ function CommentAutomationForm({
             </ZoruAccordionTrigger>
             <ZoruAccordionContent>
               <div className="space-y-4 pt-2">
-                <ZoruRadioGroup
+                <RadioGroup
                   name="replyMode"
                   value={replyMode}
                   onValueChange={(v) => setReplyMode(v as "static" | "ai")}
@@ -188,20 +188,20 @@ function CommentAutomationForm({
                 >
                   <div className="flex items-center gap-2">
                     <ZoruRadioGroupItem value="static" id="mode-static" />
-                    <ZoruLabel htmlFor="mode-static">Static reply</ZoruLabel>
+                    <Label htmlFor="mode-static">Static reply</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <ZoruRadioGroupItem value="ai" id="mode-ai" />
-                    <ZoruLabel htmlFor="mode-ai">AI-generated reply</ZoruLabel>
+                    <Label htmlFor="mode-ai">AI-generated reply</Label>
                   </div>
-                </ZoruRadioGroup>
+                </RadioGroup>
 
                 {replyMode === "static" ? (
                   <div className="space-y-2">
-                    <ZoruLabel htmlFor="staticReplyText">
+                    <Label htmlFor="staticReplyText">
                       Static reply text
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                       id="staticReplyText"
                       name="staticReplyText"
                       placeholder="Thanks for your comment! We'll get back to you shortly."
@@ -211,8 +211,8 @@ function CommentAutomationForm({
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <ZoruLabel htmlFor="aiReplyPrompt">AI reply prompt</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="aiReplyPrompt">AI reply prompt</Label>
+                    <Textarea
                       id="aiReplyPrompt"
                       name="aiReplyPrompt"
                       placeholder="You are a friendly community manager. Acknowledge the user's comment and tell them you appreciate their feedback. Keep it brief and positive."
@@ -239,24 +239,24 @@ function CommentAutomationForm({
               <div className="space-y-4 pt-2">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-0.5">
-                    <ZoruLabel htmlFor="moderationEnabled">
+                    <Label htmlFor="moderationEnabled">
                       Enable AI moderation
-                    </ZoruLabel>
+                    </Label>
                     <p className="text-[12.5px] text-zoru-ink-muted">
                       Automatically delete comments that violate your rules.
                     </p>
                   </div>
-                  <ZoruSwitch
+                  <Switch
                     id="moderationEnabled"
                     checked={moderationEnabled}
                     onCheckedChange={setModerationEnabled}
                   />
                 </div>
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="moderationPrompt">
+                  <Label htmlFor="moderationPrompt">
                     Moderation prompt
-                  </ZoruLabel>
-                  <ZoruTextarea
+                  </Label>
+                  <Textarea
                     id="moderationPrompt"
                     name="moderationPrompt"
                     placeholder="Delete any comments that contain profanity, hate speech, or personal attacks."
@@ -271,12 +271,12 @@ function CommentAutomationForm({
               </div>
             </ZoruAccordionContent>
           </ZoruAccordionItem>
-        </ZoruAccordion>
+        </Accordion>
 
         <div className="mt-5 flex justify-end">
           <SubmitButton>Save comment settings</SubmitButton>
         </div>
-      </ZoruCard>
+      </Card>
     </form>
   );
 }
@@ -354,7 +354,7 @@ function MessengerWelcomeForm({
       />
       <input type="hidden" name="enabled" value={enabled ? "on" : ""} />
 
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-zoru-ink">
@@ -365,7 +365,7 @@ function MessengerWelcomeForm({
               Automatically sent the first time a user messages your page.
             </p>
           </div>
-          <ZoruSwitch
+          <Switch
             id="welcome-enabled"
             checked={enabled}
             onCheckedChange={setEnabled}
@@ -373,12 +373,12 @@ function MessengerWelcomeForm({
           />
         </div>
 
-        <ZoruSeparator className="my-5" />
+        <Separator className="my-5" />
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="welcome-message">Welcome message text</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="welcome-message">Welcome message text</Label>
+            <Textarea
               id="welcome-message"
               name="message"
               placeholder="Welcome to our page! How can we help you today?"
@@ -387,17 +387,17 @@ function MessengerWelcomeForm({
             />
           </div>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div className="space-y-2">
-            <ZoruLabel>Quick replies (optional)</ZoruLabel>
+            <Label>Quick replies (optional)</Label>
             <p className="text-[12px] text-zoru-ink-muted">
               Add up to 13 buttons to guide users after the welcome message.
             </p>
             <div className="space-y-3 pt-1">
               {quickReplies.map((reply, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <ZoruInput
+                  <Input
                     placeholder="Button title (max 20 chars)"
                     value={reply.title}
                     onChange={(e) =>
@@ -405,14 +405,14 @@ function MessengerWelcomeForm({
                     }
                     maxLength={20}
                   />
-                  <ZoruInput
+                  <Input
                     placeholder="Payload"
                     value={reply.payload}
                     onChange={(e) =>
                       handleReplyChange(index, "payload", e.target.value)
                     }
                   />
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
@@ -420,12 +420,12 @@ function MessengerWelcomeForm({
                     aria-label="Remove quick reply"
                   >
                     <Trash2 />
-                  </ZoruButton>
+                  </Button>
                 </div>
               ))}
             </div>
             {quickReplies.length < 13 && (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -433,7 +433,7 @@ function MessengerWelcomeForm({
                 onClick={handleAddReply}
               >
                 <Plus /> Add quick reply
-              </ZoruButton>
+              </Button>
             )}
           </div>
         </div>
@@ -441,7 +441,7 @@ function MessengerWelcomeForm({
         <div className="mt-5 flex justify-end">
           <SubmitButton>Save welcome message</SubmitButton>
         </div>
-      </ZoruCard>
+      </Card>
     </form>
   );
 }

@@ -65,7 +65,7 @@ export default async function PublicTaskboardPage({
 
   return (
     <div className="space-y-6">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -78,13 +78,13 @@ export default async function PublicTaskboardPage({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruBadge variant="outline">{project.status}</ZoruBadge>
-            <ZoruBadge variant="secondary">
+            <Badge variant="outline">{project.status}</Badge>
+            <Badge variant="secondary">
               {totalCards} tasks · {columns.length} columns
-            </ZoruBadge>
+            </Badge>
           </div>
         </ZoruCardHeader>
-      </ZoruCard>
+      </Card>
 
       <div className="overflow-x-auto">
         <div className="flex min-w-full gap-4 pb-2">
@@ -109,7 +109,7 @@ export default async function PublicTaskboardPage({
                       {col.name}
                     </span>
                   </div>
-                  <ZoruBadge variant="outline">{col.cards.length}</ZoruBadge>
+                  <Badge variant="outline">{col.cards.length}</Badge>
                 </div>
                 <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto p-2">
                   {col.cards.length === 0 ? (
@@ -132,23 +132,23 @@ export default async function PublicTaskboardPage({
                         ) : null}
                         <div className="mt-2 flex flex-wrap items-center gap-1.5">
                           {card.priority ? (
-                            <ZoruBadge
+                            <Badge
                               variant={
                                 PRIORITY_VARIANT[card.priority.toLowerCase()] ||
                                 'outline'
                               }
                             >
                               {card.priority}
-                            </ZoruBadge>
+                            </Badge>
                           ) : null}
-                          <ZoruBadge
+                          <Badge
                             variant={
                               STATUS_VARIANT[card.status.toLowerCase()] ||
                               'outline'
                             }
                           >
                             {card.status}
-                          </ZoruBadge>
+                          </Badge>
                         </div>
                         <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
                           <span>{formatDate(card.dueDate)}</span>

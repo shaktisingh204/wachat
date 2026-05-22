@@ -322,25 +322,25 @@ export default function EventsCalendarPage(): React.JSX.Element {
         }
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="icon" onClick={goPrev} aria-label="Previous">
+            <Button variant="outline" size="icon" onClick={goPrev} aria-label="Previous">
               <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={goToday}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={goToday}>
               Today
-            </ZoruButton>
-            <ZoruButton variant="outline" size="icon" onClick={goNext} aria-label="Next">
+            </Button>
+            <Button variant="outline" size="icon" onClick={goNext} aria-label="Next">
               <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-            <ZoruButton asChild>
+            </Button>
+            <Button asChild>
               <Link href="/dashboard/crm/workspace/events/new">
                 <Plus className="h-4 w-4" /> New event
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <Select
               value={filters.color}
               onValueChange={(v) => setFilters((p) => ({ ...p, color: v }))}
             >
@@ -355,8 +355,8 @@ export default function EventsCalendarPage(): React.JSX.Element {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={filters.mode}
               onValueChange={(v) => setFilters((p) => ({ ...p, mode: v as ModeFilter }))}
             >
@@ -368,23 +368,23 @@ export default function EventsCalendarPage(): React.JSX.Element {
                 <ZoruSelectItem value="online">Online</ZoruSelectItem>
                 <ZoruSelectItem value="in-person">In-person</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {filtersActive ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setFilters(INITIAL_FILTERS)}
               >
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
             <div className="ml-auto flex gap-1">
-              <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+              <Button variant="ghost" size="sm" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="sm" onClick={exportXlsx}>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exportXlsx}>
                 <Download className="h-3.5 w-3.5" /> XLSX
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         }
@@ -392,22 +392,22 @@ export default function EventsCalendarPage(): React.JSX.Element {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="This month"
               value={kpis.monthCount}
               icon={<CalendarRange className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Today"
               value={kpis.todayCount}
               icon={<CalendarDays className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Upcoming (7d)"
               value={kpis.upcomingWeek}
               icon={<Sparkles className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Attendance rate"
               value={`${kpis.attendanceRate}%`}
               icon={<Check className="h-4 w-4" />}
@@ -447,7 +447,7 @@ function MonthGrid({
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <ZoruCard>
+    <Card>
       <div className="grid grid-cols-7 gap-1">
         {DAYS.map((d) => (
           <div
@@ -481,9 +481,9 @@ function MonthGrid({
                     href={`/dashboard/crm/workspace/events/${e._id}`}
                     className="truncate"
                   >
-                    <ZoruBadge variant="ghost" className="w-full justify-start truncate">
+                    <Badge variant="ghost" className="w-full justify-start truncate">
                       {e.event_name}
-                    </ZoruBadge>
+                    </Badge>
                   </Link>
                 ))}
                 {dayEvents.length > 3 ? (
@@ -496,7 +496,7 @@ function MonthGrid({
           );
         })}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -513,7 +513,7 @@ function WeekGrid({
     return d;
   });
   return (
-    <ZoruCard>
+    <Card>
       <div className="grid grid-cols-7 gap-1">
         {days.map((d) => (
           <div
@@ -548,7 +548,7 @@ function WeekGrid({
           </div>
         ))}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -560,7 +560,7 @@ function DayList({
   events: (WsEvent & { _id: string })[];
 }): React.JSX.Element {
   return (
-    <ZoruCard>
+    <Card>
       <div className="flex flex-col gap-2 p-1">
         <div className="text-[12.5px] font-semibold text-zoru-ink-muted">
           {day.toLocaleDateString(undefined, { weekday: 'long' })}
@@ -619,6 +619,6 @@ function DayList({
           </ul>
         )}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

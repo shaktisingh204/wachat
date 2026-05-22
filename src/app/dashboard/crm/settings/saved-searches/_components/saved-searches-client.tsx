@@ -223,7 +223,7 @@ export function SavedSearchesClient(): React.JSX.Element {
         search={{ value: search, onChange: setSearch, placeholder: 'Search by term or module…' }}
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <Select
               value={moduleFilter}
               onValueChange={(v) => setModuleFilter(v as ModuleFilter)}
             >
@@ -235,11 +235,11 @@ export function SavedSearchesClient(): React.JSX.Element {
                   <ZoruSelectItem key={o.value} value={o.value}>{o.label}</ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {(search || moduleFilter !== 'all') && (
-              <ZoruButton variant="ghost" size="sm" onClick={() => { setSearch(''); setModuleFilter('all'); }}>
+              <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setModuleFilter('all'); }}>
                 <X className="mr-1 h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             )}
           </div>
         }
@@ -247,19 +247,19 @@ export function SavedSearchesClient(): React.JSX.Element {
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[12.5px]">
-                <ZoruBadge variant="default">{selected.size} selected</ZoruBadge>
+                <Badge variant="default">{selected.size} selected</Badge>
                 <button type="button" onClick={() => setSelected(new Set())} className="text-zoru-ink-muted hover:text-zoru-ink">Clear</button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+                <Button variant="outline" size="sm" onClick={handleExportCsv}>
                   <Download className="mr-1 h-3.5 w-3.5" /> Export CSV
-                </ZoruButton>
-                <ZoruButton variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }}>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }}>
                   <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX
-                </ZoruButton>
-                <ZoruButton variant="destructive" size="sm" disabled={bulkPending} onClick={() => setPendingBulk(true)}>
+                </Button>
+                <Button variant="destructive" size="sm" disabled={bulkPending} onClick={() => setPendingBulk(true)}>
                   <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete {selected.size}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -280,31 +280,31 @@ export function SavedSearchesClient(): React.JSX.Element {
         <div className="flex flex-col gap-4">
           {/* KPI strip */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-            <ZoruStatCard label="Total saved searches" value={kpis.total.toLocaleString()} />
-            <ZoruStatCard label="Used today" value={kpis.usedToday.toLocaleString()} icon={<Search className="h-4 w-4" />} />
-            <ZoruStatCard label="Avg results" value={kpis.avgFilters.toLocaleString()} />
+            <StatCard label="Total saved searches" value={kpis.total.toLocaleString()} />
+            <StatCard label="Used today" value={kpis.usedToday.toLocaleString()} icon={<Search className="h-4 w-4" />} />
+            <StatCard label="Avg results" value={kpis.avgFilters.toLocaleString()} />
           </div>
 
           {/* Export toolbar when no selection */}
           {selected.size === 0 && (
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <ZoruButton variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}>
+              <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}>
                 <Download className="mr-1 h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={filtered.length === 0}>
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { void handleExportXlsx(); }} disabled={filtered.length === 0}>
                 <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
           {/* Table */}
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                         onCheckedChange={(v) => togglePage(v === true)}
                         aria-label="Select all on page"
@@ -322,7 +322,7 @@ export function SavedSearchesClient(): React.JSX.Element {
                   {loading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
                       <ZoruTableRow key={i}>
-                        <ZoruTableCell colSpan={7}><ZoruSkeleton className="h-8 w-full" /></ZoruTableCell>
+                        <ZoruTableCell colSpan={7}><Skeleton className="h-8 w-full" /></ZoruTableCell>
                       </ZoruTableRow>
                     ))
                   ) : pageRows.length === 0 ? (
@@ -335,7 +335,7 @@ export function SavedSearchesClient(): React.JSX.Element {
                     pageRows.map((row) => (
                       <ZoruTableRow key={row._id} className="border-zoru-line">
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={selected.has(row._id)}
                             onCheckedChange={() => toggleOne(row._id)}
                             aria-label={`Select ${row.search_term}`}
@@ -372,7 +372,7 @@ export function SavedSearchesClient(): React.JSX.Element {
                           </RowDrawer>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px]">
-                          <ZoruBadge variant="ghost">{row.module ?? '—'}</ZoruBadge>
+                          <Badge variant="ghost">{row.module ?? '—'}</Badge>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {row.result_count ?? '—'}
@@ -384,22 +384,22 @@ export function SavedSearchesClient(): React.JSX.Element {
                           {fmt(row.createdAt)}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setPendingDelete(row)}
                             aria-label={`Delete ${row.search_term}`}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

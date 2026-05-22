@@ -26,13 +26,13 @@ export default function RobotsMetaPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {(Object.keys(flags) as (keyof typeof flags)[]).map((k) => (
           <div key={k} className="flex items-center gap-2">
-            <ZoruSwitch checked={flags[k]} onCheckedChange={() => toggle(k)} />
-            <ZoruLabel className="capitalize">{k}</ZoruLabel>
+            <Switch checked={flags[k]} onCheckedChange={() => toggle(k)} />
+            <Label className="capitalize">{k}</Label>
           </div>
         ))}
       </div>
       <div className="font-mono text-sm bg-muted p-3 rounded">{output}</div>
-      <ZoruButton onClick={() => navigator.clipboard.writeText(output)}>Copy</ZoruButton>
+      <Button onClick={() => navigator.clipboard.writeText(output)}>Copy</Button>
     </ToolShell>
   );
 }

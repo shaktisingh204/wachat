@@ -25,21 +25,21 @@ export default function ReadabilityScorePage() {
 
   return (
     <ToolShell title="Readability Score" description="Flesch Reading Ease and Flesch–Kincaid grade level.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[260px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[260px]" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4">
             <div className="text-2xl font-bold">{ease.toFixed(1)}</div>
             <div className="text-xs text-muted-foreground">Flesch Reading Ease</div>
             <div className="text-xs mt-2">{easeLabel(ease)}</div>
           </ZoruCardContent>
-        </ZoruCard>
-        <ZoruCard>
+        </Card>
+        <Card>
           <ZoruCardContent className="p-4">
             <div className="text-2xl font-bold">{grade.toFixed(1)}</div>
             <div className="text-xs text-muted-foreground">Flesch–Kincaid Grade Level</div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     </ToolShell>
   );

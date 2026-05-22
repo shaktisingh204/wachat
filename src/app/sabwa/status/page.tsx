@@ -222,13 +222,13 @@ export default function SabWaStatusPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -238,7 +238,7 @@ export default function SabWaStatusPage() {
 
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -252,7 +252,7 @@ export default function SabWaStatusPage() {
             <ZoruBreadcrumbPage>Status / Stories</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-wrap items-start gap-3">
@@ -271,11 +271,11 @@ export default function SabWaStatusPage() {
             sharing.
           </p>
         </div>
-        <ZoruDialog open={composerOpen} onOpenChange={setComposerOpen}>
+        <Dialog open={composerOpen} onOpenChange={setComposerOpen}>
           <ZoruDialogTrigger asChild>
-            <ZoruButton type="button">
+            <Button type="button">
               <Plus className="mr-2 h-4 w-4" /> Post new status
-            </ZoruButton>
+            </Button>
           </ZoruDialogTrigger>
           <ZoruDialogContent>
             <ZoruDialogHeader>
@@ -291,7 +291,7 @@ export default function SabWaStatusPage() {
               aria-label="Composer mode"
               className="inline-flex w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
             >
-              <ZoruButton
+              <Button
                 type="button"
                 variant={composerMode === "text" ? "default" : "ghost"}
                 size="sm"
@@ -300,8 +300,8 @@ export default function SabWaStatusPage() {
                 onClick={() => setComposerMode("text")}
               >
                 <TypeIcon className="mr-1.5 h-3.5 w-3.5" /> Text
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 type="button"
                 variant={composerMode === "media" ? "default" : "ghost"}
                 size="sm"
@@ -310,7 +310,7 @@ export default function SabWaStatusPage() {
                 onClick={() => setComposerMode("media")}
               >
                 <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Media
-              </ZoruButton>
+              </Button>
             </div>
 
             {composerMode === "text" ? (
@@ -321,7 +321,7 @@ export default function SabWaStatusPage() {
                 >
                   {composerText || "Type your status..."}
                 </div>
-                <ZoruTextarea
+                <Textarea
                   rows={3}
                   placeholder="Type your status..."
                   value={composerText}
@@ -329,7 +329,7 @@ export default function SabWaStatusPage() {
                   maxLength={700}
                 />
                 <div>
-                  <ZoruLabel className="text-xs font-medium">Background</ZoruLabel>
+                  <Label className="text-xs font-medium">Background</Label>
                   <div className="mt-1 flex flex-wrap gap-2">
                     {TEXT_BG_COLOURS.map((c) => (
                       <button
@@ -366,14 +366,14 @@ export default function SabWaStatusPage() {
                       <span className="truncate text-[11.5px] text-zoru-ink-muted">
                         {composerMedia.name}
                       </span>
-                      <ZoruButton
+                      <Button
                         type="button"
                         size="sm"
                         variant="ghost"
                         onClick={() => setComposerMedia(null)}
                       >
                         <X className="mr-1 h-3.5 w-3.5" /> Remove
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -389,8 +389,8 @@ export default function SabWaStatusPage() {
             )}
 
             <div className="space-y-1">
-              <ZoruLabel className="text-xs font-medium">Audience</ZoruLabel>
-              <ZoruSelect
+              <Label className="text-xs font-medium">Audience</Label>
+              <Select
                 value={composerAudience}
                 onValueChange={(v) => setComposerAudience(v as Audience)}
               >
@@ -404,11 +404,11 @@ export default function SabWaStatusPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <ZoruDialogFooter>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 onClick={() => {
@@ -417,13 +417,13 @@ export default function SabWaStatusPage() {
                 }}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="button" onClick={handlePost}>
+              </Button>
+              <Button type="button" onClick={handlePost}>
                 <Send className="mr-2 h-4 w-4" /> Post
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
       </div>
 
       {/* View switcher — segmented buttons (no tab UI) */}
@@ -432,7 +432,7 @@ export default function SabWaStatusPage() {
         aria-label="Status view"
         className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
       >
-        <ZoruButton
+        <Button
           type="button"
           variant={view === "my" ? "default" : "ghost"}
           size="sm"
@@ -441,8 +441,8 @@ export default function SabWaStatusPage() {
           onClick={() => setView("my")}
         >
           My status
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           type="button"
           variant={view === "friends" ? "default" : "ghost"}
           size="sm"
@@ -451,14 +451,14 @@ export default function SabWaStatusPage() {
           onClick={() => setView("friends")}
         >
           Friends&apos; statuses
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* My status */}
       {view === "my" ? (
         <div className="space-y-3">
           {posted.length === 0 ? (
-            <ZoruCard className="border-dashed">
+            <Card className="border-dashed">
               <ZoruCardContent className="flex flex-col items-center gap-3 p-10 text-center">
                 <CircleDot className="h-7 w-7 text-zoru-ink-muted" />
                 <h3 className="text-sm font-semibold text-zoru-ink">
@@ -469,12 +469,12 @@ export default function SabWaStatusPage() {
                   coloured background or an image from your SabFiles library.
                 </p>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2">
               {posted.map((s) => (
                 <li key={s.id}>
-                  <ZoruCard>
+                  <Card>
                     <ZoruCardContent className="space-y-3 p-3">
                       {s.kind === "text" ? (
                         <div
@@ -494,27 +494,27 @@ export default function SabWaStatusPage() {
                         </div>
                       ) : null}
                       <div className="flex flex-wrap items-center gap-2 text-[11.5px]">
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                           <Eye className="mr-1 h-3 w-3" />
                           {s.viewers.length} views
-                        </ZoruBadge>
-                        <ZoruBadge variant="ghost">
+                        </Badge>
+                        <Badge variant="ghost">
                           <Repeat2 className="mr-1 h-3 w-3" />
                           {s.reposters.length} reposters
-                        </ZoruBadge>
-                        <ZoruBadge variant="outline">
+                        </Badge>
+                        <Badge variant="outline">
                           {
                             AUDIENCE_OPTIONS.find(
                               (a) => a.id === s.audience,
                             )?.label
                           }
-                        </ZoruBadge>
+                        </Badge>
                         <span className="ml-auto text-zoru-ink-muted">
                           {timeAgo(s.ts)}
                         </span>
                       </div>
                     </ZoruCardContent>
-                  </ZoruCard>
+                  </Card>
                 </li>
               ))}
             </ul>
@@ -524,7 +524,7 @@ export default function SabWaStatusPage() {
         /* Friends */
         <div className="space-y-3">
           {friendStatuses.length === 0 ? (
-            <ZoruCard className="border-dashed">
+            <Card className="border-dashed">
               <ZoruCardContent className="flex flex-col items-center gap-3 p-10 text-center">
                 <Users className="h-7 w-7 text-zoru-ink-muted" />
                 <h3 className="text-sm font-semibold text-zoru-ink">
@@ -535,7 +535,7 @@ export default function SabWaStatusPage() {
                   cards here. Tap one to open the swipeable viewer.
                 </p>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {friendStatuses.map((f, i) => (
@@ -545,7 +545,7 @@ export default function SabWaStatusPage() {
                     onClick={() => setViewerIndex(i)}
                     className="w-full text-left"
                   >
-                    <ZoruCard className="transition hover:shadow-[var(--zoru-shadow-md)]">
+                    <Card className="transition hover:shadow-[var(--zoru-shadow-md)]">
                       <ZoruCardContent className="space-y-2 p-3">
                         <div className="flex items-center gap-3">
                           <div
@@ -569,7 +569,7 @@ export default function SabWaStatusPage() {
                           </p>
                         )}
                       </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                   </button>
                 </li>
               ))}
@@ -579,7 +579,7 @@ export default function SabWaStatusPage() {
       )}
 
       {/* Friend status viewer */}
-      <ZoruDialog
+      <Dialog
         open={viewerEntry !== null}
         onOpenChange={(o) => {
           if (!o) closeViewer();
@@ -597,7 +597,7 @@ export default function SabWaStatusPage() {
               {viewerEntry?.preview ?? "No preview available."}
             </div>
             <div className="absolute inset-y-0 left-0 flex items-center">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon"
@@ -606,10 +606,10 @@ export default function SabWaStatusPage() {
                 aria-label="Previous status"
               >
                 <ArrowLeft className="h-4 w-4" />
-              </ZoruButton>
+              </Button>
             </div>
             <div className="absolute inset-y-0 right-0 flex items-center">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon"
@@ -621,11 +621,11 @@ export default function SabWaStatusPage() {
                 aria-label="Next status"
               >
                 <ArrowRight className="h-4 w-4" />
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

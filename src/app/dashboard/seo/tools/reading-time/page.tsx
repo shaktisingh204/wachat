@@ -20,16 +20,16 @@ export default function ReadingTimePage() {
 
   return (
     <ToolShell title="Reading Time Calculator" description="Estimate reading time based on words per minute.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
       <div className="flex items-end gap-4">
         <div className="space-y-1">
-          <ZoruLabel>Words / minute</ZoruLabel>
-          <ZoruInput type="number" value={wpm} onChange={(e) => setWpm(Number(e.target.value) || 0)} className="w-32" />
+          <Label>Words / minute</Label>
+          <Input type="number" value={wpm} onChange={(e) => setWpm(Number(e.target.value) || 0)} className="w-32" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></ZoruCard>
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{display}</div><div className="text-xs text-muted-foreground">Reading time</div></ZoruCardContent></ZoruCard>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{display}</div><div className="text-xs text-muted-foreground">Reading time</div></ZoruCardContent></Card>
       </div>
     </ToolShell>
   );

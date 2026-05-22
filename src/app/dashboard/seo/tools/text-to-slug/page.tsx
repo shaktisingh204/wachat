@@ -14,12 +14,12 @@ export default function TextToSlugPage() {
 
   return (
     <ToolShell title="Text to Slug" description="Convert text to URL-friendly slug (SEO-safe).">
-      <ZoruInput value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. Best SEO Tools for 2026!" />
-      <ZoruCard>
+      <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. Best SEO Tools for 2026!" />
+      <Card>
         <ZoruCardContent className="p-4 font-mono text-sm break-all">
           {slug || <span className="text-muted-foreground">Your slug will appear here…</span>}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </ToolShell>
   );
 }

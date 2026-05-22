@@ -72,7 +72,7 @@ function StatusBadge({ status }: { status: string | undefined }) {
   const s = (status ?? 'draft').toLowerCase();
   const variant = STATUS_VARIANT[s] ?? 'outline';
   const label = s.replace(/_/g, ' ');
-  return <ZoruBadge variant={variant}>{label}</ZoruBadge>;
+  return <Badge variant={variant}>{label}</Badge>;
 }
 
 /* ─── KPI card ─────────────────────────────────────────────────────── */
@@ -343,10 +343,10 @@ export function PurchaseOrdersListClient({
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Status
-              </ZoruLabel>
-              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+              </Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <ZoruSelectTrigger className="h-8 w-[160px]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -361,13 +361,13 @@ export function PurchaseOrdersListClient({
                   <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
                   <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Date from
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 type="date"
                 className="h-8 w-[140px] text-[13px]"
                 value={fromDate}
@@ -375,10 +375,10 @@ export function PurchaseOrdersListClient({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Date to
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 type="date"
                 className="h-8 w-[140px] text-[13px]"
                 value={toDate}
@@ -386,53 +386,53 @@ export function PurchaseOrdersListClient({
               />
             </div>
             {filtersActive ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
-              <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
-              <ZoruButton
+              <Badge variant="info">{selected.size} selected</Badge>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setApprovePending(true)}
                 disabled={bulkPending}
               >
                 <CheckCheck className="h-3.5 w-3.5" /> Approve
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setCancelPending(true)}
                 disabled={bulkPending}
               >
                 <XCircle className="h-3.5 w-3.5" /> Cancel
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => void handleExportXlsx()}
               >
                 <Download className="h-3.5 w-3.5" /> XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setDeletePending(true)}
                 disabled={bulkPending}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -487,21 +487,21 @@ export function PurchaseOrdersListClient({
 
         {/* Export bar */}
         <div className="flex items-center justify-end gap-2">
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
-          <ZoruButton size="sm" variant="outline" onClick={() => void handleExportXlsx()}>
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => void handleExportXlsx()}>
             <Download className="h-3.5 w-3.5" /> Export XLSX
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all on page"
@@ -531,7 +531,7 @@ export function PurchaseOrdersListClient({
                   filtered.map((po) => (
                     <ZoruTableRow key={po._id} className="border-zoru-line">
                       <ZoruTableCell className="pl-3">
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(po._id)}
                           onCheckedChange={() => toggleRow(po._id)}
                           aria-label={`Select ${po.poNo}`}
@@ -566,9 +566,9 @@ export function PurchaseOrdersListClient({
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
       </EntityListShell>

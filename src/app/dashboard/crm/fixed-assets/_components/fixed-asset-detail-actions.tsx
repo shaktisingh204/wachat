@@ -90,65 +90,65 @@ export function FixedAssetDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/fixed-assets/${assetId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setAssignOpen(true)}
       >
         <UserPlus className="h-3.5 w-3.5" /> Assign
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runUnassign}
         disabled={!custodianEmployeeId}
       >
         <UserMinus className="h-3.5 w-3.5" /> Unassign
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={runDepreciate}>
+      <Button size="sm" variant="outline" onClick={runDepreciate}>
         <TrendingDown className="h-3.5 w-3.5" /> Depreciate now
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setRetireOpen(true)}
       >
         <Banknote className="h-3.5 w-3.5" /> Retire / Dispose
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => window.print()}>
+      <Button size="sm" variant="outline" onClick={() => window.print()}>
         <Printer className="h-3.5 w-3.5" /> Print label
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         {/* TODO 1D.2: Maintenance log needs server-side endpoint and child table */}
         <Link href={`/dashboard/crm/fixed-assets/${assetId}/maintenance`}>
           <Wrench className="h-3.5 w-3.5" /> Maintenance log
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setArchiveOpen(true)}
       >
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/fixed-assets/${assetId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <FixedAssetAssignDialog
         open={assignOpen}

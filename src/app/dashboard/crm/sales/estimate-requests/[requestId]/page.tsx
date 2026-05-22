@@ -267,27 +267,27 @@ export default function EstimateRequestDetailPage(props: {
   if (isLoading && !data) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!request || !data) {
     return (
-      <ZoruCard className="p-6 border-dashed">
+      <Card className="p-6 border-dashed">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <p className="text-[13px] text-zoru-ink-muted">
             Estimate request not found.
           </p>
           <Link href="/dashboard/crm/sales/estimate-requests">
-            <ZoruButton variant="outline">
+            <Button variant="outline">
               <ArrowLeft className="h-4 w-4" />
               Back
-            </ZoruButton>
+            </Button>
           </Link>
         </div>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -302,7 +302,7 @@ export default function EstimateRequestDetailPage(props: {
             resourceType="estimate"
             resourceId={request._id}
           />
-          <ZoruButton
+          <Button
             disabled={isConverting || isQuoted}
             onClick={handleConvert}
           >
@@ -312,17 +312,17 @@ export default function EstimateRequestDetailPage(props: {
               <ArrowRightCircle className="h-4 w-4" />
             )}
             {isQuoted ? 'Already Quoted' : 'Convert to Quote'}
-          </ZoruButton>
+          </Button>
         </>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <ZoruBadge variant={STATUS_VARIANT[request.status] || 'ghost'}>
+          <Badge variant={STATUS_VARIANT[request.status] || 'ghost'}>
             {request.status}
-          </ZoruBadge>
-          <ZoruSelect
+          </Badge>
+          <Select
             value={request.status}
             onValueChange={(v) => handleStatusChange(v as WsEstimateRequestStatus)}
           >
@@ -336,7 +336,7 @@ export default function EstimateRequestDetailPage(props: {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
           <div className="ml-auto">
             <button
               type="button"
@@ -413,10 +413,10 @@ export default function EstimateRequestDetailPage(props: {
             </div>
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
       {data.accepts.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
             <h2 className="text-[16px] text-zoru-ink">
@@ -453,11 +453,11 @@ export default function EstimateRequestDetailPage(props: {
               </div>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {canAccept ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-4">
             <h2 className="text-[16px] text-zoru-ink">
               Accept estimate
@@ -469,8 +469,8 @@ export default function EstimateRequestDetailPage(props: {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel className="text-zoru-ink">Full Name</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Full Name</Label>
+              <Input
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Jane Doe"
@@ -478,8 +478,8 @@ export default function EstimateRequestDetailPage(props: {
               />
             </div>
             <div>
-              <ZoruLabel className="text-zoru-ink">Email</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Email</Label>
+              <Input
                 type="email"
                 value={signerEmail}
                 onChange={(e) => setSignerEmail(e.target.value)}
@@ -489,7 +489,7 @@ export default function EstimateRequestDetailPage(props: {
             </div>
           </div>
           <div className="mt-4">
-            <ZoruLabel className="text-zoru-ink">Signature</ZoruLabel>
+            <Label className="text-zoru-ink">Signature</Label>
             <div className="mt-1.5 rounded-lg border border-zoru-line bg-white p-2">
               <canvas
                 ref={canvasRef}
@@ -504,15 +504,15 @@ export default function EstimateRequestDetailPage(props: {
             </div>
           </div>
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={clearCanvas}
               disabled={isSigning}
             >
               <Eraser className="h-4 w-4" />
               Clear
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={handleAccept}
               disabled={isSigning}
             >
@@ -522,9 +522,9 @@ export default function EstimateRequestDetailPage(props: {
                 <CheckCircle2 className="h-4 w-4" />
               )}
               Accept &amp; Sign
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

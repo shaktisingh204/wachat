@@ -24,11 +24,11 @@ export default async function PosHoldRecallPage() {
             title="Held tickets"
             subtitle="Parked transactions waiting to be recalled or voided."
             primaryAction={
-                <ZoruButton size="sm" variant="outline" asChild>
+                <Button size="sm" variant="outline" asChild>
                     <Link href="/dashboard/crm/pos/terminal">
                         <ShoppingCart className="h-4 w-4" /> Back to terminal
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             <PosHoldRecallClient holds={holds} />

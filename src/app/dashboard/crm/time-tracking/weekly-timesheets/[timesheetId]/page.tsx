@@ -241,11 +241,11 @@ export default function WeeklyTimesheetDetailPage({
       actions={
         <div className="flex flex-wrap items-center gap-2">
           {ts ? (
-            <ZoruBadge variant={STATUS_VARIANTS[ts.status] || 'ghost'}>
+            <Badge variant={STATUS_VARIANTS[ts.status] || 'ghost'}>
               {ts.status}
-            </ZoruBadge>
+            </Badge>
           ) : null}
-          <ZoruButton variant="outline" disabled={isSaving} onClick={saveAll}>
+          <Button variant="outline" disabled={isSaving} onClick={saveAll}>
             {isSaving ? (
               <LoaderCircle
                 className="h-4 w-4 animate-spin"
@@ -255,23 +255,23 @@ export default function WeeklyTimesheetDetailPage({
               <Save className="h-4 w-4" strokeWidth={1.75} />
             )}
             Save
-          </ZoruButton>
+          </Button>
           {ts?.status === 'draft' || ts?.status === 'rejected' ? (
-            <ZoruButton onClick={handleSubmit}>
+            <Button onClick={handleSubmit}>
               <Send className="h-4 w-4" strokeWidth={1.75} />
               Submit
-            </ZoruButton>
+            </Button>
           ) : null}
           {ts?.status === 'submitted' ? (
             <>
-              <ZoruButton onClick={handleApprove}>
+              <Button onClick={handleApprove}>
                 <Check className="h-4 w-4" strokeWidth={1.75} />
                 Approve
-              </ZoruButton>
-              <ZoruButton variant="outline" onClick={() => setRejecting(true)}>
+              </Button>
+              <Button variant="outline" onClick={() => setRejecting(true)}>
                 <X className="h-4 w-4 text-zoru-danger-ink" strokeWidth={1.75} />
                 Reject
-              </ZoruButton>
+              </Button>
             </>
           ) : null}
         </div>
@@ -279,15 +279,15 @@ export default function WeeklyTimesheetDetailPage({
     >
 
       {isLoading && !ts ? (
-        <ZoruCard className="p-6">
-          <ZoruSkeleton className="h-40 w-full" />
-        </ZoruCard>
+        <Card className="p-6">
+          <Skeleton className="h-40 w-full" />
+        </Card>
       ) : !ts ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <p className="text-center text-[13px] text-zoru-ink-muted">
             Timesheet not found.
           </p>
-        </ZoruCard>
+        </Card>
       ) : (
         <>
           {ts.reason ? (
@@ -297,23 +297,23 @@ export default function WeeklyTimesheetDetailPage({
             </div>
           ) : null}
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-3 flex flex-wrap items-end gap-3">
               <div className="min-w-[220px] flex-1">
-                <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+                <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
                   Add Task Row
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   value={newTaskId}
                   onChange={(e) => setNewTaskId(e.target.value)}
                   placeholder="Task ID (optional — leave blank for general)"
                   className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
-              <ZoruButton variant="outline" onClick={addTaskRow}>
+              <Button variant="outline" onClick={addTaskRow}>
                 <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add Row
-              </ZoruButton>
+              </Button>
             </div>
 
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -373,7 +373,7 @@ export default function WeeklyTimesheetDetailPage({
                           </td>
                           {weekDates.map((d) => (
                             <td key={d} className="p-1.5">
-                              <ZoruInput
+                              <Input
                                 type="number"
                                 step="0.25"
                                 min="0"
@@ -427,11 +427,11 @@ export default function WeeklyTimesheetDetailPage({
                 </tfoot>
               </table>
             </div>
-          </ZoruCard>
+          </Card>
         </>
       )}
 
-      <ZoruDialog
+      <Dialog
         open={rejecting}
         onOpenChange={(o) => {
           if (!o) {
@@ -447,7 +447,7 @@ export default function WeeklyTimesheetDetailPage({
               Give a reason so the employee can revise and resubmit.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruTextarea
+          <Textarea
             rows={4}
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
@@ -455,7 +455,7 @@ export default function WeeklyTimesheetDetailPage({
             className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
           />
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => {
                 setRejecting(false);
@@ -463,11 +463,11 @@ export default function WeeklyTimesheetDetailPage({
               }}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleReject}>Reject</ZoruButton>
+            </Button>
+            <Button onClick={handleReject}>Reject</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityDetailShell>
   );
 }

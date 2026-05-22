@@ -200,9 +200,9 @@ export default function GdprEraseRequestDetailPage() {
     if (isLoading && !row) {
         return (
             <div className="space-y-4">
-                <ZoruSkeleton className="h-8 w-1/3" />
-                <ZoruSkeleton className="h-24 w-full" />
-                <ZoruSkeleton className="h-48 w-full" />
+                <Skeleton className="h-8 w-1/3" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-48 w-full" />
             </div>
         );
     }
@@ -217,11 +217,11 @@ export default function GdprEraseRequestDetailPage() {
                     label: 'Erase Requests',
                 }}
             >
-                <ZoruButton variant="outline" asChild>
+                <Button variant="outline" asChild>
                     <Link href="/dashboard/crm/settings/gdpr/removal-requests">
                         Back to list
                     </Link>
-                </ZoruButton>
+                </Button>
             </EntityDetailShell>
         );
     }
@@ -243,7 +243,7 @@ export default function GdprEraseRequestDetailPage() {
             }}
         >
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruBadge variant={STATUS_TONE[row.status]}>{row.status}</ZoruBadge>
+                <Badge variant={STATUS_TONE[row.status]}>{row.status}</Badge>
                 {row.legalHold ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-zoru-danger-bg px-3 py-1 text-xs text-zoru-danger-ink">
                         <ShieldOff className="h-3.5 w-3.5" />
@@ -253,17 +253,17 @@ export default function GdprEraseRequestDetailPage() {
 
                 <div className="ml-auto flex flex-wrap items-center gap-2">
                     {canApprove ? (
-                        <ZoruButton
+                        <Button
                             disabled={isPending}
                             onClick={onApprove}
                             aria-label="Approve"
                         >
                             <CheckCircle2 className="mr-2 h-4 w-4" />
                             Approve
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     {canReject ? (
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             disabled={isPending}
                             onClick={() => setRejecting(true)}
@@ -271,10 +271,10 @@ export default function GdprEraseRequestDetailPage() {
                         >
                             <XCircle className="mr-2 h-4 w-4" />
                             Reject
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     {canDryRun ? (
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             disabled={isPending}
                             onClick={onDryRun}
@@ -284,23 +284,23 @@ export default function GdprEraseRequestDetailPage() {
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             Dry-run
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     {canExecute ? (
-                        <ZoruButton
+                        <Button
                             disabled={isPending}
                             onClick={() => setExecuting(true)}
                             aria-label="Execute"
                         >
                             <PlayCircle className="mr-2 h-4 w-4" />
                             Execute
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </div>
             </div>
 
             {/* Metadata card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-3 text-sm font-semibold text-zoru-ink">Request metadata</h2>
                 <dl className="grid grid-cols-1 gap-3 text-[13px] md:grid-cols-2">
                     <div>
@@ -373,10 +373,10 @@ export default function GdprEraseRequestDetailPage() {
                         </div>
                     ) : null}
                 </dl>
-            </ZoruCard>
+            </Card>
 
             {/* Dry-run report */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <h2 className="text-sm font-semibold text-zoru-ink">Dry-run report</h2>
                     {row.dryRunReport ? (
@@ -393,7 +393,7 @@ export default function GdprEraseRequestDetailPage() {
                 </div>
                 {row.dryRunReport ? (
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">
@@ -424,25 +424,25 @@ export default function GdprEraseRequestDetailPage() {
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
             {/* Execution log */}
             {row.executionLog && row.executionLog.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <h2 className="mb-3 text-sm font-semibold text-zoru-ink">
                         Execution log
                     </h2>
                     <pre className="max-h-96 overflow-auto rounded-lg border border-zoru-line bg-zoru-surface p-3 text-[11px] leading-relaxed text-zoru-ink">
                         {row.executionLog.join('\n')}
                     </pre>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Reject dialog */}
-            <ZoruDialog
+            <Dialog
                 open={rejecting}
                 onOpenChange={(o) => {
                     if (!o) {
@@ -460,8 +460,8 @@ export default function GdprEraseRequestDetailPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="reject-reason-detail">Reason</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="reject-reason-detail">Reason</Label>
+                        <Textarea
                             id="reject-reason-detail"
                             rows={3}
                             value={rejectReason}
@@ -470,7 +470,7 @@ export default function GdprEraseRequestDetailPage() {
                         />
                     </div>
                     <ZoruDialogFooter className="gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => {
@@ -479,8 +479,8 @@ export default function GdprEraseRequestDetailPage() {
                             }}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             disabled={isPending}
                             onClick={confirmReject}
@@ -489,10 +489,10 @@ export default function GdprEraseRequestDetailPage() {
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             Reject
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Execute confirmation */}
             <ZoruAlertDialog

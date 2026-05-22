@@ -246,7 +246,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         id: "status",
         header: "Status",
         render: (r) => (
-          <ZoruBadge
+          <Badge
             variant={
               r.status === "running"
                 ? "default"
@@ -256,7 +256,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
             }
           >
             {STATUS_LABELS[r.status]}
-          </ZoruBadge>
+          </Badge>
         ),
       },
       {
@@ -289,11 +289,11 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
             return <span className="text-xs text-slate-400">—</span>;
           return (
             <div className="flex items-center gap-2">
-              <ZoruBadge
+              <Badge
                 variant={sig.result.significant ? "default" : "outline"}
               >
                 p = {fmtP(sig.result.pValue)}
-              </ZoruBadge>
+              </Badge>
               {sig.result.significant && (
                 <Sigma className="h-3.5 w-3.5 text-emerald-600" aria-label="significant" />
               )}
@@ -325,7 +325,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
             : 100;
           return (
             <div className="flex w-32 flex-col gap-1">
-              <ZoruProgress value={pct} className="h-1.5" />
+              <Progress value={pct} className="h-1.5" />
               <span className="text-[11px] text-slate-500 tabular-nums">
                 {total.toLocaleString()} / {r.minSample.toLocaleString()}
               </span>
@@ -654,19 +654,19 @@ function AbTestDetailDrawer({
           <>
             {/* Cost compare + significance stat cards */}
             <div className="grid grid-cols-2 gap-3">
-              <ZoruStatCard
+              <StatCard
                 label="Variants"
                 value={String(row.variants.length)}
               />
-              <ZoruStatCard
+              <StatCard
                 label="Total cost"
                 value={fmtCost(totalCost)}
               />
-              <ZoruStatCard
+              <StatCard
                 label="p-value"
                 value={sig ? fmtP(sig.result.pValue) : "—"}
               />
-              <ZoruStatCard
+              <StatCard
                 label="Min-sample reached"
                 value={
                   row.variants.reduce((s, v) => s + v.total, 0) >= row.minSample
@@ -677,7 +677,7 @@ function AbTestDetailDrawer({
             </div>
 
             {/* Per-variant table — features #10 + #12 */}
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Variants</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -685,7 +685,7 @@ function AbTestDetailDrawer({
                 </ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent className="p-0">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow>
                       <ZoruTableHead>Variant</ZoruTableHead>
@@ -741,12 +741,12 @@ function AbTestDetailDrawer({
                       );
                     })}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Funnel comparison bars per variant (feature #11) */}
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Funnel comparison</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -797,11 +797,11 @@ function AbTestDetailDrawer({
                   </ZoruChart.BarChart>
                 </ZoruChartContainer>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Significance simulation line (feature #17) */}
             {row.simulation && row.simulation.length > 1 && (
-              <ZoruCard>
+              <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle>Significance over time</ZoruCardTitle>
                   <ZoruCardDescription>
@@ -838,11 +838,11 @@ function AbTestDetailDrawer({
                     </ZoruChart.LineChart>
                   </ZoruChartContainer>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             )}
 
             {/* Settings — features #5 / #6 / #7 / #19 */}
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Test settings</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -853,12 +853,12 @@ function AbTestDetailDrawer({
               <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="flex items-center justify-between gap-2 rounded-md border border-slate-200 px-3 py-2">
                   <div className="flex flex-col">
-                    <ZoruLabel>Auto-promote winner</ZoruLabel>
+                    <Label>Auto-promote winner</Label>
                     <span className="text-xs text-slate-500">
                       Promote when p&lt;0.05 + min-sample reached.
                     </span>
                   </div>
-                  <ZoruSwitch
+                  <Switch
                     checked={row.autoPromote}
                     onCheckedChange={(v) => void onPatch({ autoPromote: v })}
                     disabled={pending?.startsWith("autoPromote")}
@@ -866,10 +866,10 @@ function AbTestDetailDrawer({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <ZoruLabel htmlFor={`minSample-${row.id}`}>
+                  <Label htmlFor={`minSample-${row.id}`}>
                     Min-sample threshold
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id={`minSample-${row.id}`}
                     type="number"
                     min={0}
@@ -884,8 +884,8 @@ function AbTestDetailDrawer({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <ZoruLabel>Conversion metric</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Conversion metric</Label>
+                  <Select
                     value={row.metric}
                     onValueChange={(v) =>
                       void onPatch({ metric: v as AbConversionMetric })
@@ -904,18 +904,18 @@ function AbTestDetailDrawer({
                         </ZoruSelectItem>
                       ))}
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
 
                 <div className="flex items-center justify-between gap-2 rounded-md border border-slate-200 px-3 py-2">
                   <div className="flex flex-col">
-                    <ZoruLabel>Bayesian stats</ZoruLabel>
+                    <Label>Bayesian stats</Label>
                     <span className="text-xs text-slate-500">
                       Off = frequentist χ² (default). On = beta-binomial
                       posterior; faster decisions, smoother peeks.
                     </span>
                   </div>
-                  <ZoruSwitch
+                  <Switch
                     checked={row.statsMode === "bayesian"}
                     onCheckedChange={(v) =>
                       void onPatch({
@@ -925,12 +925,12 @@ function AbTestDetailDrawer({
                   />
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </>
         )}
 
         {tab === "segments" && (
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Per-segment lift</ZoruCardTitle>
               <ZoruCardDescription>
@@ -938,7 +938,7 @@ function AbTestDetailDrawer({
               </ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent className="p-0">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead>Segment</ZoruTableHead>
@@ -984,23 +984,23 @@ function AbTestDetailDrawer({
                           {(s.lift * 100).toFixed(1)}%
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right tabular-nums">
-                          <ZoruBadge
+                          <Badge
                             variant={s.significant ? "default" : "outline"}
                           >
                             {fmtP(s.pValue)}
-                          </ZoruBadge>
+                          </Badge>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
 
         {tab === "audit" && (
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Audit trail</ZoruCardTitle>
               <ZoruCardDescription>
@@ -1040,7 +1040,7 @@ function AbTestDetailDrawer({
                 </ul>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
       </div>
     </SabsmsDetailDrawer>
@@ -1094,8 +1094,8 @@ function ConfirmDialog({
     title = "Schedule a follow-up test";
     body = (
       <div className="flex flex-col gap-2">
-        <ZoruLabel>Send at (local)</ZoruLabel>
-        <ZoruInput
+        <Label>Send at (local)</Label>
+        <Input
           type="datetime-local"
           value={scheduleAt}
           onChange={(e) => onScheduleAtChange(e.target.value)}
@@ -1105,22 +1105,22 @@ function ConfirmDialog({
     cta = "Schedule";
   }
   return (
-    <ZoruDialog open={open} onOpenChange={(o) => !o && onCancel()}>
+    <Dialog open={open} onOpenChange={(o) => !o && onCancel()}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>{title}</ZoruDialogTitle>
           <ZoruDialogDescription>{body}</ZoruDialogDescription>
         </ZoruDialogHeader>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={onCancel}>
+          <Button variant="ghost" onClick={onCancel}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onConfirm}>
+          </Button>
+          <Button onClick={onConfirm}>
             {cta}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

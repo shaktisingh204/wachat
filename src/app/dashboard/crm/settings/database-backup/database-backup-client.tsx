@@ -119,32 +119,32 @@ export function DatabaseBackupClient({
 
   if (loadError) {
     return (
-      <ZoruCard className="p-8 text-center">
+      <Card className="p-8 text-center">
         <p className="text-sm text-zoru-danger">{loadError}</p>
-      </ZoruCard>
+      </Card>
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Database backups</ZoruPageTitle>
           <ZoruPageDescription>
             Manual on-demand backups via mongodump. Configure storage path and retention below.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="flex flex-wrap gap-3">
-        <ZoruButton onClick={handleCreate} disabled={isPending}>
+        <Button onClick={handleCreate} disabled={isPending}>
           <Play className="h-4 w-4" strokeWidth={1.75} />
           {isPending ? 'Working…' : 'Create backup now'}
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <p className="text-[12.5px] text-zoru-ink-muted">Total backups</p>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
@@ -152,8 +152,8 @@ export function DatabaseBackupClient({
             </div>
           </div>
           <p className="mt-3 text-[26px] leading-none text-zoru-ink">{kpis.total}</p>
-        </ZoruCard>
-        <ZoruCard className="p-6">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <p className="text-[12.5px] text-zoru-ink-muted">Last backup</p>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
@@ -163,8 +163,8 @@ export function DatabaseBackupClient({
           <p className="mt-3 text-sm leading-none text-zoru-ink">
             {kpis.lastAt ? new Date(kpis.lastAt).toLocaleString() : 'Never'}
           </p>
-        </ZoruCard>
-        <ZoruCard className="p-6">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <p className="text-[12.5px] text-zoru-ink-muted">Total size</p>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
@@ -174,11 +174,11 @@ export function DatabaseBackupClient({
           <p className="mt-3 text-[26px] leading-none text-zoru-ink">
             {formatBytes(kpis.totalSizeBytes)}
           </p>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard>
-        <ZoruTable>
+      <Card>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>Filename</ZoruTableHead>
@@ -204,7 +204,7 @@ export function DatabaseBackupClient({
                     {new Date(row.createdAt).toLocaleString()}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge
+                    <Badge
                       variant={
                         row.status === 'failed'
                           ? 'destructive'
@@ -214,11 +214,11 @@ export function DatabaseBackupClient({
                       }
                     >
                       {row.status}
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex items-center justify-end gap-2">
-                      <ZoruButton
+                      <Button
                         size="sm"
                         variant="outline"
                         asChild
@@ -230,8 +230,8 @@ export function DatabaseBackupClient({
                           <Download className="h-4 w-4" strokeWidth={1.75} />
                           Download
                         </a>
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleDelete(row._id)}
@@ -239,25 +239,25 @@ export function DatabaseBackupClient({
                       >
                         <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                         Delete
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))
             )}
           </ZoruTableBody>
-        </ZoruTable>
-      </ZoruCard>
+        </Table>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="text-base text-zoru-ink">Settings</h2>
         <p className="text-[12.5px] text-zoru-ink-muted">
           Where backups are written and how long they're kept.
         </p>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="storage">Storage</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="storage">Storage</Label>
+            <Select
               value={settings.storage}
               onValueChange={(v) => setSettings((s) => ({ ...s, storage: v as BackupSettings['storage'] }))}
             >
@@ -268,19 +268,19 @@ export function DatabaseBackupClient({
                 <ZoruSelectItem value="local">Local disk</ZoruSelectItem>
                 <ZoruSelectItem value="s3">S3 / R2</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="bk-path">Path / bucket</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="bk-path">Path / bucket</Label>
+            <Input
               id="bk-path"
               value={settings.path}
               onChange={(e) => setSettings((s) => ({ ...s, path: e.target.value }))}
             />
           </div>
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="retention">Retention (days)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="retention">Retention (days)</Label>
+            <Input
               id="retention"
               type="number"
               min={1}
@@ -295,11 +295,11 @@ export function DatabaseBackupClient({
           </div>
         </div>
         <div className="mt-4 flex justify-end">
-          <ZoruButton onClick={handleSaveSettings} disabled={isPending}>
+          <Button onClick={handleSaveSettings} disabled={isPending}>
             Save settings
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

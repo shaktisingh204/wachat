@@ -78,7 +78,7 @@ export function PayoutApplyRows({
                 <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Apply to bills
                 </h3>
-                <ZoruButton
+                <Button
                     type="button"
                     size="sm"
                     variant="outline"
@@ -86,7 +86,7 @@ export function PayoutApplyRows({
                     disabled={disabled || !vendorPicked}
                 >
                     <PlusCircle className="h-3.5 w-3.5" /> Add bill
-                </ZoruButton>
+                </Button>
             </div>
             {!vendorPicked ? (
                 <p className="text-[12.5px] text-zoru-ink-muted">
@@ -107,7 +107,7 @@ export function PayoutApplyRows({
                                 className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_180px_auto]"
                             >
                                 <div className="flex flex-col">
-                                    <ZoruInput
+                                    <Input
                                         value={row.billId}
                                         list={billsDatalistId}
                                         onChange={(e) => {
@@ -131,7 +131,7 @@ export function PayoutApplyRows({
                                     ) : null}
                                 </div>
                                 <div className="flex flex-col">
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         min={0}
                                         step="0.01"
@@ -148,7 +148,7 @@ export function PayoutApplyRows({
                                         </span>
                                     ) : null}
                                 </div>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     size="sm"
                                     variant="ghost"
@@ -157,7 +157,7 @@ export function PayoutApplyRows({
                                     className="text-zoru-danger-ink"
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         );
                     })}

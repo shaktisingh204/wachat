@@ -275,7 +275,7 @@ export default function Page() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -289,14 +289,14 @@ export default function Page() {
               <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
-        <ZoruEmptyState
+        </Breadcrumb>
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -307,7 +307,7 @@ export default function Page() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -321,7 +321,7 @@ export default function Page() {
             <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -340,22 +340,22 @@ export default function Page() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <ZoruButton variant="outline" onClick={() => setImportOpen(true)}>
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
             <Upload className="mr-2 h-4 w-4" /> Import CSV
-          </ZoruButton>
-          <ZoruButton onClick={() => setAddOpen(true)}>
+          </Button>
+          <Button onClick={() => setAddOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Add contact
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {/* Filter bar */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative min-w-[220px] flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-              <ZoruInput
+              <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name, phone, or push name…"
@@ -363,7 +363,7 @@ export default function Page() {
                 aria-label="Search contacts"
               />
             </div>
-            <ZoruSelect value={tagFilter} onValueChange={setTagFilter}>
+            <Select value={tagFilter} onValueChange={setTagFilter}>
               <ZoruSelectTrigger className="w-[180px]">
                 <ZoruSelectValue placeholder="All tags" />
               </ZoruSelectTrigger>
@@ -375,8 +375,8 @@ export default function Page() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
               value={sourceFilter}
               onValueChange={(v) => setSourceFilter(v as ContactSource | 'all')}
             >
@@ -390,39 +390,39 @@ export default function Page() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           {selected.size > 0 && (
             <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2 text-sm">
               <span className="text-zoru-ink-muted">
                 {selected.size} selected
               </span>
-              <ZoruSeparator orientation="vertical" className="h-5" />
-              <ZoruButton size="sm" variant="ghost">
+              <Separator orientation="vertical" className="h-5" />
+              <Button size="sm" variant="ghost">
                 <TagIcon className="mr-1.5 h-3.5 w-3.5" /> Tag
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={exportSelectedCsv}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={exportSelectedCsv}>
                 <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost">
+              </Button>
+              <Button size="sm" variant="ghost">
                 <Users className="mr-1.5 h-3.5 w-3.5" /> Add to broadcast
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" className="text-zoru-danger">
+              </Button>
+              <Button size="sm" variant="ghost" className="text-zoru-danger">
                 <Ban className="mr-1.5 h-3.5 w-3.5" /> Block
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 className="ml-auto"
                 onClick={() => setSelected(new Set())}
               >
                 <X className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           )}
         </ZoruCardHeader>
         <ZoruCardContent className="p-0">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-10">
@@ -451,30 +451,30 @@ export default function Page() {
                 Array.from({ length: 6 }).map((_, i) => (
                   <ZoruTableRow key={`contacts-skeleton-${i}`}>
                     <ZoruTableCell colSpan={6} className="py-2">
-                      <ZoruSkeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                      <Skeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               {!loading && contacts.length === 0 && (
                 <ZoruTableRow>
                   <ZoruTableCell colSpan={6} className="py-8">
-                    <ZoruEmptyState
+                    <EmptyState
                       icon={<Users />}
                       title="No contacts yet"
                       description="Import a CSV in seconds, or add one manually. Once your WhatsApp session syncs, address-book contacts will appear here automatically."
                       action={
                         <div className="flex flex-wrap items-center justify-center gap-2">
-                          <ZoruButton onClick={() => setAddOpen(true)}>
+                          <Button onClick={() => setAddOpen(true)}>
                             <Plus className="mr-1.5 h-4 w-4" />
                             Add contact
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="outline"
                             onClick={() => setImportOpen(true)}
                           >
                             <Upload className="mr-1.5 h-4 w-4" />
                             Import CSV
-                          </ZoruButton>
+                          </Button>
                         </div>
                       }
                     />
@@ -508,23 +508,23 @@ export default function Page() {
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex items-center gap-3">
-                        <ZoruAvatar className="h-9 w-9">
+                        <Avatar className="h-9 w-9">
                           {c.profilePicUrl ? (
                             <ZoruAvatarImage src={c.profilePicUrl} alt="" />
                           ) : null}
                           <ZoruAvatarFallback className="text-xs">
                             {initialsFromName(c.name ?? c.pushName)}
                           </ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
                             <span className="truncate font-medium text-zoru-ink">
                               {c.name ?? c.pushName ?? resolve(c.jid)}
                             </span>
                             {c.isBusiness && (
-                              <ZoruBadge variant="info" className="text-[10px]">
+                              <Badge variant="info" className="text-[10px]">
                                 Business
-                              </ZoruBadge>
+                              </Badge>
                             )}
                           </div>
                           <div className="truncate text-xs text-zoru-ink-muted">
@@ -545,32 +545,32 @@ export default function Page() {
                           <span className="text-xs text-zoru-ink-muted">—</span>
                         )}
                         {c.tags.slice(0, 3).map((t) => (
-                          <ZoruBadge key={t} variant="secondary" className="text-[10px]">
+                          <Badge key={t} variant="secondary" className="text-[10px]">
                             {t}
-                          </ZoruBadge>
+                          </Badge>
                         ))}
                         {c.tags.length > 3 && (
-                          <ZoruBadge variant="outline" className="text-[10px]">
+                          <Badge variant="outline" className="text-[10px]">
                             +{c.tags.length - 3}
-                          </ZoruBadge>
+                          </Badge>
                         )}
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge
+                      <Badge
                         variant="outline"
                         className="text-[10px] uppercase tracking-wide"
                       >
                         {c.source}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 );
               })}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Detail drawer */}
       <ContactDrawer
@@ -587,7 +587,7 @@ export default function Page() {
       />
 
       {/* Add contact dialog */}
-      <ZoruDialog open={addOpen} onOpenChange={setAddOpen}>
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Add contact</ZoruDialogTitle>
@@ -597,8 +597,8 @@ export default function Page() {
           </ZoruDialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="contact-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="contact-name">Name</Label>
+              <Input
                 id="contact-name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
@@ -606,8 +606,8 @@ export default function Page() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="contact-phone">Phone (E.164)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="contact-phone">Phone (E.164)</Label>
+              <Input
                 id="contact-phone"
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
@@ -616,10 +616,10 @@ export default function Page() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setAddOpen(false)}>
+            <Button variant="ghost" onClick={() => setAddOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 setAddOpen(false);
                 setNewName('');
@@ -629,13 +629,13 @@ export default function Page() {
               disabled={!newPhone}
             >
               Add contact
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Import CSV dialog */}
-      <ZoruDialog open={importOpen} onOpenChange={setImportOpen}>
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Import contacts from CSV</ZoruDialogTitle>
@@ -643,15 +643,15 @@ export default function Page() {
               CSV columns: <code>name,phone,tags</code>. Phones must be E.164.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruInput type="file" accept=".csv,text/csv" />
+          <Input type="file" accept=".csv,text/csv" />
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setImportOpen(false)}>
+            <Button variant="ghost" onClick={() => setImportOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={() => setImportOpen(false)}>Import</ZoruButton>
+            </Button>
+            <Button onClick={() => setImportOpen(false)}>Import</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }
@@ -724,7 +724,7 @@ function ContactDrawer({
   };
 
   return (
-    <ZoruSheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <ZoruSheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <ZoruSheetHeader>
           <ZoruSheetTitle>Contact</ZoruSheetTitle>
@@ -734,28 +734,28 @@ function ContactDrawer({
         </ZoruSheetHeader>
 
         <div className="mt-4 flex items-center gap-3">
-          <ZoruAvatar className="h-14 w-14">
+          <Avatar className="h-14 w-14">
             {contact.profilePicUrl ? (
               <ZoruAvatarImage src={contact.profilePicUrl} alt="" />
             ) : null}
             <ZoruAvatarFallback>
               {initialsFromName(contact.name ?? contact.pushName)}
             </ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="truncate text-base font-semibold text-zoru-ink">
                 {contact.name ?? contact.pushName ?? formatJid(contact.jid)}
               </p>
               {contact.isBusiness && (
-                <ZoruBadge variant="info" className="text-[10px]">
+                <Badge variant="info" className="text-[10px]">
                   Business
-                </ZoruBadge>
+                </Badge>
               )}
               {contact.isBlocked && (
-                <ZoruBadge variant="danger" className="text-[10px]">
+                <Badge variant="danger" className="text-[10px]">
                   Blocked
-                </ZoruBadge>
+                </Badge>
               )}
             </div>
             <p className="truncate font-mono text-xs text-zoru-ink-muted">
@@ -766,22 +766,22 @@ function ContactDrawer({
 
         {/* Quick actions */}
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <ZoruButton size="sm" variant="outline">
+          <Button size="sm" variant="outline">
             <MessageSquare className="mr-1.5 h-3.5 w-3.5" /> Open chat
-          </ZoruButton>
-          <ZoruButton size="sm" variant="outline">
+          </Button>
+          <Button size="sm" variant="outline">
             <Users className="mr-1.5 h-3.5 w-3.5" /> Add to broadcast
-          </ZoruButton>
-          <ZoruButton size="sm" variant="outline">
+          </Button>
+          <Button size="sm" variant="outline">
             <TagIcon className="mr-1.5 h-3.5 w-3.5" /> Add to label
-          </ZoruButton>
-          <ZoruButton size="sm" variant="outline" className="text-zoru-danger">
+          </Button>
+          <Button size="sm" variant="outline" className="text-zoru-danger">
             <Ban className="mr-1.5 h-3.5 w-3.5" />{' '}
             {contact.isBlocked ? 'Unblock' : 'Block'}
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruSeparator className="my-4" />
+        <Separator className="my-4" />
 
         {/* Section switcher — segmented buttons replace the old Tabs UI */}
         <div
@@ -790,7 +790,7 @@ function ContactDrawer({
           className="flex w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
         >
           {DRAWER_SECTIONS.map((s) => (
-            <ZoruButton
+            <Button
               key={s.value}
               type="button"
               variant={section === s.value ? 'default' : 'ghost'}
@@ -799,7 +799,7 @@ function ContactDrawer({
               onClick={() => setSection(s.value)}
             >
               {s.label}
-            </ZoruButton>
+            </Button>
           ))}
         </div>
 
@@ -813,7 +813,7 @@ function ContactDrawer({
                   <span className="text-xs text-zoru-ink-muted">No tags yet.</span>
                 )}
                 {contact.tags.map((t) => (
-                  <ZoruBadge key={t} variant="secondary" className="gap-1">
+                  <Badge key={t} variant="secondary" className="gap-1">
                     {t}
                     <button
                       type="button"
@@ -823,11 +823,11 @@ function ContactDrawer({
                     >
                       <X className="h-3 w-3" />
                     </button>
-                  </ZoruBadge>
+                  </Badge>
                 ))}
               </div>
               <div className="flex gap-2">
-                <ZoruInput
+                <Input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -839,9 +839,9 @@ function ContactDrawer({
                   placeholder="Add a tag and press enter"
                   className="h-8 text-sm"
                 />
-                <ZoruButton size="sm" variant="outline" onClick={() => void addTag()}>
+                <Button size="sm" variant="outline" onClick={() => void addTag()}>
                   Add
-                </ZoruButton>
+                </Button>
               </div>
             </section>
 
@@ -869,16 +869,16 @@ function ContactDrawer({
             <section className="space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-zoru-ink">Notes</h3>
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="ghost"
                   disabled={savingNotes || notesDraft === (contact.notes ?? '')}
                   onClick={() => void saveNotes()}
                 >
                   {savingNotes ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
               </div>
-              <ZoruTextarea
+              <Textarea
                 rows={4}
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
@@ -926,9 +926,9 @@ function ContactDrawer({
                   className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2 py-1.5"
                 >
                   <span className="truncate text-zoru-ink">{g.subject}</span>
-                  <ZoruBadge variant="outline" className="text-[10px]">
+                  <Badge variant="outline" className="text-[10px]">
                     Group
-                  </ZoruBadge>
+                  </Badge>
                 </li>
               ))}
             </ul>
@@ -959,7 +959,7 @@ function ContactDrawer({
           </div>
         )}
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }
 
@@ -1000,7 +1000,7 @@ function CustomFieldsEditor({ value, onChange }: CustomFieldsEditorProps) {
           <li key={k} className="flex items-center gap-2 text-sm">
             <span className="min-w-[100px] truncate font-medium text-zoru-ink">{k}</span>
             <span className="flex-1 truncate text-zoru-ink-muted">{v}</span>
-            <ZoruButton
+            <Button
               type="button"
               size="icon"
               variant="ghost"
@@ -1008,26 +1008,26 @@ function CustomFieldsEditor({ value, onChange }: CustomFieldsEditorProps) {
               onClick={() => removePair(k)}
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </li>
         ))}
       </ul>
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={keyDraft}
           onChange={(e) => setKeyDraft(e.target.value)}
           placeholder="Key"
           className="h-8 text-sm"
         />
-        <ZoruInput
+        <Input
           value={valDraft}
           onChange={(e) => setValDraft(e.target.value)}
           placeholder="Value"
           className="h-8 text-sm"
         />
-        <ZoruButton size="sm" variant="outline" onClick={addPair} disabled={!keyDraft}>
+        <Button size="sm" variant="outline" onClick={addPair} disabled={!keyDraft}>
           <Plus className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

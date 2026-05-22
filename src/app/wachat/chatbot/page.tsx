@@ -196,7 +196,7 @@ export default function ChatbotPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -210,9 +210,9 @@ export default function ChatbotPage() {
             <ZoruBreadcrumbPage>Chatbot</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageTitle>Chatbot Responses</ZoruPageTitle>
           <ZoruPageDescription>
@@ -221,50 +221,50 @@ export default function ChatbotPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={load}
             disabled={isPending}
           >
             <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setTrainOpen(true)}
           >
             <Sparkles /> Train
-          </ZoruButton>
-          <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+          </Button>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus /> New response
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Stats */}
       <div className="mt-6 grid max-w-md grid-cols-2 gap-3">
-        <ZoruCard className="p-4">
+        <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Total responses
           </div>
           <div className="mt-2 text-[22px] text-zoru-ink leading-none">
             {totalRules}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-4">
+        </Card>
+        <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Active
           </div>
           <div className="mt-2 text-[22px] text-zoru-ink leading-none">
             {activeRules}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Two-pane: responses table + test chat */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-[15px] text-zoru-ink">Responses</h2>
             {isPending && (
@@ -273,18 +273,18 @@ export default function ChatbotPage() {
           </div>
 
           {!isPending && responses.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Bot />}
               title="No chatbot responses configured"
               description="Add your first keyword-triggered reply to start auto-responding."
               action={
-                <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
                   <Plus /> New response
-                </ZoruButton>
+                </Button>
               }
             />
           ) : responses.length > 0 ? (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Trigger</ZoruTableHead>
@@ -307,29 +307,29 @@ export default function ChatbotPage() {
                       {r.matchType}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={r.isActive ? 'success' : 'secondary'}>
+                      <Badge variant={r.isActive ? 'success' : 'secondary'}>
                         {r.isActive ? 'Active' : 'Inactive'}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => setDeleteTarget(r)}
                         aria-label="Delete response"
                       >
                         <Trash2 />
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           ) : null}
-        </ZoruCard>
+        </Card>
 
         {/* Test chat panel */}
-        <ZoruCard className="flex h-fit flex-col p-0">
+        <Card className="flex h-fit flex-col p-0">
           <div className="border-b border-zoru-line px-4 py-3">
             <h3 className="text-[14px] text-zoru-ink leading-tight">Test chat</h3>
             <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted leading-tight">
@@ -368,7 +368,7 @@ export default function ChatbotPage() {
             )}
           </div>
           <div className="flex gap-2 border-t border-zoru-line px-3 py-3">
-            <ZoruInput
+            <Input
               value={testInput}
               onChange={(e) => setTestInput(e.target.value)}
               placeholder="Type a message…"
@@ -379,34 +379,34 @@ export default function ChatbotPage() {
                 }
               }}
             />
-            <ZoruButton
+            <Button
               size="icon"
               onClick={sendTest}
               disabled={!testInput.trim()}
               aria-label="Send"
             >
               <Send />
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
       <div className="mt-6 flex items-center justify-between">
         <p className="text-[12px] text-zoru-ink-muted">
           Reset clears all chatbot responses for this project.
         </p>
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           onClick={() => setResetOpen(true)}
           disabled={!responses.length}
         >
           Reset chatbot
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* Create-response dialog */}
-      <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>New chatbot response</ZoruDialogTitle>
@@ -416,13 +416,13 @@ export default function ChatbotPage() {
           </ZoruDialogHeader>
           <form action={handleSave} className="space-y-4">
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="cb-trigger">Trigger keyword</ZoruLabel>
-              <ZoruInput id="cb-trigger" name="trigger" placeholder="hello" required />
+              <Label htmlFor="cb-trigger">Trigger keyword</Label>
+              <Input id="cb-trigger" name="trigger" placeholder="hello" required />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
-                <ZoruLabel>Match type</ZoruLabel>
-                <ZoruSelect value={matchType} onValueChange={setMatchType}>
+                <Label>Match type</Label>
+                <Select value={matchType} onValueChange={setMatchType}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue placeholder="Match type" />
                   </ZoruSelectTrigger>
@@ -433,20 +433,20 @@ export default function ChatbotPage() {
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="flex items-end gap-3">
-                <ZoruSwitch
+                <Switch
                   id="cb-active"
                   checked={isActive}
                   onCheckedChange={setIsActive}
                 />
-                <ZoruLabel htmlFor="cb-active">Active</ZoruLabel>
+                <Label htmlFor="cb-active">Active</Label>
               </div>
             </div>
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="cb-response">Response</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="cb-response">Response</Label>
+              <Textarea
                 id="cb-response"
                 name="response"
                 rows={3}
@@ -455,21 +455,21 @@ export default function ChatbotPage() {
               />
             </div>
             <ZoruDialogFooter>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 onClick={() => setCreateOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit">Create</ZoruButton>
+              </Button>
+              <Button type="submit">Create</Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Train dialog */}
-      <ZoruDialog open={trainOpen} onOpenChange={setTrainOpen}>
+      <Dialog open={trainOpen} onOpenChange={setTrainOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Train chatbot</ZoruDialogTitle>
@@ -480,12 +480,12 @@ export default function ChatbotPage() {
           </ZoruDialogHeader>
           <div className="space-y-3">
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="train-q">Sample question</ZoruLabel>
-              <ZoruInput id="train-q" placeholder="Where can I track my order?" />
+              <Label htmlFor="train-q">Sample question</Label>
+              <Input id="train-q" placeholder="Where can I track my order?" />
             </div>
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="train-a">Ideal answer</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="train-a">Ideal answer</Label>
+              <Textarea
                 id="train-a"
                 rows={3}
                 placeholder="You can track your order at /orders."
@@ -493,10 +493,10 @@ export default function ChatbotPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setTrainOpen(false)}>
+            <Button variant="ghost" onClick={() => setTrainOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Saved',
@@ -506,10 +506,10 @@ export default function ChatbotPage() {
               }}
             >
               Save sample
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Reset chatbot confirm */}
       <ZoruAlertDialog open={resetOpen} onOpenChange={setResetOpen}>

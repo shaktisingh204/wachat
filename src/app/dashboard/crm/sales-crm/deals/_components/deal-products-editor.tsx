@@ -50,9 +50,9 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
             Optional line items; helps when converting to a quotation.
           </p>
         </div>
-        <ZoruButton type="button" variant="outline" size="sm" onClick={onAdd}>
+        <Button type="button" variant="outline" size="sm" onClick={onAdd}>
           <Plus className="h-3.5 w-3.5" /> Add line
-        </ZoruButton>
+        </Button>
       </div>
 
       {products.length === 0 ? (
@@ -78,9 +78,9 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                 return (
                   <tr key={idx} className="border-t border-zoru-line">
                     <td className="p-2 align-top" style={{ minWidth: 180 }}>
-                      <ZoruLabel className="sr-only" htmlFor={`item-${idx}`}>
+                      <Label className="sr-only" htmlFor={`item-${idx}`}>
                         Item
-                      </ZoruLabel>
+                      </Label>
                       <EntityPicker
                         entity="item"
                         value={row.itemId}
@@ -95,14 +95,14 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                       />
                     </td>
                     <td className="p-2 align-top" style={{ minWidth: 160 }}>
-                      <ZoruInput
+                      <Input
                         value={row.name}
                         onChange={(e) => onPatch(idx, { name: e.target.value })}
                         aria-label="Line item name"
                       />
                     </td>
                     <td className="p-2 align-top text-right">
-                      <ZoruInput
+                      <Input
                         type="number"
                         min={0}
                         step="1"
@@ -116,7 +116,7 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                       />
                     </td>
                     <td className="p-2 align-top text-right">
-                      <ZoruInput
+                      <Input
                         type="number"
                         min={0}
                         step="0.01"
@@ -128,7 +128,7 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                       />
                     </td>
                     <td className="p-2 align-top text-right">
-                      <ZoruInput
+                      <Input
                         type="number"
                         min={0}
                         max={100}
@@ -146,7 +146,7 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                       {total.toFixed(2)}
                     </td>
                     <td className="p-2 align-top">
-                      <ZoruButton
+                      <Button
                         type="button"
                         size="sm"
                         variant="ghost"
@@ -154,7 +154,7 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                         aria-label="Remove line"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
+                      </Button>
                     </td>
                   </tr>
                 );

@@ -75,29 +75,29 @@ export default async function BankAccountDetailPage({
             back={{ href: BASE, label: 'Bank Accounts' }}
             actions={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link
                             href={`/dashboard/crm/banking/bank-transactions?accountId=${accountId}`}
                         >
                             <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" /> Transactions
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" asChild>
+                    </Button>
+                    <Button variant="outline" asChild>
                         <Link href="/dashboard/crm/banking/reconciliation">
                             <RotateCw className="mr-1.5 h-3.5 w-3.5" /> Reconcile
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild>
+                    </Button>
+                    <Button asChild>
                         <Link href={`${BASE}/${accountId}/edit`}>
                             <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
 
             {/* Balance card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <BalanceCell
                         label="Current balance"
@@ -117,11 +117,11 @@ export default async function BankAccountDetailPage({
                         }
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Bank details */}
-                <ZoruCard className="p-5">
+                <Card className="p-5">
                     <p className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Bank details
                     </p>
@@ -142,10 +142,10 @@ export default async function BankAccountDetailPage({
                         <Row label="SWIFT" value={account.bankDetails?.swiftCode || '—'} mono />
                         <Row label="IBAN" value={account.bankDetails?.ibanCode || '—'} mono />
                     </dl>
-                </ZoruCard>
+                </Card>
 
                 {/* Meta */}
-                <ZoruCard className="p-5">
+                <Card className="p-5">
                     <p className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Account
                     </p>
@@ -172,10 +172,10 @@ export default async function BankAccountDetailPage({
                             }
                         />
                     </dl>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Linked ledger
                 </p>
@@ -188,7 +188,7 @@ export default async function BankAccountDetailPage({
                         <FileText className="h-3 w-3" /> View ledger
                     </Link>
                 </p>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

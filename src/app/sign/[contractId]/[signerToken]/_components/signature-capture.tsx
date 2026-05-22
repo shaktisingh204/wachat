@@ -150,7 +150,7 @@ export function SignatureCapture({
             {/* Consent + submit */}
             <div className="space-y-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
                 <label className="flex items-start gap-3 text-sm leading-6 text-zoru-ink">
-                    <ZoruCheckbox
+                    <Checkbox
                         checked={agreed}
                         onCheckedChange={(c) => setAgreed(c === true)}
                         className="mt-0.5"
@@ -162,10 +162,10 @@ export function SignatureCapture({
                         understood its terms.
                     </span>
                 </label>
-                <ZoruButton onClick={submit} disabled={submitting} block>
+                <Button onClick={submit} disabled={submitting} block>
                     <FileSignature />
                     {submitting ? 'Signing…' : 'Sign'}
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -184,8 +184,8 @@ function TypedPane({
 }) {
     return (
         <div className="space-y-2">
-            <ZoruLabel htmlFor="signature-typed">Type your full name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="signature-typed">Type your full name</Label>
+            <Input
                 id="signature-typed"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -305,10 +305,10 @@ function DrawnPane({ onChange }: { onChange: (dataUrl: string) => void }) {
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between">
-                <ZoruLabel>Draw your signature</ZoruLabel>
-                <ZoruButton type="button" size="sm" variant="ghost" onClick={clear}>
+                <Label>Draw your signature</Label>
+                <Button type="button" size="sm" variant="ghost" onClick={clear}>
                     <Eraser className="h-3.5 w-3.5" /> Clear
-                </ZoruButton>
+                </Button>
             </div>
             <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-white p-1">
                 <canvas
@@ -341,7 +341,7 @@ function UploadedPane({
 }) {
     return (
         <div className="space-y-2">
-            <ZoruLabel>Upload a signature image</ZoruLabel>
+            <Label>Upload a signature image</Label>
             <div className="flex flex-wrap items-center gap-3 rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface p-4">
                 {value ? (
                     <>
@@ -358,9 +358,9 @@ function UploadedPane({
                             </div>
                             <div className="text-xs text-zoru-ink-muted">From SabFiles</div>
                         </div>
-                        <ZoruButton variant="ghost" size="sm" onClick={() => onChange(null)}>
+                        <Button variant="ghost" size="sm" onClick={() => onChange(null)}>
                             Remove
-                        </ZoruButton>
+                        </Button>
                     </>
                 ) : (
                     <>

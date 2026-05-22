@@ -116,7 +116,7 @@ export default function ApplyLeavePage() {
       title="Apply for Leave"
       subtitle="Submit a leave application for an employee."
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading ? (
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading form…
@@ -124,8 +124,8 @@ export default function ApplyLeavePage() {
         ) : (
           <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel className="text-zoru-ink">Employee *</ZoruLabel>
-              <ZoruSelect value={userId || undefined} onValueChange={setUserId}>
+              <Label className="text-zoru-ink">Employee *</Label>
+              <Select value={userId || undefined} onValueChange={setUserId}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select employee" />
                 </ZoruSelectTrigger>
@@ -136,11 +136,11 @@ export default function ApplyLeavePage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel className="text-zoru-ink">Leave Type *</ZoruLabel>
-              <ZoruSelect value={leaveTypeId || undefined} onValueChange={setLeaveTypeId}>
+              <Label className="text-zoru-ink">Leave Type *</Label>
+              <Select value={leaveTypeId || undefined} onValueChange={setLeaveTypeId}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select leave type" />
                 </ZoruSelectTrigger>
@@ -158,11 +158,11 @@ export default function ApplyLeavePage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div>
-              <ZoruLabel className="text-zoru-ink">Duration</ZoruLabel>
+              <Label className="text-zoru-ink">Duration</Label>
               <div className="mt-1.5">
                 <EnumFormField
                   name="duration"
@@ -176,7 +176,7 @@ export default function ApplyLeavePage() {
 
             {duration === 'half-day' ? (
               <div>
-                <ZoruLabel className="text-zoru-ink">Half-day Type</ZoruLabel>
+                <Label className="text-zoru-ink">Half-day Type</Label>
                 <div className="mt-1.5">
                   <EnumFormField
                     name="halfDayType"
@@ -190,10 +190,10 @@ export default function ApplyLeavePage() {
             ) : null}
 
             <div>
-              <ZoruLabel className="text-zoru-ink">
+              <Label className="text-zoru-ink">
                 {duration === 'multiple' ? 'Start Date *' : 'Leave Date *'}
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 type="date"
                 value={leaveDate}
                 onChange={(e) => setLeaveDate(e.target.value)}
@@ -204,8 +204,8 @@ export default function ApplyLeavePage() {
 
             {duration === 'multiple' ? (
               <div>
-                <ZoruLabel className="text-zoru-ink">End Date *</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">End Date *</Label>
+                <Input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
@@ -217,8 +217,8 @@ export default function ApplyLeavePage() {
 
             {duration === 'hours' ? (
               <div>
-                <ZoruLabel className="text-zoru-ink">Hours *</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Hours *</Label>
+                <Input
                   type="number"
                   step="0.5"
                   min="0.5"
@@ -231,8 +231,8 @@ export default function ApplyLeavePage() {
             ) : null}
 
             <div className="md:col-span-2">
-              <ZoruLabel className="text-zoru-ink">Reason</ZoruLabel>
-              <ZoruTextarea
+              <Label className="text-zoru-ink">Reason</Label>
+              <Textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
@@ -241,8 +241,8 @@ export default function ApplyLeavePage() {
             </div>
 
             <div>
-              <ZoruLabel className="text-zoru-ink">Days Count</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Days Count</Label>
+              <Input
                 type="number"
                 step="0.5"
                 min="0"
@@ -254,8 +254,8 @@ export default function ApplyLeavePage() {
             </div>
 
             <div>
-              <ZoruLabel className="text-zoru-ink">Attachment Name</ZoruLabel>
-              <ZoruInput
+              <Label className="text-zoru-ink">Attachment Name</Label>
+              <Input
                 value={attachmentName}
                 onChange={(e) => setAttachmentName(e.target.value)}
                 placeholder="doctor-note.pdf"
@@ -263,7 +263,7 @@ export default function ApplyLeavePage() {
               />
             </div>
             <div>
-              <ZoruLabel className="text-zoru-ink">Attachment URL</ZoruLabel>
+              <Label className="text-zoru-ink">Attachment URL</Label>
               <div className="mt-1.5">
                 <SabFileUrlInput
                   accept="all"
@@ -275,24 +275,24 @@ export default function ApplyLeavePage() {
             </div>
 
             <div className="flex gap-2 md:col-span-2 md:justify-end">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.push('/dashboard/hrm/payroll/leave')}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 type="submit"
                 disabled={isSaving}
               >
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Submit Application
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

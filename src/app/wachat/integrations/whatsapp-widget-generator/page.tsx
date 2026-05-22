@@ -32,8 +32,8 @@ import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widg
 function PageSkeleton() {
   return (
     <div className="space-y-4">
-      <ZoruSkeleton className="h-24 w-full" />
-      <ZoruSkeleton className="h-80 w-full" />
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-80 w-full" />
     </div>
   );
 }
@@ -48,7 +48,7 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <ZoruCard className="flex items-center gap-4 p-4">
+    <Card className="flex items-center gap-4 p-4">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink-muted">
         {icon}
       </span>
@@ -58,7 +58,7 @@ function StatCard({
           {typeof value === 'number' ? value.toLocaleString() : value}
         </p>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -86,7 +86,7 @@ export default function WhatsappWidgetGeneratorPage() {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -104,23 +104,23 @@ export default function WhatsappWidgetGeneratorPage() {
             <ZoruBreadcrumbPage>Widget generator</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex-1 space-y-6">
         {isLoading ? (
           <PageSkeleton />
         ) : !project ? (
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <ZoruAlertTitle>No project selected</ZoruAlertTitle>
             <ZoruAlertDescription>
               Please select a project from the main dashboard.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : (
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] text-zoru-ink">Widget analytics</h2>
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() =>
@@ -131,7 +131,7 @@ export default function WhatsappWidgetGeneratorPage() {
               >
                 <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
                 Refresh
-              </ZoruButton>
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">

@@ -42,12 +42,12 @@ export default function OnPageAuditPage() {
   return (
     <ToolShell title="On-Page SEO Audit" description="Quick audit of on-page SEO factors.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Auditing…' : 'Audit'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Auditing…' : 'Audit'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {checks.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-2">
             <div className="text-sm font-semibold">Score: {passed} / {checks.length}</div>
             {checks.map((c, i) => (
@@ -60,7 +60,7 @@ export default function OnPageAuditPage() {
               </div>
             ))}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

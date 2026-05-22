@@ -116,11 +116,11 @@ export default async function RfqDetailPage({ params }: PageProps) {
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this RFQ — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/purchases/rfqs">
               <ArrowLeft className="h-4 w-4" /> Back to RFQs
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -153,7 +153,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
       rightRail={
         <>
           {/* Status flow visualizer */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Status flow</ZoruCardTitle>
             </ZoruCardHeader>
@@ -167,10 +167,10 @@ export default async function RfqDetailPage({ params }: PageProps) {
                 ) : null}
               </ol>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Quick edits */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>At a glance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -195,7 +195,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           <LineageRail
             current={{
@@ -207,12 +207,12 @@ export default async function RfqDetailPage({ params }: PageProps) {
             lineage={[]}
           />
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link href={`/dashboard/crm/purchases/rfqs/${rfqId}/activity`}>
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={<EntityAuditTimeline entityKind="rfq" entityId={rfqId} />}
@@ -220,7 +220,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
       <p className="text-[12.5px] text-zoru-ink-muted">{subtitle}</p>
 
       {/* Overview */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -228,16 +228,16 @@ export default async function RfqDetailPage({ params }: PageProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <DetailField label="Title">{rfq.title || '—'}</DetailField>
             <DetailField label="Status">
-              <ZoruBadge variant="secondary">{status}</ZoruBadge>
+              <Badge variant="secondary">{status}</Badge>
             </DetailField>
             <DetailField label="Required by">{fmtDate(rfq.requiredBy)}</DetailField>
             <DetailField label="Submission deadline">{fmtDate(rfq.deadline)}</DetailField>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Vendors invited */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Vendors invited</ZoruCardTitle>
         </ZoruCardHeader>
@@ -254,10 +254,10 @@ export default async function RfqDetailPage({ params }: PageProps) {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Line items</ZoruCardTitle>
         </ZoruCardHeader>
@@ -308,14 +308,14 @@ export default async function RfqDetailPage({ params }: PageProps) {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Vendor bids received */}
       <RfqVendorBidsCard rfqId={rfqId} />
 
       {/* Terms */}
       {rfq.terms ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Terms</ZoruCardTitle>
           </ZoruCardHeader>
@@ -324,12 +324,12 @@ export default async function RfqDetailPage({ params }: PageProps) {
               {rfq.terms}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Attachments */}
       {attachments.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Attachments</ZoruCardTitle>
           </ZoruCardHeader>
@@ -357,7 +357,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
               ))}
             </ul>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

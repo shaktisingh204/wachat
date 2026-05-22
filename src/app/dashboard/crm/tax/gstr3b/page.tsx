@@ -378,13 +378,13 @@ export default function Gstr3bPage() {
                 placeholder: 'Search period (MM-YYYY)…',
             }}
             primaryAction={
-                <ZoruButton variant="outline" onClick={exportCsv}>
+                <Button variant="outline" onClick={exportCsv}>
                     <Download className="h-4 w-4" /> Export CSV
-                </ZoruButton>
+                </Button>
             }
             filters={
                 <>
-                    <ZoruSelect
+                    <Select
                         value={statusFilter}
                         onValueChange={(v) => {
                             setStatusFilter(v as 'all' | 'succeeded' | 'failed');
@@ -401,8 +401,8 @@ export default function Gstr3bPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect
+                    </Select>
+                    <Select
                         value={fyFilter}
                         onValueChange={(v) => {
                             setFyFilter(v as 'current' | 'previous' | 'all');
@@ -419,11 +419,11 @@ export default function Gstr3bPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                     {hasActiveFilters ? (
-                        <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                        <Button variant="ghost" size="sm" onClick={clearFilters}>
                             Clear filters
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </>
             }
@@ -434,18 +434,18 @@ export default function Gstr3bPage() {
                             {selected.size} filing{selected.size === 1 ? '' : 's'} selected
                         </div>
                         <div className="flex items-center gap-2">
-                            <ZoruButton variant="outline" size="sm" onClick={bulkDownload}>
+                            <Button variant="outline" size="sm" onClick={bulkDownload}>
                                 <Download className="h-4 w-4" /> Bulk download
-                            </ZoruButton>
-                            <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={exportCsv}>
                                 <Download className="h-4 w-4" /> CSV
-                            </ZoruButton>
-                            <ZoruButton variant="outline" size="sm" onClick={exportXlsx}>
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={exportXlsx}>
                                 <Download className="h-4 w-4" /> XLSX
-                            </ZoruButton>
-                            <ZoruButton variant="ghost" size="sm" onClick={clearSelection}>
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={clearSelection}>
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 ) : null
@@ -468,7 +468,7 @@ export default function Gstr3bPage() {
             <div className="flex flex-col gap-4">
                 {kpiStrip}
 
-                <ZoruCard>
+                <Card>
                     <h2 className="text-[15px] font-semibold text-foreground">
                         Generate filing
                     </h2>
@@ -481,7 +481,7 @@ export default function Gstr3bPage() {
                             <label className="mb-1 block text-[12px] text-muted-foreground">
                                 Month
                             </label>
-                            <ZoruSelect
+                            <Select
                                 value={String(period.month)}
                                 onValueChange={(v) =>
                                     setPeriod((p) => ({ ...p, month: Number(v) }))
@@ -497,13 +497,13 @@ export default function Gstr3bPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div>
                             <label className="mb-1 block text-[12px] text-muted-foreground">
                                 Year
                             </label>
-                            <ZoruInput
+                            <Input
                                 type="number"
                                 value={period.year}
                                 onChange={(e) =>
@@ -517,18 +517,18 @@ export default function Gstr3bPage() {
                                 max={2099}
                             />
                         </div>
-                        <ZoruButton onClick={handleGenerate} disabled={loading}>
+                        <Button onClick={handleGenerate} disabled={loading}>
                             {loading ? (
                                 <LoaderCircle className="h-4 w-4 animate-spin" />
                             ) : (
                                 'Generate'
                             )}
-                        </ZoruButton>
+                        </Button>
                     </div>
-                </ZoruCard>
+                </Card>
 
                 {result?.summary && (
-                    <ZoruCard>
+                    <Card>
                         <h2 className="text-[15px] font-semibold text-foreground">
                             Latest summary — {monthLabel(period.month)} {period.year}
                         </h2>
@@ -547,16 +547,16 @@ export default function Gstr3bPage() {
                                 value={fmtInr(result.summary.net_payable)}
                             />
                         </div>
-                    </ZoruCard>
+                    </Card>
                 )}
 
                 {result && result.rows.length > 0 && (
-                    <ZoruCard>
+                    <Card>
                         <h2 className="text-[15px] font-semibold text-foreground">
                             Sections
                         </h2>
                         <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-border hover:bg-transparent">
                                         {result.columns.map((c) => (
@@ -591,12 +591,12 @@ export default function Gstr3bPage() {
                                         </ZoruTableRow>
                                     ))}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 )}
 
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
                         <h2 className="text-[15px] font-semibold text-foreground">
                             Filing history
@@ -613,22 +613,22 @@ export default function Gstr3bPage() {
                                     : 'No GSTR-3B filings generated yet. Pick a period above and click Generate.'}
                             </p>
                             {hasActiveFilters ? (
-                                <ZoruButton
+                                <Button
                                     className="mt-3"
                                     variant="outline"
                                     onClick={clearFilters}
                                 >
                                     Clear filters
-                                </ZoruButton>
+                                </Button>
                             ) : null}
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-border hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={
                                                     allOnPageSelected
                                                         ? true
@@ -663,7 +663,7 @@ export default function Gstr3bPage() {
                                         return (
                                             <ZoruTableRow key={r.runId} className="border-border">
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={isSelected}
                                                         onCheckedChange={() => toggleOne(r.runId)}
                                                         aria-label={`Select filing ${r.period}`}
@@ -677,7 +677,7 @@ export default function Gstr3bPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant={
                                                             r.status === 'succeeded'
                                                                 ? 'success'
@@ -687,7 +687,7 @@ export default function Gstr3bPage() {
                                                         }
                                                     >
                                                         {r.status}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right font-mono text-foreground">
                                                     {fmtInr(r.outwardTaxable ?? 0)}
@@ -702,10 +702,10 @@ export default function Gstr3bPage() {
                                         );
                                     })}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
                     )}
-                </ZoruCard>
+                </Card>
             </div>
         </EntityListShell>
     );
@@ -723,7 +723,7 @@ function KpiCard({
     hint?: string;
 }) {
     return (
-        <ZoruCard className="p-4">
+        <Card className="p-4">
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
@@ -740,7 +740,7 @@ function KpiCard({
                     {icon}
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 

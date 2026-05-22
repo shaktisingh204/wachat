@@ -96,7 +96,7 @@ export default function CallingSettingsPage() {
 
   if (!activeProject) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Phone />}
         title="No project selected"
         description="Select a project from the home screen to configure its WhatsApp calling settings."
@@ -111,22 +111,22 @@ export default function CallingSettingsPage() {
       {/* Left column: picker + status banner + form */}
       <div className="flex flex-col gap-6 lg:col-span-2">
         {phoneNumbers.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Phone />}
             title="No phone numbers linked"
             description="Add a WhatsApp Business phone number to the project first, then come back here to configure calling."
             action={
-              <ZoruButton
+              <Button
                 onClick={() => (window.location.href = '/wachat/numbers')}
               >
                 Manage numbers
-              </ZoruButton>
+              </Button>
             }
           />
         ) : (
           <>
             {/* Phone picker card */}
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h2 className="text-[16px] text-zoru-ink">Configure number</h2>
@@ -135,7 +135,7 @@ export default function CallingSettingsPage() {
                     configuration.
                   </p>
                 </div>
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={refreshProject}
@@ -147,7 +147,7 @@ export default function CallingSettingsPage() {
                     <RefreshCw />
                   )}
                   Reload
-                </ZoruButton>
+                </Button>
               </div>
 
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -175,7 +175,7 @@ export default function CallingSettingsPage() {
                           {phone.verified_name || 'Unverified'}
                         </div>
                       </div>
-                      <ZoruBadge
+                      <Badge
                         variant={callingEnabled ? 'success' : 'ghost'}
                       >
                         <span
@@ -187,12 +187,12 @@ export default function CallingSettingsPage() {
                           )}
                         />
                         {callingEnabled ? 'On' : 'Off'}
-                      </ZoruBadge>
+                      </Badge>
                     </button>
                   );
                 })}
               </div>
-            </ZoruCard>
+            </Card>
 
             {/* Status banner */}
             {selectedPhone ? <StatusBanner phone={selectedPhone} /> : null}
@@ -217,9 +217,9 @@ export default function CallingSettingsPage() {
                 }}
               />
             ) : (
-              <ZoruCard className="p-8 text-center text-[13px] text-zoru-ink-muted">
+              <Card className="p-8 text-center text-[13px] text-zoru-ink-muted">
                 Select a phone number above to manage its settings.
-              </ZoruCard>
+              </Card>
             )}
           </>
         )}
@@ -227,7 +227,7 @@ export default function CallingSettingsPage() {
 
       {/* Right column: API log */}
       <div className="lg:col-span-1">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
@@ -240,7 +240,7 @@ export default function CallingSettingsPage() {
                 </p>
               </div>
             </div>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Clear log"
@@ -248,7 +248,7 @@ export default function CallingSettingsPage() {
               disabled={log.length === 0}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
 
           <div className="mt-4 max-h-96 overflow-y-auto">
@@ -264,7 +264,7 @@ export default function CallingSettingsPage() {
                       <span className="font-mono text-[10.5px] text-zoru-ink-muted">
                         {entry.method}
                       </span>
-                      <ZoruBadge
+                      <Badge
                         variant={
                           entry.status === 'SUCCESS' ? 'success' : 'danger'
                         }
@@ -275,7 +275,7 @@ export default function CallingSettingsPage() {
                           <AlertCircle className="h-3 w-3" />
                         )}
                         {entry.status}
-                      </ZoruBadge>
+                      </Badge>
                       <span className="ml-auto text-[10.5px] text-zoru-ink-muted">
                         {formatDistanceToNow(entry.createdAt, {
                           addSuffix: true,
@@ -295,7 +295,7 @@ export default function CallingSettingsPage() {
               </ul>
             )}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );
@@ -318,7 +318,7 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
   ];
 
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h3 className="text-[14px] text-zoru-ink">Current status</h3>
@@ -326,7 +326,7 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
             Live configuration for {phone.display_phone_number}
           </p>
         </div>
-        <ZoruBadge variant={enabled ? 'success' : 'ghost'}>
+        <Badge variant={enabled ? 'success' : 'ghost'}>
           <span
             className={cn(
               'h-2 w-2 rounded-full',
@@ -334,7 +334,7 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
             )}
           />
           {enabled ? 'Enabled' : 'Disabled'}
-        </ZoruBadge>
+        </Badge>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {checklist.map((item) => (
@@ -362,6 +362,6 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
           </div>
         ))}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

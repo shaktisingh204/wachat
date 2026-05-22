@@ -27,21 +27,21 @@ export default function AdCopyGeneratorPage() {
   return (
     <ToolShell title="Ad Copy Generator" description="Generate headlines and descriptions for a PPC ad.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><ZoruLabel>Product / service</ZoruLabel><ZoruInput value={product} onChange={(e) => setProduct(e.target.value)} /></div>
-        <div className="space-y-1"><ZoruLabel>Target audience</ZoruLabel><ZoruInput value={audience} onChange={(e) => setAudience(e.target.value)} /></div>
-        <div className="space-y-1"><ZoruLabel>Target keyword</ZoruLabel><ZoruInput value={keyword} onChange={(e) => setKeyword(e.target.value)} /></div>
-        <div className="space-y-1"><ZoruLabel>Tone</ZoruLabel>
+        <div className="space-y-1"><Label>Product / service</Label><Input value={product} onChange={(e) => setProduct(e.target.value)} /></div>
+        <div className="space-y-1"><Label>Target audience</Label><Input value={audience} onChange={(e) => setAudience(e.target.value)} /></div>
+        <div className="space-y-1"><Label>Target keyword</Label><Input value={keyword} onChange={(e) => setKeyword(e.target.value)} /></div>
+        <div className="space-y-1"><Label>Tone</Label>
           <select className="border border-zoru-line rounded-[var(--zoru-radius)] h-9 px-2 bg-zoru-bg text-zoru-ink w-full text-sm" value={tone} onChange={(e) => setTone(e.target.value)}>
             <option>friendly</option><option>urgent</option><option>formal</option>
           </select>
         </div>
       </div>
-      <ZoruCard><ZoruCardContent className="p-4 space-y-2">
+      <Card><ZoruCardContent className="p-4 space-y-2">
         <div className="text-sm text-zoru-ink">Headlines</div>
         {copy.headlines.map((h, i) => <div key={i} className="text-sm border-t border-zoru-line py-1 text-zoru-ink">{h}</div>)}
         <div className="text-sm text-zoru-ink pt-3">Descriptions</div>
         {copy.descriptions.map((d, i) => <div key={i} className="text-sm border-t border-zoru-line py-1 text-zoru-ink">{d}</div>)}
-      </ZoruCardContent></ZoruCard>
+      </ZoruCardContent></Card>
     </ToolShell>
   );
 }

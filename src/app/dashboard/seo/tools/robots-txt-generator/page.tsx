@@ -34,14 +34,14 @@ export default function RobotsTxtGeneratorPage() {
   return (
     <ToolShell title="Robots.txt Generator" description="Generate a robots.txt file.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><ZoruLabel>User-agent</ZoruLabel><ZoruInput value={ua} onChange={(e) => setUa(e.target.value)} /></div>
-        <div className="space-y-1"><ZoruLabel>Crawl-delay</ZoruLabel><ZoruInput value={crawlDelay} onChange={(e) => setCrawlDelay(e.target.value)} /></div>
-        <div className="space-y-1 md:col-span-2"><ZoruLabel>Sitemap URL</ZoruLabel><ZoruInput value={sitemap} onChange={(e) => setSitemap(e.target.value)} /></div>
-        <div className="space-y-1"><ZoruLabel>Disallow (one per line)</ZoruLabel><ZoruTextarea value={disallow} onChange={(e) => setDisallow(e.target.value)} className="min-h-[100px] font-mono text-xs" /></div>
-        <div className="space-y-1"><ZoruLabel>Allow (one per line)</ZoruLabel><ZoruTextarea value={allow} onChange={(e) => setAllow(e.target.value)} className="min-h-[100px] font-mono text-xs" /></div>
+        <div className="space-y-1"><Label>User-agent</Label><Input value={ua} onChange={(e) => setUa(e.target.value)} /></div>
+        <div className="space-y-1"><Label>Crawl-delay</Label><Input value={crawlDelay} onChange={(e) => setCrawlDelay(e.target.value)} /></div>
+        <div className="space-y-1 md:col-span-2"><Label>Sitemap URL</Label><Input value={sitemap} onChange={(e) => setSitemap(e.target.value)} /></div>
+        <div className="space-y-1"><Label>Disallow (one per line)</Label><Textarea value={disallow} onChange={(e) => setDisallow(e.target.value)} className="min-h-[100px] font-mono text-xs" /></div>
+        <div className="space-y-1"><Label>Allow (one per line)</Label><Textarea value={allow} onChange={(e) => setAllow(e.target.value)} className="min-h-[100px] font-mono text-xs" /></div>
       </div>
-      <ZoruButton onClick={download}>Download robots.txt</ZoruButton>
-      <ZoruTextarea readOnly value={out} className="min-h-[180px] font-mono text-xs" />
+      <Button onClick={download}>Download robots.txt</Button>
+      <Textarea readOnly value={out} className="min-h-[180px] font-mono text-xs" />
     </ToolShell>
   );
 }

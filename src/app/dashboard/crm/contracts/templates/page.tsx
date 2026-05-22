@@ -83,11 +83,11 @@ type Row = WsContractTemplate & { _id: string; status?: string };
 
 function TemplateBadge({ status }: { status: string | undefined }) {
   if (!status || status === 'active')
-    return <ZoruBadge variant="success">Active</ZoruBadge>;
-  if (status === 'draft') return <ZoruBadge variant="outline">Draft</ZoruBadge>;
+    return <Badge variant="success">Active</Badge>;
+  if (status === 'draft') return <Badge variant="outline">Draft</Badge>;
   if (status === 'archived')
-    return <ZoruBadge variant="default">Archived</ZoruBadge>;
-  return <ZoruBadge variant="outline">{status}</ZoruBadge>;
+    return <Badge variant="default">Archived</Badge>;
+  return <Badge variant="outline">{status}</Badge>;
 }
 
 /* ─── Component ────────────────────────────────────────────────────── */
@@ -290,22 +290,22 @@ export default function ContractTemplatesPage() {
         subtitle="Reusable contract templates with placeholders."
         search={{ value: search, onChange: setSearch, placeholder: 'Search templates…' }}
         primaryAction={
-          <ZoruButton
+          <Button
             onClick={() => {
               setEditing(null);
               setDialogOpen(true);
             }}
           >
             <Plus className="h-4 w-4" /> Add Template
-          </ZoruButton>
+          </Button>
         }
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Status
-              </ZoruLabel>
-              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+              </Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <ZoruSelectTrigger className="h-8 w-[150px]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -315,10 +315,10 @@ export default function ContractTemplatesPage() {
                   <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                   <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             {filtersActive ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -327,36 +327,36 @@ export default function ContractTemplatesPage() {
                 }}
               >
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
-              <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
-              <ZoruButton
+              <Badge variant="info">{selected.size} selected</Badge>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setBulkArchivePending(true)}
                 disabled={bulkPending}
               >
                 <Archive className="h-3.5 w-3.5" /> Archive
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setBulkDeletePending(true)}
                 disabled={bulkPending}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -388,18 +388,18 @@ export default function ContractTemplatesPage() {
 
         {/* Export */}
         <div className="flex items-center justify-end">
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
@@ -416,7 +416,7 @@ export default function ContractTemplatesPage() {
                   [...Array(3)].map((_, i) => (
                     <ZoruTableRow key={i} className="border-zoru-line">
                       <ZoruTableCell colSpan={5}>
-                        <ZoruSkeleton className="h-8 w-full" />
+                        <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -435,7 +435,7 @@ export default function ContractTemplatesPage() {
                   filtered.map((row) => (
                     <ZoruTableRow key={row._id} className="border-zoru-line">
                       <ZoruTableCell className="pl-3">
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(row._id)}
                           onCheckedChange={() => toggleRow(row._id)}
                           aria-label={`Select ${row.name}`}
@@ -456,11 +456,11 @@ export default function ContractTemplatesPage() {
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           <Link href={`/dashboard/crm/contracts/templates/${row._id}`}>
-                            <ZoruButton variant="ghost" size="sm" aria-label="View">
+                            <Button variant="ghost" size="sm" aria-label="View">
                               <ExternalLink className="h-3.5 w-3.5" />
-                            </ZoruButton>
+                            </Button>
                           </Link>
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             aria-label="Edit"
@@ -470,28 +470,28 @@ export default function ContractTemplatesPage() {
                             }}
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             aria-label="Delete"
                             onClick={() => setDeletingId(row._id)}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
       </EntityListShell>
 
       {/* Add / Edit dialog */}
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-foreground">
@@ -504,10 +504,10 @@ export default function ContractTemplatesPage() {
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
             <div>
-              <ZoruLabel htmlFor="name" className="text-foreground">
+              <Label htmlFor="name" className="text-foreground">
                 Template Name <span className="text-destructive">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="name"
                 name="name"
                 required
@@ -516,10 +516,10 @@ export default function ContractTemplatesPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="status" className="text-foreground">
+              <Label htmlFor="status" className="text-foreground">
                 Status
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 name="status"
                 defaultValue={editing?.status ?? 'active'}
               >
@@ -531,13 +531,13 @@ export default function ContractTemplatesPage() {
                   <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                   <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel htmlFor="body" className="text-foreground">
+              <Label htmlFor="body" className="text-foreground">
                 Body <span className="text-destructive">*</span>
-              </ZoruLabel>
-              <ZoruTextarea
+              </Label>
+              <Textarea
                 id="body"
                 name="body"
                 required
@@ -548,20 +548,20 @@ export default function ContractTemplatesPage() {
               />
             </div>
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Single delete */}
       <ZoruAlertDialog

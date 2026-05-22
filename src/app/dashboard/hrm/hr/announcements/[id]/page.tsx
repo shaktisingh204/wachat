@@ -92,17 +92,17 @@ export default async function AnnouncementDetailPage({
             title={announcement.title}
             subtitle={titleCase(announcement.category as string)}
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${announcement._id}/edit`}>
                         <Pencil className="mr-1.5 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Header card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
                         <h2 className="text-[20px] font-medium text-zoru-ink">
@@ -136,15 +136,15 @@ export default async function AnnouncementDetailPage({
                             tone={STATUS_TONE[statusKey] ?? 'neutral'}
                         />
                         {announcement.pinned ? (
-                            <ZoruBadge variant="info">
+                            <Badge variant="info">
                                 <Pin className="mr-1 h-3 w-3" />
                                 Pinned
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
                         {announcement.requireAcknowledgement ? (
-                            <ZoruBadge variant="secondary">
+                            <Badge variant="secondary">
                                 Acknowledgement required
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
                     </div>
                 </div>
@@ -152,28 +152,28 @@ export default async function AnnouncementDetailPage({
                 {tags.length > 0 ? (
                     <div className="mt-4 flex flex-wrap gap-1.5">
                         {tags.map((t) => (
-                            <ZoruBadge key={t} variant="ghost">
+                            <Badge key={t} variant="ghost">
                                 {t}
-                            </ZoruBadge>
+                            </Badge>
                         ))}
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
             {/* Banner */}
             {announcement.bannerUrl ? (
-                <ZoruCard className="overflow-hidden p-0">
+                <Card className="overflow-hidden p-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={announcement.bannerUrl}
                         alt=""
                         className="max-h-[360px] w-full object-cover"
                     />
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Body */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[14px] font-medium text-zoru-ink">
                     Announcement body
                 </div>
@@ -184,10 +184,10 @@ export default async function AnnouncementDetailPage({
                         </span>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Audience */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
                     <Users className="h-4 w-4 text-zoru-ink-muted" />
                     <span className="text-[14px] font-medium text-zoru-ink">
@@ -209,15 +209,15 @@ export default async function AnnouncementDetailPage({
                     <ul className="flex flex-wrap gap-2">
                         {audienceIds.map((r, i) => (
                             <li key={`${r}-${i}`}>
-                                <ZoruBadge variant="secondary">{r}</ZoruBadge>
+                                <Badge variant="secondary">{r}</Badge>
                             </li>
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Schedule + engagement */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-zoru-ink-muted" />
                     <span className="text-[14px] font-medium text-zoru-ink">
@@ -266,7 +266,7 @@ export default async function AnnouncementDetailPage({
                         {announcement.allowComments ? 'enabled' : 'disabled'}
                     </span>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

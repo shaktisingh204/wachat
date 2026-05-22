@@ -117,10 +117,10 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isEditing ? 'Save changes' : 'Create service'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -172,7 +172,7 @@ function ServiceDialog({
     }, [state, toast, onSave, onOpenChange]);
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-2xl">
                 <form action={formAction}>
                     {isEditing ? (
@@ -194,8 +194,8 @@ function ServiceDialog({
                     <div className="space-y-4 py-4">
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="name">Name *</Label>
+                                <Input
                                     id="name"
                                     name="name"
                                     placeholder="e.g. UX consultation"
@@ -204,8 +204,8 @@ function ServiceDialog({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="code">Code</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="code">Code</Label>
+                                <Input
                                     id="code"
                                     name="code"
                                     placeholder="e.g. UX-CONSULT"
@@ -218,8 +218,8 @@ function ServiceDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                            <ZoruTextarea
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
                                 id="description"
                                 name="description"
                                 rows={2}
@@ -230,8 +230,8 @@ function ServiceDialog({
 
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="category">Category</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="category">Category</Label>
+                                <Input
                                     id="category"
                                     name="category"
                                     placeholder="e.g. Consulting"
@@ -239,10 +239,10 @@ function ServiceDialog({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="billableBy-trigger">
+                                <Label htmlFor="billableBy-trigger">
                                     Billable by
-                                </ZoruLabel>
-                                <ZoruSelect
+                                </Label>
+                                <Select
                                     value={billableBy}
                                     onValueChange={(v) =>
                                         setBillableBy(v as CrmServiceBillableBy)
@@ -262,16 +262,16 @@ function ServiceDialog({
                                             Per project
                                         </ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-3">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="defaultPrice">
+                                <Label htmlFor="defaultPrice">
                                     Default price
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="defaultPrice"
                                     name="defaultPrice"
                                     type="number"
@@ -282,8 +282,8 @@ function ServiceDialog({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="currency">Currency</Label>
+                                <Input
                                     id="currency"
                                     name="currency"
                                     placeholder="INR"
@@ -292,8 +292,8 @@ function ServiceDialog({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="taxRate">Tax rate %</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="taxRate">Tax rate %</Label>
+                                <Input
                                     id="taxRate"
                                     name="taxRate"
                                     type="number"
@@ -307,10 +307,10 @@ function ServiceDialog({
 
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="durationMinutes">
+                                <Label htmlFor="durationMinutes">
                                     Duration (minutes)
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="durationMinutes"
                                     name="durationMinutes"
                                     type="number"
@@ -324,8 +324,8 @@ function ServiceDialog({
                                 </p>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                                <ZoruSelect
+                                <Label htmlFor="status-trigger">Status</Label>
+                                <Select
                                     value={status}
                                     onValueChange={(v) =>
                                         setStatus(v as CrmServiceStatus)
@@ -342,12 +342,12 @@ function ServiceDialog({
                                             Archived
                                         </ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel>Image</ZoruLabel>
+                            <Label>Image</Label>
                             <SabFileUrlInput
                                 name="imageUrl"
                                 accept="image"
@@ -363,30 +363,30 @@ function ServiceDialog({
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <ZoruCheckbox
+                            <Checkbox
                                 id="isActive"
                                 name="isActive"
                                 defaultChecked={initialData?.isActive ?? true}
                             />
-                            <ZoruLabel htmlFor="isActive" className="cursor-pointer">
+                            <Label htmlFor="isActive" className="cursor-pointer">
                                 Active (visible in proposals & invoices)
-                            </ZoruLabel>
+                            </Label>
                         </div>
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                         >
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -628,9 +628,9 @@ export default function ServicesPage() {
                     title="Service Catalog"
                     subtitle="Reusable, non-tangible offerings — billed by hour, fixed price, or per project."
                     primaryAction={
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                        <Button onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New service
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -639,7 +639,7 @@ export default function ServicesPage() {
                     }}
                     filters={
                         <div className="flex flex-wrap items-center gap-2">
-                            <ZoruSelect
+                            <Select
                                 value={statusFilter}
                                 onValueChange={(v) =>
                                     setStatusFilter(v as CrmServiceStatus | 'all')
@@ -655,8 +655,8 @@ export default function ServicesPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                            </Select>
+                            <Select
                                 value={billableFilter}
                                 onValueChange={(v) =>
                                     setBillableFilter(
@@ -674,8 +674,8 @@ export default function ServicesPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                            </Select>
+                            <Select
                                 value={categoryFilter || 'all'}
                                 onValueChange={(v) =>
                                     setCategoryFilter(v === 'all' ? '' : v)
@@ -694,15 +694,15 @@ export default function ServicesPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             {hasActiveFilters ? (
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearFilters}
                                 >
                                     Clear filters
-                                </ZoruButton>
+                                </Button>
                             ) : null}
                         </div>
                     }
@@ -710,9 +710,9 @@ export default function ServicesPage() {
                         selected.size > 0 ? (
                             <div className="flex flex-wrap items-center justify-between gap-3">
                                 <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                                    <ZoruBadge variant="info">
+                                    <Badge variant="info">
                                         {selected.size} selected
-                                    </ZoruBadge>
+                                    </Badge>
                                     <button
                                         type="button"
                                         onClick={() => setSelected(new Set())}
@@ -722,43 +722,43 @@ export default function ServicesPage() {
                                     </button>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <ZoruButton
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => void runBulk('archive')}
                                     >
                                         <Archive className="h-3.5 w-3.5" /> Archive
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => void runBulk('unarchive')}
                                     >
                                         <ArchiveRestore className="h-3.5 w-3.5" />{' '}
                                         Restore
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={exportCsv}
                                     >
                                         <Download className="h-3.5 w-3.5" /> Export CSV
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={exportXlsx}
                                     >
                                         <FileSpreadsheet className="h-3.5 w-3.5" />{' '}
                                         Export XLSX
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setBulkDeleteOpen(true)}
                                     >
                                         <Trash2 className="h-3.5 w-3.5" /> Delete
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
                         ) : null
@@ -781,22 +781,22 @@ export default function ServicesPage() {
                     <div className="flex flex-col gap-4">
                         {/* KPI strip */}
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                            <ZoruStatCard
+                            <StatCard
                                 label="Total services"
                                 value={kpis.total.toLocaleString()}
                                 icon={<Layers className="h-4 w-4" />}
                             />
-                            <ZoruStatCard
+                            <StatCard
                                 label="Active"
                                 value={kpis.active.toLocaleString()}
                                 icon={<CheckCircle2 className="h-4 w-4" />}
                             />
-                            <ZoruStatCard
+                            <StatCard
                                 label="Total billed"
                                 value={`${kpis.totalBilled.toLocaleString()}`}
                                 icon={<DollarSign className="h-4 w-4" />}
                             />
-                            <ZoruStatCard
+                            <StatCard
                                 label="Top revenue service"
                                 value={
                                     <span className="text-[13px] font-medium leading-tight">
@@ -810,7 +810,7 @@ export default function ServicesPage() {
                         </div>
 
                         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
@@ -931,7 +931,7 @@ export default function ServicesPage() {
                                                         />
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-right">
-                                                        <ZoruButton
+                                                        <Button
                                                             variant="ghost"
                                                             size="icon"
                                                             onClick={() =>
@@ -940,8 +940,8 @@ export default function ServicesPage() {
                                                             aria-label={`Edit ${r.name}`}
                                                         >
                                                             <Edit className="h-4 w-4" />
-                                                        </ZoruButton>
-                                                        <ZoruButton
+                                                        </Button>
+                                                        <Button
                                                             variant="ghost"
                                                             size="icon"
                                                             onClick={() =>
@@ -950,14 +950,14 @@ export default function ServicesPage() {
                                                             aria-label={`Archive ${r.name}`}
                                                         >
                                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>
                                             );
                                         })
                                     )}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
                     </div>
             </EntityListShell>

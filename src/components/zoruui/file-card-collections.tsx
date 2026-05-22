@@ -77,14 +77,14 @@ export function ZoruFileCardCollections({
               </span>
             </button>
             {onItemAction && (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="icon-sm"
                 aria-label="Item actions"
                 onClick={() => onItemAction(item)}
               >
                 <MoreHorizontal />
-              </ZoruButton>
+              </Button>
             )}
           </li>
         ))}
@@ -133,14 +133,14 @@ export function ZoruFileCardCollections({
               {item.meta && <div className="mt-1">{item.meta}</div>}
             </div>
             {onItemAction && (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="icon-sm"
                 aria-label="Item actions"
                 onClick={() => onItemAction(item)}
               >
                 <MoreHorizontal />
-              </ZoruButton>
+              </Button>
             )}
           </div>
         </div>

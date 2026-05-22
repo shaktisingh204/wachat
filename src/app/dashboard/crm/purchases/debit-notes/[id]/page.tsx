@@ -102,11 +102,11 @@ export default async function DebitNoteDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this debit note — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/purchases/debit-notes">
               <ArrowLeft className="h-4 w-4" /> Back to Debit Notes
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -128,30 +128,30 @@ export default async function DebitNoteDetailPage({
       }}
       actions={
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruButton variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link
               href={`/dashboard/crm/purchases/debit-notes/${id}/activity`}
             >
               <Activity className="h-4 w-4" /> Activity
             </Link>
-          </ZoruButton>
+          </Button>
           <DebitNoteDetailActions id={id} currentStatus={status} />
-          <ZoruButton variant="outline" size="sm" disabled title="Coming soon">
+          <Button variant="outline" size="sm" disabled title="Coming soon">
             <Printer className="h-4 w-4" /> Print
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" disabled title="Coming soon">
+          </Button>
+          <Button variant="outline" size="sm" disabled title="Coming soon">
             <Mail className="h-4 w-4" /> Email
-          </ZoruButton>
-          <ZoruButton size="sm" asChild>
+          </Button>
+          <Button size="sm" asChild>
             <Link href={`/dashboard/crm/purchases/debit-notes/${id}/edit`}>
               <Pencil className="h-4 w-4" /> Edit
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       }
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Money summary</ZoruCardTitle>
             </ZoruCardHeader>
@@ -191,7 +191,7 @@ export default async function DebitNoteDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           <LineageRail
             current={{
@@ -210,19 +210,19 @@ export default async function DebitNoteDetailPage({
             }
           />
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link
               href={`/dashboard/crm/purchases/debit-notes/${id}/activity`}
             >
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={<EntityAuditTimeline entityKind="debitNote" entityId={id} />}
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Header</ZoruCardTitle>
         </ZoruCardHeader>
@@ -256,15 +256,15 @@ export default async function DebitNoteDetailPage({
             <Field label="Currency">{debitNote.currency || '—'}</Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <div className="border-b border-zoru-line p-4">
           <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Line items
           </h3>
         </div>
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>Item</ZoruTableHead>
@@ -318,10 +318,10 @@ export default async function DebitNoteDetailPage({
               ))
             )}
           </ZoruTableBody>
-        </ZoruTable>
-      </ZoruCard>
+        </Table>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Refund &amp; notes</ZoruCardTitle>
         </ZoruCardHeader>
@@ -344,7 +344,7 @@ export default async function DebitNoteDetailPage({
             </div>
           ) : null}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(debitNote.createdAt || debitNote.audit?.createdAt)} ·

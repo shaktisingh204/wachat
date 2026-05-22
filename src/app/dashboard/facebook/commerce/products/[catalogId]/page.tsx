@@ -94,17 +94,17 @@ type ProductRow = {
 function CatalogDetailSkeleton() {
   return (
     <CommercePage>
-      <ZoruSkeleton className="h-3 w-72" />
+      <Skeleton className="h-3 w-72" />
       <div className="mt-5 flex items-end justify-between">
         <div className="space-y-3">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <ZoruSkeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-32" />
       </div>
-      <ZoruSkeleton className="mt-8 h-64 w-full" />
-      <ZoruSkeleton className="mt-6 h-40 w-full" />
+      <Skeleton className="mt-8 h-64 w-full" />
+      <Skeleton className="mt-6 h-40 w-full" />
     </CommercePage>
   );
 }
@@ -225,12 +225,12 @@ export default function CatalogDetailPage() {
           const a = row.original.availability;
           if (!a) return <span>—</span>;
           return (
-            <ZoruBadge
+            <Badge
               variant={a === "in_stock" ? "default" : "secondary"}
               className="capitalize"
             >
               {a.replace(/_/g, " ")}
-            </ZoruBadge>
+            </Badge>
           );
         },
       },
@@ -248,30 +248,30 @@ export default function CatalogDetailPage() {
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
           <div className="flex justify-end gap-1">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Edit product"
               onClick={() => setEditProduct(row.original)}
             >
               <Edit />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="View tagged media"
               onClick={() => setTaggedProduct(row.original)}
             >
               <Tags />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Delete product"
               onClick={() => setDeleteProduct(row.original)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -302,14 +302,14 @@ export default function CatalogDetailPage() {
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Delete collection"
               onClick={() => setDeleteCollection(row.original)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -330,7 +330,7 @@ export default function CatalogDetailPage() {
       />
 
       <div className="mt-2">
-        <ZoruButton
+        <Button
           asChild
           variant="ghost"
           size="sm"
@@ -340,7 +340,7 @@ export default function CatalogDetailPage() {
             <ChevronLeft />
             Back to catalogs
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
 
       <CommerceHeader
@@ -348,7 +348,7 @@ export default function CatalogDetailPage() {
         title="Catalog management"
         description="Manage products and collections within this Meta product catalog."
         actions={
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={fetchData}
@@ -356,20 +356,20 @@ export default function CatalogDetailPage() {
           >
             <RefreshCw className={isLoading ? "animate-spin" : undefined} />
             Refresh
-          </ZoruButton>
+          </Button>
         }
       />
 
       {error ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Could not load catalog</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {/* ── Products ── */}
-      <ZoruCard className="mt-6">
+      <Card className="mt-6">
         <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
           <div>
             <ZoruCardTitle className="flex items-center gap-2 text-base">
@@ -380,30 +380,30 @@ export default function CatalogDetailPage() {
             </ZoruCardDescription>
           </div>
           {projectId ? (
-            <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+            <Button size="sm" onClick={() => setCreateOpen(true)}>
               <PlusCircle />
               Add product
-            </ZoruButton>
+            </Button>
           ) : null}
         </ZoruCardHeader>
         <ZoruCardContent>
           {products.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               compact
               icon={<ShoppingBag />}
               title="No products in this catalog"
               description="Add a product to get started, or push existing products from Commerce Manager."
               action={
                 projectId ? (
-                  <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                  <Button size="sm" onClick={() => setCreateOpen(true)}>
                     <PlusCircle />
                     Add product
-                  </ZoruButton>
+                  </Button>
                 ) : undefined
               }
             />
           ) : (
-            <ZoruDataTable
+            <DataTable
               columns={productColumns}
               data={products}
               filterColumn="name"
@@ -412,10 +412,10 @@ export default function CatalogDetailPage() {
             />
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* ── Collections ── */}
-      <ZoruCard className="mt-6">
+      <Card className="mt-6">
         <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
           <div>
             <ZoruCardTitle className="flex items-center gap-2 text-base">
@@ -426,38 +426,38 @@ export default function CatalogDetailPage() {
             </ZoruCardDescription>
           </div>
           {projectId ? (
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={() => setCreateCollectionOpen(true)}
             >
               <PlusCircle />
               New collection
-            </ZoruButton>
+            </Button>
           ) : null}
         </ZoruCardHeader>
         <ZoruCardContent>
           {collections.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               compact
               icon={<Layers />}
               title="No collections yet"
               description="Create a collection to organize products for promotions or browsing."
               action={
                 projectId ? (
-                  <ZoruButton
+                  <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setCreateCollectionOpen(true)}
                   >
                     <PlusCircle />
                     New collection
-                  </ZoruButton>
+                  </Button>
                 ) : undefined
               }
             />
           ) : (
-            <ZoruDataTable
+            <DataTable
               columns={collectionColumns}
               data={collections}
               pageSize={10}
@@ -465,7 +465,7 @@ export default function CatalogDetailPage() {
             />
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* ── Dialogs ── */}
       {projectId ? (

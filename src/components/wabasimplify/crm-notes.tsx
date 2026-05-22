@@ -14,7 +14,7 @@ const initialState = { message: null, error: null };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       size="sm"
       variant="obsidian"
@@ -22,7 +22,7 @@ function SubmitButton() {
       leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4"/>}
     >
         Add Note
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -83,7 +83,7 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
                     <input type="hidden" name="recordId" value={recordId} />
                     <input type="hidden" name="recordType" value={recordType} />
                     <div className="space-y-2">
-                        <ZoruTextarea name="noteContent" placeholder={`Add a note about this ${recordType}...`} required/>
+                        <Textarea name="noteContent" placeholder={`Add a note about this ${recordType}...`} required/>
                         <div className="flex justify-end">
                             <SubmitButton />
                         </div>
@@ -92,7 +92,7 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
                 <div className="mt-4 space-y-4 max-h-[40vh] overflow-y-auto pr-2">
                     {notes.map((note, index) => (
                         <div key={index} className="flex items-start gap-3 w-full">
-                            <ZoruAvatar className="h-8 w-8 mt-1"><ZoruAvatarFallback>{note.author.charAt(0)}</ZoruAvatarFallback></ZoruAvatar>
+                            <Avatar className="h-8 w-8 mt-1"><ZoruAvatarFallback>{note.author.charAt(0)}</ZoruAvatarFallback></Avatar>
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
                                     <p className="font-semibold text-sm text-foreground">{note.author}</p>

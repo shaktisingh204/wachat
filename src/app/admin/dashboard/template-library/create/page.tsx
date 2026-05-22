@@ -14,13 +14,13 @@ import { getProjectById } from '@/app/actions/index.ts';
 const LoadingZoruSkeleton = () => (
     <div className="flex flex-col gap-8">
       <div>
-        <ZoruSkeleton className="h-10 w-48 mb-4" />
-        <ZoruSkeleton className="h-8 w-1/3" />
-        <ZoruSkeleton className="h-4 w-2/3 mt-2" />
+        <Skeleton className="h-10 w-48 mb-4" />
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-4 w-2/3 mt-2" />
       </div>
       <div className="space-y-6">
-        <ZoruSkeleton className="h-48 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     </div>
 );
@@ -36,12 +36,12 @@ function AdminCreateLibraryTemplatePage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
+                <Button variant="ghost" asChild className="mb-4 -ml-4">
                 <Link href="/admin/dashboard/template-library">
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Back to Library
                 </Link>
-                </ZoruButton>
+                </Button>
                 <h1 className="text-3xl text-zoru-ink">Add New Library Template</h1>
                 <p className="text-zoru-ink-muted">Create a new template that will be available to all users.</p>
             </div>

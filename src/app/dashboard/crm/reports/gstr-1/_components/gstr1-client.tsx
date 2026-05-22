@@ -154,15 +154,15 @@ export function Gstr1Client({
     return (
         <>
             <div className="flex justify-end">
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             disabled={isExportingJson}
                         >
                             <Download className="mr-1.5 h-3.5 w-3.5" /> Export
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="end">
                         <ZoruDropdownMenuItem onClick={handleCsv}>
@@ -178,10 +178,10 @@ export function Gstr1Client({
                             <FileJson className="mr-2 h-4 w-4" /> GSTN JSON
                         </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <div className="mb-3">
                     <h2 className="text-[16px] font-semibold text-foreground">
                         Outward supplies by type
@@ -221,9 +221,9 @@ export function Gstr1Client({
                         </ResponsiveContainer>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">
                         Sales Invoices
@@ -233,7 +233,7 @@ export function Gstr1Client({
                     </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">
@@ -297,7 +297,7 @@ export function Gstr1Client({
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
                 <PaginationBar
                     page={page}
@@ -305,7 +305,7 @@ export function Gstr1Client({
                     total={total}
                     hasMore={hasMore}
                 />
-            </ZoruCard>
+            </Card>
         </>
     );
 }

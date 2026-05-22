@@ -101,7 +101,7 @@ export function SabsmsFilterBar({
     >
       <div className="relative flex min-w-[220px] flex-1 items-center">
         <Search className="pointer-events-none absolute left-2.5 h-4 w-4 text-slate-400" />
-        <ZoruInput
+        <Input
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder={searchPlaceholder}
@@ -144,7 +144,7 @@ export function SabsmsFilterBar({
       )}
 
       {sortOptions && sortOptions.length > 0 && (
-        <ZoruSelect
+        <Select
           value={sortValue}
           onValueChange={(v) => url.setOne("sort", v)}
         >
@@ -159,20 +159,20 @@ export function SabsmsFilterBar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       )}
 
       {activeFilterCount > 0 && (
-        <ZoruBadge variant="secondary">
+        <Badge variant="secondary">
           {activeFilterCount} filter{activeFilterCount === 1 ? "" : "s"}
-        </ZoruBadge>
+        </Badge>
       )}
 
       <div className="ml-auto flex items-center gap-2">
         {trailing}
-        <ZoruButton variant="ghost" size="sm" onClick={clearAll}>
+        <Button variant="ghost" size="sm" onClick={clearAll}>
           <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );
@@ -190,17 +190,17 @@ function FacetChip({ facet }: { facet: SabsmsFacet }) {
     .filter(Boolean);
 
   return (
-    <ZoruDropdownMenu>
+    <DropdownMenu>
       <ZoruDropdownMenuTrigger asChild>
-        <ZoruButton variant="outline" size="sm" className="gap-1.5">
+        <Button variant="outline" size="sm" className="gap-1.5">
           <SlidersHorizontal className="h-3.5 w-3.5" />
           {facet.label}
           {selectedLabels.length > 0 && (
-            <ZoruBadge variant="secondary" className="ml-1 text-[10px]">
+            <Badge variant="secondary" className="ml-1 text-[10px]">
               {selectedLabels.length}
-            </ZoruBadge>
+            </Badge>
           )}
-        </ZoruButton>
+        </Button>
       </ZoruDropdownMenuTrigger>
       <ZoruDropdownMenuContent align="start">
         <ZoruDropdownMenuLabel>{facet.label}</ZoruDropdownMenuLabel>
@@ -224,6 +224,6 @@ function FacetChip({ facet }: { facet: SabsmsFacet }) {
           );
         })}
       </ZoruDropdownMenuContent>
-    </ZoruDropdownMenu>
+    </DropdownMenu>
   );
 }

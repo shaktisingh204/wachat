@@ -9,7 +9,7 @@ import { getSeoProject, getSiteMetrics } from '@/app/actions/seo.actions';
 import { Bar, CartesianGrid, XAxis, YAxis, ComposedChart } from 'recharts';
 import Link from 'next/link';
 
-const ChartContainer = dynamic(() => import("@/components/zoruui").then(mod => mod.ZoruChartContainer), { ssr: false, loading: () => <ZoruSkeleton className="h-64 w-full" /> }) as any;
+const ChartContainer = dynamic(() => import("@/components/zoruui").then(mod => mod.ZoruChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
 const ChartTooltip = dynamic(() => import("@/components/zoruui").then(mod => mod.ZoruChartTooltip), { ssr: false }) as any;
 
 const chartConfig = {
@@ -20,7 +20,7 @@ const chartConfig = {
 
 function StatCard({ title, value, icon: Icon, desc }: { title: string, value: string | number, icon: React.ElementType, desc?: string }) {
     return (
-        <ZoruCard className="p-4">
+        <Card className="p-4">
             <div className="flex items-start justify-between">
                 <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
                     <Icon className="h-4 w-4" />
@@ -31,7 +31,7 @@ function StatCard({ title, value, icon: Icon, desc }: { title: string, value: st
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
             {desc && <p className="mt-1 text-[11px] leading-tight text-zoru-ink-muted">{desc}</p>}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -67,7 +67,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
         loadData();
     }, [projectId, toast]);
 
-    if (loading || !project || !metrics) return <ZoruSkeleton className="h-full w-full" />;
+    if (loading || !project || !metrics) return <Skeleton className="h-full w-full" />;
 
     return (
         <div className="flex flex-col gap-6">
@@ -83,13 +83,13 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
                 </div>
                 <div className="flex gap-2">
                     <Link href={`/dashboard/seo/${projectId}/audit`}>
-                        <ZoruButton variant="outline">Run Audit</ZoruButton>
+                        <Button variant="outline">Run Audit</Button>
                     </Link>
                     <Link href={`/dashboard/seo/${projectId}/grid`}>
-                        <ZoruButton>
+                        <Button>
                             <Map className="h-4 w-4" />
                             Grid Tracker
-                        </ZoruButton>
+                        </Button>
                     </Link>
                 </div>
             </div>
@@ -139,7 +139,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
             </div>
 
             {tab === 'overview' && (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-4">
                         <div className="text-sm text-zoru-ink">Estimated Traffic Trend</div>
                         <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
@@ -157,31 +157,31 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
                             <Bar dataKey="organic" stackId="a" fill="var(--color-organic)" radius={[4, 4, 0, 0]} />
                         </ComposedChart>
                     </ChartContainer>
-                </ZoruCard>
+                </Card>
             )}
 
             {tab === 'keywords' && (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-4 text-sm text-zoru-ink">Top Performing Keywords</div>
                     <p className="text-zoru-ink-muted text-[12.5px]">Keyword table coming soon...</p>
-                </ZoruCard>
+                </Card>
             )}
 
             {tab === 'competitors' && (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-4 text-sm text-zoru-ink">Competitor Analysis</div>
                     <div className="flex flex-col gap-2">
                         {project.competitors?.map((comp: string) => (
                             <div key={comp} className="flex justify-between items-center p-3 border border-zoru-line rounded-[var(--zoru-radius)]">
                                 <span className="text-zoru-ink">{comp}</span>
-                                <ZoruButton size="sm" variant="ghost">View Report</ZoruButton>
+                                <Button size="sm" variant="ghost">View Report</Button>
                             </div>
                         ))}
                         {(!project.competitors || project.competitors.length === 0) && (
                             <p className="text-zoru-ink-muted text-[12.5px]">No competitors added.</p>
                         )}
                     </div>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

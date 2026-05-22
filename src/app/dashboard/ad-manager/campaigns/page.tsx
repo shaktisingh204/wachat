@@ -109,13 +109,13 @@ function EmptyState() {
           Create your first campaign to start reaching customers on Facebook and Instagram.
         </p>
       </div>
-      <ZoruButton
+      <Button
         size="sm"
         onClick={() => router.push('/dashboard/ad-manager/create')}
       >
         <Plus className="h-3.5 w-3.5" />
         Create campaign
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -135,12 +135,12 @@ function NoAccountState() {
           Connect or select a Meta ad account to view your campaigns.
         </p>
       </div>
-      <ZoruButton
+      <Button
         size="sm"
         onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}
       >
         Select account
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -174,7 +174,7 @@ function RowActions({
 
   return (
     <div ref={ref} className="relative">
-      <ZoruButton
+      <Button
         variant="ghost"
         size="icon-sm"
         className="h-7 w-7 text-muted-foreground"
@@ -184,7 +184,7 @@ function RowActions({
         }}
       >
         <Circle className="h-3.5 w-3.5" />
-      </ZoruButton>
+      </Button>
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-xl border border-border bg-card shadow-md py-1">
@@ -310,9 +310,9 @@ export default function CampaignsPage() {
     return (
       <div>
         <AmBreadcrumb page="Campaigns" />
-        <ZoruCard className="mt-5">
+        <Card className="mt-5">
           <NoAccountState />
-        </ZoruCard>
+        </Card>
       </div>
     );
   }
@@ -341,7 +341,7 @@ export default function CampaignsPage() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => {
@@ -364,14 +364,14 @@ export default function CampaignsPage() {
             }}
           >
             Export CSV
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             onClick={() => router.push('/dashboard/ad-manager/create')}
           >
             <Plus className="h-3.5 w-3.5" />
             Create Campaign
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -379,17 +379,17 @@ export default function CampaignsPage() {
       <div className="flex items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-1.5">
           {filterPills.map((pill) => (
-            <ZoruButton
+            <Button
               key={pill.value}
               variant={statusFilter === pill.value ? 'default' : 'outline'}
               size="sm"
               onClick={() => setStatusFilter(pill.value)}
             >
               {pill.label}
-            </ZoruButton>
+            </Button>
           ))}
         </div>
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           className="h-8 w-8"
@@ -399,11 +399,11 @@ export default function CampaignsPage() {
             className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')}
             strokeWidth={2}
           />
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* Table */}
-      <ZoruCard className="p-0 overflow-hidden">
+      <Card className="p-0 overflow-hidden">
         {loading ? (
           <TableSkeleton />
         ) : filtered.length === 0 ? (
@@ -453,9 +453,9 @@ export default function CampaignsPage() {
 
                   {/* Status */}
                   <div className="w-[90px]">
-                    <ZoruBadge variant={statusVariant(c.effective_status)}>
+                    <Badge variant={statusVariant(c.effective_status)}>
                       {statusLabel(c.effective_status)}
-                    </ZoruBadge>
+                    </Badge>
                   </div>
 
                   {/* Objective */}
@@ -487,7 +487,7 @@ export default function CampaignsPage() {
             </div>
           </div>
         )}
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

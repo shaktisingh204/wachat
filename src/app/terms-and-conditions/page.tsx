@@ -10,7 +10,7 @@ export default function TermsAndConditionsPage() {
                 &larr; Back to Home
             </Link>
         </div>
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-3xl font-bold font-headline">Terms and Conditions</ZoruCardTitle>
           </ZoruCardHeader>
@@ -45,7 +45,7 @@ export default function TermsAndConditionsPage() {
             <h2 className="text-xl font-semibold">Contact Us</h2>
             <p>If you have any questions about these Terms, please contact us at: [Your Contact Email]</p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

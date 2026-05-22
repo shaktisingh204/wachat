@@ -169,7 +169,7 @@ export function QuestionRepeater({
                                     Question {idx + 1}
                                 </span>
                                 <div className="ml-auto flex items-center gap-1">
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon-sm"
@@ -178,8 +178,8 @@ export function QuestionRepeater({
                                         disabled={idx === 0}
                                     >
                                         <ChevronUp className="h-4 w-4" />
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon-sm"
@@ -188,8 +188,8 @@ export function QuestionRepeater({
                                         disabled={idx === items.length - 1}
                                     >
                                         <ChevronDown className="h-4 w-4" />
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon-sm"
@@ -197,16 +197,16 @@ export function QuestionRepeater({
                                         onClick={() => removeAt(idx)}
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
 
                             <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
                                 <div className="space-y-1.5">
-                                    <ZoruLabel htmlFor={`${q._key}-label`}>
+                                    <Label htmlFor={`${q._key}-label`}>
                                         Prompt
-                                    </ZoruLabel>
-                                    <ZoruInput
+                                    </Label>
+                                    <Input
                                         id={`${q._key}-label`}
                                         value={q.label}
                                         placeholder="What would you like to ask?"
@@ -218,10 +218,10 @@ export function QuestionRepeater({
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <ZoruLabel htmlFor={`${q._key}-type`}>
+                                    <Label htmlFor={`${q._key}-type`}>
                                         Answer type
-                                    </ZoruLabel>
-                                    <ZoruSelect
+                                    </Label>
+                                    <Select
                                         value={q.type}
                                         onValueChange={(v) =>
                                             updateAt(idx, {
@@ -248,7 +248,7 @@ export function QuestionRepeater({
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                             </div>
 
@@ -262,7 +262,7 @@ export function QuestionRepeater({
                             ) : null}
 
                             <label className="mt-3 flex items-center gap-2 text-[13px] text-zoru-ink">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={!!q.required}
                                     onCheckedChange={(c) =>
                                         updateAt(idx, { required: !!c })
@@ -276,10 +276,10 @@ export function QuestionRepeater({
             )}
 
             <div>
-                <ZoruButton type="button" variant="outline" onClick={addQuestion}>
+                <Button type="button" variant="outline" onClick={addQuestion}>
                     <Plus className="mr-1.5 h-4 w-4" />
                     Add question
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -313,12 +313,12 @@ function OptionsEditor({
                 <ul className="mb-2 flex flex-col gap-2">
                     {options.map((opt, i) => (
                         <li key={i} className="flex items-center gap-2">
-                            <ZoruInput
+                            <Input
                                 value={opt}
                                 placeholder={`Option ${i + 1}`}
                                 onChange={(e) => updateAt(i, e.target.value)}
                             />
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon-sm"
@@ -326,12 +326,12 @@ function OptionsEditor({
                                 onClick={() => removeAt(i)}
                             >
                                 <X className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </li>
                     ))}
                 </ul>
             )}
-            <ZoruButton
+            <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -339,7 +339,7 @@ function OptionsEditor({
             >
                 <Plus className="mr-1.5 h-3.5 w-3.5" />
                 Add option
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

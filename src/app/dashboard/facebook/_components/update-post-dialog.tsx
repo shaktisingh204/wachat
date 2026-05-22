@@ -67,7 +67,7 @@ export function UpdatePostDialog({
   };
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <form action={handleAction} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
@@ -82,8 +82,8 @@ export function UpdatePostDialog({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="message">Message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="message">Message</Label>
+              <Textarea
                 id="message"
                 name="message"
                 className="min-h-40"
@@ -93,21 +93,21 @@ export function UpdatePostDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isPending}>
+            </Button>
+            <Button type="submit" disabled={isPending}>
               {isPending ? <Loader2 className="animate-spin" /> : <Save />}
               Save changes
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

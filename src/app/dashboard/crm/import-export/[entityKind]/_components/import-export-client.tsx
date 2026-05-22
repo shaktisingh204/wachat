@@ -61,7 +61,7 @@ export function ImportExportClient({ entityKind }: Props): React.ReactElement {
 
     return (
         <div className="flex w-full flex-col gap-4">
-            <ZoruCard className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
                     <h2 className="text-sm font-medium text-zoru-ink">Export</h2>
                     <p className="text-[12.5px] text-zoru-ink-muted">
@@ -69,7 +69,7 @@ export function ImportExportClient({ entityKind }: Props): React.ReactElement {
                         at 10,000).
                     </p>
                 </div>
-                <ZoruButton
+                <Button
                     type="button"
                     onClick={() => void handleExport()}
                     disabled={busy}
@@ -80,8 +80,8 @@ export function ImportExportClient({ entityKind }: Props): React.ReactElement {
                         <Download className="h-3.5 w-3.5" />
                     )}
                     Download CSV
-                </ZoruButton>
-            </ZoruCard>
+                </Button>
+            </Card>
 
             <BulkImportWizard entityKind={entityKind} />
         </div>

@@ -194,23 +194,23 @@ function BroadcastListPane({
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center justify-between gap-2 border-b border-zoru-line px-3 py-2">
         <h2 className="text-sm font-semibold text-zoru-ink">Broadcast lists</h2>
-        <ZoruButton size="sm" onClick={onNew} className="gap-1">
+        <Button size="sm" onClick={onNew} className="gap-1">
           <Plus className="h-4 w-4" />
           New
-        </ZoruButton>
+        </Button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         {broadcasts.length === 0 ? (
           <div className="p-6">
-            <ZoruEmptyState
+            <EmptyState
               icon={<Users />}
               title="No broadcast lists yet"
               description="Create a list to fan out a single message to many contacts as 1:1 sends — recipients can't see each other."
               action={
-                <ZoruButton size="md" onClick={onNew}>
+                <Button size="md" onClick={onNew}>
                   <Plus className="mr-1.5 h-4 w-4" />
                   Compose first broadcast
-                </ZoruButton>
+                </Button>
               }
             />
           </div>
@@ -361,7 +361,7 @@ function BroadcastDetailPane({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center gap-2 border-b border-zoru-line px-3 py-2 md:px-4">
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           className="md:hidden"
@@ -369,10 +369,10 @@ function BroadcastDetailPane({
           aria-label="Back to list"
         >
           <ArrowLeft className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
         {editingName ? (
           <div className="flex flex-1 items-center gap-2">
-            <ZoruInput
+            <Input
               autoFocus
               value={nameDraft}
               onChange={(e) => setNameDraft(e.target.value)}
@@ -402,14 +402,14 @@ function BroadcastDetailPane({
             {broadcast.name}
           </button>
         )}
-        <ZoruBadge variant="secondary" className="shrink-0">
+        <Badge variant="secondary" className="shrink-0">
           {broadcast.recipients.length} recipients
-        </ZoruBadge>
+        </Badge>
       </div>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3 md:p-4">
         {/* Recipients */}
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
             <div>
               <ZoruCardTitle className="text-sm">Recipients</ZoruCardTitle>
@@ -419,7 +419,7 @@ function BroadcastDetailPane({
             </div>
             <div className="flex flex-wrap gap-2">
               {selected.size > 0 && (
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   className="gap-1 text-zoru-danger"
@@ -430,9 +430,9 @@ function BroadcastDetailPane({
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Remove ({selected.size})
-                </ZoruButton>
+                </Button>
               )}
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 className="gap-1"
@@ -440,7 +440,7 @@ function BroadcastDetailPane({
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add recipient
-              </ZoruButton>
+              </Button>
             </div>
           </ZoruCardHeader>
           <ZoruCardContent className="px-0">
@@ -449,11 +449,11 @@ function BroadcastDetailPane({
                 No recipients yet. Add at least one to enable sending.
               </div>
             ) : (
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead className="w-10">
-                      <ZoruCheckbox
+                      <Checkbox
                         aria-label="Select all"
                         checked={allSelected}
                         onCheckedChange={toggleAll}
@@ -470,7 +470,7 @@ function BroadcastDetailPane({
                     return (
                       <ZoruTableRow key={r.jid}>
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             aria-label={`Select ${resolvedName}`}
                             checked={selected.has(r.jid)}
                             onCheckedChange={() => toggleOne(r.jid)}
@@ -498,13 +498,13 @@ function BroadcastDetailPane({
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         {/* Composer */}
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-sm">Compose &amp; send</ZoruCardTitle>
             <ZoruCardDescription className="text-xs">
@@ -513,7 +513,7 @@ function BroadcastDetailPane({
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-3">
-            <ZoruTextarea
+            <Textarea
               placeholder="Type your message…"
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -544,7 +544,7 @@ function BroadcastDetailPane({
                   </div>
                 )}
               </div>
-              <ZoruButton
+              <Button
                 size="sm"
                 onClick={handleSend}
                 disabled={
@@ -560,13 +560,13 @@ function BroadcastDetailPane({
                   <Send className="h-3.5 w-3.5" />
                 )}
                 Send
-              </ZoruButton>
+              </Button>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         {/* History */}
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-sm">History</ZoruCardTitle>
             <ZoruCardDescription className="text-xs">
@@ -579,7 +579,7 @@ function BroadcastDetailPane({
                 No sends yet.
               </div>
             ) : (
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead>Sent</ZoruTableHead>
@@ -610,13 +610,13 @@ function BroadcastDetailPane({
                     </ZoruTableRow>
                   ))}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruDialog open={addOpen} onOpenChange={setAddOpen}>
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Add recipient</ZoruDialogTitle>
@@ -626,8 +626,8 @@ function BroadcastDetailPane({
           </ZoruDialogHeader>
           <div className="space-y-3">
             <div className="space-y-1">
-              <ZoruLabel htmlFor="add-jid">Phone or JID</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="add-jid">Phone or JID</Label>
+              <Input
                 id="add-jid"
                 value={newJid}
                 onChange={(e) => setNewJid(e.target.value)}
@@ -635,8 +635,8 @@ function BroadcastDetailPane({
               />
             </div>
             <div className="space-y-1">
-              <ZoruLabel htmlFor="add-name">Display name (optional)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="add-name">Display name (optional)</Label>
+              <Input
                 id="add-name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
@@ -645,18 +645,18 @@ function BroadcastDetailPane({
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setAddOpen(false)}>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={handleAddRecipient}
               disabled={!newJid.trim()}
             >
               Add
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }
@@ -890,7 +890,7 @@ export default function BroadcastsPage() {
     <div className="flex h-[calc(100vh-3.5rem)] min-h-0 flex-col bg-zoru-bg">
       {/* Breadcrumb + heading */}
       <div className="border-b border-zoru-line p-3 md:p-4">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -904,7 +904,7 @@ export default function BroadcastsPage() {
               <ZoruBreadcrumbPage>Broadcasts</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
 
         <div className="mt-3 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
@@ -921,11 +921,11 @@ export default function BroadcastsPage() {
               </p>
             </div>
           </div>
-          <ZoruButton onClick={() => setNewOpen(true)} className="gap-1">
+          <Button onClick={() => setNewOpen(true)} className="gap-1">
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">New broadcast list</span>
             <span className="sm:hidden">New</span>
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -942,15 +942,15 @@ export default function BroadcastsPage() {
         {loading ? (
           <div className="grid h-full md:grid-cols-[320px_1fr] md:divide-x md:divide-zoru-line">
             <div className="space-y-2 p-3">
-              <ZoruSkeleton className="h-8 w-full" />
-              <ZoruSkeleton className="h-14 w-full" />
-              <ZoruSkeleton className="h-14 w-full" />
-              <ZoruSkeleton className="h-14 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
             </div>
             <div className="hidden space-y-3 p-4 md:block">
-              <ZoruSkeleton className="h-8 w-1/3" />
-              <ZoruSkeleton className="h-40 w-full" />
-              <ZoruSkeleton className="h-32 w-full" />
+              <Skeleton className="h-8 w-1/3" />
+              <Skeleton className="h-40 w-full" />
+              <Skeleton className="h-32 w-full" />
             </div>
           </div>
         ) : (
@@ -1015,7 +1015,7 @@ export default function BroadcastsPage() {
         )}
       </div>
 
-      <ZoruDialog open={newOpen} onOpenChange={setNewOpen}>
+      <Dialog open={newOpen} onOpenChange={setNewOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>New broadcast list</ZoruDialogTitle>
@@ -1025,8 +1025,8 @@ export default function BroadcastsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="new-broadcast-name">Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="new-broadcast-name">Name</Label>
+            <Input
               id="new-broadcast-name"
               autoFocus
               value={newName}
@@ -1037,20 +1037,20 @@ export default function BroadcastsPage() {
               }}
             />
           </div>
-          <ZoruSeparator />
+          <Separator />
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setNewOpen(false)}>
+            <Button variant="outline" onClick={() => setNewOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => void handleCreate()}
               disabled={!newName.trim() || !sessionId}
             >
               Create
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

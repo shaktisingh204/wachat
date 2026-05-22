@@ -30,10 +30,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Opt-in/Out Settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -57,7 +57,7 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
   }, [state, toast]);
 
   return (
-    <ZoruCard className="card-gradient card-gradient-orange">
+    <Card className="card-gradient card-gradient-orange">
       <form action={formAction} ref={formRef}>
         <input type="hidden" name="projectId" value={project._id.toString()} />
         <ZoruCardHeader>
@@ -66,30 +66,30 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
                 <ZoruCardTitle>Opt-in & Opt-out</ZoruCardTitle>
                 <ZoruCardDescription>Manage keywords for user subscription preferences.</ZoruCardDescription>
             </div>
-            <ZoruSwitch name="enabled" defaultChecked={settings?.enabled} />
+            <Switch name="enabled" defaultChecked={settings?.enabled} />
           </div>
         </ZoruCardHeader>
         <ZoruCardContent className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
                 <h4 className="font-semibold text-primary">Opt-in Settings</h4>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="optInKeywords">Opt-in Keywords</ZoruLabel>
-                    <ZoruTextarea id="optInKeywords" name="optInKeywords" defaultValue={settings?.optInKeywords?.join(', ')} placeholder="start, subscribe, yes" />
+                    <Label htmlFor="optInKeywords">Opt-in Keywords</Label>
+                    <Textarea id="optInKeywords" name="optInKeywords" defaultValue={settings?.optInKeywords?.join(', ')} placeholder="start, subscribe, yes" />
                 </div>
                  <div className="space-y-2">
-                    <ZoruLabel htmlFor="optInResponse">Opt-in Response Message</ZoruLabel>
-                    <ZoruTextarea id="optInResponse" name="optInResponse" defaultValue={settings?.optInResponse} placeholder="You have successfully subscribed!" />
+                    <Label htmlFor="optInResponse">Opt-in Response Message</Label>
+                    <Textarea id="optInResponse" name="optInResponse" defaultValue={settings?.optInResponse} placeholder="You have successfully subscribed!" />
                 </div>
             </div>
             <div className="space-y-4">
                 <h4 className="font-semibold text-destructive">Opt-out Settings</h4>
                  <div className="space-y-2">
-                    <ZoruLabel htmlFor="optOutKeywords">Opt-out Keywords</ZoruLabel>
-                    <ZoruTextarea id="optOutKeywords" name="optOutKeywords" defaultValue={settings?.optOutKeywords?.join(', ')} placeholder="stop, unsubscribe, cancel" />
+                    <Label htmlFor="optOutKeywords">Opt-out Keywords</Label>
+                    <Textarea id="optOutKeywords" name="optOutKeywords" defaultValue={settings?.optOutKeywords?.join(', ')} placeholder="stop, unsubscribe, cancel" />
                 </div>
                  <div className="space-y-2">
-                    <ZoruLabel htmlFor="optOutResponse">Opt-out Response Message</ZoruLabel>
-                    <ZoruTextarea id="optOutResponse" name="optOutResponse" defaultValue={settings?.optOutResponse} placeholder="You have been unsubscribed." />
+                    <Label htmlFor="optOutResponse">Opt-out Response Message</Label>
+                    <Textarea id="optOutResponse" name="optOutResponse" defaultValue={settings?.optOutResponse} placeholder="You have been unsubscribed." />
                 </div>
             </div>
         </ZoruCardContent>
@@ -97,6 +97,6 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
           <SubmitButton />
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

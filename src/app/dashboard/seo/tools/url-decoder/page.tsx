@@ -36,36 +36,36 @@ export default function UrlDecoderPage() {
   return (
     <ToolShell title="URL Decoder" description="Decode percent-encoded URLs back to plain text.">
       <div className="flex flex-col gap-3">
-        <ZoruLabel>Encoded input</ZoruLabel>
-        <ZoruTextarea
+        <Label>Encoded input</Label>
+        <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Paste an encoded URL…"
           className="min-h-[140px] font-mono text-sm"
         />
         <div>
-          <ZoruButton onClick={run} disabled={!input}>
+          <Button onClick={run} disabled={!input}>
             Decode
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {output && !error && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
-            <ZoruLabel>Decoded output</ZoruLabel>
-            <ZoruTextarea readOnly value={output} className="min-h-[140px]" />
-            <ZoruButton variant="outline" onClick={copy}>
+            <Label>Decoded output</Label>
+            <Textarea readOnly value={output} className="min-h-[140px]" />
+            <Button variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

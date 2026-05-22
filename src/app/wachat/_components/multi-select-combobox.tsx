@@ -62,9 +62,9 @@ export function MultiSelectCombobox({
   };
 
   return (
-    <ZoruPopover open={open} onOpenChange={setOpen} modal>
+    <Popover open={open} onOpenChange={setOpen} modal>
       <ZoruPopoverTrigger asChild>
-        <ZoruButton
+        <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
@@ -78,7 +78,7 @@ export function MultiSelectCombobox({
               options
                 .filter((option) => selected.includes(option.value))
                 .map((option) => (
-                  <ZoruBadge
+                  <Badge
                     key={option.value}
                     variant="secondary"
                     className="px-2 py-0.5"
@@ -101,14 +101,14 @@ export function MultiSelectCombobox({
                     >
                       <X className="h-3 w-3 text-zoru-ink-muted hover:text-zoru-ink" />
                     </button>
-                  </ZoruBadge>
+                  </Badge>
                 ))
             ) : (
               <span className="text-zoru-ink-muted">{placeholder}</span>
             )}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </ZoruButton>
+        </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent
         align="start"
@@ -119,7 +119,7 @@ export function MultiSelectCombobox({
           <ZoruCommandList>
             <ZoruCommandEmpty>No options found.</ZoruCommandEmpty>
             <ZoruCommandGroup>
-              <ZoruScrollArea className="max-h-60">
+              <ScrollArea className="max-h-60">
                 {options.map((option) => (
                   <ZoruCommandItem
                     key={option.value}
@@ -137,11 +137,11 @@ export function MultiSelectCombobox({
                     {option.label}
                   </ZoruCommandItem>
                 ))}
-              </ZoruScrollArea>
+              </ScrollArea>
             </ZoruCommandGroup>
           </ZoruCommandList>
         </ZoruCommand>
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

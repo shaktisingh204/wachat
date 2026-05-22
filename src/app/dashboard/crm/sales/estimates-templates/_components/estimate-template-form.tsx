@@ -68,14 +68,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create template'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -173,7 +173,7 @@ export function EstimateTemplateForm({
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -193,8 +193,8 @@ export function EstimateTemplateForm({
                 {/* Name + Category */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Template name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Template name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -203,7 +203,7 @@ export function EstimateTemplateForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Category</ZoruLabel>
+                        <Label>Category</Label>
                         <EnumFormField
                             enumName="estimateTemplateCategory"
                             name="__category_picker"
@@ -216,10 +216,10 @@ export function EstimateTemplateForm({
 
                 {/* Template body */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="templateBody">
+                    <Label htmlFor="templateBody">
                         Template body (markdown)
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                         id="templateBody"
                         name="templateBody"
                         rows={8}
@@ -233,8 +233,8 @@ export function EstimateTemplateForm({
                 {/* Line items repeater */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Default line items</ZoruLabel>
-                        <ZoruButton
+                        <Label>Default line items</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -242,7 +242,7 @@ export function EstimateTemplateForm({
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add line item
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
                         <table className="w-full text-[13px]">
@@ -270,7 +270,7 @@ export function EstimateTemplateForm({
                                         className="border-t border-zoru-line"
                                     >
                                         <td className="px-3 py-2">
-                                            <ZoruInput
+                                            <Input
                                                 placeholder={`Item ${idx + 1}`}
                                                 value={it.description}
                                                 onChange={(e) =>
@@ -282,7 +282,7 @@ export function EstimateTemplateForm({
                                             />
                                         </td>
                                         <td className="px-3 py-2 text-right">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="1"
@@ -299,7 +299,7 @@ export function EstimateTemplateForm({
                                             />
                                         </td>
                                         <td className="px-3 py-2 text-right">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="0.01"
@@ -321,7 +321,7 @@ export function EstimateTemplateForm({
                                             )}
                                         </td>
                                         <td className="px-3 py-2 text-right">
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
@@ -330,7 +330,7 @@ export function EstimateTemplateForm({
                                                 title="Remove item"
                                             >
                                                 <Trash2 className="h-4 w-4 text-destructive" />
-                                            </ZoruButton>
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
@@ -353,8 +353,8 @@ export function EstimateTemplateForm({
 
                 {/* Default terms */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="defaultTerms">Default terms</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="defaultTerms">Default terms</Label>
+                    <Textarea
                         id="defaultTerms"
                         name="defaultTerms"
                         rows={4}
@@ -368,7 +368,7 @@ export function EstimateTemplateForm({
                 {/* Status + active */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="estimateTemplateStatus"
                             name="__status_picker"
@@ -377,31 +377,31 @@ export function EstimateTemplateForm({
                         />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isActive"
                             name="isActive"
                             defaultChecked={initialData?.isActive !== false}
                         />
-                        <ZoruLabel
+                        <Label
                             htmlFor="isActive"
                             className="cursor-pointer"
                         >
                             Active — show in template picker
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to templates
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

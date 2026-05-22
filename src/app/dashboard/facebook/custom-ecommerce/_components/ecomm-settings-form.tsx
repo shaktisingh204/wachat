@@ -55,10 +55,10 @@ const initialState: { message?: string | null; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="animate-spin" /> : <Save />}
       Save settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -100,7 +100,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
   return (
     <form action={formAction}>
       <input type="hidden" name="shopId" value={shop._id.toString()} />
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Basic configuration</ZoruCardTitle>
           <ZoruCardDescription>
@@ -110,8 +110,8 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
         <ZoruCardContent className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="shopName">Shop name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="shopName">Shop name</Label>
+              <Input
                 id="shopName"
                 name="name"
                 placeholder="My Awesome Store"
@@ -120,8 +120,8 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="currency">Currency</Label>
+              <Select
                 name="currency"
                 defaultValue={shop.currency || "USD"}
                 required
@@ -139,11 +139,11 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                     GBP — British Pound
                   </ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="space-y-1.5 md:col-span-2">
-              <ZoruLabel htmlFor="customDomain">Custom domain</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="customDomain">Custom domain</Label>
+              <Select
                 name="customDomain"
                 defaultValue={shop.customDomain || "none"}
               >
@@ -163,14 +163,14 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
               <p className="text-xs text-zoru-ink-muted">
                 Add and verify domains in the section below.
               </p>
             </div>
           </div>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div>
             <h3 className="flex items-center gap-2 text-base tracking-tight text-zoru-ink">
@@ -182,10 +182,10 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
             </p>
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="paymentLinkRazorpay">
+                <Label htmlFor="paymentLinkRazorpay">
                   Razorpay link
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="paymentLinkRazorpay"
                   name="paymentLinkRazorpay"
                   placeholder="https://rzp.io/l/yourlink"
@@ -193,8 +193,8 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                 />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="paymentLinkPaytm">Paytm link</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="paymentLinkPaytm">Paytm link</Label>
+                <Input
                   id="paymentLinkPaytm"
                   name="paymentLinkPaytm"
                   placeholder="https://p.paytm.me/yourlink"
@@ -202,10 +202,10 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                 />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="paymentLinkGPay">
+                <Label htmlFor="paymentLinkGPay">
                   Google Pay link
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="paymentLinkGPay"
                   name="paymentLinkGPay"
                   placeholder="gpay://…"
@@ -215,7 +215,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
             </div>
           </div>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div>
             <h3 className="flex items-center gap-2 text-base tracking-tight text-zoru-ink">
@@ -227,13 +227,13 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
             </p>
             <div className="space-y-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4">
               <div className="flex items-center justify-between">
-                <ZoruLabel
+                <Label
                   htmlFor="abandonedCart.enabled"
                   className="text-sm tracking-tight text-zoru-ink"
                 >
                   Enable reminder
-                </ZoruLabel>
-                <ZoruSwitch
+                </Label>
+                <Switch
                   id="abandonedCart.enabled"
                   name="abandonedCart.enabled"
                   defaultChecked={shop.abandonedCart?.enabled || false}
@@ -241,10 +241,10 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="abandonedCart.delayMinutes">
+                  <Label htmlFor="abandonedCart.delayMinutes">
                     Delay (minutes)
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="abandonedCart.delayMinutes"
                     name="abandonedCart.delayMinutes"
                     type="number"
@@ -252,10 +252,10 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="abandonedCart.flowId">
+                  <Label htmlFor="abandonedCart.flowId">
                     Reminder flow
-                  </ZoruLabel>
-                  <ZoruSelect
+                  </Label>
+                  <Select
                     name="abandonedCart.flowId"
                     defaultValue={shop.abandonedCart?.flowId}
                   >
@@ -272,7 +272,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                         </ZoruSelectItem>
                       ))}
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -281,7 +281,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
         <ZoruCardFooter>
           <SubmitButton />
         </ZoruCardFooter>
-      </ZoruCard>
+      </Card>
     </form>
   );
 }

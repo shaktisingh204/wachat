@@ -33,14 +33,14 @@ export function HeaderSection({
   onReverseCharge,
 }: HeaderSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Header
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel htmlFor="billNo">Bill number</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="billNo">Bill number</Label>
+          <Input
             id="billNo"
             name="billNo"
             defaultValue={defaultBillNo}
@@ -49,8 +49,8 @@ export function HeaderSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="vendorInvoiceNo">Vendor invoice number</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="vendorInvoiceNo">Vendor invoice number</Label>
+          <Input
             id="vendorInvoiceNo"
             name="vendorInvoiceNo"
             defaultValue={defaultVendorInvoiceNo ?? ''}
@@ -59,10 +59,10 @@ export function HeaderSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="billDate">
+          <Label htmlFor="billDate">
             Bill date <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="billDate"
             name="billDate"
             type="date"
@@ -72,8 +72,8 @@ export function HeaderSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="dueDate">Due date</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="dueDate">Due date</Label>
+          <Input
             id="dueDate"
             name="dueDate"
             type="date"
@@ -82,8 +82,8 @@ export function HeaderSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="placeOfSupply">Place of supply</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="placeOfSupply">Place of supply</Label>
+          <Input
             id="placeOfSupply"
             name="placeOfSupply"
             defaultValue={defaultPlaceOfSupply ?? ''}
@@ -102,7 +102,7 @@ export function HeaderSection({
           Reverse charge (GST)
         </label>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -118,15 +118,15 @@ export function VendorSection({
   onCurrencyChange,
 }: VendorSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Vendor
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel>
+          <Label>
             Vendor <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
+          </Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="vendor"
@@ -137,7 +137,7 @@ export function VendorSection({
           </div>
         </div>
         <div>
-          <ZoruLabel>Currency</ZoruLabel>
+          <Label>Currency</Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="currency"
@@ -148,7 +148,7 @@ export function VendorSection({
           </div>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -162,14 +162,14 @@ export function TdsSection({
   defaultTdsAmount,
 }: TdsSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         TDS
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel htmlFor="tdsSection">TDS section</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="tdsSection">TDS section</Label>
+          <Input
             id="tdsSection"
             name="tdsSection"
             defaultValue={defaultTdsSection ?? ''}
@@ -178,8 +178,8 @@ export function TdsSection({
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="tdsAmount">TDS amount</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="tdsAmount">TDS amount</Label>
+          <Input
             id="tdsAmount"
             name="tdsAmount"
             type="number"
@@ -190,7 +190,7 @@ export function TdsSection({
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -208,13 +208,13 @@ export function NotesSection({
   statusOptions: _statusOptions, // EnumFormField now drives values from CRM_ENUMS.billStatusV2
 }: NotesSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Status &amp; Notes
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel htmlFor="status">Status</ZoruLabel>
+          <Label htmlFor="status">Status</Label>
           <div className="mt-1.5">
             <EnumFormField
               enumName="billStatusV2"
@@ -225,8 +225,8 @@ export function NotesSection({
           </div>
         </div>
         <div className="md:col-span-2">
-          <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="notes">Notes</Label>
+          <Textarea
             id="notes"
             name="notes"
             rows={3}
@@ -235,7 +235,7 @@ export function NotesSection({
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -261,7 +261,7 @@ export function RecurringSection({
   onNextRun,
 }: RecurringSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <details open={enabled}>
         <summary className="cursor-pointer list-none">
           <h3 className="inline text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -279,7 +279,7 @@ export function RecurringSection({
         {enabled ? (
           <div className="mt-3 grid gap-4 md:grid-cols-3">
             <div>
-              <ZoruLabel>Frequency</ZoruLabel>
+              <Label>Frequency</Label>
               <div className="mt-1.5">
                 <EnumFormField
                   enumName="recurringFrequency"
@@ -293,8 +293,8 @@ export function RecurringSection({
               </div>
             </div>
             <div>
-              <ZoruLabel htmlFor="recurringEnd">End date</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="recurringEnd">End date</Label>
+              <Input
                 id="recurringEnd"
                 type="date"
                 value={endDate}
@@ -303,8 +303,8 @@ export function RecurringSection({
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="recurringNextRun">Next run</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="recurringNextRun">Next run</Label>
+              <Input
                 id="recurringNextRun"
                 type="date"
                 value={nextRun}
@@ -315,7 +315,7 @@ export function RecurringSection({
           </div>
         ) : null}
       </details>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -334,14 +334,14 @@ export function LinkedSection({
   onLinkedGrnIds,
 }: LinkedSectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Linked documents
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <ZoruLabel htmlFor="linkedPoId">Linked PO id</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="linkedPoId">Linked PO id</Label>
+          <Input
             id="linkedPoId"
             value={linkedPoId ?? ''}
             onChange={(e) => onLinkedPoId(e.target.value || null)}
@@ -355,8 +355,8 @@ export function LinkedSection({
           </p>
         </div>
         <div>
-          <ZoruLabel htmlFor="linkedGrnIds">Linked GRN ids</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="linkedGrnIds">Linked GRN ids</Label>
+          <Input
             id="linkedGrnIds"
             value={linkedGrnIds}
             onChange={(e) => onLinkedGrnIds(e.target.value)}
@@ -365,6 +365,6 @@ export function LinkedSection({
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

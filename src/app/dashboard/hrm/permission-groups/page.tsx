@@ -259,10 +259,10 @@ export default function PermissionGroupsPage(): React.JSX.Element {
             currentAssignments={assignments}
             onChanged={() => void refresh()}
           />
-          <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <FileDown className="h-4 w-4" />
             CSV
-          </ZoruButton>
+          </Button>
           <NewGroupSheet onCreated={() => void refresh()} />
         </div>
       </div>
@@ -271,10 +271,10 @@ export default function PermissionGroupsPage(): React.JSX.Element {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-20 w-full rounded-[var(--zoru-radius)]" />
+              <Skeleton key={i} className="h-20 w-full rounded-[var(--zoru-radius)]" />
             ))
           : kpis.map((k) => (
-              <ZoruStatCard key={k.label} label={k.label} value={String(k.value)} />
+              <StatCard key={k.label} label={k.label} value={String(k.value)} />
             ))}
       </div>
 
@@ -282,7 +282,7 @@ export default function PermissionGroupsPage(): React.JSX.Element {
       {selected.size > 0 ? (
         <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-4 py-2">
           <div className="flex items-center gap-2">
-            <ZoruBadge variant="default">{selected.size} selected</ZoruBadge>
+            <Badge variant="default">{selected.size} selected</Badge>
             <button
               type="button"
               onClick={() => setSelected(new Set())}
@@ -292,11 +292,11 @@ export default function PermissionGroupsPage(): React.JSX.Element {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+            <Button variant="outline" size="sm" onClick={handleExport}>
               <FileDown className="h-3.5 w-3.5" />
               Export
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="destructive"
               size="sm"
               onClick={() => setPendingBulk(true)}
@@ -304,13 +304,13 @@ export default function PermissionGroupsPage(): React.JSX.Element {
             >
               <Trash2 className="h-3.5 w-3.5" />
               Delete {selected.size}
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
       {/* Search */}
-      <ZoruInput
+      <Input
         placeholder="Search groups…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -318,13 +318,13 @@ export default function PermissionGroupsPage(): React.JSX.Element {
       />
 
       {/* Table */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={(v) => toggleAll(v === true)}
                     aria-label="Select all"
@@ -343,7 +343,7 @@ export default function PermissionGroupsPage(): React.JSX.Element {
                 ? Array.from({ length: 4 }).map((_, i) => (
                     <ZoruTableRow key={i}>
                       <ZoruTableCell colSpan={6}>
-                        <ZoruSkeleton className="h-8 w-full" />
+                        <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -367,7 +367,7 @@ export default function PermissionGroupsPage(): React.JSX.Element {
                     return (
                       <ZoruTableRow key={g._id} className="border-zoru-line">
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={selected.has(g._id)}
                             onCheckedChange={() => toggleOne(g._id)}
                             aria-label={`Select ${g.name}`}
@@ -385,44 +385,44 @@ export default function PermissionGroupsPage(): React.JSX.Element {
                           {g.description ?? '—'}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-center text-[13px]">
-                          <ZoruBadge variant="secondary">
+                          <Badge variant="secondary">
                             {moduleCount(g)}
-                          </ZoruBadge>
+                          </Badge>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-center text-[13px]">
                           {empCount > 0 ? (
-                            <ZoruBadge variant="default">{empCount}</ZoruBadge>
+                            <Badge variant="default">{empCount}</Badge>
                           ) : (
                             <span className="text-zoru-ink-muted">0</span>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton variant="ghost" size="sm" asChild>
+                            <Button variant="ghost" size="sm" asChild>
                               <Link
                                 href={`/dashboard/hrm/permission-groups/${g._id}`}
                                 aria-label="Edit"
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Link>
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="ghost"
                               size="sm"
                               aria-label="Delete"
                               onClick={() => setPendingDelete(g)}
                             >
                               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );
                   })}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Single delete confirm */}
       <ZoruAlertDialog

@@ -97,14 +97,14 @@ type StepKey = (typeof STEPS)[number]["key"];
 function SetupSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-48" />
+      <Skeleton className="h-3 w-48" />
       <div className="mt-5 flex flex-col gap-2">
-        <ZoruSkeleton className="h-3 w-24" />
-        <ZoruSkeleton className="h-7 w-72" />
-        <ZoruSkeleton className="h-3 w-96" />
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-7 w-72" />
+        <Skeleton className="h-3 w-96" />
       </div>
-      <ZoruSkeleton className="mt-6 h-16 w-full" />
-      <ZoruSkeleton className="mt-6 h-72 w-full" />
+      <Skeleton className="mt-6 h-16 w-full" />
+      <Skeleton className="mt-6 h-72 w-full" />
     </div>
   );
 }
@@ -185,7 +185,7 @@ function ConnectStep({
   onManualSuccess: () => void;
 }) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <div className="flex flex-col items-start gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-1 text-[11px] text-zoru-ink-muted">
           <Sparkles className="h-3 w-3" /> Step 1 of 3
@@ -202,25 +202,25 @@ function ConnectStep({
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
         {appId ? (
-          <ZoruButton asChild size="lg">
+          <Button asChild size="lg">
             <Link href="/api/auth/meta-suite/login">
               <FacebookGlyph className="h-4 w-4" /> Connect with Facebook
               <ArrowRight />
             </Link>
-          </ZoruButton>
+          </Button>
         ) : (
-          <ZoruAlert variant="warning" className="w-full">
+          <Alert variant="warning" className="w-full">
             <AlertCircle />
             <ZoruAlertTitle>Facebook App ID missing</ZoruAlertTitle>
             <ZoruAlertDescription>
               Ask an admin to set <code>NEXT_PUBLIC_FACEBOOK_APP_ID</code>.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         )}
         <ManualSetupDialog onSuccess={onManualSuccess} />
       </div>
 
-      <ZoruSeparator className="my-6" />
+      <Separator className="my-6" />
 
       <div className="grid gap-3 sm:grid-cols-3">
         {[
@@ -248,7 +248,7 @@ function ConnectStep({
           </div>
         ))}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -266,7 +266,7 @@ function PickPageStep({
   appId: string | undefined;
 }) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <div className="flex flex-col items-start gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-1 text-[11px] text-zoru-ink-muted">
           <Sparkles className="h-3 w-3" /> Step 2 of 3
@@ -295,14 +295,14 @@ function PickPageStep({
                   : "border-zoru-line bg-zoru-bg hover:bg-zoru-surface",
               )}
             >
-              <ZoruAvatar className="h-10 w-10">
+              <Avatar className="h-10 w-10">
                 <ZoruAvatarImage
                   src={`https://graph.facebook.com/${p.facebookPageId}/picture?type=large`}
                 />
                 <ZoruAvatarFallback>
                   <FacebookGlyph className="h-5 w-5" />
                 </ZoruAvatarFallback>
-              </ZoruAvatar>
+              </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] text-zoru-ink">{p.name}</p>
                 <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
@@ -310,21 +310,21 @@ function PickPageStep({
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {p.adAccountId ? (
-                    <ZoruBadge variant="outline" className="gap-1">
+                    <Badge variant="outline" className="gap-1">
                       <CheckCircle2 className="h-3 w-3 text-zoru-success" />
                       Ad account
-                    </ZoruBadge>
+                    </Badge>
                   ) : (
-                    <ZoruBadge variant="secondary" className="gap-1">
+                    <Badge variant="secondary" className="gap-1">
                       <Circle className="h-2.5 w-2.5" />
                       No ad account
-                    </ZoruBadge>
+                    </Badge>
                   )}
                   {p.wabaId ? (
-                    <ZoruBadge variant="outline" className="gap-1">
+                    <Badge variant="outline" className="gap-1">
                       <WhatsAppGlyph className="h-3 w-3" />
                       WhatsApp
-                    </ZoruBadge>
+                    </Badge>
                   ) : null}
                 </div>
               </div>
@@ -355,7 +355,7 @@ function PickPageStep({
           </Link>
         ) : null}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -367,7 +367,7 @@ function LinkAssetsStep({
   instagramId: string | null;
 }) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <div className="flex flex-col items-start gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-1 text-[11px] text-zoru-ink-muted">
           <Sparkles className="h-3 w-3" /> Step 3 of 3
@@ -415,7 +415,7 @@ function LinkAssetsStep({
           actionLabel={project.adAccountId ? "Manage" : "Connect"}
         />
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -445,7 +445,7 @@ function AssetRow({
           {subtitle}
         </p>
       </div>
-      <ZoruBadge
+      <Badge
         variant={status === "connected" ? "outline" : "secondary"}
         className="gap-1"
       >
@@ -455,13 +455,13 @@ function AssetRow({
           <Circle className="h-2.5 w-2.5" />
         )}
         {status === "connected" ? "Connected" : "Not linked"}
-      </ZoruBadge>
-      <ZoruButton asChild variant="outline" size="sm">
+      </Badge>
+      <Button asChild variant="outline" size="sm">
         <Link href={actionHref}>
           {actionLabel}
           <ExternalLink className="h-3 w-3" />
         </Link>
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -562,7 +562,7 @@ export default function FacebookSetupPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -578,9 +578,9 @@ export default function FacebookSetupPage() {
             <ZoruBreadcrumbPage>Setup</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5" bordered={false}>
+      <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
             Meta Suite onboarding
@@ -591,10 +591,10 @@ export default function FacebookSetupPage() {
             unlock the full Meta Suite.
           </ZoruPageDescription>
         </ZoruPageHeading>
-        <ZoruButton variant="outline" size="sm" onClick={fetchProjects}>
+        <Button variant="outline" size="sm" onClick={fetchProjects}>
           <RefreshCw /> Refresh
-        </ZoruButton>
-      </ZoruPageHeader>
+        </Button>
+      </PageHeader>
 
       {/* ── Stepper ── */}
       <div className="mt-6">
@@ -609,18 +609,18 @@ export default function FacebookSetupPage() {
 
         {step === "page" ? (
           projects.length === 0 ? (
-            <ZoruCard className="p-6">
-              <ZoruEmptyState
+            <Card className="p-6">
+              <EmptyState
                 icon={<FacebookGlyph />}
                 title="No connected pages"
                 description="Connect a Page in step 1 to continue."
                 action={
-                  <ZoruButton onClick={() => setStep("connect")}>
+                  <Button onClick={() => setStep("connect")}>
                     Back to step 1
-                  </ZoruButton>
+                  </Button>
                 }
               />
-            </ZoruCard>
+            </Card>
           ) : (
             <PickPageStep
               projects={projects}
@@ -634,7 +634,7 @@ export default function FacebookSetupPage() {
 
         {step === "assets" && selectedProject ? (
           igChecking ? (
-            <ZoruSkeleton className="h-72 w-full" />
+            <Skeleton className="h-72 w-full" />
           ) : (
             <LinkAssetsStep project={selectedProject} instagramId={instagramId} />
           )
@@ -643,7 +643,7 @@ export default function FacebookSetupPage() {
 
       {/* ── Step nav ── */}
       <div className="mt-6 flex items-center justify-between">
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           disabled={step === "connect"}
@@ -653,32 +653,32 @@ export default function FacebookSetupPage() {
           }}
         >
           Back
-        </ZoruButton>
+        </Button>
 
         {step === "connect" ? (
-          <ZoruButton
+          <Button
             size="sm"
             disabled={projects.length === 0}
             onClick={() => setStep("page")}
           >
             Continue <ArrowRight />
-          </ZoruButton>
+          </Button>
         ) : null}
 
         {step === "page" ? (
-          <ZoruButton
+          <Button
             size="sm"
             disabled={!selectedId}
             onClick={() => setStep("assets")}
           >
             Continue <ArrowRight />
-          </ZoruButton>
+          </Button>
         ) : null}
 
         {step === "assets" ? (
-          <ZoruButton size="sm" onClick={handleFinish}>
+          <Button size="sm" onClick={handleFinish}>
             Finish setup <CheckCircle2 />
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
     </div>

@@ -70,14 +70,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create integration'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -117,7 +117,7 @@ export function IntegrationForm({
         : '{}';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -136,8 +136,8 @@ export function IntegrationForm({
                 {/* Row 1: Name + Provider */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -146,8 +146,8 @@ export function IntegrationForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="provider-trigger">Provider *</ZoruLabel>
-                        <ZoruSelect value={provider} onValueChange={setProvider}>
+                        <Label htmlFor="provider-trigger">Provider *</Label>
+                        <Select value={provider} onValueChange={setProvider}>
                             <ZoruSelectTrigger id="provider-trigger">
                                 <ZoruSelectValue placeholder="Pick a provider…" />
                             </ZoruSelectTrigger>
@@ -158,14 +158,14 @@ export function IntegrationForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Row 2: Webhook URL */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="webhookUrl">Webhook URL</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="webhookUrl">Webhook URL</Label>
+                    <Input
                         id="webhookUrl"
                         name="webhookUrl"
                         type="url"
@@ -176,8 +176,8 @@ export function IntegrationForm({
 
                 {/* Row 3: Config (JSON) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="config">Config (JSON)</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="config">Config (JSON)</Label>
+                    <Textarea
                         id="config"
                         name="config"
                         rows={6}
@@ -194,11 +194,11 @@ export function IntegrationForm({
 
                 {/* Row 4: Credentials (JSON) — never pre-filled */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="credentials" className="flex items-center gap-1.5">
+                    <Label htmlFor="credentials" className="flex items-center gap-1.5">
                         <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
                         Credentials (JSON)
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                         id="credentials"
                         name="credentials"
                         rows={4}
@@ -222,14 +222,14 @@ export function IntegrationForm({
                 {/* Row 5: Active toggle */}
                 <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2">
                     <div>
-                        <ZoruLabel htmlFor="isActive-toggle" className="cursor-pointer">
+                        <Label htmlFor="isActive-toggle" className="cursor-pointer">
                             Active
-                        </ZoruLabel>
+                        </Label>
                         <p className="text-[12px] text-zoru-ink-muted">
                             Inactive integrations don't fire on webhooks or sync.
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         id="isActive-toggle"
                         checked={isActive}
                         onCheckedChange={(v) => setIsActive(v === true)}
@@ -237,15 +237,15 @@ export function IntegrationForm({
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to integrations
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

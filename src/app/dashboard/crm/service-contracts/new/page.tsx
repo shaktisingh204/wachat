@@ -35,14 +35,14 @@ const initialState: { message?: string; error?: string; id?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Save contract
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -67,20 +67,20 @@ export default function NewServiceContractPage() {
       title="New Service Contract"
       back={{ href: '/dashboard/crm/service-contracts', label: 'Service Contracts' }}
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Row 1: Contract No + Customer Name */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="contractNo">Contract No</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="contractNo">Contract No</Label>
+              <Input
                 id="contractNo"
                 name="contractNo"
                 placeholder="Auto-generated if blank"
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Customer</ZoruLabel>
+              <Label>Customer</Label>
               <EntityFormField
                 entity="client"
                 name="customerId"
@@ -94,16 +94,16 @@ export default function NewServiceContractPage() {
           {/* Row 2: Asset + Frequency */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="assetName">Asset / Equipment</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="assetName">Asset / Equipment</Label>
+              <Input
                 id="assetName"
                 name="assetName"
                 placeholder="e.g. HVAC Unit, Generator"
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="frequency">Frequency</ZoruLabel>
-              <ZoruSelect name="frequency">
+              <Label htmlFor="frequency">Frequency</Label>
+              <Select name="frequency">
                 <ZoruSelectTrigger id="frequency">
                   <ZoruSelectValue placeholder="Select frequency" />
                 </ZoruSelectTrigger>
@@ -112,14 +112,14 @@ export default function NewServiceContractPage() {
                   <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
                   <ZoruSelectItem value="annual">Annual</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
 
           {/* Row 3: Coverage Description */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="coverage">Coverage Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="coverage">Coverage Description</Label>
+            <Textarea
               id="coverage"
               name="coverage"
               placeholder="Describe what is covered under this contract"
@@ -130,20 +130,20 @@ export default function NewServiceContractPage() {
           {/* Row 4: Start Date + End Date */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="periodStart">Start Date</ZoruLabel>
-              <ZoruInput id="periodStart" name="periodStart" type="date" />
+              <Label htmlFor="periodStart">Start Date</Label>
+              <Input id="periodStart" name="periodStart" type="date" />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="periodEnd">End Date</ZoruLabel>
-              <ZoruInput id="periodEnd" name="periodEnd" type="date" />
+              <Label htmlFor="periodEnd">End Date</Label>
+              <Input id="periodEnd" name="periodEnd" type="date" />
             </div>
           </div>
 
           {/* Row 5: Billing Amount + Technician */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="billingAmount">Billing Amount</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="billingAmount">Billing Amount</Label>
+              <Input
                 id="billingAmount"
                 name="billingAmount"
                 type="number"
@@ -153,7 +153,7 @@ export default function NewServiceContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Technician</ZoruLabel>
+              <Label>Technician</Label>
               <EntityFormField
                 entity="employee"
                 name="technicianId"
@@ -165,8 +165,8 @@ export default function NewServiceContractPage() {
 
           {/* Row 6: Notes */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               placeholder="Internal notes or special instructions"
@@ -178,7 +178,7 @@ export default function NewServiceContractPage() {
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

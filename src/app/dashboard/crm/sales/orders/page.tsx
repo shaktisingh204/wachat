@@ -120,12 +120,12 @@ export default async function SalesOrdersPage({
       title="Sales Orders"
       subtitle="Create, share, and track confirmed customer orders."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/sales/orders/new">
             <Plus className="h-4 w-4" />
             New sales order
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       <SalesOrdersListClient

@@ -27,18 +27,18 @@ export default function DnsLookupPage() {
   return (
     <ToolShell title="DNS Lookup" description="Query DNS records for any hostname.">
       <div className="flex gap-2">
-        <ZoruInput value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
+        <Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
         <select className="border rounded h-9 px-2 bg-background" value={type} onChange={(e) => setType(e.target.value)}>
           <option>ALL</option><option>A</option><option>AAAA</option><option>MX</option><option>TXT</option><option>NS</option><option>CNAME</option><option>SOA</option>
         </select>
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</ZoruButton>
+        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {data && (
-        <ZoruCard><ZoruCardContent className="p-4">
+        <Card><ZoruCardContent className="p-4">
           <div className="text-sm font-semibold mb-2">{data.host}</div>
           <pre className="text-xs bg-muted p-3 rounded overflow-auto">{JSON.stringify(data.records, null, 2)}</pre>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

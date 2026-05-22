@@ -67,12 +67,12 @@ function OverviewContent() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <ZoruSkeleton className="h-28" />
-          <ZoruSkeleton className="h-28" />
-          <ZoruSkeleton className="h-28" />
-          <ZoruSkeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
         </div>
-        <ZoruSkeleton className="h-96" />
+        <Skeleton className="h-96" />
       </div>
     );
   }
@@ -86,7 +86,7 @@ function OverviewContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -97,7 +97,7 @@ function OverviewContent() {
             Performance summary for this account.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <EmailKpiStrip
         sent={stats.sent}
@@ -121,7 +121,7 @@ function OverviewContent() {
 export default function EmailDashboardPage() {
   return (
     <EmailSuiteLayout>
-      <Suspense fallback={<ZoruSkeleton className="h-full w-full" />}>
+      <Suspense fallback={<Skeleton className="h-full w-full" />}>
         <OverviewContent />
       </Suspense>
     </EmailSuiteLayout>

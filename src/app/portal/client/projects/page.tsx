@@ -48,14 +48,14 @@ export default async function ClientProjectsPage() {
             </div>
 
             {projects.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title="No projects yet"
                     description="You'll see projects here once they're created for you."
                 />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Name</ZoruTableHead>
@@ -76,21 +76,21 @@ export default async function ClientProjectsPage() {
                                             </Link>
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge variant={statusVariant(p.status)}>{p.status}</ZoruBadge>
+                                            <Badge variant={statusVariant(p.status)}>{p.status}</Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell>{fmtDate(p.endDate)}</ZoruTableCell>
                                         <ZoruTableCell>
                                             <div className="flex items-center gap-2">
-                                                <ZoruProgress value={p.progress} className="w-24" />
+                                                <Progress value={p.progress} className="w-24" />
                                                 <span className="text-xs text-zoru-ink-muted">{p.progress}%</span>
                                             </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

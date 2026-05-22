@@ -127,7 +127,7 @@ export default function NotificationsSettingsPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -137,25 +137,25 @@ export default function NotificationsSettingsPage() {
                         <ZoruBreadcrumbPage>{t('settings.notifications.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <ZoruPageTitle>{t('settings.notifications.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
                             {t('settings.notifications.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
-                <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
+                </PageHeader>
+                <Button size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {saving ? t('common.saving') : t('settings.notifications.savePreferences')}
-                </ZoruButton>
+                </Button>
             </div>
 
             {GROUPS.map((group) => (
-                <ZoruCard key={group.titleKey} className="p-6">
+                <Card key={group.titleKey} className="p-6">
                     <div className="mb-4 flex items-start gap-3">
                         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                             <group.icon className="h-4 w-4" strokeWidth={2} />
@@ -169,16 +169,16 @@ export default function NotificationsSettingsPage() {
                         {group.rows.map((row) => (
                             <li key={row.id} className="flex items-start justify-between gap-4 py-3">
                                 <div>
-                                    <ZoruLabel htmlFor={row.id} className="text-[13px]">
+                                    <Label htmlFor={row.id} className="text-[13px]">
                                         {t(row.labelKey)}
-                                    </ZoruLabel>
+                                    </Label>
                                     <p className="mt-0.5 text-xs text-zoru-ink-muted">{t(row.descriptionKey)}</p>
                                 </div>
-                                <ZoruSwitch id={row.id} checked={!!prefs[row.id]} onCheckedChange={() => toggle(row.id)} />
+                                <Switch id={row.id} checked={!!prefs[row.id]} onCheckedChange={() => toggle(row.id)} />
                             </li>
                         ))}
                     </ul>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );

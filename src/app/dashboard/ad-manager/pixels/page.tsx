@@ -81,61 +81,61 @@ export default function PixelsPage() {
                 description="Track conversions, optimize delivery and build audiences from your website."
                 actions={
                     <div className="flex gap-2">
-                        <ZoruButton variant="outline" size="icon" onClick={load}>
+                        <Button variant="outline" size="icon" onClick={load}>
                             <RefreshCw className="h-4 w-4" />
-                        </ZoruButton>
-                        <ZoruDialog open={open} onOpenChange={setOpen}>
+                        </Button>
+                        <Dialog open={open} onOpenChange={setOpen}>
                             <ZoruDialogTrigger asChild>
-                                <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90">
+                                <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90">
                                     <Plus className="h-4 w-4 mr-1" /> Create pixel
-                                </ZoruButton>
+                                </Button>
                             </ZoruDialogTrigger>
                             <ZoruDialogContent>
                                 <ZoruDialogHeader>
                                     <ZoruDialogTitle>Create Meta Pixel</ZoruDialogTitle>
                                 </ZoruDialogHeader>
                                 <div className="space-y-2">
-                                    <ZoruLabel>Pixel name</ZoruLabel>
-                                    <ZoruInput value={name} onChange={(e) => setName(e.target.value)} />
+                                    <Label>Pixel name</Label>
+                                    <Input value={name} onChange={(e) => setName(e.target.value)} />
                                 </div>
                                 <ZoruDialogFooter>
-                                    <ZoruButton variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-                                    <ZoruButton onClick={handleCreate}>Create</ZoruButton>
+                                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                                    <Button onClick={handleCreate}>Create</Button>
                                 </ZoruDialogFooter>
                             </ZoruDialogContent>
-                        </ZoruDialog>
+                        </Dialog>
                     </div>
                 }
             />
 
             {loading ? (
                 <div className="grid md:grid-cols-2 gap-3">
-                    {Array.from({ length: 2 }).map((_, i) => <ZoruSkeleton key={i} className="h-32" />)}
+                    {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
                 </div>
             ) : pixels.length === 0 ? (
-                <ZoruCard className="border-dashed">
+                <Card className="border-dashed">
                     <ZoruCardContent className="py-12 text-center space-y-3">
                         <Target className="h-10 w-10 mx-auto text-muted-foreground" />
                         <p className="font-medium">No pixels yet</p>
                         <p className="text-sm text-muted-foreground">Create your first pixel to start tracking.</p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : (
                 <div className="grid md:grid-cols-2 gap-3">
                     {pixels.map((p) => (
-                        <ZoruCard key={p.id}>
+                        <Card key={p.id}>
                             <ZoruCardHeader>
                                 <ZoruCardTitle className="text-base flex items-center justify-between">
                                     {p.name}
                                     {p.last_fired_time && (
-                                        <ZoruBadge variant="outline" className="text-green-600">Active</ZoruBadge>
+                                        <Badge variant="outline" className="text-green-600">Active</Badge>
                                     )}
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent className="space-y-2">
                                 <div className="flex items-center gap-2 text-xs font-mono bg-muted px-2 py-1.5 rounded">
                                     <span className="truncate flex-1">{p.id}</span>
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="icon"
                                         className="h-5 w-5"
@@ -145,7 +145,7 @@ export default function PixelsPage() {
                                         }}
                                     >
                                         <Copy className="h-3 w-3" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                                 {p.last_fired_time && (
                                     <div className="text-xs text-muted-foreground">
@@ -153,12 +153,12 @@ export default function PixelsPage() {
                                     </div>
                                 )}
                                 <div className="flex items-center gap-2 pt-2">
-                                    <ZoruButton variant="outline" size="sm" asChild>
+                                    <Button variant="outline" size="sm" asChild>
                                         <Link href={`/dashboard/ad-manager/events-manager?pixel=${p.id}`}>
                                             <Eye className="h-3 w-3 mr-1" /> View Events
                                         </Link>
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -168,10 +168,10 @@ export default function PixelsPage() {
                                         }}
                                     >
                                         <Trash2 className="h-3 w-3 mr-1" /> Delete
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     ))}
                 </div>
             )}

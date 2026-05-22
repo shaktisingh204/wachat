@@ -71,14 +71,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create PT record'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -116,7 +116,7 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -130,8 +130,8 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name *</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             required
@@ -142,8 +142,8 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="Internal employee id"
@@ -156,9 +156,9 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="state-trigger">State *</ZoruLabel>
+                        <Label htmlFor="state-trigger">State *</Label>
                         {/* TODO 1E.sweep: dynamic list — needs <EntityFormField entity="state"> with India-only filter */}
-                        <ZoruSelect value={stateValue} onValueChange={setStateValue}>
+                        <Select value={stateValue} onValueChange={setStateValue}>
                             <ZoruSelectTrigger id="state-trigger">
                                 <ZoruSelectValue placeholder="Select state…" />
                             </ZoruSelectTrigger>
@@ -169,11 +169,11 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="month">Month *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="month">Month *</Label>
+                        <Input
                             id="month"
                             name="month"
                             type="month"
@@ -185,7 +185,7 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="tdsStatus"
@@ -203,8 +203,8 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="grossSalary">Gross salary (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="grossSalary">Gross salary (₹)</Label>
+                        <Input
                             id="grossSalary"
                             name="grossSalary"
                             type="number"
@@ -222,8 +222,8 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                         </p>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="ptAmount">PT amount (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="ptAmount">PT amount (₹)</Label>
+                        <Input
                             id="ptAmount"
                             name="ptAmount"
                             type="number"
@@ -241,8 +241,8 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="challanNumber">Challan number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="challanNumber">Challan number</Label>
+                        <Input
                             id="challanNumber"
                             name="challanNumber"
                             defaultValue={
@@ -251,8 +251,8 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="depositDate">Deposit date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="depositDate">Deposit date</Label>
+                        <Input
                             id="depositDate"
                             name="depositDate"
                             type="date"
@@ -262,8 +262,8 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -283,15 +283,15 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                 ) : null}
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to PT list
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

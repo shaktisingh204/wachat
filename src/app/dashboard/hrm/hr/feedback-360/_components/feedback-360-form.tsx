@@ -87,14 +87,14 @@ function clamp1to5(v: number): number {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create review'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -201,7 +201,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
     }, [reviewers]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="reviewId" value={initialData!._id} />
@@ -221,8 +221,8 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                 {/* Row 1: Employee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee id *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee id *</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             required
@@ -231,8 +231,8 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             placeholder="Display name"
@@ -244,8 +244,8 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                 {/* Row 2: Period + status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="period">Period</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="period">Period</Label>
+                        <Input
                             id="period"
                             name="period"
                             placeholder="e.g. 2026-Q2"
@@ -253,7 +253,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="feedback360Status"
@@ -267,8 +267,8 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
 
                 {/* Row 3: Completed date */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="completedAt">Completed at</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="completedAt">Completed at</Label>
+                    <Input
                         id="completedAt"
                         name="completedAt"
                         type="date"
@@ -280,13 +280,13 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <div>
-                            <ZoruLabel>Reviewers</ZoruLabel>
+                            <Label>Reviewers</Label>
                             <p className="text-[11.5px] text-zoru-ink-muted">
                                 Each reviewer answers the same score grid (1–5). Scores
                                 are averaged per dimension and into an overall rating.
                             </p>
                         </div>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -294,7 +294,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add reviewer
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {reviewers.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -309,10 +309,10 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                 >
                                     <div className="mb-2 flex flex-wrap items-end gap-2">
                                         <div className="flex-1 space-y-1.5">
-                                            <ZoruLabel htmlFor={`rev-id-${idx}`}>
+                                            <Label htmlFor={`rev-id-${idx}`}>
                                                 Reviewer id *
-                                            </ZoruLabel>
-                                            <ZoruInput
+                                            </Label>
+                                            <Input
                                                 id={`rev-id-${idx}`}
                                                 value={r.reviewerId}
                                                 onChange={(e) =>
@@ -322,8 +322,8 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                             />
                                         </div>
                                         <div className="w-[180px] space-y-1.5">
-                                            <ZoruLabel>Role</ZoruLabel>
-                                            <ZoruSelect
+                                            <Label>Role</Label>
+                                            <Select
                                                 value={r.role}
                                                 onValueChange={(v) =>
                                                     updateReviewer(
@@ -346,9 +346,9 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                                         </ZoruSelectItem>
                                                     ))}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </div>
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
@@ -356,18 +356,18 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                             aria-label="Remove reviewer"
                                         >
                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                     <div className="grid gap-2 sm:grid-cols-5">
                                         {SCORE_CATEGORIES.map((cat) => (
                                             <div key={cat.key} className="space-y-1.5">
-                                                <ZoruLabel
+                                                <Label
                                                     htmlFor={`rev-${idx}-${cat.key}`}
                                                     className="text-[11.5px]"
                                                 >
                                                     {cat.label}
-                                                </ZoruLabel>
-                                                <ZoruInput
+                                                </Label>
+                                                <Input
                                                     id={`rev-${idx}-${cat.key}`}
                                                     type="number"
                                                     min={0}
@@ -391,10 +391,10 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                         ))}
                                     </div>
                                     <div className="mt-2 space-y-1.5">
-                                        <ZoruLabel htmlFor={`rev-comments-${idx}`}>
+                                        <Label htmlFor={`rev-comments-${idx}`}>
                                             Comments
-                                        </ZoruLabel>
-                                        <ZoruTextarea
+                                        </Label>
+                                        <Textarea
                                             id={`rev-comments-${idx}`}
                                             rows={2}
                                             value={r.comments ?? ''}
@@ -405,10 +405,10 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                         />
                                     </div>
                                     <div className="mt-2 space-y-1.5">
-                                        <ZoruLabel htmlFor={`rev-submitted-${idx}`}>
+                                        <Label htmlFor={`rev-submitted-${idx}`}>
                                             Submitted at
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             id={`rev-submitted-${idx}`}
                                             type="date"
                                             value={
@@ -466,10 +466,10 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                 {/* Manual overall override */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="overallRating">
+                        <Label htmlFor="overallRating">
                             Overall rating override
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="overallRating"
                             name="overallRating"
                             type="number"
@@ -488,15 +488,15 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to reviews
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

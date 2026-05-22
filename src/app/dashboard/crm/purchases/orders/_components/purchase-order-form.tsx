@@ -93,7 +93,7 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       disabled={pending}
       onClick={() => setIntent(intent)}
@@ -109,7 +109,7 @@ function SubmitButton({
           : editing
             ? 'Save changes'
             : 'Create purchase order'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -247,7 +247,7 @@ export function PurchaseOrderForm({
           PO print preview alongside the form. */}
 
       <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               f.editing
@@ -257,7 +257,7 @@ export function PurchaseOrderForm({
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton
           editing={f.editing}
           intent="save"

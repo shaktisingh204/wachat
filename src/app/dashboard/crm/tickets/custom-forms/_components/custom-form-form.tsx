@@ -43,14 +43,14 @@ const initialState: SaveFormState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       {isEditing ? 'Save changes' : 'Create form'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -100,14 +100,14 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
         value={captcha ? 'true' : 'false'}
       />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Basics</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <ZoruLabel htmlFor="name">
+            <Label htmlFor="name">
               Name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="name"
               name="name"
               required
@@ -116,8 +116,8 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="slug">Slug</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="slug">Slug</Label>
+            <Input
               id="slug"
               name="slug"
               defaultValue={initialData?.slug ?? ''}
@@ -126,7 +126,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Status</ZoruLabel>
+            <Label>Status</Label>
             <EnumFormField
               enumName="kbStatus"
               name="statusPicker"
@@ -136,18 +136,18 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <FormFieldsRepeater initialFields={initialData?.fields} />
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Settings</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <ZoruLabel htmlFor="successMessage">Success message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="successMessage">Success message</Label>
+            <Textarea
               id="successMessage"
               name="successMessage"
               rows={2}
@@ -156,8 +156,8 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <ZoruLabel htmlFor="redirectUrl">Redirect URL</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="redirectUrl">Redirect URL</Label>
+            <Input
               id="redirectUrl"
               name="redirectUrl"
               type="url"
@@ -167,23 +167,23 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
           </div>
           <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
             <div className="flex flex-col">
-              <ZoruLabel htmlFor="captcha-toggle">Require CAPTCHA</ZoruLabel>
+              <Label htmlFor="captcha-toggle">Require CAPTCHA</Label>
               <span className="text-xs text-muted-foreground">
                 Recommended for public-facing forms to deter bot
                 submissions.
               </span>
             </div>
-            <ZoruSwitch
+            <Switch
               id="captcha-toggle"
               checked={captcha}
               onCheckedChange={setCaptcha}
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-        <ZoruButton variant="ghost" asChild>
+        <Button variant="ghost" asChild>
           <Link
             href={
               isEditing && initialData?._id ? `${BASE}/${initialData._id}` : BASE
@@ -192,7 +192,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton isEditing={isEditing} />
       </div>
     </form>

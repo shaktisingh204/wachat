@@ -121,7 +121,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
 
     if (items.length === 0) {
         return (
-            <ZoruCard className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+            <Card className="flex flex-col items-center gap-3 px-6 py-12 text-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground">
                     <Webhook className="h-5 w-5" strokeWidth={1.75} />
                 </div>
@@ -133,12 +133,12 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                         Wire up a Slack channel, a webhook, or a third-party API key.
                     </p>
                 </div>
-                <ZoruButton variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm" asChild>
                     <Link href={`${BASE}/new`}>
                         <Plus className="h-4 w-4" /> Add integration
                     </Link>
-                </ZoruButton>
-            </ZoruCard>
+                </Button>
+            </Card>
         );
     }
 
@@ -152,7 +152,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                     const statusTone =
                         STATUS_TONE[item.status ?? 'disconnected'] ?? 'neutral';
                     return (
-                        <ZoruCard
+                        <Card
                             key={item._id}
                             className="flex flex-col gap-3 p-5"
                         >
@@ -182,7 +182,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                                     </div>
                                 </div>
 
-                                <ZoruSwitch
+                                <Switch
                                     checked={isActive}
                                     onCheckedChange={(v) =>
                                         handleToggle(item, v === true)
@@ -193,35 +193,35 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2 text-[12px]">
-                                <ZoruBadge variant="outline" className="gap-1">
+                                <Badge variant="outline" className="gap-1">
                                     <ShieldCheck className="h-3 w-3" />
                                     credentials: ***hidden***
-                                </ZoruBadge>
+                                </Badge>
                                 {item.webhookUrl ? (
-                                    <ZoruBadge variant="outline" className="gap-1 font-mono">
+                                    <Badge variant="outline" className="gap-1 font-mono">
                                         <Webhook className="h-3 w-3" />
                                         <span className="max-w-[220px] truncate">
                                             {item.webhookUrl}
                                         </span>
-                                    </ZoruBadge>
+                                    </Badge>
                                 ) : null}
                             </div>
 
                             <div className="flex items-center justify-end gap-1 border-t border-zoru-line pt-2">
-                                <ZoruButton variant="ghost" size="sm" asChild>
+                                <Button variant="ghost" size="sm" asChild>
                                     <Link href={`${BASE}/${item._id}/edit`}>
                                         <Edit className="h-4 w-4" /> Edit
                                     </Link>
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setPendingDelete(item)}
                                 >
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
+                                </Button>
                             </div>
-                        </ZoruCard>
+                        </Card>
                     );
                 })}
             </div>

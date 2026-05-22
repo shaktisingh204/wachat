@@ -46,18 +46,18 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
   });
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0">
       <div className="flex items-center justify-between border-b border-zoru-line p-3">
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Vendor bids received
         </h2>
-        <ZoruButton size="sm" variant="outline" asChild>
+        <Button size="sm" variant="outline" asChild>
           <Link
             href={`/dashboard/crm/purchases/vendor-bids/new?fromKind=rfq&fromId=${rfqId}`}
           >
             Record a bid
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
 
       {error ? (
@@ -121,11 +121,11 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
                       />
                     </td>
                     <td className="p-2 text-right align-middle">
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/crm/purchases/vendor-bids/${id}`}>
                           Open
                         </Link>
-                      </ZoruButton>
+                      </Button>
                     </td>
                   </tr>
                 );
@@ -134,6 +134,6 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
           </table>
         </div>
       )}
-    </ZoruCard>
+    </Card>
   );
 }

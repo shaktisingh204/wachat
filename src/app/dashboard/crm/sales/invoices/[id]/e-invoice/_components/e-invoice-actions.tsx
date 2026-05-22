@@ -61,19 +61,19 @@ export function EInvoiceActions({ invoiceId, hasIrn, cancelled }: Props) {
         <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
                 {!hasIrn ? (
-                    <ZoruButton disabled={pending} onClick={onGenerate}>
+                    <Button disabled={pending} onClick={onGenerate}>
                         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         Generate IRN
-                    </ZoruButton>
+                    </Button>
                 ) : !cancelled ? (
-                    <ZoruButton
+                    <Button
                         disabled={pending}
                         onClick={onCancel}
                         variant="outline"
                     >
                         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         Cancel IRN
-                    </ZoruButton>
+                    </Button>
                 ) : (
                     <p className="text-[12px] text-muted-foreground">
                         This IRN is cancelled. Generate a new invoice to obtain a fresh IRN.

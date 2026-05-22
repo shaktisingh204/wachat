@@ -132,12 +132,12 @@ export function CreditNoteListClient({
     };
 
     return (
-        <ZoruCard className="overflow-hidden p-0">
-            <ZoruTable>
+        <Card className="overflow-hidden p-0">
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow>
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={allSelected}
                                 aria-checked={someSelected ? 'mixed' : allSelected}
                                 onCheckedChange={(v) => onToggleAll(v === true)}
@@ -173,7 +173,7 @@ export function CreditNoteListClient({
                             return (
                                 <ZoruTableRow key={id}>
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={isChecked}
                                             onCheckedChange={() => onToggleOne(id)}
                                             aria-label={`Select ${cn.cnNo}`}
@@ -209,9 +209,9 @@ export function CreditNoteListClient({
                                         {fmtDate(cn.date)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <ZoruBadge variant="outline">
+                                        <Badge variant="outline">
                                             {reasonLabel(cn.reason)}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right tabular-nums text-[12.5px] text-zoru-ink">
                                         {fmtMoney(cn.totals?.total, cn.currency)}
@@ -227,22 +227,22 @@ export function CreditNoteListClient({
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
-                                            <ZoruButton size="sm" variant="ghost" asChild>
+                                            <Button size="sm" variant="ghost" asChild>
                                                 <Link
                                                     href={`/dashboard/crm/sales/credit-notes/${id}/edit`}
                                                 >
                                                     <Pencil className="h-3.5 w-3.5" />
                                                 </Link>
-                                            </ZoruButton>
-                                            <ZoruDropdownMenu>
+                                            </Button>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         disabled={busyId === id || pendingId}
                                                     >
                                                         <MoreHorizontal className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruDropdownMenuTrigger>
                                                 <ZoruDropdownMenuContent align="end">
                                                     <ZoruDropdownMenuItem
@@ -260,7 +260,7 @@ export function CreditNoteListClient({
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </div>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -268,7 +268,7 @@ export function CreditNoteListClient({
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
-        </ZoruCard>
+            </Table>
+        </Card>
     );
 }

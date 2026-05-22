@@ -221,12 +221,12 @@ export default function CrmWebhooksListPage() {
       title="Webhook subscriptions"
       subtitle="Receive HTTP callbacks when CRM records change. Payloads are signed with HMAC-SHA-256."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/settings/webhooks/new">
             <Plus className="mr-2 size-4" />
             New webhook
           </Link>
-        </ZoruButton>
+        </Button>
       }
       search={{
         value: search,
@@ -236,7 +236,7 @@ export default function CrmWebhooksListPage() {
       filters={
         <div className="flex flex-wrap items-center gap-2">
           {(['all', 'active', 'paused'] as StatusFilter[]).map((s) => (
-            <ZoruButton
+            <Button
               key={s}
               type="button"
               variant={statusFilter === s ? 'default' : 'outline'}
@@ -244,10 +244,10 @@ export default function CrmWebhooksListPage() {
               onClick={() => setStatusFilter(s)}
             >
               {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
-            </ZoruButton>
+            </Button>
           ))}
           {allEvents.length > 0 ? (
-            <ZoruSelect value={eventFilter || '__all__'} onValueChange={(v) => setEventFilter(v === '__all__' ? '' : v)}>
+            <Select value={eventFilter || '__all__'} onValueChange={(v) => setEventFilter(v === '__all__' ? '' : v)}>
               <ZoruSelectTrigger className="h-9 w-[200px]">
                 <ZoruSelectValue placeholder="Event type" />
               </ZoruSelectTrigger>
@@ -259,10 +259,10 @@ export default function CrmWebhooksListPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           ) : null}
           {hasActiveFilters ? (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => {
@@ -272,7 +272,7 @@ export default function CrmWebhooksListPage() {
             >
               <X className="mr-1 h-3.5 w-3.5" />
               Clear
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
       }
@@ -281,7 +281,7 @@ export default function CrmWebhooksListPage() {
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
             <span className="font-medium text-zoru-ink">{selected.size} selected</span>
             <span className="text-zoru-ink-muted">·</span>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               disabled={bulkPending}
@@ -289,20 +289,20 @@ export default function CrmWebhooksListPage() {
             >
               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
               Delete
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={handleExportCsv}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleExportCsv}>
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
+            </Button>
             <span className="ml-auto" />
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelected(new Set())}
             >
               <X className="h-3.5 w-3.5" />
               Clear
-            </ZoruButton>
+            </Button>
           </div>
         ) : null
       }
@@ -316,7 +316,7 @@ export default function CrmWebhooksListPage() {
             className="text-left"
             onClick={() => setStatusFilter('all')}
           >
-            <ZoruStatCard
+            <StatCard
               label="Total"
               value={kpis.total.toLocaleString()}
               icon={<Webhook className="h-4 w-4" />}
@@ -328,7 +328,7 @@ export default function CrmWebhooksListPage() {
             className="text-left"
             onClick={() => setStatusFilter('active')}
           >
-            <ZoruStatCard
+            <StatCard
               label="Active"
               value={kpis.active.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
@@ -340,14 +340,14 @@ export default function CrmWebhooksListPage() {
             className="text-left"
             onClick={() => setStatusFilter('paused')}
           >
-            <ZoruStatCard
+            <StatCard
               label="Paused"
               value={kpis.paused.toLocaleString()}
               icon={<PauseCircle className="h-4 w-4" />}
               className={statusFilter === 'paused' ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : undefined}
             />
           </button>
-          <ZoruStatCard
+          <StatCard
             label="Failed (24 h)"
             value={kpis.failedLast24h.toLocaleString()}
             icon={<AlertTriangle className="h-4 w-4" />}
@@ -357,7 +357,7 @@ export default function CrmWebhooksListPage() {
         {/* Export toolbar (when nothing selected) */}
         {selected.size === 0 ? (
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={handleExportCsv}
@@ -365,17 +365,17 @@ export default function CrmWebhooksListPage() {
             >
               <Download className="mr-1 h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
+            </Button>
           </div>
         ) : null}
 
         {/* Table */}
-        <ZoruCard className="p-0">
-          <ZoruTable>
+        <Card className="p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={(v) => toggleAll(v === true)}
                     aria-label="Select all"
@@ -394,7 +394,7 @@ export default function CrmWebhooksListPage() {
                 Array.from({ length: 3 }).map((_, i) => (
                   <ZoruTableRow key={i}>
                     <ZoruTableCell colSpan={7}>
-                      <ZoruSkeleton className="h-6 w-full" />
+                      <Skeleton className="h-6 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
@@ -416,7 +416,7 @@ export default function CrmWebhooksListPage() {
                     className={cn(selected.has(row._id) && 'bg-zoru-surface')}
                   >
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(row._id)}
                         onCheckedChange={() => toggleOne(row._id)}
                         aria-label={`Select ${row.name}`}
@@ -432,17 +432,17 @@ export default function CrmWebhooksListPage() {
                       {row.targetUrl}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant="outline">
+                      <Badge variant="outline">
                         {row.events.length} event
                         {row.events.length === 1 ? '' : 's'}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge
+                      <Badge
                         variant={row.status === 'active' ? 'default' : 'secondary'}
                       >
                         {row.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>{formatDate(row.lastDeliveryAt)}</ZoruTableCell>
                     <ZoruTableCell className="text-right">
@@ -452,8 +452,8 @@ export default function CrmWebhooksListPage() {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       </div>
     </EntityListShell>
   );

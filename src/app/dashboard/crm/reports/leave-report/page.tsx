@@ -131,7 +131,7 @@ export default async function LeaveReportPage(props: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[16px] font-semibold text-foreground">
               Leave days by type
@@ -141,9 +141,9 @@ export default async function LeaveReportPage(props: PageProps) {
             </span>
           </div>
           <CategoryPieChart data={byType} />
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[16px] font-semibold text-foreground">
               Monthly leave trend
@@ -151,12 +151,12 @@ export default async function LeaveReportPage(props: PageProps) {
             <span className="text-[12px] text-muted-foreground">days</span>
           </div>
           <MonthlyTrendChart data={byMonth} label="Days" />
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
@@ -191,7 +191,7 @@ export default async function LeaveReportPage(props: PageProps) {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-foreground">
-                      <ZoruBadge variant="outline">{r.department}</ZoruBadge>
+                      <Badge variant="outline">{r.department}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-foreground">
                       {r.leaveTypeName}
@@ -203,9 +203,9 @@ export default async function LeaveReportPage(props: PageProps) {
                       {r.days}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={statusVariant(r.status)}>
+                      <Badge variant={statusVariant(r.status)}>
                         {r.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] text-muted-foreground">
                       {r.leaveDate ? r.leaveDate.slice(0, 10) : '—'}
@@ -214,9 +214,9 @@ export default async function LeaveReportPage(props: PageProps) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

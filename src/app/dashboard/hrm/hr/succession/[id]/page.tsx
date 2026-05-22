@@ -86,14 +86,14 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
             actions={
                 <>
                     <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <ArrowLeft className="h-4 w-4" /> Back
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
+                        <Button size="sm">
                             <Pencil className="h-4 w-4" /> Edit
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <HrActionButtons
                         actions={[
@@ -141,9 +141,9 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
                 </HrDetailRow>
                 <HrDetailRow label="Review date">{fmtDate(p.reviewDate)}</HrDetailRow>
                 <HrDetailRow label="Status">
-                    <ZoruBadge variant={status === 'active' ? 'success' : 'ghost'}>
+                    <Badge variant={status === 'active' ? 'success' : 'ghost'}>
                         {status}
-                    </ZoruBadge>
+                    </Badge>
                 </HrDetailRow>
                 {p.notes ? (
                     <HrDetailRow label="Notes" fullWidth>
@@ -152,7 +152,7 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
                 ) : null}
             </HrDetailGrid>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[15px] font-medium text-zoru-ink">Successors / candidates</div>
                 {successors.length === 0 ? (
                     <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -160,7 +160,7 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Employee</ZoruTableHead>
@@ -175,16 +175,16 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
                                             {fmtText(c.employeeName || c.employeeId)}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge variant="ghost">{c.readiness || '—'}</ZoruBadge>
+                                            <Badge variant="ghost">{c.readiness || '—'}</Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell>{fmtText(c.notes)}</ZoruTableCell>
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             <Users className="hidden" />
         </EntityDetailShell>

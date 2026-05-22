@@ -245,7 +245,7 @@ export default function TemplatesPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -259,10 +259,10 @@ export default function TemplatesPage() {
             <ZoruBreadcrumbPage>Templates</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
-      <ZoruPageHeader bordered={false}>
+      <PageHeader bordered={false}>
         <ZoruPageHeading>
           <ZoruPageTitle>Message templates</ZoruPageTitle>
           <ZoruPageDescription>
@@ -271,7 +271,7 @@ export default function TemplatesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={onSync}
@@ -279,42 +279,42 @@ export default function TemplatesPage() {
           >
             <RefreshCw className={isSyncing ? 'animate-spin' : ''} />
             {isSyncing ? 'Syncing…' : 'Sync with Meta'}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => router.push('/wachat/templates/library')}
           >
             <BookCopy /> Library
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             disabled={!activeProjectId}
             onClick={() => router.push('/wachat/templates/create')}
           >
             <CirclePlus /> New template
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Stats strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ZoruStatCard
+        <StatCard
           label="Total"
           value={compact(stats.total)}
           icon={<FileText />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Approved"
           value={compact(stats.approved)}
           icon={<CircleCheck />}
         />
-        <ZoruStatCard
+        <StatCard
           label="In review"
           value={compact(stats.pending)}
           icon={<Clock />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Rejected"
           value={compact(stats.rejected)}
           icon={<CircleX />}
@@ -323,23 +323,23 @@ export default function TemplatesPage() {
 
       {/* Project-not-selected state */}
       {!activeProjectId && isClient ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert />}
           title="No project selected"
           description="Please select a project from the main dashboard to manage templates."
           action={
-            <ZoruButton size="sm" onClick={() => router.push('/wachat')}>
+            <Button size="sm" onClick={() => router.push('/wachat')}>
               Choose a project
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
         <>
           {/* Filter bar */}
-          <ZoruCard className="p-4">
+          <Card className="p-4">
             <div className="flex flex-wrap items-center gap-3">
               <div className="min-w-[260px] flex-1">
-                <ZoruInput
+                <Input
                   placeholder="Search templates by name…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -347,15 +347,15 @@ export default function TemplatesPage() {
               </div>
 
               {/* Category filter */}
-              <ZoruDropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                  <ZoruButton variant="outline" size="sm">
+                  <Button variant="outline" size="sm">
                     <Filter />
                     {categoryFilter === 'ALL'
                       ? 'All categories'
                       : categoryFilter.replace(/_/g, ' ')}
                     <ChevronDown className="opacity-60" />
-                  </ZoruButton>
+                  </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                   <ZoruDropdownMenuLabel>Category</ZoruDropdownMenuLabel>
@@ -377,17 +377,17 @@ export default function TemplatesPage() {
                     ))}
                   </ZoruDropdownMenuRadioGroup>
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
+              </DropdownMenu>
 
               {/* Status filter */}
-              <ZoruDropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                  <ZoruButton variant="outline" size="sm">
+                  <Button variant="outline" size="sm">
                     {statusFilter === 'ALL'
                       ? 'All statuses'
                       : statusFilter.replace(/_/g, ' ').toLowerCase()}
                     <ChevronDown className="opacity-60" />
-                  </ZoruButton>
+                  </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                   <ZoruDropdownMenuLabel>Status</ZoruDropdownMenuLabel>
@@ -409,18 +409,18 @@ export default function TemplatesPage() {
                     ))}
                   </ZoruDropdownMenuRadioGroup>
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
+              </DropdownMenu>
 
               {/* Language filter */}
               {languages.length > 2 ? (
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                   <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton variant="outline" size="sm">
+                    <Button variant="outline" size="sm">
                       {languageFilter === 'ALL'
                         ? 'All languages'
                         : languageFilter}
                       <ChevronDown className="opacity-60" />
-                    </ZoruButton>
+                    </Button>
                   </ZoruDropdownMenuTrigger>
                   <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuLabel>Language</ZoruDropdownMenuLabel>
@@ -436,24 +436,24 @@ export default function TemplatesPage() {
                       ))}
                     </ZoruDropdownMenuRadioGroup>
                   </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
               ) : null}
 
               <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
                 {filteredTemplates.length} / {templates.length} templates
               </span>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Template table / skeleton / empty */}
           {isLoading && templates.length === 0 ? (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="h-36 w-full" />
+                <Skeleton key={i} className="h-36 w-full" />
               ))}
             </div>
           ) : filteredTemplates.length > 0 ? (
-            <ZoruCard className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0">
               <div className="divide-y divide-zoru-line">
                 <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
                   <span>Name</span>
@@ -486,21 +486,21 @@ export default function TemplatesPage() {
                       {t.language || '—'}
                     </span>
                     <span>
-                      <ZoruBadge variant={statusVariant(t.status)}>
+                      <Badge variant={statusVariant(t.status)}>
                         {(t.status || 'unknown')
                           .replace(/_/g, ' ')
                           .toLowerCase()}
-                      </ZoruBadge>
+                      </Badge>
                     </span>
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon-sm"
                           aria-label="Actions"
                         >
                           <MoreHorizontal />
-                        </ZoruButton>
+                        </Button>
                       </ZoruDropdownMenuTrigger>
                       <ZoruDropdownMenuContent align="end">
                         <ZoruDropdownMenuItem
@@ -528,13 +528,13 @@ export default function TemplatesPage() {
                           <Trash2 /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                   </div>
                 ))}
               </div>
-            </ZoruCard>
+            </Card>
           ) : (
-            <ZoruEmptyState
+            <EmptyState
               icon={<FileText />}
               title={
                 templates.length > 0
@@ -549,23 +549,23 @@ export default function TemplatesPage() {
               action={
                 templates.length === 0 ? (
                   <div className="flex items-center justify-center gap-2">
-                    <ZoruButton
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={onSync}
                       disabled={isSyncing}
                     >
                       <RefreshCw /> Sync with Meta
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       size="sm"
                       onClick={() => router.push('/wachat/templates/create')}
                     >
                       <CirclePlus /> New template
-                    </ZoruButton>
+                    </Button>
                   </div>
                 ) : (
-                  <ZoruButton
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
@@ -576,7 +576,7 @@ export default function TemplatesPage() {
                     }}
                   >
                     Clear filters
-                  </ZoruButton>
+                  </Button>
                 )
               }
             />

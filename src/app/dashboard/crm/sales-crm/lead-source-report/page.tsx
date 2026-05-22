@@ -152,32 +152,32 @@ export default function LeadSourceReportPage() {
             title="Lead Source Report"
             subtitle="Analyze the effectiveness of your lead sources."
             primaryAction={
-                <ZoruButton variant="outline" onClick={handleDownload}>
+                <Button variant="outline" onClick={handleDownload}>
                     <Download className="h-3.5 w-3.5" /> Download CSV
-                </ZoruButton>
+                </Button>
             }
         >
             {/* KPI strip */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Total sources"
                     value={kpis.totalSources.toLocaleString()}
                     icon={<TrendingUp />}
                     period="distinct channels"
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Top source"
                     value={kpis.topSource}
                     icon={<TrendingUp />}
                     period={`${kpis.topSourceLeads} leads`}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Total leads"
                     value={kpis.totalLeads.toLocaleString()}
                     icon={<TrendingUp />}
                     period="across all sources"
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Avg leads/source"
                     value={
                         kpis.totalSources > 0
@@ -190,30 +190,30 @@ export default function LeadSourceReportPage() {
             </div>
 
             {/* Filters */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Lead created from</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label className="text-foreground">Lead created from</Label>
+                        <DatePicker
                             value={startDate}
                             onChange={(d) => setStartDate(d ?? undefined)}
                             placeholder="Start date"
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Lead created to</ZoruLabel>
-                        <ZoruDatePicker
+                        <Label className="text-foreground">Lead created to</Label>
+                        <DatePicker
                             value={endDate}
                             onChange={(d) => setEndDate(d ?? undefined)}
                             placeholder="End date"
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Pipeline</ZoruLabel>
-                        <ZoruSelect value={pipelineId} onValueChange={setPipelineId}>
+                        <Label className="text-foreground">Pipeline</Label>
+                        <Select value={pipelineId} onValueChange={setPipelineId}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="All pipelines" />
                             </ZoruSelectTrigger>
@@ -221,11 +221,11 @@ export default function LeadSourceReportPage() {
                                 <ZoruSelectItem value="">All pipelines</ZoruSelectItem>
                                 <ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel className="text-foreground">Assigned to</ZoruLabel>
-                        <ZoruSelect value={assigneeId} onValueChange={setAssigneeId}>
+                        <Label className="text-foreground">Assigned to</Label>
+                        <Select value={assigneeId} onValueChange={setAssigneeId}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="All assignees" />
                             </ZoruSelectTrigger>
@@ -237,22 +237,22 @@ export default function LeadSourceReportPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
                 <div className="mt-4 flex gap-2">
-                    <ZoruButton onClick={fetchData} disabled={isLoading}>
+                    <Button onClick={fetchData} disabled={isLoading}>
                         Apply Filters
-                    </ZoruButton>
-                    <ZoruButton variant="ghost" onClick={clearFilters}>
+                    </Button>
+                    <Button variant="ghost" onClick={clearFilters}>
                         Clear Filters
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Bar chart — leads by source */}
             {chartData.length > 0 ? (
-                <ZoruCard>
+                <Card>
                     <div className="mb-4">
                         <h2 className="text-[16px] font-semibold text-foreground">Leads by source</h2>
                         <p className="text-[12px] text-muted-foreground">
@@ -268,11 +268,11 @@ export default function LeadSourceReportPage() {
                             <Bar dataKey="Leads" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Data table */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Report data</h2>
                     <p className="mt-0.5 text-[12.5px] text-muted-foreground">
@@ -280,7 +280,7 @@ export default function LeadSourceReportPage() {
                     </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Lead Source</ZoruTableHead>
@@ -348,9 +348,9 @@ export default function LeadSourceReportPage() {
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

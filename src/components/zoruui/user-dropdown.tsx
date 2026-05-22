@@ -70,7 +70,7 @@ export function ZoruUserDropdown({
   const fallback = initials ?? deriveInitials(name);
 
   return (
-    <ZoruDropdownMenu>
+    <DropdownMenu>
       <ZoruDropdownMenuTrigger asChild>
         <button
           type="button"
@@ -80,10 +80,10 @@ export function ZoruUserDropdown({
             className,
           )}
         >
-          <ZoruAvatar>
+          <Avatar>
             {avatarUrl && <ZoruAvatarImage src={avatarUrl} alt="" />}
             <ZoruAvatarFallback>{fallback}</ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
           {!compact && (
             <>
               <span className="hidden text-left sm:flex sm:flex-col sm:items-start sm:leading-tight">
@@ -149,7 +149,7 @@ export function ZoruUserDropdown({
           </>
         )}
       </ZoruDropdownMenuContent>
-    </ZoruDropdownMenu>
+    </DropdownMenu>
   );
 }
 

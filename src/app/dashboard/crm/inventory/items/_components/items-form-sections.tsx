@@ -69,13 +69,13 @@ export function BasicSection(props: BasicSectionProps) {
           <input type="hidden" name="itemType" value={props.itemType} />
         </Field>
         <Field label="Name" required>
-          <ZoruInput name="name" defaultValue={props.defaultName} required />
+          <Input name="name" defaultValue={props.defaultName} required />
         </Field>
         <Field label="SKU" required>
-          <ZoruInput name="sku" defaultValue={props.defaultSku} required />
+          <Input name="sku" defaultValue={props.defaultSku} required />
         </Field>
         <Field label="Barcode">
-          <ZoruInput name="barcode" defaultValue={props.defaultBarcode} />
+          <Input name="barcode" defaultValue={props.defaultBarcode} />
         </Field>
         <Field label="Variant of (parent item)">
           <EntityFormField
@@ -86,10 +86,10 @@ export function BasicSection(props: BasicSectionProps) {
           />
         </Field>
         <Field label="HSN / SAC">
-          <ZoruInput name="hsnSac" defaultValue={props.defaultHsnSac} />
+          <Input name="hsnSac" defaultValue={props.defaultHsnSac} />
         </Field>
         <Field label="GST rate %">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="taxRate"
@@ -97,7 +97,7 @@ export function BasicSection(props: BasicSectionProps) {
           />
         </Field>
         <Field label="Cess %">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="cess"
@@ -121,7 +121,7 @@ export function BasicSection(props: BasicSectionProps) {
           />
         </Field>
         <Field label="Sub-unit">
-          <ZoruInput name="subUnit" defaultValue={props.defaultSubUnit} />
+          <Input name="subUnit" defaultValue={props.defaultSubUnit} />
         </Field>
         <Field label="Brand">
           <EntityFormField
@@ -146,13 +146,13 @@ export function BasicSection(props: BasicSectionProps) {
           />
         </Field>
         <Field label="Manufacturer">
-          <ZoruInput name="manufacturer" defaultValue={props.defaultManufacturer} />
+          <Input name="manufacturer" defaultValue={props.defaultManufacturer} />
         </Field>
         <Field label="Manufacturer part #">
-          <ZoruInput name="mpn" defaultValue={props.defaultMpn} />
+          <Input name="mpn" defaultValue={props.defaultMpn} />
         </Field>
         <Field label="Country of origin">
-          <ZoruInput
+          <Input
             name="countryOfOrigin"
             defaultValue={props.defaultCountryOfOrigin}
           />
@@ -183,21 +183,21 @@ export function DescriptionSection(props: DescriptionSectionProps) {
     >
       <div className="grid gap-4">
         <Field label="Short description">
-          <ZoruTextarea
+          <Textarea
             name="description"
             defaultValue={props.defaultDescription}
             rows={2}
           />
         </Field>
         <Field label="Long description">
-          <ZoruTextarea
+          <Textarea
             name="longDescription"
             defaultValue={props.defaultLongDescription}
             rows={4}
           />
         </Field>
         <Field label="Features (one per line)">
-          <ZoruTextarea
+          <Textarea
             name="features"
             defaultValue={props.defaultFeatures}
             rows={3}
@@ -205,20 +205,20 @@ export function DescriptionSection(props: DescriptionSectionProps) {
         </Field>
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Color">
-            <ZoruInput name="color" defaultValue={props.defaultColor} />
+            <Input name="color" defaultValue={props.defaultColor} />
           </Field>
           <Field label="Size">
-            <ZoruInput name="size" defaultValue={props.defaultSize} />
+            <Input name="size" defaultValue={props.defaultSize} />
           </Field>
           <Field label="Material">
-            <ZoruInput name="material" defaultValue={props.defaultMaterial} />
+            <Input name="material" defaultValue={props.defaultMaterial} />
           </Field>
         </div>
         <div className="space-y-2">
-          <ZoruLabel>Specifications</ZoruLabel>
+          <Label>Specifications</Label>
           {props.specs.map((spec, idx) => (
             <div key={idx} className="grid grid-cols-[1fr_2fr_auto] gap-2">
-              <ZoruInput
+              <Input
                 placeholder="Key (e.g. Weight)"
                 value={spec.key}
                 onChange={(e) => {
@@ -227,7 +227,7 @@ export function DescriptionSection(props: DescriptionSectionProps) {
                   props.onSpecsChange(next);
                 }}
               />
-              <ZoruInput
+              <Input
                 placeholder="Value"
                 value={spec.value}
                 onChange={(e) => {
@@ -236,7 +236,7 @@ export function DescriptionSection(props: DescriptionSectionProps) {
                   props.onSpecsChange(next);
                 }}
               />
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -246,10 +246,10 @@ export function DescriptionSection(props: DescriptionSectionProps) {
                 aria-label="Remove specification"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           ))}
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -258,7 +258,7 @@ export function DescriptionSection(props: DescriptionSectionProps) {
             }
           >
             <Plus className="h-3.5 w-3.5" /> Add spec
-          </ZoruButton>
+          </Button>
           <input
             type="hidden"
             name="specifications"
@@ -288,7 +288,7 @@ export function PricingSection(props: PricingSectionProps) {
     <SectionCard title="Pricing" description="What you sell for.">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Selling price" required>
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="sellingPrice"
@@ -314,7 +314,7 @@ export function PricingSection(props: PricingSectionProps) {
           <input type="hidden" name="currency" defaultValue="INR" />
         </Field>
         <Field label="MRP">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="mrp"
@@ -322,7 +322,7 @@ export function PricingSection(props: PricingSectionProps) {
           />
         </Field>
         <Field label="Discount %">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="discountPct"
@@ -330,7 +330,7 @@ export function PricingSection(props: PricingSectionProps) {
           />
         </Field>
         <Field label="Wholesale price">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="wholesalePrice"
@@ -339,7 +339,7 @@ export function PricingSection(props: PricingSectionProps) {
         </Field>
         <Field label="Tax inclusive?">
           <div className="flex h-9 items-center gap-2">
-            <ZoruCheckbox
+            <Checkbox
               checked={props.taxInclusive}
               onCheckedChange={(c) => props.onTaxInclusive(Boolean(c))}
             />
@@ -374,7 +374,7 @@ export function PurchaseSection(props: PurchaseSectionProps) {
     <SectionCard title="Purchase" description="What you pay vendors.">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Purchase price">
-          <ZoruInput
+          <Input
             type="number"
             step="0.01"
             name="costPrice"
@@ -398,7 +398,7 @@ export function PurchaseSection(props: PurchaseSectionProps) {
           />
         </Field>
         <Field label="Lead time (days)">
-          <ZoruInput
+          <Input
             type="number"
             name="leadTimeDays"
             defaultValue={props.defaultLeadTimeDays}
@@ -467,21 +467,21 @@ export function InventorySection(props: InventorySectionProps) {
           <>
             <div className="grid gap-4 md:grid-cols-4">
               <Field label="Reorder point">
-                <ZoruInput
+                <Input
                   type="number"
                   name="reorderPoint"
                   defaultValue={props.defaultReorderPoint}
                 />
               </Field>
               <Field label="Reorder qty">
-                <ZoruInput
+                <Input
                   type="number"
                   name="reorderQty"
                   defaultValue={props.defaultReorderQty}
                 />
               </Field>
               <Field label="Max stock">
-                <ZoruInput
+                <Input
                   type="number"
                   name="maxStock"
                   defaultValue={props.defaultMaxStock}
@@ -489,7 +489,7 @@ export function InventorySection(props: InventorySectionProps) {
               </Field>
               {!props.editing ? (
                 <Field label="Opening stock (default warehouse)">
-                  <ZoruInput
+                  <Input
                     type="number"
                     name="stockInHand"
                     defaultValue={props.defaultOpeningStock}
@@ -506,7 +506,7 @@ export function InventorySection(props: InventorySectionProps) {
 
             {!props.editing ? (
               <div className="space-y-2">
-                <ZoruLabel>Opening stock per warehouse (optional)</ZoruLabel>
+                <Label>Opening stock per warehouse (optional)</Label>
                 {props.openingByWarehouse.map((row, idx) => (
                   <div
                     key={idx}
@@ -522,7 +522,7 @@ export function InventorySection(props: InventorySectionProps) {
                         props.onOpeningByWarehouse(list);
                       }}
                     />
-                    <ZoruInput
+                    <Input
                       type="number"
                       placeholder="Qty"
                       value={row.qty}
@@ -532,7 +532,7 @@ export function InventorySection(props: InventorySectionProps) {
                         props.onOpeningByWarehouse(list);
                       }}
                     />
-                    <ZoruInput
+                    <Input
                       type="number"
                       placeholder="Value"
                       value={row.value}
@@ -542,7 +542,7 @@ export function InventorySection(props: InventorySectionProps) {
                         props.onOpeningByWarehouse(list);
                       }}
                     />
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -554,10 +554,10 @@ export function InventorySection(props: InventorySectionProps) {
                       aria-label="Remove warehouse row"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 ))}
-                <ZoruButton
+                <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -569,7 +569,7 @@ export function InventorySection(props: InventorySectionProps) {
                   }
                 >
                   <Plus className="h-3.5 w-3.5" /> Add warehouse
-                </ZoruButton>
+                </Button>
                 <input
                   type="hidden"
                   name="openingByWarehouse"

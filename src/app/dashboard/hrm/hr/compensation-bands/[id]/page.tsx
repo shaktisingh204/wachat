@@ -60,19 +60,19 @@ export default async function CompensationBandDetailPage({ params }: PageProps) 
             actions={
                 <>
                     <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <ArrowLeft className="h-4 w-4" /> Back
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
+                        <Button size="sm">
                             <Pencil className="h-4 w-4" /> Edit
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`${BASE}/new?duplicateOf=${id}`}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <Copy className="h-4 w-4" /> Duplicate
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <HrActionButtons
                         actions={[
@@ -100,9 +100,9 @@ export default async function CompensationBandDetailPage({ params }: PageProps) 
                 <HrDetailRow label="Department">{fmtText(b.department)}</HrDetailRow>
                 <HrDetailRow label="Band version">{fmtText(b.bandVersion)}</HrDetailRow>
                 <HrDetailRow label="Active">
-                    <ZoruBadge variant={isActive ? 'success' : 'ghost'}>
+                    <Badge variant={isActive ? 'success' : 'ghost'}>
                         {isActive ? 'Yes' : 'No'}
-                    </ZoruBadge>
+                    </Badge>
                 </HrDetailRow>
             </HrDetailGrid>
 

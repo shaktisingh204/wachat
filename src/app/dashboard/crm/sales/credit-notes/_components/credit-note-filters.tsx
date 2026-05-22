@@ -66,7 +66,7 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
         <div className="flex flex-wrap items-center gap-2">
             <div className="w-36">
                 {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                <ZoruSelect
+                <Select
                     value={props.statusFilter}
                     onValueChange={(v) => props.onStatusChange(v as CreditNoteKpiFilter)}
                 >
@@ -80,7 +80,7 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
             <div className="w-56">
                 <EntityFormField
@@ -93,7 +93,7 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
             </div>
             <div className="w-44">
                 {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                <ZoruSelect
+                <Select
                     value={props.reasonFilter || 'all'}
                     onValueChange={(v) => props.onReasonChange(v === 'all' ? '' : v)}
                 >
@@ -108,11 +108,11 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
             <div className="w-44">
                 {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                <ZoruSelect
+                <Select
                     value={props.refundModeFilter || 'all'}
                     onValueChange={(v) => props.onRefundModeChange(v === 'all' ? '' : v)}
                 >
@@ -127,7 +127,7 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
             <div className="w-72">
                 <ZoruDateRangePicker
@@ -136,12 +136,12 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                 />
             </div>
             {props.hasActiveFilters ? (
-                <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                <Button variant="ghost" size="sm" onClick={props.onClear}>
                     <X className="h-3.5 w-3.5" /> Clear
-                </ZoruButton>
+                </Button>
             ) : null}
             {props.hasActiveFilters ? (
-                <ZoruBadge variant="secondary">Filters active</ZoruBadge>
+                <Badge variant="secondary">Filters active</Badge>
             ) : null}
         </div>
     );

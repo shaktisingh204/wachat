@@ -21,7 +21,7 @@ export interface ZoruPricingCardProps
   period?: React.ReactNode;
   /** Feature list. */
   features?: ZoruPricingFeature[];
-  /** CTA button — pass any node, typically <ZoruButton>. */
+  /** CTA button — pass any node, typically <Button>. */
   cta?: React.ReactNode;
   /** Highlight the plan as recommended (inverted surface). */
   featured?: boolean;
@@ -53,12 +53,12 @@ export function ZoruPricingCard({
       {...props}
     >
       {featured && (
-        <ZoruBadge
+        <Badge
           variant="ghost"
           className="absolute -top-3 left-1/2 -translate-x-1/2 border-0 bg-zoru-on-primary text-zoru-ink"
         >
           {featuredLabel}
-        </ZoruBadge>
+        </Badge>
       )}
 
       <header className="flex flex-col gap-1">

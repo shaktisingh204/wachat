@@ -88,12 +88,12 @@ export default function ClientSignupPage() {
   if (settings && !settings.allowClientSignup) {
     return (
       <main className="zoruui min-h-screen bg-zoru-bg px-4 py-16 text-zoru-ink">
-        <ZoruCard className="mx-auto max-w-lg p-8 text-center">
+        <Card className="mx-auto max-w-lg p-8 text-center">
           <h1 className="text-2xl text-zoru-ink">Signup unavailable</h1>
           <p className="mt-2 text-sm text-zoru-ink-muted">
             New client signups are currently closed. Please contact the SabNode team for access.
           </p>
-        </ZoruCard>
+        </Card>
       </main>
     );
   }
@@ -101,24 +101,24 @@ export default function ClientSignupPage() {
   if (submitted) {
     return (
       <main className="zoruui min-h-screen bg-zoru-bg px-4 py-16 text-zoru-ink">
-        <ZoruCard className="mx-auto max-w-lg p-8 text-center">
+        <Card className="mx-auto max-w-lg p-8 text-center">
           <h1 className="text-2xl text-zoru-ink">Account created</h1>
           <p className="mt-3 text-sm text-zoru-ink-muted">
             Your account is awaiting admin approval. You will receive an email when activated.
           </p>
           <div className="mt-6 flex justify-center">
             <Link href="/login">
-              <ZoruButton variant="outline">Back to login</ZoruButton>
+              <Button variant="outline">Back to login</Button>
             </Link>
           </div>
-        </ZoruCard>
+        </Card>
       </main>
     );
   }
 
   return (
     <main className="zoruui min-h-screen bg-zoru-bg px-4 py-12 text-zoru-ink">
-      <ZoruCard className="mx-auto max-w-xl p-8">
+      <Card className="mx-auto max-w-xl p-8">
         <header className="mb-6">
           <h1 className="text-2xl text-zoru-ink">Create a client account</h1>
           <p className="mt-1 text-sm text-zoru-ink-muted">
@@ -128,8 +128,8 @@ export default function ClientSignupPage() {
 
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="company_name">Company name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="company_name">Company name</Label>
+            <Input
               id="company_name"
               required
               value={form.company_name}
@@ -138,8 +138,8 @@ export default function ClientSignupPage() {
           </div>
 
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="contact_name">Contact name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="contact_name">Contact name</Label>
+            <Input
               id="contact_name"
               required
               value={form.contact_name}
@@ -149,8 +149,8 @@ export default function ClientSignupPage() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="email">Work email</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="email">Work email</Label>
+              <Input
                 id="email"
                 type="email"
                 required
@@ -160,8 +160,8 @@ export default function ClientSignupPage() {
               />
             </div>
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="password">Password</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="password">Password</Label>
+              <Input
                 id="password"
                 type="password"
                 required
@@ -175,8 +175,8 @@ export default function ClientSignupPage() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="mobile">Mobile</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="mobile">Mobile</Label>
+              <Input
                 id="mobile"
                 type="tel"
                 required
@@ -185,8 +185,8 @@ export default function ClientSignupPage() {
               />
             </div>
             <div className="grid gap-2">
-              <ZoruLabel htmlFor="country">Country</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="country">Country</Label>
+              <Select
                 value={form.country}
                 onValueChange={(v) => update('country', v)}
               >
@@ -200,13 +200,13 @@ export default function ClientSignupPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
 
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="website">Website (optional)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="website">Website (optional)</Label>
+            <Input
               id="website"
               type="url"
               placeholder="https://"
@@ -216,7 +216,7 @@ export default function ClientSignupPage() {
           </div>
 
           <label className="mt-2 flex items-start gap-2 text-sm text-zoru-ink">
-            <ZoruCheckbox
+            <Checkbox
               checked={form.agree_to_terms}
               onCheckedChange={(c) => update('agree_to_terms', Boolean(c))}
               aria-label="Agree to terms"
@@ -239,12 +239,12 @@ export default function ClientSignupPage() {
             <Link href="/login" className="text-sm text-zoru-ink-muted underline">
               Already have an account? Sign in
             </Link>
-            <ZoruButton type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending}>
               {isPending ? 'Submitting…' : 'Create account'}
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </main>
   );
 }

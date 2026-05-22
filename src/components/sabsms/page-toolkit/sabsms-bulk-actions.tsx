@@ -45,19 +45,19 @@ export function SabsmsBulkActionsBar<T>({
         {selectedCount.toLocaleString()} selected
       </span>
       {onSelectAllMatching && selectedCount < totalCount && (
-        <ZoruButton
+        <Button
           variant="link"
           size="sm"
           className="h-auto px-1 text-amber-700"
           onClick={onSelectAllMatching}
         >
           Select all {totalCount.toLocaleString()} matching
-        </ZoruButton>
+        </Button>
       )}
 
       <div className="ml-auto flex items-center gap-2">
         {primary.map((a) => (
-          <ZoruButton
+          <Button
             key={a.label}
             variant={a.destructive ? "destructive" : "outline"}
             size="sm"
@@ -65,14 +65,14 @@ export function SabsmsBulkActionsBar<T>({
           >
             {a.icon}
             <span className={a.icon ? "ml-1.5" : undefined}>{a.label}</span>
-          </ZoruButton>
+          </Button>
         ))}
         {overflow.length > 0 && (
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 More
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               {overflow.map((a) => (
@@ -86,9 +86,9 @@ export function SabsmsBulkActionsBar<T>({
                 </ZoruDropdownMenuItem>
               ))}
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         )}
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon"
           className="h-7 w-7"
@@ -96,7 +96,7 @@ export function SabsmsBulkActionsBar<T>({
           aria-label="Clear selection"
         >
           <X className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

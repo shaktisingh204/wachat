@@ -102,34 +102,34 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
             }}
             actions={
                 <>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                         <Link
                             href={`/dashboard/crm/inventory/adjustments/${id}/activity`}
                         >
                             <History className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Activity
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton size="sm" asChild>
+                    </Button>
+                    <Button size="sm" asChild>
                         <Link
                             href={`/dashboard/crm/inventory/adjustments/${id}/edit`}
                         >
                             <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Edit
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
                         <a href="javascript:window.print()">
                             <Printer className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Print
                         </a>
-                    </ZoruButton>
+                    </Button>
                     <AdjustmentDetailActions id={id} status={status} />
                 </>
             }
             audit={<EntityAuditTimeline entityKind="stock_adjustment" entityId={id} />}
         >
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Header</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -150,7 +150,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         <div>
                             <dt className="text-xs text-zinc-500">Reason</dt>
                             <dd>
-                                <ZoruBadge variant="secondary">{adj.reason}</ZoruBadge>
+                                <Badge variant="secondary">{adj.reason}</Badge>
                             </dd>
                         </div>
                         <div>
@@ -185,9 +185,9 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Line items</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -310,9 +310,9 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         </table>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Approval workflow</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -321,7 +321,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         <div>
                             <dt className="text-xs text-zinc-500">Status</dt>
                             <dd>
-                                <ZoruBadge
+                                <Badge
                                     variant={
                                         status === 'approved'
                                             ? 'success'
@@ -331,7 +331,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                                     }
                                 >
                                     {status}
-                                </ZoruBadge>
+                                </Badge>
                             </dd>
                         </div>
                         <div>
@@ -366,10 +366,10 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         ) : null}
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {adj.notes ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -378,7 +378,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                             {adj.notes}
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

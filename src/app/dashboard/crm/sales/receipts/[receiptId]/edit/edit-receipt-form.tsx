@@ -19,10 +19,10 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Update Receipt
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -58,23 +58,23 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
             <input type="hidden" name="bankAccountId" value={bankAccountId} />
             <input type="hidden" name="receiptDate" value={receiptDate?.toISOString() ?? ''} />
 
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <div className="p-6 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <ZoruLabel className="text-zoru-ink">Receipt No</ZoruLabel>
-                            <ZoruInput value={receipt.receiptNumber} disabled readOnly />
+                            <Label className="text-zoru-ink">Receipt No</Label>
+                            <Input value={receipt.receiptNumber} disabled readOnly />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel className="text-zoru-ink">Receipt Date</ZoruLabel>
+                            <Label className="text-zoru-ink">Receipt Date</Label>
                             <DatePicker date={receiptDate} setDate={setReceiptDate} />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <ZoruLabel className="text-zoru-ink">Total Received</ZoruLabel>
-                            <ZoruInput
+                            <Label className="text-zoru-ink">Total Received</Label>
+                            <Input
                                 value={`${receipt.currency} ${(receipt.totalAmountReceived ?? 0).toFixed(2)}`}
                                 disabled
                                 readOnly
@@ -84,7 +84,7 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
                             </p>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel className="text-zoru-ink">Deposit To (Bank Account)</ZoruLabel>
+                            <Label className="text-zoru-ink">Deposit To (Bank Account)</Label>
                             <EntityPicker
                                 entity="bankAccount"
                                 value={bankAccountId || null}
@@ -98,8 +98,8 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes" className="text-zoru-ink">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes" className="text-zoru-ink">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             defaultValue={receipt.notes ?? ''}
@@ -109,10 +109,10 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
                     </div>
                 </div>
                 <div className="flex justify-end gap-2 p-6 pt-0">
-                    <ZoruButton type="button" variant="outline" onClick={() => router.back()}>Cancel</ZoruButton>
+                    <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
                     <SubmitButton />
                 </div>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

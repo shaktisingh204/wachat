@@ -29,12 +29,12 @@ export default function TitleTagCheckerPage() {
   return (
     <ToolShell title="Title Tag Checker" description="Check a page title's length and quality (30–60 chars recommended).">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {title !== null && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-2">
+        <Card><ZoruCardContent className="p-4 space-y-2">
           <div className="text-sm font-semibold">Title</div>
           <div className="text-lg">{title || <span className="text-muted-foreground">(empty)</span>}</div>
           <div className="flex items-center justify-between text-xs">
@@ -46,7 +46,7 @@ export default function TitleTagCheckerPage() {
           <div className="h-1.5 bg-muted rounded">
             <div className={`h-full rounded ${status === 'ok' ? 'bg-green-500' : 'bg-red-500'}`} style={{ width: `${Math.min(100, (len / 60) * 100)}%` }} />
           </div>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

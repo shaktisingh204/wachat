@@ -434,11 +434,11 @@ export function BatchExpiryListClient({
         title="Batch Expiry"
         subtitle="Track manufacture and expiry dates for batch-managed items to reduce wastage."
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/inventory/batch-expiry/new">
               <Plus className="h-4 w-4" /> New batch
             </Link>
-          </ZoruButton>
+          </Button>
         }
       >
         {/* KPI strip */}
@@ -474,12 +474,12 @@ export function BatchExpiryListClient({
           />
         </div>
 
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           {/* Toolbar */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
             <div className="relative w-full max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-              <ZoruInput
+              <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search item name or batch no…"
@@ -487,26 +487,26 @@ export function BatchExpiryListClient({
               />
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+              <Button variant="outline" size="sm" onClick={handleExportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => void handleExportXlsx()}
               >
                 <Download className="h-3.5 w-3.5" /> XLSX
-              </ZoruButton>
+              </Button>
             </div>
           </div>
 
           {/* Filter row */}
           <div className="flex flex-wrap items-end gap-3 border-b border-zoru-line bg-zoru-surface-2/40 px-3 py-2">
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Status
-              </ZoruLabel>
-              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+              </Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <ZoruSelectTrigger className="h-8 w-[150px]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -517,14 +517,14 @@ export function BatchExpiryListClient({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Expiry
-              </ZoruLabel>
-              <ZoruSelect value={expiryFilter} onValueChange={setExpiryFilter}>
+              </Label>
+              <Select value={expiryFilter} onValueChange={setExpiryFilter}>
                 <ZoruSelectTrigger className="h-8 w-[180px]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -535,15 +535,15 @@ export function BatchExpiryListClient({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             {locationOptions.length > 0 ? (
               <div className="space-y-1">
-                <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                   Warehouse
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                   value={locationFilter || 'all'}
                   onValueChange={(v) => setLocationFilter(v === 'all' ? '' : v)}
                 >
@@ -558,14 +558,14 @@ export function BatchExpiryListClient({
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             ) : null}
 
             {filtersActive ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
 
@@ -577,55 +577,55 @@ export function BatchExpiryListClient({
                 {selected.size} selected
               </div>
               <div className="flex flex-wrap items-center gap-1">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setWriteOffPending(true)}
                   disabled={bulkPending}
                 >
                   <Archive className="h-3.5 w-3.5" /> Write off
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="outline"
                   onClick={handleExportCsv}
                 >
                   <Download className="h-3.5 w-3.5" /> CSV
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="outline"
                   onClick={() => void handleExportXlsx()}
                 >
                   <Download className="h-3.5 w-3.5" /> XLSX
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="destructive"
                   onClick={() => setDeletePending(true)}
                   disabled={bulkPending}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Delete
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => setSelected(new Set())}
                   aria-label="Clear selection"
                 >
                   <X className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all visible batches"
@@ -670,7 +670,7 @@ export function BatchExpiryListClient({
                         }
                       >
                         <ZoruTableCell className="pl-3">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={selected.has(b._id)}
                             onCheckedChange={() => toggleRow(b._id)}
                             aria-label={`Select ${b.batchNumber}`}
@@ -714,22 +714,22 @@ export function BatchExpiryListClient({
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <ZoruButton variant="ghost" size="icon" asChild>
+                            <Button variant="ghost" size="icon" asChild>
                               <Link
                                 href={`/dashboard/crm/inventory/batch-expiry/${b._id}/edit`}
                                 aria-label={`Edit ${b.batchNumber}`}
                               >
                                 <Edit className="h-4 w-4 text-zoru-ink-muted" />
                               </Link>
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => setSingleDeleteTarget(b)}
                               aria-label={`Delete ${b.batchNumber}`}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </ZoruTableCell>
                       </ZoruTableRow>
@@ -737,7 +737,7 @@ export function BatchExpiryListClient({
                   })
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
 
           {/* Summary row */}
@@ -748,7 +748,7 @@ export function BatchExpiryListClient({
               {filtersActive ? ' (filtered)' : ''}
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
 
         {bulkPending ? <span className="sr-only">Working…</span> : null}
       </EntityListShell>

@@ -33,14 +33,14 @@ export const dynamic = 'force-dynamic';
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="sm" disabled={pending}>
+    <Button type="submit" size="sm" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
       ) : (
         <Save className="h-4 w-4" />
       )}
       {pending ? 'Saving…' : 'Save portal user'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -72,14 +72,14 @@ export default function NewPortalUserPage() {
       back={{ href: '/dashboard/crm/portal', label: 'Customer Portal' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Full Name */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="name">
+            <Label htmlFor="name">
               Full Name <span className="text-red-500">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="name"
               name="name"
               type="text"
@@ -91,10 +91,10 @@ export default function NewPortalUserPage() {
 
           {/* Email Address */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="email">
+            <Label htmlFor="email">
               Email Address <span className="text-red-500">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="email"
               name="email"
               type="email"
@@ -106,7 +106,7 @@ export default function NewPortalUserPage() {
 
           {/* Portal Type */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Portal Type</ZoruLabel>
+            <Label>Portal Type</Label>
             <EnumFormField
               enumName="portalType"
               name="portalType"
@@ -117,7 +117,7 @@ export default function NewPortalUserPage() {
 
           {/* Linked Entity */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Linked {portalType === 'vendor' ? 'Vendor' : portalType === 'employee' ? 'Employee' : 'Customer'}</ZoruLabel>
+            <Label>Linked {portalType === 'vendor' ? 'Vendor' : portalType === 'employee' ? 'Employee' : 'Customer'}</Label>
             <EntityFormField
               entity={linkedEntityForPortalType(portalType)}
               name="linkedEntityId"
@@ -127,8 +127,8 @@ export default function NewPortalUserPage() {
 
           {/* Notes */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               rows={3}
@@ -150,12 +150,12 @@ export default function NewPortalUserPage() {
 
           <div className="flex items-center gap-3">
             <SubmitButton />
-            <ZoruButton variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/crm/portal">Cancel</Link>
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

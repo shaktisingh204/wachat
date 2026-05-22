@@ -27,9 +27,9 @@ function PriorityBadge({ priority }: { priority: PortalTask['priority'] }) {
               ? 'warning'
               : 'secondary';
     return (
-        <ZoruBadge variant={variant} className="text-[11px]">
+        <Badge variant={variant} className="text-[11px]">
             {priority}
-        </ZoruBadge>
+        </Badge>
     );
 }
 
@@ -41,9 +41,9 @@ function StatusBadge({ status }: { status: PortalTask['status'] }) {
               ? 'info'
               : 'secondary';
     return (
-        <ZoruBadge variant={variant} className="text-[11px]">
+        <Badge variant={variant} className="text-[11px]">
             {status}
-        </ZoruBadge>
+        </Badge>
     );
 }
 
@@ -85,7 +85,7 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
 
     if (tasks.length === 0) {
         return (
-            <ZoruEmptyState
+            <EmptyState
                 icon={<ClipboardList className="h-7 w-7" />}
                 title="All caught up"
                 description="No open tasks are assigned to you right now."
@@ -95,7 +95,7 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="bg-zoru-surface-2">
                         <ZoruTableHead className="text-[12px] uppercase text-zoru-ink-muted">Title</ZoruTableHead>
@@ -125,7 +125,7 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
                                 <StatusBadge status={task.status} />
                             </ZoruTableCell>
                             <ZoruTableCell>
-                                <ZoruButton
+                                <Button
                                     size="sm"
                                     variant="outline"
                                     className="gap-1.5 text-[12px]"
@@ -134,12 +134,12 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
                                 >
                                     <CheckCircle2 className="h-3.5 w-3.5" />
                                     Done
-                                </ZoruButton>
+                                </Button>
                             </ZoruTableCell>
                         </ZoruTableRow>
                     ))}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }
@@ -153,7 +153,7 @@ interface MyCreatedTasksTableProps {
 export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
     if (tasks.length === 0) {
         return (
-            <ZoruEmptyState
+            <EmptyState
                 icon={<ClipboardList className="h-7 w-7" />}
                 title="No tasks assigned yet"
                 description="Tasks you assign to your team members will appear here."
@@ -163,7 +163,7 @@ export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="bg-zoru-surface-2">
                         <ZoruTableHead className="text-[12px] uppercase text-zoru-ink-muted">Title</ZoruTableHead>
@@ -194,7 +194,7 @@ export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
                         </ZoruTableRow>
                     ))}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

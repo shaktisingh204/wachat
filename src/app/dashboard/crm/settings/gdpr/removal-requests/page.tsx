@@ -215,7 +215,7 @@ export default function GdprEraseRequestsPage() {
 
     const renderRowActions = (row: CrmEraseRequestDTO) => (
         <div className="flex items-center justify-end gap-1">
-            <ZoruButton
+            <Button
                 variant="ghost"
                 size="sm"
                 asChild
@@ -224,10 +224,10 @@ export default function GdprEraseRequestsPage() {
                 <Link href={`/dashboard/crm/settings/gdpr/removal-requests/${row._id}`}>
                     <Eye className="h-3.5 w-3.5" />
                 </Link>
-            </ZoruButton>
+            </Button>
             {row.status === 'pending' ? (
                 <>
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="sm"
                         disabled={isPending || row.legalHold}
@@ -236,8 +236,8 @@ export default function GdprEraseRequestsPage() {
                         title={row.legalHold ? 'Subject under legal hold' : undefined}
                     >
                         <CheckCircle2 className="h-3.5 w-3.5 text-zoru-success-ink" />
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="ghost"
                         size="sm"
                         disabled={isPending}
@@ -245,11 +245,11 @@ export default function GdprEraseRequestsPage() {
                         aria-label="Reject"
                     >
                         <XCircle className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                    </ZoruButton>
+                    </Button>
                 </>
             ) : null}
             {(row.status === 'pending' || row.status === 'approved') ? (
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="sm"
                     disabled={isPending}
@@ -262,7 +262,7 @@ export default function GdprEraseRequestsPage() {
                     ) : (
                         'Dry-run'
                     )}
-                </ZoruButton>
+                </Button>
             ) : null}
         </div>
     );
@@ -273,22 +273,22 @@ export default function GdprEraseRequestsPage() {
             <p className="text-sm text-zoru-ink-muted">
                 No GDPR erase requests yet. Subjects can request erasure under GDPR Art. 17.
             </p>
-            <ZoruButton asChild>
+            <Button asChild>
                 <Link href="/dashboard/crm/settings/gdpr/removal-requests/new">
                     <Plus className="mr-2 h-4 w-4" />
                     File a request
                 </Link>
-            </ZoruButton>
+            </Button>
         </div>
     );
 
     return (
         <div className="flex w-full flex-col gap-6">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruStatCard label="Pending" value={counts.pending.toLocaleString()} />
-                <ZoruStatCard label="Approved" value={counts.approved.toLocaleString()} />
-                <ZoruStatCard label="Executed" value={counts.executed.toLocaleString()} />
-                <ZoruStatCard
+                <StatCard label="Pending" value={counts.pending.toLocaleString()} />
+                <StatCard label="Approved" value={counts.approved.toLocaleString()} />
+                <StatCard label="Executed" value={counts.executed.toLocaleString()} />
+                <StatCard
                     label="Legal-hold blocked"
                     value={counts.legalHoldBlocked.toLocaleString()}
                 />
@@ -298,12 +298,12 @@ export default function GdprEraseRequestsPage() {
                 title="GDPR Erase Requests"
                 subtitle="Right-to-be-forgotten workflow for CRM subjects (Art. 17)."
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/settings/gdpr/removal-requests/new">
                             <Plus className="mr-2 h-4 w-4" />
                             New request
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 search={{
                     value: search,
@@ -351,8 +351,8 @@ export default function GdprEraseRequestsPage() {
                 loading={isLoading && rows.length === 0}
                 empty={!isLoading && rows.length === 0 ? empty : undefined}
             >
-                <ZoruCard className="overflow-x-auto p-0">
-                    <ZoruTable>
+                <Card className="overflow-x-auto p-0">
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="hover:bg-transparent">
                                 <ZoruTableHead className="text-zoru-ink-muted">
@@ -403,9 +403,9 @@ export default function GdprEraseRequestsPage() {
                                         {row.scope === 'hard_delete' ? 'Hard delete' : 'Soft redact'}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <ZoruBadge variant={STATUS_TONE[row.status]}>
+                                        <Badge variant={STATUS_TONE[row.status]}>
                                             {row.status}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {row.legalHold ? (
@@ -426,11 +426,11 @@ export default function GdprEraseRequestsPage() {
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>
-                    </ZoruTable>
-                </ZoruCard>
+                    </Table>
+                </Card>
             </EntityListShell>
 
-            <ZoruDialog
+            <Dialog
                 open={rejecting !== null}
                 onOpenChange={(o) => {
                     if (!o) {
@@ -447,8 +447,8 @@ export default function GdprEraseRequestsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="reject-reason">Reason</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="reject-reason">Reason</Label>
+                        <Textarea
                             id="reject-reason"
                             rows={3}
                             value={rejectReason}
@@ -457,7 +457,7 @@ export default function GdprEraseRequestsPage() {
                         />
                     </div>
                     <ZoruDialogFooter className="gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => {
@@ -466,8 +466,8 @@ export default function GdprEraseRequestsPage() {
                             }}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             disabled={isPending}
                             onClick={confirmReject}
@@ -476,10 +476,10 @@ export default function GdprEraseRequestsPage() {
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             Reject
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

@@ -37,26 +37,26 @@ export function AttendanceBulkBar({
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onApprove}>
+        <Button size="sm" variant="outline" onClick={onApprove}>
           <CheckCheck className="h-3.5 w-3.5" /> Approve
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onMarkPresent}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onMarkPresent}>
           <CheckCircle2 className="h-3.5 w-3.5" /> Mark present
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onMarkAbsent}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onMarkAbsent}>
           <UserX className="h-3.5 w-3.5" /> Mark absent
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={onClear}
           aria-label="Clear selection"
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

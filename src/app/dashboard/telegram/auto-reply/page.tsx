@@ -377,7 +377,7 @@ export default function TelegramAutoReplyPage() {
     if (!projectId) {
         return (
             <div className="p-6">
-                <ZoruEmptyState
+                <EmptyState
                     title="No active project"
                     description="Select a project before managing Telegram auto-reply rules."
                 />
@@ -387,7 +387,7 @@ export default function TelegramAutoReplyPage() {
 
     return (
         <div className="flex flex-col gap-6 p-6">
-            <ZoruPageHeader>
+            <PageHeader>
                 <div>
                     <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
                     <ZoruPageTitle className="flex items-center gap-2">
@@ -403,7 +403,7 @@ export default function TelegramAutoReplyPage() {
                     </ZoruPageDescription>
                 </div>
                 <ZoruPageActions>
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         onClick={() => {
                             void loadRules();
@@ -413,17 +413,17 @@ export default function TelegramAutoReplyPage() {
                     >
                         <RefreshCw className="mr-1.5 h-4 w-4" />
                         Refresh
-                    </ZoruButton>
-                    <ZoruButton onClick={openCreate}>
+                    </Button>
+                    <Button onClick={openCreate}>
                         <Plus className="mr-1.5 h-4 w-4" />
                         New rule
-                    </ZoruButton>
+                    </Button>
                 </ZoruPageActions>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* Conflicts banner */}
             {conflicts.length > 0 && (
-                <ZoruCard className="border-amber-300/40 bg-amber-50/40 dark:bg-amber-900/10">
+                <Card className="border-amber-300/40 bg-amber-50/40 dark:bg-amber-900/10">
                     <ZoruCardContent className="flex items-center justify-between gap-3 p-4">
                         <div className="flex items-center gap-2 text-sm">
                             <AlertTriangle className="h-4 w-4 text-amber-500" />
@@ -433,15 +433,15 @@ export default function TelegramAutoReplyPage() {
                                 or more rules share the same trigger pattern.
                             </span>
                         </div>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setConflictsOpen(true)}
                         >
                             Review conflicts
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
             {/* KPIs */}
@@ -460,14 +460,14 @@ export default function TelegramAutoReplyPage() {
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-xs flex-1">
                     <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <ZoruInput
+                    <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search by name…"
                         className="pl-8"
                     />
                 </div>
-                <ZoruSelect value={botFilter} onValueChange={setBotFilter}>
+                <Select value={botFilter} onValueChange={setBotFilter}>
                     <ZoruSelectTrigger className="w-[200px]">
                         <ZoruSelectValue placeholder="Bot" />
                     </ZoruSelectTrigger>
@@ -479,8 +479,8 @@ export default function TelegramAutoReplyPage() {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruSelect
+                </Select>
+                <Select
                     value={statusFilter}
                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                 >
@@ -494,30 +494,30 @@ export default function TelegramAutoReplyPage() {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             {/* Table */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="space-y-2 p-4">
-                            <ZoruSkeleton className="h-8 w-full" />
-                            <ZoruSkeleton className="h-8 w-full" />
-                            <ZoruSkeleton className="h-8 w-full" />
+                            <Skeleton className="h-8 w-full" />
+                            <Skeleton className="h-8 w-full" />
+                            <Skeleton className="h-8 w-full" />
                         </div>
                     ) : loadError ? (
                         <div className="p-6 text-sm text-destructive">{loadError}</div>
                     ) : rules.length === 0 ? (
                         <div className="p-8">
-                            <ZoruEmptyState
+                            <EmptyState
                                 title="No auto-reply rules yet"
                                 description="Create your first rule to start responding to incoming Telegram messages automatically."
                                 action={
-                                    <ZoruButton onClick={openCreate}>
+                                    <Button onClick={openCreate}>
                                         <Plus className="mr-1.5 h-4 w-4" />
                                         New rule
-                                    </ZoruButton>
+                                    </Button>
                                 }
                             />
                         </div>
@@ -527,7 +527,7 @@ export default function TelegramAutoReplyPage() {
                             collisionDetection={closestCenter}
                             onDragEnd={onDragEnd}
                         >
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead className="w-8" />
@@ -575,11 +575,11 @@ export default function TelegramAutoReplyPage() {
                                         ))}
                                     </SortableContext>
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </DndContext>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Editor */}
             <RuleEditorDrawer
@@ -621,7 +621,7 @@ export default function TelegramAutoReplyPage() {
             </ZoruAlertDialog>
 
             {/* Conflicts dialog */}
-            <ZoruDialog open={conflictsOpen} onOpenChange={setConflictsOpen}>
+            <Dialog open={conflictsOpen} onOpenChange={setConflictsOpen}>
                 <ZoruDialogContent className="max-w-2xl">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>
@@ -639,11 +639,11 @@ export default function TelegramAutoReplyPage() {
                                 className="rounded-md border bg-card/60 p-3 text-sm"
                             >
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <ZoruBadge variant="ghost">A</ZoruBadge>
+                                    <Badge variant="ghost">A</Badge>
                                     <span className="font-medium">
                                         {c.ruleAName}
                                     </span>
-                                    <ZoruBadge variant="ghost">B</ZoruBadge>
+                                    <Badge variant="ghost">B</Badge>
                                     <span className="font-medium">
                                         {c.ruleBName}
                                     </span>
@@ -655,7 +655,7 @@ export default function TelegramAutoReplyPage() {
                         ))}
                     </div>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }
@@ -674,7 +674,7 @@ function Kpi({
     accent?: boolean;
 }) {
     return (
-        <ZoruCard>
+        <Card>
             <TelegramProjectGate />
             <ZoruCardContent className="p-4">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -687,7 +687,7 @@ function Kpi({
                     {value}
                 </p>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 

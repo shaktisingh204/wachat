@@ -71,16 +71,16 @@ type CollectionRow = ProductSet & {
 function CollectionsSkeleton() {
   return (
     <CommercePage>
-      <ZoruSkeleton className="h-3 w-72" />
+      <Skeleton className="h-3 w-72" />
       <div className="mt-5 flex items-end justify-between">
         <div className="space-y-3">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <ZoruSkeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-32" />
       </div>
-      <ZoruSkeleton className="mt-8 h-72 w-full" />
+      <Skeleton className="mt-8 h-72 w-full" />
     </CommercePage>
   );
 }
@@ -175,14 +175,14 @@ export default function CommerceCollectionsPage() {
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Delete collection"
               onClick={() => setDeleteCollection(row.original)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -205,7 +205,7 @@ export default function CommerceCollectionsPage() {
           activeProjectId && isFacebookProject && hasCatalogAccess ? (
             <div className="flex items-center gap-2">
               {catalogs.length > 0 ? (
-                <ZoruSelect
+                <Select
                   value={createCatalogId}
                   onValueChange={setCreateCatalogId}
                 >
@@ -219,9 +219,9 @@ export default function CommerceCollectionsPage() {
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               ) : null}
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={fetchData}
@@ -231,8 +231,8 @@ export default function CommerceCollectionsPage() {
                   className={isLoading ? "animate-spin" : undefined}
                 />
                 Refresh
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 disabled={!createCatalogId}
                 onClick={() => {
@@ -249,31 +249,31 @@ export default function CommerceCollectionsPage() {
               >
                 <PlusCircle />
                 New collection
-              </ZoruButton>
+              </Button>
             </div>
           ) : undefined
         }
       />
 
       {!activeProjectId ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>No project selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Pick a Facebook Page project to manage its product collections.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : !isFacebookProject ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Invalid project type</ZoruAlertTitle>
           <ZoruAlertDescription>
             Collections live under Facebook Page projects. Switch to a
             Facebook project to continue.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : !hasCatalogAccess ? (
-        <ZoruCard className="mt-8">
+        <Card className="mt-8">
           <ZoruCardHeader>
             <ZoruCardTitle>Catalog management locked</ZoruCardTitle>
             <ZoruCardDescription>
@@ -283,29 +283,29 @@ export default function CommerceCollectionsPage() {
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href="/dashboard/facebook/all-projects">
                 Re-authorize project
               </Link>
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : error ? (
-        <ZoruAlert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Could not fetch collections</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : isLoading && collections.length === 0 ? (
         <CollectionsSkeleton />
       ) : catalogs.length === 0 ? (
         <div className="mt-8">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Layers />}
             title="No catalogs found"
             description="Create a catalog in Meta Commerce Manager to start organizing products into collections."
             action={
-              <ZoruButton asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline">
                 <a
                   href="https://business.facebook.com/commerce_manager/"
                   target="_blank"
@@ -313,29 +313,29 @@ export default function CommerceCollectionsPage() {
                 >
                   Open Commerce Manager <ExternalLink />
                 </a>
-              </ZoruButton>
+              </Button>
             }
           />
         </div>
       ) : collections.length === 0 ? (
         <div className="mt-8">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Layers />}
             title="No collections yet"
             description="Create a collection within one of your catalogs to organize products for promotions or browsing."
             action={
               createCatalogId ? (
-                <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
                   <PlusCircle />
                   New collection
-                </ZoruButton>
+                </Button>
               ) : undefined
             }
           />
         </div>
       ) : (
         <div className="mt-8">
-          <ZoruDataTable
+          <DataTable
             columns={columns}
             data={collections}
             filterColumn="name"

@@ -222,11 +222,11 @@ export function EventsListClient({
                     placeholder: 'Search events…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/workspace/events/new">
                             <Plus className="h-4 w-4" /> New event
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <EventsFiltersRow
@@ -255,19 +255,19 @@ export function EventsListClient({
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
-                                <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                                <Button variant="ghost" size="sm" onClick={exportCsv}>
                                     Export CSV
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkConfirm(true)}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
-                                <ZoruButton variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
                                     Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -279,11 +279,11 @@ export function EventsListClient({
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Schedule your first team meeting or recurring session.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/workspace/events/new">
                                     <Plus className="h-4 w-4" /> Create event
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

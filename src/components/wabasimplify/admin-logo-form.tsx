@@ -45,7 +45,7 @@ export function AppLogoForm() {
 
     return (
         <form action={formAction}>
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
                         <ImageIcon className="h-5 w-5"/>
@@ -55,8 +55,8 @@ export function AppLogoForm() {
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="logoFile">Upload Logo File</ZoruLabel>
-                        <ZoruInput id="logoFile" name="logoFile" type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" />
+                        <Label htmlFor="logoFile">Upload Logo File</Label>
+                        <Input id="logoFile" name="logoFile" type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" />
                     </div>
                      <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
@@ -67,7 +67,7 @@ export function AppLogoForm() {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="logoUrl">Logo URL</ZoruLabel>
+                        <Label htmlFor="logoUrl">Logo URL</Label>
                         <SabFileUrlInput
                             id="logoUrl"
                             name="logoUrl"
@@ -80,12 +80,12 @@ export function AppLogoForm() {
                     </div>
                 </ZoruCardContent>
                 <ZoruCardFooter>
-                    <ZoruButton type="submit" disabled={isPending}>
+                    <Button type="submit" disabled={isPending}>
                         {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Logo
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

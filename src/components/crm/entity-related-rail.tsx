@@ -91,7 +91,7 @@ export function EntityRelatedRail<TKey extends string = string>({
   if (visibleItems.length === 0) return null;
 
   return (
-    <ZoruCard className={`p-4 ${className ?? ''}`}>
+    <Card className={`p-4 ${className ?? ''}`}>
       <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         {title}
       </h3>
@@ -128,6 +128,6 @@ export function EntityRelatedRail<TKey extends string = string>({
           );
         })}
       </ul>
-    </ZoruCard>
+    </Card>
   );
 }

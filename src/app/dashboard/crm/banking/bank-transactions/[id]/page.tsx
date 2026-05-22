@@ -87,7 +87,7 @@ export default async function BankTransactionDetailPage({
         >
 
             {/* Summary */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <span className="text-[14px] font-medium text-foreground">Overview</span>
                     <StatusPill label={tx.status} tone={tone} />
@@ -159,11 +159,11 @@ export default async function BankTransactionDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Linked voucher */}
             {tx.voucherEntryId ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-foreground">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         Linked voucher entry
@@ -174,12 +174,12 @@ export default async function BankTransactionDetailPage({
                     >
                         {tx.voucherEntryId}
                     </Link>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Source statement file (SabFile) */}
             {tx.sourceFileUrl ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-foreground">
                         <Paperclip className="h-4 w-4 text-muted-foreground" />
                         Source statement
@@ -192,11 +192,11 @@ export default async function BankTransactionDetailPage({
                     >
                         {tx.sourceFileUrl}
                     </a>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* Status actions */}
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <div className="mb-2 flex items-center gap-2 text-[13px] text-foreground">
                     <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                     Status actions
@@ -206,15 +206,15 @@ export default async function BankTransactionDetailPage({
                     between pending → cleared → reconciled, or archive a row.
                 </p>
                 <BankTransactionStatusActions id={tx._id} current={tx.status} />
-            </ZoruCard>
+            </Card>
 
             {/* Audit timestamps */}
-            <ZoruCard className="p-4 text-[12px] text-muted-foreground">
+            <Card className="p-4 text-[12px] text-muted-foreground">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <span>Created {fmtDate(tx.createdAt)}</span>
                     <span>Updated {fmtDate(tx.updatedAt)}</span>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

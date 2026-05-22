@@ -82,10 +82,10 @@ const createInitialState: { message: string | null; error: string | null } = {
 function CreateSubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <PlusCircle />}
       {pending ? "Adding…" : "Add product"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -127,7 +127,7 @@ export function CreateProductDialog({
   }, [state, toast, onOpenChange, onCreated]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
           <ZoruDialogHeader>
@@ -142,25 +142,25 @@ export function CreateProductDialog({
           <input type="hidden" name="catalogId" value={catalogId} />
 
           {state?.error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
 
           <div className="grid gap-4">
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="cp-name">Product name</ZoruLabel>
-              <ZoruInput id="cp-name" name="name" required />
+              <Label htmlFor="cp-name">Product name</Label>
+              <Input id="cp-name" name="name" required />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="cp-retailer">SKU / Retailer ID</ZoruLabel>
-              <ZoruInput id="cp-retailer" name="retailer_id" required />
+              <Label htmlFor="cp-retailer">SKU / Retailer ID</Label>
+              <Input id="cp-retailer" name="retailer_id" required />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-1.5">
-                <ZoruLabel htmlFor="cp-price">Price</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="cp-price">Price</Label>
+                <Input
                   id="cp-price"
                   name="price"
                   type="number"
@@ -169,8 +169,8 @@ export function CreateProductDialog({
                 />
               </div>
               <div className="grid gap-1.5">
-                <ZoruLabel htmlFor="cp-currency">Currency</ZoruLabel>
-                <ZoruSelect name="currency" defaultValue="USD">
+                <Label htmlFor="cp-currency">Currency</Label>
+                <Select name="currency" defaultValue="USD">
                   <ZoruSelectTrigger id="cp-currency">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
@@ -180,15 +180,15 @@ export function CreateProductDialog({
                     <ZoruSelectItem value="INR">INR</ZoruSelectItem>
                     <ZoruSelectItem value="GBP">GBP</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="cp-desc">Description</ZoruLabel>
-              <ZoruTextarea id="cp-desc" name="description" rows={3} />
+              <Label htmlFor="cp-desc">Description</Label>
+              <Textarea id="cp-desc" name="description" rows={3} />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="cp-image">Image URL</ZoruLabel>
+              <Label htmlFor="cp-image">Image URL</Label>
               <SabFileUrlInput
                 id="cp-image"
                 name="image_url"
@@ -200,18 +200,18 @@ export function CreateProductDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <CreateSubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -227,10 +227,10 @@ const editInitialState: { message: string | null; error: string | null; success?
 function EditSubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <Pencil />}
       {pending ? "Saving…" : "Save changes"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -282,7 +282,7 @@ export function EditProductDialog({
       : "";
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
           <ZoruDialogHeader>
@@ -296,16 +296,16 @@ export function EditProductDialog({
           <input type="hidden" name="productId" value={product.id} />
 
           {state?.error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
 
           <div className="grid gap-4">
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="ep-name">Product name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="ep-name">Product name</Label>
+              <Input
                 id="ep-name"
                 name="name"
                 defaultValue={product.name ?? ""}
@@ -314,8 +314,8 @@ export function EditProductDialog({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-1.5">
-                <ZoruLabel htmlFor="ep-price">Price</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="ep-price">Price</Label>
+                <Input
                   id="ep-price"
                   name="price"
                   type="number"
@@ -324,8 +324,8 @@ export function EditProductDialog({
                 />
               </div>
               <div className="grid gap-1.5">
-                <ZoruLabel htmlFor="ep-currency">Currency</ZoruLabel>
-                <ZoruSelect
+                <Label htmlFor="ep-currency">Currency</Label>
+                <Select
                   name="currency"
                   defaultValue={product.currency ?? "USD"}
                 >
@@ -338,12 +338,12 @@ export function EditProductDialog({
                     <ZoruSelectItem value="INR">INR</ZoruSelectItem>
                     <ZoruSelectItem value="GBP">GBP</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="ep-desc">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="ep-desc">Description</Label>
+              <Textarea
                 id="ep-desc"
                 name="description"
                 rows={3}
@@ -351,7 +351,7 @@ export function EditProductDialog({
               />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="ep-image">Image URL</ZoruLabel>
+              <Label htmlFor="ep-image">Image URL</Label>
               <SabFileUrlInput
                 id="ep-image"
                 name="image_url"
@@ -363,18 +363,18 @@ export function EditProductDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <EditSubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -492,7 +492,7 @@ export function ViewTaggedMediaDialog({
   }, [open, product?.id, projectId]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-3xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -506,15 +506,15 @@ export function ViewTaggedMediaDialog({
           {isLoading ? (
             <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="aspect-square w-full" />
+                <Skeleton key={i} className="aspect-square w-full" />
               ))}
             </div>
           ) : error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertTitle>Could not load media</ZoruAlertTitle>
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : media.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
               {media.map((item) => (
@@ -557,6 +557,6 @@ export function ViewTaggedMediaDialog({
           )}
         </div>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

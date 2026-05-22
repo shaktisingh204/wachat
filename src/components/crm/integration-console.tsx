@@ -88,25 +88,25 @@ export interface ConnectionHeaderProps {
 function stateBadge(state: ConnectionState) {
   if (state === 'connected') {
     return (
-      <ZoruBadge variant="success" className="gap-1.5">
+      <Badge variant="success" className="gap-1.5">
         <CheckCircle2 className="h-3 w-3" />
         Connected
-      </ZoruBadge>
+      </Badge>
     );
   }
   if (state === 'error') {
     return (
-      <ZoruBadge variant="destructive" className="gap-1.5">
+      <Badge variant="destructive" className="gap-1.5">
         <AlertCircle className="h-3 w-3" />
         Error
-      </ZoruBadge>
+      </Badge>
     );
   }
   return (
-    <ZoruBadge variant="ghost" className="gap-1.5">
+    <Badge variant="ghost" className="gap-1.5">
       <Clock className="h-3 w-3" />
       Disconnected
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -127,7 +127,7 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
   } = props;
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
@@ -148,7 +148,7 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
           </div>
           <div className="flex flex-wrap gap-2">
             {onTest ? (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={onTest}
@@ -160,10 +160,10 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
                   <Play className="h-4 w-4" />
                 )}
                 Test connection
-              </ZoruButton>
+              </Button>
             ) : null}
             {state === 'connected' && onDisconnect ? (
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={onDisconnect}
@@ -175,21 +175,21 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
                   <Unplug className="h-4 w-4" />
                 )}
                 Disconnect
-              </ZoruButton>
+              </Button>
             ) : null}
             {state !== 'connected' && connectAction ? connectAction : null}
             {state !== 'connected' && !connectAction ? (
-              <ZoruButton type="button" variant="outline" disabled>
+              <Button type="button" variant="outline" disabled>
                 <PlugZap className="h-4 w-4" />
                 Not connected
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         </div>
 
         {connectedAs || connectedAt || (scopes && scopes.length) ? (
           <>
-            <ZoruSeparator className="my-4" />
+            <Separator className="my-4" />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 text-sm">
               <div>
                 <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
@@ -214,9 +214,9 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
                 <div className="mt-1 flex flex-wrap gap-1">
                   {scopes && scopes.length ? (
                     scopes.map((s) => (
-                      <ZoruBadge key={s} variant="secondary" className="font-normal">
+                      <Badge key={s} variant="secondary" className="font-normal">
                         {s}
-                      </ZoruBadge>
+                      </Badge>
                     ))
                   ) : (
                     <span className="text-zoru-ink-muted">—</span>
@@ -227,7 +227,7 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
           </>
         ) : null}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -241,7 +241,7 @@ export function IntegrationKpiGrid({
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {kpis.map((k) => (
-        <ZoruStatCard
+        <StatCard
           key={String(k.label)}
           label={k.label}
           value={k.value}
@@ -282,7 +282,7 @@ export function IntegrationActivityFeed({
   emptyMessage = 'No activity yet.',
 }: IntegrationActivityFeedProps): React.ReactElement {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="p-5">
         <div className="mb-3 flex items-center gap-2">
           <Activity className="h-4 w-4 text-zoru-ink-muted" />
@@ -296,7 +296,7 @@ export function IntegrationActivityFeed({
             {emptyMessage}
           </div>
         ) : (
-          <ZoruScrollArea className="max-h-[320px] pr-3">
+          <ScrollArea className="max-h-[320px] pr-3">
             <ul className="space-y-2">
               {events.map((e) => (
                 <li
@@ -309,7 +309,7 @@ export function IntegrationActivityFeed({
                       <span className="text-[13px] font-medium text-zoru-ink capitalize">
                         {e.kind}
                       </span>
-                      <ZoruBadge
+                      <Badge
                         variant={
                           e.status === 'success'
                             ? 'success'
@@ -320,11 +320,11 @@ export function IntegrationActivityFeed({
                         className="font-normal"
                       >
                         {e.status}
-                      </ZoruBadge>
+                      </Badge>
                       {typeof e.count === 'number' ? (
-                        <ZoruBadge variant="secondary" className="font-normal">
+                        <Badge variant="secondary" className="font-normal">
                           {e.count} item{e.count === 1 ? '' : 's'}
-                        </ZoruBadge>
+                        </Badge>
                       ) : null}
                     </div>
                     {e.message ? (
@@ -342,10 +342,10 @@ export function IntegrationActivityFeed({
                 </li>
               ))}
             </ul>
-          </ZoruScrollArea>
+          </ScrollArea>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -407,7 +407,7 @@ export function IntegrationSection({
   actions,
 }: IntegrationSectionProps): React.ReactElement {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
           <div>
@@ -420,6 +420,6 @@ export function IntegrationSection({
         </div>
         {children}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

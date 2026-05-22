@@ -36,34 +36,34 @@ function LoadingSkeleton() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <ZoruSkeleton className="h-8 w-1/3" />
-                <ZoruSkeleton className="h-4 w-2/3 mt-2" />
+                <Skeleton className="h-8 w-1/3" />
+                <Skeleton className="h-4 w-2/3 mt-2" />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
-                        <ZoruSkeleton className="h-6 w-1/4" />
+                        <Skeleton className="h-6 w-1/4" />
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="space-y-4">
-                            <ZoruSkeleton className="h-6 w-full" />
-                            <ZoruSkeleton className="h-6 w-full" />
-                            <ZoruSkeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader>
-                        <ZoruSkeleton className="h-6 w-1/4" />
-                        <ZoruSkeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-6 w-1/4" />
+                        <Skeleton className="h-4 w-1/2" />
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="space-y-4">
-                            <ZoruSkeleton className="h-6 w-full" />
-                            <ZoruSkeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );
@@ -113,13 +113,13 @@ export default function ProjectInformationPage() {
                     <h1 className="text-3xl font-bold font-headline">Project Information</h1>
                     <p className="text-muted-foreground">General and technical details about your project.</p>
                 </div>
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
                     <ZoruAlertDescription>
                         Please select a project from the main dashboard page to see its information.
                     </ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -135,7 +135,7 @@ export default function ProjectInformationPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle className="flex items-center gap-2">
                             <Briefcase className="h-5 w-5" />
@@ -149,14 +149,14 @@ export default function ProjectInformationPage() {
                             <InfoRow label="Project ID" value={<span className="font-mono text-sm break-all">{project._id.toString()}</span>} />
                             <InfoRow label="Created At" value={new Date(project.createdAt).toLocaleString()} />
                             <InfoRow label="Account Review" value={
-                                <ZoruBadge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize">
+                                <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize">
                                     {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
-                                </ZoruBadge>
+                                </Badge>
                             } />
                             {businessCaps && (
                                 <>
                                     <div className="pt-2" />
-                                    <ZoruSeparator />
+                                    <Separator />
                                     <div className="pt-2" />
                                     <InfoRow label="Daily Conversation Limit" value={businessCaps.max_daily_conversation_per_phone?.toLocaleString() ?? 'N/A'} />
                                     <InfoRow label="Phone Number Limit" value={businessCaps.max_phone_numbers_per_business?.toLocaleString() ?? 'N/A'} />
@@ -164,9 +164,9 @@ export default function ProjectInformationPage() {
                             )}
                         </dl>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle className="flex items-center gap-2">
                             <Banknote className="h-5 w-5" />
@@ -180,7 +180,7 @@ export default function ProjectInformationPage() {
                                 <InfoRow label="Provider Name" value={<span className="capitalize">{paymentConfig.provider_name}</span>} />
                                 <InfoRow label="Configuration Name" value={paymentConfig.configuration_name} />
                                 <InfoRow label="Provider MID" value={<span className="font-mono text-sm break-all">{paymentConfig.provider_mid}</span>} />
-                                <InfoRow label="Status" value={<ZoruBadge variant={paymentConfig.status === 'Needs_Testing' ? 'secondary' : 'default'}>{paymentConfig.status}</ZoruBadge>} />
+                                <InfoRow label="Status" value={<Badge variant={paymentConfig.status === 'Needs_Testing' ? 'secondary' : 'default'}>{paymentConfig.status}</Badge>} />
                                 <InfoRow label="Last Updated" value={new Date(paymentConfig.updated_timestamp * 1000).toLocaleString()} />
                             </dl>
                         ) : (
@@ -189,7 +189,7 @@ export default function ProjectInformationPage() {
                             </div>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

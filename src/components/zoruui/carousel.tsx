@@ -72,7 +72,7 @@ export function ZoruCarousel({
       </div>
       {showArrows && (
         <>
-          <ZoruButton
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Previous"
@@ -81,8 +81,8 @@ export function ZoruCarousel({
             className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-zoru-bg shadow-[var(--zoru-shadow-sm)] disabled:opacity-0"
           >
             <ChevronLeft />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Next"
@@ -91,7 +91,7 @@ export function ZoruCarousel({
             className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-zoru-bg shadow-[var(--zoru-shadow-sm)] disabled:opacity-0"
           >
             <ChevronRight />
-          </ZoruButton>
+          </Button>
         </>
       )}
     </div>

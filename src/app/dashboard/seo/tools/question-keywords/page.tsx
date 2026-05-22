@@ -32,16 +32,16 @@ export default function QuestionKeywordsPage() {
   return (
     <ToolShell title="Question Keywords" description="Generate question-style keyword variants from a seed term.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <ZoruButton onClick={run}>Generate Questions</ZoruButton>
+        <Button onClick={run}>Generate Questions</Button>
       </div>
       {results.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4">
             <ul className="space-y-2 text-sm">
               {results.map((r) => (
@@ -49,7 +49,7 @@ export default function QuestionKeywordsPage() {
               ))}
             </ul>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

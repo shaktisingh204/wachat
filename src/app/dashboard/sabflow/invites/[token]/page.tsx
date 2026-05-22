@@ -49,7 +49,7 @@ export default async function Page({
   if (!invite) {
     return (
       <InvitePanel>
-        <ZoruEmptyState
+        <EmptyState
           icon={<MailX />}
           title="Invite not found"
           description="This invite link is invalid or has been revoked."
@@ -61,7 +61,7 @@ export default async function Page({
   if (invite.acceptedAt) {
     return (
       <InvitePanel>
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert />}
           title="Invite already used"
           description="This invite has already been accepted."
@@ -73,7 +73,7 @@ export default async function Page({
   if (invite.expiresAt.getTime() < Date.now()) {
     return (
       <InvitePanel>
-        <ZoruEmptyState
+        <EmptyState
           icon={<Hourglass />}
           title="Invite expired"
           description="Ask the workspace admin to send you a new invite."
@@ -112,7 +112,7 @@ export default async function Page({
 function InvitePanel({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -128,7 +128,7 @@ function InvitePanel({ children }: { children: React.ReactNode }) {
             <ZoruBreadcrumbPage>Workspace invite</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mx-auto w-full max-w-md">{children}</div>
     </div>

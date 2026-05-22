@@ -483,28 +483,28 @@ export default function TelegramAdsPage() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+                    <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
                         <Upload className="h-3.5 w-3.5" />
                         Import CSV
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" onClick={runExport}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={runExport}>
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={openCreate} disabled={!projectId}>
+                    </Button>
+                    <Button size="sm" onClick={openCreate} disabled={!projectId}>
                         <Plus className="h-3.5 w-3.5" />
                         New campaign
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             {!projectId ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="flex items-center gap-2 text-zoru-ink-muted">
                         <AlertCircle className="h-4 w-4" />
                         <span className="text-sm">Select a project to view Telegram ad campaigns.</span>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* KPI cards */}
@@ -532,7 +532,7 @@ export default function TelegramAdsPage() {
             </div>
 
             {/* Chart */}
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <div className="mb-2 flex items-center justify-between gap-3">
                     <div>
                         <h2 className="text-[14px] text-zoru-ink">Performance over time</h2>
@@ -542,7 +542,7 @@ export default function TelegramAdsPage() {
                     </div>
                 </div>
                 {analyticsLoading ? (
-                    <ZoruSkeleton className="h-[280px] w-full" />
+                    <Skeleton className="h-[280px] w-full" />
                 ) : analytics && analytics.byDay.length > 0 ? (
                     <ZoruChartContainer height={280}>
                         <ComposedChart data={analytics.byDay} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
@@ -582,14 +582,14 @@ export default function TelegramAdsPage() {
                         No data in the selected range.
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Filter bar */}
-            <ZoruCard className="p-3">
+            <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative flex-1 min-w-[220px]">
                         <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
-                        <ZoruInput
+                        <Input
                             placeholder="Search name, notes, platform ID"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -597,7 +597,7 @@ export default function TelegramAdsPage() {
                         />
                     </div>
                     <div className="min-w-[150px]">
-                        <ZoruSelect value={status} onValueChange={(v) => setStatus(v as StatusFilter)}>
+                        <Select value={status} onValueChange={(v) => setStatus(v as StatusFilter)}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -608,7 +608,7 @@ export default function TelegramAdsPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="min-w-[260px]">
                         <ZoruDateRangePicker
@@ -617,20 +617,20 @@ export default function TelegramAdsPage() {
                         />
                     </div>
                     {selected.size > 0 ? (
-                        <ZoruButton variant="outline" size="sm" onClick={() => setBulkDeleteOpen(true)}>
+                        <Button variant="outline" size="sm" onClick={() => setBulkDeleteOpen(true)}>
                             <Trash2 className="h-3.5 w-3.5" />
                             Delete {selected.size}
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Table */}
-            <ZoruCard className="overflow-hidden">
+            <Card className="overflow-hidden">
                 {loading ? (
                     <div className="flex flex-col gap-2 p-4">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-9 w-full" />
+                            <Skeleton key={i} className="h-9 w-full" />
                         ))}
                     </div>
                 ) : error ? (
@@ -639,15 +639,15 @@ export default function TelegramAdsPage() {
                         {error}
                     </div>
                 ) : rows.length === 0 ? (
-                    <ZoruEmptyState
+                    <EmptyState
                         title="No campaigns yet"
                         description="Track Telegram Ads campaigns by adding them here or importing a CSV from ads.telegram.org."
                         icon={<Megaphone className="h-5 w-5" />}
                         action={
-                            <ZoruButton size="sm" onClick={openCreate} disabled={!projectId}>
+                            <Button size="sm" onClick={openCreate} disabled={!projectId}>
                                 <Plus className="h-3.5 w-3.5" />
                                 New campaign
-                            </ZoruButton>
+                            </Button>
                         }
                     />
                 ) : (
@@ -656,7 +656,7 @@ export default function TelegramAdsPage() {
                             <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
                                 <tr>
                                     <th className="w-10 p-3">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                             onCheckedChange={(v) => toggleAll(!!v)}
                                         />
@@ -682,7 +682,7 @@ export default function TelegramAdsPage() {
                                             className="group border-b border-zoru-line/60 last:border-b-0 hover:bg-zoru-surface-2/40"
                                         >
                                             <td className="p-3">
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     checked={checked}
                                                     onCheckedChange={(v) =>
                                                         setSelected((prev) => {
@@ -703,9 +703,9 @@ export default function TelegramAdsPage() {
                                                 ) : null}
                                             </td>
                                             <td className="p-3">
-                                                <ZoruBadge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
+                                                <Badge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
                                                     {row.status}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </td>
                                             <td className="p-3 font-mono text-[12px] text-zoru-ink-muted">
                                                 {row.platformId || '—'}
@@ -723,30 +723,30 @@ export default function TelegramAdsPage() {
                                             </td>
                                             <td className="p-3">
                                                 <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         onClick={() => openUtm(row)}
                                                         title="UTM link"
                                                     >
                                                         <LinkIcon className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         onClick={() => openEdit(row)}
                                                         title="Edit"
                                                     >
                                                         <Pencil className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         onClick={() => setDeleteRow(row)}
                                                         title="Delete"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -764,7 +764,7 @@ export default function TelegramAdsPage() {
                             {data.total}
                         </span>
                         <div className="flex items-center gap-1">
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={page <= 1}
@@ -772,11 +772,11 @@ export default function TelegramAdsPage() {
                             >
                                 <ChevronLeft className="h-3.5 w-3.5" />
                                 Prev
-                            </ZoruButton>
+                            </Button>
                             <span className="px-2">
                                 Page {page} / {totalPages}
                             </span>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={!data.hasMore}
@@ -784,11 +784,11 @@ export default function TelegramAdsPage() {
                             >
                                 Next
                                 <ChevronRight className="h-3.5 w-3.5" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
             {/* Editor drawer */}
             <ZoruDrawer open={editorOpen} onOpenChange={setEditorOpen}>
@@ -803,7 +803,7 @@ export default function TelegramAdsPage() {
                     </ZoruDrawerHeader>
                     <div className="grid gap-3 px-6 pb-4 sm:grid-cols-2">
                         <Field label="Name">
-                            <ZoruInput
+                            <Input
                                 value={editorForm.name}
                                 onChange={(e) =>
                                     setEditorForm((f) => ({ ...f, name: e.target.value }))
@@ -812,7 +812,7 @@ export default function TelegramAdsPage() {
                             />
                         </Field>
                         <Field label="Status">
-                            <ZoruSelect
+                            <Select
                                 value={editorForm.status}
                                 onValueChange={(v) => setEditorForm((f) => ({ ...f, status: v }))}
                             >
@@ -826,10 +826,10 @@ export default function TelegramAdsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Platform ID">
-                            <ZoruInput
+                            <Input
                                 value={editorForm.platformId}
                                 onChange={(e) =>
                                     setEditorForm((f) => ({ ...f, platformId: e.target.value }))
@@ -838,7 +838,7 @@ export default function TelegramAdsPage() {
                             />
                         </Field>
                         <Field label="Budget (USD)">
-                            <ZoruInput
+                            <Input
                                 inputMode="decimal"
                                 value={editorForm.budgetDollars}
                                 onChange={(e) =>
@@ -848,7 +848,7 @@ export default function TelegramAdsPage() {
                             />
                         </Field>
                         <Field label="Impressions">
-                            <ZoruInput
+                            <Input
                                 inputMode="numeric"
                                 value={editorForm.impressions}
                                 onChange={(e) =>
@@ -857,7 +857,7 @@ export default function TelegramAdsPage() {
                             />
                         </Field>
                         <Field label="Clicks">
-                            <ZoruInput
+                            <Input
                                 inputMode="numeric"
                                 value={editorForm.clicks}
                                 onChange={(e) =>
@@ -867,7 +867,7 @@ export default function TelegramAdsPage() {
                         </Field>
                         <div className="sm:col-span-2">
                             <Field label="Landing URL">
-                                <ZoruInput
+                                <Input
                                     type="url"
                                     value={editorForm.landingUrl}
                                     onChange={(e) =>
@@ -879,7 +879,7 @@ export default function TelegramAdsPage() {
                         </div>
                         <div className="sm:col-span-2">
                             <Field label="Notes">
-                                <ZoruTextarea
+                                <Textarea
                                     rows={3}
                                     value={editorForm.notes}
                                     onChange={(e) =>
@@ -896,19 +896,19 @@ export default function TelegramAdsPage() {
                         ) : null}
                     </div>
                     <div className="flex justify-end gap-2 px-6 pb-6">
-                        <ZoruButton variant="outline" size="sm" onClick={() => setEditorOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setEditorOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={saveEditor} disabled={savingEditor}>
+                        </Button>
+                        <Button size="sm" onClick={saveEditor} disabled={savingEditor}>
                             {savingEditor ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruDrawerContent>
             </ZoruDrawer>
 
             {/* Import dialog */}
-            <ZoruDialog open={importOpen} onOpenChange={setImportOpen}>
+            <Dialog open={importOpen} onOpenChange={setImportOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Import campaigns from CSV</ZoruDialogTitle>
@@ -929,7 +929,7 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             </pre>
                         </div>
                         <div>
-                            <ZoruSelect
+                            <Select
                                 value={importMode}
                                 onValueChange={(v) => setImportMode(v as 'append' | 'replace_stats')}
                             >
@@ -942,9 +942,9 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                                         Replace stats
                                     </ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
-                        <ZoruTextarea
+                        <Textarea
                             value={importCsv}
                             onChange={(e) => setImportCsv(e.target.value)}
                             rows={10}
@@ -953,19 +953,19 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                         />
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setImportOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runImport} disabled={importing}>
+                        </Button>
+                        <Button size="sm" onClick={runImport} disabled={importing}>
                             {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Import
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* UTM dialog */}
-            <ZoruDialog open={utmOpen} onOpenChange={setUtmOpen}>
+            <Dialog open={utmOpen} onOpenChange={setUtmOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>UTM link</ZoruDialogTitle>
@@ -978,7 +978,7 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             This campaign has no landing URL — add one to generate a UTM link.
                         </p>
                     ) : utmLoading ? (
-                        <ZoruSkeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
                     ) : utmResult ? (
                         <div className="space-y-3">
                             <code className="block break-all rounded-md border border-zoru-line bg-zoru-surface-2 p-2 font-mono text-[12px]">
@@ -995,19 +995,19 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                         </div>
                     ) : null}
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setUtmOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setUtmOpen(false)}>
                             Close
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={copyUtm} disabled={!utmResult}>
+                        </Button>
+                        <Button size="sm" onClick={copyUtm} disabled={!utmResult}>
                             <Copy className="h-3.5 w-3.5" />
                             {utmCopy ? 'Copied' : 'Copy'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Single-row delete confirm */}
-            <ZoruDialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
+            <Dialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete campaign?</ZoruDialogTitle>
@@ -1016,33 +1016,33 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
+                        <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={confirmDelete}>
+                        </Button>
+                        <Button size="sm" onClick={confirmDelete}>
                             Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Bulk delete confirm */}
-            <ZoruDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+            <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete {selected.size} campaigns?</ZoruDialogTitle>
                         <ZoruDialogDescription>This cannot be undone.</ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setBulkDeleteOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setBulkDeleteOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={confirmBulkDelete}>
+                        </Button>
+                        <Button size="sm" onClick={confirmBulkDelete}>
                             Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }
@@ -1057,18 +1057,18 @@ function KpiCard({
     loading: boolean;
 }) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
                     {label}
                 </p>
                 {loading ? (
-                    <ZoruSkeleton className="h-7 w-24" />
+                    <Skeleton className="h-7 w-24" />
                 ) : (
                     <p className="text-2xl font-semibold tracking-tight text-zoru-ink">{value}</p>
                 )}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 

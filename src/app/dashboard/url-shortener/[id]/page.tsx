@@ -86,17 +86,17 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
   if (!shortUrl) {
     return (
       <div className="flex min-h-full flex-col gap-6">
-        <ZoruCard className="p-10 text-center">
+        <Card className="p-10 text-center">
           <LinkIcon className="mx-auto h-10 w-10 text-zoru-ink-muted/40 mb-4" />
           <h3 className="text-sm text-zoru-ink mb-1">Link not found</h3>
           <p className="text-xs text-zoru-ink-muted mb-4">This short link does not exist or you do not have access to it.</p>
-          <ZoruButton variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/url-shortener">
               <ArrowLeft className="h-3.5 w-3.5" />
               Back to All Links
             </Link>
-          </ZoruButton>
-        </ZoruCard>
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
   return (
     <div className="flex min-h-full flex-col gap-6">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
@@ -131,10 +131,10 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
             <ZoruBreadcrumbPage>{shortUrl.shortCode}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -184,15 +184,15 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
               resourceId={shortUrl._id.toString()}
               resourceName={shortUrl.shortCode}
             />
-            <ZoruButton variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/url-shortener">
                 <ArrowLeft className="h-3.5 w-3.5" />
                 All Links
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Summary Cards */}
       <AnalyticsSummaryCards
@@ -215,7 +215,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
           </div>
         }
         settingsSlot={
-          <ZoruCard className="p-5">
+          <Card className="p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Settings className="h-4 w-4 text-zoru-ink-muted" />
@@ -300,7 +300,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
                 </>
               )}
             </dl>
-          </ZoruCard>
+          </Card>
         }
       />
     </div>

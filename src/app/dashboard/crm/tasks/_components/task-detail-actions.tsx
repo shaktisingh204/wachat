@@ -48,13 +48,13 @@ export function TaskDetailActions({ taskId, status }: TaskDetailActionsProps) {
     return (
         <>
             {status !== 'Completed' ? (
-                <ZoruButton variant="outline" onClick={handleComplete}>
+                <Button variant="outline" onClick={handleComplete}>
                     <CheckCircle2 className="mr-2 h-4 w-4" /> Complete
-                </ZoruButton>
+                </Button>
             ) : null}
-            <ZoruButton variant="outline" onClick={() => setDeleteOpen(true)}>
+            <Button variant="outline" onClick={() => setDeleteOpen(true)}>
                 <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={deleteOpen}

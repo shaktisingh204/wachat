@@ -338,19 +338,19 @@ export function PromotionListClient({
         />
       </div>
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {/* Filters bar */}
         <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
           <div className="relative max-w-sm flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-            <ZoruInput
+            <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by name, code, description…"
               className="h-9 pl-9 text-[13px]"
             />
           </div>
-          <ZoruSelect
+          <Select
             value={initialStatus || '__all'}
             onValueChange={(v) =>
               pushParams({ status: v === '__all' ? undefined : v, page: '1' })
@@ -366,8 +366,8 @@ export function PromotionListClient({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruSelect
+          </Select>
+          <Select
             value={initialType || '__all'}
             onValueChange={(v) =>
               pushParams({ type: v === '__all' ? undefined : v, page: '1' })
@@ -383,16 +383,16 @@ export function PromotionListClient({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
           <details className="relative">
             <summary className="list-none">
-              <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+              <Button variant="outline" size="sm" className="h-9 text-[12.5px]">
                 <CalendarRange className="h-3.5 w-3.5" /> Validity range
-              </ZoruButton>
+              </Button>
             </summary>
             <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
               <label className="text-[11px] text-zoru-ink-muted">Valid from</label>
-              <ZoruInput
+              <Input
                 type="date"
                 value={initialDateFrom}
                 onChange={(e) =>
@@ -401,7 +401,7 @@ export function PromotionListClient({
                 className="h-8 text-[12.5px]"
               />
               <label className="text-[11px] text-zoru-ink-muted">Valid to</label>
-              <ZoruInput
+              <Input
                 type="date"
                 value={initialDateTo}
                 onChange={(e) =>
@@ -412,14 +412,14 @@ export function PromotionListClient({
             </div>
           </details>
           {hasActive ? (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={clearAllFilters}
               className="ml-auto text-[12px] text-zoru-ink-muted"
             >
               <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
 
@@ -434,11 +434,11 @@ export function PromotionListClient({
         {selected.size > 0 ? (
           <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px]">
             <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-            <ZoruButton variant="ghost" size="sm" onClick={clearSelection}>
+            <Button variant="ghost" size="sm" onClick={clearSelection}>
               <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
             <span className="mx-1 h-4 w-px bg-zoru-line" />
-            <ZoruSelect onValueChange={(v) => bulkStatus(v as CrmPromotionStatus)}>
+            <Select onValueChange={(v) => bulkStatus(v as CrmPromotionStatus)}>
               <ZoruSelectTrigger className="h-8 w-[150px] text-[12px]">
                 <ZoruSelectValue placeholder="Change status…" />
               </ZoruSelectTrigger>
@@ -448,29 +448,29 @@ export function PromotionListClient({
                 <ZoruSelectItem value="archived">Archive</ZoruSelectItem>
                 <ZoruSelectItem value="expired">Expire</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruButton variant="outline" size="sm" onClick={bulkExportCsv}>
+            </Select>
+            <Button variant="outline" size="sm" onClick={bulkExportCsv}>
               <Download className="h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={bulkExportXlsx}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={bulkExportXlsx}>
               <Download className="h-3.5 w-3.5" /> Export XLSX
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setPendingBulkDelete(true)}
               className="text-zoru-danger-ink"
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
           </div>
         ) : null}
 
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead className="w-[36px]">
-                <ZoruCheckbox
+                <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
@@ -503,7 +503,7 @@ export function PromotionListClient({
                 return (
                   <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleOne(id)}
                         aria-label={`Select ${row.name}`}
@@ -520,7 +520,7 @@ export function PromotionListClient({
                       {row.code ?? '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant="outline">{row.type}</ZoruBadge>
+                      <Badge variant="outline">{row.type}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
                       {fmtValue(row)}
@@ -533,23 +533,23 @@ export function PromotionListClient({
                       {row.maxUses ? ` / ${row.maxUses}` : ''}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={tone}>{row.status}</ZoruBadge>
+                      <Badge variant={tone}>{row.status}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton size="sm" variant="ghost" asChild>
+                        <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/sales/promotions/${id}/edit`}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(row)}
                           className="text-zoru-danger-ink"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -557,10 +557,10 @@ export function PromotionListClient({
               })
             )}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-      </ZoruCard>
+      </Card>
 
       <ZoruAlertDialog
         open={pendingDelete !== null}

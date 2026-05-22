@@ -30,7 +30,7 @@ export function ZoruFilePreviewDialog({
   const previewUrl = file ? file.url ?? file.thumbnailUrl ?? `/api/sabfiles/preview/${file.id}` : undefined;
 
   return (
-    <ZoruDialog open={!!file} onOpenChange={onOpenChange}>
+    <Dialog open={!!file} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-3xl">
         {file && (
           <>
@@ -86,7 +86,7 @@ export function ZoruFilePreviewDialog({
           </>
         )}
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

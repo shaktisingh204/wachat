@@ -61,12 +61,12 @@ export interface TasksFiltersRowProps {
 
 export function TasksFiltersRow(props: TasksFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="taskStatusLegacy"
                         value={props.statusFilter}
@@ -76,9 +76,9 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Priority
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="priorityLegacy"
                         value={props.priorityFilter || 'all'}
@@ -90,9 +90,9 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Type
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="taskType"
                         value={props.typeFilter || 'all'}
@@ -104,9 +104,9 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Assignee
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="user"
                         name="assigneeFilter"
@@ -117,9 +117,9 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Linked to
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="linkedEntityKind"
                         value={props.linkedKindFilter || 'all'}
@@ -133,9 +133,9 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Due
-                    </ZoruLabel>
+                    </Label>
                     <ZoruDateRangePicker
                         value={props.dateRange}
                         onChange={(r) => props.onDateRangeChange(r)}
@@ -144,13 +144,13 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-6">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -180,16 +180,16 @@ export function TasksBulkBar({
 
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="info">{count} selected</ZoruBadge>
-            <ZoruButton size="sm" variant="outline" onClick={onComplete}>
+            <Badge variant="info">{count} selected</Badge>
+            <Button size="sm" variant="outline" onClick={onComplete}>
                 <CheckCircle2 className="h-3.5 w-3.5" /> Mark complete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onSnoozeDay}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onSnoozeDay}>
                 <Clock className="h-3.5 w-3.5" /> Snooze +1d
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onSnoozeWeek}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onSnoozeWeek}>
                 <MoonStar className="h-3.5 w-3.5" /> Snooze +1w
-            </ZoruButton>
+            </Button>
             {assignOpen ? (
                 <div className="flex items-center gap-1">
                     <div className="w-48">
@@ -201,7 +201,7 @@ export function TasksBulkBar({
                             onChange={(next) => setAssignTarget(next ?? '')}
                         />
                     </div>
-                    <ZoruButton
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={() => {
@@ -213,25 +213,25 @@ export function TasksBulkBar({
                         }}
                     >
                         Assign
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="ghost" onClick={() => setAssignOpen(false)}>
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setAssignOpen(false)}>
                         <X className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                 </div>
             ) : (
-                <ZoruButton size="sm" variant="outline" onClick={() => setAssignOpen(true)}>
+                <Button size="sm" variant="outline" onClick={() => setAssignOpen(true)}>
                     <UserPlus className="h-3.5 w-3.5" /> Assign to…
-                </ZoruButton>
+                </Button>
             )}
-            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+            <Button size="sm" variant="outline" onClick={onExport}>
                 Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+            </Button>
+            <Button size="sm" variant="destructive" onClick={onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

@@ -134,7 +134,7 @@ export default function ConversationFiltersPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -148,7 +148,7 @@ export default function ConversationFiltersPage() {
             <ZoruBreadcrumbPage>Conversation Filters</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-center justify-between">
         <div>
@@ -159,9 +159,9 @@ export default function ConversationFiltersPage() {
             Create saved filter presets to quickly find conversations.
           </p>
         </div>
-        <ZoruButton size="sm" onClick={() => setShowSheet(true)}>
+        <Button size="sm" onClick={() => setShowSheet(true)}>
           <Plus /> New Filter
-        </ZoruButton>
+        </Button>
       </div>
 
       {filters.length > 0 ? (
@@ -169,7 +169,7 @@ export default function ConversationFiltersPage() {
           {filters.map((f) => {
             const c = f.conditions || {};
             return (
-              <ZoruCard key={f._id} className="p-5">
+              <Card key={f._id} className="p-5">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-[15px] text-zoru-ink">{f.name}</h3>
                   <button
@@ -182,17 +182,17 @@ export default function ConversationFiltersPage() {
                   </button>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {c.status && <ZoruBadge variant="secondary">{c.status}</ZoruBadge>}
-                  {c.tag && <ZoruBadge variant="info">{c.tag}</ZoruBadge>}
-                  {c.agent && <ZoruBadge variant="secondary">{c.agent}</ZoruBadge>}
+                  {c.status && <Badge variant="secondary">{c.status}</Badge>}
+                  {c.tag && <Badge variant="info">{c.tag}</Badge>}
+                  {c.agent && <Badge variant="secondary">{c.agent}</Badge>}
                   {(c.dateFrom || c.dateTo) && (
-                    <ZoruBadge variant="secondary">
+                    <Badge variant="secondary">
                       {c.dateFrom || '...'} - {c.dateTo || '...'}
-                    </ZoruBadge>
+                    </Badge>
                   )}
                 </div>
                 <div className="mt-3">
-                  <ZoruButton
+                  <Button
                     size="sm"
                     variant="ghost"
                     onClick={() =>
@@ -203,27 +203,27 @@ export default function ConversationFiltersPage() {
                     }
                   >
                     <Play /> Apply
-                  </ZoruButton>
+                  </Button>
                 </div>
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Filter />}
           title="No saved filters yet"
           description="Save common search criteria to quickly find conversations."
           action={
-            <ZoruButton size="sm" onClick={() => setShowSheet(true)}>
+            <Button size="sm" onClick={() => setShowSheet(true)}>
               <Plus /> Create your first filter
-            </ZoruButton>
+            </Button>
           }
         />
       )}
 
       {/* Create-filter sheet */}
-      <ZoruSheet open={showSheet} onOpenChange={setShowSheet}>
+      <Sheet open={showSheet} onOpenChange={setShowSheet}>
         <ZoruSheetContent side="right" className="w-full sm:max-w-md">
           <ZoruSheetHeader>
             <ZoruSheetTitle>Create filter</ZoruSheetTitle>
@@ -234,8 +234,8 @@ export default function ConversationFiltersPage() {
 
           <div className="mt-5 grid gap-3">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="filter-name">Filter name *</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="filter-name">Filter name *</Label>
+              <Input
                 id="filter-name"
                 placeholder="My filter"
                 value={form.name}
@@ -243,8 +243,8 @@ export default function ConversationFiltersPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Status</ZoruLabel>
-              <ZoruSelect
+              <Label>Status</Label>
+              <Select
                 value={form.status}
                 onValueChange={(v) => setForm({ ...form, status: v })}
               >
@@ -257,11 +257,11 @@ export default function ConversationFiltersPage() {
                   <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
                   <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="filter-tag">Tag</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="filter-tag">Tag</Label>
+              <Input
                 id="filter-tag"
                 placeholder="e.g. priority"
                 value={form.tag}
@@ -269,8 +269,8 @@ export default function ConversationFiltersPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Agent</ZoruLabel>
-              <ZoruSelect
+              <Label>Agent</Label>
+              <Select
                 value={form.agent}
                 onValueChange={(v) => setForm({ ...form, agent: v })}
               >
@@ -281,12 +281,12 @@ export default function ConversationFiltersPage() {
                   <ZoruSelectItem value="unassigned">Unassigned</ZoruSelectItem>
                   <ZoruSelectItem value="me">Assigned to me</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="filter-from">From</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="filter-from">From</Label>
+                <Input
                   id="filter-from"
                   type="date"
                   value={form.dateFrom}
@@ -294,8 +294,8 @@ export default function ConversationFiltersPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="filter-to">To</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="filter-to">To</Label>
+                <Input
                   id="filter-to"
                   type="date"
                   value={form.dateTo}
@@ -306,23 +306,23 @@ export default function ConversationFiltersPage() {
           </div>
 
           <ZoruSheetFooter className="mt-6">
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setShowSheet(false)}
               disabled={isMutating}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={handleCreate}
               disabled={!form.name.trim() || isMutating}
             >
               {isMutating ? <Loader2 className="animate-spin" /> : null}
               Save Filter
-            </ZoruButton>
+            </Button>
           </ZoruSheetFooter>
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       <div className="h-6" />
     </div>

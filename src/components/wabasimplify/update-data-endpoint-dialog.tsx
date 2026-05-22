@@ -30,10 +30,10 @@ const initialState = { message: null, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Link className="mr-2 h-4 w-4" />}
       Update Endpoint
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -61,12 +61,12 @@ export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateD
   }, [state, toast, onSuccess, setOpen]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
             <Settings className="mr-2 h-4 w-4"/>
             Data Endpoint
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
@@ -80,16 +80,16 @@ export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateD
           </ZoruDialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="dataEndpointUrl">Endpoint URL</ZoruLabel>
-              <ZoruInput id="dataEndpointUrl" name="dataEndpointUrl" placeholder="https://your-api.com/whatsapp-data" required />
+              <Label htmlFor="dataEndpointUrl">Endpoint URL</Label>
+              <Input id="dataEndpointUrl" name="dataEndpointUrl" placeholder="https://your-api.com/whatsapp-data" required />
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

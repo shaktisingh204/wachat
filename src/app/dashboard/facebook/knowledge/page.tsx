@@ -193,7 +193,7 @@ export default function KnowledgeBasePage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<BookOpen />}
           title="No project selected"
           description="Pick a project to manage its knowledge base."
@@ -204,7 +204,7 @@ export default function KnowledgeBasePage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -218,7 +218,7 @@ export default function KnowledgeBasePage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Knowledge Base</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -229,10 +229,10 @@ export default function KnowledgeBasePage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
+          </Button>
           <SabFilePickerButton
             accept="document"
             onPick={onPick}
@@ -244,21 +244,21 @@ export default function KnowledgeBasePage(): React.JSX.Element {
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load documents</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {loading && docs.length === 0 ? (
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-16 w-full" />
-          <ZoruSkeleton className="h-16 w-full" />
-          <ZoruSkeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
         </div>
       ) : docs.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<BookOpen />}
           title="No knowledge documents yet"
           description="Upload PDFs, text files, or docs to give your agents source material."
@@ -274,7 +274,7 @@ export default function KnowledgeBasePage(): React.JSX.Element {
             const id = docId(d);
             return (
               <li key={id || d.title}>
-                <ZoruCard className="flex items-center gap-3 p-3">
+                <Card className="flex items-center gap-3 p-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-zoru-surface-2 text-zoru-ink-muted">
                     <FileText className="h-5 w-5" />
                   </div>
@@ -289,19 +289,19 @@ export default function KnowledgeBasePage(): React.JSX.Element {
                     </div>
                   </div>
                   {d.status ? (
-                    <ZoruBadge variant={statusVariant(d.status)} className="capitalize">
+                    <Badge variant={statusVariant(d.status)} className="capitalize">
                       {d.status}
-                    </ZoruBadge>
+                    </Badge>
                   ) : null}
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Delete document"
                     onClick={() => setConfirmDelete(d)}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </ZoruButton>
-                </ZoruCard>
+                  </Button>
+                </Card>
               </li>
             );
           })}
@@ -309,7 +309,7 @@ export default function KnowledgeBasePage(): React.JSX.Element {
       )}
 
       {/* ── Upload review dialog (opens after picking a SabFile) ── */}
-      <ZoruDialog
+      <Dialog
         open={!!pendingFile}
         onOpenChange={(open) => {
           if (!open) {
@@ -340,8 +340,8 @@ export default function KnowledgeBasePage(): React.JSX.Element {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="kb-title">Title</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="kb-title">Title</Label>
+                <Input
                   id="kb-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -352,7 +352,7 @@ export default function KnowledgeBasePage(): React.JSX.Element {
             </div>
           ) : null}
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => {
@@ -362,13 +362,13 @@ export default function KnowledgeBasePage(): React.JSX.Element {
               disabled={submitting}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="button" onClick={onUpload} disabled={submitting}>
+            </Button>
+            <Button type="button" onClick={onUpload} disabled={submitting}>
               {submitting ? 'Uploading…' : 'Add document'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Delete confirmation ── */}
       <ZoruAlertDialog

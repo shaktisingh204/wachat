@@ -116,10 +116,10 @@ export default function DirectoryPage() {
       subtitle="A read-only view of every employee in your organization."
       primaryAction={
         <Link href="/dashboard/hrm/payroll/employees">
-          <ZoruButton>
+          <Button>
             Manage Employees
             <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-          </ZoruButton>
+          </Button>
         </Link>
       }
     >
@@ -127,7 +127,7 @@ export default function DirectoryPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">
-          <ZoruInput
+          <Input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -136,22 +136,22 @@ export default function DirectoryPage() {
           />
         </div>
         <div className="flex items-center gap-1">
-          <ZoruButton
+          <Button
             variant={view === 'grid' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setView('grid')}
             aria-label="Grid view"
           >
             <LayoutGrid className="h-4 w-4" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant={view === 'list' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setView('list')}
             aria-label="List view"
           >
             <List className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -164,11 +164,11 @@ export default function DirectoryPage() {
           }
         >
           {[...Array(8)].map((_, i) => (
-            <ZoruSkeleton key={i} className={view === 'grid' ? 'h-48 w-full rounded-lg' : 'h-16 w-full'} />
+            <Skeleton key={i} className={view === 'grid' ? 'h-48 w-full rounded-lg' : 'h-16 w-full'} />
           ))}
         </div>
       ) : empty || failed ? (
-        <ZoruCard>
+        <Card>
           <div className="flex flex-col items-start gap-3 p-8">
             <h3 className="text-[15px] text-zoru-ink">No employees found</h3>
             <p className="max-w-xl text-[13px] text-zoru-ink-muted">
@@ -178,14 +178,14 @@ export default function DirectoryPage() {
             </p>
             {!q && (
               <Link href="/dashboard/hrm/payroll/employees">
-                <ZoruButton>
+                <Button>
                   Go to Employees
                   <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-                </ZoruButton>
+                </Button>
               </Link>
             )}
           </div>
-        </ZoruCard>
+        </Card>
       ) : view === 'grid' ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {rows.map((e) => {
@@ -196,7 +196,7 @@ export default function DirectoryPage() {
             const color = avatarColor(name);
             const variant = STATUS_VARIANTS[(e.status || '').toLowerCase()] || 'ghost';
             return (
-              <ZoruCard key={e._id}>
+              <Card key={e._id}>
                 <div className="flex flex-col gap-3 p-4">
                   {/* Avatar + status */}
                   <div className="flex items-start justify-between gap-2">
@@ -206,9 +206,9 @@ export default function DirectoryPage() {
                       {initials(name)}
                     </div>
                     {e.status && (
-                      <ZoruBadge variant={variant}>
+                      <Badge variant={variant}>
                         {e.status}
-                      </ZoruBadge>
+                      </Badge>
                     )}
                   </div>
 
@@ -261,13 +261,13 @@ export default function DirectoryPage() {
                     )}
                   </div>
                 </div>
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>
       ) : (
         /* List view — native table */
-        <ZoruCard>
+        <Card>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[13px]">
               <thead>
@@ -327,9 +327,9 @@ export default function DirectoryPage() {
                       </td>
                       <td className="px-4 py-3">
                         {e.status ? (
-                          <ZoruBadge variant={variant}>
+                          <Badge variant={variant}>
                             {e.status}
-                          </ZoruBadge>
+                          </Badge>
                         ) : (
                           '—'
                         )}
@@ -340,7 +340,7 @@ export default function DirectoryPage() {
               </tbody>
             </table>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* Result count */}

@@ -31,10 +31,10 @@ import { PersistentMenuForm } from "../../../_components/persistent-menu-form";
 function PageSkeleton() {
   return (
     <div className="space-y-6">
-      <ZoruSkeleton className="h-8 w-72" />
-      <ZoruSkeleton className="h-4 w-96" />
-      <ZoruSkeleton className="h-72 w-full" />
-      <ZoruSkeleton className="h-80 w-full" />
+      <Skeleton className="h-8 w-72" />
+      <Skeleton className="h-4 w-96" />
+      <Skeleton className="h-72 w-full" />
+      <Skeleton className="h-80 w-full" />
     </div>
   );
 }
@@ -69,22 +69,22 @@ export default function SettingsPage() {
 
   if (!shop) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
         <ZoruAlertDescription>
           The requested shop could not be loaded.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
   return (
     <div className="flex flex-col gap-8">
       <EcommSettingsForm shop={shop} domains={domains} />
-      <ZoruSeparator />
+      <Separator />
       <PersistentMenuForm shop={shop} />
-      <ZoruSeparator />
+      <Separator />
       <EcommCustomDomainForm />
     </div>
   );

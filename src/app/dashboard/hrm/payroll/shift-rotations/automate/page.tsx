@@ -112,12 +112,12 @@ export default function AutomateShiftPage() {
     >
 
       <form onSubmit={handleRun} className="flex flex-col gap-4">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-3 text-[16px] text-zoru-ink">Rotation &amp; Date Range</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Rotation</ZoruLabel>
-              <ZoruSelect value={rotationId} onValueChange={setRotationId}>
+              <Label className="text-[12px] text-zoru-ink-muted">Rotation</Label>
+              <Select value={rotationId} onValueChange={setRotationId}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Choose rotation" />
                 </ZoruSelectTrigger>
@@ -128,11 +128,11 @@ export default function AutomateShiftPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Start Date</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12px] text-zoru-ink-muted">Start Date</Label>
+              <Input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
@@ -140,8 +140,8 @@ export default function AutomateShiftPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">End Date</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[12px] text-zoru-ink-muted">End Date</Label>
+              <Input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
@@ -149,9 +149,9 @@ export default function AutomateShiftPage() {
               />
             </div>
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-3 text-[16px] text-zoru-ink">
             Employees ({selectedEmps.size} selected)
           </h2>
@@ -164,7 +164,7 @@ export default function AutomateShiftPage() {
                   key={id}
                   className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink"
                 >
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={on}
                     onCheckedChange={(v) => toggleEmp(id, Boolean(v))}
                   />
@@ -183,7 +183,7 @@ export default function AutomateShiftPage() {
               <div className="col-span-full text-[13px] text-zoru-ink-muted">No employees found.</div>
             ) : null}
           </div>
-        </ZoruCard>
+        </Card>
 
         {error ? (
           <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
@@ -197,17 +197,17 @@ export default function AutomateShiftPage() {
         ) : null}
 
         <div className="flex items-center justify-end">
-          <ZoruButton
+          <Button
             type="submit"
             disabled={pending}
           >
             <Play className="h-4 w-4" strokeWidth={1.75} />
             {pending ? 'Running…' : 'Run Rotation'}
-          </ZoruButton>
+          </Button>
         </div>
       </form>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">Recent Runs</h2>
         <div className="flex flex-col gap-2">
           {runs.length === 0 ? (
@@ -229,7 +229,7 @@ export default function AutomateShiftPage() {
                     {r.user_ids.length} employee{r.user_ids.length === 1 ? '' : 's'}
                   </div>
                 </div>
-                <ZoruBadge
+                <Badge
                   variant={
                     r.status === 'completed' || r.status === 'running'
                       ? 'success'
@@ -239,12 +239,12 @@ export default function AutomateShiftPage() {
                   }
                 >
                   {r.status}
-                </ZoruBadge>
+                </Badge>
               </div>
             ))
           )}
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

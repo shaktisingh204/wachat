@@ -31,14 +31,14 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <ZoruAlertDialogAction asChild>
-      <ZoruButton type="submit" variant="destructive" disabled={pending}>
+      <Button type="submit" variant="destructive" disabled={pending}>
         {pending ? (
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Trash2 className="mr-2 h-4 w-4" />
         )}
         Yes, Delete Project
-      </ZoruButton>
+      </Button>
     </ZoruAlertDialogAction>
   );
 }
@@ -67,9 +67,9 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
   return (
     <ZoruAlertDialog open={open} onOpenChange={setOpen}>
       <ZoruAlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <ZoruButton variant="ghost" size="icon" className="h-7 w-7">
+        <Button variant="ghost" size="icon" className="h-7 w-7">
           <Trash2 className="h-4 w-4 text-destructive" />
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <form action={formAction}>

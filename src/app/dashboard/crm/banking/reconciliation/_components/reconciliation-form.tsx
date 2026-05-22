@@ -53,14 +53,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create reconciliation'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -123,7 +123,7 @@ export function ReconciliationForm({
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -137,7 +137,7 @@ export function ReconciliationForm({
                 {/* Account + Period */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="accountId">Account *</ZoruLabel>
+                        <Label htmlFor="accountId">Account *</Label>
                         <EntityFormField
                             entity="bankAccount"
                             name="accountId"
@@ -148,8 +148,8 @@ export function ReconciliationForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="periodStart">Period start *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="periodStart">Period start *</Label>
+                        <Input
                             id="periodStart"
                             name="periodStart"
                             type="date"
@@ -158,8 +158,8 @@ export function ReconciliationForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="periodEnd">Period end *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="periodEnd">Period end *</Label>
+                        <Input
                             id="periodEnd"
                             name="periodEnd"
                             type="date"
@@ -172,8 +172,8 @@ export function ReconciliationForm({
                 {/* Balances */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="openingBalance">Opening balance</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="openingBalance">Opening balance</Label>
+                        <Input
                             id="openingBalance"
                             name="openingBalance"
                             type="number"
@@ -182,8 +182,8 @@ export function ReconciliationForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="closingBalance">Closing balance</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="closingBalance">Closing balance</Label>
+                        <Input
                             id="closingBalance"
                             name="closingBalance"
                             type="number"
@@ -196,8 +196,8 @@ export function ReconciliationForm({
                 {/* Counts + status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="matchedCount">Matched count</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="matchedCount">Matched count</Label>
+                        <Input
                             id="matchedCount"
                             name="matchedCount"
                             type="number"
@@ -206,8 +206,8 @@ export function ReconciliationForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="unmatchedCount">Unmatched count</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="unmatchedCount">Unmatched count</Label>
+                        <Input
                             id="unmatchedCount"
                             name="unmatchedCount"
                             type="number"
@@ -216,7 +216,7 @@ export function ReconciliationForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <Label htmlFor="status-trigger">Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="reconciliationStatus"
@@ -231,7 +231,7 @@ export function ReconciliationForm({
 
                 {/* Statement file (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Bank statement</ZoruLabel>
+                    <Label>Bank statement</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -251,14 +251,14 @@ export function ReconciliationForm({
                                 >
                                     {statementName || statementUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearStatement}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -270,8 +270,8 @@ export function ReconciliationForm({
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={4}
@@ -282,14 +282,14 @@ export function ReconciliationForm({
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to list
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

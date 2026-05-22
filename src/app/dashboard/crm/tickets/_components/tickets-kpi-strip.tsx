@@ -161,7 +161,7 @@ function KpiCard({
                 tone === 'danger' ? 'rounded-[var(--zoru-radius-lg)]' : '',
             ].join(' ')}
         >
-            <ZoruStatCard label={label} value={value} icon={icon} period={period} />
+            <StatCard label={label} value={value} icon={icon} period={period} />
         </button>
     );
 }

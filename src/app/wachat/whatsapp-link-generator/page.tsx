@@ -93,7 +93,7 @@ export default function WhatsAppLinkGeneratorPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -107,9 +107,9 @@ export default function WhatsAppLinkGeneratorPage() {
             <ZoruBreadcrumbPage>Link Generator</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-2">
+      <PageHeader className="mt-2">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat · Tools</ZoruPageEyebrow>
           <ZoruPageTitle>WhatsApp Link Generator</ZoruPageTitle>
@@ -117,16 +117,16 @@ export default function WhatsAppLinkGeneratorPage() {
             Generate wa.me links with pre-filled messages for easy sharing.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Form column */}
-        <ZoruCard className="flex flex-col gap-4 p-6">
+        <Card className="flex flex-col gap-4 p-6">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="link-phone">
+            <Label htmlFor="link-phone">
               Phone Number (with country code)
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="link-phone"
               type="tel"
               value={phone}
@@ -148,10 +148,10 @@ export default function WhatsAppLinkGeneratorPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="link-message">
+            <Label htmlFor="link-message">
               Pre-filled Message (optional)
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="link-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -170,44 +170,44 @@ export default function WhatsAppLinkGeneratorPage() {
                 Generated Link
               </div>
               <div className="flex items-center gap-2">
-                <ZoruInput
+                <Input
                   readOnly
                   value={generatedLink}
                   className="font-mono text-[12px]"
                 />
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="icon-sm"
                   aria-label="Copy link"
                   onClick={performCopy}
                 >
                   {copied ? <Check /> : <Copy />}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <ZoruButton
+            <Button
               onClick={() => setConfirmOpen(true)}
               disabled={!generatedLink}
             >
               <LinkIcon />
               {copied ? 'Copied!' : 'Copy Link'}
-            </ZoruButton>
+            </Button>
             {generatedLink ? (
-              <ZoruButton
+              <Button
                 variant="outline"
                 onClick={() => window.open(generatedLink, '_blank')}
               >
                 Test Link
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* QR preview column */}
-        <ZoruCard className="flex flex-col items-center justify-center p-6">
+        <Card className="flex flex-col items-center justify-center p-6">
           {qrUrl ? (
             <>
               <div className="mb-4 text-[12px] text-zoru-ink-muted">
@@ -225,14 +225,14 @@ export default function WhatsAppLinkGeneratorPage() {
                 Share this QR code so customers can start chatting with you
                 instantly.
               </p>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 className="mt-3"
                 onClick={() => window.open(qrUrl, '_blank')}
               >
                 Download QR
-              </ZoruButton>
+              </Button>
             </>
           ) : (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
@@ -242,7 +242,7 @@ export default function WhatsAppLinkGeneratorPage() {
               </p>
             </div>
           )}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Copy-link confirmation */}

@@ -109,7 +109,7 @@ export default function TeamNotificationsPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
@@ -119,22 +119,22 @@ export default function TeamNotificationsPage() {
                         <ZoruBreadcrumbPage>Notifications</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Notifications</ZoruPageTitle>
                     <ZoruPageDescription>
                         Choose which team events should land in your inbox.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-                <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
+                <Button size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {saving ? 'Saving…' : 'Save preferences'}
-                </ZoruButton>
-            </ZoruPageHeader>
+                </Button>
+            </PageHeader>
 
-            <ZoruCard variant="soft" className="flex items-center gap-3 p-6">
+            <Card variant="soft" className="flex items-center gap-3 p-6">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                     <Mail className="h-4 w-4" />
                 </div>
@@ -144,10 +144,10 @@ export default function TeamNotificationsPage() {
                         Emails go to your account address. Push and Slack delivery arrive later.
                     </p>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {GROUPS.map((group) => (
-                <ZoruCard key={group.title} className="p-6">
+                <Card key={group.title} className="p-6">
                     <div className="mb-4 flex items-start gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                             <Bell className="h-4 w-4" />
@@ -161,12 +161,12 @@ export default function TeamNotificationsPage() {
                         {group.keys.map((row) => (
                             <li key={row.id} className="flex items-start justify-between gap-4 py-3">
                                 <div>
-                                    <ZoruLabel htmlFor={row.id} className="text-[13px] text-zoru-ink">
+                                    <Label htmlFor={row.id} className="text-[13px] text-zoru-ink">
                                         {row.label}
-                                    </ZoruLabel>
+                                    </Label>
                                     <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{row.description}</p>
                                 </div>
-                                <ZoruSwitch
+                                <Switch
                                     id={row.id}
                                     checked={prefs[row.id]}
                                     onCheckedChange={() => toggle(row.id)}
@@ -174,7 +174,7 @@ export default function TeamNotificationsPage() {
                             </li>
                         ))}
                     </ul>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );

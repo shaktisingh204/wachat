@@ -246,18 +246,18 @@ export default function FacebookAdsIntegrationPage() {
           title="Ad account & routing"
           description="Pick the Meta ad account whose lead forms feed the CRM, then choose where new leads land."
           actions={
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
               <Link href="/dashboard/ad-manager">
                 Open Ad Manager
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-            </ZoruButton>
+            </Button>
           }
         >
           {!doc && !docId ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -273,10 +273,10 @@ export default function FacebookAdsIntegrationPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <ZoruLabel htmlFor="ad_account_select">Ad account</ZoruLabel>
+                <Label htmlFor="ad_account_select">Ad account</Label>
                 <div className="mt-1.5">
                   {accounts === null ? (
-                    <ZoruSkeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
                   ) : accounts.length === 0 ? (
                     <div className="rounded-lg border border-zoru-line bg-zoru-bg p-3 text-xs text-zoru-ink-muted">
                       No ad accounts found.{' '}
@@ -294,7 +294,7 @@ export default function FacebookAdsIntegrationPage() {
                       ) : null}
                     </div>
                   ) : (
-                    <ZoruSelect
+                    <Select
                       value={adAccountId}
                       onValueChange={(val) => {
                         setAdAccountId(val);
@@ -317,15 +317,15 @@ export default function FacebookAdsIntegrationPage() {
                           );
                         })}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   )}
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <ZoruLabel htmlFor="lead_form_ids">Lead form IDs</ZoruLabel>
+                <Label htmlFor="lead_form_ids">Lead form IDs</Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="lead_form_ids"
                     name="lead_form_ids"
                     defaultValue={v('lead_form_ids')}
@@ -339,11 +339,11 @@ export default function FacebookAdsIntegrationPage() {
               </div>
 
               <div>
-                <ZoruLabel htmlFor="default_pipeline">
+                <Label htmlFor="default_pipeline">
                   Default pipeline
-                </ZoruLabel>
+                </Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="default_pipeline"
                     name="default_pipeline"
                     defaultValue={v('default_pipeline')}
@@ -353,9 +353,9 @@ export default function FacebookAdsIntegrationPage() {
               </div>
 
               <div>
-                <ZoruLabel htmlFor="default_stage">Default stage</ZoruLabel>
+                <Label htmlFor="default_stage">Default stage</Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="default_stage"
                     name="default_stage"
                     defaultValue={v('default_stage')}
@@ -371,7 +371,7 @@ export default function FacebookAdsIntegrationPage() {
                     Ingest Meta lead-form submissions in real time.
                   </div>
                 </div>
-                <ZoruSwitch
+                <Switch
                   checked={isActive}
                   onCheckedChange={setIsActive}
                   aria-label="Facebook ads active"
@@ -380,23 +380,23 @@ export default function FacebookAdsIntegrationPage() {
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-              <ZoruBadge variant="secondary" className="font-normal">
+              <Badge variant="secondary" className="font-normal">
                 {adAccountId
                   ? `Account ${adAccountName || adAccountId}`
                   : 'No account selected'}
-              </ZoruBadge>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Badge>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -408,7 +408,7 @@ export default function FacebookAdsIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

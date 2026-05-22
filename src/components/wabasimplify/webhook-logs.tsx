@@ -49,10 +49,10 @@ function ReprocessButton({ logId, onReprocessComplete }: { logId: string; onRepr
     }
 
     return (
-        <ZoruButton variant="ghost" size="icon" onClick={onReprocess} disabled={isProcessing} className="h-7 w-7">
+        <Button variant="ghost" size="icon" onClick={onReprocess} disabled={isProcessing} className="h-7 w-7">
             {isProcessing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RotateCw className="h-4 w-4" />}
             <span className="sr-only">Re-process Webhook</span>
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -177,20 +177,20 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                     <div className="flex flex-wrap items-center gap-2">
                          <div className="relative w-full sm:w-auto">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <ZoruInput
+                            <Input
                                 placeholder="Search logs..."
                                 className="pl-8 w-full sm:w-64"
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
-                        <ZoruButton onClick={handleClearLogs} disabled={isClearing || isLoading} variant="outline" size="sm">
+                        <Button onClick={handleClearLogs} disabled={isClearing || isLoading} variant="outline" size="sm">
                             {isClearing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                             Clear Processed Logs
-                        </ZoruButton>
-                         <ZoruButton onClick={() => fetchLogs(currentPage, searchQuery, true)} disabled={isLoading} variant="outline" size="sm">
+                        </Button>
+                         <Button onClick={() => fetchLogs(currentPage, searchQuery, true)} disabled={isLoading} variant="outline" size="sm">
                             <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                             Refresh
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             </CardHeader>
@@ -231,10 +231,10 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
                                                 <ReprocessButton logId={log._id.toString()} onReprocessComplete={() => fetchLogs(currentPage, searchQuery, false)} />
-                                                <ZoruButton variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
+                                                <Button variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
                                                     <Eye className="h-4 w-4" />
                                                     <span className="sr-only">View Payload</span>
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -253,28 +253,28 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                         <span className="text-sm text-muted-foreground">
                             Page {currentPage} of {totalPages > 0 ? totalPages : 1}
                         </span>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setCurrentPage(p => p - 1)}
                             disabled={currentPage <= 1 || isLoading}
                         >
                             Previous
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setCurrentPage(p => p + 1)}
                             disabled={currentPage >= totalPages || isLoading}
                         >
                             Next
-                        </ZoruButton>
+                        </Button>
                     </div>
                     </>
                 )}
             </CardContent>
 
-            <ZoruDialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
+            <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
                 <ZoruDialogContent className="max-w-3xl">
                     <ZoruDialogHeader>
                         <div className="flex justify-between items-start gap-4">
@@ -283,10 +283,10 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                                 <ZoruDialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</ZoruDialogDescription>
                             </div>
                             {selectedLogPayload && (
-                                <ZoruButton variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLogPayload)}>
+                                <Button variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLogPayload)}>
                                     <Copy className="h-4 w-4" />
                                     <span className="sr-only">Copy Payload</span>
-                                </ZoruButton>
+                                </Button>
                             )}
                         </div>
                     </ZoruDialogHeader>
@@ -304,7 +304,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                         )}
                     </div>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </Card>
     );
 }

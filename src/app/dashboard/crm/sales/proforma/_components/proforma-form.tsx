@@ -75,14 +75,14 @@ function newRow(): LineRow {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create proforma'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -165,7 +165,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
     const termsJson = JSON.stringify(terms.map((t) => t.trim()).filter(Boolean));
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="proformaId" value={initialData!._id} />
@@ -179,8 +179,8 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                 {/* Row 1: Number + Customer */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="proformaNumber">Proforma #</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="proformaNumber">Proforma #</Label>
+                        <Input
                             id="proformaNumber"
                             name="proformaNumber"
                             placeholder="Auto-generated if empty"
@@ -188,7 +188,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Customer *</ZoruLabel>
+                        <Label>Customer *</Label>
                         <EntityFormField
                             entity="client"
                             name="accountIdPicker"
@@ -202,8 +202,8 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                 {/* Row 2: Dates + Currency */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="proformaDate">Proforma date *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="proformaDate">Proforma date *</Label>
+                        <Input
                             id="proformaDate"
                             name="proformaDate"
                             type="date"
@@ -212,8 +212,8 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="validTillDate">Valid till</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="validTillDate">Valid till</Label>
+                        <Input
                             id="validTillDate"
                             name="validTillDate"
                             type="date"
@@ -221,7 +221,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="__currency_picker"
@@ -234,8 +234,8 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                 {/* Line items */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Line items *</ZoruLabel>
-                        <ZoruButton
+                        <Label>Line items *</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -243,7 +243,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                         >
                             <Plus className="mr-1 h-3.5 w-3.5" />
                             Add line
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="overflow-x-auto rounded-md border border-zoru-line">
                         <table className="w-full text-[13px]">
@@ -262,7 +262,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                 {rows.map((row) => (
                                     <tr key={row.rowId} className="border-t border-zoru-line">
                                         <td className="p-2">
-                                            <ZoruInput
+                                            <Input
                                                 value={row.description}
                                                 onChange={(e) =>
                                                     patchRow(row.rowId, {
@@ -274,7 +274,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                             />
                                         </td>
                                         <td className="p-2">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="any"
@@ -288,7 +288,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                             />
                                         </td>
                                         <td className="p-2">
-                                            <ZoruInput
+                                            <Input
                                                 value={row.unit ?? ''}
                                                 onChange={(e) =>
                                                     patchRow(row.rowId, { unit: e.target.value })
@@ -298,7 +298,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                             />
                                         </td>
                                         <td className="p-2">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="any"
@@ -312,7 +312,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                             />
                                         </td>
                                         <td className="p-2">
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 step="any"
@@ -330,7 +330,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                                 (Number(row.rate) || 0)).toFixed(2)}
                                         </td>
                                         <td className="p-2 text-right">
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="sm"
@@ -345,7 +345,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                                 className="text-zoru-danger-ink"
                                             >
                                                 <Trash2 className="h-3.5 w-3.5" />
-                                            </ZoruButton>
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
@@ -368,8 +368,8 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                 {/* Terms & conditions repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Terms &amp; conditions</ZoruLabel>
-                        <ZoruButton
+                        <Label>Terms &amp; conditions</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -377,19 +377,19 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                         >
                             <Plus className="mr-1 h-3.5 w-3.5" />
                             Add term
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="space-y-2">
                         {terms.map((t, i) => (
                             <div key={i} className="flex items-center gap-2">
-                                <ZoruInput
+                                <Input
                                     value={t}
                                     placeholder={`Term ${i + 1}`}
                                     onChange={(e) =>
                                         setTerms((p) => p.map((v, idx) => (idx === i ? e.target.value : v)))
                                     }
                                 />
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
@@ -401,7 +401,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                     className="text-zoru-danger-ink"
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ))}
                     </div>
@@ -410,8 +410,8 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                 {/* Notes + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={3}
@@ -420,7 +420,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="proformaStatus"
                             name="__status_picker"
@@ -432,15 +432,15 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to proforma
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

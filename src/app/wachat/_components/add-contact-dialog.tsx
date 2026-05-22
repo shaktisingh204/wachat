@@ -55,10 +55,10 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : null}
       {pending ? 'Adding…' : 'Add contact'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -122,12 +122,12 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
   }));
 
   return (
-    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton size="md">
+        <Button size="md">
           <UserPlus />
           Add contact
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
 
       <ZoruDialogContent className="max-w-[520px] p-0">
@@ -158,7 +158,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
           <div className="flex flex-col gap-5 px-6 py-5">
             <Field label="WhatsApp number" htmlFor="phoneNumberId-dialog">
-              <ZoruSelect
+              <Select
                 value={selectedPhoneNumberId}
                 onValueChange={setSelectedPhoneNumberId}
               >
@@ -172,11 +172,11 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </Field>
 
             <Field label="Full name" required htmlFor="name">
-              <ZoruInput
+              <Input
                 id="name"
                 name="name"
                 required
@@ -186,23 +186,23 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
             <div className="grid grid-cols-[120px_1fr] items-end gap-3">
               <Field label="Country">
-                <ZoruSelect value={countryCode} onValueChange={setCountryCode}>
+                <Select value={countryCode} onValueChange={setCountryCode}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue placeholder="Code" />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
-                    <ZoruScrollArea className="h-64">
+                    <ScrollArea className="h-64">
                       {countryCodes.map((c) => (
                         <ZoruSelectItem key={c.name} value={c.code}>
                           +{c.code} ({c.name})
                         </ZoruSelectItem>
                       ))}
-                    </ZoruScrollArea>
+                    </ScrollArea>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </Field>
               <Field label="Phone number" required htmlFor="phone">
-                <ZoruInput
+                <Input
                   id="phone"
                   name="phone"
                   placeholder="9876543210"
@@ -213,9 +213,9 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">
+              <Label className="text-[11.5px] text-zoru-ink-muted">
                 Tags
-              </ZoruLabel>
+              </Label>
               <MultiSelectCombobox
                 options={tagOptions}
                 selected={selectedTagIds}
@@ -226,18 +226,18 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
           </div>
 
           <ZoruDialogFooter className="gap-2 border-t border-zoru-line px-6 py-4 sm:justify-end">
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => handleOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -254,13 +254,13 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <ZoruLabel
+      <Label
         htmlFor={htmlFor}
         className="text-[11.5px] text-zoru-ink-muted"
       >
         {label}
         {required ? <span className="ml-1 text-zoru-danger">*</span> : null}
-      </ZoruLabel>
+      </Label>
       {children}
     </div>
   );

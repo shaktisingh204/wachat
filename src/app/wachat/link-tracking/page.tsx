@@ -174,22 +174,22 @@ export default function LinkTrackingPage() {
         header: '',
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="View clicks"
               onClick={() => setViewing(row.original)}
             >
               <Eye />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Delete tracked link"
               onClick={() => setDeleteTarget(row.original)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -199,7 +199,7 @@ export default function LinkTrackingPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -217,9 +217,9 @@ export default function LinkTrackingPage() {
             </ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-2">
+      <PageHeader className="mt-2">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat · Tools</ZoruPageEyebrow>
           <ZoruPageTitle>Link Tracking</ZoruPageTitle>
@@ -228,7 +228,7 @@ export default function LinkTrackingPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={fetchData}
@@ -236,55 +236,55 @@ export default function LinkTrackingPage() {
           >
             <RefreshCw className={isPending ? 'animate-spin' : ''} />
             Refresh
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Total Clicks
           </div>
           <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
             {totalClicks}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-5">
+        </Card>
+        <Card className="p-5">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Unique Links
           </div>
           <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
             {uniqueLinks}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
       {isPending && grouped.length === 0 ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-12" />
+            <Skeleton key={i} className="h-12" />
           ))}
         </div>
       ) : grouped.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<MousePointerClick />}
           title="No link clicks yet"
           description="Once your messages get clicks, they'll show up here grouped by URL."
         />
       ) : (
-        <ZoruCard className="p-4">
-          <ZoruDataTable
+        <Card className="p-4">
+          <DataTable
             columns={columns}
             data={grouped}
             filterColumn="url"
             filterPlaceholder="Filter URLs…"
           />
-        </ZoruCard>
+        </Card>
       )}
 
       {/* View clicks dialog */}
-      <ZoruDialog
+      <Dialog
         open={viewing !== null}
         onOpenChange={(open) => {
           if (!open) setViewing(null);
@@ -325,7 +325,7 @@ export default function LinkTrackingPage() {
             </div>
           ) : null}
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Delete-confirm alert */}
       <ZoruAlertDialog

@@ -95,7 +95,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
   ];
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
             >
               {tab.label}
               {tab.count != null && tab.count > 0 ? (
-                <ZoruBadge variant="outline" className="text-[10px] px-1.5 py-0">{tab.count}</ZoruBadge>
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">{tab.count}</Badge>
               ) : null}
             </button>
           ))}
@@ -132,7 +132,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
                 <StickyNote className="h-3.5 w-3.5" />
                 Private note — only visible to you
               </div>
-              <ZoruTextarea
+              <Textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={2000}
@@ -141,9 +141,9 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
               />
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-zoru-ink-muted">{note.length}/2000</span>
-                <ZoruButton size="sm" onClick={saveNote}>
+                <Button size="sm" onClick={saveNote}>
                   {noteSaved ? 'Saved!' : 'Save Note'}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
@@ -180,7 +180,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
                 </ul>
               )}
               <div className="space-y-2 border-t border-zoru-line pt-3">
-                <ZoruTextarea
+                <Textarea
                   value={commentDraft}
                   onChange={(e) => setCommentDraft(e.target.value)}
                   maxLength={500}
@@ -189,9 +189,9 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
                 />
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] text-zoru-ink-muted">{commentDraft.length}/500</span>
-                  <ZoruButton size="sm" onClick={postComment} disabled={!commentDraft.trim()}>
+                  <Button size="sm" onClick={postComment} disabled={!commentDraft.trim()}>
                     Post
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -241,6 +241,6 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
           ) : null}
         </div>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

@@ -56,39 +56,39 @@ export default async function PaymentAccountDetailPage(props: {
             }}
             actions={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/banking/all/${accountId}/edit`}>
                             <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href="/dashboard/crm/banking/reconciliation">
                             <RotateCw className="mr-1.5 h-3.5 w-3.5" /> Reconcile
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/banking/bank-transactions`}>
                             <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" /> Transactions
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
+                    </Button>
+                    <Button variant="outline" size="sm" disabled>
                         <Archive className="mr-1.5 h-3.5 w-3.5" /> Archive
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/banking/all/${accountId}/activity`}>
                             <History className="mr-1.5 h-3.5 w-3.5" /> Activity
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild variant="outline" size="sm">
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/banking/all/${accountId}?print=1`}>
                             <Printer className="mr-1.5 h-3.5 w-3.5" /> Print statement
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
             rightRail={
                 <div className="flex flex-col gap-4">
-                    <ZoruCard className="p-4">
+                    <Card className="p-4">
                         <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Account
                         </p>
@@ -112,9 +112,9 @@ export default async function PaymentAccountDetailPage(props: {
                                 </dd>
                             </div>
                         </dl>
-                    </ZoruCard>
+                    </Card>
                     {account.bankDetails ? (
-                        <ZoruCard className="p-4">
+                        <Card className="p-4">
                             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 Bank details
                             </p>
@@ -146,14 +146,14 @@ export default async function PaymentAccountDetailPage(props: {
                                     <dd className="font-mono text-right">{account.bankDetails.ibanCode || '—'}</dd>
                                 </div>
                             </dl>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
                 </div>
             }
             audit={<EntityAuditTimeline entityKind="payment_account" entityId={accountId} />}
         >
             <div className="flex flex-col gap-4">
-                <ZoruCard>
+                <Card>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <SummaryCell label="Opening balance" value={fmtMoney(account.openingBalance, account.currency)} />
                         <SummaryCell label="Current balance" value={fmtMoney(balance, account.currency)} accent />
@@ -166,8 +166,8 @@ export default async function PaymentAccountDetailPage(props: {
                             }
                         />
                     </div>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Linked ledger
                     </p>
@@ -180,7 +180,7 @@ export default async function PaymentAccountDetailPage(props: {
                             <FileText className="h-3 w-3" /> View ledger
                         </Link>
                     </p>
-                </ZoruCard>
+                </Card>
             </div>
         </EntityDetailShell>
     );

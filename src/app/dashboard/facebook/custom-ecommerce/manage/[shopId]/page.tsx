@@ -33,7 +33,7 @@ export default function ShopManageIndexPage() {
     <div className="flex items-center gap-3 py-12 text-zoru-ink-muted">
       <LoaderCircle className="h-5 w-5 animate-spin" />
       <p className="text-[13px]">Redirecting to shop settings…</p>
-      <ZoruSkeleton className="h-4 w-40" />
+      <Skeleton className="h-4 w-40" />
     </div>
   );
 }

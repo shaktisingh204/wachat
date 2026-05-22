@@ -92,18 +92,18 @@ interface Review {
 function ReviewsPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5">
-        <ZoruSkeleton className="h-9 w-72" />
-        <ZoruSkeleton className="mt-2 h-4 w-96" />
+        <Skeleton className="h-9 w-72" />
+        <Skeleton className="mt-2 h-4 w-96" />
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <ZoruSkeleton className="h-24" />
-        <ZoruSkeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
       </div>
       <div className="mt-6 space-y-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-32 w-full" />
+          <Skeleton key={i} className="h-32 w-full" />
         ))}
       </div>
     </div>
@@ -175,7 +175,7 @@ function ReplyReviewDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
           <ZoruDialogHeader>
@@ -189,8 +189,8 @@ function ReplyReviewDialog({
           </ZoruDialogHeader>
 
           <div className="grid gap-2">
-            <ZoruLabel htmlFor="reply-text">Reply</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="reply-text">Reply</Label>
+            <Textarea
               id="reply-text"
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -201,22 +201,22 @@ function ReplyReviewDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
               disabled={pending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={pending || !text.trim()}>
+            </Button>
+            <Button type="submit" disabled={pending || !text.trim()}>
               {pending ? <Loader2 className="animate-spin" /> : <Send />}
               {pending ? "Sending…" : "Send reply"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -282,8 +282,8 @@ function ReportReviewAlert({
         </ZoruAlertDialogHeader>
 
         <div className="grid gap-2 py-2">
-          <ZoruLabel>Reason</ZoruLabel>
-          <ZoruSelect value={reason} onValueChange={setReason}>
+          <Label>Reason</Label>
+          <Select value={reason} onValueChange={setReason}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -294,7 +294,7 @@ function ReportReviewAlert({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
 
         <ZoruAlertDialogFooter>
@@ -378,7 +378,7 @@ export default function ReviewsPage() {
       ) : (
         <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <ZoruStatCard
+            <StatCard
               icon={<Star />}
               label="Average rating"
               value={
@@ -388,7 +388,7 @@ export default function ReviewsPage() {
                 </span>
               }
             />
-            <ZoruStatCard
+            <StatCard
               icon={<MessageSquareReply />}
               label="Total reviews"
               value={String(stats.total)}
@@ -400,9 +400,9 @@ export default function ReviewsPage() {
               {ratings.map((review, index) => {
                 const author = review.reviewer?.name ?? "Anonymous";
                 return (
-                  <ZoruCard key={review.id ?? index} className="p-5">
+                  <Card key={review.id ?? index} className="p-5">
                     <div className="flex items-start gap-4">
-                      <ZoruAvatar className="h-10 w-10">
+                      <Avatar className="h-10 w-10">
                         {review.reviewer?.picture?.data?.url ? (
                           <ZoruAvatarImage
                             src={review.reviewer.picture.data.url}
@@ -412,7 +412,7 @@ export default function ReviewsPage() {
                         <ZoruAvatarFallback>
                           {author.charAt(0).toUpperCase()}
                         </ZoruAvatarFallback>
-                      </ZoruAvatar>
+                      </Avatar>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-sm font-medium text-zoru-ink">
@@ -436,31 +436,31 @@ export default function ReviewsPage() {
                           </p>
                         )}
                         <div className="flex items-center gap-2 pt-2">
-                          <ZoruButton
+                          <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setReplyTarget(review)}
                           >
                             <MessageSquareReply /> Reply
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setReportTarget(review)}
                             className="text-zoru-ink-muted"
                           >
                             <Flag /> Report
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </div>
                     </div>
-                  </ZoruCard>
+                  </Card>
                 );
               })}
             </div>
           ) : (
             <div className="mt-6">
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Star />}
                 title="No reviews yet"
                 description="No ratings or reviews have been left on your page yet."

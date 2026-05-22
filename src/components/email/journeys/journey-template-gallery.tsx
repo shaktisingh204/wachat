@@ -59,7 +59,7 @@ export function JourneyTemplateGallery({ onCreated }: { onCreated?: () => void }
     return (
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-40 w-full" />
+          <Skeleton key={i} className="h-40 w-full" />
         ))}
       </div>
     );
@@ -74,19 +74,19 @@ export function JourneyTemplateGallery({ onCreated }: { onCreated?: () => void }
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {templates.map((tpl) => (
-        <ZoruCard key={tpl.id} className="p-4 flex flex-col gap-3">
+        <Card key={tpl.id} className="p-4 flex flex-col gap-3">
           <div className="flex items-start gap-2">
             <Sparkles className="h-4 w-4 mt-0.5 text-zoru-ink-muted" />
             <div className="min-w-0 flex-1">
               <p className="font-medium">{tpl.name}</p>
-              <ZoruBadge variant="outline" className="mt-1">{tpl.category}</ZoruBadge>
+              <Badge variant="outline" className="mt-1">{tpl.category}</Badge>
             </div>
           </div>
           <p className="text-xs text-zoru-ink-muted line-clamp-3 flex-1">{tpl.description}</p>
-          <ZoruButton size="sm" disabled={pending} onClick={() => useTemplate(tpl)}>
+          <Button size="sm" disabled={pending} onClick={() => useTemplate(tpl)}>
             {pending ? 'Creating…' : 'Use template'}
-          </ZoruButton>
-        </ZoruCard>
+          </Button>
+        </Card>
       ))}
     </div>
   );

@@ -77,13 +77,13 @@ function RemoveAgentButton({
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton variant="destructive" size="sm" disabled={isPending}>
+        <Button variant="destructive" size="sm" disabled={isPending}>
           {isPending ? (
             <LoaderCircle className="h-4 w-4 animate-spin" />
           ) : (
             <Trash2 className="h-4 w-4" />
           )}
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
@@ -140,10 +140,10 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
         className="flex flex-col gap-3 sm:flex-row sm:items-end"
       >
         <div className="flex-grow space-y-2">
-          <ZoruLabel htmlFor="email" className="sr-only">
+          <Label htmlFor="email" className="sr-only">
             Email
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="email"
             name="email"
             type="email"
@@ -153,10 +153,10 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           />
         </div>
         <div className="space-y-2">
-          <ZoruLabel htmlFor="role" className="sr-only">
+          <Label htmlFor="role" className="sr-only">
             Role
-          </ZoruLabel>
-          <ZoruSelect name="role" defaultValue="agent">
+          </Label>
+          <Select name="role" defaultValue="agent">
             <ZoruSelectTrigger
               id="role"
               className="h-10 w-full rounded-lg border-border bg-card text-[13px] sm:w-[180px]"
@@ -167,9 +167,9 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
               <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
               <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
-        <ZoruButton
+        <Button
           type="submit"
           variant="obsidian"
           disabled={isPending}
@@ -182,7 +182,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           }
         >
           Invite Agent
-        </ZoruButton>
+        </Button>
       </form>
     </ClayCard>
   );
@@ -212,7 +212,7 @@ export default function ManageUsersPage() {
     >
 
       <InviteAgentForm onAgentInvited={fetchData} />
-      <ZoruSeparator className="bg-border" />
+      <Separator className="bg-border" />
 
       <ClayCard>
         <div className="mb-4">
@@ -224,8 +224,8 @@ export default function ManageUsersPage() {
         <div className="space-y-3">
           {isLoading ? (
             <>
-              <ZoruSkeleton className="h-16 w-full rounded-lg" />
-              <ZoruSkeleton className="h-16 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-lg" />
             </>
           ) : teamMembers.length > 0 ? (
             teamMembers.map((agent: any) => (
@@ -234,7 +234,7 @@ export default function ManageUsersPage() {
                 className="flex items-center justify-between gap-4 rounded-lg border border-border bg-secondary p-4"
               >
                 <div className="flex items-center gap-4">
-                  <ZoruAvatar className="border border-border">
+                  <Avatar className="border border-border">
                     <ZoruAvatarImage
                       src={`https://i.pravatar.cc/150?u=${agent.email}`}
                       alt={agent.name}
@@ -242,7 +242,7 @@ export default function ManageUsersPage() {
                     <ZoruAvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                       {agent.name.substring(0, 2).toUpperCase()}
                     </ZoruAvatarFallback>
-                  </ZoruAvatar>
+                  </Avatar>
                   <div className="space-y-0.5">
                     <p className="text-[13px] font-medium leading-none text-foreground">
                       {agent.name}

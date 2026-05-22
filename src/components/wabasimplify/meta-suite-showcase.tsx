@@ -50,7 +50,7 @@ import React from 'react';
 import Link from 'next/link';
 
 const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
-    <ZoruCard className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
+    <Card className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
         <ZoruCardHeader className="items-center">
             <div className="p-4 bg-primary/10 rounded-full">
                 <Icon className="h-8 w-8 text-primary" />
@@ -60,7 +60,7 @@ const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { ico
             <h3 className="text-xl font-semibold">{title}</h3>
             <p className="text-muted-foreground">{description}</p>
         </ZoruCardContent>
-    </ZoruCard>
+    </Card>
 );
 
 export const MetaSuiteShowcase = () => {
@@ -86,8 +86,8 @@ export const MetaSuiteShowcase = () => {
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">The Meta Suite by SabNode</h1>
                     <p className="mx-auto text-lg text-muted-foreground">Unify your social media presence. Manage content, ads, and messages for Facebook and Instagram from one powerful dashboard.</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <ZoruButton size="lg" asChild><Link href="/signup">Get Started for Free <ArrowRight className="ml-2 h-5 w-5" /></Link></ZoruButton>
-                        <ZoruButton size="lg" variant="outline" asChild><Link href="#features">Learn More <ChevronDown className="ml-2 h-5 w-5" /></Link></ZoruButton>
+                        <Button size="lg" asChild><Link href="/signup">Get Started for Free <ArrowRight className="ml-2 h-5 w-5" /></Link></Button>
+                        <Button size="lg" variant="outline" asChild><Link href="#features">Learn More <ChevronDown className="ml-2 h-5 w-5" /></Link></Button>
                     </div>
                 </div>
             </div>
@@ -122,29 +122,29 @@ export const MetaSuiteShowcase = () => {
                                 </p>
                             </div>
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
-                                <ZoruCard className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
+                                <Card className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
                                     <div className="w-1/3 border-r bg-card flex flex-col">
-                                        <div className="p-3 border-b"><ZoruInput placeholder="Search..." /></div>
+                                        <div className="p-3 border-b"><Input placeholder="Search..." /></div>
                                         <div className="flex-1 overflow-y-auto">
                                             <div className="p-3 flex gap-3 border-b bg-muted">
-                                                <ZoruAvatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="woman portrait" /><ZoruAvatarFallback>A</ZoruAvatarFallback></ZoruAvatar>
+                                                <Avatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="woman portrait" /><ZoruAvatarFallback>A</ZoruAvatarFallback></Avatar>
                                                 <div><p className="font-semibold text-sm">Aisha Ahmed</p><p className="text-xs text-muted-foreground">Thanks for the help!</p></div>
                                             </div>
                                             <div className="p-3 flex gap-3 border-b">
-                                                <ZoruAvatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="man portrait" /><ZoruAvatarFallback>D</ZoruAvatarFallback></ZoruAvatar>
+                                                <Avatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="man portrait" /><ZoruAvatarFallback>D</ZoruAvatarFallback></Avatar>
                                                 <div><p className="font-semibold text-sm">David Chen</p><p className="text-xs text-muted-foreground">Sure, here is my order #...</p></div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="w-2/3 flex flex-col">
-                                        <div className="p-3 border-b flex-shrink-0 flex items-center gap-2"><ZoruAvatar><ZoruAvatarFallback>A</ZoruAvatarFallback></ZoruAvatar><p className="font-semibold">Aisha Ahmed</p></div>
+                                        <div className="p-3 border-b flex-shrink-0 flex items-center gap-2"><Avatar><ZoruAvatarFallback>A</ZoruAvatarFallback></Avatar><p className="font-semibold">Aisha Ahmed</p></div>
                                         <div className="flex-1 p-4 space-y-3 bg-slate-100">
                                             <div className="flex justify-start"><div className="bg-slate-200 p-2 rounded-lg text-sm">Is the blue shirt in stock?</div></div>
                                             <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-blue-600 text-white p-2 rounded-lg text-sm">Yes it is! Would you like to order?</div></div>
                                         </div>
-                                        <div className="p-2 border-t"><ZoruInput placeholder="Type a message..." /></div>
+                                        <div className="p-2 border-t"><Input placeholder="Type a message..." /></div>
                                     </div>
-                                </ZoruCard>
+                                </Card>
                             </div>
                         </div>
                         {/* Kanban Board Mockup */}
@@ -195,11 +195,11 @@ export const MetaSuiteShowcase = () => {
                                 </p>
                             </div>
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
-                                <ZoruCard className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
+                                <Card className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
                                     <div className="w-1/4 border-r bg-card flex flex-col p-2 space-y-2">
-                                        <ZoruButton variant="outline" size="sm" className="justify-start"><LayoutGrid className="mr-2 h-4 w-4" /> Section</ZoruButton>
-                                        <ZoruButton variant="outline" size="sm" className="justify-start"><Newspaper className="mr-2 h-4 w-4" /> Heading</ZoruButton>
-                                        <ZoruButton variant="outline" size="sm" className="justify-start"><ShoppingBag className="mr-2 h-4 w-4" /> Products</ZoruButton>
+                                        <Button variant="outline" size="sm" className="justify-start"><LayoutGrid className="mr-2 h-4 w-4" /> Section</Button>
+                                        <Button variant="outline" size="sm" className="justify-start"><Newspaper className="mr-2 h-4 w-4" /> Heading</Button>
+                                        <Button variant="outline" size="sm" className="justify-start"><ShoppingBag className="mr-2 h-4 w-4" /> Products</Button>
                                     </div>
                                     <div className="flex-1 p-4 bg-slate-100">
                                         <div className="bg-white p-4 rounded-md shadow-inner space-y-4">
@@ -213,15 +213,15 @@ export const MetaSuiteShowcase = () => {
                                     <div className="w-1/3 border-l bg-card p-3 space-y-4">
                                         <h4 className="font-semibold text-sm">Properties</h4>
                                         <div className="space-y-2">
-                                            <ZoruLabel className="text-xs">Background</ZoruLabel>
-                                            <ZoruInput type="color" defaultValue="#e2e8f0" />
+                                            <Label className="text-xs">Background</Label>
+                                            <Input type="color" defaultValue="#e2e8f0" />
                                         </div>
                                         <div className="space-y-2">
-                                            <ZoruLabel className="text-xs">Padding</ZoruLabel>
-                                            <ZoruInput type="number" defaultValue="32" />
+                                            <Label className="text-xs">Padding</Label>
+                                            <Input type="number" defaultValue="32" />
                                         </div>
                                     </div>
-                                </ZoruCard>
+                                </Card>
                             </div>
                         </div>
                     </div>

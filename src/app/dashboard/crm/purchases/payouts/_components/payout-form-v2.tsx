@@ -75,14 +75,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Record payout'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -139,7 +139,7 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
     const attachmentsJson = JSON.stringify(attachments);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="payoutId" value={initialData!._id} />
@@ -150,8 +150,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="payoutNumber">Payout number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="payoutNumber">Payout number</Label>
+                        <Input
                             id="payoutNumber"
                             name="payoutNumber"
                             placeholder="PAY-…"
@@ -159,7 +159,7 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <Label htmlFor="status-trigger">Status</Label>
                         <EnumFormField
                             enumName="payoutStatus"
                             name="__status_picker"
@@ -171,8 +171,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="vendor_id">Vendor id *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="vendor_id">Vendor id *</Label>
+                    <Input
                         id="vendor_id"
                         name="vendor_id"
                         required
@@ -183,8 +183,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="amount">Amount *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="amount">Amount *</Label>
+                        <Input
                             id="amount"
                             name="amount"
                             type="number"
@@ -195,8 +195,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -204,8 +204,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="paidAt">Paid at *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="paidAt">Paid at *</Label>
+                        <Input
                             id="paidAt"
                             name="paidAt"
                             type="date"
@@ -217,7 +217,7 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="paymentMethod-trigger">Payment method</ZoruLabel>
+                        <Label htmlFor="paymentMethod-trigger">Payment method</Label>
                         <EnumFormField
                             enumName="paymentMode"
                             name="__paymentMethod_picker"
@@ -227,8 +227,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="paymentAccountId">Payment account id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="paymentAccountId">Payment account id</Label>
+                        <Input
                             id="paymentAccountId"
                             name="paymentAccountId"
                             placeholder="Bank account id"
@@ -238,8 +238,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="referenceNumber">Reference number</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="referenceNumber">Reference number</Label>
+                    <Input
                         id="referenceNumber"
                         name="referenceNumber"
                         placeholder="Txn id / cheque no / UTR"
@@ -248,8 +248,8 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -260,7 +260,7 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
 
                 {/* Attachments */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Attachments</ZoruLabel>
+                    <Label>Attachments</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton onPick={onAttach}>
                             <FileUp className="mr-1.5 h-4 w-4" />
@@ -287,14 +287,14 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                                     >
                                         {a.name ?? a.fileId ?? a.url}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => removeAttachment(i)}
                                     >
                                         Remove
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -302,15 +302,15 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to payouts
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

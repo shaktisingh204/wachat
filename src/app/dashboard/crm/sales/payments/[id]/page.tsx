@@ -66,11 +66,11 @@ export default async function PaymentReceiptDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this payment receipt — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/payments">
               <ArrowLeft className="h-4 w-4" /> Back to Payment Receipts
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -86,16 +86,16 @@ export default async function PaymentReceiptDetailPage({
       title={title}
       back={{ href: '/dashboard/crm/sales/payments', label: 'Payment Receipts' }}
       actions={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href={`/dashboard/crm/sales/payments/${id}/edit`}>
             <Pencil className="h-4 w-4" /> Edit
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <ZoruCard className="p-6 lg:col-span-2">
+        <Card className="p-6 lg:col-span-2">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Header
           </h3>
@@ -110,7 +110,7 @@ export default async function PaymentReceiptDetailPage({
               )}
             </Field>
             <Field label="Payment method">
-              <ZoruBadge variant="outline">{receipt.mode}</ZoruBadge>
+              <Badge variant="outline">{receipt.mode}</Badge>
             </Field>
             <Field label="Bank account">
               {receipt.bankAccountId ? (
@@ -121,7 +121,7 @@ export default async function PaymentReceiptDetailPage({
             </Field>
             <Field label="Status">
               {receipt.status ? (
-                <ZoruBadge variant="outline">{receipt.status}</ZoruBadge>
+                <Badge variant="outline">{receipt.status}</Badge>
               ) : (
                 '—'
               )}
@@ -154,9 +154,9 @@ export default async function PaymentReceiptDetailPage({
               </p>
             </>
           ) : null}
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Amount
           </h3>
@@ -173,10 +173,10 @@ export default async function PaymentReceiptDetailPage({
               {receipt.excessAsAdvance ? 'Yes' : 'No'}
             </Field>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Allocation
         </h3>
@@ -201,7 +201,7 @@ export default async function PaymentReceiptDetailPage({
             ))}
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       <div className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(receipt.createdAt || receipt.audit?.createdAt)} · Updated{' '}

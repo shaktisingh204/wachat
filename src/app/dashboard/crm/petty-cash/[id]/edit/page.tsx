@@ -53,7 +53,7 @@ export default async function PettyCashEditPage({ params }: PageProps) {
             }
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Balance</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -73,8 +73,8 @@ export default async function PettyCashEditPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
-                    <ZoruCard>
+                    </Card>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Custody</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -100,7 +100,7 @@ export default async function PettyCashEditPage({ params }: PageProps) {
                                 ) : null}
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
             audit={<EntityAuditTimeline entityKind="petty_cash" entityId={id} />}

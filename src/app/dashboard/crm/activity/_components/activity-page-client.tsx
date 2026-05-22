@@ -98,20 +98,20 @@ function ActivityTypeIcon({ type }: { type: string }): React.JSX.Element {
 function StatusBadge({ status }: { status: string }): React.JSX.Element {
   if (status === 'completed')
     return (
-      <ZoruBadge variant="success" className="text-[11px]">
+      <Badge variant="success" className="text-[11px]">
         Completed
-      </ZoruBadge>
+      </Badge>
     );
   if (status === 'overdue')
     return (
-      <ZoruBadge variant="danger" className="text-[11px]">
+      <Badge variant="danger" className="text-[11px]">
         Overdue
-      </ZoruBadge>
+      </Badge>
     );
   return (
-    <ZoruBadge variant="secondary" className="text-[11px]">
+    <Badge variant="secondary" className="text-[11px]">
       Open
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -350,13 +350,13 @@ export function ActivityPageClient({
     >
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <ZoruStatCard label="Activities today" value={String(kpis.activitiesToday)} />
-        <ZoruStatCard label="Open activities" value={String(kpis.openActivities)} />
-        <ZoruStatCard
+        <StatCard label="Activities today" value={String(kpis.activitiesToday)} />
+        <StatCard label="Open activities" value={String(kpis.openActivities)} />
+        <StatCard
           label="Overdue"
           value={String(kpis.overdueActivities)}
         />
-        <ZoruStatCard label="Completed this week" value={String(kpis.completedThisWeek)} />
+        <StatCard label="Completed this week" value={String(kpis.completedThisWeek)} />
       </div>
 
       <Tabs defaultValue="feed" className="w-full">
@@ -370,8 +370,8 @@ export function ActivityPageClient({
           {/* Feed filters */}
           <div className="flex flex-wrap items-end gap-2">
             <div className="w-44">
-              <ZoruLabel className="text-[11px]">Entity kind</ZoruLabel>
-              <ZoruSelect
+              <Label className="text-[11px]">Entity kind</Label>
+              <Select
                 value={filters.entityKind || 'all'}
                 onValueChange={(v) =>
                   setFilters((f) => ({ ...f, entityKind: v === 'all' ? '' : v }))
@@ -390,11 +390,11 @@ export function ActivityPageClient({
                     ),
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="w-36">
-              <ZoruLabel className="text-[11px]" htmlFor="feed-from">From</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[11px]" htmlFor="feed-from">From</Label>
+              <Input
                 id="feed-from"
                 type="date"
                 value={filters.from}
@@ -402,48 +402,48 @@ export function ActivityPageClient({
               />
             </div>
             <div className="w-36">
-              <ZoruLabel className="text-[11px]" htmlFor="feed-to">To</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[11px]" htmlFor="feed-to">To</Label>
+              <Input
                 id="feed-to"
                 type="date"
                 value={filters.to}
                 onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
               />
             </div>
-            <ZoruButton size="sm" onClick={applyFeedFilters} className="mb-1">
+            <Button size="sm" onClick={applyFeedFilters} className="mb-1">
               <Filter className="h-3.5 w-3.5" /> Apply
-            </ZoruButton>
+            </Button>
             {hasFilters && (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFeedFilters} className="mb-1">
+              <Button variant="ghost" size="sm" onClick={clearFeedFilters} className="mb-1">
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             )}
           </div>
 
           {feedRows.length === 0 ? (
-            <ZoruCard className="p-10 text-center text-[13px] text-zoru-ink-muted">
+            <Card className="p-10 text-center text-[13px] text-zoru-ink-muted">
               No audit events yet.
-            </ZoruCard>
+            </Card>
           ) : (
             <>
               {BUCKETS_ORDER.map((b) =>
                 bucketed[b].length === 0 ? null : (
-                  <ZoruCard key={b} className="p-0">
+                  <Card key={b} className="p-0">
                     <div className="flex items-center gap-2 border-b border-zoru-line p-4">
                       <h2 className="text-[14px] font-semibold text-zoru-ink">{b}</h2>
-                      <ZoruBadge variant="secondary">{bucketed[b].length}</ZoruBadge>
+                      <Badge variant="secondary">{bucketed[b].length}</Badge>
                     </div>
                     <ul className="divide-y divide-zoru-line">
                       {bucketed[b].map((entry) => (
                         <ActivityRow key={entry._id} entry={entry} currentUserId={currentUserId} />
                       ))}
                     </ul>
-                  </ZoruCard>
+                  </Card>
                 ),
               )}
               {cursor ? (
                 <div className="flex justify-center py-3">
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => void handleLoadMore()}
@@ -454,7 +454,7 @@ export function ActivityPageClient({
                     ) : (
                       'Load more'
                     )}
-                  </ZoruButton>
+                  </Button>
                 </div>
               ) : (
                 <p className="py-3 text-center text-xs text-zoru-ink-muted">End of feed.</p>
@@ -468,8 +468,8 @@ export function ActivityPageClient({
           {/* Table filters */}
           <div className="flex flex-wrap items-end gap-2">
             <div className="w-40">
-              <ZoruLabel className="text-[11px]">Type</ZoruLabel>
-              <ZoruSelect value={typeFilter} onValueChange={setTypeFilter}>
+              <Label className="text-[11px]">Type</Label>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -483,11 +483,11 @@ export function ActivityPageClient({
                     ),
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="w-40">
-              <ZoruLabel className="text-[11px]">Status</ZoruLabel>
-              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+              <Label className="text-[11px]">Status</Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -497,11 +497,11 @@ export function ActivityPageClient({
                   <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
                   <ZoruSelectItem value="overdue">Overdue</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="w-36">
-              <ZoruLabel className="text-[11px]" htmlFor="tbl-from">From</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[11px]" htmlFor="tbl-from">From</Label>
+              <Input
                 id="tbl-from"
                 type="date"
                 value={dateFrom}
@@ -509,19 +509,19 @@ export function ActivityPageClient({
               />
             </div>
             <div className="w-36">
-              <ZoruLabel className="text-[11px]" htmlFor="tbl-to">To</ZoruLabel>
-              <ZoruInput
+              <Label className="text-[11px]" htmlFor="tbl-to">To</Label>
+              <Input
                 id="tbl-to"
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
               />
             </div>
-            <ZoruButton size="sm" onClick={() => void loadActivities(1)} className="mb-1">
+            <Button size="sm" onClick={() => void loadActivities(1)} className="mb-1">
               <Filter className="h-3.5 w-3.5" /> Apply
-            </ZoruButton>
+            </Button>
             {(typeFilter !== 'all' || statusFilter !== 'all' || dateFrom || dateTo) && (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 className="mb-1"
@@ -533,7 +533,7 @@ export function ActivityPageClient({
                 }}
               >
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             )}
           </div>
 
@@ -541,7 +541,7 @@ export function ActivityPageClient({
           {selected.size > 0 && (
             <div className="flex flex-wrap items-center gap-2 rounded border border-zoru-line bg-zoru-surface-2 px-3 py-2">
               <span className="text-[12.5px] text-zoru-ink">{selected.size} selected</span>
-              <ZoruButton
+              <Button
                 size="sm"
                 onClick={() => void handleBulkComplete()}
                 disabled={bulkWorking}
@@ -552,25 +552,25 @@ export function ActivityPageClient({
                   <CheckCircle2 className="h-3.5 w-3.5" />
                 )}
                 Complete
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => void handleBulkDelete()}
                 disabled={bulkWorking}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" className="ml-auto" onClick={exportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" className="ml-auto" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             {loadingTable ? (
               <div className="flex items-center justify-center p-10">
                 <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
@@ -581,7 +581,7 @@ export function ActivityPageClient({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="hover:bg-transparent">
                       <ZoruTableHead className="w-8">
@@ -661,10 +661,10 @@ export function ActivityPageClient({
                       );
                     })}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
             )}
-          </ZoruCard>
+          </Card>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -674,22 +674,22 @@ export function ActivityPageClient({
                 {activitiesTotal.toLocaleString()} activities
               </span>
               <div className="flex gap-1">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={activitiesPage <= 1}
                   onClick={() => void loadActivities(activitiesPage - 1)}
                 >
                   Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={activitiesPage >= totalPages}
                   onClick={() => void loadActivities(activitiesPage + 1)}
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           )}
@@ -697,9 +697,9 @@ export function ActivityPageClient({
           {/* Export (when no selection) */}
           {selected.size === 0 && activities.length > 0 && (
             <div className="flex justify-end">
-              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              <Button size="sm" variant="outline" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
+              </Button>
             </div>
           )}
         </TabsContent>

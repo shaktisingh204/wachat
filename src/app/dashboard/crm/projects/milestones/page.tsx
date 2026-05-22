@@ -276,36 +276,36 @@ export default function ProjectMilestonesPage() {
         }}
         primaryAction={
           <>
-            <ZoruButton variant="outline" onClick={handleExport}>
+            <Button variant="outline" onClick={handleExport}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton onClick={() => setCreateOpen(true)}>
+            </Button>
+            <Button onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" /> New milestone
-            </ZoruButton>
+            </Button>
           </>
         }
         bulkBar={
           selection.size > 0 ? (
             <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selection.size} selected</span>
-              <ZoruButton variant="outline" size="sm" onClick={() => setConfirmBulk('complete')} disabled={bulkPending}>
+              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('complete')} disabled={bulkPending}>
                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Complete
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="mr-1 h-3.5 w-3.5" /> Export
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+              </Button>
+              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
                 <X className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
         filters={
           <>
-            <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -314,15 +314,15 @@ export default function ProjectMilestonesPage() {
                 <ZoruSelectItem value="incomplete">Incomplete</ZoruSelectItem>
                 <ZoruSelectItem value="complete">Complete</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruInput
+            </Select>
+            <Input
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
               placeholder="Project id"
               className="h-9 w-[200px] text-[13px]"
             />
             {hasActiveFilters ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -331,7 +331,7 @@ export default function ProjectMilestonesPage() {
                 }}
               >
                 Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
           </>
         }
@@ -344,9 +344,9 @@ export default function ProjectMilestonesPage() {
                 Milestones break a project into delivery checkpoints — useful
                 for client billing and progress tracking.
               </p>
-              <ZoruButton onClick={() => setCreateOpen(true)}>
+              <Button onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4" /> New milestone
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -354,22 +354,22 @@ export default function ProjectMilestonesPage() {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Total"
               value={kpis.total.toLocaleString()}
               icon={<Flag className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Reached"
               value={kpis.reached.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Pending"
               value={kpis.pending.toLocaleString()}
               icon={<Clock className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Overdue"
               value={kpis.overdue.toLocaleString()}
               icon={<AlertTriangle className="h-4 w-4" />}
@@ -378,7 +378,7 @@ export default function ProjectMilestonesPage() {
 
           {filtered.length === 0 && !loading ? null : (
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
@@ -386,7 +386,7 @@ export default function ProjectMilestonesPage() {
                         const allCk = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
                         const someCk = !allCk && filtered.some((r) => selection.has(r._id));
                         return (
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={allCk || (someCk ? 'indeterminate' : false)}
                             onCheckedChange={(v) => handleToggleAll(!!v)}
                             aria-label="Select all"
@@ -416,7 +416,7 @@ export default function ProjectMilestonesPage() {
                         ].join(' ')}
                       >
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={selection.has(r._id)}
                             onCheckedChange={() => handleToggle(r._id)}
                             aria-label={`Select ${r.milestoneTitle ?? 'milestone'}`}
@@ -461,7 +461,7 @@ export default function ProjectMilestonesPage() {
                           {fmtMoney(Number(r.cost) || null, r.currency ?? 'INR')}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
-                          <ZoruDropdownMenu>
+                          <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
                               <button
                                 type="button"
@@ -482,13 +482,13 @@ export default function ProjectMilestonesPage() {
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                               </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                          </ZoruDropdownMenu>
+                          </DropdownMenu>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
           )}
         </div>
@@ -576,7 +576,7 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
   );
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -591,9 +591,9 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
             <input type="hidden" name="_id" defaultValue={initial._id} />
           ) : null}
           <div>
-            <ZoruLabel>
+            <Label>
               Project <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="project"
               name="projectId"
@@ -603,10 +603,10 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="milestoneTitle">
+            <Label htmlFor="milestoneTitle">
               Title <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="milestoneTitle"
               name="milestoneTitle"
               defaultValue={initial?.milestoneTitle ?? ''}
@@ -614,8 +614,8 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="summary">Summary / deliverables</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="summary">Summary / deliverables</Label>
+            <Textarea
               id="summary"
               name="summary"
               defaultValue={initial?.summary ?? ''}
@@ -625,8 +625,8 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <ZoruLabel htmlFor="startDate">Start</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="startDate">Start</Label>
+              <Input
                 id="startDate"
                 name="startDate"
                 type="date"
@@ -640,8 +640,8 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="endDate">Target date</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="endDate">Target date</Label>
+              <Input
                 id="endDate"
                 name="endDate"
                 type="date"
@@ -657,8 +657,8 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <ZoruLabel htmlFor="cost">Cost / payment</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="cost">Cost / payment</Label>
+              <Input
                 id="cost"
                 name="cost"
                 type="number"
@@ -667,8 +667,8 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="currency">Currency</Label>
+              <Input
                 id="currency"
                 name="currency"
                 defaultValue={initial?.currency ?? 'INR'}
@@ -676,8 +676,8 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruSelect name="status" defaultValue={initial?.status ?? 'incomplete'}>
+            <Label htmlFor="status">Status</Label>
+            <Select name="status" defaultValue={initial?.status ?? 'incomplete'}>
               <ZoruSelectTrigger id="status">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -685,26 +685,26 @@ function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDial
                 <ZoruSelectItem value="incomplete">Incomplete</ZoruSelectItem>
                 <ZoruSelectItem value="complete">Complete</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           {state?.error ? (
             <p className="text-sm text-zoru-danger-ink">{state.error}</p>
           ) : null}
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit">
+            </Button>
+            <Button type="submit">
               {initial?._id ? 'Save changes' : 'Create milestone'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

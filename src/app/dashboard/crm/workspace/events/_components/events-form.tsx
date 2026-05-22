@@ -92,8 +92,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                     children: (
                         <div className={TWO_COL}>
                             <div className="md:col-span-2">
-                                <ZoruLabel htmlFor="event_name">Event name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="event_name">Event name *</Label>
+                                <Input
                                     id="event_name"
                                     name="event_name"
                                     required
@@ -102,8 +102,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 />
                             </div>
                             <div className="md:col-span-2">
-                                <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
                                     id="description"
                                     name="description"
                                     rows={4}
@@ -112,7 +112,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 />
                             </div>
                             <div>
-                                <ZoruLabel>Label colour</ZoruLabel>
+                                <Label>Label colour</Label>
                                 <input type="hidden" name="label_color" value={labelColor} />
                                 <div className="mt-1.5">
                                     <ZoruColorPicker value={labelColor} onChange={setLabelColor} />
@@ -128,8 +128,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                     children: (
                         <div className={TWO_COL}>
                             <div>
-                                <ZoruLabel htmlFor="start_date_time">Start *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="start_date_time">Start *</Label>
+                                <Input
                                     id="start_date_time"
                                     name="start_date_time"
                                     type="datetime-local"
@@ -139,8 +139,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="end_date_time">End *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="end_date_time">End *</Label>
+                                <Input
                                     id="end_date_time"
                                     name="end_date_time"
                                     type="datetime-local"
@@ -159,7 +159,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                     children: (
                         <div className={TWO_COL}>
                             <div>
-                                <ZoruLabel htmlFor="repeat">Repeat</ZoruLabel>
+                                <Label htmlFor="repeat">Repeat</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="repeat"
@@ -170,7 +170,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="repeat_type">Repeat type</ZoruLabel>
+                                <Label htmlFor="repeat_type">Repeat type</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="repeat_type"
@@ -180,8 +180,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="repeat_every">Repeat every</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="repeat_every">Repeat every</Label>
+                                <Input
                                     id="repeat_every"
                                     name="repeat_every"
                                     type="number"
@@ -191,8 +191,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="repeat_cycles">Cycles</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="repeat_cycles">Cycles</Label>
+                                <Input
                                     id="repeat_cycles"
                                     name="repeat_cycles"
                                     type="number"
@@ -211,7 +211,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                     children: (
                         <div className={TWO_COL}>
                             <div>
-                                <ZoruLabel htmlFor="send_reminder">Send reminder</ZoruLabel>
+                                <Label htmlFor="send_reminder">Send reminder</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="send_reminder"
@@ -222,8 +222,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="remind_time">Remind in</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="remind_time">Remind in</Label>
+                                <Input
                                     id="remind_time"
                                     name="remind_time"
                                     type="number"
@@ -233,7 +233,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="remind_type">Remind unit</ZoruLabel>
+                                <Label htmlFor="remind_type">Remind unit</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="remind_type"
@@ -243,7 +243,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="google_calendar">Google Calendar</ZoruLabel>
+                                <Label htmlFor="google_calendar">Google Calendar</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="google_calendar"
@@ -263,8 +263,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                     children: (
                         <div className={TWO_COL}>
                             <div>
-                                <ZoruLabel htmlFor="where">Location</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="where">Location</Label>
+                                <Input
                                     id="where"
                                     name="where"
                                     defaultValue={event?.where ?? ''}
@@ -272,8 +272,8 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="online_link">Online link</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="online_link">Online link</Label>
+                                <Input
                                     id="online_link"
                                     name="online_link"
                                     type="url"

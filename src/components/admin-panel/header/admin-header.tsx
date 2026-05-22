@@ -55,9 +55,9 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
             {/* ── Left ── */}
             <div className="flex items-center gap-2 min-w-0">
                 <SidebarTrigger>
-                    <ZoruButton variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                         <PanelLeft className="h-4 w-4 text-muted-foreground" />
-                    </ZoruButton>
+                    </Button>
                 </SidebarTrigger>
 
                 {/* App indicator pill */}
@@ -98,7 +98,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
                     className="flex items-center gap-2 rounded-full px-2 py-1 bg-card/80 hover:bg-card transition-colors cursor-pointer"
                     style={{ border: '1px solid var(--app-border)' }}
                 >
-                    <ZoruAvatar className="h-7 w-7 shrink-0">
+                    <Avatar className="h-7 w-7 shrink-0">
                         <ZoruAvatarImage src={avatarSrc} alt={displayName} />
                         <ZoruAvatarFallback
                             className="text-xs font-bold"
@@ -106,7 +106,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
                         >
                             {initials}
                         </ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <span className="hidden sm:block text-sm font-medium max-w-[90px] truncate">
                         {displayName}
                     </span>

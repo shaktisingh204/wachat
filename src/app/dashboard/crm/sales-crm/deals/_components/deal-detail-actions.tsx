@@ -122,7 +122,7 @@ export function DealDetailActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Status pill → stage-change dropdown */}
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -139,33 +139,33 @@ export function DealDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/sales-crm/deals/${dealId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/sales/quotations/new?fromKind=deal&fromId=${dealId}`}>
           <ArrowRight className="h-3.5 w-3.5" /> Convert to quotation
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
         <Mail className="h-3.5 w-3.5" /> Email
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setWhatsAppOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setWhatsAppOpen(true)}>
         <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setAddTaskOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setAddTaskOpen(true)}>
         <ListPlus className="h-3.5 w-3.5" /> Add task
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/sales-crm/deals/${dealId}?print=1`}
           target="_blank"
@@ -173,25 +173,25 @@ export function DealDetailActions({
         >
           <Printer className="h-3.5 w-3.5" /> Print
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => openWonLoss('won')}>
+      <Button size="sm" variant="outline" onClick={() => openWonLoss('won')}>
         <Trophy className="h-3.5 w-3.5" /> Mark won
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => openWonLoss('lost')}>
+      <Button size="sm" variant="outline" onClick={() => openWonLoss('lost')}>
         <CircleX className="h-3.5 w-3.5" /> Mark lost
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/sales-crm/deals/${dealId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       {/* Dialogs */}
       <DealEmailDialog

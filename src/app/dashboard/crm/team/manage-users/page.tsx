@@ -372,13 +372,13 @@ export default function ManageUsersPage() {
                                     : 'Try clearing filters to see every member of your workspace.'}
                             </p>
                             {members.length === 0 ? (
-                                <ZoruButton onClick={() => setInviteDialogOpen(true)}>
+                                <Button onClick={() => setInviteDialogOpen(true)}>
                                     <UserPlus className="h-4 w-4" /> Invite member
-                                </ZoruButton>
+                                </Button>
                             ) : (
-                                <ZoruButton variant="outline" onClick={clearFilters}>
+                                <Button variant="outline" onClick={clearFilters}>
                                     Clear filters
-                                </ZoruButton>
+                                </Button>
                             )}
                         </div>
                     ) : null
@@ -387,9 +387,9 @@ export default function ManageUsersPage() {
                 <div className="flex flex-col gap-4">
                     <KpiStrip {...kpis} />
 
-                    <ZoruCard className="p-0 overflow-hidden">
+                    <Card className="p-0 overflow-hidden">
                         <div className="flex items-center gap-3 border-b border-zoru-line px-4 py-3 text-[12px] text-zoru-ink-muted">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={allSelectedOnPage}
                                 onCheckedChange={(v) => toggleAll(Boolean(v))}
                                 aria-label="Select all on page"
@@ -402,9 +402,9 @@ export default function ManageUsersPage() {
                         </div>
                         {isLoading && members.length === 0 ? (
                             <div className="space-y-2 p-3">
-                                <ZoruSkeleton className="h-14 w-full" />
-                                <ZoruSkeleton className="h-14 w-full" />
-                                <ZoruSkeleton className="h-14 w-full" />
+                                <Skeleton className="h-14 w-full" />
+                                <Skeleton className="h-14 w-full" />
+                                <Skeleton className="h-14 w-full" />
                             </div>
                         ) : (
                             <ul role="list" className="divide-y divide-zoru-line">
@@ -419,14 +419,14 @@ export default function ManageUsersPage() {
                                             key={id}
                                             className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zoru-bg/60"
                                         >
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(id)}
                                                 onCheckedChange={() => toggleOne(id)}
                                                 disabled={Boolean(isSelf)}
                                                 aria-label={`Select ${m.name}`}
                                             />
                                             <div className="flex min-w-0 flex-1 items-center gap-3">
-                                                <ZoruAvatar className="h-8 w-8">
+                                                <Avatar className="h-8 w-8">
                                                     <ZoruAvatarImage
                                                         src={`https://i.pravatar.cc/150?u=${m.email}`}
                                                         alt={m.name}
@@ -434,7 +434,7 @@ export default function ManageUsersPage() {
                                                     <ZoruAvatarFallback className="text-[11px]">
                                                         {m.name.substring(0, 2).toUpperCase()}
                                                     </ZoruAvatarFallback>
-                                                </ZoruAvatar>
+                                                </Avatar>
                                                 <div className="min-w-0 flex-1">
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/team/manage-users/${id}`}
@@ -471,7 +471,7 @@ export default function ManageUsersPage() {
                                 })}
                             </ul>
                         )}
-                    </ZoruCard>
+                    </Card>
                 </div>
             </EntityListShell>
 
@@ -528,7 +528,7 @@ const KpiStrip = React.memo(function KpiStrip({
             {cards.map((c) => {
                 const Icon = c.icon;
                 return (
-                    <ZoruCard key={c.label} className="p-4">
+                    <Card key={c.label} className="p-4">
                         <div className="flex items-start justify-between gap-2">
                             <div>
                                 <p className="text-[12px] text-zoru-ink-muted">{c.label}</p>
@@ -538,7 +538,7 @@ const KpiStrip = React.memo(function KpiStrip({
                             </div>
                             <Icon className="h-4 w-4 text-zoru-ink-muted" />
                         </div>
-                    </ZoruCard>
+                    </Card>
                 );
             })}
         </div>
@@ -572,7 +572,7 @@ function FilterRow({
 }: FilterRowProps) {
     return (
         <>
-            <ZoruSelect value={roleFilter} onValueChange={onRoleChange}>
+            <Select value={roleFilter} onValueChange={onRoleChange}>
                 <ZoruSelectTrigger className="h-9 w-[160px] text-[12.5px]">
                     <ZoruSelectValue placeholder="Role" />
                 </ZoruSelectTrigger>
@@ -583,8 +583,8 @@ function FilterRow({
                     <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
                     <ZoruSelectItem value="member">Member</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
                 value={statusFilter}
                 onValueChange={(v) => onStatusChange(v as 'all' | 'active' | 'pending')}
             >
@@ -596,8 +596,8 @@ function FilterRow({
                     <ZoruSelectItem value="active">Active</ZoruSelectItem>
                     <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={departmentFilter} onValueChange={onDepartmentChange}>
+            </Select>
+            <Select value={departmentFilter} onValueChange={onDepartmentChange}>
                 <ZoruSelectTrigger className="h-9 w-[200px] text-[12.5px]">
                     <ZoruSelectValue placeholder="Department" />
                 </ZoruSelectTrigger>
@@ -609,11 +609,11 @@ function FilterRow({
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {hasActiveFilters ? (
-                <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                <Button variant="ghost" size="sm" onClick={onClear}>
                     Clear filters
-                </ZoruButton>
+                </Button>
             ) : null}
         </>
     );
@@ -649,11 +649,11 @@ function BulkBar({
             <span className="text-[12.5px] font-medium text-zoru-ink">
                 {count} selected
             </span>
-            <ZoruButton variant="outline" size="sm" onClick={onInvite}>
+            <Button variant="outline" size="sm" onClick={onInvite}>
                 <UserPlus className="h-3.5 w-3.5" /> Bulk invite
-            </ZoruButton>
+            </Button>
             <div className="flex items-center gap-1">
-                <ZoruSelect value={roleValue} onValueChange={onRoleValueChange}>
+                <Select value={roleValue} onValueChange={onRoleValueChange}>
                     <ZoruSelectTrigger className="h-8 w-[120px] text-[12px]">
                         <ZoruSelectValue />
                     </ZoruSelectTrigger>
@@ -662,8 +662,8 @@ function BulkBar({
                         <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
                         <ZoruSelectItem value="member">Member</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruButton
+                </Select>
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={onApplyRole}
@@ -675,9 +675,9 @@ function BulkBar({
                         <Shield className="h-3.5 w-3.5" />
                     )}
                     Change role
-                </ZoruButton>
+                </Button>
             </div>
-            <ZoruButton
+            <Button
                 variant="destructive"
                 size="sm"
                 onClick={onDeactivate}
@@ -689,14 +689,14 @@ function BulkBar({
                     <Trash2 className="h-3.5 w-3.5" />
                 )}
                 Deactivate
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={onExport}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export
-            </ZoruButton>
+            </Button>
             <span className="flex-1" />
-            <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+            <Button variant="ghost" size="sm" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -707,17 +707,17 @@ function RoleBadge({ role }: { role: string }) {
     const variant =
         role === 'owner' || role === 'admin' ? 'default' : role === 'member' ? 'outline' : 'secondary';
     return (
-        <ZoruBadge variant={variant} className="capitalize">
+        <Badge variant={variant} className="capitalize">
             {role}
-        </ZoruBadge>
+        </Badge>
     );
 }
 
 function StatusBadge({ status }: { status: 'active' | 'pending' }) {
     if (status === 'pending') {
-        return <ZoruBadge variant="outline">Pending</ZoruBadge>;
+        return <Badge variant="outline">Pending</Badge>;
     }
-    return <ZoruBadge variant="secondary">Active</ZoruBadge>;
+    return <Badge variant="secondary">Active</Badge>;
 }
 
 /* ─── Invite dialog ──────────────────────────────────────────────────── */
@@ -753,11 +753,11 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton>
+                <Button>
                     <Plus className="h-4 w-4" /> Invite member
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-md">
                 <ZoruDialogHeader>
@@ -769,8 +769,8 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
                 </ZoruDialogHeader>
                 <form ref={formRef} action={handleSubmit} className="flex flex-col gap-4">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="invite-email">Email</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="invite-email">Email</Label>
+                        <Input
                             id="invite-email"
                             name="email"
                             type="email"
@@ -779,8 +779,8 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="invite-role">Role</ZoruLabel>
-                        <ZoruSelect name="role" defaultValue="agent">
+                        <Label htmlFor="invite-role">Role</Label>
+                        <Select name="role" defaultValue="agent">
                             <ZoruSelectTrigger id="invite-role">
                                 <ZoruSelectValue placeholder="Select role" />
                             </ZoruSelectTrigger>
@@ -789,28 +789,28 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
                                 <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
                                 <ZoruSelectItem value="member">Member</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                             disabled={isPending}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton type="submit" disabled={isPending}>
+                        </Button>
+                        <Button type="submit" disabled={isPending}>
                             {isPending ? (
                                 <LoaderCircle className="h-4 w-4 animate-spin" />
                             ) : (
                                 <UserPlus className="h-4 w-4" />
                             )}
                             Send invite
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

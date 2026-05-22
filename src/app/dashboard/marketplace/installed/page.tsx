@@ -80,7 +80,7 @@ export default function InstalledMarketplaceAppsPage(): React.JSX.Element {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -94,7 +94,7 @@ export default function InstalledMarketplaceAppsPage(): React.JSX.Element {
                         <ZoruBreadcrumbPage>Installed Apps</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <header className="flex items-start justify-between gap-4">
                 <div>
@@ -104,18 +104,18 @@ export default function InstalledMarketplaceAppsPage(): React.JSX.Element {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="ghost" onClick={fetchRows} disabled={isLoading}>
+                    <Button variant="ghost" onClick={fetchRows} disabled={isLoading}>
                         <RefreshCw className={isLoading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
                         Refresh
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         onClick={() => {
                             window.location.assign('/dashboard/marketplace');
                         }}
                     >
                         <Store className="mr-2 h-4 w-4" />
                         Browse Marketplace
-                    </ZoruButton>
+                    </Button>
                 </div>
             </header>
 
@@ -143,7 +143,7 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
     );
 
     return (
-        <ZoruCard className="flex flex-col gap-4 p-5">
+        <Card className="flex flex-col gap-4 p-5">
             <header className="flex items-start gap-3">
                 <div
                     aria-hidden="true"
@@ -174,7 +174,7 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
             <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                 Lifetime: {row.lifetimeUnits.toLocaleString()} units
             </p>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -257,21 +257,21 @@ function LoadingPanel(): React.JSX.Element {
 
 function EmptyPanel(): React.JSX.Element {
     return (
-        <ZoruCard className="flex min-h-[240px] flex-col items-center justify-center gap-2 p-8 text-center">
+        <Card className="flex min-h-[240px] flex-col items-center justify-center gap-2 p-8 text-center">
             <Store className="h-8 w-8 text-zoru-ink-muted" />
             <h2 className="text-base text-zoru-ink">No apps installed yet</h2>
             <p className="max-w-md text-sm text-zoru-ink-muted">
                 Browse the marketplace to extend your workspace with first- and third-party apps.
             </p>
-            <ZoruButton
+            <Button
                 className="mt-2"
                 onClick={() => {
                     window.location.assign('/dashboard/marketplace');
                 }}
             >
                 Browse Marketplace
-            </ZoruButton>
-        </ZoruCard>
+            </Button>
+        </Card>
     );
 }
 
@@ -283,13 +283,13 @@ function ErrorPanel({
     onRetry: () => void;
 }): React.JSX.Element {
     return (
-        <ZoruCard className="flex min-h-[160px] flex-col items-center justify-center gap-3 p-6 text-center">
+        <Card className="flex min-h-[160px] flex-col items-center justify-center gap-3 p-6 text-center">
             <p className="text-sm text-zoru-ink">Couldn&apos;t load installed apps.</p>
             <p className="font-mono text-xs text-zoru-ink-muted">{message}</p>
-            <ZoruButton variant="ghost" onClick={onRetry}>
+            <Button variant="ghost" onClick={onRetry}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Retry
-            </ZoruButton>
-        </ZoruCard>
+            </Button>
+        </Card>
     );
 }

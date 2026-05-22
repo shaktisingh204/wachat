@@ -54,7 +54,7 @@ export default async function ReportRunsListPage({ params }: PageProps) {
             subtitle={`Kind: ${def.kind} · Latest 100 runs`}
         >
 
-            <ZoruCard>
+            <Card>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="text-left text-muted-foreground">
@@ -91,7 +91,7 @@ export default async function ReportRunsListPage({ params }: PageProps) {
                                             {fmtDate(r.startedAt)}
                                         </td>
                                         <td className="px-3 py-2">
-                                            <ZoruBadge tone={tone}>{r.status}</ZoruBadge>
+                                            <Badge tone={tone}>{r.status}</Badge>
                                         </td>
                                         <td className="px-3 py-2 text-muted-foreground">
                                             {r.trigger}
@@ -119,7 +119,7 @@ export default async function ReportRunsListPage({ params }: PageProps) {
                         </tbody>
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

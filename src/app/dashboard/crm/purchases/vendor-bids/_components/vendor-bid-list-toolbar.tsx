@@ -55,7 +55,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('draft')}
         aria-label="Filter to draft vendor bids"
       >
-        <ZoruStatCard
+        <StatCard
           label="Draft"
           value={kpi.draft.toLocaleString()}
           period="status = draft"
@@ -68,7 +68,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('submitted')}
         aria-label="Filter to submitted vendor bids"
       >
-        <ZoruStatCard
+        <StatCard
           label="Submitted"
           value={kpi.submitted.toLocaleString()}
           period="status = submitted"
@@ -80,7 +80,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('shortlisted')}
         aria-label="Filter to shortlisted vendor bids"
       >
-        <ZoruStatCard
+        <StatCard
           label="Shortlisted"
           value={kpi.shortlisted.toLocaleString()}
           period="status = shortlisted"
@@ -92,7 +92,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('awarded')}
         aria-label="Filter to awarded vendor bids"
       >
-        <ZoruStatCard
+        <StatCard
           label="Awarded"
           value={kpi.awarded.toLocaleString()}
           period="status = awarded"
@@ -104,7 +104,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('rejected')}
         aria-label="Filter to rejected vendor bids"
       >
-        <ZoruStatCard
+        <StatCard
           label="Rejected"
           value={kpi.rejected.toLocaleString()}
           period="status = rejected"
@@ -140,7 +140,7 @@ export function VendorBidListToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
       <div className="relative w-full max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search by vendor name or terms…"
@@ -150,7 +150,7 @@ export function VendorBidListToolbar({
       </div>
 
       <div className="flex items-center gap-1.5">
-        <ZoruSelect value={density} onValueChange={(v) => onDensityChange(v as Density)}>
+        <Select value={density} onValueChange={(v) => onDensityChange(v as Density)}>
           <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -159,10 +159,10 @@ export function VendorBidListToolbar({
             <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
             <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-          <ZoruButton
+          <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}
             size="sm"
@@ -171,18 +171,18 @@ export function VendorBidListToolbar({
             aria-label="Table view"
           >
             <TableIcon className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+        <Button variant="outline" size="sm" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export
-        </ZoruButton>
+        </Button>
 
-        <ZoruButton size="sm" asChild>
+        <Button size="sm" asChild>
           <Link href="/dashboard/crm/purchases/vendor-bids/new">
             <Plus className="h-3.5 w-3.5" /> New vendor bid
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

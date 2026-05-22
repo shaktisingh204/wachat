@@ -88,29 +88,29 @@ export function ZoruFullscreenCalendar({
           </p>
         </div>
         <div className="flex items-center gap-1">
-          <ZoruButton
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Previous month"
             onClick={() => setMonth((m) => subMonths(m, 1))}
           >
             <ChevronLeft />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setMonth(new Date())}
           >
             Today
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Next month"
             onClick={() => setMonth((m) => addMonths(m, 1))}
           >
             <ChevronRight />
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 

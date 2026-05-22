@@ -26,13 +26,13 @@ export function ImageEditor({ node, onUpdate }: EditorProps) {
 
     return (
         <div className="space-y-4">
-             <ZoruRadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="url" id="img-url" /><ZoruLabel htmlFor="img-url">From URL</ZoruLabel></div>
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="upload" id="img-upload" /><ZoruLabel htmlFor="img-upload">Upload</ZoruLabel></div>
-            </ZoruRadioGroup>
+             <RadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
+                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="url" id="img-url" /><Label htmlFor="img-url">From URL</Label></div>
+                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="upload" id="img-upload" /><Label htmlFor="img-upload">Upload</Label></div>
+            </RadioGroup>
             {mediaSource === 'url' ? (
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="image-url">Image URL</ZoruLabel>
+                    <Label htmlFor="image-url">Image URL</Label>
                     <SabFileUrlInput
                         id="image-url"
                         accept="image"
@@ -43,13 +43,13 @@ export function ImageEditor({ node, onUpdate }: EditorProps) {
                 </div>
             ) : (
                  <div className="space-y-2">
-                    <ZoruLabel htmlFor="image-file">Upload Image</ZoruLabel>
-                    <ZoruInput id="image-file" type="file" accept="image/*" onChange={handleFileChange} />
+                    <Label htmlFor="image-file">Upload Image</Label>
+                    <Input id="image-file" type="file" accept="image/*" onChange={handleFileChange} />
                 </div>
             )}
             <div className="space-y-2">
-                <ZoruLabel htmlFor="image-caption">Caption (Optional)</ZoruLabel>
-                <ZoruTextarea id="image-caption" placeholder="A caption for your image..." value={node.data.caption || ''} onChange={(e) => onUpdate({ caption: e.target.value })} />
+                <Label htmlFor="image-caption">Caption (Optional)</Label>
+                <Textarea id="image-caption" placeholder="A caption for your image..." value={node.data.caption || ''} onChange={(e) => onUpdate({ caption: e.target.value })} />
             </div>
         </div>
     );

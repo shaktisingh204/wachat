@@ -58,7 +58,7 @@ const INITIAL_STATE: SuggestionsState = { suggestions: [], errors: {} };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="lg" disabled={pending}>
+    <Button type="submit" size="lg" disabled={pending}>
       {pending ? (
         <>
           <Loader2 className="animate-spin" />
@@ -70,7 +70,7 @@ function SubmitButton() {
           Generate Suggestions
         </>
       )}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -92,7 +92,7 @@ export default function PostGeneratorPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -106,9 +106,9 @@ export default function PostGeneratorPage() {
             <ZoruBreadcrumbPage>Post Generator</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-2">
+      <PageHeader className="mt-2">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat · AI</ZoruPageEyebrow>
           <ZoruPageTitle>AI Post Generator</ZoruPageTitle>
@@ -117,10 +117,10 @@ export default function PostGeneratorPage() {
             AI will draft post ideas you can repurpose for WhatsApp campaigns.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-zoru-ink-muted" />
@@ -134,8 +134,8 @@ export default function PostGeneratorPage() {
           <ZoruCardContent>
             <form action={dispatch} className="flex flex-col gap-6">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="facebookData">Facebook Page Data</ZoruLabel>
-                <ZoruTextarea
+                <Label htmlFor="facebookData">Facebook Page Data</Label>
+                <Textarea
                   id="facebookData"
                   name="facebookData"
                   placeholder="Paste your data here…"
@@ -154,7 +154,7 @@ export default function PostGeneratorPage() {
               </div>
             </form>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         <div className="flex flex-col gap-3">
           <h2 className="text-[18px] tracking-tight text-zoru-ink">
@@ -163,7 +163,7 @@ export default function PostGeneratorPage() {
           {state.suggestions && state.suggestions.length > 0 ? (
             <div className="flex flex-col gap-3">
               {state.suggestions.map((suggestion, index) => (
-                <ZoruCard
+                <Card
                   key={index}
                   className="transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
                 >
@@ -172,28 +172,28 @@ export default function PostGeneratorPage() {
                       {suggestion}
                     </p>
                     <div className="mt-4 flex justify-end gap-2">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopy(suggestion)}
                       >
                         <Copy />
                         Copy
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setPublishTarget(suggestion)}
                       >
                         Use Post
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruCardContent>
-                </ZoruCard>
+                </Card>
               ))}
             </div>
           ) : (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Sparkles />}
               title="Suggestions appear here"
               description="Submit Facebook page data on the left and the AI will draft post ideas you can copy or publish."
@@ -203,7 +203,7 @@ export default function PostGeneratorPage() {
       </div>
 
       {/* Publish-post dialog */}
-      <ZoruDialog
+      <Dialog
         open={publishTarget !== null}
         onOpenChange={(open) => {
           if (!open) setPublishTarget(null);
@@ -223,13 +223,13 @@ export default function PostGeneratorPage() {
             </div>
           ) : null}
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setPublishTarget(null)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 if (publishTarget) {
                   navigator.clipboard.writeText(publishTarget);
@@ -244,10 +244,10 @@ export default function PostGeneratorPage() {
             >
               <Send />
               Copy &amp; use
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

@@ -44,7 +44,7 @@ export function InvoiceDetailBody({ invoice, customer }: InvoiceDetailBodyProps)
   return (
     <>
       {/* Overview */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Overview
         </h2>
@@ -75,10 +75,10 @@ export function InvoiceDetailBody({ invoice, customer }: InvoiceDetailBodyProps)
           </DetailField>
           <DetailField label="E-way bill">{invoice.ewayBillNo || '—'}</DetailField>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Customer */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Customer
         </h2>
@@ -112,10 +112,10 @@ export function InvoiceDetailBody({ invoice, customer }: InvoiceDetailBodyProps)
             </DetailField>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Line items
         </h2>
@@ -192,10 +192,10 @@ export function InvoiceDetailBody({ invoice, customer }: InvoiceDetailBodyProps)
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Money summary */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Money summary
         </h2>
@@ -252,7 +252,7 @@ export function InvoiceDetailBody({ invoice, customer }: InvoiceDetailBodyProps)
             }
           />
         </div>
-      </ZoruCard>
+      </Card>
     </>
   );
 }

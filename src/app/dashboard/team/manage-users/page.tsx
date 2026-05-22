@@ -215,7 +215,7 @@ export default function ManageUsersPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -229,9 +229,9 @@ export default function ManageUsersPage() {
                         <ZoruBreadcrumbPage>Manage Users</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Team</ZoruPageTitle>
                     <ZoruPageDescription>
@@ -239,14 +239,14 @@ export default function ManageUsersPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="md" onClick={fetchAll} disabled={loading}>
+                    <Button variant="outline" size="md" onClick={fetchAll} disabled={loading}>
                         {loading ? (
                             <Loader className="h-3.5 w-3.5 animate-spin" />
                         ) : (
                             <RefreshCw className="h-3.5 w-3.5" />
                         )}
                         Refresh
-                    </ZoruButton>
+                    </Button>
                     {canInvite ? (
                         <InviteDialog
                             open={inviteOpen}
@@ -261,7 +261,7 @@ export default function ManageUsersPage() {
                         />
                     ) : null}
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <StatsRow
                 membersCount={members.length}
@@ -271,9 +271,9 @@ export default function ManageUsersPage() {
             />
 
             {/* Filters */}
-            <ZoruCard className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 items-center gap-3">
-                    <ZoruInput
+                    <Input
                         className="max-w-[320px] flex-1"
                         leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
                         placeholder={tab === 'members' ? 'Search members' : 'Search invitations'}
@@ -281,7 +281,7 @@ export default function ManageUsersPage() {
                         onChange={(e) => setQuery(e.target.value)}
                     />
                     <div className="w-[160px]">
-                        <ZoruSelect value={roleFilter} onValueChange={setRoleFilter}>
+                        <Select value={roleFilter} onValueChange={setRoleFilter}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -293,7 +293,7 @@ export default function ManageUsersPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
                 <TabSwitcher
@@ -302,7 +302,7 @@ export default function ManageUsersPage() {
                     members={members.length}
                     pending={invites.filter((i) => !i.isExpired && i.status === 'pending').length}
                 />
-            </ZoruCard>
+            </Card>
 
             {tab === 'members' && selectedMembers.size > 0 ? (
                 <BulkBar
@@ -362,7 +362,7 @@ function StatsRow(props: {
     return (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((s) => (
-                <ZoruCard key={s.label} className="flex items-center gap-3 p-4">
+                <Card key={s.label} className="flex items-center gap-3 p-4">
                     <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                         {s.icon}
                     </span>
@@ -374,7 +374,7 @@ function StatsRow(props: {
                             {s.value}
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );
@@ -478,12 +478,12 @@ function InviteDialog({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton size="md">
+                <Button size="md">
                     <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
                     Invite member
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="max-w-md">
                 <ZoruDialogHeader>
@@ -497,7 +497,7 @@ function InviteDialog({
                         <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
                             Email
                         </label>
-                        <ZoruInput
+                        <Input
                             name="email"
                             type="email"
                             required
@@ -510,7 +510,7 @@ function InviteDialog({
                             <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
                                 Role
                             </label>
-                            <ZoruSelect value={role} onValueChange={setRole}>
+                            <Select value={role} onValueChange={setRole}>
                                 <ZoruSelectTrigger>
                                     <ZoruSelectValue />
                                 </ZoruSelectTrigger>
@@ -523,13 +523,13 @@ function InviteDialog({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
                                 Project
                             </label>
-                            <ZoruSelect
+                            <Select
                                 value={projectId || '__all'}
                                 onValueChange={(v) => setProjectId(v === '__all' ? '' : v)}
                             >
@@ -544,11 +544,11 @@ function InviteDialog({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
                     <div className="mt-2 flex items-center justify-end gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="md"
                             type="button"
@@ -556,19 +556,19 @@ function InviteDialog({
                             disabled={pending}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="md" type="submit" disabled={pending}>
+                        </Button>
+                        <Button size="md" type="submit" disabled={pending}>
                             {pending ? (
                                 <Loader className="h-3.5 w-3.5 animate-spin" />
                             ) : (
                                 <UserPlus className="h-3.5 w-3.5" strokeWidth={2.25} />
                             )}
                             Send invitation
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -616,7 +616,7 @@ function MembersTable({
         );
     }
     return (
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
             <div className={'grid items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]')}>
                 {canSelect ? (
                     <SelectCheckbox
@@ -649,7 +649,7 @@ function MembersTable({
                     />
                 ))}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -718,7 +718,7 @@ function MemberRow({
 
             <div className="hidden flex-wrap gap-1.5 sm:flex">
                 {roleEntries.length === 0 ? (
-                    <ZoruBadge variant="ghost">No project roles</ZoruBadge>
+                    <Badge variant="ghost">No project roles</Badge>
                 ) : (
                     roleEntries.slice(0, 3).map(([project, role]) => {
                         const projectObj = projects.find((p) => p.name === project);
@@ -739,7 +739,7 @@ function MemberRow({
                     })
                 )}
                 {roleEntries.length > 3 ? (
-                    <ZoruBadge variant="ghost">+{roleEntries.length - 3}</ZoruBadge>
+                    <Badge variant="ghost">+{roleEntries.length - 3}</Badge>
                 ) : null}
             </div>
 
@@ -757,7 +757,7 @@ function MemberRow({
                 {!canRemove ? null : (
                     <ZoruAlertDialog>
                         <ZoruAlertDialogTrigger asChild>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="icon"
                                 disabled={removing}
@@ -769,7 +769,7 @@ function MemberRow({
                                 ) : (
                                     <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                                 )}
-                            </ZoruButton>
+                            </Button>
                         </ZoruAlertDialogTrigger>
                         <ZoruAlertDialogContent>
                             <ZoruAlertDialogHeader>
@@ -851,7 +851,7 @@ function ChangeRoleBadge({
         );
     }
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
                 <button
                     type="button"
@@ -886,7 +886,7 @@ function ChangeRoleBadge({
                     ))}
                 </div>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -916,7 +916,7 @@ function InvitesTable({
         );
     }
     return (
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
             <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted sm:grid-cols-[1.2fr_160px_140px_140px_140px]">
                 <span>Invitee</span>
                 <span className="hidden sm:block">Project</span>
@@ -935,7 +935,7 @@ function InvitesTable({
                     />
                 ))}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -1016,19 +1016,19 @@ function InviteRow({
             </div>
 
             <div className="hidden sm:block">
-                <ZoruBadge variant="ghost">{roleLabel(invite.role)}</ZoruBadge>
+                <Badge variant="ghost">{roleLabel(invite.role)}</Badge>
             </div>
 
             <div className="hidden sm:block">
                 {expired ? (
-                    <ZoruBadge variant="danger">Expired</ZoruBadge>
+                    <Badge variant="danger">Expired</Badge>
                 ) : (
-                    <ZoruBadge variant="warning">{formatExpiresIn(invite.expiresAt)}</ZoruBadge>
+                    <Badge variant="warning">{formatExpiresIn(invite.expiresAt)}</Badge>
                 )}
             </div>
 
             <div className="flex items-center justify-end gap-1">
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon"
                     onClick={copyLink}
@@ -1041,8 +1041,8 @@ function InviteRow({
                     ) : (
                         <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
                     )}
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="ghost"
                     size="icon"
                     onClick={resend}
@@ -1055,8 +1055,8 @@ function InviteRow({
                     ) : (
                         <RefreshCw className="h-4 w-4" strokeWidth={1.75} />
                     )}
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="ghost"
                     size="icon"
                     onClick={revoke}
@@ -1070,7 +1070,7 @@ function InviteRow({
                     ) : (
                         <X className="h-4 w-4" strokeWidth={1.75} />
                     )}
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -1105,7 +1105,7 @@ function hashHue(input: string) {
 
 function SkeletonRows() {
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <div className="divide-y divide-zoru-line">
                 {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center gap-3 px-5 py-4">
@@ -1118,7 +1118,7 @@ function SkeletonRows() {
                     </div>
                 ))}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -1132,13 +1132,13 @@ function EmptyState({
     icon: React.ReactNode;
 }) {
     return (
-        <ZoruCard className="flex flex-col items-center gap-3 p-12 text-center">
+        <Card className="flex flex-col items-center gap-3 p-12 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                 {icon}
             </span>
             <div className="text-[16px] text-zoru-ink">{title}</div>
             <div className="max-w-[360px] text-[12.5px] text-zoru-ink-muted">{body}</div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -1188,9 +1188,9 @@ function BulkBar({
     onRemove: () => void;
 }) {
     return (
-        <ZoruCard className="flex flex-col gap-3 border-zoru-line-strong bg-zoru-surface-2/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <Card className="flex flex-col gap-3 border-zoru-line-strong bg-zoru-surface-2/40 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-                <ZoruBadge variant="default">{count} selected</ZoruBadge>
+                <Badge variant="default">{count} selected</Badge>
                 <button
                     type="button"
                     onClick={onClear}
@@ -1202,7 +1202,7 @@ function BulkBar({
             <div className="flex flex-wrap items-center gap-2">
                 {canEditRoles ? (
                     <div className="w-[200px]">
-                        <ZoruSelect
+                        <Select
                             value=""
                             disabled={!!busy}
                             onValueChange={(v) => {
@@ -1219,11 +1219,11 @@ function BulkBar({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 ) : null}
                 {canRemove ? (
-                    <ZoruButton
+                    <Button
                         size="md"
                         onClick={onRemove}
                         disabled={!!busy}
@@ -1234,10 +1234,10 @@ function BulkBar({
                             <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
                         )}
                         Remove from all projects
-                    </ZoruButton>
+                    </Button>
                 ) : null}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 

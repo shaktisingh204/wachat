@@ -29,7 +29,7 @@ export const ClayBreadcrumbs = React.forwardRef<
   HTMLElement,
   ClayBreadcrumbsProps
 >(({ items, className, ...props }, ref) => (
-  <ZoruBreadcrumb
+  <Breadcrumb
     ref={ref}
     className={cn('text-[13px] leading-none', className)}
     {...props}
@@ -61,6 +61,6 @@ export const ClayBreadcrumbs = React.forwardRef<
         );
       })}
     </ZoruBreadcrumbList>
-  </ZoruBreadcrumb>
+  </Breadcrumb>
 ));
 ClayBreadcrumbs.displayName = 'ClayBreadcrumbs';

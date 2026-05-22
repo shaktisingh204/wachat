@@ -54,14 +54,14 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
       ) : (
         <RotateCw className="h-3.5 w-3.5" />
       )}
       {pending ? 'Requeueing…' : 'Requeue broadcast'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -126,15 +126,15 @@ export function RequeueBroadcastDialog({
   );
 
   return (
-    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           aria-label="Requeue broadcast"
         >
           <RotateCw className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="max-w-[540px] p-0">
         <form ref={formRef} action={formAction}>
@@ -160,11 +160,11 @@ export function RequeueBroadcastDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Template select */}
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                 Message template{' '}
                 <span className="ml-1 text-zoru-danger">*</span>
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 value={selectedTemplateId}
                 onValueChange={setSelectedTemplateId}
               >
@@ -192,20 +192,20 @@ export function RequeueBroadcastDialog({
                     </div>
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             {/* Header media (optional) */}
             {showImageUpload ? (
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel
+                <Label
                   htmlFor="headerImageUrl"
                   className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted"
                 >
                   Header media URL
                   <span className="ml-1 text-zoru-ink-subtle">(optional)</span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="headerImageUrl"
                   name="headerImageUrl"
                   type="url"
@@ -220,10 +220,10 @@ export function RequeueBroadcastDialog({
 
             {/* Scope radio group */}
             <div className="flex flex-col gap-2">
-              <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                 Target contacts
-              </ZoruLabel>
-              <ZoruRadioGroup
+              </Label>
+              <RadioGroup
                 value={requeueScope}
                 onValueChange={(v) =>
                   setRequeueScope(v as 'ALL' | 'FAILED')
@@ -244,23 +244,23 @@ export function RequeueBroadcastDialog({
                   title="Only failed contacts"
                   description="Retry delivery only to the ones that failed last time."
                 />
-              </ZoruRadioGroup>
+              </RadioGroup>
             </div>
           </div>
 
           <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

@@ -85,7 +85,7 @@ function ReprocessButton({
   };
 
   return (
-    <ZoruButton
+    <Button
       variant="ghost"
       size="icon-sm"
       onClick={onReprocess}
@@ -93,7 +93,7 @@ function ReprocessButton({
       aria-label="Re-process Webhook"
     >
       {isProcessing ? <Loader2 className="animate-spin" /> : <RotateCw />}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -245,13 +245,13 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-full sm:w-64">
-            <ZoruInput
+            <Input
               leadingSlot={<Search />}
               placeholder="Search logs…"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
-          <ZoruButton
+          <Button
             onClick={handleClearLogs}
             disabled={isClearing || isLoading}
             variant="outline"
@@ -259,8 +259,8 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
           >
             {isClearing ? <Loader2 className="animate-spin" /> : <Trash2 />}
             Clear Processed Logs
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={() => fetchLogs(currentPage, searchQuery, true)}
             disabled={isLoading}
             variant="outline"
@@ -268,23 +268,23 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
           >
             <RefreshCw className={isLoading ? 'animate-spin' : ''} />
             Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {isClient && filterByProject && !projectId && !isLoading ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Please select a project from the main dashboard page to view its
             webhook logs.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : (
         <>
           <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Timestamp</ZoruTableHead>
@@ -298,7 +298,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                   Array.from({ length: 5 }).map((_, i) => (
                     <ZoruTableRow key={i}>
                       <ZoruTableCell colSpan={4}>
-                        <ZoruSkeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -320,14 +320,14 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                               fetchLogs(currentPage, searchQuery, false)
                             }
                           />
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="icon-sm"
                             onClick={() => handleViewLog(log)}
                             aria-label="View Payload"
                           >
                             <Eye />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -343,33 +343,33 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                   </ZoruTableRow>
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
           <div className="flex items-center justify-end gap-2 py-2">
             <span className="text-[12px] text-zoru-ink-muted">
               Page {currentPage} of {totalPages > 0 ? totalPages : 1}
             </span>
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((p) => p - 1)}
               disabled={currentPage <= 1 || isLoading}
             >
               Previous
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((p) => p + 1)}
               disabled={currentPage >= totalPages || isLoading}
             >
               Next
-            </ZoruButton>
+            </Button>
           </div>
         </>
       )}
 
-      <ZoruDialog
+      <Dialog
         open={!!selectedLog}
         onOpenChange={(open) => !open && setSelectedLog(null)}
       >
@@ -386,14 +386,14 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                 </ZoruDialogDescription>
               </div>
               {selectedLogPayload && (
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="icon"
                   onClick={() => handleCopyPayload(selectedLogPayload)}
                   aria-label="Copy Payload"
                 >
                   <Copy />
-                </ZoruButton>
+                </Button>
               )}
             </div>
           </ZoruDialogHeader>
@@ -413,7 +413,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
             )}
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

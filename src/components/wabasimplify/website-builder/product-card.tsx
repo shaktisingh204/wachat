@@ -26,7 +26,7 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
 
   return (
     <Link href={`/shop/${shopSlug}/product/${product._id.toString()}`} className="group block">
-       <ZoruCard className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
+       <Card className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
             <ZoruCardHeader className="p-0">
                 <div className="relative aspect-[4/5] bg-muted">
                 <Image
@@ -51,13 +51,13 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
                         currency: 'INR',
                     }).format(product.price)}
                     </p>
-                    <ZoruButton size="sm" variant="outline" onClick={handleAddToCart}>
+                    <Button size="sm" variant="outline" onClick={handleAddToCart}>
                         <ShoppingCart className="mr-2 h-4 w-4" />
                         Add
-                    </ZoruButton>
+                    </Button>
                 </div>
             </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </Link>
   );
 }

@@ -75,7 +75,7 @@ export function PurchaseLeadsFiltersRow({
     return (
         <div className="flex flex-wrap items-center gap-2">
             <div className="w-44">
-                <ZoruSelect
+                <Select
                     value={String(statusFilter || 'all')}
                     onValueChange={(v) => onStatusChange(v)}
                 >
@@ -89,11 +89,11 @@ export function PurchaseLeadsFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="w-56">
-                <ZoruSelect
+                <Select
                     value={ownerFilter || '__all__'}
                     onValueChange={(v) => onOwnerChange(v === '__all__' ? '' : v)}
                 >
@@ -108,11 +108,11 @@ export function PurchaseLeadsFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="w-44">
-                <ZoruSelect
+                <Select
                     value={sourceFilter || '__all__'}
                     onValueChange={(v) => onSourceChange(v === '__all__' ? '' : v)}
                 >
@@ -127,7 +127,7 @@ export function PurchaseLeadsFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="w-72">
@@ -140,10 +140,10 @@ export function PurchaseLeadsFiltersRow({
 
             {hasActiveFilters ? (
                 <>
-                    <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                    <Button variant="ghost" size="sm" onClick={onClear}>
                         <X className="h-3.5 w-3.5" /> Clear
-                    </ZoruButton>
-                    <ZoruBadge variant="secondary">Filters active</ZoruBadge>
+                    </Button>
+                    <Badge variant="secondary">Filters active</Badge>
                 </>
             ) : null}
         </div>

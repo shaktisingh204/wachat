@@ -131,12 +131,12 @@ export function KbDetailActions({ articleId, article }: KbDetailActionsProps) {
 
     return (
         <div className="flex flex-wrap items-center gap-1.5">
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/crm/tickets/knowledge-base/${articleId}/edit`}>
                     <Pencil className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 size="sm"
                 variant={isPublished ? 'outline' : 'default'}
                 onClick={togglePublish}
@@ -151,19 +151,19 @@ export function KbDetailActions({ articleId, article }: KbDetailActionsProps) {
                         <CheckCircle2 className="h-3.5 w-3.5" /> Publish
                     </>
                 )}
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={duplicate}
                 disabled={pending}
             >
                 <Copy className="h-3.5 w-3.5" /> Duplicate
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={sharePublic}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={sharePublic}>
                 <Share2 className="h-3.5 w-3.5" /> Share
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" asChild>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
                 <Link
                     href={`mailto:?subject=${encodeURIComponent(
                         String(article.title ?? 'Knowledge base article'),
@@ -171,20 +171,20 @@ export function KbDetailActions({ articleId, article }: KbDetailActionsProps) {
                 >
                     <Mail className="h-3.5 w-3.5" /> Email
                 </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={archive}
                 disabled={pending}
             >
                 <Archive className="h-3.5 w-3.5" /> {isArchived ? 'Restore' : 'Archive'}
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" asChild>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/crm/tickets/knowledge-base/${articleId}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -227,34 +227,34 @@ export function KbHelpfulWidget({
         });
 
     return (
-        <ZoruCard className="flex flex-col gap-3 p-4">
+        <Card className="flex flex-col gap-3 p-4">
             <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Was this helpful?
             </h3>
             <div className="flex items-center gap-2">
-                <ZoruButton
+                <Button
                     size="sm"
                     variant={voted === 'yes' ? 'default' : 'outline'}
                     disabled={pending || voted !== null}
                     onClick={() => vote(true)}
                 >
                     <ThumbsUp className="h-3.5 w-3.5" /> Yes
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     size="sm"
                     variant={voted === 'no' ? 'default' : 'outline'}
                     disabled={pending || voted !== null}
                     onClick={() => vote(false)}
                 >
                     <ThumbsDown className="h-3.5 w-3.5" /> No
-                </ZoruButton>
+                </Button>
             </div>
             <p className="text-[11.5px] text-zoru-ink-muted">
                 {total > 0
                     ? `${pct}% of ${total} reader${total === 1 ? '' : 's'} found this helpful`
                     : 'Be the first to vote'}
             </p>
-        </ZoruCard>
+        </Card>
     );
 }
 

@@ -29,7 +29,7 @@ export function SabsmsDetailDrawer({
   children,
 }: SabsmsDetailDrawerProps) {
   return (
-    <ZoruSheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <ZoruSheetContent
         side={side}
         className={
@@ -46,6 +46,6 @@ export function SabsmsDetailDrawer({
         </ZoruSheetHeader>
         <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }

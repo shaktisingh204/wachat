@@ -33,10 +33,10 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
       Save Budget
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -64,15 +64,15 @@ export default function NewBudgetPage() {
       title="New Budget"
       back={{ href: '/dashboard/crm/budgets', label: 'Budgets' }}
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="space-y-6">
           {/* Budget Head Type + Head Picker */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="budgetHeadType" className="text-zoru-ink">
+              <Label htmlFor="budgetHeadType" className="text-zoru-ink">
                 Head Type
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 name="budgetHeadType"
                 value={headType}
                 onValueChange={(v) => setHeadType(v as HeadType)}
@@ -85,13 +85,13 @@ export default function NewBudgetPage() {
                   <ZoruSelectItem value="department">Department</ZoruSelectItem>
                   <ZoruSelectItem value="project">Project</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">
+              <Label className="text-zoru-ink">
                 Budget Head <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
+              </Label>
               <EntityFormField
                 entity={headType as EntityKey}
                 name="budgetHeadId"
@@ -108,10 +108,10 @@ export default function NewBudgetPage() {
           {/* Period */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="period" className="text-zoru-ink">
+              <Label htmlFor="period" className="text-zoru-ink">
                 Period
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="period"
                 name="period"
                 placeholder="e.g. FY2026-Q1, Apr 2026"
@@ -124,10 +124,10 @@ export default function NewBudgetPage() {
           {/* Scenario + Plan Amount */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="scenario" className="text-zoru-ink">
+              <Label htmlFor="scenario" className="text-zoru-ink">
                 Scenario
-              </ZoruLabel>
-              <ZoruSelect name="scenario" defaultValue="base">
+              </Label>
+              <Select name="scenario" defaultValue="base">
                 <ZoruSelectTrigger id="scenario">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -136,14 +136,14 @@ export default function NewBudgetPage() {
                   <ZoruSelectItem value="best">Best</ZoruSelectItem>
                   <ZoruSelectItem value="worst">Worst</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="planAmount" className="text-zoru-ink">
+              <Label htmlFor="planAmount" className="text-zoru-ink">
                 Plan Amount (₹)
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="planAmount"
                 name="planAmount"
                 type="number"
@@ -157,10 +157,10 @@ export default function NewBudgetPage() {
           {/* Alert At + Owner */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="alertAt" className="text-zoru-ink">
+              <Label htmlFor="alertAt" className="text-zoru-ink">
                 Alert At %
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="alertAt"
                 name="alertAt"
                 type="number"
@@ -174,9 +174,9 @@ export default function NewBudgetPage() {
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">
+              <Label className="text-zoru-ink">
                 Owner
-              </ZoruLabel>
+              </Label>
               <EntityFormField
                 entity="user"
                 name="ownerId"
@@ -188,10 +188,10 @@ export default function NewBudgetPage() {
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="notes" className="text-zoru-ink">
+            <Label htmlFor="notes" className="text-zoru-ink">
               Notes (Optional)
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="notes"
               name="notes"
               placeholder="Any additional context for this budget…"
@@ -203,7 +203,7 @@ export default function NewBudgetPage() {
             <SaveButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

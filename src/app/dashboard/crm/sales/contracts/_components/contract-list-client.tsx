@@ -461,11 +461,11 @@ export function ContractListClient({
           placeholder: 'Search contracts…',
         }}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/contracts/new">
               <Plus className="h-4 w-4" /> New contract
             </Link>
-          </ZoruButton>
+          </Button>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
@@ -475,7 +475,7 @@ export function ContractListClient({
               onChange={(v) => setStatusFilter(v ?? ALL)}
               placeholder="All statuses"
             />
-            <ZoruInput
+            <Input
               value={partySearch}
               onChange={(e) => setPartySearch(e.target.value)}
               placeholder="Counter-party…"
@@ -484,20 +484,20 @@ export function ContractListClient({
             />
             <details className="relative">
               <summary className="list-none">
-                <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                <Button variant="outline" size="sm" className="h-9 text-[12.5px]">
                   <CalendarRange className="h-3.5 w-3.5" /> Effective range
-                </ZoruButton>
+                </Button>
               </summary>
               <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
                 <label className="text-[11px] text-zoru-ink-muted">From</label>
-                <ZoruInput
+                <Input
                   type="date"
                   value={effectiveFrom}
                   onChange={(e) => setEffectiveFrom(e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
                 <label className="text-[11px] text-zoru-ink-muted">To</label>
-                <ZoruInput
+                <Input
                   type="date"
                   value={effectiveTo}
                   onChange={(e) => setEffectiveTo(e.target.value)}
@@ -507,20 +507,20 @@ export function ContractListClient({
             </details>
             <details className="relative">
               <summary className="list-none">
-                <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                <Button variant="outline" size="sm" className="h-9 text-[12.5px]">
                   <CalendarRange className="h-3.5 w-3.5" /> Expiry range
-                </ZoruButton>
+                </Button>
               </summary>
               <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
                 <label className="text-[11px] text-zoru-ink-muted">From</label>
-                <ZoruInput
+                <Input
                   type="date"
                   value={expiryFrom}
                   onChange={(e) => setExpiryFrom(e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
                 <label className="text-[11px] text-zoru-ink-muted">To</label>
-                <ZoruInput
+                <Input
                   type="date"
                   value={expiryTo}
                   onChange={(e) => setExpiryTo(e.target.value)}
@@ -530,13 +530,13 @@ export function ContractListClient({
             </details>
             <details className="relative">
               <summary className="list-none">
-                <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                <Button variant="outline" size="sm" className="h-9 text-[12.5px]">
                   Value range
-                </ZoruButton>
+                </Button>
               </summary>
               <div className="absolute left-0 z-20 mt-2 grid w-[220px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
                 <label className="text-[11px] text-zoru-ink-muted">Min value</label>
-                <ZoruInput
+                <Input
                   type="number"
                   min="0"
                   step="1"
@@ -546,7 +546,7 @@ export function ContractListClient({
                   className="h-8 text-[12.5px]"
                 />
                 <label className="text-[11px] text-zoru-ink-muted">Max value</label>
-                <ZoruInput
+                <Input
                   type="number"
                   min="0"
                   step="1"
@@ -558,9 +558,9 @@ export function ContractListClient({
               </div>
             </details>
             {filtersActive ? (
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
@@ -570,7 +570,7 @@ export function ContractListClient({
               <span className="text-[12.5px] text-zoru-ink">
                 {selected.size} selected
               </span>
-              <ZoruSelect onValueChange={(v) => bulkStatus(v as ContractStatusV2)}>
+              <Select onValueChange={(v) => bulkStatus(v as ContractStatusV2)}>
                 <ZoruSelectTrigger className="h-8 w-[160px] text-[12px]">
                   <ZoruSelectValue placeholder="Change status…" />
                 </ZoruSelectTrigger>
@@ -581,30 +581,30 @@ export function ContractListClient({
                   <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
                   <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
-              <ZoruButton
+              </Select>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setPendingBulkArchive(true)}
               >
                 <Archive className="h-3.5 w-3.5" /> Archive
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={bulkExportCsv}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={bulkExportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={bulkExportXlsx}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={bulkExportXlsx}>
                 <Download className="h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setPendingBulkDelete(true)}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
                 <X className="h-3.5 w-3.5" /> Clear selection
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -616,11 +616,11 @@ export function ContractListClient({
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Draft your first contract to start tracking signatures and renewals.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/contracts/new">
                   <Plus className="h-4 w-4" /> New contract
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -653,12 +653,12 @@ export function ContractListClient({
             </div>
           ) : null}
 
-          <ZoruCard className="overflow-hidden p-0">
-            <ZoruTable>
+          <Card className="overflow-hidden p-0">
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-[36px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
@@ -695,7 +695,7 @@ export function ContractListClient({
                         data-state={isSelected ? 'selected' : undefined}
                       >
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${c.title}`}
@@ -736,8 +736,8 @@ export function ContractListClient({
                   })
                 )}
               </ZoruTableBody>
-            </ZoruTable>
-          </ZoruCard>
+            </Table>
+          </Card>
         </div>
       </EntityListShell>
 

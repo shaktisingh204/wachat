@@ -43,7 +43,7 @@ export function ProjectsKanban({ rows }: { rows: ProjectRow[] }) {
               <span className="text-[12px] font-medium uppercase tracking-wider text-zoru-ink-muted">
                 {stage.label}
               </span>
-              <ZoruBadge variant="secondary">{cards.length}</ZoruBadge>
+              <Badge variant="secondary">{cards.length}</Badge>
             </header>
             <div className="flex flex-col gap-2">
               {cards.map((p) => (

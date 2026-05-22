@@ -55,10 +55,10 @@ function SaveButton() {
   const { pending } = useFormStatus();
   const { t } = useT();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
       {pending ? t('common.saving') : t('settings.profile.saveChanges')}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -95,7 +95,7 @@ export default function ProfileSettingsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -105,22 +105,22 @@ export default function ProfileSettingsPage() {
             <ZoruBreadcrumbPage>{t('settings.profile.title')}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>{t('settings.profile.title')}</ZoruPageTitle>
           <ZoruPageDescription>
             {t('settings.profile.subtitle')}
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loading || !user ? (
-        <ZoruSkeleton className="h-[420px] w-full rounded-[var(--zoru-radius-lg)]" />
+        <Skeleton className="h-[420px] w-full rounded-[var(--zoru-radius-lg)]" />
       ) : (
         <form action={formAction} className="flex flex-col gap-4">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-5 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                 <UserIcon className="h-5 w-5" />
@@ -132,7 +132,7 @@ export default function ProfileSettingsPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={t('settings.profile.fields.displayName')}>
-                <ZoruInput
+                <Input
                   name="name"
                   defaultValue={user.name ?? ''}
                   placeholder={t('settings.profile.placeholders.name')}
@@ -140,7 +140,7 @@ export default function ProfileSettingsPage() {
                 />
               </Field>
               <Field label={t('settings.profile.fields.contactEmail')}>
-                <ZoruInput
+                <Input
                   name="email"
                   type="email"
                   defaultValue={user.email ?? ''}
@@ -148,7 +148,7 @@ export default function ProfileSettingsPage() {
                 />
               </Field>
               <Field label={t('settings.profile.fields.usernameHandle')}>
-                <ZoruInput
+                <Input
                   name="username"
                   defaultValue={(user as any).username ?? ''}
                   placeholder={t('settings.profile.placeholders.username')}
@@ -156,7 +156,7 @@ export default function ProfileSettingsPage() {
                 />
               </Field>
               <Field label={t('settings.profile.fields.preferredLanguage')}>
-                <ZoruSelect name="language" value={language} onValueChange={setLanguage}>
+                <Select name="language" value={language} onValueChange={setLanguage}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
@@ -167,26 +167,26 @@ export default function ProfileSettingsPage() {
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 <input type="hidden" name="language" value={language} />
               </Field>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <p className="text-sm text-zoru-ink">{t('settings.profile.bio.title')}</p>
               <p className="text-xs text-zoru-ink-muted">
                 {t('settings.profile.bio.description')}
               </p>
             </div>
-            <ZoruTextarea
+            <Textarea
               name="bio"
               defaultValue={(user as any).bio ?? ''}
               rows={4}
               placeholder={t('settings.profile.bio.placeholder')}
             />
-          </ZoruCard>
+          </Card>
 
           <div className="flex justify-end">
             <SaveButton />
@@ -200,7 +200,7 @@ export default function ProfileSettingsPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <ZoruLabel className="mb-1.5 block text-xs">{label}</ZoruLabel>
+      <Label className="mb-1.5 block text-xs">{label}</Label>
       {children}
     </div>
   );

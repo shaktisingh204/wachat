@@ -138,11 +138,11 @@ export default async function BillDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this bill — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/purchases/expenses">
               <ArrowLeft className="h-4 w-4" /> Back to Bills
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -215,7 +215,7 @@ export default async function BillDetailPage({
           />
 
           {/* Vendor chip + outstanding */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Vendor</ZoruCardTitle>
             </ZoruCardHeader>
@@ -238,10 +238,10 @@ export default async function BillDetailPage({
                 </span>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* At a glance + inline status / vendor */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>At a glance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -278,20 +278,20 @@ export default async function BillDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Live-poll wrapper — refreshes related counts when a downstream
               doc (payout / debit-note) lands. */}
           <BillRelatedRail billId={billId} initial={related} />
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link
               href={`/dashboard/crm/purchases/expenses/${billId}/activity`}
             >
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={<EntityAuditTimeline entityKind="bill" entityId={billId} />}
@@ -306,7 +306,7 @@ export default async function BillDetailPage({
       />
 
       {/* Payment history (payouts applied) */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Payment history</ZoruCardTitle>
         </ZoruCardHeader>
@@ -331,11 +331,11 @@ export default async function BillDetailPage({
             </Link>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Linked PO / GRN cards */}
       {bill.linkedPoId || (bill.linkedGrnIds && bill.linkedGrnIds.length) ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Linked documents</ZoruCardTitle>
           </ZoruCardHeader>
@@ -375,12 +375,12 @@ export default async function BillDetailPage({
               ) : null}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Custom fields */}
       {customFields.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Custom fields</ZoruCardTitle>
           </ZoruCardHeader>
@@ -405,7 +405,7 @@ export default async function BillDetailPage({
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

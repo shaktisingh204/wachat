@@ -81,7 +81,7 @@ export function EmailSegmentsClient() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -93,19 +93,19 @@ export function EmailSegmentsClient() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={() => setDialogOpen(true)}>
+          <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4" /> New segment
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loading ? (
         <div className="grid md:grid-cols-2 gap-4">
-          <ZoruSkeleton className="h-40" />
-          <ZoruSkeleton className="h-40" />
+          <Skeleton className="h-40" />
+          <Skeleton className="h-40" />
         </div>
       ) : segments.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Filter />}
           title="No segments yet"
           description="Create your first segment to target campaigns by engagement, tags, or custom fields."
@@ -113,7 +113,7 @@ export function EmailSegmentsClient() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {segments.map((seg) => (
-            <ZoruCard key={seg._id} className="p-0">
+            <Card key={seg._id} className="p-0">
               <ZoruCardHeader>
                 <ZoruCardTitle>{seg.name}</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -122,9 +122,9 @@ export function EmailSegmentsClient() {
               </ZoruCardHeader>
               <ZoruCardContent>
                 <div className="flex items-center justify-between">
-                  <ZoruBadge variant="outline">
+                  <Badge variant="outline">
                     {seg.cachedCount?.toLocaleString() ?? '—'} matches
-                  </ZoruBadge>
+                  </Badge>
                   {seg.cachedAt ? (
                     <span className="text-xs text-zoru-ink-muted">
                       updated {new Date(seg.cachedAt).toLocaleString()}
@@ -133,14 +133,14 @@ export function EmailSegmentsClient() {
                 </div>
               </ZoruCardContent>
               <ZoruCardFooter className="gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={() => handleRecount(seg)}>
+                <Button variant="outline" size="sm" onClick={() => handleRecount(seg)}>
                   <RefreshCw className="h-3 w-3" /> Recount
-                </ZoruButton>
-                <ZoruButton variant="ghost" size="sm" className="text-destructive ml-auto" onClick={() => handleDelete(seg)}>
+                </Button>
+                <Button variant="ghost" size="sm" className="text-destructive ml-auto" onClick={() => handleDelete(seg)}>
                   <Trash2 className="h-3 w-3" /> Delete
-                </ZoruButton>
+                </Button>
               </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       )}
@@ -200,7 +200,7 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-3xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>New segment</ZoruDialogTitle>
@@ -211,15 +211,15 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
 
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="seg-name">Name</ZoruLabel>
-            <ZoruInput id="seg-name" value={name} onChange={(e) => setName(e.target.value)} />
+            <Label htmlFor="seg-name">Name</Label>
+            <Input id="seg-name" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="seg-desc">Description</ZoruLabel>
-            <ZoruTextarea id="seg-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
+            <Label htmlFor="seg-desc">Description</Label>
+            <Textarea id="seg-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
           </div>
           <div className="space-y-2">
-            <ZoruLabel>Filters</ZoruLabel>
+            <Label>Filters</Label>
             <EmailSegmentBuilder value={filter} onChange={setFilter} />
           </div>
         </div>
@@ -227,19 +227,19 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
         <ZoruDialogFooter className="flex flex-row items-center gap-2 justify-between">
           <div className="text-sm text-zoru-ink-muted">
             {previewMatches !== null ? (
-              <ZoruBadge variant="outline">{previewMatches.toLocaleString()} matches</ZoruBadge>
+              <Badge variant="outline">{previewMatches.toLocaleString()} matches</Badge>
             ) : null}
           </div>
           <div className="flex gap-2">
-            <ZoruButton variant="outline" onClick={handlePreview} disabled={pending}>
+            <Button variant="outline" onClick={handlePreview} disabled={pending}>
               Preview matches
-            </ZoruButton>
-            <ZoruButton onClick={handleSubmit} disabled={pending}>
+            </Button>
+            <Button onClick={handleSubmit} disabled={pending}>
               {pending ? 'Saving…' : 'Save segment'}
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

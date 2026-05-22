@@ -86,7 +86,7 @@ export function InvoicesCalendar({ invoices }: InvoicesCalendarProps) {
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-[14px] font-medium text-zoru-ink">{monthLabel}</h3>
         <div className="flex items-center gap-1">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -94,16 +94,16 @@ export function InvoicesCalendar({ invoices }: InvoicesCalendarProps) {
             aria-label="Previous month"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => setCursor(startOfMonth(new Date()))}
           >
             Today
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -111,7 +111,7 @@ export function InvoicesCalendar({ invoices }: InvoicesCalendarProps) {
             aria-label="Next month"
           >
             <ChevronRight className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 

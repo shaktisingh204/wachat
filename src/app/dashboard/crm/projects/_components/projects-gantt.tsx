@@ -36,15 +36,15 @@ export function ProjectsGantt({ rows }: { rows: ProjectRow[] }) {
 
   if (withDates.length === 0) {
     return (
-      <ZoruCard className="p-6 text-center text-[13px] text-zoru-ink-muted">
+      <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
         No projects have both a start date and a deadline — set dates to see a
         timeline view.
-      </ZoruCard>
+      </Card>
     );
   }
 
   return (
-    <ZoruCard className="overflow-x-auto p-4">
+    <Card className="overflow-x-auto p-4">
       <div className="mb-3 flex items-center justify-between text-[11.5px] text-zoru-ink-muted">
         <span>{new Date(min).toLocaleDateString()}</span>
         <span>{new Date(max).toLocaleDateString()}</span>
@@ -89,6 +89,6 @@ export function ProjectsGantt({ rows }: { rows: ProjectRow[] }) {
           );
         })}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

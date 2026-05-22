@@ -33,10 +33,10 @@ interface TagsSettingsTabProps {
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Tags
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -77,7 +77,7 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
         <form action={formAction}>
             <input type="hidden" name="name" value={user.name} />
             <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color })).filter(t => t.name.trim()))} />
-            <ZoruCard className="card-gradient card-gradient-green">
+            <Card className="card-gradient card-gradient-green">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Manage Your Tags</ZoruCardTitle>
                     <ZoruCardDescription>Create and manage colored tags to organize your short links and QR codes.</ZoruCardDescription>
@@ -91,32 +91,32 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
                     <div className="space-y-2">
                         {tags.map(tag => (
                             <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
-                                <ZoruInput
+                                <Input
                                     value={tag.name}
                                     onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
                                     placeholder="Enter tag name"
                                 />
-                                <ZoruInput
+                                <Input
                                     type="color"
                                     value={tag.color}
                                     onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
                                     className="h-9 w-14 p-1"
                                 />
-                                <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
+                                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ))}
                     </div>
-                    <ZoruButton type="button" variant="outline" className="w-full" onClick={handleAddTag}>
+                    <Button type="button" variant="outline" className="w-full" onClick={handleAddTag}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add Tag
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
                 <ZoruCardFooter>
                     <SaveButton />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

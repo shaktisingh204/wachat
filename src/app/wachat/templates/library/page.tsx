@@ -103,15 +103,15 @@ function TemplateTile({
   };
 
   return (
-    <ZoruCard variant="elevated" className="flex flex-col">
+    <Card variant="elevated" className="flex flex-col">
       <ZoruCardContent className="flex flex-1 flex-col gap-3 pt-6">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-[14px] font-semibold capitalize text-zoru-ink">
             {template.name.replace(/_/g, ' ')}
           </h3>
-          <ZoruBadge variant="secondary" className="capitalize">
+          <Badge variant="secondary" className="capitalize">
             {template.category.replace(/_/g, ' ').toLowerCase()}
-          </ZoruBadge>
+          </Badge>
         </div>
 
         <p className="text-[12px] text-zoru-ink-muted">
@@ -160,14 +160,14 @@ function TemplateTile({
           </div>
         </div>
 
-        <ZoruButton
+        <Button
           className="mt-auto w-full"
           onClick={() => onUse(template)}
         >
           Use this template
-        </ZoruButton>
+        </Button>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -229,7 +229,7 @@ export default function TemplateLibraryPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -249,9 +249,9 @@ export default function TemplateLibraryPage() {
             <ZoruBreadcrumbPage>Library</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false}>
+      <PageHeader bordered={false}>
         <ZoruPageHeading>
           <button
             type="button"
@@ -271,21 +271,21 @@ export default function TemplateLibraryPage() {
         </ZoruPageHeading>
         <ZoruPageActions>
           <div className="flex w-full items-center gap-2 sm:w-auto">
-            <ZoruInput
+            <Input
               placeholder="Search templates…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="sm:w-64"
             />
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   {categoryFilter === 'ALL'
                     ? 'All categories'
                     : categoryFilter
                         .replace(/_/g, ' ')
                         .toLowerCase()}
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuLabel>Category</ZoruDropdownMenuLabel>
@@ -307,24 +307,24 @@ export default function TemplateLibraryPage() {
                   ))}
                 </ZoruDropdownMenuRadioGroup>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </div>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {isLoading ? (
         <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {[...Array(10)].map((_, i) => (
-            <ZoruSkeleton key={i} className="h-96 w-full" />
+            <Skeleton key={i} className="h-96 w-full" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Search />}
           title="No templates found"
           description="Try adjusting your search or category filter."
           action={
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => {
@@ -333,7 +333,7 @@ export default function TemplateLibraryPage() {
               }}
             >
               Clear filters
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
@@ -349,7 +349,7 @@ export default function TemplateLibraryPage() {
       )}
 
       {/* Clone-to-account dialog */}
-      <ZoruDialog
+      <Dialog
         open={Boolean(cloneTarget)}
         onOpenChange={(open) => !open && setCloneTarget(null)}
       >
@@ -365,18 +365,18 @@ export default function TemplateLibraryPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setCloneTarget(null)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={onConfirmClone}>
+            </Button>
+            <Button onClick={onConfirmClone}>
               <BookCopy /> Clone &amp; open
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

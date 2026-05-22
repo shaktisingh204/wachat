@@ -246,7 +246,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<MessageSquare />}
           title="No project selected"
           description="Pick a Facebook project to edit its Messenger profile."
@@ -257,7 +257,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -271,7 +271,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Messenger settings</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -281,29 +281,29 @@ export default function MessengerSettingsPage(): React.JSX.Element {
             for the connected Page.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+        <Button variant="ghost" onClick={refresh} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load Messenger profile</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {loading && !profile ? (
         <div className="flex flex-col gap-3">
-          <ZoruSkeleton className="h-32 w-full" />
-          <ZoruSkeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
         </div>
       ) : (
         <div className="flex flex-col gap-4">
           {/* Greeting */}
-          <ZoruCard className="flex flex-col gap-3 p-5">
+          <Card className="flex flex-col gap-3 p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-base text-zoru-ink">Greeting</h2>
@@ -312,57 +312,57 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                 </p>
               </div>
             </div>
-            <ZoruTextarea
+            <Textarea
               rows={3}
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
               placeholder="Hi! Welcome to our Page. How can we help?"
             />
             <div className="flex items-center justify-end gap-2">
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={deleteGreeting}
                 disabled={saving}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton size="sm" onClick={saveGreeting} disabled={saving}>
+              </Button>
+              <Button size="sm" onClick={saveGreeting} disabled={saving}>
                 {saving ? 'Saving…' : 'Save greeting'}
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Get started */}
-          <ZoruCard className="flex flex-col gap-3 p-5">
+          <Card className="flex flex-col gap-3 p-5">
             <div>
               <h2 className="text-base text-zoru-ink">Get-started payload</h2>
               <p className="text-xs text-zoru-ink-muted">
                 Payload sent when a user taps the Get Started button.
               </p>
             </div>
-            <ZoruInput
+            <Input
               value={getStarted}
               onChange={(e) => setGetStarted(e.target.value)}
               placeholder="GET_STARTED_PAYLOAD"
             />
             <div className="flex items-center justify-end gap-2">
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={deleteGetStarted}
                 disabled={saving}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton size="sm" onClick={saveGetStarted} disabled={saving}>
+              </Button>
+              <Button size="sm" onClick={saveGetStarted} disabled={saving}>
                 {saving ? 'Saving…' : 'Save payload'}
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Ice breakers */}
-          <ZoruCard className="flex flex-col gap-3 p-5">
+          <Card className="flex flex-col gap-3 p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-base text-zoru-ink">Ice breakers</h2>
@@ -370,7 +370,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                   Pre-set questions shown to users before they start chatting.
                 </p>
               </div>
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() =>
@@ -378,7 +378,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                 }
               >
                 <Plus className="mr-1 h-4 w-4" /> Add
-              </ZoruButton>
+              </Button>
             </div>
             {iceBreakers.length === 0 ? (
               <p className="text-xs text-zoru-ink-muted">No ice breakers set.</p>
@@ -387,8 +387,8 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                 {iceBreakers.map((ib, i) => (
                   <li key={i} className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_1fr_auto]">
                     <div className="flex flex-col gap-1">
-                      <ZoruLabel className="text-[11px]">Question</ZoruLabel>
-                      <ZoruInput
+                      <Label className="text-[11px]">Question</Label>
+                      <Input
                         value={ib.question}
                         onChange={(e) =>
                           setIceBreakers((p) =>
@@ -401,8 +401,8 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <ZoruLabel className="text-[11px]">Payload</ZoruLabel>
-                      <ZoruInput
+                      <Label className="text-[11px]">Payload</Label>
+                      <Input
                         value={ib.payload}
                         onChange={(e) =>
                           setIceBreakers((p) =>
@@ -415,7 +415,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                       />
                     </div>
                     <div className="flex items-end">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() =>
@@ -424,29 +424,29 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                         aria-label="Remove ice breaker"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </li>
                 ))}
               </ul>
             )}
             <div className="flex items-center justify-end gap-2">
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={deleteIceBreakers}
                 disabled={saving}
               >
                 Clear all
-              </ZoruButton>
-              <ZoruButton size="sm" onClick={saveIceBreakers} disabled={saving}>
+              </Button>
+              <Button size="sm" onClick={saveIceBreakers} disabled={saving}>
                 {saving ? 'Saving…' : 'Save ice breakers'}
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Whitelisted domains */}
-          <ZoruCard className="flex flex-col gap-3 p-5">
+          <Card className="flex flex-col gap-3 p-5">
             <div>
               <h2 className="text-base text-zoru-ink">Whitelisted domains</h2>
               <p className="text-xs text-zoru-ink-muted">
@@ -454,25 +454,25 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                 and link previews.
               </p>
             </div>
-            <ZoruInput
+            <Input
               value={domainsInput}
               onChange={(e) => setDomainsInput(e.target.value)}
               placeholder="https://example.com, https://shop.example.com"
             />
             <div className="flex items-center justify-end gap-2">
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={deleteDomains}
                 disabled={saving}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton size="sm" onClick={saveDomains} disabled={saving}>
+              </Button>
+              <Button size="sm" onClick={saveDomains} disabled={saving}>
                 {saving ? 'Saving…' : 'Save domains'}
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       )}
     </div>

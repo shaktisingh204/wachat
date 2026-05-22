@@ -309,9 +309,9 @@ export function SegmentsTable({
           {row.tags && row.tags.length > 0 && (
             <div className="mt-1 flex flex-wrap gap-1">
               {row.tags.slice(0, 4).map((t) => (
-                <ZoruBadge key={t} variant="outline" className="text-[10px]">
+                <Badge key={t} variant="outline" className="text-[10px]">
                   {t}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           )}
@@ -322,12 +322,12 @@ export function SegmentsTable({
       id: "kind",
       header: "Kind",
       render: (row) => (
-        <ZoruBadge
+        <Badge
           variant={row.kind === "dynamic" ? "default" : "secondary"}
           className="text-[10px] uppercase"
         >
           {row.kind}
-        </ZoruBadge>
+        </Badge>
       ),
     },
     {
@@ -388,7 +388,7 @@ export function SegmentsTable({
       width: "240px",
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => handleRefresh(row)}
@@ -398,39 +398,39 @@ export function SegmentsTable({
             <RefreshCcw
               className={`h-3.5 w-3.5 ${busy === `refresh:${row.id}` ? "animate-spin" : ""}`}
             />
-          </ZoruButton>
-          <ZoruButton variant="ghost" size="sm" asChild>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
             <Link
               href={`/sabsms/send?segmentId=${row.id}`}
               aria-label="Send to segment"
             >
               <Send className="h-3.5 w-3.5" />
             </Link>
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => handleCost(row)}
             aria-label="Cost estimate"
           >
             <DollarSign className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => handleHistory(row)}
             aria-label="Membership history"
           >
             <History className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => handleActivity(row)}
             aria-label="Activity feed"
           >
             <Activity className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
       ),
     },
@@ -605,9 +605,9 @@ export function SegmentsTable({
                   key={i}
                   className="flex items-start gap-3 rounded-md border border-slate-200 p-3"
                 >
-                  <ZoruBadge variant="outline" className="mt-0.5 text-[10px]">
+                  <Badge variant="outline" className="mt-0.5 text-[10px]">
                     {e.kind}
-                  </ZoruBadge>
+                  </Badge>
                   <div className="flex-1">
                     <div className="text-sm text-slate-800">{e.message}</div>
                     <div className="text-[11px] text-slate-500">
@@ -654,7 +654,7 @@ export function SegmentsTable({
               label="Per-message price"
               value={`${(costState.pricePerMessageCents / 100).toFixed(3)} USD`}
             />
-            <ZoruSeparator />
+            <Separator />
             <Row
               label="Total estimate"
               value={formatCents(costState.totalCents)}
@@ -679,7 +679,7 @@ export function SegmentsTable({
           <div className="space-y-3">
             <Row label={compareState.aName} value={compareState.aSize.toLocaleString()} />
             <Row label={compareState.bName} value={compareState.bSize.toLocaleString()} />
-            <ZoruSeparator />
+            <Separator />
             <Row
               label="Overlap"
               value={`${compareState.overlap.toLocaleString()} (${compareState.overlapPercent}%)`}
@@ -699,8 +699,8 @@ export function SegmentsTable({
         {tagDialog && (
           <div className="space-y-3">
             <div>
-              <ZoruLabel htmlFor="seg-tags">Tags</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="seg-tags">Tags</Label>
+              <Input
                 id="seg-tags"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
@@ -708,15 +708,15 @@ export function SegmentsTable({
               />
             </div>
             <div className="flex justify-end gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 onClick={() => setTagDialog(null)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton onClick={commitTags} disabled={busy?.startsWith("tag:")}>
+              </Button>
+              <Button onClick={commitTags} disabled={busy?.startsWith("tag:")}>
                 Save tags
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         )}
@@ -793,14 +793,14 @@ function ExportSelectedButton({
   }
 
   return (
-    <ZoruButton
+    <Button
       variant="ghost"
       size="sm"
       onClick={downloadCsv}
       disabled={busy}
     >
       Export contacts of "{row.name}"
-    </ZoruButton>
+    </Button>
   );
 }
 

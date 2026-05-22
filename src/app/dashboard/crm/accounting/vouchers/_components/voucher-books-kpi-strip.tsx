@@ -26,25 +26,25 @@ export function VoucherBooksKpiStrip({ kpi }: VoucherBooksKpiStripProps) {
 
     return (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
                 label="Active books"
                 value={`${kpi.activeCount} / ${kpi.totalCount}`}
                 period="active vs. total"
                 icon={<CheckCircle2 />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="By type"
                 value={topTypes || '—'}
                 period="top 3 books by type"
                 icon={<Layers />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Entries this month"
                 value={kpi.entriesThisMonth.toLocaleString()}
                 period="posted this calendar month"
                 icon={<FileText />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Numbering resets pending"
                 value={kpi.pendingResets.toLocaleString()}
                 period="based on reset frequency"

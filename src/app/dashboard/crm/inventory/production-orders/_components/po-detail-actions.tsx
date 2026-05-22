@@ -83,12 +83,12 @@ export function PoDetailActions({ orderId, orderNo, currentStatus }: PoDetailAct
     return (
         <>
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton size="sm" asChild>
+                <Button size="sm" asChild>
                     <Link href={`/dashboard/crm/inventory/production-orders/${orderId}/edit`}>
                         <Edit className="h-3.5 w-3.5" /> Edit
                     </Link>
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     size="sm"
                     variant="outline"
                     onClick={() => onStatus('released')}
@@ -100,63 +100,63 @@ export function PoDetailActions({ orderId, orderNo, currentStatus }: PoDetailAct
                     }
                 >
                     <Send className="h-3.5 w-3.5" /> Release
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     size="sm"
                     variant="outline"
                     onClick={() => onStatus('in_progress')}
                     disabled={pending || isRunning || isTerminal}
                 >
                     <Play className="h-3.5 w-3.5" /> Start
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     size="sm"
                     variant="outline"
                     onClick={() => onStatus('paused')}
                     disabled={pending || !isRunning}
                 >
                     <Pause className="h-3.5 w-3.5" /> Pause
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     size="sm"
                     variant="outline"
                     onClick={() => onStatus('qa_check')}
                     disabled={pending || isTerminal}
                 >
                     <ClipboardCheck className="h-3.5 w-3.5" /> QC
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" asChild>
+                </Button>
+                <Button size="sm" variant="outline" asChild>
                     <Link
                         href={`/dashboard/crm/inventory/production-orders/${orderId}/update-yield`}
                     >
                         <CheckCircle2 className="h-3.5 w-3.5" /> Complete
                     </Link>
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" asChild>
+                </Button>
+                <Button size="sm" variant="outline" asChild>
                     <Link
                         href={`/dashboard/crm/inventory/production-orders/${orderId}/update-yield`}
                     >
                         <RefreshCw className="h-3.5 w-3.5" /> Update yield
                     </Link>
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={onPrint}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={onPrint}>
                     <Printer className="h-3.5 w-3.5" /> Print
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setArchiveOpen(true)}
                     disabled={pending}
                 >
                     <Archive className="h-3.5 w-3.5" /> Cancel order
-                </ZoruButton>
-                <ZoruButton size="sm" variant="ghost" asChild>
+                </Button>
+                <Button size="sm" variant="ghost" asChild>
                     <Link
                         href={`/dashboard/crm/inventory/production-orders/${orderId}/activity`}
                     >
                         <Activity className="h-3.5 w-3.5" /> Activity
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
 
             <ConfirmDialog

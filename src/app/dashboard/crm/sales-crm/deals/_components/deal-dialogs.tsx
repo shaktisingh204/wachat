@@ -76,7 +76,7 @@ export function DealEmailDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Compose email</ZoruDialogTitle>
@@ -86,8 +86,8 @@ export function DealEmailDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-1">
-            <ZoruLabel htmlFor="deal-email-to">To</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="deal-email-to">To</Label>
+            <Input
               id="deal-email-to"
               type="email"
               value={to}
@@ -96,8 +96,8 @@ export function DealEmailDialog({
             />
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="deal-email-subject">Subject</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="deal-email-subject">Subject</Label>
+            <Input
               id="deal-email-subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
@@ -105,8 +105,8 @@ export function DealEmailDialog({
             />
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="deal-email-body">Body</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="deal-email-body">Body</Label>
+            <Textarea
               id="deal-email-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -116,15 +116,15 @@ export function DealEmailDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleSend} disabled={pending}>
+          </Button>
+          <Button onClick={handleSend} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -192,7 +192,7 @@ export function DealWhatsAppDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Send via WhatsApp</ZoruDialogTitle>
@@ -200,8 +200,8 @@ export function DealWhatsAppDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-1">
-            <ZoruLabel htmlFor="deal-wa-phone">Phone (with country code)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="deal-wa-phone">Phone (with country code)</Label>
+            <Input
               id="deal-wa-phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -209,8 +209,8 @@ export function DealWhatsAppDialog({
             />
           </div>
           <div className="space-y-1">
-            <ZoruLabel>Template</ZoruLabel>
-            <ZoruSelect value={templateId} onValueChange={handleTemplateChange}>
+            <Label>Template</Label>
+            <Select value={templateId} onValueChange={handleTemplateChange}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -221,11 +221,11 @@ export function DealWhatsAppDialog({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="deal-wa-msg">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="deal-wa-msg">Message</Label>
+            <Textarea
               id="deal-wa-msg"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -234,15 +234,15 @@ export function DealWhatsAppDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleSend} disabled={pending}>
+          </Button>
+          <Button onClick={handleSend} disabled={pending}>
             {pending ? 'Opening…' : 'Open WhatsApp'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -301,7 +301,7 @@ export function DealWonLossDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -320,8 +320,8 @@ export function DealWonLossDialog({
               still works. */}
           {Array.isArray(reasons) && reasons.length > 0 ? (
             <div className="space-y-1">
-              <ZoruLabel>Reason</ZoruLabel>
-              <ZoruSelect value={pickedReason} onValueChange={setPickedReason}>
+              <Label>Reason</Label>
+              <Select value={pickedReason} onValueChange={setPickedReason}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Select a reason" />
                 </ZoruSelectTrigger>
@@ -333,13 +333,13 @@ export function DealWonLossDialog({
                   ))}
                   <ZoruSelectItem value="__custom__">Other (write below)</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           ) : null}
           {(!reasons || reasons.length === 0 || pickedReason === '__custom__') ? (
             <div className="space-y-1">
-              <ZoruLabel htmlFor="deal-wl-reason">Custom reason</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="deal-wl-reason">Custom reason</Label>
+              <Textarea
                 id="deal-wl-reason"
                 value={freeReason}
                 onChange={(e) => setFreeReason(e.target.value)}
@@ -350,15 +350,15 @@ export function DealWonLossDialog({
           ) : null}
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleConfirm} disabled={pending}>
+          </Button>
+          <Button onClick={handleConfirm} disabled={pending}>
             {pending ? 'Saving…' : outcome === 'won' ? 'Mark won' : 'Mark lost'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -412,7 +412,7 @@ export function DealAddTaskDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Add task</ZoruDialogTitle>
@@ -420,8 +420,8 @@ export function DealAddTaskDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-1">
-            <ZoruLabel htmlFor="deal-task-title">Title</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="deal-task-title">Title</Label>
+            <Input
               id="deal-task-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -429,8 +429,8 @@ export function DealAddTaskDialog({
             />
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="deal-task-due">Due date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="deal-task-due">Due date</Label>
+            <Input
               id="deal-task-due"
               type="date"
               value={due}
@@ -439,14 +439,14 @@ export function DealAddTaskDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleCreate} disabled={pending}>
+          </Button>
+          <Button onClick={handleCreate} disabled={pending}>
             {pending ? 'Saving…' : 'Create task'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

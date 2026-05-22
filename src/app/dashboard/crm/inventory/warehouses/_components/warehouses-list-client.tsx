@@ -296,11 +296,11 @@ export function WarehousesListClient() {
                     placeholder: 'Search name, code, city…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/inventory/warehouses/new">
                             <Plus className="h-4 w-4" /> New Warehouse
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <WarehousesFiltersRow
@@ -359,11 +359,11 @@ export function WarehousesListClient() {
                                 Add your first storage location so items can be
                                 tracked across branches.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/inventory/warehouses/new">
                                     <Plus className="h-4 w-4" /> Add warehouse
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

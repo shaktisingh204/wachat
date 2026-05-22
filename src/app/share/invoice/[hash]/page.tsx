@@ -95,7 +95,7 @@ export default async function PublicInvoicePage({
 
   return (
     <div className="space-y-6">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>Invoice {invoice.invoiceNumber}</ZoruCardTitle>
@@ -104,7 +104,7 @@ export default async function PublicInvoicePage({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruBadge variant={STATUS_VARIANT[invoice.status] || 'outline'}>{invoice.status}</ZoruBadge>
+            <Badge variant={STATUS_VARIANT[invoice.status] || 'outline'}>{invoice.status}</Badge>
             <a
               href={`/share/invoice/${hash}/download`}
               target="_blank"
@@ -207,7 +207,7 @@ export default async function PublicInvoicePage({
             </section>
           ) : null}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <InvoicePaymentPanel
         hash={hash}

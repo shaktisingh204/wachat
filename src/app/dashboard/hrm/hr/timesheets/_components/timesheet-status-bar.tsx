@@ -72,33 +72,33 @@ export function TimesheetStatusBar({ id, status }: Props): React.JSX.Element {
 
     return (
         <>
-            <ZoruCard className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div className="flex items-center gap-3">
                     <span className="text-[12px] text-zoru-ink-muted">Status</span>
-                    <ZoruBadge variant={VARIANT_BY_STATUS[status]}>{status}</ZoruBadge>
+                    <Badge variant={VARIANT_BY_STATUS[status]}>{status}</Badge>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {status === 'draft' ? (
-                        <ZoruButton onClick={() => setPending('submit')} disabled={isActing}>
+                        <Button onClick={() => setPending('submit')} disabled={isActing}>
                             <Send className="mr-2 h-4 w-4" /> Submit
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     {status === 'submitted' ? (
                         <>
-                            <ZoruButton onClick={() => setPending('approve')} disabled={isActing}>
+                            <Button onClick={() => setPending('approve')} disabled={isActing}>
                                 <Check className="mr-2 h-4 w-4" /> Approve
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="outline"
                                 onClick={() => setPending('reject')}
                                 disabled={isActing}
                             >
                                 <X className="mr-2 h-4 w-4" /> Reject
-                            </ZoruButton>
+                            </Button>
                         </>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             <ZoruAlertDialog
                 open={pending === 'submit'}

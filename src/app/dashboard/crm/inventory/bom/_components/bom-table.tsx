@@ -93,11 +93,11 @@ export function BomTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all BOMs on this page"
                                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
@@ -119,7 +119,7 @@ export function BomTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={10}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -154,7 +154,7 @@ export function BomTable({
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label={`Select ${bom.bomNo}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
@@ -199,7 +199,7 @@ export function BomTable({
                                         <StatusPill label={status} tone={statusToTone(status)} />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
@@ -252,14 +252,14 @@ export function BomTable({
                                                     Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

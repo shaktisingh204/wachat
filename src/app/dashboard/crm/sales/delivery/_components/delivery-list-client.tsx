@@ -299,11 +299,11 @@ export function DeliveryListClient({
         placeholder: 'Search challans…',
       }}
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/sales/delivery/new">
             <Plus className="h-4 w-4" /> New challan
           </Link>
-        </ZoruButton>
+        </Button>
       }
       bulkBar={
         selected.size > 0 ? (
@@ -326,11 +326,11 @@ export function DeliveryListClient({
             <p className="max-w-sm text-sm text-zoru-ink-muted">
               Create a delivery challan to track goods dispatched to customers.
             </p>
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href="/dashboard/crm/sales/delivery/new">
                 <Plus className="h-4 w-4" /> New challan
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         ) : null
       }
@@ -350,7 +350,7 @@ export function DeliveryListClient({
           </div>
         ) : null}
 
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           <DcFiltersBar
             filters={filters}
             onQueryChange={setQuery}
@@ -364,11 +364,11 @@ export function DeliveryListClient({
             onRemove={(k) => pushParams({ [k]: undefined, page: '1' })}
           />
 
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead className="w-[36px]">
-                <ZoruCheckbox
+                <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
@@ -403,7 +403,7 @@ export function DeliveryListClient({
                 return (
                   <ZoruTableRow key={dc._id} data-state={isSelected ? 'selected' : undefined}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleOne(dc._id)}
                         aria-label={`Select ${dc.challanNumber}`}
@@ -462,26 +462,26 @@ export function DeliveryListClient({
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton size="sm" variant="ghost" asChild title="Convert to invoice">
+                        <Button size="sm" variant="ghost" asChild title="Convert to invoice">
                           <Link
                             href={`/dashboard/crm/sales/invoices/new?fromKind=deliveryChallan&fromId=${dc._id}`}
                           >
                             <ArrowRightCircle className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="ghost" asChild>
+                        </Button>
+                        <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/sales/delivery/${dc._id}`}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(dc)}
                           className="text-zoru-danger-ink"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -489,8 +489,8 @@ export function DeliveryListClient({
               })
             )}
           </ZoruTableBody>
-        </ZoruTable>
-        </ZoruCard>
+        </Table>
+        </Card>
       </div>
     </EntityListShell>
 

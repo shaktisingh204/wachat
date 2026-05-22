@@ -76,7 +76,7 @@ export function HolidaysFiltersRow({
           placeholder="All types"
         />
 
-        <ZoruSelect value={yearFilter} onValueChange={onYearChange}>
+        <Select value={yearFilter} onValueChange={onYearChange}>
           <ZoruSelectTrigger className="h-9 w-[120px]" aria-label="Year">
             <ZoruSelectValue placeholder="Year" />
           </ZoruSelectTrigger>
@@ -88,7 +88,7 @@ export function HolidaysFiltersRow({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         <EnumFilterField
           enumName="yesNo"
@@ -99,7 +99,7 @@ export function HolidaysFiltersRow({
         />
 
         {hasActiveFilters ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -107,16 +107,16 @@ export function HolidaysFiltersRow({
             className="ml-auto"
           >
             <XCircle className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
       <div className="grid gap-3 md:grid-cols-3">
         <div>
-          <ZoruLabel className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-zoru-ink-muted">
             Location
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             value={locationFilter}
             onChange={(e) => onLocationChange(e.target.value)}
             placeholder="Filter by location/state…"
@@ -124,13 +124,13 @@ export function HolidaysFiltersRow({
           />
         </div>
         <div>
-          <ZoruLabel
+          <Label
             htmlFor="holiday-from"
             className="text-[11px] uppercase text-zoru-ink-muted"
           >
             From
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="holiday-from"
             type="date"
             value={fromDate}
@@ -139,13 +139,13 @@ export function HolidaysFiltersRow({
           />
         </div>
         <div>
-          <ZoruLabel
+          <Label
             htmlFor="holiday-to"
             className="text-[11px] uppercase text-zoru-ink-muted"
           >
             To
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="holiday-to"
             type="date"
             value={toDate}

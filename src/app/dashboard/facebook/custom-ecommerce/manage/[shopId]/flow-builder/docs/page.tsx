@@ -198,14 +198,14 @@ export default function FlowBuilderDocsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <ZoruButton variant="ghost" asChild className="-ml-2 mb-4">
+        <Button variant="ghost" asChild className="-ml-2 mb-4">
           <Link
             href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}/flow-builder`}
           >
             <ChevronLeft />
             Back to flow builder
           </Link>
-        </ZoruButton>
+        </Button>
         <h2 className="text-[24px] tracking-tight text-zoru-ink">
           Flow builder documentation
         </h2>
@@ -216,7 +216,7 @@ export default function FlowBuilderDocsPage() {
         </p>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Using variables</ZoruCardTitle>
           <ZoruCardDescription>
@@ -230,37 +230,37 @@ export default function FlowBuilderDocsPage() {
             user&rsquo;s name or their answer to a question. In the Flow
             Builder you use double curly braces to insert a variable, like
             this:{" "}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {"{{name}}"}
-            </ZoruBadge>
+            </Badge>
             .
           </p>
           <p>
             The &ldquo;Get user input&rdquo; block is the primary way to
             create custom variables. When you configure it to save an answer
             to a variable named{" "}
-            <ZoruBadge variant="outline">color</ZoruBadge>, you can later
+            <Badge variant="outline">color</Badge>, you can later
             use the user&rsquo;s answer by writing{" "}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {"{{color}}"}
-            </ZoruBadge>{" "}
+            </Badge>{" "}
             in a &ldquo;Send message&rdquo; block.
           </p>
           <p>
             Pre-defined variables you can also use:{" "}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {"{{name}}"}
-            </ZoruBadge>{" "}
+            </Badge>{" "}
             (the user&rsquo;s Messenger profile name) and{" "}
-            <ZoruBadge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono">
               {"{{psid}}"}
-            </ZoruBadge>{" "}
+            </Badge>{" "}
             (the user&rsquo;s unique Page-Scoped ID).
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div>
         <h3 className="text-[20px] tracking-tight text-zoru-ink">
@@ -271,7 +271,7 @@ export default function FlowBuilderDocsPage() {
         </p>
       </div>
 
-      <ZoruAccordion type="single" collapsible className="w-full">
+      <Accordion type="single" collapsible className="w-full">
         {blockDocs.map((doc, index) => (
           <ZoruAccordionItem value={`item-${index}`} key={index}>
             <ZoruAccordionTrigger className="text-base">
@@ -313,7 +313,7 @@ export default function FlowBuilderDocsPage() {
             </ZoruAccordionContent>
           </ZoruAccordionItem>
         ))}
-      </ZoruAccordion>
+      </Accordion>
     </div>
   );
 }

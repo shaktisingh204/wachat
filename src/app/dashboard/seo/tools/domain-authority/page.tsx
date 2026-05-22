@@ -24,18 +24,18 @@ export default function DomainAuthorityPage() {
 
   return (
     <ToolShell title="Domain Authority Checker" description="Estimate DA/PA metrics (placeholder; production needs Moz/Ahrefs API).">
-      <ZoruCard className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+      <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
         <ZoruCardContent className="p-3 text-xs">Production DA/PA requires Moz or Ahrefs API credentials. The values shown are deterministic placeholders.</ZoruCardContent>
-      </ZoruCard>
+      </Card>
       <div className="flex gap-2">
-        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <ZoruButton onClick={run}>Check</ZoruButton>
+        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <Button onClick={run}>Check</Button>
       </div>
       {result && (
         <div className="grid grid-cols-3 gap-3">
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{result.da}</div><div className="text-xs text-muted-foreground">Domain Authority</div></ZoruCardContent></ZoruCard>
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{result.pa}</div><div className="text-xs text-muted-foreground">Page Authority</div></ZoruCardContent></ZoruCard>
-          <ZoruCard><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{result.backlinks.toLocaleString()}</div><div className="text-xs text-muted-foreground">Est. backlinks</div></ZoruCardContent></ZoruCard>
+          <Card><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{result.da}</div><div className="text-xs text-muted-foreground">Domain Authority</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{result.pa}</div><div className="text-xs text-muted-foreground">Page Authority</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{result.backlinks.toLocaleString()}</div><div className="text-xs text-muted-foreground">Est. backlinks</div></ZoruCardContent></Card>
         </div>
       )}
     </ToolShell>

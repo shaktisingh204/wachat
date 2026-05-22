@@ -73,7 +73,7 @@ export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
     },
     ref,
   ) => (
-    <ZoruButton
+    <Button
       ref={ref}
       type={type}
       variant={variantToZoru[variant]}
@@ -88,7 +88,7 @@ export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
       {trailing ? (
         <span className="flex shrink-0 items-center">{trailing}</span>
       ) : null}
-    </ZoruButton>
+    </Button>
   ),
 );
 ClayButton.displayName = 'ClayButton';

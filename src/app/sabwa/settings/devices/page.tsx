@@ -26,7 +26,7 @@ export default function Page() {
       </div>
       <SettingsTabs />
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Linked Devices</ZoruCardTitle>
           <ZoruCardDescription>
@@ -35,14 +35,14 @@ export default function Page() {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/sabwa/devices">
               Open Linked Devices
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-          </ZoruButton>
+          </Button>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

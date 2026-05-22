@@ -66,34 +66,34 @@ export default function UtmDecoderPage() {
       title="UTM Decoder"
       description="Paste a URL to extract and inspect its UTM tracking parameters."
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-3">
-          <ZoruLabel htmlFor="utm-url">URL</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="utm-url">URL</Label>
+          <Input
             id="utm-url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/?utm_source=..."
           />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {!parsed.valid ? (
         <p className="text-sm text-muted-foreground">{parsed.error}</p>
       ) : (
         <div className="space-y-4">
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="p-4">
               <div className="text-xs text-muted-foreground">Base URL</div>
               <div className="font-mono text-sm break-all">{parsed.base}</div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           <div className="space-y-2">
-            <ZoruLabel>UTM parameters ({parsed.utm.length})</ZoruLabel>
-            <ZoruCard>
+            <Label>UTM parameters ({parsed.utm.length})</Label>
+            <Card>
               <ZoruCardContent className="p-0">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow>
                       <ZoruTableHead>Parameter</ZoruTableHead>
@@ -116,17 +116,17 @@ export default function UtmDecoderPage() {
                       ))
                     )}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </div>
 
           {parsed.other.length > 0 && (
             <div className="space-y-2">
-              <ZoruLabel>Other query parameters ({parsed.other.length})</ZoruLabel>
-              <ZoruCard>
+              <Label>Other query parameters ({parsed.other.length})</Label>
+              <Card>
                 <ZoruCardContent className="p-0">
-                  <ZoruTable>
+                  <Table>
                     <ZoruTableHeader>
                       <ZoruTableRow>
                         <ZoruTableHead>Parameter</ZoruTableHead>
@@ -141,9 +141,9 @@ export default function UtmDecoderPage() {
                         </ZoruTableRow>
                       ))}
                     </ZoruTableBody>
-                  </ZoruTable>
+                  </Table>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             </div>
           )}
         </div>

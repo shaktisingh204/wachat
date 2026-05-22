@@ -162,7 +162,7 @@ export function OnboardingWizard({
                             Step {currentIndex + 1} of {STEP_ORDER.length}
                         </p>
                         {signedInUser && step !== 'account' && step !== 'complete' && (
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 className="text-muted-foreground"
@@ -175,7 +175,7 @@ export function OnboardingWizard({
                                     <SkipForward className="mr-1.5 h-3.5 w-3.5" />
                                 )}
                                 Skip for now
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                     <h1 className="text-3xl font-bold tracking-tight">

@@ -40,10 +40,10 @@ export default function AiLabPage() {
                 title="AI creative lab"
                 description="Machine-learning workflows Meta Ads Manager doesn't offer."
                 actions={
-                    <ZoruBadge className="bg-gradient-to-r from-[#1877F2] to-purple-600 text-white border-0">
+                    <Badge className="bg-gradient-to-r from-[#1877F2] to-purple-600 text-white border-0">
                         <Sparkles className="h-3.5 w-3.5 mr-1" />
                         Only on SabNode
-                    </ZoruBadge>
+                    </Badge>
                 }
             />
 
@@ -52,7 +52,7 @@ export default function AiLabPage() {
                     {TOOLS.map((t) => {
                         const Icon = t.icon;
                         const card = (
-                            <ZoruCard className="cursor-pointer hover:border-[#1877F2]/50 transition-colors h-full">
+                            <Card className="cursor-pointer hover:border-[#1877F2]/50 transition-colors h-full">
                                 <ZoruCardHeader className="pb-2">
                                     <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[#1877F2]/10 to-purple-600/10 flex items-center justify-center text-[#1877F2]">
                                         <Icon className="h-5 w-5" />
@@ -62,7 +62,7 @@ export default function AiLabPage() {
                                 <ZoruCardContent>
                                     <p className="text-xs text-muted-foreground">{t.desc}</p>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         );
                         return t.href ? (
                             <Link key={t.id} href={t.href}>{card}</Link>
@@ -72,7 +72,7 @@ export default function AiLabPage() {
                     })}
                 </div>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle className="text-base flex items-center gap-2">
                             <Wand2 className="h-4 w-4" /> Quick ad copy generator
@@ -80,8 +80,8 @@ export default function AiLabPage() {
                     </ZoruCardHeader>
                     <ZoruCardContent className="space-y-3">
                         <div className="space-y-2">
-                            <ZoruLabel>Product / offer brief</ZoruLabel>
-                            <ZoruTextarea
+                            <Label>Product / offer brief</Label>
+                            <Textarea
                                 placeholder="e.g. 30% off a premium yoga subscription for new signups"
                                 className="min-h-24"
                                 value={brief}
@@ -89,7 +89,7 @@ export default function AiLabPage() {
                             />
                         </div>
                         <div className="flex justify-end">
-                            <ZoruButton
+                            <Button
                                 className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                                 disabled={generating || !brief.trim()}
                                 onClick={async () => {
@@ -105,21 +105,21 @@ export default function AiLabPage() {
                                 }}
                             >
                                 <Sparkles className="h-4 w-4 mr-1" /> Generate 10 variants
-                            </ZoruButton>
+                            </Button>
                         </div>
                         {results.length > 0 && (
                             <div className="space-y-2 mt-4">
-                                <ZoruLabel className="text-sm font-medium">Generated Variants</ZoruLabel>
+                                <Label className="text-sm font-medium">Generated Variants</Label>
                                 {results.map((r, i) => (
                                     <div key={i} className="flex items-center justify-between p-3 rounded-lg border bg-background">
                                         <span className="text-sm">{r}</span>
-                                        <ZoruButton size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(r)}>Copy</ZoruButton>
+                                        <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(r)}>Copy</Button>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </>
     );

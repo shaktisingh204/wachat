@@ -139,17 +139,17 @@ export default function ExpenseCategoryRolesPage() {
       subtitle="Grant roles permission to create or approve expenses in specific categories."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="space-y-4">
           <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
             Add Permission
           </h3>
           <div className="grid gap-4 md:grid-cols-4">
             <div>
-              <ZoruLabel htmlFor="expense_category_id" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="expense_category_id" className="text-[13px] text-zoru-ink">
                 Category
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 name="expense_category_id"
                 value={categoryId}
                 onValueChange={setCategoryId}
@@ -164,13 +164,13 @@ export default function ExpenseCategoryRolesPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel htmlFor="role_id" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="role_id" className="text-[13px] text-zoru-ink">
                 Role
-              </ZoruLabel>
-              <ZoruSelect name="role_id" value={roleId} onValueChange={setRoleId}>
+              </Label>
+              <Select name="role_id" value={roleId} onValueChange={setRoleId}>
                 <ZoruSelectTrigger id="role_id" className="mt-1.5">
                   <ZoruSelectValue placeholder="Select role" />
                 </ZoruSelectTrigger>
@@ -181,17 +181,17 @@ export default function ExpenseCategoryRolesPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4">
-              <ZoruSwitch
+              <Switch
                 id="can_create"
                 checked={canCreate}
                 onCheckedChange={setCanCreate}
               />
-              <ZoruLabel htmlFor="can_create" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="can_create" className="text-[13px] text-zoru-ink">
                 Can create
-              </ZoruLabel>
+              </Label>
               <input
                 type="hidden"
                 name="can_create"
@@ -199,14 +199,14 @@ export default function ExpenseCategoryRolesPage() {
               />
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4">
-              <ZoruSwitch
+              <Switch
                 id="can_approve"
                 checked={canApprove}
                 onCheckedChange={setCanApprove}
               />
-              <ZoruLabel htmlFor="can_approve" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="can_approve" className="text-[13px] text-zoru-ink">
                 Can approve
-              </ZoruLabel>
+              </Label>
               <input
                 type="hidden"
                 name="can_approve"
@@ -215,27 +215,27 @@ export default function ExpenseCategoryRolesPage() {
             </div>
           </div>
           <div className="flex justify-end">
-            <ZoruButton type="submit" disabled={isSaving || !categoryId || !roleId}>
+            <Button type="submit" disabled={isSaving || !categoryId || !roleId}>
               {isSaving ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
                 <Plus className="h-4 w-4" />
               )}
               Add Permission
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading && rows.length === 0 ? (
-          <ZoruSkeleton className="h-[200px] w-full" />
+          <Skeleton className="h-[200px] w-full" />
         ) : rows.length === 0 ? (
           <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
             No permissions configured yet.
           </div>
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Category</ZoruTableHead>
@@ -256,22 +256,22 @@ export default function ExpenseCategoryRolesPage() {
                     <ZoruTableCell>{row.can_create ? 'Yes' : 'No'}</ZoruTableCell>
                     <ZoruTableCell>{row.can_approve ? 'Yes' : 'No'}</ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         disabled={isDeleting && deletingId === String(row._id)}
                         onClick={() => handleDelete(String(row._id))}
                       >
                         <Trash2 className="h-4 w-4 text-zoru-ink-muted" />
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 );
               })}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

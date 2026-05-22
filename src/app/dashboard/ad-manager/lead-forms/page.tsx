@@ -177,9 +177,9 @@ export default function LeadFormsPage() {
                 title="Lead forms"
                 description="Instant forms collected from your Lead Ads. Export to CSV or sync to CRM."
                 actions={
-                    <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
+                    <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
                         <Plus className="h-4 w-4 mr-1" /> New lead form
-                    </ZoruButton>
+                    </Button>
                 }
             />
 
@@ -193,7 +193,7 @@ export default function LeadFormsPage() {
             <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Facebook page:</span>
-                <ZoruSelect value={selectedPage} onValueChange={setSelectedPage}>
+                <Select value={selectedPage} onValueChange={setSelectedPage}>
                     <ZoruSelectTrigger className="w-[280px]">
                         <ZoruSelectValue placeholder="Select a page" />
                     </ZoruSelectTrigger>
@@ -202,12 +202,12 @@ export default function LeadFormsPage() {
                             <ZoruSelectItem key={p.id} value={p.id}>{p.name}</ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             {/* Total leads count stat card */}
             {!loading && forms.length > 0 && (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-4 flex items-center gap-4">
                         <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
                             <Users className="h-5 w-5" />
@@ -219,17 +219,17 @@ export default function LeadFormsPage() {
                             </p>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
-                            {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-10" />)}
+                            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
                         </div>
                     ) : (
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Form</ZoruTableHead>
@@ -258,14 +258,14 @@ export default function LeadFormsPage() {
                                                     <div className="flex items-center gap-2">
                                                         {f.name}
                                                         {isSynced && (
-                                                            <ZoruBadge variant="success" className="text-[10px]">
+                                                            <Badge variant="success" className="text-[10px]">
                                                                 <CheckCircle2 className="mr-1 h-3 w-3" /> CRM synced
-                                                            </ZoruBadge>
+                                                            </Badge>
                                                         )}
                                                     </div>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant="outline">{f.status}</ZoruBadge>
+                                                    <Badge variant="outline">{f.status}</Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="tabular-nums">{f.leads_count || 0}</ZoruTableCell>
                                                 <ZoruTableCell className="text-xs text-muted-foreground">
@@ -275,17 +275,17 @@ export default function LeadFormsPage() {
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <div className="flex items-center gap-1.5">
-                                                        <ZoruButton size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
+                                                        <Button size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
                                                             <Download className="h-3 w-3 mr-1" /> Export
-                                                        </ZoruButton>
+                                                        </Button>
                                                         {isSynced ? (
-                                                            <ZoruButton size="sm" variant="outline" asChild>
+                                                            <Button size="sm" variant="outline" asChild>
                                                                 <Link href={CRM_FB_INTEGRATION_HREF}>
                                                                     <SettingsIcon className="h-3 w-3 mr-1" /> Configure
                                                                 </Link>
-                                                            </ZoruButton>
+                                                            </Button>
                                                         ) : (
-                                                            <ZoruButton
+                                                            <Button
                                                                 size="sm"
                                                                 variant="outline"
                                                                 onClick={() => syncToCrm(f)}
@@ -297,7 +297,7 @@ export default function LeadFormsPage() {
                                                                     <RefreshCw className="h-3 w-3 mr-1" />
                                                                 )}
                                                                 Sync to CRM
-                                                            </ZoruButton>
+                                                            </Button>
                                                         )}
                                                     </div>
                                                 </ZoruTableCell>
@@ -306,12 +306,12 @@ export default function LeadFormsPage() {
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Create Lead Form</ZoruDialogTitle>
@@ -325,17 +325,17 @@ export default function LeadFormsPage() {
                             <li>Build your Instant Form in the ad creation step</li>
                             <li>The form will appear here automatically</li>
                         </ol>
-                        <ZoruButton asChild className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
+                        <Button asChild className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
                             <a href="https://business.facebook.com/adsmanager" target="_blank" rel="noopener noreferrer">
                                 Open Meta Ads Manager
                             </a>
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => setCreateOpen(false)}>Close</ZoruButton>
+                        <Button variant="outline" onClick={() => setCreateOpen(false)}>Close</Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }
@@ -352,7 +352,7 @@ function CrmConnectionBanner({
     selectedPageName?: string;
 }) {
     if (status === null) {
-        return <ZoruSkeleton className="h-12 w-full" />;
+        return <Skeleton className="h-12 w-full" />;
     }
 
     if (!status.configured) {
@@ -364,11 +364,11 @@ function CrmConnectionBanner({
                         CRM lead-sync is not configured yet. Click "Sync to CRM" on any form below, or configure mapping & routing first.
                     </span>
                 </div>
-                <ZoruButton size="sm" variant="outline" asChild>
+                <Button size="sm" variant="outline" asChild>
                     <Link href={CRM_FB_INTEGRATION_HREF}>
                         <SettingsIcon className="h-3 w-3 mr-1" /> Open CRM settings
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -383,11 +383,11 @@ function CrmConnectionBanner({
                         <strong>{selectedPageName || 'this page'}</strong> can't sync until you switch pages in CRM settings.
                     </span>
                 </div>
-                <ZoruButton size="sm" variant="outline" asChild>
+                <Button size="sm" variant="outline" asChild>
                     <Link href={CRM_FB_INTEGRATION_HREF}>
                         <SettingsIcon className="h-3 w-3 mr-1" /> Switch in CRM
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -401,11 +401,11 @@ function CrmConnectionBanner({
                         CRM is wired to this page but lead sync is <strong>inactive</strong>. Enable it in CRM settings to resume real-time sync.
                     </span>
                 </div>
-                <ZoruButton size="sm" variant="outline" asChild>
+                <Button size="sm" variant="outline" asChild>
                     <Link href={CRM_FB_INTEGRATION_HREF}>
                         <SettingsIcon className="h-3 w-3 mr-1" /> Activate
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -418,11 +418,11 @@ function CrmConnectionBanner({
                     Connected to CRM — {status.syncedFormIds.length} form{status.syncedFormIds.length === 1 ? '' : 's'} syncing in real-time.
                 </span>
             </div>
-            <ZoruButton size="sm" variant="outline" asChild>
+            <Button size="sm" variant="outline" asChild>
                 <Link href={CRM_FB_INTEGRATION_HREF}>
                     <SettingsIcon className="h-3 w-3 mr-1" /> Mapping & routing
                 </Link>
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

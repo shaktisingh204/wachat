@@ -76,9 +76,9 @@ export function NewTicketDrawer() {
 
     return (
         <>
-            <ZoruButton onClick={() => setOpen(true)}>
+            <Button onClick={() => setOpen(true)}>
                 <Plus className="mr-1 h-4 w-4" /> New Ticket
-            </ZoruButton>
+            </Button>
             <ZoruDrawer open={open} onOpenChange={handleOpenChange}>
                 <ZoruDrawerContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -90,8 +90,8 @@ export function NewTicketDrawer() {
                         </ZoruDrawerHeader>
                         <div className="flex flex-col gap-4 px-4">
                             <div className="flex flex-col gap-1.5">
-                                <ZoruLabel htmlFor="ct-subject">Subject</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="ct-subject">Subject</Label>
+                                <Input
                                     id="ct-subject"
                                     value={subject}
                                     onChange={(e) => setSubject(e.target.value)}
@@ -101,7 +101,7 @@ export function NewTicketDrawer() {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <ZoruLabel htmlFor="ct-priority">Priority</ZoruLabel>
+                                <Label htmlFor="ct-priority">Priority</Label>
                                 <select
                                     id="ct-priority"
                                     value={priority}
@@ -116,8 +116,8 @@ export function NewTicketDrawer() {
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <ZoruLabel htmlFor="ct-desc">Description</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="ct-desc">Description</Label>
+                                <Textarea
                                     id="ct-desc"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
@@ -133,12 +133,12 @@ export function NewTicketDrawer() {
                             ) : null}
                         </div>
                         <ZoruDrawerFooter>
-                            <ZoruButton type="submit" disabled={submitting}>
+                            <Button type="submit" disabled={submitting}>
                                 {submitting ? 'Submitting…' : 'Submit ticket'}
-                            </ZoruButton>
-                            <ZoruButton type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                            </Button>
+                            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                                 Cancel
-                            </ZoruButton>
+                            </Button>
                         </ZoruDrawerFooter>
                     </form>
                 </ZoruDrawerContent>

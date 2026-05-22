@@ -172,18 +172,18 @@ export function ActivityRow({
 
     return (
         <li className="flex items-start gap-3 p-4">
-            <ZoruAvatar className="h-8 w-8">
+            <Avatar className="h-8 w-8">
                 <ZoruAvatarFallback>
                     <UserIcon className="h-4 w-4" />
                 </ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-[13px] text-zoru-ink">
                     <span className="font-medium">{actor}</span>
                     <span className="text-zoru-ink-muted">{verb}</span>
-                    <ZoruBadge variant={tone === 'neutral' ? 'secondary' : (tone as 'success' | 'info' | 'danger' | 'warning')}>
+                    <Badge variant={tone === 'neutral' ? 'secondary' : (tone as 'success' | 'info' | 'danger' | 'warning')}>
                         {entry.entityKind}
-                    </ZoruBadge>
+                    </Badge>
                     {href ? (
                         <Link
                             href={href}

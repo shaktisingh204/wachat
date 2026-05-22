@@ -203,14 +203,14 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
 
       {/* KPI strip */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <ZoruStatCard label="Active rules" value={activeRules.toLocaleString()} />
-        <ZoruStatCard label="Sources covered" value={new Set(rules.map((r) => r.source)).size} />
-        <ZoruStatCard label="Current step" value={`${step + 1} / ${totalSteps}`} />
+        <StatCard label="Active rules" value={activeRules.toLocaleString()} />
+        <StatCard label="Sources covered" value={new Set(rules.map((r) => r.source)).size} />
+        <StatCard label="Current step" value={`${step + 1} / ${totalSteps}`} />
       </div>
 
       {/* Progress + step rail */}
-      <ZoruCard className="p-4">
-        <ZoruProgress value={progress} />
+      <Card className="p-4">
+        <Progress value={progress} />
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           {STEPS.map((s, i) => {
             const Icon = s.icon;
@@ -237,10 +237,10 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
             );
           })}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Body */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {step === 0 ? (
           <StepSource state={state} update={update} />
         ) : step === 1 ? (
@@ -252,27 +252,27 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
         ) : (
           <StepTest state={state} update={update} />
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Footer nav */}
       <div className="flex items-center justify-between gap-2">
-        <ZoruButton variant="outline" onClick={handleBack} disabled={step === 0 || isPending}>
+        <Button variant="outline" onClick={handleBack} disabled={step === 0 || isPending}>
           <ArrowLeft className="h-4 w-4" /> Back
-        </ZoruButton>
+        </Button>
         {step < totalSteps - 1 ? (
-          <ZoruButton onClick={handleNext}>
+          <Button onClick={handleNext}>
             Next <ArrowRight className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         ) : (
-          <ZoruButton onClick={handleActivate} disabled={isPending}>
+          <Button onClick={handleActivate} disabled={isPending}>
             {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             Activate rule
-          </ZoruButton>
+          </Button>
         )}
       </div>
 
       {/* Existing rules */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h2 className="text-[15px] font-semibold text-zoru-ink">Active rules</h2>
@@ -284,7 +284,7 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
         {rules.length === 0 ? (
           <p className="text-[13px] text-zoru-ink-muted">
             No rules configured yet. Finish the wizard above and click&nbsp;
-            <ZoruBadge variant="secondary">Activate rule</ZoruBadge> to add the first one.
+            <Badge variant="secondary">Activate rule</Badge> to add the first one.
           </p>
         ) : (
           <ul className="flex flex-col divide-y divide-zoru-line">
@@ -296,8 +296,8 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[13px] font-medium text-zoru-ink">{r.name}</span>
-                    <ZoruBadge variant="secondary">{r.source}</ZoruBadge>
-                    <ZoruBadge variant="secondary">{r.leadSource}</ZoruBadge>
+                    <Badge variant="secondary">{r.source}</Badge>
+                    <Badge variant="secondary">{r.leadSource}</Badge>
                   </div>
                   <div className="mt-0.5 text-[12px] text-zoru-ink-muted">
                     Keyword:{' '}
@@ -306,19 +306,19 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
                     </code>
                   </div>
                 </div>
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(r._id)}
                   className="hover:text-zoru-danger-ink"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
               </li>
             ))}
           </ul>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }
@@ -335,7 +335,7 @@ function StepSource({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <ZoruLabel>Source integration</ZoruLabel>
+        <Label>Source integration</Label>
         <p className="mb-2 text-[12px] text-zoru-ink-muted">
           Pick where these leads come from. The runtime listener routes matching events through
           the keyword filter you set in Step 5.
@@ -378,8 +378,8 @@ function StepMapping({
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <div>
-        <ZoruLabel htmlFor="mn">Name field</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="mn">Name field</Label>
+        <Input
           id="mn"
           value={state.mapFullName}
           onChange={(e) => update('mapFullName', e.target.value)}
@@ -387,8 +387,8 @@ function StepMapping({
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="me">Email field</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="me">Email field</Label>
+        <Input
           id="me"
           value={state.mapEmail}
           onChange={(e) => update('mapEmail', e.target.value)}
@@ -396,8 +396,8 @@ function StepMapping({
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="mp">Phone field</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="mp">Phone field</Label>
+        <Input
           id="mp"
           value={state.mapPhone}
           onChange={(e) => update('mapPhone', e.target.value)}
@@ -422,8 +422,8 @@ function StepAssignment({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel htmlFor="ow">Default owner (user id)</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="ow">Default owner (user id)</Label>
+        <Input
           id="ow"
           value={state.defaultOwner}
           onChange={(e) => update('defaultOwner', e.target.value)}
@@ -434,8 +434,8 @@ function StepAssignment({
         </p>
       </div>
       <div>
-        <ZoruLabel htmlFor="pi">Default pipeline</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="pi">Default pipeline</Label>
+        <Input
           id="pi"
           value={state.defaultPipeline}
           onChange={(e) => update('defaultPipeline', e.target.value)}
@@ -485,8 +485,8 @@ function StepTest({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel htmlFor="rn">Rule name</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="rn">Rule name</Label>
+        <Input
           id="rn"
           value={state.name}
           onChange={(e) => update('name', e.target.value)}
@@ -494,8 +494,8 @@ function StepTest({
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="kw">Match keyword</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="kw">Match keyword</Label>
+        <Input
           id="kw"
           value={state.keyword}
           onChange={(e) => update('keyword', e.target.value)}
@@ -503,8 +503,8 @@ function StepTest({
         />
       </div>
       <div>
-        <ZoruLabel>Source</ZoruLabel>
-        <ZoruSelect value={state.source} onValueChange={(v) => update('source', v)}>
+        <Label>Source</Label>
+        <Select value={state.source} onValueChange={(v) => update('source', v)}>
           <ZoruSelectTrigger>
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -515,11 +515,11 @@ function StepTest({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
       <div>
-        <ZoruLabel htmlFor="ls">Lead source label</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="ls">Lead source label</Label>
+        <Input
           id="ls"
           value={state.leadSource}
           onChange={(e) => update('leadSource', e.target.value)}
@@ -527,7 +527,7 @@ function StepTest({
         />
       </div>
       <p className="md:col-span-2 text-[12px] text-zoru-ink-muted">
-        Clicking <ZoruBadge variant="secondary">Activate rule</ZoruBadge> persists this
+        Clicking <Badge variant="secondary">Activate rule</Badge> persists this
         configuration. Matching events will start creating leads as soon as the listener
         consumes them.
       </p>

@@ -102,13 +102,13 @@ export function CustomFieldInput({
 
   // The picker accepts `null`, `string`, or `string[]`. Other inputs
   // are happy with primitives. Branch on `field.type` and only emit
-  // the labelled wrapper once — no duplicate `<ZoruLabel>` per case.
+  // the labelled wrapper once — no duplicate `<Label>` per case.
   let control: React.ReactNode;
 
   switch (field.type) {
     case 'textarea': {
       control = (
-        <ZoruTextarea
+        <Textarea
           id={slug}
           name={slug}
           required={required}
@@ -128,7 +128,7 @@ export function CustomFieldInput({
       // upgraded later without changing storage.
       const options = field.values ?? [];
       control = (
-        <ZoruSelect
+        <Select
           name={slug}
           value={asString(value)}
           onValueChange={(v) => onChange(v)}
@@ -144,7 +144,7 @@ export function CustomFieldInput({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       );
       break;
     }
@@ -155,7 +155,7 @@ export function CustomFieldInput({
       // permits arrays, but the UI for that would land alongside.)
       control = (
         <div className="flex items-center gap-2">
-          <ZoruCheckbox
+          <Checkbox
             id={slug}
             name={slug}
             checked={Boolean(value)}
@@ -163,10 +163,10 @@ export function CustomFieldInput({
             onCheckedChange={(v) => onChange(Boolean(v))}
           />
           {showLabel ? (
-            <ZoruLabel htmlFor={slug} className="text-[13px]">
+            <Label htmlFor={slug} className="text-[13px]">
               {label}
               {required ? <span className="ml-0.5 text-destructive">*</span> : null}
-            </ZoruLabel>
+            </Label>
           ) : null}
         </div>
       );
@@ -178,7 +178,7 @@ export function CustomFieldInput({
 
     case 'number': {
       control = (
-        <ZoruInput
+        <Input
           id={slug}
           name={slug}
           type="number"
@@ -198,7 +198,7 @@ export function CustomFieldInput({
 
     case 'date': {
       control = (
-        <ZoruInput
+        <Input
           id={slug}
           name={slug}
           type="date"
@@ -213,7 +213,7 @@ export function CustomFieldInput({
 
     case 'email': {
       control = (
-        <ZoruInput
+        <Input
           id={slug}
           name={slug}
           type="email"
@@ -228,7 +228,7 @@ export function CustomFieldInput({
 
     case 'url': {
       control = (
-        <ZoruInput
+        <Input
           id={slug}
           name={slug}
           type="url"
@@ -270,7 +270,7 @@ export function CustomFieldInput({
     case 'text':
     default: {
       control = (
-        <ZoruInput
+        <Input
           id={slug}
           name={slug}
           required={required}
@@ -286,10 +286,10 @@ export function CustomFieldInput({
   return (
     <div className={cn('flex flex-col gap-1', className)}>
       {showLabel ? (
-        <ZoruLabel htmlFor={slug} className="text-[13px]">
+        <Label htmlFor={slug} className="text-[13px]">
           {label}
           {required ? <span className="ml-0.5 text-destructive">*</span> : null}
-        </ZoruLabel>
+        </Label>
       ) : null}
       {control}
     </div>

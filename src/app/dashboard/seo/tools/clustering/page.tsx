@@ -115,35 +115,35 @@ export default function KeywordClusteringPage() {
                     </p>
                 </div>
                 {results && (
-                    <ZoruButton variant="outline" onClick={handleExport}>
+                    <Button variant="outline" onClick={handleExport}>
                         <Download className="h-4 w-4 mr-2" /> Export CSV
-                    </ZoruButton>
+                    </Button>
                 )}
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <ZoruCard className="h-full">
+                <Card className="h-full">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Input Keywords</ZoruCardTitle>
                         <ZoruCardDescription>Paste your list (one per line).</ZoruCardDescription>
                     </ZoruCardHeader>
                     <ZoruCardContent className="h-full">
-                        <ZoruTextarea
+                        <Textarea
                             placeholder="best coffee machine&#10;cheap coffee maker&#10;how to brew coffee&#10;coffee machine reviews..."
                             className="h-[400px] font-mono"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                         />
                         <div className="mt-4 flex justify-end">
-                            <ZoruButton onClick={handleCluster} disabled={loading || !input}>
+                            <Button onClick={handleCluster} disabled={loading || !input}>
                                 {loading ? <Sparkles className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
                                 Cluster Keywords
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard className="h-full flex flex-col">
+                <Card className="h-full flex flex-col">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Clusters</ZoruCardTitle>
                         <ZoruCardDescription>
@@ -162,7 +162,7 @@ export default function KeywordClusteringPage() {
                                 {Object.entries(results).map(([cluster, kws]) => (
                                     <div key={cluster} className="space-y-2">
                                         <div className="flex items-center gap-2 sticky top-0 bg-background py-2 border-b z-10">
-                                            <ZoruBadge variant="secondary">{kws.length}</ZoruBadge>
+                                            <Badge variant="secondary">{kws.length}</Badge>
                                             <h3 className="font-semibold text-sm">{cluster}</h3>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 pl-2">
@@ -177,7 +177,7 @@ export default function KeywordClusteringPage() {
                             </div>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

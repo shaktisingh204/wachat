@@ -215,7 +215,7 @@ export default function TelegramStickersPage() {
             />
 
             {!activeProjectId ? (
-                <ZoruEmptyState
+                <EmptyState
                     icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
                     title="Select a project"
                     description="Pick a project from the sidebar to manage sticker packs."
@@ -224,7 +224,7 @@ export default function TelegramStickersPage() {
                 botsLoading ? (
                     <KpiSkeleton />
                 ) : (
-                    <ZoruEmptyState
+                    <EmptyState
                         icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
                         title="No connected bots yet"
                         description="Connect a Telegram bot in /dashboard/telegram/connections to start managing sticker packs."
@@ -237,25 +237,25 @@ export default function TelegramStickersPage() {
                     {setsLoading ? (
                         <GridSkeleton />
                     ) : setsError ? (
-                        <ZoruEmptyState
+                        <EmptyState
                             icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
                             title="Couldn't load packs"
                             description={setsError}
                             action={
-                                <ZoruButton variant="outline" size="sm" onClick={() => loadSets()}>
+                                <Button variant="outline" size="sm" onClick={() => loadSets()}>
                                     Try again
-                                </ZoruButton>
+                                </Button>
                             }
                         />
                     ) : sets.length === 0 ? (
-                        <ZoruEmptyState
+                        <EmptyState
                             icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
                             title="No sticker packs yet"
                             description="Create your first pack to publish stickers via this bot."
                             action={
-                                <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                                <Button size="sm" onClick={() => setCreateOpen(true)}>
                                     <Plus className="h-4 w-4" /> New sticker pack
-                                </ZoruButton>
+                                </Button>
                             }
                         />
                     ) : (
@@ -335,7 +335,7 @@ function Header({
                 </div>
             </div>
             <div className="flex items-center gap-2">
-                <ZoruButton
+                <Button
                     variant="outline"
                     size="sm"
                     onClick={onRefresh}
@@ -347,10 +347,10 @@ function Header({
                         <RefreshCw className="h-4 w-4" />
                     )}
                     Refresh
-                </ZoruButton>
-                <ZoruButton size="sm" onClick={onCreate} disabled={disabled}>
+                </Button>
+                <Button size="sm" onClick={onCreate} disabled={disabled}>
                     <Plus className="h-4 w-4" /> New sticker pack
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -372,7 +372,7 @@ function BotSelector({
     loading: boolean;
 }) {
     return (
-        <ZoruCard className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <div className="text-[11px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                     Bot
@@ -382,7 +382,7 @@ function BotSelector({
                 </div>
             </div>
             <div className="flex w-full max-w-sm items-center gap-2">
-                <ZoruSelect
+                <Select
                     value={selectedBotId ?? undefined}
                     onValueChange={(v) => onSelect(v)}
                     disabled={loading || bots.length === 0}
@@ -408,9 +408,9 @@ function BotSelector({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -425,22 +425,22 @@ function Kpis({
 }) {
     return (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
                 label="Total sets"
                 value={kpi.totalSets}
                 icon={<Layers className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Total stickers"
                 value={kpi.totalStickers}
                 icon={<StickerIcon className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Mask sets"
                 value={kpi.maskSets}
                 icon={<Smile className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Custom emoji sets"
                 value={kpi.customEmojiSets}
                 icon={<ImageIcon className="h-4 w-4" />}
@@ -453,7 +453,7 @@ function KpiSkeleton() {
     return (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[0, 1, 2, 3].map((i) => (
-                <ZoruSkeleton key={i} className="h-[88px] w-full" />
+                <Skeleton key={i} className="h-[88px] w-full" />
             ))}
         </div>
     );
@@ -467,7 +467,7 @@ function GridSkeleton() {
     return (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-                <ZoruSkeleton key={i} className="h-[180px] w-full" />
+                <Skeleton key={i} className="h-[180px] w-full" />
             ))}
         </div>
     );
@@ -508,9 +508,9 @@ function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow) => voi
                                 {s.name}
                             </div>
                         </div>
-                        <ZoruBadge variant="ghost" className="capitalize">
+                        <Badge variant="ghost" className="capitalize">
                             {s.stickerType.replace('_', ' ')}
-                        </ZoruBadge>
+                        </Badge>
                     </div>
                     <div className="flex items-center justify-between text-[12px] text-zoru-ink-muted">
                         <span>
@@ -659,7 +659,7 @@ function CreatePackDrawer({
     };
 
     return (
-        <ZoruSheet open={open} onOpenChange={onOpenChange}>
+        <Sheet open={open} onOpenChange={onOpenChange}>
             <ZoruSheetContent
                 side="right"
                 className="flex w-full max-w-2xl flex-col gap-4 overflow-y-auto"
@@ -708,41 +708,41 @@ function CreatePackDrawer({
                 )}
 
                 <div className="mt-auto flex items-center justify-between gap-2 border-t border-zoru-line pt-3">
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
                         disabled={submitting}
                     >
                         Cancel
-                    </ZoruButton>
+                    </Button>
                     <div className="flex items-center gap-2">
                         {step > 1 && (
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 onClick={() => setStep((s) => ((s - 1) || 1) as 1 | 2 | 3)}
                                 disabled={submitting}
                             >
                                 Back
-                            </ZoruButton>
+                            </Button>
                         )}
                         {step < 3 && (
-                            <ZoruButton
+                            <Button
                                 onClick={() => setStep((s) => ((s + 1) as 1 | 2 | 3))}
                                 disabled={(step === 1 && !step1Valid) || (step === 2 && !step2Valid)}
                             >
                                 Next
-                            </ZoruButton>
+                            </Button>
                         )}
                         {step === 3 && (
-                            <ZoruButton onClick={submit} disabled={submitting || !step2Valid}>
+                            <Button onClick={submit} disabled={submitting || !step2Valid}>
                                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                                 Create pack
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                 </div>
             </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
     );
 }
 
@@ -803,8 +803,8 @@ function Step1Basics({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Owner Telegram user id</ZoruLabel>
-                <ZoruInput
+                <Label>Owner Telegram user id</Label>
+                <Input
                     value={ownerUserId}
                     onChange={(e) => setOwnerUserId(e.target.value)}
                     placeholder="123456789"
@@ -816,8 +816,8 @@ function Step1Basics({
                 </p>
             </div>
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Pack short name</ZoruLabel>
-                <ZoruInput
+                <Label>Pack short name</Label>
+                <Input
                     value={shortName}
                     onChange={(e) =>
                         setShortName(e.target.value.replace(/[^A-Za-z0-9_]/g, ''))
@@ -847,8 +847,8 @@ function Step1Basics({
                 )}
             </div>
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Title</ZoruLabel>
-                <ZoruInput
+                <Label>Title</Label>
+                <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="My Cats"
@@ -856,8 +856,8 @@ function Step1Basics({
                 />
             </div>
             <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Sticker type</ZoruLabel>
-                <ZoruSelect
+                <Label>Sticker type</Label>
+                <Select
                     value={stickerType}
                     onValueChange={(v) => setStickerType(v as StickerType)}
                 >
@@ -869,7 +869,7 @@ function Step1Basics({
                         <ZoruSelectItem value="mask">Mask</ZoruSelectItem>
                         <ZoruSelectItem value="custom_emoji">Custom emoji</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
         </div>
     );
@@ -910,7 +910,7 @@ function Step2Stickers({
                 </SabFilePickerButton>
             </div>
             {stickers.length === 0 && (
-                <ZoruEmptyState
+                <EmptyState
                     compact
                     icon={<StickerIcon className="h-5 w-5 text-zoru-ink-muted" />}
                     title="No stickers yet"
@@ -944,27 +944,27 @@ function Step2Stickers({
                                     {s.sabFileMime ?? 'unknown mime'}
                                 </div>
                             </div>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 aria-label="Remove"
                                 onClick={() => remove(idx)}
                             >
                                 <X className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                         <div className="grid gap-2 sm:grid-cols-2">
                             <div className="flex flex-col gap-1">
-                                <ZoruLabel className="text-[11px]">Emoji(s)</ZoruLabel>
-                                <ZoruInput
+                                <Label className="text-[11px]">Emoji(s)</Label>
+                                <Input
                                     value={s.emoji}
                                     onChange={(e) => update(idx, { emoji: e.target.value })}
                                     placeholder="😺🐾"
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <ZoruLabel className="text-[11px]">Keywords</ZoruLabel>
-                                <ZoruInput
+                                <Label className="text-[11px]">Keywords</Label>
+                                <Input
                                     value={s.keywords}
                                     onChange={(e) => update(idx, { keywords: e.target.value })}
                                     placeholder="cat, kitten"
@@ -1003,8 +1003,8 @@ function MaskFields({
     return (
         <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-zoru-line p-2 sm:grid-cols-4">
             <div className="flex flex-col gap-1">
-                <ZoruLabel className="text-[11px]">Anchor</ZoruLabel>
-                <ZoruSelect value={point} onValueChange={(v) => onChange({ maskPoint: v })}>
+                <Label className="text-[11px]">Anchor</Label>
+                <Select value={point} onValueChange={(v) => onChange({ maskPoint: v })}>
                     <ZoruSelectTrigger>
                         <ZoruSelectValue placeholder="forehead" />
                     </ZoruSelectTrigger>
@@ -1014,7 +1014,7 @@ function MaskFields({
                         <ZoruSelectItem value="mouth">mouth</ZoruSelectItem>
                         <ZoruSelectItem value="chin">chin</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
             <NumberField
                 label="x shift"
@@ -1051,8 +1051,8 @@ function NumberField({
 }) {
     return (
         <div className="flex flex-col gap-1">
-            <ZoruLabel className="text-[11px]">{label}</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11px]">{label}</Label>
+            <Input
                 type="number"
                 value={value ?? ''}
                 onChange={(e) => onChange(Number(e.target.value))}
@@ -1077,13 +1077,13 @@ function Step3Review({
 }) {
     return (
         <div className="flex flex-col gap-3">
-            <ZoruCard className="grid gap-2 p-3 text-[13px]">
+            <Card className="grid gap-2 p-3 text-[13px]">
                 <Row label="Owner user id" value={ownerUserId} />
                 <Row label="Pack name" value={<code className="font-mono">{fullPackName}</code>} />
                 <Row label="Title" value={title} />
                 <Row label="Type" value={<span className="capitalize">{stickerType.replace('_', ' ')}</span>} />
                 <Row label="Sticker count" value={String(stickers.length)} />
-            </ZoruCard>
+            </Card>
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                 {stickers.map((s, i) => (
                     <div
@@ -1169,7 +1169,7 @@ function SetDetailDrawer({
     if (!open) return null;
 
     return (
-        <ZoruSheet open={open} onOpenChange={onOpenChange}>
+        <Sheet open={open} onOpenChange={onOpenChange}>
             <ZoruSheetContent
                 side="right"
                 className="flex w-full max-w-3xl flex-col gap-4 overflow-y-auto"
@@ -1181,15 +1181,15 @@ function SetDetailDrawer({
                     <ZoruSheetDescription>
                         <code className="font-mono text-[12px]">{setName}</code>
                         {set?.archived && (
-                            <ZoruBadge variant="ghost" className="ml-2 text-amber-700">
+                            <Badge variant="ghost" className="ml-2 text-amber-700">
                                 Archived
-                            </ZoruBadge>
+                            </Badge>
                         )}
                     </ZoruSheetDescription>
                 </ZoruSheetHeader>
 
                 {loading || !set ? (
-                    <ZoruSkeleton className="h-[420px] w-full" />
+                    <Skeleton className="h-[420px] w-full" />
                 ) : (
                     <DetailBody
                         set={set}
@@ -1206,7 +1206,7 @@ function SetDetailDrawer({
                     />
                 )}
             </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
     );
 }
 
@@ -1476,7 +1476,7 @@ function DetailBody({
 
     return (
         <div className="flex flex-col gap-4">
-            <ZoruCard className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
+            <Card className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface">
                     {set.thumbnailUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -1494,9 +1494,9 @@ function DetailBody({
                         <h3 className="truncate text-[16px] font-medium text-zoru-ink">
                             {set.title}
                         </h3>
-                        <ZoruBadge variant="ghost" className="capitalize">
+                        <Badge variant="ghost" className="capitalize">
                             {set.stickerType.replace('_', ' ')}
-                        </ZoruBadge>
+                        </Badge>
                     </div>
                     <p className="truncate text-[12px] text-zoru-ink-muted">
                         {set.stickerCount} stickers · created{' '}
@@ -1504,7 +1504,7 @@ function DetailBody({
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
@@ -1513,7 +1513,7 @@ function DetailBody({
                         }}
                     >
                         <Pencil className="h-4 w-4" /> Title
-                    </ZoruButton>
+                    </Button>
                     <SabFilePickerButton
                         accept="image"
                         variant="outline"
@@ -1522,50 +1522,50 @@ function DetailBody({
                     >
                         <ImageIcon className="h-4 w-4" /> Thumbnail
                     </SabFilePickerButton>
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleThumbnail(null)}
                         disabled={!set.thumbnailUrl || busy === 'thumbnail'}
                     >
                         <X className="h-4 w-4" /> Clear
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={handleArchive}
                         disabled={set.archived || busy === 'archive'}
                     >
                         <Archive className="h-4 w-4" /> Archive
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {editTitleOpen && (
-                <ZoruCard className="flex items-center gap-2 p-2">
-                    <ZoruInput
+                <Card className="flex items-center gap-2 p-2">
+                    <Input
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
                         placeholder="New title"
                         maxLength={64}
                     />
-                    <ZoruButton size="sm" onClick={handleTitle} disabled={busy === 'title'}>
+                    <Button size="sm" onClick={handleTitle} disabled={busy === 'title'}>
                         {busy === 'title' ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         Save
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setEditTitleOpen(false)}
                     >
                         Cancel
-                    </ZoruButton>
-                </ZoruCard>
+                    </Button>
+                </Card>
             )}
 
-            <ZoruCard className="flex flex-col gap-2 p-3">
-                <ZoruLabel>Owner Telegram user id</ZoruLabel>
-                <ZoruInput
+            <Card className="flex flex-col gap-2 p-3">
+                <Label>Owner Telegram user id</Label>
+                <Input
                     value={ownerUserId}
                     onChange={(e) => setOwnerUserId(e.target.value)}
                     placeholder="123456789"
@@ -1574,7 +1574,7 @@ function DetailBody({
                 <p className="text-[11.5px] text-zoru-ink-muted">
                     Required for adding new stickers, replacing a file, or changing the thumbnail.
                 </p>
-            </ZoruCard>
+            </Card>
 
             <div className="flex items-center justify-between">
                 <h4 className="text-[13px] font-medium text-zoru-ink">Stickers</h4>
@@ -1588,7 +1588,7 @@ function DetailBody({
             </div>
 
             {sortedStickers.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     compact
                     icon={<StickerIcon className="h-5 w-5 text-zoru-ink-muted" />}
                     title="No stickers in this pack yet"
@@ -1672,7 +1672,7 @@ function StickerRowEditor({
                 <div className="min-w-0 flex-1 truncate font-mono text-[12px] text-zoru-ink-muted">
                     {sticker.fileId}
                 </div>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Move up"
@@ -1680,8 +1680,8 @@ function StickerRowEditor({
                     disabled={isFirst || busy === `pos-${sticker.fileId}`}
                 >
                     <ArrowUp className="h-4 w-4" />
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Move down"
@@ -1689,7 +1689,7 @@ function StickerRowEditor({
                     disabled={isLast || busy === `pos-${sticker.fileId}`}
                 >
                     <ArrowDown className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
                 <SabFilePickerButton
                     accept="image"
                     variant="ghost"
@@ -1698,7 +1698,7 @@ function StickerRowEditor({
                 >
                     <Replace className="h-4 w-4" />
                 </SabFilePickerButton>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Remove"
@@ -1706,51 +1706,51 @@ function StickerRowEditor({
                     disabled={busy === `del-${sticker.fileId}`}
                 >
                     <Trash2 className="h-4 w-4 text-red-500" />
-                </ZoruButton>
+                </Button>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
                 <div className="flex items-end gap-2">
                     <div className="flex-1">
-                        <ZoruLabel className="text-[11px]">Emoji(s)</ZoruLabel>
-                        <ZoruInput
+                        <Label className="text-[11px]">Emoji(s)</Label>
+                        <Input
                             value={emoji}
                             onChange={(e) => setEmoji(e.target.value)}
                             placeholder="😺🐾"
                         />
                     </div>
-                    <ZoruButton
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={() => onEmoji(emoji)}
                         disabled={busy === `emoji-${sticker.fileId}`}
                     >
                         Save
-                    </ZoruButton>
+                    </Button>
                 </div>
                 <div className="flex items-end gap-2">
                     <div className="flex-1">
-                        <ZoruLabel className="text-[11px]">Keywords</ZoruLabel>
-                        <ZoruInput
+                        <Label className="text-[11px]">Keywords</Label>
+                        <Input
                             value={keywords}
                             onChange={(e) => setKeywords(e.target.value)}
                             placeholder="comma, separated"
                         />
                     </div>
-                    <ZoruButton
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={() => onKeywords(keywords)}
                         disabled={busy === `kw-${sticker.fileId}`}
                     >
                         Save
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
             {stickerType === 'mask' && (
                 <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-zoru-line p-2 sm:grid-cols-5">
                     <div className="flex flex-col gap-1">
-                        <ZoruLabel className="text-[11px]">Anchor</ZoruLabel>
-                        <ZoruSelect value={maskPoint} onValueChange={(v) => setMaskPoint(v)}>
+                        <Label className="text-[11px]">Anchor</Label>
+                        <Select value={maskPoint} onValueChange={(v) => setMaskPoint(v)}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="forehead" />
                             </ZoruSelectTrigger>
@@ -1760,13 +1760,13 @@ function StickerRowEditor({
                                 <ZoruSelectItem value="mouth">mouth</ZoruSelectItem>
                                 <ZoruSelectItem value="chin">chin</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <NumberField label="x shift" value={maskX} onChange={setMaskX} step={0.1} />
                     <NumberField label="y shift" value={maskY} onChange={setMaskY} step={0.1} />
                     <NumberField label="scale" value={maskScale} onChange={setMaskScale} step={0.1} />
                     <div className="flex items-end">
-                        <ZoruButton
+                        <Button
                             size="sm"
                             variant="outline"
                             disabled={busy === `mask-${sticker.fileId}` || !maskPoint}
@@ -1780,7 +1780,7 @@ function StickerRowEditor({
                             }
                         >
                             Save mask
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             )}

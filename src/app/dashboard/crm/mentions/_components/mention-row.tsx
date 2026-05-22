@@ -65,7 +65,7 @@ export function MentionRow({ mention }: MentionRowProps) {
         </p>
       </div>
       {!read ? (
-        <ZoruButton
+        <Button
           size="sm"
           variant="pill"
           onClick={onMarkRead}
@@ -73,7 +73,7 @@ export function MentionRow({ mention }: MentionRowProps) {
           leading={<Check className="h-3.5 w-3.5" />}
         >
           Mark read
-        </ZoruButton>
+        </Button>
       ) : null}
     </li>
   );

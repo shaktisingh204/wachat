@@ -165,7 +165,7 @@ function KpiCard({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
         {label}
       </div>
@@ -175,7 +175,7 @@ function KpiCard({
       {hint ? (
         <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -213,7 +213,7 @@ function ColorSwatchInput({
   const valid = HEX_RE.test(value);
   return (
     <div className="flex flex-col gap-1">
-      <ZoruLabel className="text-[11px] text-zoru-ink-muted">{label}</ZoruLabel>
+      <Label className="text-[11px] text-zoru-ink-muted">{label}</Label>
       <div className="flex items-center gap-2">
         <input
           type="color"
@@ -222,7 +222,7 @@ function ColorSwatchInput({
           onChange={(e) => onChange(e.target.value)}
           className="h-8 w-10 cursor-pointer rounded border border-zoru-line bg-zoru-bg p-0"
         />
-        <ZoruInput
+        <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
@@ -471,8 +471,8 @@ function MiniAppFormDrawer({
           <section className="flex flex-col gap-3">
             <h3 className="text-[12px] font-medium text-zoru-ink">Basics</h3>
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Bot</ZoruLabel>
-              <ZoruSelect
+              <Label>Bot</Label>
+              <Select
                 value={form.botId}
                 onValueChange={(v) => setForm((p) => ({ ...p, botId: v }))}
                 disabled={mode === 'edit'}
@@ -487,12 +487,12 @@ function MiniAppFormDrawer({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Name</ZoruLabel>
-              <ZoruInput
+              <Label>Name</Label>
+              <Input
                 value={form.name}
                 onChange={(e) => {
                   const name = e.target.value;
@@ -507,8 +507,8 @@ function MiniAppFormDrawer({
             </div>
 
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Slug</ZoruLabel>
-              <ZoruInput
+              <Label>Slug</Label>
+              <Input
                 value={form.slug}
                 onChange={(e) => {
                   slugTouchedRef.current = true;
@@ -527,8 +527,8 @@ function MiniAppFormDrawer({
             </div>
 
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Web App URL</ZoruLabel>
-              <ZoruInput
+              <Label>Web App URL</Label>
+              <Input
                 value={form.webAppUrl}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, webAppUrl: e.target.value }))
@@ -541,8 +541,8 @@ function MiniAppFormDrawer({
             </div>
 
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Short name (optional)</ZoruLabel>
-              <ZoruInput
+              <Label>Short name (optional)</Label>
+              <Input
                 value={form.shortName}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, shortName: e.target.value }))
@@ -551,8 +551,8 @@ function MiniAppFormDrawer({
             </div>
 
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Description (optional)</ZoruLabel>
-              <ZoruTextarea
+              <Label>Description (optional)</Label>
+              <Textarea
                 value={form.description}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, description: e.target.value }))
@@ -566,7 +566,7 @@ function MiniAppFormDrawer({
           <section className="flex flex-col gap-3">
             <h3 className="text-[12px] font-medium text-zoru-ink">Branding</h3>
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Photo (SabFiles)</ZoruLabel>
+              <Label>Photo (SabFiles)</Label>
               <SabFileUrlInput
                 value={form.photoUrl}
                 onChange={(v) => setForm((p) => ({ ...p, photoUrl: v }))}
@@ -575,8 +575,8 @@ function MiniAppFormDrawer({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Default button label</ZoruLabel>
-              <ZoruInput
+              <Label>Default button label</Label>
+              <Input
                 value={form.defaultButtonLabel}
                 onChange={(e) =>
                   setForm((p) => ({
@@ -672,7 +672,7 @@ function MiniAppFormDrawer({
                   Disabled mini apps don't accept opens.
                 </div>
               </div>
-              <ZoruSwitch
+              <Switch
                 checked={form.status === 'active'}
                 onCheckedChange={(c) =>
                   setForm((p) => ({
@@ -686,10 +686,10 @@ function MiniAppFormDrawer({
         </div>
 
         <ZoruDrawerFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={submit}
             disabled={!canSubmit}
             style={{ backgroundColor: ACCENT }}
@@ -698,7 +698,7 @@ function MiniAppFormDrawer({
               <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
             ) : null}
             {mode === 'edit' ? 'Save changes' : 'Create mini app'}
-          </ZoruButton>
+          </Button>
         </ZoruDrawerFooter>
       </ZoruDrawerContent>
     </ZoruDrawer>
@@ -763,7 +763,7 @@ function SendDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Send mini app to a chat</ZoruDialogTitle>
@@ -775,31 +775,31 @@ function SendDialog({
         </ZoruDialogHeader>
         <div className="flex flex-col gap-3">
           <div>
-            <ZoruLabel>Chat ID</ZoruLabel>
-            <ZoruInput
+            <Label>Chat ID</Label>
+            <Input
               value={chatId}
               onChange={(e) => setChatId(e.target.value)}
               placeholder="e.g. 12345678 or @channelname"
             />
           </div>
           <div>
-            <ZoruLabel>Message text</ZoruLabel>
-            <ZoruTextarea
+            <Label>Message text</Label>
+            <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={2}
             />
           </div>
           <div>
-            <ZoruLabel>Button label</ZoruLabel>
-            <ZoruInput
+            <Label>Button label</Label>
+            <Input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
             />
           </div>
           <div>
-            <ZoruLabel>Markup style</ZoruLabel>
-            <ZoruSelect
+            <Label>Markup style</Label>
+            <Select
               value={style}
               onValueChange={(v) => setStyle(v as typeof style)}
             >
@@ -815,14 +815,14 @@ function SendDialog({
                   Web app button (inline)
                 </ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={submit}
             disabled={!chatId.trim() || pending}
             style={{ backgroundColor: ACCENT }}
@@ -833,10 +833,10 @@ function SendDialog({
               <Send className="mr-1.5 h-3.5 w-3.5" />
             )}
             Send
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -1049,14 +1049,14 @@ function DetailDrawer({
                 <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                   Test init-data
                 </div>
-                <ZoruTextarea
+                <Textarea
                   value={initData}
                   onChange={(e) => setInitData(e.target.value)}
                   rows={4}
                   placeholder="Paste a Telegram WebApp initData string here…"
                 />
                 <div className="mt-2 flex items-center gap-2">
-                  <ZoruButton
+                  <Button
                     size="sm"
                     onClick={onValidate}
                     disabled={!initData || validating}
@@ -1067,7 +1067,7 @@ function DetailDrawer({
                       <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
                     )}
                     Validate
-                  </ZoruButton>
+                  </Button>
                   {initDataResult && (
                     <span
                       className={cn(
@@ -1103,9 +1103,9 @@ function DetailDrawer({
 
           {tab === 'settings' && (
             <div className="flex flex-col gap-3">
-              <ZoruButton variant="outline" onClick={onEdit}>
+              <Button variant="outline" onClick={onEdit}>
                 <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit mini app
-              </ZoruButton>
+              </Button>
               <div className="rounded-md border border-zoru-line p-3 text-[12px]">
                 <div className="text-zoru-ink-muted">App id</div>
                 <div className="font-mono text-zoru-ink">{app._id}</div>
@@ -1131,7 +1131,7 @@ function SessionsTable({
   sessions: SessionRow[];
   loading: boolean;
 }) {
-  if (loading) return <ZoruSkeleton className="h-40 w-full" />;
+  if (loading) return <Skeleton className="h-40 w-full" />;
   if (sessions.length === 0)
     return (
       <div className="rounded-md border border-zoru-line p-6 text-center text-[12px] text-zoru-ink-muted">
@@ -1139,7 +1139,7 @@ function SessionsTable({
       </div>
     );
   return (
-    <ZoruTable>
+    <Table>
       <ZoruTableHeader>
         <ZoruTableRow>
           <ZoruTableHead>User</ZoruTableHead>
@@ -1164,7 +1164,7 @@ function SessionsTable({
           </ZoruTableRow>
         ))}
       </ZoruTableBody>
-    </ZoruTable>
+    </Table>
   );
 }
 
@@ -1175,7 +1175,7 @@ function AnalyticsView({
   analytics: AnalyticsResp | null;
   loading: boolean;
 }) {
-  if (loading) return <ZoruSkeleton className="h-40 w-full" />;
+  if (loading) return <Skeleton className="h-40 w-full" />;
   if (!analytics)
     return <div className="text-[12px] text-zoru-ink-muted">No data.</div>;
   const max = analytics.byDay.reduce((m, d) => Math.max(m, d.opens), 0) || 1;
@@ -1246,7 +1246,7 @@ function RowActionsMenu({
   onCopyLink: () => void;
 }) {
   return (
-    <ZoruDropdownMenu>
+    <DropdownMenu>
       <ZoruDropdownMenuTrigger asChild>
         <button
           type="button"
@@ -1277,7 +1277,7 @@ function RowActionsMenu({
           <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
         </ZoruDropdownMenuItem>
       </ZoruDropdownMenuContent>
-    </ZoruDropdownMenu>
+    </DropdownMenu>
   );
 }
 
@@ -1501,7 +1501,7 @@ export default function MiniAppsPage() {
   if (!activeProjectId) {
     return (
       <div className="flex min-h-full flex-col gap-6 p-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
             <ZoruPageTitle>Telegram Mini Apps</ZoruPageTitle>
@@ -1509,7 +1509,7 @@ export default function MiniAppsPage() {
               Pick a project to manage its Telegram Mini Apps.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
       </div>
     );
   }
@@ -1517,7 +1517,7 @@ export default function MiniAppsPage() {
   return (
     <div className="flex min-h-full flex-col gap-4 p-4">
         <TelegramProjectGate />
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageEyebrow>Telegram · {activeProjectName ?? ''}</ZoruPageEyebrow>
           <ZoruPageTitle>
@@ -1536,7 +1536,7 @@ export default function MiniAppsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             onClick={() => {
               setEditing(null);
               setFormMode('create');
@@ -1545,9 +1545,9 @@ export default function MiniAppsPage() {
             style={{ backgroundColor: ACCENT }}
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" /> New mini app
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -1561,14 +1561,14 @@ export default function MiniAppsPage() {
       <div className="flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg p-2">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search name, slug or URL…"
             className="pl-7"
           />
         </div>
-        <ZoruSelect value={botFilter} onValueChange={setBotFilter}>
+        <Select value={botFilter} onValueChange={setBotFilter}>
           <ZoruSelectTrigger className="w-[180px]">
             <ZoruSelectValue placeholder="Bot" />
           </ZoruSelectTrigger>
@@ -1580,8 +1580,8 @@ export default function MiniAppsPage() {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <ZoruSelectTrigger className="w-[140px]">
             <ZoruSelectValue placeholder="Status" />
           </ZoruSelectTrigger>
@@ -1590,14 +1590,14 @@ export default function MiniAppsPage() {
             <ZoruSelectItem value="active">Active</ZoruSelectItem>
             <ZoruSelectItem value="disabled">Disabled</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
 
       {/* Table */}
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {loading && rows.length === 0 ? (
           <div className="p-4">
-            <ZoruSkeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
           </div>
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center gap-3 p-10 text-center">
@@ -1610,7 +1610,7 @@ export default function MiniAppsPage() {
               Register your first Web App URL to share it from a chat or set
               it as the bot's menu button.
             </div>
-            <ZoruButton
+            <Button
               onClick={() => {
                 setEditing(null);
                 setFormMode('create');
@@ -1619,10 +1619,10 @@ export default function MiniAppsPage() {
               style={{ backgroundColor: ACCENT }}
             >
               <Plus className="mr-1.5 h-3.5 w-3.5" /> New mini app
-            </ZoruButton>
+            </Button>
           </div>
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Name</ZoruTableHead>
@@ -1675,7 +1675,7 @@ export default function MiniAppsPage() {
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex items-center gap-2">
-                      <ZoruSwitch
+                      <Switch
                         checked={r.status === 'active'}
                         onCheckedChange={(c) => onToggleStatus(r, c)}
                         aria-label={`Toggle ${r.name}`}
@@ -1722,9 +1722,9 @@ export default function MiniAppsPage() {
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Form drawer */}
       <MiniAppFormDrawer
@@ -1765,7 +1765,7 @@ export default function MiniAppsPage() {
       )}
 
       {/* Delete confirm */}
-      <ZoruDialog
+      <Dialog
         open={!!deleteApp}
         onOpenChange={(o) => !o && setDeleteApp(null)}
       >
@@ -1779,10 +1779,10 @@ export default function MiniAppsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setDeleteApp(null)}>
+            <Button variant="ghost" onClick={() => setDeleteApp(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="destructive"
               onClick={onConfirmDelete}
               disabled={deleting}
@@ -1793,10 +1793,10 @@ export default function MiniAppsPage() {
                 <Trash2 className="mr-1.5 h-3.5 w-3.5" />
               )}
               Delete
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

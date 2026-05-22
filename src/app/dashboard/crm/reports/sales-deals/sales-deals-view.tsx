@@ -202,26 +202,26 @@ export function SalesDealsView({
             className="h-9 w-28 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
-        <ZoruButton type="submit" size="sm" disabled={isPending}>
+        <Button type="submit" size="sm" disabled={isPending}>
           Apply
-        </ZoruButton>
+        </Button>
         <div className="ml-auto flex gap-2">
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={onCsv}
           >
             CSV
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             size="sm"
             variant="outline"
             onClick={onXlsx}
           >
             XLSX
-          </ZoruButton>
+          </Button>
         </div>
       </form>
 
@@ -244,7 +244,7 @@ export function SalesDealsView({
 
       {/* Charts */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <ZoruCard className="lg:col-span-2">
+        <Card className="lg:col-span-2">
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               Won vs lost by month
@@ -298,9 +298,9 @@ export function SalesDealsView({
               </ResponsiveContainer>
             </div>
           )}
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               Stage distribution
@@ -340,13 +340,13 @@ export function SalesDealsView({
               </ResponsiveContainer>
             </div>
           )}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Data table */}
-      <ZoruCard>
+      <Card>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">
@@ -389,7 +389,7 @@ export function SalesDealsView({
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge
+                      <Badge
                         variant={
                           isWonStage(d.stage)
                             ? 'default'
@@ -399,7 +399,7 @@ export function SalesDealsView({
                         }
                       >
                         {d.stage}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-muted-foreground">
                       {d.owner}
@@ -419,7 +419,7 @@ export function SalesDealsView({
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
           <PaginationBar
             page={page}
             limit={limit}
@@ -427,7 +427,7 @@ export function SalesDealsView({
             total={total}
           />
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

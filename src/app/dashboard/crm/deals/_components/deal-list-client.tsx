@@ -117,11 +117,11 @@ export function DealListClient({ deals, page, limit, total, hasMore, initialQuer
   };
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by title…"
@@ -136,7 +136,7 @@ export function DealListClient({ deals, page, limit, total, hasMore, initialQuer
         </div>
       ) : null}
 
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow>
             <ZoruTableHead>Title</ZoruTableHead>
@@ -181,7 +181,7 @@ export function DealListClient({ deals, page, limit, total, hasMore, initialQuer
                   </ZoruTableCell>
                   <ZoruTableCell>
                     {deal.status ? (
-                      <ZoruBadge variant={STATUS_VARIANTS[deal.status] ?? 'outline'}>{deal.status}</ZoruBadge>
+                      <Badge variant={STATUS_VARIANTS[deal.status] ?? 'outline'}>{deal.status}</Badge>
                     ) : (
                       '—'
                     )}
@@ -191,19 +191,19 @@ export function DealListClient({ deals, page, limit, total, hasMore, initialQuer
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/crm/deals/${id}/edit`}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setPendingDelete(deal)}
                         className="text-zoru-danger-ink"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -211,7 +211,7 @@ export function DealListClient({ deals, page, limit, total, hasMore, initialQuer
             })
           )}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
 
       <PaginationBar page={page} limit={limit} hasMore={hasMore} total={total} />
 
@@ -240,6 +240,6 @@ export function DealListClient({ deals, page, limit, total, hasMore, initialQuer
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </ZoruCard>
+    </Card>
   );
 }

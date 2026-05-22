@@ -288,7 +288,7 @@ export function Composer({
                 `[${replyTo.message.type}]`}
             </p>
           </div>
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="icon"
@@ -297,14 +297,14 @@ export function Composer({
             aria-label="Cancel reply"
           >
             <X className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         </div>
       ) : null}
 
       <div className="flex items-end gap-1">
-        <ZoruPopover open={emojiOpen} onOpenChange={setEmojiOpen}>
+        <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
           <ZoruPopoverTrigger asChild>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               size="icon"
@@ -312,7 +312,7 @@ export function Composer({
               aria-label="Insert emoji"
             >
               <Smile className="h-5 w-5" />
-            </ZoruButton>
+            </Button>
           </ZoruPopoverTrigger>
           <ZoruPopoverContent side="top" align="start" className="w-72 p-2">
             <div className="grid grid-cols-8 gap-1">
@@ -331,7 +331,7 @@ export function Composer({
               ))}
             </div>
           </ZoruPopoverContent>
-        </ZoruPopover>
+        </Popover>
 
         <SabFilePickerButton
           variant="ghost"
@@ -341,7 +341,7 @@ export function Composer({
           <Paperclip className="h-5 w-5" />
         </SabFilePickerButton>
 
-        <ZoruTextarea
+        <Textarea
           ref={textareaRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -353,9 +353,9 @@ export function Composer({
         />
 
         {onSchedule ? (
-          <ZoruPopover open={scheduleOpen} onOpenChange={setScheduleOpen}>
+          <Popover open={scheduleOpen} onOpenChange={setScheduleOpen}>
             <ZoruPopoverTrigger asChild>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon"
@@ -363,7 +363,7 @@ export function Composer({
                 aria-label="Schedule message"
               >
                 <CalendarClock className="h-5 w-5" />
-              </ZoruButton>
+              </Button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent side="top" align="end" className="w-72 p-3">
               <div className="space-y-2">
@@ -373,27 +373,27 @@ export function Composer({
                 >
                   Send at
                 </label>
-                <ZoruInput
+                <Input
                   id="composer-schedule-at"
                   type="datetime-local"
                   value={scheduledFor}
                   onChange={(e) => setScheduledFor(e.target.value)}
                 />
-                <ZoruButton
+                <Button
                   type="button"
                   className="w-full"
                   disabled={!scheduledFor || busy}
                   onClick={() => void doSchedule()}
                 >
                   Schedule
-                </ZoruButton>
+                </Button>
               </div>
             </ZoruPopoverContent>
-          </ZoruPopover>
+          </Popover>
         ) : null}
 
         {recording ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="destructive"
             size="icon"
@@ -401,9 +401,9 @@ export function Composer({
             aria-label="Stop recording"
           >
             <Square className="h-5 w-5" />
-          </ZoruButton>
+          </Button>
         ) : text.trim().length === 0 ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="icon"
@@ -412,9 +412,9 @@ export function Composer({
             aria-label="Record voice note"
           >
             <Mic className="h-5 w-5" />
-          </ZoruButton>
+          </Button>
         ) : (
-          <ZoruButton
+          <Button
             type="button"
             size="icon"
             disabled={!canSend}
@@ -426,7 +426,7 @@ export function Composer({
             ) : (
               <Send className="h-5 w-5" />
             )}
-          </ZoruButton>
+          </Button>
         )}
       </div>
 

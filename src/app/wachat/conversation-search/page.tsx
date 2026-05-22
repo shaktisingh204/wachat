@@ -58,7 +58,7 @@ export default function ConversationSearchPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -72,7 +72,7 @@ export default function ConversationSearchPage() {
             <ZoruBreadcrumbPage>Conversation Search</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -85,7 +85,7 @@ export default function ConversationSearchPage() {
 
       <div className="flex max-w-xl gap-3">
         <div className="flex-1">
-          <ZoruInput
+          <Input
             leadingSlot={<Search />}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -93,14 +93,14 @@ export default function ConversationSearchPage() {
             placeholder="Search messages..."
           />
         </div>
-        <ZoruButton
+        <Button
           size="sm"
           onClick={handleSearch}
           disabled={isLoading || !query.trim()}
         >
           {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
           Search
-        </ZoruButton>
+        </Button>
       </div>
 
       {searched && !isLoading && (
@@ -123,7 +123,7 @@ export default function ConversationSearchPage() {
               href={`/wachat/chat?contactId=${r.contactId || ''}`}
               className="block transition-transform hover:-translate-y-0.5"
             >
-              <ZoruCard className="p-4">
+              <Card className="p-4">
                 <div className="mb-1.5 flex items-center justify-between">
                   <span className="text-[13px] text-zoru-ink">
                     {r.contactName || r.contactId || r.from || 'Unknown'}
@@ -135,14 +135,14 @@ export default function ConversationSearchPage() {
                 <p className="text-[13px] leading-relaxed text-zoru-ink-muted">
                   {r.content?.text || r.messageText || r.type || '--'}
                 </p>
-              </ZoruCard>
+              </Card>
             </Link>
           ))}
         </div>
       )}
 
       {!isLoading && !searched && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Search />}
           title="Start searching"
           description="Type a query above to find messages across all conversations."
@@ -150,7 +150,7 @@ export default function ConversationSearchPage() {
       )}
 
       {!isLoading && searched && results.length === 0 && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<MessageCircle />}
           title="No matches"
           description="No conversations match your search."

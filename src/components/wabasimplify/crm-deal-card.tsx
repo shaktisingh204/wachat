@@ -45,9 +45,9 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
                             <FolderKanban className="h-3 w-3" />
                             <span>{taskCount}</span>
                         </div>
-                        <ZoruAvatar className="h-6 w-6">
+                        <Avatar className="h-6 w-6">
                             <ZoruAvatarFallback>A</ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                     </div>
                 </ClayCard>
             </Link>

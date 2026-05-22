@@ -32,18 +32,18 @@ export default function BacklinkCheckerPage() {
   return (
     <ToolShell title="Backlink Checker" description="Placeholder backlink metrics preview.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="example.com"
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={!domain}>
+        <Button onClick={run} disabled={!domain}>
           Check
-        </ZoruButton>
+        </Button>
       </div>
 
       {rows && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="text-xs text-muted-foreground border-l-2 border-amber-500 pl-3">
               Backlinks data requires third-party API integration (Ahrefs/Majestic). Currently showing
@@ -60,13 +60,13 @@ export default function BacklinkCheckerPage() {
                   <div className="font-mono text-xs break-all">{r.source}</div>
                   <div>{r.anchor}</div>
                   <div className="text-right">
-                    <ZoruBadge variant="secondary">{r.dr}</ZoruBadge>
+                    <Badge variant="secondary">{r.dr}</Badge>
                   </div>
                 </div>
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

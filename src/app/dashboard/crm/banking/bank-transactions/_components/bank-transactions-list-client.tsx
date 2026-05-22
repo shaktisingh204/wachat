@@ -153,22 +153,22 @@ function KpiStrip({
 }) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <ZoruStatCard
+      <StatCard
         label="Total transactions"
         value={kpis.total.toLocaleString()}
         icon={<ListChecks className="h-4 w-4" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Total credits"
         value={fmtMoney(kpis.creditSum)}
         icon={<ArrowDownLeft className="h-4 w-4 text-emerald-500" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Total debits"
         value={fmtMoney(kpis.debitSum)}
         icon={<ArrowUpRight className="h-4 w-4 text-red-500" />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Unreconciled"
         value={kpis.unreconciled.toLocaleString()}
         icon={<CheckCircle2 className="h-4 w-4 text-amber-500" />}
@@ -338,14 +338,14 @@ export function BankTransactionsListClient({
 
         {/* Filter row */}
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruInput
+          <Input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search description, reference…"
             className="h-9 w-56 text-[13px]"
           />
-          <ZoruSelect value={accountFilter} onValueChange={setAccountFilter}>
+          <Select value={accountFilter} onValueChange={setAccountFilter}>
             <ZoruSelectTrigger className="h-9 w-[200px]">
               <ZoruSelectValue placeholder="Account" />
             </ZoruSelectTrigger>
@@ -357,7 +357,7 @@ export function BankTransactionsListClient({
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
           <EnumFilterField
             enumName="bankTransactionStatus"
             value={statusFilter}
@@ -374,14 +374,14 @@ export function BankTransactionsListClient({
             }
             allLabel="All types"
           />
-          <ZoruInput
+          <Input
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
             className="h-9 w-[145px]"
             aria-label="From date"
           />
-          <ZoruInput
+          <Input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
@@ -389,19 +389,19 @@ export function BankTransactionsListClient({
             aria-label="To date"
           />
           <div className="ml-auto flex items-center gap-2">
-            <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+            <Button variant="outline" size="sm" onClick={handleExportCsv}>
               <Download className="h-3.5 w-3.5" /> CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => void handleExportXlsx()}
             >
               <Download className="h-3.5 w-3.5" /> XLSX
-            </ZoruButton>
-            <ZoruButton size="sm" onClick={() => setImportOpen(true)}>
+            </Button>
+            <Button size="sm" onClick={() => setImportOpen(true)}>
               <Upload className="h-3.5 w-3.5" /> Import CSV
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -413,36 +413,36 @@ export function BankTransactionsListClient({
               {selection.size} selected
             </div>
             <div className="flex items-center gap-1">
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleBulk('reconcile')}
                 disabled={isPending}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" /> Reconcile
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setConfirmBulk('delete')}
                 disabled={isPending}
               >
                 <Trash2 className="h-3.5 w-3.5 text-destructive" /> Delete
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setSelection(new Set())}
                 aria-label="Clear selection"
               >
                 <X className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null}
 
         {/* Table */}
-        <ZoruCard className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0">
           {isLoading && rows.length === 0 ? (
             <div className="flex justify-center py-10">
               <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -457,11 +457,11 @@ export function BankTransactionsListClient({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-border hover:bg-transparent">
                     <ZoruTableHead className="w-10 text-muted-foreground">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allSelected}
                         data-indeterminate={someSelected ? 'true' : undefined}
                         onCheckedChange={(v) => handleToggleAll(Boolean(v))}
@@ -491,7 +491,7 @@ export function BankTransactionsListClient({
                         data-state={checked ? 'selected' : undefined}
                       >
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={checked}
                             onCheckedChange={() => handleToggle(r._id)}
                             aria-label={`Select ${r.description ?? r._id}`}
@@ -535,22 +535,22 @@ export function BankTransactionsListClient({
                           />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
-                          <ZoruButton size="sm" variant="ghost" asChild>
+                          <Button size="sm" variant="ghost" asChild>
                             <Link
                               href={`/dashboard/crm/banking/bank-transactions/${r._id}`}
                             >
                               <Eye className="h-3.5 w-3.5" />
                             </Link>
-                          </ZoruButton>
+                          </Button>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
           )}
-        </ZoruCard>
+        </Card>
 
         <p className="text-right text-[12px] text-zoru-ink-muted">
           {total} transaction{total !== 1 ? 's' : ''}

@@ -82,15 +82,15 @@ const KIND_ICONS: Record<MediaKind, React.ComponentType<{ className?: string }>>
 function PageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-center justify-between">
-        <ZoruSkeleton className="h-9 w-72" />
-        <ZoruSkeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-72" />
+        <Skeleton className="h-9 w-32" />
       </div>
-      <ZoruSkeleton className="mt-6 h-12 w-full" />
+      <Skeleton className="mt-6 h-12 w-full" />
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-44" />
+          <Skeleton key={i} className="h-44" />
         ))}
       </div>
     </div>
@@ -259,7 +259,7 @@ export default function MediaPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -275,10 +275,10 @@ export default function MediaPage() {
             <ZoruBreadcrumbPage>Media</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Page header */}
-      <ZoruPageHeader className="mt-4">
+      <PageHeader className="mt-4">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite · Library</ZoruPageEyebrow>
           <ZoruPageTitle>Media</ZoruPageTitle>
@@ -288,13 +288,13 @@ export default function MediaPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 {React.createElement(KIND_ICONS[kind])}
                 {KIND_LABELS[kind]} · {counts[kind]}
                 <ChevronDown className="opacity-60" />
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end" className="w-56">
               <ZoruDropdownMenuLabel>Asset kind</ZoruDropdownMenuLabel>
@@ -310,9 +310,9 @@ export default function MediaPage() {
                 ))}
               </ZoruDropdownMenuRadioGroup>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Body */}
       <div className="mt-6">
@@ -329,7 +329,7 @@ export default function MediaPage() {
             onDelete={handleDelete}
             onDownload={handleDownload}
             empty={
-              <ZoruEmptyState
+              <EmptyState
                 icon={React.createElement(KIND_ICONS[kind])}
                 title={`No ${KIND_LABELS[kind].toLowerCase()} found`}
                 description={`Nothing was returned by the Graph API for this Page in the ${KIND_LABELS[kind].toLowerCase()} collection.`}

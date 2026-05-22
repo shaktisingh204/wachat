@@ -30,7 +30,7 @@ export function SyncLocalTemplatesButton() {
   };
 
   return (
-    <ZoruButton onClick={onSync} variant="outline" disabled={isPending}>
+    <Button onClick={onSync} variant="outline" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -42,6 +42,6 @@ export function SyncLocalTemplatesButton() {
           Sync Local Templates
         </>
       )}
-    </ZoruButton>
+    </Button>
   );
 }

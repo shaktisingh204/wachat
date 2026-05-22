@@ -242,17 +242,17 @@ export default function TicketTypesPage() {
         placeholder: 'Search types…',
       }}
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           Add Type
-        </ZoruButton>
+        </Button>
       }
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
             <span className="font-medium text-zoru-ink">{selected.size} selected</span>
             <span className="text-zoru-ink-muted">·</span>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
@@ -260,20 +260,20 @@ export default function TicketTypesPage() {
             >
               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
               Delete
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={handleExportCsv}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleExportCsv}>
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
+            </Button>
             <span className="ml-auto" />
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelected(new Set())}
             >
               <X className="h-3.5 w-3.5" />
               Clear
-            </ZoruButton>
+            </Button>
           </div>
         ) : null
       }
@@ -281,17 +281,17 @@ export default function TicketTypesPage() {
       <div className="flex flex-col gap-4">
         {/* KPI strip */}
         <div className="grid grid-cols-3 gap-3">
-          <ZoruStatCard
+          <StatCard
             label="Total types"
             value={kpis.total.toLocaleString()}
             icon={<Tag className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="With colour"
             value={kpis.withColour.toLocaleString()}
             icon={<Palette className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Distinct colours"
             value={kpis.distinctColours.toLocaleString()}
             icon={<SwatchBook className="h-4 w-4" />}
@@ -301,7 +301,7 @@ export default function TicketTypesPage() {
         {/* Export toolbar when nothing selected */}
         {selected.size === 0 ? (
           <div className="flex justify-end">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={handleExportCsv}
@@ -309,17 +309,17 @@ export default function TicketTypesPage() {
             >
               <Download className="mr-1 h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
+            </Button>
           </div>
         ) : null}
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                       onCheckedChange={(v) => toggleAll(v === true)}
                       aria-label="Select all"
@@ -337,7 +337,7 @@ export default function TicketTypesPage() {
                   [...Array(3)].map((_, i) => (
                     <ZoruTableRow key={i} className="border-zoru-line">
                       <ZoruTableCell colSpan={4}>
-                        <ZoruSkeleton className="h-8 w-full" />
+                        <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -359,7 +359,7 @@ export default function TicketTypesPage() {
                       className={cn('border-zoru-line', selected.has(row._id) && 'bg-zoru-surface')}
                     >
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(row._id)}
                           onCheckedChange={() => toggleOne(row._id)}
                           aria-label={`Select ${row.type}`}
@@ -408,28 +408,28 @@ export default function TicketTypesPage() {
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(row)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(row)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setDeletingId(row._id)}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">
@@ -442,10 +442,10 @@ export default function TicketTypesPage() {
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
             <div>
-              <ZoruLabel htmlFor="type" className="text-zoru-ink">
+              <Label htmlFor="type" className="text-zoru-ink">
                 Type <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="type"
                 name="type"
                 required
@@ -454,26 +454,26 @@ export default function TicketTypesPage() {
               />
             </div>
             <div>
-              <ZoruLabel className="text-zoru-ink">Colour</ZoruLabel>
+              <Label className="text-zoru-ink">Colour</Label>
               <input type="hidden" name="color" value={color} />
               <div className="mt-1.5">
                 <ZoruColorPicker value={color} onChange={setColor} />
               </div>
             </div>
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
                 ) : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingId !== null}

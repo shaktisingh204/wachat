@@ -25,7 +25,7 @@ export function FunnelTile({
   const top = steps[0]?.value ?? 0;
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>Funnel</ZoruCardTitle>
@@ -74,6 +74,6 @@ export function FunnelTile({
           })}
         </ol>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

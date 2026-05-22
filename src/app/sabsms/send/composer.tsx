@@ -129,8 +129,8 @@ export function SabsmsSendComposer() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <ZoruLabel htmlFor="sabsms-send-to">Recipient (E.164)</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="sabsms-send-to">Recipient (E.164)</Label>
+          <Input
             id="sabsms-send-to"
             required
             placeholder="+15551234567"
@@ -144,8 +144,8 @@ export function SabsmsSendComposer() {
         </div>
 
         <div className="space-y-2">
-          <ZoruLabel htmlFor="sabsms-send-category">Category</ZoruLabel>
-          <ZoruSelect
+          <Label htmlFor="sabsms-send-category">Category</Label>
+          <Select
             value={category}
             onValueChange={(v) => setCategory(v as SabsmsMessageCategory)}
           >
@@ -162,13 +162,13 @@ export function SabsmsSendComposer() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       </div>
 
       <div className="space-y-2">
-        <ZoruLabel htmlFor="sabsms-send-body">Message body</ZoruLabel>
-        <ZoruTextarea
+        <Label htmlFor="sabsms-send-body">Message body</Label>
+        <Textarea
           id="sabsms-send-body"
           required
           rows={5}
@@ -190,14 +190,14 @@ export function SabsmsSendComposer() {
         </div>
       </div>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div className="flex flex-wrap items-center gap-3">
-        <ZoruButton type="submit" disabled={submitting || !to || !body}>
+        <Button type="submit" disabled={submitting || !to || !body}>
           {submitting ? "Sending…" : "Send message"}
-        </ZoruButton>
+        </Button>
         {status && (
-          <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+          <Badge variant={statusVariant(status)}>{status}</Badge>
         )}
         {messageId && (
           <code className="rounded bg-slate-100 px-2 py-1 text-xs">

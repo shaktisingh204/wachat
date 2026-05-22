@@ -46,7 +46,7 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                 placeholder="Nature"
             />
 
-            <ZoruSelect value={value.subNature} onValueChange={(v) => onChange({ ...value, subNature: v })}>
+            <Select value={value.subNature} onValueChange={(v) => onChange({ ...value, subNature: v })}>
                 <ZoruSelectTrigger className="h-9 w-[180px]">
                     <ZoruSelectValue placeholder="Sub-nature" />
                 </ZoruSelectTrigger>
@@ -58,9 +58,9 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
-            <ZoruSelect value={value.groupId} onValueChange={(v) => onChange({ ...value, groupId: v })}>
+            <Select value={value.groupId} onValueChange={(v) => onChange({ ...value, groupId: v })}>
                 <ZoruSelectTrigger className="h-9 w-[200px]">
                     <ZoruSelectValue placeholder="Parent group" />
                 </ZoruSelectTrigger>
@@ -72,9 +72,9 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
-            <ZoruSelect value={value.currency} onValueChange={(v) => onChange({ ...value, currency: v })}>
+            <Select value={value.currency} onValueChange={(v) => onChange({ ...value, currency: v })}>
                 <ZoruSelectTrigger className="h-9 w-[130px]">
                     <ZoruSelectValue placeholder="Currency" />
                 </ZoruSelectTrigger>
@@ -86,7 +86,7 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                         </ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
             <EnumFilterField
                 enumName="accountActiveStatus"

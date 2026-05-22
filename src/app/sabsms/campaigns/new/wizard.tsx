@@ -271,7 +271,7 @@ export function CampaignWizard({
         </div>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="pt-6">
           {stepId === "template" && (
             <StepTemplate
@@ -318,9 +318,9 @@ export function CampaignWizard({
             />
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Test send</ZoruCardTitle>
           <ZoruCardDescription>
@@ -331,46 +331,46 @@ export function CampaignWizard({
         <ZoruCardContent>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 space-y-1">
-              <ZoruLabel htmlFor="test-to">Recipient (E.164)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="test-to">Recipient (E.164)</Label>
+              <Input
                 id="test-to"
                 placeholder="+15551234567"
                 value={testTo}
                 onChange={(e) => setTestTo(e.target.value)}
               />
             </div>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={handleTestSend}
               disabled={busy === "test" || !draft.templateId || !testTo}
             >
               {busy === "test" ? "Sending…" : "Send test"}
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             onClick={goPrev}
             disabled={stepIndex === 0}
           >
             Back
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="outline"
             onClick={goNext}
             disabled={stepIndex === WIZARD_STEPS.length - 1}
           >
             Next
-          </ZoruButton>
+          </Button>
           <span className="text-xs text-slate-500">
             <ZoruKbd>⌘</ZoruKbd>
             <ZoruKbd>←</ZoruKbd> /
@@ -388,25 +388,25 @@ export function CampaignWizard({
         </div>
         <div className="flex items-center gap-2">
           {draft.id && (
-            <ZoruBadge variant="outline">draft: {draft.id}</ZoruBadge>
+            <Badge variant="outline">draft: {draft.id}</Badge>
           )}
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             onClick={handleAbort}
             disabled={busy === "abort"}
           >
             {busy === "abort" ? "Aborting…" : "Abort"}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="outline"
             onClick={handleSaveDraft}
             disabled={busy === "save"}
           >
             {busy === "save" ? "Saving…" : "Save draft"}
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             onClick={handleLaunch}
             disabled={busy === "launch" || issues.length > 0}
@@ -416,7 +416,7 @@ export function CampaignWizard({
               : draft.schedule?.kind === "immediate" || !draft.schedule
                 ? "Launch"
                 : "Schedule"}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     </div>
@@ -465,9 +465,9 @@ function Stepper({ stepId, onJump }: StepperProps) {
               </span>
               <span>{s.label}</span>
               {active && (
-                <ZoruBadge variant="secondary" className="ml-1 text-[10px]">
+                <Badge variant="secondary" className="ml-1 text-[10px]">
                   current
-                </ZoruBadge>
+                </Badge>
               )}
             </button>
           </React.Fragment>

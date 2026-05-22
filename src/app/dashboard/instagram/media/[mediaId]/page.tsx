@@ -28,14 +28,14 @@ import { InstagramViewCommentsDialog } from '@/components/wabasimplify/instagram
 function PageSkeleton() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <ZoruSkeleton className="h-8 w-32" />
+      <Skeleton className="h-8 w-32" />
       <div className="grid md:grid-cols-2 gap-8">
-        <ZoruSkeleton className="aspect-square w-full" />
+        <Skeleton className="aspect-square w-full" />
         <div className="space-y-4">
-          <ZoruSkeleton className="h-10 w-3/4" />
-          <ZoruSkeleton className="h-4 w-1/4" />
-          <ZoruSkeleton className="h-24 w-full" />
-          <ZoruSkeleton className="h-10 w-1/2" />
+          <Skeleton className="h-10 w-3/4" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-10 w-1/2" />
         </div>
       </div>
     </div>
@@ -80,11 +80,11 @@ export default function MediaDetailsPage() {
 
   if (error) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertTitle>Error Loading Media</ZoruAlertTitle>
         <ZoruAlertDescription>{error}</ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
@@ -102,13 +102,13 @@ export default function MediaDetailsPage() {
         onActionComplete={fetchData}
       />
       <div className="space-y-6">
-        <ZoruButton variant="ghost" asChild>
+        <Button variant="ghost" asChild>
           <Link href="/dashboard/instagram/feed">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Feed
           </Link>
-        </ZoruButton>
-        <ZoruCard className="p-0 overflow-hidden">
+        </Button>
+        <Card className="p-0 overflow-hidden">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="relative aspect-square">
               <Image
@@ -139,18 +139,18 @@ export default function MediaDetailsPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <ZoruButton onClick={() => setViewingComments(true)}>View Comments</ZoruButton>
-                  <ZoruButton asChild variant="outline">
+                  <Button onClick={() => setViewingComments(true)}>View Comments</Button>
+                  <Button asChild variant="outline">
                     <a href={media.permalink} target="_blank" rel="noopener noreferrer">
                       View on Instagram
                       <ExternalLink className="ml-2 h-4 w-4" />
                     </a>
-                  </ZoruButton>
+                  </Button>
                 </div>
               </ZoruCardFooter>
             </div>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
     </>
   );

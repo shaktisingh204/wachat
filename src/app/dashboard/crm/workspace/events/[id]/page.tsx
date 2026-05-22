@@ -73,7 +73,7 @@ export default async function EventDetailPage({
                 }
                 audit={<EntityAuditTimeline entityKind="event" entityId={ev._id} />}
                 rightRail={
-                    <ZoruCard>
+                    <Card>
                         <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">
                             Attendees ({attendees.length})
                         </h3>
@@ -87,7 +87,7 @@ export default async function EventDetailPage({
                                         className="flex items-center justify-between py-2 text-[12.5px]"
                                     >
                                         <span className="text-zoru-ink">{a.user_name || a.user_id}</span>
-                                        <ZoruBadge
+                                        <Badge
                                             variant={
                                                 a.status === 'yes'
                                                     ? 'success'
@@ -99,36 +99,36 @@ export default async function EventDetailPage({
                                             }
                                         >
                                             {a.status}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </li>
                                 ))}
                             </ul>
                         )}
-                    </ZoruCard>
+                    </Card>
                 }
             >
-                <ZoruCard>
+                <Card>
                     <div className="mb-3 flex flex-wrap items-center gap-2">
-                        <ZoruBadge variant="info">
+                        <Badge variant="info">
                             <Calendar className="h-3 w-3" />
                             Start: {fmtDateTime(ev.start_date_time)}
-                        </ZoruBadge>
-                        <ZoruBadge variant="secondary">
+                        </Badge>
+                        <Badge variant="secondary">
                             End: {fmtDateTime(ev.end_date_time)}
-                        </ZoruBadge>
+                        </Badge>
                         {ev.repeat ? (
-                            <ZoruBadge variant="warning">
+                            <Badge variant="warning">
                                 Repeats every {ev.repeat_every ?? 1} {ev.repeat_type ?? 'week'}
                                 {ev.repeat_cycles ? ` × ${ev.repeat_cycles}` : ''}
-                            </ZoruBadge>
+                            </Badge>
                         ) : (
-                            <ZoruBadge variant="ghost">One-off</ZoruBadge>
+                            <Badge variant="ghost">One-off</Badge>
                         )}
                         {ev.google_calendar ? (
-                            <ZoruBadge variant="ghost">Google Calendar</ZoruBadge>
+                            <Badge variant="ghost">Google Calendar</Badge>
                         ) : null}
                         {ev.send_reminder ? (
-                            <ZoruBadge variant="ghost">Reminder on</ZoruBadge>
+                            <Badge variant="ghost">Reminder on</Badge>
                         ) : null}
                     </div>
                     {ev.where ? (
@@ -154,7 +154,7 @@ export default async function EventDetailPage({
                             {ev.description}
                         </p>
                     ) : null}
-                </ZoruCard>
+                </Card>
             </EntityDetailShell>
         </div>
     );

@@ -125,16 +125,16 @@ export default function RoadmapsPage() {
           <h1 className="text-xl font-semibold text-zoru-ink">Roadmaps</h1>
           <p className="text-sm text-zoru-ink-muted">Plan and track team initiatives phase by phase.</p>
         </div>
-        <ZoruButton size="md" onClick={() => router.push('/dashboard/hrm/portal/roadmaps/new')}>
+        <Button size="md" onClick={() => router.push('/dashboard/hrm/portal/roadmaps/new')}>
           <Plus />
           New Roadmap
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* KPI Strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {kpis.map((k) => (
-          <ZoruStatCard key={k.label} label={k.label} value={k.value} icon={<Map />} />
+          <StatCard key={k.label} label={k.label} value={k.value} icon={<Map />} />
         ))}
       </div>
 
@@ -142,15 +142,15 @@ export default function RoadmapsPage() {
       {selected.size > 0 && (
         <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-4 py-2">
           <span className="text-sm text-zoru-ink-muted">{selected.size} selected</span>
-          <ZoruButton variant="ghost" size="sm" onClick={handleBulkArchive}>
+          <Button variant="ghost" size="sm" onClick={handleBulkArchive}>
             <Archive />
             Archive
-          </ZoruButton>
-          <ZoruButton variant="destructive" size="sm" onClick={handleBulkDelete}>
+          </Button>
+          <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
             <Trash2 />
             Delete
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             className="ml-auto"
@@ -158,12 +158,12 @@ export default function RoadmapsPage() {
           >
             <Download />
             Export CSV
-          </ZoruButton>
+          </Button>
         </div>
       )}
 
       {/* Table */}
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-0">
           {isLoading ? (
             <div className="flex h-48 items-center justify-center text-sm text-zoru-ink-muted">
@@ -173,10 +173,10 @@ export default function RoadmapsPage() {
             <div className="flex h-48 flex-col items-center justify-center gap-3 text-sm text-zoru-ink-muted">
               <Map className="h-8 w-8 opacity-40" />
               <span>No roadmaps yet. Create your first one.</span>
-              <ZoruButton size="sm" onClick={() => router.push('/dashboard/hrm/portal/roadmaps/new')}>
+              <Button size="sm" onClick={() => router.push('/dashboard/hrm/portal/roadmaps/new')}>
                 <Plus />
                 New Roadmap
-              </ZoruButton>
+              </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -227,9 +227,9 @@ export default function RoadmapsPage() {
                           </button>
                         </td>
                         <td className="px-4 py-3">
-                          <ZoruBadge variant={STATUS_VARIANT[row.status]}>
+                          <Badge variant={STATUS_VARIANT[row.status]}>
                             {row.status}
-                          </ZoruBadge>
+                          </Badge>
                         </td>
                         <td className="px-4 py-3 tabular-nums text-zoru-ink-muted">
                           {phaseCount}
@@ -242,7 +242,7 @@ export default function RoadmapsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <ZoruProgress value={pct} className="flex-1" />
+                            <Progress value={pct} className="flex-1" />
                             <span className="w-8 text-right text-xs tabular-nums text-zoru-ink-muted">
                               {pct}%
                             </span>
@@ -250,7 +250,7 @@ export default function RoadmapsPage() {
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="icon-sm"
                               onClick={() =>
@@ -258,8 +258,8 @@ export default function RoadmapsPage() {
                               }
                             >
                               <Map />
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="ghost"
                               size="icon-sm"
                               onClick={async () => {
@@ -270,7 +270,7 @@ export default function RoadmapsPage() {
                               }}
                             >
                               <Trash2 className="text-zoru-danger" />
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -281,7 +281,7 @@ export default function RoadmapsPage() {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

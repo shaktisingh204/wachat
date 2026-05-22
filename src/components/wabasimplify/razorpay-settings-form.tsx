@@ -27,10 +27,10 @@ const initialState = { message: null, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Razorpay Keys
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -54,7 +54,7 @@ export function RazorpaySettingsForm({ project }: RazorpaySettingsFormProps) {
     return (
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
-            <ZoruCard className="card-gradient card-gradient-blue">
+            <Card className="card-gradient card-gradient-blue">
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
                         <Key className="h-5 w-5"/>
@@ -64,18 +64,18 @@ export function RazorpaySettingsForm({ project }: RazorpaySettingsFormProps) {
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="keyId">Key ID</ZoruLabel>
-                        <ZoruInput id="keyId" name="keyId" defaultValue={project.razorpaySettings?.keyId} placeholder="rzp_test_..." required />
+                        <Label htmlFor="keyId">Key ID</Label>
+                        <Input id="keyId" name="keyId" defaultValue={project.razorpaySettings?.keyId} placeholder="rzp_test_..." required />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="keySecret">Key Secret</ZoruLabel>
-                        <ZoruInput id="keySecret" name="keySecret" type="password" defaultValue={project.razorpaySettings?.keySecret} placeholder="Your Key Secret" required />
+                        <Label htmlFor="keySecret">Key Secret</Label>
+                        <Input id="keySecret" name="keySecret" type="password" defaultValue={project.razorpaySettings?.keySecret} placeholder="Your Key Secret" required />
                     </div>
                 </ZoruCardContent>
                 <ZoruCardFooter>
                     <SubmitButton />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

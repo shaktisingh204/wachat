@@ -88,7 +88,7 @@ export function ContractSendDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Send contract for signature</ZoruDialogTitle>
@@ -99,8 +99,8 @@ export function ContractSendDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="signer-name">Signer name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="signer-name">Signer name</Label>
+            <Input
               id="signer-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -109,8 +109,8 @@ export function ContractSendDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="signer-email">Signer email</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="signer-email">Signer email</Label>
+            <Input
               id="signer-email"
               type="email"
               value={email}
@@ -121,15 +121,15 @@ export function ContractSendDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -191,7 +191,7 @@ export function ContractRenewDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Renew contract</ZoruDialogTitle>
@@ -201,8 +201,8 @@ export function ContractRenewDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="renew-end-date">New end date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="renew-end-date">New end date</Label>
+            <Input
               id="renew-end-date"
               type="date"
               value={endDate}
@@ -212,15 +212,15 @@ export function ContractRenewDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Renew'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -256,7 +256,7 @@ export function ContractVoidDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Void this contract?</ZoruDialogTitle>
@@ -267,8 +267,8 @@ export function ContractVoidDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="void-reason">Reason</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="void-reason">Reason</Label>
+            <Textarea
               id="void-reason"
               rows={3}
               value={reason}
@@ -279,18 +279,18 @@ export function ContractVoidDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="destructive"
             onClick={onSubmit}
             disabled={pending}
           >
             {pending ? 'Voiding…' : 'Void'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

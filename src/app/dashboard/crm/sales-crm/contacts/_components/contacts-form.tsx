@@ -301,7 +301,7 @@ export function ContactForm({ mode, initial, prefill }: ContactFormProps) {
             {/* ─── Sticky action bar ──────────────────────────────────── */}
             <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-zoru-line bg-zoru-bg/95 px-4 py-3 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={() =>
@@ -310,16 +310,16 @@ export function ContactForm({ mode, initial, prefill }: ContactFormProps) {
                         disabled={pending}
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         type="button"
                         variant="outline"
                         onClick={() => void submit('save_new')}
                         disabled={pending}
                     >
                         Save &amp; New
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         type="button"
                         variant="outline"
                         onClick={() => void submit('save_deal')}
@@ -327,8 +327,8 @@ export function ContactForm({ mode, initial, prefill }: ContactFormProps) {
                         title="Save and create a deal linked to this contact"
                     >
                         Save &amp; Add Deal
-                    </ZoruButton>
-                    <ZoruButton type="submit" disabled={pending}>
+                    </Button>
+                    <Button type="submit" disabled={pending}>
                         {pending ? (
                             <LoaderCircle
                                 className="h-4 w-4 animate-spin"
@@ -338,7 +338,7 @@ export function ContactForm({ mode, initial, prefill }: ContactFormProps) {
                             <Save className="h-4 w-4" aria-hidden="true" />
                         )}
                         {mode === 'edit' ? 'Save changes' : 'Save contact'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
         </form>

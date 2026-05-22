@@ -73,7 +73,7 @@ function HealthPill({ status }: { status?: string }) {
   else if (isRed) variant = 'danger';
 
   return (
-    <ZoruBadge variant={variant} className="text-[9.5px] uppercase tracking-wider">
+    <Badge variant={variant} className="text-[9.5px] uppercase tracking-wider">
       <span
         className={cn(
           'h-1.5 w-1.5 rounded-full',
@@ -84,7 +84,7 @@ function HealthPill({ status }: { status?: string }) {
         )}
       />
       {status}
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -94,7 +94,7 @@ function ProjectsSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <ZoruSkeleton key={i} className="h-[120px]" />
+        <Skeleton key={i} className="h-[120px]" />
       ))}
     </div>
   );
@@ -127,10 +127,10 @@ function EmptyState({
       action={
         <div className="flex items-center gap-2.5">
           <Link href="/dashboard/wachat/setup">
-            <ZoruButton size="md">
+            <Button size="md">
               <Plus />
               Connect account
-            </ZoruButton>
+            </Button>
           </Link>
           <SyncProjectsDialog onSuccess={reloadProjects} />
         </div>
@@ -180,9 +180,9 @@ function ProjectRow({
           </p>
           <HealthPill status={healthStatus} />
           {isRecent && (
-            <ZoruBadge variant="ghost" className="text-[10px]">
+            <Badge variant="ghost" className="text-[10px]">
               <Clock className="h-2.5 w-2.5" /> Recent
-            </ZoruBadge>
+            </Badge>
           )}
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-[12px] text-zoru-ink-muted">
@@ -307,7 +307,7 @@ export default function SelectProjectPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -321,7 +321,7 @@ export default function SelectProjectPage() {
             <ZoruBreadcrumbPage>Projects</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex items-center justify-between gap-4">
         <div className="min-w-0">
@@ -336,10 +336,10 @@ export default function SelectProjectPage() {
         <div className="flex items-center gap-2">
           <SyncProjectsDialog onSuccess={reloadProjects} />
           <Link href="/dashboard/wachat/setup">
-            <ZoruButton size="md">
+            <Button size="md">
               <Plus />
               Connect new
-            </ZoruButton>
+            </Button>
           </Link>
         </div>
       </div>
@@ -347,7 +347,7 @@ export default function SelectProjectPage() {
       {projects.length > 0 && (
         <div className="mt-5 flex items-center gap-2">
           <div className="max-w-md flex-1">
-            <ZoruInput
+            <Input
               leadingSlot={<Search />}
               placeholder="Search projects..."
               value={search}
@@ -415,7 +415,7 @@ export default function SelectProjectPage() {
             {filtered.length !== 1 ? 's' : ''}
           </p>
           <div className="flex items-center gap-1.5">
-            <ZoruButton
+            <Button
               variant="outline"
               size="icon-sm"
               aria-label="Previous page"
@@ -423,8 +423,8 @@ export default function SelectProjectPage() {
               disabled={page <= 1}
             >
               <ChevronLeft />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="icon-sm"
               aria-label="Next page"
@@ -432,7 +432,7 @@ export default function SelectProjectPage() {
               disabled={page >= totalPages}
             >
               <ChevronRight />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       )}

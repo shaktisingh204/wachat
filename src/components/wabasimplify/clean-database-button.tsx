@@ -30,7 +30,7 @@ function SubmitButton() {
 
   return (
     <ZoruAlertDialogAction asChild>
-      <ZoruButton type="submit" variant="destructive" disabled={pending}>
+      <Button type="submit" variant="destructive" disabled={pending}>
         {pending ? (
           <>
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -42,7 +42,7 @@ function SubmitButton() {
             Yes, clean the database
           </>
         )}
-      </ZoruButton>
+      </Button>
     </ZoruAlertDialogAction>
   );
 }
@@ -73,10 +73,10 @@ export function CleanDatabaseButton() {
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton variant="destructive">
+        <Button variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
             Clean Database
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <form action={formAction}>

@@ -70,11 +70,11 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
 
     return (
         <>
-            <ZoruButton variant="outline" size="sm" onClick={() => setOpen(true)}>
+            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
                 <Share2 className="h-3.5 w-3.5" />
                 Share
-            </ZoruButton>
-            <ZoruDialog open={open} onOpenChange={setOpen}>
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <ZoruDialogContent className="max-w-md">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>
@@ -85,11 +85,11 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
 
                     {/* Invite row */}
                     <div className="space-y-2">
-                        <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Invite by email</ZoruLabel>
+                        <Label className="text-[12.5px] text-zoru-ink-muted">Invite by email</Label>
                         <div className="flex gap-2">
                             <div className="relative flex-1">
                                 <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zoru-ink-muted" />
-                                <ZoruInput
+                                <Input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -98,7 +98,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                     onKeyDown={(e) => { if (e.key === 'Enter') handleInvite(); }}
                                 />
                             </div>
-                            <ZoruSelect value={role} onValueChange={(v) => setRole(v as ShareRole)}>
+                            <Select value={role} onValueChange={(v) => setRole(v as ShareRole)}>
                                 <ZoruSelectTrigger className="w-[110px]">
                                     <ZoruSelectValue />
                                 </ZoruSelectTrigger>
@@ -114,21 +114,21 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                         </span>
                                     </ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruButton
+                            </Select>
+                            <Button
                                 size="sm"
                                 onClick={handleInvite}
                                 disabled={isPending || !email.trim()}
                             >
                                 {isPending ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
-                            </ZoruButton>
+                            </Button>
                         </div>
                         <p className="text-[11px] text-zoru-ink-muted/70">
                             <strong>Viewer</strong> can see analytics only. <strong>Editor</strong> can change the destination URL and settings.
                         </p>
                     </div>
 
-                    <ZoruSeparator />
+                    <Separator />
 
                     {/* People with access */}
                     <div className="space-y-2">
@@ -137,7 +137,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                         </p>
                         {loading ? (
                             <div className="space-y-2">
-                                {[1, 2].map((i) => <ZoruSkeleton key={i} className="h-10 w-full" />)}
+                                {[1, 2].map((i) => <Skeleton key={i} className="h-10 w-full" />)}
                             </div>
                         ) : (
                             <div className="space-y-1.5 max-h-[220px] overflow-y-auto">
@@ -154,7 +154,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                         <span className="flex-1 text-[12.5px] text-zoru-ink truncate">
                                             {share.sharedWithEmail}
                                         </span>
-                                        <ZoruSelect
+                                        <Select
                                             value={share.role}
                                             onValueChange={(v) => handleRoleChange(share._id, v as ShareRole)}
                                         >
@@ -165,8 +165,8 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                                 <ZoruSelectItem value="viewer">Viewer</ZoruSelectItem>
                                                 <ZoruSelectItem value="editor">Editor</ZoruSelectItem>
                                             </ZoruSelectContent>
-                                        </ZoruSelect>
-                                        <ZoruButton
+                                        </Select>
+                                        <Button
                                             variant="ghost"
                                             size="icon-sm"
                                             onClick={() => handleRevoke(share._id)}
@@ -174,14 +174,14 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                             title="Revoke access"
                                         >
                                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </>
     );
 }

@@ -67,7 +67,7 @@ export function BudgetRejectDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Reject this budget?</ZoruDialogTitle>
@@ -77,8 +77,8 @@ export function BudgetRejectDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="bj-reason">Reason</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="bj-reason">Reason</Label>
+            <Textarea
               id="bj-reason"
               rows={3}
               value={reason}
@@ -89,19 +89,19 @@ export function BudgetRejectDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Back
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="destructive"
             onClick={onSubmit}
             disabled={pending}
           >
             {pending ? 'Saving…' : 'Reject'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -146,7 +146,7 @@ export function BudgetRecordActualDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Record actual spend</ZoruDialogTitle>
@@ -156,8 +156,8 @@ export function BudgetRecordActualDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="ba-amount">Amount</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ba-amount">Amount</Label>
+            <Input
               id="ba-amount"
               type="number"
               inputMode="decimal"
@@ -169,14 +169,14 @@ export function BudgetRecordActualDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Post actual'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

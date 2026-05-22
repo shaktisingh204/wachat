@@ -169,8 +169,8 @@ export default function LeadDetailPage() {
     if (isPending && !lead) {
         return (
             <div className="flex w-full flex-col gap-6">
-                <ZoruSkeleton className="h-10 w-72" />
-                <ZoruSkeleton className="h-[500px] w-full" />
+                <Skeleton className="h-10 w-72" />
+                <Skeleton className="h-[500px] w-full" />
             </div>
         );
     }
@@ -182,9 +182,9 @@ export default function LeadDetailPage() {
                 <p className="text-sm text-zoru-ink-muted">
                     The lead you're looking for has been removed or you don't have access.
                 </p>
-                <ZoruButton asChild variant="outline" className="w-fit">
+                <Button asChild variant="outline" className="w-fit">
                     <Link href="/dashboard/crm/sales-crm/all-leads">Back to leads</Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -254,18 +254,18 @@ export default function LeadDetailPage() {
                 }}
                 actions={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruButton asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm">
                             <Link href={convertToDealHref}>
                                 <Sparkles className="h-3.5 w-3.5" /> Convert to Deal
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setAddTaskOpen(true)}
                         >
                             <Plus className="h-3.5 w-3.5" /> Add Task
-                        </ZoruButton>
+                        </Button>
                         <LeadDetailActions
                             leadId={leadId}
                             email={lead.email}
@@ -290,7 +290,7 @@ export default function LeadDetailPage() {
                 }
             >
                 {/* ─── Overview ─────────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Overview</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -342,7 +342,7 @@ export default function LeadDetailPage() {
                             label="Source"
                             value={
                                 lead.source ? (
-                                    <ZoruBadge variant="secondary">{lead.source}</ZoruBadge>
+                                    <Badge variant="secondary">{lead.source}</Badge>
                                 ) : (
                                     '—'
                                 )
@@ -364,10 +364,10 @@ export default function LeadDetailPage() {
                             </div>
                         ) : null}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Money summary ────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Money</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -390,13 +390,13 @@ export default function LeadDetailPage() {
                                 <span>Probability</span>
                                 <span>{probability}%</span>
                             </div>
-                            <ZoruProgress value={probability} className="mt-1" />
+                            <Progress value={probability} className="mt-1" />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Tags ─────────────────────────────────────────────── */}
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Tags</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -407,7 +407,7 @@ export default function LeadDetailPage() {
                             onTagsChanged={refresh}
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Notes timeline composer ─────────────────────────── */}
                 <CrmNotes

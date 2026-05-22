@@ -35,17 +35,17 @@ export default function LoremIpsumPage() {
     <ToolShell title="Lorem Ipsum Generator" description="Generate placeholder content.">
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1">
-          <ZoruLabel>Paragraphs</ZoruLabel>
-          <ZoruInput type="number" min={1} max={50} value={paragraphs} onChange={(e) => setParagraphs(Number(e.target.value) || 1)} className="w-24" />
+          <Label>Paragraphs</Label>
+          <Input type="number" min={1} max={50} value={paragraphs} onChange={(e) => setParagraphs(Number(e.target.value) || 1)} className="w-24" />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Sentences / paragraph</ZoruLabel>
-          <ZoruInput type="number" min={1} max={30} value={sentences} onChange={(e) => setSentences(Number(e.target.value) || 1)} className="w-32" />
+          <Label>Sentences / paragraph</Label>
+          <Input type="number" min={1} max={30} value={sentences} onChange={(e) => setSentences(Number(e.target.value) || 1)} className="w-32" />
         </div>
-        <ZoruButton onClick={() => setText(generate(paragraphs, sentences))}>Generate</ZoruButton>
-        <ZoruButton variant="outline" onClick={() => navigator.clipboard.writeText(text)}>Copy</ZoruButton>
+        <Button onClick={() => setText(generate(paragraphs, sentences))}>Generate</Button>
+        <Button variant="outline" onClick={() => navigator.clipboard.writeText(text)}>Copy</Button>
       </div>
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[320px] font-mono text-xs" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[320px] font-mono text-xs" />
     </ToolShell>
   );
 }

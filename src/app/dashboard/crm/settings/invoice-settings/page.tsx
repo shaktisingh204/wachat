@@ -36,14 +36,14 @@ function ToggleRow({
   return (
     <div className="flex items-start justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
       <div className="flex-1">
-        <ZoruLabel htmlFor={name} className="text-[13px] text-zoru-ink">
+        <Label htmlFor={name} className="text-[13px] text-zoru-ink">
           {label}
-        </ZoruLabel>
+        </Label>
         {description ? (
           <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{description}</p>
         ) : null}
       </div>
-      <ZoruSwitch id={name} checked={checked} onCheckedChange={setChecked} />
+      <Switch id={name} checked={checked} onCheckedChange={setChecked} />
       <input type="hidden" name={name} value={checked ? 'yes' : 'no'} />
     </div>
   );
@@ -90,11 +90,11 @@ export default function InvoiceSettingsPage() {
     >
 
       {isLoading && !settings ? (
-        <ZoruCard className="p-6">
-          <ZoruSkeleton className="h-[480px] w-full" />
-        </ZoruCard>
+        <Card className="p-6">
+          <Skeleton className="h-[480px] w-full" />
+        </Card>
       ) : (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <form action={formAction} className="space-y-6">
             <section className="space-y-4">
               <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
@@ -102,10 +102,10 @@ export default function InvoiceSettingsPage() {
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <ZoruLabel htmlFor="invoice_prefix" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="invoice_prefix" className="text-[13px] text-zoru-ink">
                     Prefix
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="invoice_prefix"
                     name="invoice_prefix"
                     defaultValue={settings?.invoice_prefix ?? 'INV'}
@@ -114,10 +114,10 @@ export default function InvoiceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="invoice_digit" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="invoice_digit" className="text-[13px] text-zoru-ink">
                     Digits
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="invoice_digit"
                     name="invoice_digit"
                     type="number"
@@ -127,13 +127,13 @@ export default function InvoiceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <ZoruLabel
+                  <Label
                     htmlFor="invoice_number_separator"
                     className="text-[13px] text-zoru-ink"
                   >
                     Separator
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="invoice_number_separator"
                     name="invoice_number_separator"
                     defaultValue={settings?.invoice_number_separator ?? '-'}
@@ -149,10 +149,10 @@ export default function InvoiceSettingsPage() {
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <ZoruLabel htmlFor="due_after_days" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="due_after_days" className="text-[13px] text-zoru-ink">
                     Default Due (days)
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="due_after_days"
                     name="due_after_days"
                     type="number"
@@ -162,9 +162,9 @@ export default function InvoiceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="tax_calculation" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="tax_calculation" className="text-[13px] text-zoru-ink">
                     Tax Calculation
-                  </ZoruLabel>
+                  </Label>
                   <div className="mt-1.5">
                     <EnumFormField
                       name="tax_calculation"
@@ -174,10 +174,10 @@ export default function InvoiceSettingsPage() {
                   </div>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="hsn_sac_label" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="hsn_sac_label" className="text-[13px] text-zoru-ink">
                     HSN/SAC Label
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="hsn_sac_label"
                     name="hsn_sac_label"
                     defaultValue={settings?.hsn_sac_label ?? 'HSN/SAC'}
@@ -227,10 +227,10 @@ export default function InvoiceSettingsPage() {
               </h3>
               <div className="grid gap-4">
                 <div>
-                  <ZoruLabel htmlFor="default_note" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="default_note" className="text-[13px] text-zoru-ink">
                     Default Note
-                  </ZoruLabel>
-                  <ZoruTextarea
+                  </Label>
+                  <Textarea
                     id="default_note"
                     name="default_note"
                     rows={3}
@@ -239,10 +239,10 @@ export default function InvoiceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="default_terms" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="default_terms" className="text-[13px] text-zoru-ink">
                     Default Terms
-                  </ZoruLabel>
-                  <ZoruTextarea
+                  </Label>
+                  <Textarea
                     id="default_terms"
                     name="default_terms"
                     rows={3}
@@ -264,13 +264,13 @@ export default function InvoiceSettingsPage() {
                   defaultChecked={settings?.send_reminder_before_due ?? false}
                 />
                 <div>
-                  <ZoruLabel
+                  <Label
                     htmlFor="reminder_days_before"
                     className="text-[13px] text-zoru-ink"
                   >
                     Days Before Due
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="reminder_days_before"
                     name="reminder_days_before"
                     type="number"
@@ -283,13 +283,13 @@ export default function InvoiceSettingsPage() {
             </section>
 
             <div className="flex justify-end">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save Invoice Settings
-              </ZoruButton>
+              </Button>
             </div>
           </form>
-        </ZoruCard>
+        </Card>
       )}
     </EntityListShell>
   );

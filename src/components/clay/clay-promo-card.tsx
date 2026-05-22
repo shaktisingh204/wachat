@@ -35,7 +35,7 @@ export function ClayPromoCard({
   className,
 }: ClayPromoCardProps) {
   return (
-    <ZoruCard
+    <Card
       variant="default"
       className={cn('rounded-2xl overflow-hidden p-0', className)}
     >
@@ -83,15 +83,15 @@ export function ClayPromoCard({
           </div>
         ) : null}
 
-        <ZoruButton
+        <Button
           variant="obsidian"
           size="sm"
           onClick={onCtaClick}
           className="mt-3 w-full justify-center"
         >
           {ctaLabel}
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

@@ -146,16 +146,16 @@ export default function TrialBalancePage(): React.JSX.Element {
 
     if (user && (!user.businessProfile?.name || !user.businessProfile.address)) {
         return (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Business Profile Incomplete</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Please complete your business profile in the user settings to view accounting reports.
-                    <ZoruButton asChild variant="link" className="ml-2 h-auto p-0">
+                    <Button asChild variant="link" className="ml-2 h-auto p-0">
                         <Link href="/dashboard/user/settings/profile">Go to Settings</Link>
-                    </ZoruButton>
+                    </Button>
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         );
     }
 
@@ -223,7 +223,7 @@ export default function TrialBalancePage(): React.JSX.Element {
 
     const filters = (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect value={fyChoice} onValueChange={handleFyChange}>
+            <Select value={fyChoice} onValueChange={handleFyChange}>
                 <ZoruSelectTrigger className="w-[180px]">
                     <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -232,12 +232,12 @@ export default function TrialBalancePage(): React.JSX.Element {
                     <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
                     <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             <div className="flex items-center gap-2">
-                <ZoruSwitch id="hide-zero-tb" checked={hideZero} onCheckedChange={setHideZero} />
-                <ZoruLabel htmlFor="hide-zero-tb" className="text-[12.5px] text-foreground">
+                <Switch id="hide-zero-tb" checked={hideZero} onCheckedChange={setHideZero} />
+                <Label htmlFor="hide-zero-tb" className="text-[12.5px] text-foreground">
                     Hide zero-entry accounts
-                </ZoruLabel>
+                </Label>
             </div>
         </div>
     );
@@ -277,7 +277,7 @@ export default function TrialBalancePage(): React.JSX.Element {
     );
 
     const table = (
-        <ZoruTable>
+        <Table>
             <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
                     <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
@@ -334,7 +334,7 @@ export default function TrialBalancePage(): React.JSX.Element {
                     </ZoruTableCell>
                 </ZoruTableRow>
             </ZoruTableBody>
-        </ZoruTable>
+        </Table>
     );
 
     return (

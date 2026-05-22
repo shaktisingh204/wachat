@@ -127,26 +127,26 @@ export default function NewWebhookPage() {
     if (secret) {
         return (
             <div className="flex min-h-full flex-col gap-6">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <Webhook className="size-5" />
                         <ZoruPageTitle>Subscription created</ZoruPageTitle>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
-                <ZoruAlert variant="destructive">
+                </PageHeader>
+                <Alert variant="destructive">
                     <ZoruAlertTitle>Copy the signing secret now</ZoruAlertTitle>
                     <ZoruAlertDescription>
                         This secret is used to verify the{' '}
                         <code className="font-mono">X-Sabnode-Signature</code> HMAC header
                         on every delivery. It will not be shown again.
                     </ZoruAlertDescription>
-                </ZoruAlert>
-                <ZoruCard className="p-4">
+                </Alert>
+                <Card className="p-4">
                     <div className="font-mono text-sm break-all rounded-md bg-muted p-3">
                         {secret}
                     </div>
                     <div className="mt-3 flex gap-2">
-                        <ZoruButton onClick={handleCopy}>
+                        <Button onClick={handleCopy}>
                             {copied ? (
                                 <>
                                     <Check className="mr-2 size-4" />
@@ -158,22 +158,22 @@ export default function NewWebhookPage() {
                                     Copy
                                 </>
                             )}
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             onClick={() => router.push('/dashboard/crm/settings/webhooks')}
                         >
                             Done
-                        </ZoruButton>
+                        </Button>
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
         );
     }
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/crm/settings/webhooks">
@@ -185,8 +185,8 @@ export default function NewWebhookPage() {
                         <ZoruBreadcrumbPage>New</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
-            <ZoruPageHeader>
+            </Breadcrumb>
+            <PageHeader>
                 <ZoruPageHeading>
                     <Webhook className="size-5" />
                     <ZoruPageTitle>New webhook subscription</ZoruPageTitle>
@@ -194,13 +194,13 @@ export default function NewWebhookPage() {
                 <ZoruPageDescription>
                     The shared signing secret will be shown once after creation.
                 </ZoruPageDescription>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
-                <ZoruCard className="space-y-4 p-4">
+                <Card className="space-y-4 p-4">
                     <div>
-                        <ZoruLabel htmlFor="wh-name">Name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="wh-name">Name</Label>
+                        <Input
                             id="wh-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -209,8 +209,8 @@ export default function NewWebhookPage() {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="wh-url">Target URL</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="wh-url">Target URL</Label>
+                        <Input
                             id="wh-url"
                             type="url"
                             value={targetUrl}
@@ -219,11 +219,11 @@ export default function NewWebhookPage() {
                             placeholder="https://example.com/webhooks/sabnode"
                         />
                     </div>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard className="p-4">
+                <Card className="p-4">
                     <div className="mb-3 flex items-center justify-between">
-                        <ZoruLabel>Events</ZoruLabel>
+                        <Label>Events</Label>
                         <span className="text-sm text-muted-foreground">
                             {selected.size} selected
                         </span>
@@ -234,7 +234,7 @@ export default function NewWebhookPage() {
                                 key={ev}
                                 className="flex items-center gap-2 text-sm"
                             >
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={selected.has(ev)}
                                     onCheckedChange={() => toggle(ev)}
                                     disabled={submitting}
@@ -243,19 +243,19 @@ export default function NewWebhookPage() {
                             </label>
                         ))}
                     </div>
-                </ZoruCard>
+                </Card>
 
                 <div className="flex gap-2">
-                    <ZoruButton type="submit" disabled={submitting}>
+                    <Button type="submit" disabled={submitting}>
                         {submitting && (
                             <LoaderCircle className="mr-2 size-4 animate-spin" />
                         )}
                         Create subscription
-                    </ZoruButton>
+                    </Button>
                     <Link href="/dashboard/crm/settings/webhooks">
-                        <ZoruButton type="button" variant="outline" disabled={submitting}>
+                        <Button type="button" variant="outline" disabled={submitting}>
                             Cancel
-                        </ZoruButton>
+                        </Button>
                     </Link>
                 </div>
             </form>

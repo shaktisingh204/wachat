@@ -53,10 +53,10 @@ function RevokeButton({ apiKey, onKeyRevoked }: { apiKey: Omit<ApiKey, 'key'>, o
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="destructive" size="sm" disabled={apiKey.revoked}>
+                <Button variant="destructive" size="sm" disabled={apiKey.revoked}>
                     <Trash2 className="mr-2 h-4 w-4"/>
                     Revoke
-                </ZoruButton>
+                </Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                  <ZoruAlertDialogHeader>
@@ -83,7 +83,7 @@ export function ApiKeyList({ keys, onKeyRevoked }: ApiKeyListProps) {
     
     return (
         <div className="border rounded-md">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow>
                         <ZoruTableHead>Name</ZoruTableHead>
@@ -98,7 +98,7 @@ export function ApiKeyList({ keys, onKeyRevoked }: ApiKeyListProps) {
                         <ZoruTableRow key={key._id.toString()}>
                             <ZoruTableCell className="font-medium">{key.name}</ZoruTableCell>
                             <ZoruTableCell>
-                                {key.revoked ? <ZoruBadge variant="destructive">Revoked</ZoruBadge> : <ZoruBadge>Active</ZoruBadge>}
+                                {key.revoked ? <Badge variant="destructive">Revoked</Badge> : <Badge>Active</Badge>}
                             </ZoruTableCell>
                             <ZoruTableCell>{new Date(key.createdAt).toLocaleDateString()}</ZoruTableCell>
                              <ZoruTableCell>{key.lastUsed ? formatDistanceToNow(new Date(key.lastUsed), { addSuffix: true }) : 'Never'}</ZoruTableCell>
@@ -108,7 +108,7 @@ export function ApiKeyList({ keys, onKeyRevoked }: ApiKeyListProps) {
                         </ZoruTableRow>
                     ))}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

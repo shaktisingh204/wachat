@@ -22,7 +22,7 @@ export default async function CrmSettingsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -36,23 +36,23 @@ export default async function CrmSettingsPage() {
             <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>CRM Settings</ZoruPageTitle>
           <ZoruPageDescription>
             Manage your organization profile, sales preferences, inventory configurations, and module features.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!crmSettings ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
             Failed to load settings.
           </p>
-        </ZoruCard>
+        </Card>
       ) : (
         <CrmSettingsForm settings={crmSettings} />
       )}

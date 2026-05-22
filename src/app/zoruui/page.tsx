@@ -209,34 +209,34 @@ export default function ZoruuiGalleryPage() {
 
         <Section step="Step 2" title="Buttons">
           <div className="flex flex-wrap items-center gap-3">
-            <ZoruButton>Primary</ZoruButton>
-            <ZoruButton variant="secondary">Secondary</ZoruButton>
-            <ZoruButton variant="outline">Outline</ZoruButton>
-            <ZoruButton variant="ghost">Ghost</ZoruButton>
-            <ZoruButton variant="link">Link</ZoruButton>
-            <ZoruButton variant="destructive">Delete</ZoruButton>
-            <ZoruButton variant="success">Success</ZoruButton>
+            <Button>Primary</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="link">Link</Button>
+            <Button variant="destructive">Delete</Button>
+            <Button variant="success">Success</Button>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <ZoruButton size="sm">Small</ZoruButton>
-            <ZoruButton size="md">Medium</ZoruButton>
-            <ZoruButton size="lg">Large</ZoruButton>
-            <ZoruButton size="icon" aria-label="Settings">
+            <Button size="sm">Small</Button>
+            <Button size="md">Medium</Button>
+            <Button size="lg">Large</Button>
+            <Button size="icon" aria-label="Settings">
               <Settings />
-            </ZoruButton>
-            <ZoruButton disabled>
+            </Button>
+            <Button disabled>
               <Loader2 className="animate-spin" /> Loading
-            </ZoruButton>
-            <ZoruButton>
+            </Button>
+            <Button>
               Continue <ArrowRight />
-            </ZoruButton>
+            </Button>
           </div>
         </Section>
 
         <Section step="Step 2" title="Text inputs">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Email" htmlFor="zoru-demo-email">
-              <ZoruInput
+              <Input
                 id="zoru-demo-email"
                 type="email"
                 placeholder="you@company.com"
@@ -244,7 +244,7 @@ export default function ZoruuiGalleryPage() {
               />
             </Field>
             <Field label="Search" htmlFor="zoru-demo-search">
-              <ZoruInput
+              <Input
                 id="zoru-demo-search"
                 placeholder="Search anything…"
                 leadingSlot={<Search />}
@@ -252,14 +252,14 @@ export default function ZoruuiGalleryPage() {
               />
             </Field>
             <Field label="Disabled" htmlFor="zoru-demo-disabled">
-              <ZoruInput id="zoru-demo-disabled" disabled defaultValue="read only" />
+              <Input id="zoru-demo-disabled" disabled defaultValue="read only" />
             </Field>
             <Field label="Invalid" htmlFor="zoru-demo-invalid">
-              <ZoruInput id="zoru-demo-invalid" invalid defaultValue="bad value" />
+              <Input id="zoru-demo-invalid" invalid defaultValue="bad value" />
             </Field>
             <div className="sm:col-span-2">
               <Field label="Message" htmlFor="zoru-demo-textarea">
-                <ZoruTextarea
+                <Textarea
                   id="zoru-demo-textarea"
                   placeholder="Type your message here…"
                   rows={4}
@@ -274,27 +274,27 @@ export default function ZoruuiGalleryPage() {
             <div className="space-y-4">
               <p className="text-sm font-medium text-zoru-ink">Checkboxes</p>
               <div className="flex items-center gap-3">
-                <ZoruCheckbox id="zoru-cb-1" defaultChecked />
-                <ZoruLabel htmlFor="zoru-cb-1">Receive product updates</ZoruLabel>
+                <Checkbox id="zoru-cb-1" defaultChecked />
+                <Label htmlFor="zoru-cb-1">Receive product updates</Label>
               </div>
               <div className="flex items-center gap-3">
-                <ZoruCheckbox id="zoru-cb-2" />
-                <ZoruLabel htmlFor="zoru-cb-2">Subscribe to changelog</ZoruLabel>
+                <Checkbox id="zoru-cb-2" />
+                <Label htmlFor="zoru-cb-2">Subscribe to changelog</Label>
               </div>
               <div className="flex items-center gap-3">
-                <ZoruCheckbox id="zoru-cb-3" disabled />
-                <ZoruLabel htmlFor="zoru-cb-3">Disabled option</ZoruLabel>
+                <Checkbox id="zoru-cb-3" disabled />
+                <Label htmlFor="zoru-cb-3">Disabled option</Label>
               </div>
             </div>
             <div className="space-y-4">
               <p className="text-sm font-medium text-zoru-ink">Switches</p>
               <div className="flex items-center gap-3">
-                <ZoruSwitch id="zoru-sw-1" defaultChecked />
-                <ZoruLabel htmlFor="zoru-sw-1">Enable notifications</ZoruLabel>
+                <Switch id="zoru-sw-1" defaultChecked />
+                <Label htmlFor="zoru-sw-1">Enable notifications</Label>
               </div>
               <div className="flex items-center gap-3">
-                <ZoruSwitch id="zoru-sw-2" />
-                <ZoruLabel htmlFor="zoru-sw-2">Auto-archive replies</ZoruLabel>
+                <Switch id="zoru-sw-2" />
+                <Label htmlFor="zoru-sw-2">Auto-archive replies</Label>
               </div>
               <ZoruBouncyToggle label="Marketing emails" defaultChecked />
             </div>
@@ -305,20 +305,20 @@ export default function ZoruuiGalleryPage() {
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-3">
               <p className="text-sm font-medium text-zoru-ink">Inline</p>
-              <ZoruRadioGroup defaultValue="monthly">
+              <RadioGroup defaultValue="monthly">
                 <div className="flex items-center gap-3">
                   <ZoruRadioGroupItem value="monthly" id="zoru-r-1" />
-                  <ZoruLabel htmlFor="zoru-r-1">Monthly</ZoruLabel>
+                  <Label htmlFor="zoru-r-1">Monthly</Label>
                 </div>
                 <div className="flex items-center gap-3">
                   <ZoruRadioGroupItem value="yearly" id="zoru-r-2" />
-                  <ZoruLabel htmlFor="zoru-r-2">Yearly</ZoruLabel>
+                  <Label htmlFor="zoru-r-2">Yearly</Label>
                 </div>
-              </ZoruRadioGroup>
+              </RadioGroup>
             </div>
             <div className="space-y-3">
               <p className="text-sm font-medium text-zoru-ink">Cards</p>
-              <ZoruRadioGroup defaultValue="pro">
+              <RadioGroup defaultValue="pro">
                 <ZoruRadioCard
                   value="starter"
                   label="Starter"
@@ -329,7 +329,7 @@ export default function ZoruuiGalleryPage() {
                   label="Pro"
                   description="Unlimited contacts and live agents."
                 />
-              </ZoruRadioGroup>
+              </RadioGroup>
             </div>
           </div>
         </Section>
@@ -337,7 +337,7 @@ export default function ZoruuiGalleryPage() {
         <Section step="Step 2" title="Select">
           <div className="max-w-xs">
             <Field label="Region" htmlFor="zoru-select-region">
-              <ZoruSelect>
+              <Select>
                 <ZoruSelectTrigger id="zoru-select-region">
                   <ZoruSelectValue placeholder="Choose a region…" />
                 </ZoruSelectTrigger>
@@ -347,54 +347,54 @@ export default function ZoruuiGalleryPage() {
                   <ZoruSelectItem value="eu-west">EU West (Ireland)</ZoruSelectItem>
                   <ZoruSelectItem value="ap-south">AP South (Mumbai)</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </Field>
           </div>
         </Section>
 
         <Section step="Step 2" title="Display, badges, progress, skeleton">
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge>Default</ZoruBadge>
-            <ZoruBadge variant="secondary">Secondary</ZoruBadge>
-            <ZoruBadge variant="outline">Outline</ZoruBadge>
-            <ZoruBadge variant="ghost">Ghost</ZoruBadge>
-            <ZoruBadge variant="success">Active</ZoruBadge>
-            <ZoruBadge variant="danger">Failed</ZoruBadge>
-            <ZoruBadge variant="warning">Pending</ZoruBadge>
-            <ZoruBadge variant="info">Info</ZoruBadge>
+            <Badge>Default</Badge>
+            <Badge variant="secondary">Secondary</Badge>
+            <Badge variant="outline">Outline</Badge>
+            <Badge variant="ghost">Ghost</Badge>
+            <Badge variant="success">Active</Badge>
+            <Badge variant="danger">Failed</Badge>
+            <Badge variant="warning">Pending</Badge>
+            <Badge variant="info">Info</Badge>
           </div>
-          <ZoruSeparator />
+          <Separator />
           <div className="flex items-center gap-4">
-            <ZoruAvatar>
+            <Avatar>
               <ZoruAvatarImage src="https://i.pravatar.cc/96?img=12" alt="Avatar" />
               <ZoruAvatarFallback>HK</ZoruAvatarFallback>
-            </ZoruAvatar>
-            <ZoruAvatar>
+            </Avatar>
+            <Avatar>
               <ZoruAvatarFallback>
                 <User className="h-4 w-4" />
               </ZoruAvatarFallback>
-            </ZoruAvatar>
-            <ZoruTooltip>
+            </Avatar>
+            <Tooltip>
               <ZoruTooltipTrigger asChild>
-                <ZoruButton variant="outline" size="icon" aria-label="Help">
+                <Button variant="outline" size="icon" aria-label="Help">
                   <Settings />
-                </ZoruButton>
+                </Button>
               </ZoruTooltipTrigger>
               <ZoruTooltipContent>Open settings</ZoruTooltipContent>
-            </ZoruTooltip>
+            </Tooltip>
             <ZoruKbd>⌘</ZoruKbd>
             <ZoruKbd>⇧</ZoruKbd>
             <ZoruKbd>P</ZoruKbd>
           </div>
           <div className="space-y-3">
-            <ZoruProgress value={32} />
-            <ZoruProgress value={68} />
-            <ZoruProgress value={94} />
+            <Progress value={32} />
+            <Progress value={68} />
+            <Progress value={94} />
           </div>
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-2/3" />
-            <ZoruSkeleton className="h-4 w-1/2" />
-            <ZoruSkeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-3/4" />
           </div>
         </Section>
 
@@ -404,42 +404,42 @@ export default function ZoruuiGalleryPage() {
             <ZoruHeroPill icon={<Sparkles className="size-3" />} text="Now in beta" />
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <ZoruAlert variant="info">
+            <Alert variant="info">
               <Info />
               <ZoruAlertTitle>Heads up</ZoruAlertTitle>
               <ZoruAlertDescription>
                 We bumped the rate limit on free plans to 1,000 requests/day.
               </ZoruAlertDescription>
-            </ZoruAlert>
-            <ZoruAlert variant="success">
+            </Alert>
+            <Alert variant="success">
               <CircleCheck />
               <ZoruAlertTitle>All set</ZoruAlertTitle>
               <ZoruAlertDescription>
                 Your workspace is provisioned and ready to use.
               </ZoruAlertDescription>
-            </ZoruAlert>
-            <ZoruAlert variant="warning">
+            </Alert>
+            <Alert variant="warning">
               <CircleAlert />
               <ZoruAlertTitle>Pending verification</ZoruAlertTitle>
               <ZoruAlertDescription>
                 We&apos;re still verifying your business document.
               </ZoruAlertDescription>
-            </ZoruAlert>
-            <ZoruAlert variant="destructive">
+            </Alert>
+            <Alert variant="destructive">
               <CircleAlert />
               <ZoruAlertTitle>Connection failed</ZoruAlertTitle>
               <ZoruAlertDescription>
                 We couldn&apos;t reach the upstream provider. Retrying…
               </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           </div>
         </Section>
 
         <Section step="Step 3" title="Dialog · Sheet · Drawer · Alert dialog">
           <div className="flex flex-wrap items-center gap-3">
-            <ZoruDialog>
+            <Dialog>
               <ZoruDialogTrigger asChild>
-                <ZoruButton>Open dialog</ZoruButton>
+                <Button>Open dialog</Button>
               </ZoruDialogTrigger>
               <ZoruDialogContent>
                 <ZoruDialogHeader>
@@ -449,8 +449,8 @@ export default function ZoruuiGalleryPage() {
                   </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="zoru-invite-email">Work email</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="zoru-invite-email">Work email</Label>
+                  <Input
                     id="zoru-invite-email"
                     type="email"
                     placeholder="teammate@company.com"
@@ -458,15 +458,15 @@ export default function ZoruuiGalleryPage() {
                   />
                 </div>
                 <ZoruDialogFooter>
-                  <ZoruButton variant="ghost">Cancel</ZoruButton>
-                  <ZoruButton>Send invite</ZoruButton>
+                  <Button variant="ghost">Cancel</Button>
+                  <Button>Send invite</Button>
                 </ZoruDialogFooter>
               </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
-            <ZoruSheet>
+            <Sheet>
               <ZoruSheetTrigger asChild>
-                <ZoruButton variant="outline">Open sheet</ZoruButton>
+                <Button variant="outline">Open sheet</Button>
               </ZoruSheetTrigger>
               <ZoruSheetContent side="right">
                 <ZoruSheetHeader>
@@ -477,24 +477,24 @@ export default function ZoruuiGalleryPage() {
                 </ZoruSheetHeader>
                 <div className="mt-6 space-y-4">
                   <div className="flex items-center gap-3">
-                    <ZoruCheckbox id="zoru-flt-1" defaultChecked />
-                    <ZoruLabel htmlFor="zoru-flt-1">Open</ZoruLabel>
+                    <Checkbox id="zoru-flt-1" defaultChecked />
+                    <Label htmlFor="zoru-flt-1">Open</Label>
                   </div>
                   <div className="flex items-center gap-3">
-                    <ZoruCheckbox id="zoru-flt-2" />
-                    <ZoruLabel htmlFor="zoru-flt-2">Closed</ZoruLabel>
+                    <Checkbox id="zoru-flt-2" />
+                    <Label htmlFor="zoru-flt-2">Closed</Label>
                   </div>
                 </div>
                 <ZoruSheetFooter className="mt-6">
-                  <ZoruButton variant="ghost">Reset</ZoruButton>
-                  <ZoruButton>Apply</ZoruButton>
+                  <Button variant="ghost">Reset</Button>
+                  <Button>Apply</Button>
                 </ZoruSheetFooter>
               </ZoruSheetContent>
-            </ZoruSheet>
+            </Sheet>
 
             <ZoruDrawer>
               <ZoruDrawerTrigger asChild>
-                <ZoruButton variant="secondary">Open drawer</ZoruButton>
+                <Button variant="secondary">Open drawer</Button>
               </ZoruDrawerTrigger>
               <ZoruDrawerContent>
                 <ZoruDrawerHeader>
@@ -510,14 +510,14 @@ export default function ZoruuiGalleryPage() {
                   </p>
                 </div>
                 <ZoruDrawerFooter>
-                  <ZoruButton>Got it</ZoruButton>
+                  <Button>Got it</Button>
                 </ZoruDrawerFooter>
               </ZoruDrawerContent>
             </ZoruDrawer>
 
             <ZoruAlertDialog>
               <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="destructive">Delete account</ZoruButton>
+                <Button variant="destructive">Delete account</Button>
               </ZoruAlertDialogTrigger>
               <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -540,11 +540,11 @@ export default function ZoruuiGalleryPage() {
 
         <Section step="Step 3" title="Popover · Dropdown · Menubar">
           <div className="flex flex-wrap items-center gap-3">
-            <ZoruPopover>
+            <Popover>
               <ZoruPopoverTrigger asChild>
-                <ZoruButton variant="outline">
+                <Button variant="outline">
                   <Calendar /> Schedule
-                </ZoruButton>
+                </Button>
               </ZoruPopoverTrigger>
               <ZoruPopoverContent>
                 <p className="text-sm font-medium text-zoru-ink">Pick a date</p>
@@ -552,13 +552,13 @@ export default function ZoruuiGalleryPage() {
                   Calendar primitives ship in step 5.
                 </p>
               </ZoruPopoverContent>
-            </ZoruPopover>
+            </Popover>
 
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="icon" aria-label="Row actions">
+                <Button variant="outline" size="icon" aria-label="Row actions">
                   <MoreHorizontal />
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end" className="w-52">
                 <ZoruDropdownMenuLabel>Row actions</ZoruDropdownMenuLabel>
@@ -578,7 +578,7 @@ export default function ZoruuiGalleryPage() {
                   <ZoruDropdownMenuShortcut>⌫</ZoruDropdownMenuShortcut>
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
 
             <ZoruMenubar>
               <ZoruMenubarMenu>
@@ -616,9 +616,9 @@ export default function ZoruuiGalleryPage() {
           title="Page header + breadcrumb"
           subtitle="Standard top-of-page block — eyebrow, title, description, actions."
         >
-          <ZoruPageHeader>
+          <PageHeader>
             <ZoruPageHeading>
-              <ZoruBreadcrumb>
+              <Breadcrumb>
                 <ZoruBreadcrumbList>
                   <ZoruBreadcrumbItem>
                     <ZoruBreadcrumbLink href="/zoruui">ZoruUI</ZoruBreadcrumbLink>
@@ -628,7 +628,7 @@ export default function ZoruuiGalleryPage() {
                     <ZoruBreadcrumbPage>Layout primitives</ZoruBreadcrumbPage>
                   </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-              </ZoruBreadcrumb>
+              </Breadcrumb>
               <ZoruPageTitle>Layout primitives</ZoruPageTitle>
               <ZoruPageDescription>
                 Cards, page headers, breadcrumbs, tabs, accordions, scroll areas
@@ -637,17 +637,17 @@ export default function ZoruuiGalleryPage() {
               </ZoruPageDescription>
             </ZoruPageHeading>
             <ZoruPageActions>
-              <ZoruButton variant="ghost">Export</ZoruButton>
-              <ZoruButton>
+              <Button variant="ghost">Export</Button>
+              <Button>
                 <PlusCircle /> New project
-              </ZoruButton>
+              </Button>
             </ZoruPageActions>
-          </ZoruPageHeader>
+          </PageHeader>
         </Section>
 
         <Section step="Step 4" title="Cards (5 variants)">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Default card</ZoruCardTitle>
                 <ZoruCardDescription>Bordered, subtle.</ZoruCardDescription>
@@ -657,8 +657,8 @@ export default function ZoruuiGalleryPage() {
                   Quiet container for grouped content.
                 </p>
               </ZoruCardContent>
-            </ZoruCard>
-            <ZoruCard variant="soft">
+            </Card>
+            <Card variant="soft">
               <ZoruCardHeader>
                 <ZoruCardTitle>Soft</ZoruCardTitle>
                 <ZoruCardDescription>Borderless, surface tint.</ZoruCardDescription>
@@ -666,8 +666,8 @@ export default function ZoruuiGalleryPage() {
               <ZoruCardContent>
                 <p className="text-sm text-zoru-ink-muted">Use inside dense layouts.</p>
               </ZoruCardContent>
-            </ZoruCard>
-            <ZoruCard variant="elevated">
+            </Card>
+            <Card variant="elevated">
               <ZoruCardHeader>
                 <ZoruCardTitle>Elevated</ZoruCardTitle>
                 <ZoruCardDescription>Drop shadow on idle.</ZoruCardDescription>
@@ -675,28 +675,28 @@ export default function ZoruuiGalleryPage() {
               <ZoruCardContent>
                 <p className="text-sm text-zoru-ink-muted">Stands off the canvas.</p>
               </ZoruCardContent>
-            </ZoruCard>
-            <ZoruCard variant="outline">
+            </Card>
+            <Card variant="outline">
               <ZoruCardHeader>
                 <ZoruCardTitle>Outline</ZoruCardTitle>
                 <ZoruCardDescription>Stronger border, no shadow.</ZoruCardDescription>
               </ZoruCardHeader>
-            </ZoruCard>
-            <ZoruCard interactive>
+            </Card>
+            <Card interactive>
               <ZoruCardHeader>
                 <ZoruCardTitle>Interactive</ZoruCardTitle>
                 <ZoruCardDescription>Hover lifts the shadow.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardFooter>
-                <ZoruButton variant="link">Open project →</ZoruButton>
+                <Button variant="link">Open project →</Button>
               </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
           </div>
         </Section>
 
         <Section step="Step 4" title="Accordion (default + boxed)">
           <div className="grid gap-6 lg:grid-cols-2">
-            <ZoruAccordion type="single" collapsible>
+            <Accordion type="single" collapsible>
               <ZoruAccordionItem value="a">
                 <ZoruAccordionTrigger>What is ZoruUI?</ZoruAccordionTrigger>
                 <ZoruAccordionContent>
@@ -716,7 +716,7 @@ export default function ZoruuiGalleryPage() {
                   Removed from the new shell, by request.
                 </ZoruAccordionContent>
               </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
 
             <ZoruAccordion03 type="single" collapsible className="space-y-3">
               <ZoruAccordion03Item value="a">
@@ -740,13 +740,13 @@ export default function ZoruuiGalleryPage() {
 
         <Section step="Step 4" title="Scroll area + empty state + limelight">
           <div className="grid gap-6 lg:grid-cols-2">
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Scroll area</ZoruCardTitle>
                 <ZoruCardDescription>240px tall, custom scrollbar.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <ZoruScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
+                <ScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
                   <ul className="space-y-2 text-sm text-zoru-ink">
                     {Array.from({ length: 24 }).map((_, i) => (
                       <li
@@ -757,18 +757,18 @@ export default function ZoruuiGalleryPage() {
                       </li>
                     ))}
                   </ul>
-                </ZoruScrollArea>
+                </ScrollArea>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruEmptyState
+            <EmptyState
               icon={<FolderOpen />}
               title="No projects yet"
               description="Create your first project to start tracking conversations and broadcasts."
               action={
-                <ZoruButton>
+                <Button>
                   <PlusCircle /> New project
-                </ZoruButton>
+                </Button>
               }
             />
           </div>
@@ -819,7 +819,7 @@ export default function ZoruuiGalleryPage() {
                 <ZoruHeader
                   sticky={false}
                   leading={
-                    <ZoruBreadcrumb>
+                    <Breadcrumb>
                       <ZoruBreadcrumbList>
                         <ZoruBreadcrumbItem>
                           <ZoruBreadcrumbLink href="#">Dashboard</ZoruBreadcrumbLink>
@@ -829,10 +829,10 @@ export default function ZoruuiGalleryPage() {
                           <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
                         </ZoruBreadcrumbItem>
                       </ZoruBreadcrumbList>
-                    </ZoruBreadcrumb>
+                    </Breadcrumb>
                   }
                   center={
-                    <ZoruInput
+                    <Input
                       placeholder="Search anything…"
                       leadingSlot={<Search />}
                       trailingSlot={<ZoruKbd>⌘K</ZoruKbd>}
@@ -840,17 +840,17 @@ export default function ZoruuiGalleryPage() {
                   }
                   trailing={
                     <>
-                      <ZoruButton variant="ghost" size="icon" aria-label="Notifications">
+                      <Button variant="ghost" size="icon" aria-label="Notifications">
                         <Bell />
-                      </ZoruButton>
-                      <ZoruAvatar>
+                      </Button>
+                      <Avatar>
                         <ZoruAvatarFallback>HK</ZoruAvatarFallback>
-                      </ZoruAvatar>
+                      </Avatar>
                     </>
                   }
                 />
                 <main className="flex-1 overflow-y-auto p-6">
-                  <ZoruEmptyState
+                  <EmptyState
                     icon={<Sparkles />}
                     title="Your shell is ready"
                     description="No multi-tab strip. The dock slot is wired but empty — step 9 will fill it in for the dashboard."
@@ -864,21 +864,21 @@ export default function ZoruuiGalleryPage() {
 
         <Section step="Step 5" title="Stat cards + chart">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Active conversations"
               value="12,840"
               delta={4.2}
               period="vs last week"
               icon={<Activity />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Delivered"
               value="98.4%"
               delta={0.6}
               period="last 24h"
               icon={<CheckCircle2 />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Failed"
               value="0.7%"
               delta={-0.2}
@@ -886,7 +886,7 @@ export default function ZoruuiGalleryPage() {
               invertDelta
               icon={<CircleAlert />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Avg. response"
               value="42s"
               delta={-8.4}
@@ -908,7 +908,7 @@ export default function ZoruuiGalleryPage() {
             footer="Last refreshed just now"
           />
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Messages per day</ZoruCardTitle>
               <ZoruCardDescription>
@@ -954,14 +954,14 @@ export default function ZoruuiGalleryPage() {
                 </ZoruChart.LineChart>
               </ZoruChartContainer>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </Section>
 
         <Section
           step="Step 5"
           title="Tables — basic, click-to-dialog, data-table"
         >
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Click a row to open the dialog</ZoruCardTitle>
             </ZoruCardHeader>
@@ -975,9 +975,9 @@ export default function ZoruuiGalleryPage() {
                     key: "status",
                     header: "Status",
                     cell: (r) => (
-                      <ZoruBadge variant={r.status === "Active" ? "success" : "ghost"}>
+                      <Badge variant={r.status === "Active" ? "success" : "ghost"}>
                         {r.status}
-                      </ZoruBadge>
+                      </Badge>
                     ),
                   },
                   { key: "updated", header: "Updated", align: "right" },
@@ -992,9 +992,9 @@ export default function ZoruuiGalleryPage() {
                 )}
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Tanstack data-table</ZoruCardTitle>
               <ZoruCardDescription>
@@ -1002,7 +1002,7 @@ export default function ZoruuiGalleryPage() {
               </ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <ZoruDataTable
+              <DataTable
                 columns={DATA_TABLE_COLUMNS}
                 data={DATA_TABLE_ROWS}
                 filterColumn="name"
@@ -1010,18 +1010,18 @@ export default function ZoruuiGalleryPage() {
                 pageSize={5}
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </Section>
 
         <Section step="Step 5" title="Dates: picker, range, calendar, fullscreen">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <DemoDatePicker />
             <DemoDateRange />
-            <ZoruCard>
+            <Card>
               <ZoruCardContent className="pt-6">
-                <ZoruCalendar mode="single" />
+                <Calendar mode="single" />
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </div>
           <div className="h-[480px]">
             <ZoruFullscreenCalendar
@@ -1032,7 +1032,7 @@ export default function ZoruuiGalleryPage() {
 
         <Section step="Step 5" title="File upload + files module">
           <div className="grid gap-4 lg:grid-cols-2">
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Drop zone</ZoruCardTitle>
               </ZoruCardHeader>
@@ -1056,8 +1056,8 @@ export default function ZoruuiGalleryPage() {
                   ]}
                 />
               </ZoruCardContent>
-            </ZoruCard>
-            <ZoruCard>
+            </Card>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle>Files page (composed)</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -1067,7 +1067,7 @@ export default function ZoruuiGalleryPage() {
               <ZoruCardContent>
                 <ZoruFilesPage files={SAMPLE_FILES} onUpload={() => {}} onRename={() => {}} onDelete={() => {}} />
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           </div>
         </Section>
 
@@ -1142,9 +1142,9 @@ export default function ZoruuiGalleryPage() {
               price="$29"
               period="/ month"
               cta={
-                <ZoruButton variant="outline" block>
+                <Button variant="outline" block>
                   Start free
-                </ZoruButton>
+                </Button>
               }
               features={[
                 { label: "1,000 contacts" },
@@ -1159,9 +1159,9 @@ export default function ZoruuiGalleryPage() {
               period="/ month"
               featured
               cta={
-                <ZoruButton block className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                <Button block className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
                   Choose Pro
-                </ZoruButton>
+                </Button>
               }
               features={[
                 { label: "Unlimited contacts" },
@@ -1175,9 +1175,9 @@ export default function ZoruuiGalleryPage() {
               tagline="For complex orgs with real compliance asks."
               price="Custom"
               cta={
-                <ZoruButton variant="outline" block>
+                <Button variant="outline" block>
                   Talk to sales
-                </ZoruButton>
+                </Button>
               }
               features={[
                 { label: "SAML SSO + audit log" },
@@ -1225,12 +1225,12 @@ export default function ZoruuiGalleryPage() {
             description="Every primitive is in place. Steps 7–10 wire the existing modules onto the new shell."
             actions={
               <>
-                <ZoruButton className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                <Button className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
                   Start the migration
-                </ZoruButton>
-                <ZoruButton variant="ghost" className="text-zoru-on-primary hover:bg-zoru-on-primary/10">
+                </Button>
+                <Button variant="ghost" className="text-zoru-on-primary hover:bg-zoru-on-primary/10">
                   Read the plan →
-                </ZoruButton>
+                </Button>
               </>
             }
           />
@@ -1239,7 +1239,7 @@ export default function ZoruuiGalleryPage() {
           <Section step="Step 5" title="Carousel + color picker">
           <ZoruCarousel className="px-2">
             {Array.from({ length: 8 }).map((_, i) => (
-              <ZoruCard
+              <Card
                 key={i}
                 className="w-72 shrink-0"
                 variant="elevated"
@@ -1251,9 +1251,9 @@ export default function ZoruuiGalleryPage() {
                   </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                  <ZoruSkeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             ))}
           </ZoruCarousel>
           <div className="flex items-center gap-3">
@@ -1273,11 +1273,11 @@ function CommandAndToastDemo() {
   const [open, setOpen] = React.useState(false);
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <ZoruButton variant="outline" onClick={() => setOpen(true)}>
+      <Button variant="outline" onClick={() => setOpen(true)}>
         <Search /> Open command palette
         <ZoruKbd>⌘K</ZoruKbd>
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         onClick={() =>
           zoruToast({
             title: "Saved",
@@ -1286,8 +1286,8 @@ function CommandAndToastDemo() {
         }
       >
         <Check /> Toast (default)
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="destructive"
         onClick={() =>
           zoruToast({
@@ -1298,7 +1298,7 @@ function CommandAndToastDemo() {
         }
       >
         Toast (destructive)
-      </ZoruButton>
+      </Button>
 
       <ZoruCommandDialog open={open} onOpenChange={setOpen}>
         <ZoruCommandInput placeholder="Type a command or search…" />
@@ -1418,7 +1418,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <ZoruLabel htmlFor={htmlFor}>{label}</ZoruLabel>
+      <Label htmlFor={htmlFor}>{label}</Label>
       {children}
     </div>
   );
@@ -1427,14 +1427,14 @@ function Field({
 function DemoDatePicker() {
   const [date, setDate] = React.useState<Date | undefined>();
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>Date picker</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent>
-        <ZoruDatePicker value={date} onChange={setDate} />
+        <DatePicker value={date} onChange={setDate} />
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -1443,14 +1443,14 @@ function DemoDateRange() {
     import("react-day-picker").DateRange | undefined
   >();
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>Date range picker</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent>
         <ZoruDateRangePicker value={range} onChange={setRange} numberOfMonths={1} />
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 

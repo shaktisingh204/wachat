@@ -120,12 +120,12 @@ function TagsFilter({
         : `${selectedTags.length} tags`;
 
   return (
-    <ZoruPopover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <ZoruPopoverTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <TagIcon /> {label}
           <ChevronDown className="opacity-60" />
-        </ZoruButton>
+        </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent className="w-[240px] p-0" align="end">
         <ZoruCommand>
@@ -169,7 +169,7 @@ function TagsFilter({
           </ZoruCommandList>
         </ZoruCommand>
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }
 
@@ -204,14 +204,14 @@ function DeleteContactButton({
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           aria-label="Delete contact"
           className="text-zoru-danger hover:bg-zoru-danger/10"
         >
           <Trash2 />
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
@@ -338,7 +338,7 @@ export default function ContactsPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -352,7 +352,7 @@ export default function ContactsPage() {
             <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex items-end justify-between gap-6">
@@ -398,22 +398,22 @@ export default function ContactsPage() {
 
       {/* No project state */}
       {!activeProjectId ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<AlertCircle />}
           title="No project selected"
           description="Please select a project from the main dashboard to manage contacts."
           action={
-            <ZoruButton size="sm" onClick={() => router.push('/wachat')}>
+            <Button size="sm" onClick={() => router.push('/wachat')}>
               Choose a project
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           {/* Filter bar */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="min-w-[260px] flex-1">
-              <ZoruInput
+              <Input
                 placeholder="Search by name or WhatsApp ID…"
                 leadingSlot={<Search />}
                 defaultValue={searchQuery}
@@ -439,11 +439,11 @@ export default function ContactsPage() {
             {isLoadingInitial ? (
               <div className="flex flex-col gap-2 p-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <ZoruSkeleton key={i} className="h-10 w-full" />
+                  <Skeleton key={i} className="h-10 w-full" />
                 ))}
               </div>
             ) : contacts.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Users />}
                 title={
                   searchQuery || selectedTags.length > 0
@@ -494,15 +494,15 @@ export default function ContactsPage() {
                       </td>
                       <td className="px-4 py-3 text-[12px]">
                         {(contact as any).isOptedOut ? (
-                          <ZoruBadge variant="danger">
+                          <Badge variant="danger">
                             <span className="h-1.5 w-1.5 rounded-full bg-zoru-danger" />
                             Opted-out
-                          </ZoruBadge>
+                          </Badge>
                         ) : (
-                          <ZoruBadge variant="success">
+                          <Badge variant="success">
                             <span className="h-1.5 w-1.5 rounded-full bg-zoru-success" />
                             Opted-in
-                          </ZoruBadge>
+                          </Badge>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -512,13 +512,13 @@ export default function ContactsPage() {
                               (t) => t._id === tagId.toString(),
                             );
                             return tag ? (
-                              <ZoruBadge
+                              <Badge
                                 key={tagId.toString()}
                                 variant="secondary"
                               >
                                 <span className="h-1.5 w-1.5 rounded-full bg-zoru-ink-muted" />
                                 {tag.name}
-                              </ZoruBadge>
+                              </Badge>
                             ) : null;
                           })}
                         </div>
@@ -532,13 +532,13 @@ export default function ContactsPage() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <ZoruButton
+                          <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleMessageContact(contact)}
                           >
                             <MessageSquare /> Message
-                          </ZoruButton>
+                          </Button>
                           <DeleteContactButton
                             contact={contact}
                             onDeleted={fetchData}
@@ -559,7 +559,7 @@ export default function ContactsPage() {
                 {compact(totalContacts)} contacts
               </span>
               <div className="flex items-center gap-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() =>
@@ -568,8 +568,8 @@ export default function ContactsPage() {
                   disabled={currentPage <= 1 || isLoading}
                 >
                   <ChevronLeft /> Previous
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() =>
@@ -578,11 +578,11 @@ export default function ContactsPage() {
                   disabled={currentPage >= totalPages || isLoading}
                 >
                   Next <ChevronRight />
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       )}
 
       <div className="h-6" />
@@ -602,7 +602,7 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
         {label}
       </div>
@@ -614,6 +614,6 @@ function Stat({
           {hint}
         </div>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }

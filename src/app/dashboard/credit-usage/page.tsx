@@ -94,7 +94,7 @@ export default function CreditUsagePage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -104,32 +104,32 @@ export default function CreditUsagePage() {
             <ZoruBreadcrumbPage>Credit usage</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Credit usage</ZoruPageTitle>
             <ZoruPageDescription>
               Monitor your messaging credit balance and daily usage.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton onClick={() => router.push('/dashboard/billing')}>
+        </PageHeader>
+        <Button onClick={() => router.push('/dashboard/billing')}>
           <CreditCard className="h-3.5 w-3.5" />
           Top up credits
-        </ZoruButton>
+        </Button>
       </div>
 
       {isLow && credits > 0 && (
-        <ZoruAlert variant="warning">
+        <Alert variant="warning">
           <TriangleAlert className="h-4 w-4" />
           <ZoruAlertTitle>Low credit balance</ZoruAlertTitle>
           <ZoruAlertDescription>
             Approximately {daysLeft} day{daysLeft !== 1 ? 's' : ''} of credits remaining at current
             usage.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {isLoading ? (
@@ -142,7 +142,7 @@ export default function CreditUsagePage() {
             {stats.map((s) => {
               const Icon = s.icon;
               return (
-                <ZoruCard key={s.label} className="flex items-center gap-4 p-5">
+                <Card key={s.label} className="flex items-center gap-4 p-5">
                   <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                     <Icon className="h-5 w-5 text-zoru-ink-muted" />
                   </span>
@@ -152,13 +152,13 @@ export default function CreditUsagePage() {
                       {s.value}
                     </div>
                   </div>
-                </ZoruCard>
+                </Card>
               );
             })}
           </div>
 
           {dailyUsage.length > 0 && (
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <h2 className="mb-4 text-[15px] text-zoru-ink">Daily trend</h2>
               <div className="mb-5 h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -203,7 +203,7 @@ export default function CreditUsagePage() {
                   </div>
                 ))}
               </div>
-            </ZoruCard>
+            </Card>
           )}
         </>
       )}

@@ -145,7 +145,7 @@ function KpiStrip({ rows, loading }: KpiStripProps) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {tiles.map((t) => (
-        <ZoruCard key={t.label}>
+        <Card key={t.label}>
           <ZoruCardHeader className="pb-1 pt-4">
             <ZoruCardTitle className="text-[12px] font-medium text-zoru-ink-muted">
               {t.label}
@@ -158,7 +158,7 @@ function KpiStrip({ rows, loading }: KpiStripProps) {
               <p className="text-xl font-semibold text-zoru-ink">{t.value}</p>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );
@@ -188,7 +188,7 @@ function BulkBar({
       <span className="text-sm font-medium text-zoru-ink">
         {selectedIds.length} selected
       </span>
-      <ZoruButton
+      <Button
         variant="outline"
         size="sm"
         onClick={onNotice}
@@ -196,8 +196,8 @@ function BulkBar({
       >
         <Bell className="mr-1.5 h-3.5 w-3.5" />
         Send Renewal Notice
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="outline"
         size="sm"
         onClick={onRenew}
@@ -205,8 +205,8 @@ function BulkBar({
       >
         <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
         Mark Renewed
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="ghost"
         size="sm"
         onClick={onCsvExport}
@@ -214,8 +214,8 @@ function BulkBar({
       >
         <Download className="mr-1.5 h-3.5 w-3.5" />
         CSV
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="ghost"
         size="sm"
         onClick={onXlsxExport}
@@ -223,7 +223,7 @@ function BulkBar({
       >
         <Download className="mr-1.5 h-3.5 w-3.5" />
         XLSX
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -445,23 +445,23 @@ export default function ContractRenewalsPage() {
       title="Contract renewals"
       subtitle={`Active contracts expiring within ${RENEWAL_WINDOW_DAYS} days — soonest first.`}
       primaryAction={
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href={CONTRACTS_BASE}>
             <FileSignature className="mr-2 h-4 w-4" />
             All contracts
           </Link>
-        </ZoruButton>
+        </Button>
       }
       filters={
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruInput
+          <Input
             type="search"
             placeholder="Search by title or client…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-56"
           />
-          <ZoruSelect
+          <Select
             value={bucketFilter}
             onValueChange={(v) => setBucketFilter(v as UrgencyBucket)}
           >
@@ -474,8 +474,8 @@ export default function ContractRenewalsPage() {
               <ZoruSelectItem value="31-60">31 – 60 days</ZoruSelectItem>
               <ZoruSelectItem value="61-90">61 – 90 days</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruSelect
+          </Select>
+          <Select
             value={autoRenewFilter}
             onValueChange={(v) =>
               setAutoRenewFilter(v as 'all' | 'yes' | 'no')
@@ -489,7 +489,7 @@ export default function ContractRenewalsPage() {
               <ZoruSelectItem value="yes">Auto-renew: on</ZoruSelectItem>
               <ZoruSelectItem value="no">Auto-renew: off</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       }
       bulkBar={
@@ -509,7 +509,7 @@ export default function ContractRenewalsPage() {
       <KpiStrip rows={rows} loading={loading} />
 
       {/* Renewal table */}
-      <ZoruCard>
+      <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-4 pt-4">
           <div>
             <p className="text-[15px] font-medium text-zoru-ink">
@@ -520,31 +520,31 @@ export default function ContractRenewalsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={handleCsvExport}
             >
               <Download className="mr-1.5 h-3.5 w-3.5" />
               CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => void handleXlsxExport()}
             >
               <Download className="mr-1.5 h-3.5 w-3.5" />
               XLSX
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
         <div className="overflow-x-auto rounded-b-lg border-t border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={
                       allChecked || (someChecked ? 'indeterminate' : false)
                     }
@@ -622,7 +622,7 @@ export default function ContractRenewalsPage() {
                       className="border-zoru-line"
                     >
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(c._id)}
                           onCheckedChange={() => toggleOne(c._id)}
                           aria-label={`Select ${c.title ?? c._id}`}
@@ -651,13 +651,13 @@ export default function ContractRenewalsPage() {
                       </ZoruTableCell>
                       <ZoruTableCell>
                         {c.autoRenew ? (
-                          <ZoruBadge variant="success">On</ZoruBadge>
+                          <Badge variant="success">On</Badge>
                         ) : (
-                          <ZoruBadge variant="ghost">Off</ZoruBadge>
+                          <Badge variant="ghost">Off</Badge>
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           asChild
@@ -666,16 +666,16 @@ export default function ContractRenewalsPage() {
                             Open
                             <ArrowRight className="ml-1 h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

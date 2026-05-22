@@ -40,18 +40,18 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
 
     return (
         <>
-            <ZoruButton variant="ghost" size="icon-sm" onClick={() => setOpen(true)} title="Edit">
+            <Button variant="ghost" size="icon-sm" onClick={() => setOpen(true)} title="Edit">
                 <Pencil className="h-3.5 w-3.5" />
-            </ZoruButton>
-            <ZoruDialog open={open} onOpenChange={setOpen}>
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Edit QR Code</ZoruDialogTitle>
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Name</ZoruLabel>
-                            <ZoruInput
+                            <Label className="text-[12.5px] text-zoru-ink-muted">Name</Label>
+                            <Input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="QR code name"
@@ -59,7 +59,7 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Foreground</ZoruLabel>
+                                <Label className="text-[12.5px] text-zoru-ink-muted">Foreground</Label>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="color"
@@ -67,7 +67,7 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                                         onChange={(e) => setColor(e.target.value)}
                                         className="h-8 w-10 cursor-pointer rounded border border-zoru-border bg-transparent p-0.5"
                                     />
-                                    <ZoruInput
+                                    <Input
                                         value={color}
                                         onChange={(e) => setColor(e.target.value)}
                                         className="text-[12px] font-mono h-8"
@@ -76,7 +76,7 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Background</ZoruLabel>
+                                <Label className="text-[12.5px] text-zoru-ink-muted">Background</Label>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="color"
@@ -84,7 +84,7 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                                         onChange={(e) => setBgColor(e.target.value)}
                                         className="h-8 w-10 cursor-pointer rounded border border-zoru-border bg-transparent p-0.5"
                                     />
-                                    <ZoruInput
+                                    <Input
                                         value={bgColor}
                                         onChange={(e) => setBgColor(e.target.value)}
                                         className="text-[12px] font-mono h-8"
@@ -95,14 +95,14 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                         </div>
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
-                        <ZoruButton variant="outline" size="sm" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-                        <ZoruButton size="sm" onClick={handleSave} disabled={isPending || !name.trim()}>
+                        <Button variant="outline" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button size="sm" onClick={handleSave} disabled={isPending || !name.trim()}>
                             {isPending ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </>
     );
 }

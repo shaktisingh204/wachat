@@ -100,7 +100,7 @@ export default function ContactTimelinePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -120,7 +120,7 @@ export default function ContactTimelinePage() {
             <ZoruBreadcrumbPage>Timeline</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -131,13 +131,13 @@ export default function ContactTimelinePage() {
         </p>
       </div>
 
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex min-w-[260px] flex-1 flex-col gap-1.5">
-            <ZoruLabel htmlFor="ct-contact">
+            <Label htmlFor="ct-contact">
               Contact ID or phone number
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="ct-contact"
               type="text"
               value={contactId}
@@ -148,19 +148,19 @@ export default function ContactTimelinePage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <ZoruButton onClick={handleSearch} disabled={isLoading}>
+            <Button onClick={handleSearch} disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 <Search />
               )}
               Load timeline
-            </ZoruButton>
-            <ZoruDropdownMenu>
+            </Button>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   <Filter /> {FILTER_LABELS[filter]}
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuLabel>Filter by type</ZoruDropdownMenuLabel>
@@ -179,21 +179,21 @@ export default function ContactTimelinePage() {
                   </ZoruDropdownMenuRadioItem>
                 </ZoruDropdownMenuRadioGroup>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {isLoading && (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-16 w-full" />
+            <Skeleton key={i} className="h-16 w-full" />
           ))}
         </div>
       )}
 
       {filteredEvents && !isLoading && filteredEvents.length > 0 && (
-        <ZoruScrollArea className="max-h-[640px]">
+        <ScrollArea className="max-h-[640px]">
           <div className="relative pl-8">
             <div className="absolute left-3.5 bottom-0 top-0 w-px bg-zoru-line" />
             <div className="space-y-4">
@@ -211,15 +211,15 @@ export default function ContactTimelinePage() {
                     >
                       <Icon className="h-3.5 w-3.5" />
                     </div>
-                    <ZoruCard className="ml-4 flex-1 p-4">
+                    <Card className="ml-4 flex-1 p-4">
                       <div className="flex items-center justify-between gap-2">
-                        <ZoruBadge
+                        <Badge
                           variant={
                             isNote ? 'warning' : isIn ? 'success' : 'info'
                           }
                         >
                           {isNote ? 'Note' : isIn ? 'Received' : 'Sent'}
-                        </ZoruBadge>
+                        </Badge>
                         <span className="whitespace-nowrap text-[11px] text-zoru-ink-muted">
                           {ev.timestamp
                             ? new Date(ev.timestamp).toLocaleString()
@@ -229,17 +229,17 @@ export default function ContactTimelinePage() {
                       <p className="mt-1 text-[12px] text-zoru-ink-muted">
                         {ev.content || '—'}
                       </p>
-                    </ZoruCard>
+                    </Card>
                   </div>
                 );
               })}
             </div>
           </div>
-        </ZoruScrollArea>
+        </ScrollArea>
       )}
 
       {filteredEvents && !isLoading && filteredEvents.length === 0 && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<History />}
           title="No events found"
           description={
@@ -251,7 +251,7 @@ export default function ContactTimelinePage() {
       )}
 
       {!events && !isLoading && (
-        <ZoruEmptyState
+        <EmptyState
           icon={<History />}
           title="Enter a contact ID"
           description="Type a contact ID or phone number above to view their interaction timeline."

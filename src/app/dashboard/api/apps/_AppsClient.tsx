@@ -80,7 +80,7 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
   return (
     <div className="space-y-4">
       {secret ? (
-        <ZoruAlert variant="warning">
+        <Alert variant="warning">
           <TriangleAlert className="h-4 w-4" />
           <div className="space-y-2">
             <p className="font-semibold text-sm">Save this client secret — shown once.</p>
@@ -89,34 +89,34 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
               <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
                 {secret}
               </code>
-              <ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
+              <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
                 <Copy className="h-3 w-3 mr-1" /> Copy
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSecret(null)}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSecret(null)}>
                 Dismiss
-              </ZoruButton>
+              </Button>
             </div>
           </div>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Register OAuth app</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <ZoruLabel>Name</ZoruLabel>
-              <ZoruInput value={name} onChange={(e) => setName(e.target.value)} disabled={busy} />
+              <Label>Name</Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} disabled={busy} />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Description</ZoruLabel>
-              <ZoruInput value={description} onChange={(e) => setDescription(e.target.value)} disabled={busy} />
+              <Label>Description</Label>
+              <Input value={description} onChange={(e) => setDescription(e.target.value)} disabled={busy} />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <ZoruLabel>Redirect URIs (one per line)</ZoruLabel>
-              <ZoruTextarea
+              <Label>Redirect URIs (one per line)</Label>
+              <Textarea
                 value={redirects}
                 onChange={(e) => setRedirects(e.target.value)}
                 rows={2}
@@ -126,8 +126,8 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <ZoruLabel>Requested scopes (space-separated)</ZoruLabel>
-              <ZoruInput
+              <Label>Requested scopes (space-separated)</Label>
+              <Input
                 value={scopes}
                 onChange={(e) => setScopes(e.target.value)}
                 className="font-mono"
@@ -136,22 +136,22 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
             </div>
           </div>
           <div className="flex justify-end">
-            <ZoruButton onClick={handleCreate} disabled={busy || !name.trim()}>
+            <Button onClick={handleCreate} disabled={busy || !name.trim()}>
               {busy ? 'Working…' : 'Register'}
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {apps.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Boxes className="h-8 w-8" />}
           title="No OAuth apps yet"
           description="Register an app above to get started."
@@ -159,7 +159,7 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
       ) : (
         <div className="space-y-3">
           {apps.map((a) => (
-            <ZoruCard key={a._id}>
+            <Card key={a._id}>
               <ZoruCardContent className="pt-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -168,7 +168,7 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
                       <p className="text-xs text-zoru-ink-muted mt-0.5">{a.description}</p>
                     ) : null}
                   </div>
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(a._id)}
@@ -176,9 +176,9 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
                     className="text-zoru-danger hover:text-zoru-danger"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </ZoruButton>
+                  </Button>
                 </div>
-                <ZoruSeparator className="my-3" />
+                <Separator className="my-3" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <p className="text-zoru-ink-subtle mb-0.5">Client ID</p>
@@ -202,7 +202,7 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
                   </div>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       )}

@@ -13,7 +13,7 @@ export default function CareersPage() {
                   &larr; Back to Home
               </Link>
           </div>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-3xl font-bold font-headline">Careers at SabNode</ZoruCardTitle>
             </ZoruCardHeader>
@@ -22,7 +22,7 @@ export default function CareersPage() {
               <h2 className="text-xl font-semibold">Current Openings</h2>
               <p>We do not have any open positions at the moment, but we are always interested in hearing from talented individuals. Please check back later or send your resume to info@sabnode.in.</p>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
       </div>
     </div>

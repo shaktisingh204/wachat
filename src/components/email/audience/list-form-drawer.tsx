@@ -80,8 +80,8 @@ export function EmailListFormDrawer({
 
           <div className="flex-1 overflow-y-auto px-6 space-y-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="list-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="list-name">Name</Label>
+              <Input
                 id="list-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -90,8 +90,8 @@ export function EmailListFormDrawer({
               />
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="list-desc">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="list-desc">Description</Label>
+              <Textarea
                 id="list-desc"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -101,8 +101,8 @@ export function EmailListFormDrawer({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="list-from-name">Default from name</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="list-from-name">Default from name</Label>
+                <Input
                   id="list-from-name"
                   value={fromName}
                   onChange={(e) => setFromName(e.target.value)}
@@ -110,8 +110,8 @@ export function EmailListFormDrawer({
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="list-from-email">Default from email</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="list-from-email">Default from email</Label>
+                <Input
                   id="list-from-email"
                   type="email"
                   value={fromEmail}
@@ -123,17 +123,17 @@ export function EmailListFormDrawer({
           </div>
 
           <ZoruDrawerFooter className="flex flex-row gap-2 justify-end border-t">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={pending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={pending}>
+            </Button>
+            <Button type="submit" disabled={pending}>
               {pending ? 'Saving…' : isEdit ? 'Save changes' : 'Create list'}
-            </ZoruButton>
+            </Button>
           </ZoruDrawerFooter>
         </form>
       </ZoruDrawerContent>

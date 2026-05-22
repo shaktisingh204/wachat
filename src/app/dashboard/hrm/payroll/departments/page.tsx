@@ -137,18 +137,18 @@ export default function DepartmentsListPage() {
                     subtitle={t('hrm.payroll.departments.subtitle')}
                     primaryAction={
                         <div className="flex items-center gap-2">
-                            <ZoruButton variant="outline" asChild>
+                            <Button variant="outline" asChild>
                                 <Link href={`${BASE}/hierarchy`}>
                                     <GitBranch className="mr-1.5 h-3.5 w-3.5" />
                                     {t('hrm.payroll.departments.action.hierarchy')}
                                 </Link>
-                            </ZoruButton>
-                            <ZoruButton asChild>
+                            </Button>
+                            <Button asChild>
                                 <Link href={`${BASE}/new`}>
                                     <Plus className="mr-1.5 h-3.5 w-3.5" />
                                     {t('hrm.payroll.departments.action.new')}
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     }
                     search={{
@@ -157,7 +157,7 @@ export default function DepartmentsListPage() {
                         placeholder: t('hrm.payroll.departments.search.placeholder'),
                     }}
                     filters={
-                        <ZoruSelect
+                        <Select
                             value={activeFilter}
                             onValueChange={(v) => setActiveFilter(v as ActiveFilter)}
                         >
@@ -171,12 +171,12 @@ export default function DepartmentsListPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     }
                     loading={isLoading && departments.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.name')}</ZoruTableHead>
@@ -225,9 +225,9 @@ export default function DepartmentsListPage() {
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-zoru-ink">
                                                     {d.costCenter ? (
-                                                        <ZoruBadge variant="outline">
+                                                        <Badge variant="outline">
                                                             {d.costCenter}
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     ) : (
                                                         '—'
                                                     )}
@@ -239,25 +239,25 @@ export default function DepartmentsListPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton variant="ghost" size="icon" asChild>
+                                                    <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${d._id}/edit`}>
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setPendingDelete(d)}
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
             </EntityListShell>
 

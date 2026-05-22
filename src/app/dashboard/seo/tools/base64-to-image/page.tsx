@@ -28,23 +28,23 @@ export default function Base64ToImagePage() {
 
   return (
     <ToolShell title="Base64 to Image" description="Render a base64 data URL as an image.">
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <ZoruLabel>Base64 data URL</ZoruLabel>
-            <ZoruTextarea
+            <Label>Base64 data URL</Label>
+            <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="data:image/png;base64,..."
               className="min-h-[160px] font-mono text-xs"
             />
           </div>
-          <ZoruButton onClick={render}>Render</ZoruButton>
+          <Button onClick={render}>Render</Button>
           {err && <div className="text-sm text-destructive">{err}</div>}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
       {src && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={src} alt="Decoded" className="max-w-full rounded border" />
@@ -52,7 +52,7 @@ export default function Base64ToImagePage() {
               Download image
             </a>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

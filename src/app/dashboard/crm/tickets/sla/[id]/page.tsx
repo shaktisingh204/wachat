@@ -68,16 +68,16 @@ export default async function SlaDetailPage({
       title={sla.name}
       back={{ href: BASE, label: 'SLA Policies' }}
       actions={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href={`${BASE}/${id}/edit`}>
             <Pencil className="mr-2 h-4 w-4" />
             Edit
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
           <StatusPill label={status} tone={tone} />
@@ -103,10 +103,10 @@ export default async function SlaDetailPage({
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {sla.escalateAfterMinutes || sla.escalateTo ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 text-[15px] font-medium text-zoru-ink">
             Escalation
           </div>
@@ -124,11 +124,11 @@ export default async function SlaDetailPage({
               </div>
             </div>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {sla.description || sla.notes ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 text-[15px] font-medium text-zoru-ink">Notes</div>
           {sla.description ? (
             <div className="mb-4 space-y-1">
@@ -148,7 +148,7 @@ export default async function SlaDetailPage({
               <p className="whitespace-pre-wrap text-zoru-ink">{sla.notes}</p>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

@@ -150,7 +150,7 @@ export default function ContactMergePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -170,7 +170,7 @@ export default function ContactMergePage() {
             <ZoruBreadcrumbPage>Merge</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -181,10 +181,10 @@ export default function ContactMergePage() {
         </p>
       </div>
 
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <ZoruInput
+            <Input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -193,20 +193,20 @@ export default function ContactMergePage() {
               leadingSlot={<Search />}
             />
           </div>
-          <ZoruButton size="sm" onClick={handleSearch} disabled={isPending}>
+          <Button size="sm" onClick={handleSearch} disabled={isPending}>
             {isPending ? <Loader2 className="animate-spin" /> : 'Search'}
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
 
       {isLoadingInitial ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-12 w-full" />
+            <Skeleton key={i} className="h-12 w-full" />
           ))}
         </div>
       ) : contacts.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Users />}
           title="No contacts found"
           description={
@@ -216,7 +216,7 @@ export default function ContactMergePage() {
           }
         />
       ) : (
-        <ZoruCard className="overflow-x-auto p-0">
+        <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -259,20 +259,20 @@ export default function ContactMergePage() {
                       {c.waId || '—'}
                     </td>
                     <td className="px-5 py-3">
-                      <ZoruBadge variant="secondary">
+                      <Badge variant="secondary">
                         {c.tagIds?.length || 0} tags
-                      </ZoruBadge>
+                      </Badge>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-        </ZoruCard>
+        </Card>
       )}
 
       {contactA && contactB && (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <h2 className="mb-4 text-[15px] text-zoru-ink">Compare & merge</h2>
           <div className="flex flex-wrap gap-6">
             {renderContact(contactA, 'Primary (keep)')}
@@ -287,14 +287,14 @@ export default function ContactMergePage() {
           <div className="mt-4">
             <ZoruAlertDialog>
               <ZoruAlertDialogTrigger asChild>
-                <ZoruButton disabled={merging}>
+                <Button disabled={merging}>
                   {merging ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     <GitMerge />
                   )}
                   {merging ? 'Merging…' : 'Merge contacts'}
-                </ZoruButton>
+                </Button>
               </ZoruAlertDialogTrigger>
               <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -314,7 +314,7 @@ export default function ContactMergePage() {
               </ZoruAlertDialogContent>
             </ZoruAlertDialog>
           </div>
-        </ZoruCard>
+        </Card>
       )}
       <div className="h-6" />
     </div>

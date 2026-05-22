@@ -127,7 +127,7 @@ export default function InstagramSetupPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -141,7 +141,7 @@ export default function InstagramSetupPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Setup</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -151,37 +151,37 @@ export default function InstagramSetupPage(): React.JSX.Element {
             below shows its current connection status.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+        <Button variant="ghost" onClick={refresh} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load projects</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {loading && projects.length === 0 ? (
         <div className="flex flex-col gap-3">
-          <ZoruSkeleton className="h-20 w-full" />
-          <ZoruSkeleton className="h-20 w-full" />
-          <ZoruSkeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
         </div>
       ) : projects.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Instagram />}
           title="No Facebook projects"
           description="Connect a Facebook Page first — your Instagram Business account links through the Page."
           action={
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href="/dashboard/facebook/all-projects">
                 Open Meta Suite setup <ArrowRight className="h-4 w-4" />
               </Link>
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
@@ -192,20 +192,20 @@ export default function InstagramSetupPage(): React.JSX.Element {
             const isActive = id === activeId;
             return (
               <li key={id}>
-                <ZoruCard className="flex items-center gap-3 p-4">
-                  <ZoruAvatar className="h-12 w-12">
+                <Card className="flex items-center gap-3 p-4">
+                  <Avatar className="h-12 w-12">
                     {row.igPicture ? (
                       <ZoruAvatarImage src={row.igPicture} alt="" />
                     ) : null}
                     <ZoruAvatarFallback>
                       <Instagram className="h-5 w-5" />
                     </ZoruAvatarFallback>
-                  </ZoruAvatar>
+                  </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <p className="truncate text-sm text-zoru-ink">{p.name}</p>
                       {isActive ? (
-                        <ZoruBadge variant="outline">Active</ZoruBadge>
+                        <Badge variant="outline">Active</Badge>
                       ) : null}
                     </div>
                     <p className="mt-0.5 truncate text-xs text-zoru-ink-muted">
@@ -213,41 +213,41 @@ export default function InstagramSetupPage(): React.JSX.Element {
                       {row.igUsername ? <> · @{row.igUsername}</> : null}
                     </p>
                     {row.status === 'loading' ? (
-                      <ZoruSkeleton className="mt-2 h-3 w-32" />
+                      <Skeleton className="mt-2 h-3 w-32" />
                     ) : row.status === 'connected' ? (
-                      <ZoruBadge variant="success" className="mt-2 gap-1">
+                      <Badge variant="success" className="mt-2 gap-1">
                         <CheckCircle2 className="h-3 w-3" />
                         Instagram connected
-                      </ZoruBadge>
+                      </Badge>
                     ) : (
-                      <ZoruBadge variant="warning" className="mt-2 gap-1">
+                      <Badge variant="warning" className="mt-2 gap-1">
                         <AlertCircle className="h-3 w-3" />
                         Not connected
-                      </ZoruBadge>
+                      </Badge>
                     )}
                   </div>
 
                   {row.status === 'connected' ? (
-                    <ZoruButton asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm">
                       <Link href="/dashboard/instagram">
                         Open <ExternalLink className="h-3 w-3" />
                       </Link>
-                    </ZoruButton>
+                    </Button>
                   ) : (
-                    <ZoruButton asChild size="sm" onClick={onConnectClick}>
+                    <Button asChild size="sm" onClick={onConnectClick}>
                       <Link href="/dashboard/facebook/all-projects">
                         Connect <ArrowRight className="h-3 w-3" />
                       </Link>
-                    </ZoruButton>
+                    </Button>
                   )}
-                </ZoruCard>
+                </Card>
               </li>
             );
           })}
         </ul>
       )}
 
-      <ZoruCard className="mt-2 p-4">
+      <Card className="mt-2 p-4">
         <p className="text-sm text-zoru-ink">Where do I connect Instagram?</p>
         <p className="mt-1 text-xs text-zoru-ink-muted">
           Instagram Business accounts must be linked to a Facebook Page in Meta
@@ -255,13 +255,13 @@ export default function InstagramSetupPage(): React.JSX.Element {
           and unlock the Instagram modules.
         </p>
         <div className="mt-3">
-          <ZoruButton asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm">
             <Link href="/dashboard/facebook/all-projects">
               Open Meta Suite onboarding <ExternalLink className="h-3 w-3" />
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

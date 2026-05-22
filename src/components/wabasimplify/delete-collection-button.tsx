@@ -45,7 +45,7 @@ export function DeleteCollectionButton({ setId, setName, projectId, onDeleted }:
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete the collection "{setName}". This action cannot be undone.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>

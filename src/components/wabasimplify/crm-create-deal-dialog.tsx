@@ -43,10 +43,10 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       Create Deal
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -151,13 +151,13 @@ export function CreateDealDialog({
   }, [state, toast, onDealCreated, defaultAccountId]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       {hideTrigger ? null : (
         <ZoruDialogTrigger asChild>
-          <ZoruButton>
+          <Button>
             <Plus className="mr-2 h-4 w-4" />
             Create Deal
-          </ZoruButton>
+          </Button>
         </ZoruDialogTrigger>
       )}
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
@@ -169,31 +169,31 @@ export function CreateDealDialog({
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
-              <div className="space-y-2"><ZoruLabel htmlFor="name" className="text-zoru-ink">Deal Name</ZoruLabel><ZoruInput id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
+              <div className="space-y-2"><Label htmlFor="name" className="text-zoru-ink">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><ZoruLabel htmlFor="value" className="text-zoru-ink">Value</ZoruLabel><ZoruInput id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
+                <div className="space-y-2"><Label htmlFor="value" className="text-zoru-ink">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="currency" className="text-zoru-ink">Currency</ZoruLabel>
+                  <Label htmlFor="currency" className="text-zoru-ink">Currency</Label>
                   <EntityFormField entity="currency" name="currency" initialId="USD" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="stage" className="text-zoru-ink">Stage</ZoruLabel>
-                  <ZoruSelect name="stage" defaultValue={dealStages[0]} required>
+                  <Label htmlFor="stage" className="text-zoru-ink">Stage</Label>
+                  <Select name="stage" defaultValue={dealStages[0]} required>
                     <ZoruSelectTrigger id="stage"><ZoruSelectValue /></ZoruSelectTrigger>
                     <ZoruSelectContent>
                       {dealStages.map(stage => (
                         <ZoruSelectItem key={stage} value={stage}>{stage}</ZoruSelectItem>
                       ))}
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
-                <div className="space-y-2"><ZoruLabel className="text-zoru-ink">Expected Close Date</ZoruLabel><ZoruDatePicker value={closeDate} onChange={setCloseDate} /></div>
+                <div className="space-y-2"><Label className="text-zoru-ink">Expected Close Date</Label><DatePicker value={closeDate} onChange={setCloseDate} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="accountId" className="text-zoru-ink">Account</ZoruLabel>
+                  <Label htmlFor="accountId" className="text-zoru-ink">Account</Label>
                   <EntityFormField
                     entity="client"
                     name="accountId"
@@ -203,7 +203,7 @@ export function CreateDealDialog({
                   />
                 </div>
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="contactId" className="text-zoru-ink">Primary Contact</ZoruLabel>
+                  <Label htmlFor="contactId" className="text-zoru-ink">Primary Contact</Label>
                   <EntityFormField
                     entity="contact"
                     name="contactId"
@@ -215,12 +215,12 @@ export function CreateDealDialog({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="probability" className="text-zoru-ink">Probability %</ZoruLabel>
-                  <ZoruInput id="probability" name="probability" type="number" min={0} max={100} placeholder="e.g. 60" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="probability" className="text-zoru-ink">Probability %</Label>
+                  <Input id="probability" name="probability" type="number" min={0} max={100} placeholder="e.g. 60" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="priority" className="text-zoru-ink">Priority</ZoruLabel>
-                  <ZoruSelect name="priority" defaultValue="medium">
+                  <Label htmlFor="priority" className="text-zoru-ink">Priority</Label>
+                  <Select name="priority" defaultValue="medium">
                     <ZoruSelectTrigger id="priority" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
                     <ZoruSelectContent>
                       <ZoruSelectItem value="low">Low</ZoruSelectItem>
@@ -228,27 +228,27 @@ export function CreateDealDialog({
                       <ZoruSelectItem value="high">High</ZoruSelectItem>
                       <ZoruSelectItem value="critical">Critical</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="leadSource" className="text-zoru-ink">Lead Source</ZoruLabel>
+                  <Label htmlFor="leadSource" className="text-zoru-ink">Lead Source</Label>
                   <EntityFormField entity="leadSource" name="leadSource" initialId="Other" />
                 </div>
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="campaign" className="text-zoru-ink">Campaign</ZoruLabel>
-                  <ZoruInput id="campaign" name="campaign" placeholder="e.g. Q1 Launch" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="campaign" className="text-zoru-ink">Campaign</Label>
+                  <Input id="campaign" name="campaign" placeholder="e.g. Q1 Launch" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="nextStep" className="text-zoru-ink">Next Step</ZoruLabel>
-                  <ZoruInput id="nextStep" name="nextStep" placeholder="e.g. Send proposal" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="nextStep" className="text-zoru-ink">Next Step</Label>
+                  <Input id="nextStep" name="nextStep" placeholder="e.g. Send proposal" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
                 <div className="space-y-2">
-                  <ZoruLabel htmlFor="lossReason" className="text-zoru-ink">Loss Reason (if lost)</ZoruLabel>
-                  <ZoruInput id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="lossReason" className="text-zoru-ink">Loss Reason (if lost)</Label>
+                  <Input id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
               </div>
               {customFields.length > 0 ? (
@@ -271,11 +271,11 @@ export function CreateDealDialog({
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

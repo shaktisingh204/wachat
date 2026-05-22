@@ -32,7 +32,7 @@ export default async function PublicProjectRatingPage({
 
   return (
     <div className="mx-auto max-w-xl space-y-4">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Project feedback
@@ -60,7 +60,7 @@ export default async function PublicProjectRatingPage({
             <PublicRatingForm hash={hash} />
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

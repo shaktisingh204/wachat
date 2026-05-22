@@ -56,14 +56,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create policy'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -91,7 +91,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
         }
     });
 
-    // Drive the controlled `<ZoruSelect>`s. Form submission still reads
+    // Drive the controlled `<Select>`s. Form submission still reads
     // the bound `<select>` hidden under the hood (ZoruSelect renders a
     // native element internally), but mirroring state keeps the labels
     // in sync after the user changes them.
@@ -136,7 +136,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="policyId" value={initialData!._id} />
@@ -147,8 +147,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -160,8 +160,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                 {/* Row 2: Version + Category */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="version">Version</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="version">Version</Label>
+                        <Input
                             id="version"
                             name="version"
                             placeholder="1.0"
@@ -169,7 +169,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Category</ZoruLabel>
+                        <Label>Category</Label>
                         <EnumFormField
                             name="category-picker"
                             enumName="policyDocCategory"
@@ -185,8 +185,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
 
                 {/* Row 3: Summary */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="summary">Summary</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="summary">Summary</Label>
+                    <Textarea
                         id="summary"
                         name="summary"
                         rows={2}
@@ -197,10 +197,10 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
 
                 {/* Row 4: Content (markdown) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="contentMarkdown">
+                    <Label htmlFor="contentMarkdown">
                         Content (markdown)
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                         id="contentMarkdown"
                         name="contentMarkdown"
                         rows={10}
@@ -211,7 +211,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
 
                 {/* Row 5: Document (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Attached document</ZoruLabel>
+                    <Label>Attached document</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -231,14 +231,14 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                                 >
                                     {documentName || documentUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearDocument}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -251,8 +251,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                 {/* Row 6: Dates — Effective / Review / Expiry */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="effectiveDate">Effective date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="effectiveDate">Effective date</Label>
+                        <Input
                             id="effectiveDate"
                             name="effectiveDate"
                             type="date"
@@ -260,8 +260,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="reviewDate">Review date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="reviewDate">Review date</Label>
+                        <Input
                             id="reviewDate"
                             name="reviewDate"
                             type="date"
@@ -269,8 +269,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiryDate">Expiry date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiryDate">Expiry date</Label>
+                        <Input
                             id="expiryDate"
                             name="expiryDate"
                             type="date"
@@ -282,7 +282,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                 {/* Row 7: Owner + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Owner</ZoruLabel>
+                        <Label>Owner</Label>
                         <EntityFormField
                             entity="employee"
                             name="ownerId"
@@ -292,7 +292,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="policyDocStatus"
@@ -309,8 +309,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                 {/* Row 8: Tags + Acknowledgement */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
                             id="tags"
                             name="tags"
                             placeholder="comma, separated, tags"
@@ -318,31 +318,31 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                         />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="requireAcknowledgement"
                             name="requireAcknowledgement"
                             defaultChecked={!!initialData?.acknowledgementRequired}
                         />
-                        <ZoruLabel
+                        <Label
                             htmlFor="requireAcknowledgement"
                             className="cursor-pointer"
                         >
                             Require employee acknowledgement
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to policies
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

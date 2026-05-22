@@ -106,11 +106,11 @@ export default async function FixedAssetDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this fixed asset — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/fixed-assets">
               <ArrowLeft className="h-4 w-4" /> Back to Fixed Assets
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -138,7 +138,7 @@ export default async function FixedAssetDetailPage({
       audit={<EntityAuditTimeline entityKind="fixed_asset" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Net book value</ZoruCardTitle>
             </ZoruCardHeader>
@@ -167,9 +167,9 @@ export default async function FixedAssetDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Custodian</ZoruCardTitle>
             </ZoruCardHeader>
@@ -189,9 +189,9 @@ export default async function FixedAssetDetailPage({
                 <span>{asset.location || '—'}</span>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Compliance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -207,9 +207,9 @@ export default async function FixedAssetDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -233,11 +233,11 @@ export default async function FixedAssetDetailPage({
                 )}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -247,15 +247,15 @@ export default async function FixedAssetDetailPage({
             <Field label="Asset name">{asset.name || '—'}</Field>
             <Field label="Category">{asset.category || '—'}</Field>
             <Field label="Condition">
-              <ZoruBadge variant="outline">{condition}</ZoruBadge>
+              <Badge variant="outline">{condition}</Badge>
             </Field>
             <Field label="Currency">{asset.currency || '—'}</Field>
             <Field label="Location">{asset.location || '—'}</Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Cost &amp; depreciation</ZoruCardTitle>
         </ZoruCardHeader>
@@ -311,9 +311,9 @@ export default async function FixedAssetDetailPage({
             </tbody>
           </table>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Custodian &amp; vendor</ZoruCardTitle>
         </ZoruCardHeader>
@@ -338,9 +338,9 @@ export default async function FixedAssetDetailPage({
             </Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Insurance &amp; warranty</ZoruCardTitle>
         </ZoruCardHeader>
@@ -354,9 +354,9 @@ export default async function FixedAssetDetailPage({
             </Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Maintenance log</ZoruCardTitle>
         </ZoruCardHeader>
@@ -372,7 +372,7 @@ export default async function FixedAssetDetailPage({
             </Link>
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <p className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(asset.createdAt || asset.audit?.createdAt)} · Updated{' '}

@@ -30,7 +30,7 @@ export function AdminUserFilter({ users }: AdminUserFilterProps) {
   };
 
   return (
-    <ZoruSelect
+    <Select
       onValueChange={handleFilter}
       defaultValue={searchParams.get('userId')?.toString() || 'all'}
     >
@@ -45,6 +45,6 @@ export function AdminUserFilter({ users }: AdminUserFilterProps) {
           </ZoruSelectItem>
         ))}
       </ZoruSelectContent>
-    </ZoruSelect>
+    </Select>
   );
 }

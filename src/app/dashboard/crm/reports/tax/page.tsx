@@ -194,7 +194,7 @@ export default async function TaxReportPage(props: {
       </div>
 
       {/* Chart */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly collected vs paid</h2>
           <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -206,12 +206,12 @@ export default async function TaxReportPage(props: {
         ) : (
           <TaxBar data={monthly} />
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Table */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
@@ -246,7 +246,7 @@ export default async function TaxReportPage(props: {
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[13px] text-zoru-ink">{taxType}</ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={statusVariant[taxStatus]}>{taxStatus}</ZoruBadge>
+                        <Badge variant={statusVariant[taxStatus]}>{taxStatus}</Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
                         {fmtMoney(r.collected)}
@@ -266,9 +266,9 @@ export default async function TaxReportPage(props: {
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
       <p className="text-[13px] text-zoru-ink-muted">
         For line-item compliance reports see{' '}

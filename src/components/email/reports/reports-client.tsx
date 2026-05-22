@@ -88,7 +88,7 @@ export function ReportsClient() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -100,16 +100,16 @@ export function ReportsClient() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" onClick={() => void fetchAll()} disabled={loading}>
+          <Button variant="outline" onClick={() => void fetchAll()} disabled={loading}>
             <RefreshCw className="h-4 w-4" /> Refresh
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loading ? (
         <div className="space-y-3">
-          <ZoruSkeleton className="h-24 w-full" />
-          <ZoruSkeleton className="h-72 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-72 w-full" />
         </div>
       ) : account ? (
         <>
@@ -125,7 +125,7 @@ export function ReportsClient() {
           </div>
 
           {revenue ? (
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -136,10 +136,10 @@ export function ReportsClient() {
                       Conversions and revenue tied to email sends.
                     </ZoruCardDescription>
                   </div>
-                  <ZoruBadge variant="secondary">
+                  <Badge variant="secondary">
                     <TrendingUp className="h-3 w-3" />
                     {formatRevenue(revenue.totals.revenuePerEmail, revenue.totals.currency)} / email
-                  </ZoruBadge>
+                  </Badge>
                 </div>
               </ZoruCardHeader>
               <ZoruCardContent>
@@ -164,7 +164,7 @@ export function ReportsClient() {
                   </div>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           ) : null}
 
           <section className="space-y-3">
@@ -175,11 +175,11 @@ export function ReportsClient() {
           </section>
         </>
       ) : (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-6 text-sm text-zoru-ink-muted">
             No report data available yet.
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );

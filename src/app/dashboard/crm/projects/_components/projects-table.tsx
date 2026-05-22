@@ -178,61 +178,61 @@ export function ProjectsTable({
             {selected.size} project{selected.size === 1 ? '' : 's'} selected
           </span>
           <div className="flex items-center gap-2">
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={() => setSelected(new Set())}
             >
               Clear
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={handleExportCsv}
             >
               <Download className="h-3.5 w-3.5" /> CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={handleExportXlsx}
             >
               <Download className="h-3.5 w-3.5" /> XLSX
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="outline"
               onClick={handleBulkArchive}
             >
               <Archive className="h-3.5 w-3.5" /> Archive
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="destructive"
               onClick={handleBulkDelete}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : (
         /* When nothing is selected, show export for all rows */
         <div className="flex justify-end gap-2">
-          <ZoruButton size="sm" variant="ghost" onClick={handleExportCsv}>
+          <Button size="sm" variant="ghost" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> CSV
-          </ZoruButton>
-          <ZoruButton size="sm" variant="ghost" onClick={handleExportXlsx}>
+          </Button>
+          <Button size="sm" variant="ghost" onClick={handleExportXlsx}>
             <Download className="h-3.5 w-3.5" /> XLSX
-          </ZoruButton>
+          </Button>
         </div>
       )}
 
       <div className="overflow-x-auto rounded-lg border border-zoru-line">
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
               <ZoruTableHead className="w-10">
-                <ZoruCheckbox
+                <Checkbox
                   aria-label="Select all projects"
                   checked={allSelected}
                   onCheckedChange={(v) => toggleAll(Boolean(v))}
@@ -266,7 +266,7 @@ export function ProjectsTable({
                   ].join(' ')}
                 >
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       aria-label={`Select ${p.name || p.projectName || 'project'}`}
                       checked={isChecked}
                       onCheckedChange={() => toggleOne(p._id)}
@@ -327,7 +327,7 @@ export function ProjectsTable({
                   </ZoruTableCell>
                   <ZoruTableCell className="min-w-[120px]">
                     <div className="flex items-center gap-2">
-                      <ZoruProgress value={pct} className="h-1.5 w-16" />
+                      <Progress value={pct} className="h-1.5 w-16" />
                       <span className="text-[12px] tabular-nums text-zoru-ink-muted">
                         {pct}%
                       </span>
@@ -347,7 +347,7 @@ export function ProjectsTable({
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
                         <button
                           type="button"
@@ -375,13 +375,13 @@ export function ProjectsTable({
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                   </ZoruTableCell>
                 </ZoruTableRow>
               );
             })}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
       </div>
     </div>
   );

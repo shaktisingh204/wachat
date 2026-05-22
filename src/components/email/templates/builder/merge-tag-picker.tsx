@@ -33,11 +33,11 @@ export interface MergeTagPickerProps {
 
 export function MergeTagPicker({ onPick }: MergeTagPickerProps) {
   return (
-    <ZoruPopover>
+    <Popover>
       <ZoruPopoverTrigger asChild>
-        <ZoruButton type="button" variant="outline" size="sm">
+        <Button type="button" variant="outline" size="sm">
           <Braces /> Merge tag
-        </ZoruButton>
+        </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent align="start" className="w-64 p-1">
         <ul role="listbox" aria-label="Merge tags" className="flex flex-col">
@@ -60,6 +60,6 @@ export function MergeTagPicker({ onPick }: MergeTagPickerProps) {
           ))}
         </ul>
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

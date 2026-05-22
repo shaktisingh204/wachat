@@ -75,14 +75,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create expense claim'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -137,7 +137,7 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="claimId" value={initialData!._id} />
@@ -149,8 +149,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                 {/* Row 1: Employee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_id">Employee id *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employee_id">Employee id *</Label>
+                        <Input
                             id="employee_id"
                             name="employee_id"
                             required
@@ -159,8 +159,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_name">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employee_name">Employee name</Label>
+                        <Input
                             id="employee_name"
                             name="employee_name"
                             placeholder="Friendly display name"
@@ -172,10 +172,10 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                 {/* Row 2: Claim number (read-only on edit, auto on create) + Category */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="claim_number_display">
+                        <Label htmlFor="claim_number_display">
                             Claim number
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="claim_number_display"
                             value={initialData?.claim_number ?? 'Auto-generated on save'}
                             readOnly
@@ -183,8 +183,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category_id">Category id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="category_id">Category id</Label>
+                        <Input
                             id="category_id"
                             name="category_id"
                             placeholder="Expense category id"
@@ -196,8 +196,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                 {/* Row 3: Category name + Expense date */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category_name">Category name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="category_name">Category name</Label>
+                        <Input
                             id="category_name"
                             name="category_name"
                             placeholder="e.g. Travel · Meals"
@@ -205,8 +205,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expense_date">Expense date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expense_date">Expense date</Label>
+                        <Input
                             id="expense_date"
                             name="expense_date"
                             type="date"
@@ -218,8 +218,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                 {/* Row 4: Amount + Currency + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="amount">Amount *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="amount">Amount *</Label>
+                        <Input
                             id="amount"
                             name="amount"
                             type="number"
@@ -230,8 +230,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -239,8 +239,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) =>
                                 setStatus(v as CrmExpenseClaimStatus)
@@ -256,14 +256,14 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Row 5: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={3}
@@ -274,7 +274,7 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
 
                 {/* Row 6: Receipt (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Receipt</ZoruLabel>
+                    <Label>Receipt</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="all"
@@ -294,14 +294,14 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                                 >
                                     {receiptName || receiptUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearReceipt}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -314,8 +314,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                 {/* Row 7: Approver */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="approver_id">Approver id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="approver_id">Approver id</Label>
+                        <Input
                             id="approver_id"
                             name="approver_id"
                             placeholder="Optional"
@@ -323,8 +323,8 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="approver_name">Approver name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="approver_name">Approver name</Label>
+                        <Input
                             id="approver_name"
                             name="approver_name"
                             defaultValue={initialData?.approver_name ?? ''}
@@ -334,15 +334,15 @@ export function ExpenseClaimForm({ initialData }: ExpenseClaimFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to expense claims
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

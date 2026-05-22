@@ -87,7 +87,7 @@ export function AddTaskDrawer({
   }
 
   return (
-    <ZoruSheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <ZoruSheetContent side="right" className="flex w-full flex-col sm:max-w-md">
         <ZoruSheetHeader className="mb-4">
           <ZoruSheetTitle>Add Task</ZoruSheetTitle>
@@ -96,8 +96,8 @@ export function AddTaskDrawer({
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto pb-4">
           {/* Title */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel required>Title</ZoruLabel>
-            <ZoruInput
+            <Label required>Title</Label>
+            <Input
               placeholder="Task title"
               value={draft.title}
               invalid={titleError}
@@ -113,8 +113,8 @@ export function AddTaskDrawer({
 
           {/* Description */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Description</ZoruLabel>
-            <ZoruTextarea
+            <Label>Description</Label>
+            <Textarea
               placeholder="Optional details…"
               value={draft.description ?? ''}
               onChange={(e) => set('description', e.target.value)}
@@ -125,8 +125,8 @@ export function AddTaskDrawer({
           {/* Assignee */}
           {directReports.length > 0 && (
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Assignee</ZoruLabel>
-              <ZoruSelect
+              <Label>Assignee</Label>
+              <Select
                 value={draft.assigneeId ?? ''}
                 onValueChange={handleAssigneeChange}
               >
@@ -140,23 +140,23 @@ export function AddTaskDrawer({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           )}
 
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Start Date</ZoruLabel>
-              <ZoruInput
+              <Label>Start Date</Label>
+              <Input
                 type="date"
                 value={draft.startDate ?? ''}
                 onChange={(e) => set('startDate', e.target.value || undefined)}
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Due Date</ZoruLabel>
-              <ZoruInput
+              <Label>Due Date</Label>
+              <Input
                 type="date"
                 value={draft.dueDate ?? ''}
                 onChange={(e) => set('dueDate', e.target.value || undefined)}
@@ -166,8 +166,8 @@ export function AddTaskDrawer({
 
           {/* Priority */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Priority</ZoruLabel>
-            <ZoruSelect
+            <Label>Priority</Label>
+            <Select
               value={draft.priority}
               onValueChange={(v) => set('priority', v as RoadmapTask['priority'])}
             >
@@ -179,13 +179,13 @@ export function AddTaskDrawer({
                 <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
                 <ZoruSelectItem value="high">High</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
 
           {/* Status */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Status</ZoruLabel>
-            <ZoruSelect
+            <Label>Status</Label>
+            <Select
               value={draft.status}
               onValueChange={(v) => set('status', v as RoadmapTask['status'])}
             >
@@ -198,17 +198,17 @@ export function AddTaskDrawer({
                 <ZoruSelectItem value="done">Done</ZoruSelectItem>
                 <ZoruSelectItem value="blocked">Blocked</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         </div>
 
         <ZoruSheetFooter>
           <ZoruSheetClose asChild>
-            <ZoruButton variant="outline">Cancel</ZoruButton>
+            <Button variant="outline">Cancel</Button>
           </ZoruSheetClose>
-          <ZoruButton onClick={handleSubmit}>Add Task</ZoruButton>
+          <Button onClick={handleSubmit}>Add Task</Button>
         </ZoruSheetFooter>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }

@@ -52,7 +52,7 @@ export default function PickerDemoPage() {
         </p>
       </div>
 
-      <ZoruCard className="grid gap-4 p-6 sm:grid-cols-2">
+      <Card className="grid gap-4 p-6 sm:grid-cols-2">
         <EntityPicker
           entity="country"
           label="Country"
@@ -123,16 +123,16 @@ export default function PickerDemoPage() {
           value={currency}
           onChange={(v) => setCurrency(v as string | null)}
         />
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-4">
+      <Card className="p-4">
         <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
           Stored values
         </p>
         <pre className="overflow-x-auto rounded-md bg-zoru-bg p-3 text-[12px] text-zoru-ink">
           {JSON.stringify(allValues, null, 2)}
         </pre>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -211,14 +211,14 @@ export function VoucherBooksListClient(): React.JSX.Element {
                     subtitle="Manage your accounting voucher books and numbering schemes."
                     primaryAction={
                         <>
-                            <ZoruButton variant="outline" onClick={handleExport}>
+                            <Button variant="outline" onClick={handleExport}>
                                 Export CSV
-                            </ZoruButton>
-                            <ZoruButton asChild>
+                            </Button>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/accounting/vouchers/new">
                                     <Plus className="mr-1.5 h-3.5 w-3.5" /> New Voucher Book
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </>
                     }
                     search={{ value: search, onChange: setSearch, placeholder: 'Search voucher books…' }}

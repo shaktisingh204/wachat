@@ -89,9 +89,9 @@ function CancelScheduleDialog({
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <ZoruButton variant="ghost" size="sm" disabled={disabled}>
+        <Button variant="ghost" size="sm" disabled={disabled}>
           Cancel
-        </ZoruButton>
+        </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
@@ -213,7 +213,7 @@ export default function BroadcastSchedulerPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -227,7 +227,7 @@ export default function BroadcastSchedulerPage() {
             <ZoruBreadcrumbPage>Broadcast Scheduler</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -238,7 +238,7 @@ export default function BroadcastSchedulerPage() {
         </p>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="text-[16px] text-zoru-ink mb-4">New Schedule</h2>
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="projectId" value={projectId || ''} />
@@ -286,8 +286,8 @@ export default function BroadcastSchedulerPage() {
             {step === 'template' && (
               <div className="flex flex-col gap-4 max-w-xl">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="bs-name">Broadcast name *</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="bs-name">Broadcast name *</Label>
+                  <Input
                     id="bs-name"
                     placeholder="Spring promo"
                     value={name}
@@ -296,8 +296,8 @@ export default function BroadcastSchedulerPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="bs-template">Template name *</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="bs-template">Template name *</Label>
+                  <Input
                     id="bs-template"
                     placeholder="welcome_v3"
                     value={templateName}
@@ -311,10 +311,10 @@ export default function BroadcastSchedulerPage() {
             {step === 'audience' && (
               <div className="flex flex-col gap-4 max-w-xl">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="bs-audience">
+                  <Label htmlFor="bs-audience">
                     Audience (default: all)
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="bs-audience"
                     placeholder="segment-id or empty for all contacts"
                     value={audience}
@@ -327,8 +327,8 @@ export default function BroadcastSchedulerPage() {
             {step === 'schedule' && (
               <div className="grid gap-4 max-w-xl sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Timezone</ZoruLabel>
-                  <ZoruSelect value={timezone} onValueChange={setTimezone}>
+                  <Label>Timezone</Label>
+                  <Select value={timezone} onValueChange={setTimezone}>
                     <ZoruSelectTrigger>
                       <ZoruSelectValue placeholder="Timezone" />
                     </ZoruSelectTrigger>
@@ -339,11 +339,11 @@ export default function BroadcastSchedulerPage() {
                         </ZoruSelectItem>
                       ))}
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="bs-when">Scheduled at *</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="bs-when">Scheduled at *</Label>
+                  <Input
                     id="bs-when"
                     type="datetime-local"
                     value={scheduledAt}
@@ -352,8 +352,8 @@ export default function BroadcastSchedulerPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <ZoruLabel>Recurring</ZoruLabel>
-                  <ZoruSelect value={recurring} onValueChange={setRecurring}>
+                  <Label>Recurring</Label>
+                  <Select value={recurring} onValueChange={setRecurring}>
                     <ZoruSelectTrigger>
                       <ZoruSelectValue placeholder="Frequency" />
                     </ZoruSelectTrigger>
@@ -363,7 +363,7 @@ export default function BroadcastSchedulerPage() {
                       <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
                       <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
               </div>
             )}
@@ -388,7 +388,7 @@ export default function BroadcastSchedulerPage() {
           </div>
 
           <div className="mt-2 flex items-center justify-between gap-2 border-t border-zoru-line pt-4">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               size="sm"
@@ -396,26 +396,26 @@ export default function BroadcastSchedulerPage() {
               disabled={step === 'template'}
             >
               Back
-            </ZoruButton>
+            </Button>
             {isLastStep ? (
-              <ZoruButton type="submit" disabled={isPending || !projectId}>
+              <Button type="submit" disabled={isPending || !projectId}>
                 {isPending ? 'Scheduling…' : 'Save Schedule'}
-              </ZoruButton>
+              </Button>
             ) : (
-              <ZoruButton type="button" onClick={goNext}>
+              <Button type="button" onClick={goNext}>
                 Next
-              </ZoruButton>
+              </Button>
             )}
           </div>
         </form>
-      </ZoruCard>
+      </Card>
 
       {isLoading && schedules.length === 0 ? (
         <div className="flex h-20 items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
         </div>
       ) : schedules.length > 0 ? (
-        <ZoruCard className="overflow-x-auto p-0">
+        <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -444,7 +444,7 @@ export default function BroadcastSchedulerPage() {
                       : '--'}
                   </td>
                   <td className="px-5 py-3">
-                    <ZoruBadge
+                    <Badge
                       variant={
                         s.status === 'scheduled'
                           ? 'info'
@@ -454,7 +454,7 @@ export default function BroadcastSchedulerPage() {
                       }
                     >
                       {s.status}
-                    </ZoruBadge>
+                    </Badge>
                   </td>
                   <td className="px-5 py-3 text-right">
                     {s.status === 'scheduled' && (
@@ -469,9 +469,9 @@ export default function BroadcastSchedulerPage() {
               ))}
             </tbody>
           </table>
-        </ZoruCard>
+        </Card>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<CalendarClock />}
           title="No scheduled broadcasts"
           description="Use the form above to queue a broadcast for the future."

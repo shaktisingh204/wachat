@@ -65,14 +65,14 @@ const saveInitialState: { success: boolean; error?: string } = {
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="lg" disabled={pending}>
+    <Button type="submit" size="lg" disabled={pending}>
       {pending ? (
         <Loader2 className="animate-spin" />
       ) : (
         <Save />
       )}
       Save Calling Settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -161,7 +161,7 @@ export function CallingSettingsForm({
   }, [saveState, toast, onSuccess, phone.display_phone_number]);
 
   if (isLoading) {
-    return <ZoruSkeleton className="h-96 w-full" />;
+    return <Skeleton className="h-96 w-full" />;
   }
 
   return (
@@ -179,7 +179,7 @@ export function CallingSettingsForm({
         value={JSON.stringify(holidaySchedule)}
       />
 
-      <ZoruAccordion
+      <Accordion
         type="multiple"
         defaultValue={['general']}
         className="flex w-full flex-col gap-4"
@@ -187,11 +187,11 @@ export function CallingSettingsForm({
         <ZoruAccordionItem value="general">
           <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
           <ZoruAccordionContent className="pt-2">
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Calling Status</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Calling Status</Label>
+                  <Select
                     name="status"
                     defaultValue={settings.status || 'DISABLED'}
                   >
@@ -202,11 +202,11 @@ export function CallingSettingsForm({
                       <ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem>
                       <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Call Icon Visibility</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Call Icon Visibility</Label>
+                  <Select
                     name="call_icon_visibility"
                     defaultValue={settings.call_icon_visibility || 'DEFAULT'}
                   >
@@ -221,13 +221,13 @@ export function CallingSettingsForm({
                         Disable All (Hidden)
                       </ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor="restrict_to_user_countries">
+                  <Label htmlFor="restrict_to_user_countries">
                     Restrict to Countries (Optional)
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id="restrict_to_user_countries"
                     name="restrict_to_user_countries"
                     defaultValue={settings.call_icons?.restrict_to_user_countries?.join(
@@ -241,8 +241,8 @@ export function CallingSettingsForm({
                   </p>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Callback Permission Prompt</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Callback Permission Prompt</Label>
+                  <Select
                     name="callback_permission_status"
                     defaultValue={
                       settings.callback_permission_status || 'DISABLED'
@@ -257,21 +257,21 @@ export function CallingSettingsForm({
                       </ZoruSelectItem>
                       <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
           </ZoruAccordionContent>
         </ZoruAccordionItem>
 
         <ZoruAccordionItem value="hours">
           <ZoruAccordionTrigger>Business Hours</ZoruAccordionTrigger>
           <ZoruAccordionContent className="pt-2">
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Business Hours Status</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Business Hours Status</Label>
+                  <Select
                     name="call_hours_status"
                     defaultValue={settings.call_hours?.status || 'DISABLED'}
                   >
@@ -282,11 +282,11 @@ export function CallingSettingsForm({
                       <ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem>
                       <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Timezone</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Timezone</Label>
+                  <Select
                     name="timezone_id"
                     defaultValue={settings.call_hours?.timezone_id}
                   >
@@ -300,7 +300,7 @@ export function CallingSettingsForm({
                         </ZoruSelectItem>
                       ))}
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <WeeklyHoursEditor
                   hours={weeklyHours}
@@ -311,18 +311,18 @@ export function CallingSettingsForm({
                   onChange={setHolidaySchedule}
                 />
               </div>
-            </ZoruCard>
+            </Card>
           </ZoruAccordionContent>
         </ZoruAccordionItem>
 
         <ZoruAccordionItem value="sip">
           <ZoruAccordionTrigger>SIP Integration</ZoruAccordionTrigger>
           <ZoruAccordionContent className="pt-2">
-            <ZoruCard className="p-5">
+            <Card className="p-5">
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>SIP Status</ZoruLabel>
-                  <ZoruSelect
+                  <Label>SIP Status</Label>
+                  <Select
                     name="sip_status"
                     defaultValue={settings.sip?.status || 'DISABLED'}
                   >
@@ -333,26 +333,26 @@ export function CallingSettingsForm({
                       <ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem>
                       <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>SIP Hostname</ZoruLabel>
-                  <ZoruInput
+                  <Label>SIP Hostname</Label>
+                  <Input
                     name="sip_hostname"
                     defaultValue={settings.sip?.servers?.[0]?.hostname || ''}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>SIP Port</ZoruLabel>
-                  <ZoruInput
+                  <Label>SIP Port</Label>
+                  <Input
                     type="number"
                     name="sip_port"
                     defaultValue={settings.sip?.servers?.[0]?.port || ''}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>SIP URI Params (JSON)</ZoruLabel>
-                  <ZoruTextarea
+                  <Label>SIP URI Params (JSON)</Label>
+                  <Textarea
                     name="sip_params"
                     placeholder='{ "transport": "tcp" }'
                     defaultValue={
@@ -367,10 +367,10 @@ export function CallingSettingsForm({
                   />
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
           </ZoruAccordionContent>
         </ZoruAccordionItem>
-      </ZoruAccordion>
+      </Accordion>
 
       <div className="mt-8 flex justify-end">
         <SaveButton />

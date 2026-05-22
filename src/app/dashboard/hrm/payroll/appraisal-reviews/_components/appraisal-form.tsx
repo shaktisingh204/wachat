@@ -84,14 +84,14 @@ const INITIAL_STATE: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create review'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -168,7 +168,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="reviewId" value={initialData!._id} />
@@ -178,8 +178,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                 {/* Row 1: Employee name + Employee id */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name *</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             required
@@ -188,8 +188,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="Optional — internal id"
@@ -201,8 +201,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                 {/* Row 2: Reviewer + Period */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="reviewer">Reviewer</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="reviewer">Reviewer</Label>
+                        <Input
                             id="reviewer"
                             name="reviewer"
                             placeholder="Reviewer name"
@@ -210,8 +210,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="period">Period</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="period">Period</Label>
+                        <Input
                             id="period"
                             name="period"
                             placeholder="Q1 2026 / Annual FY 25-26"
@@ -223,8 +223,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                 {/* KPI repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>KPIs</ZoruLabel>
-                        <ZoruButton
+                        <Label>KPIs</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -232,10 +232,10 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add KPI
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">
@@ -257,7 +257,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                 {kpis.map((row, i) => (
                                     <ZoruTableRow key={i} className="border-zoru-line">
                                         <ZoruTableCell>
-                                            <ZoruInput
+                                            <Input
                                                 value={row.name}
                                                 onChange={(e) =>
                                                     updateKpi(i, { name: e.target.value })
@@ -267,7 +267,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruInput
+                                            <Input
                                                 value={row.target}
                                                 onChange={(e) =>
                                                     updateKpi(i, { target: e.target.value })
@@ -278,7 +278,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruInput
+                                            <Input
                                                 value={row.achieved}
                                                 onChange={(e) =>
                                                     updateKpi(i, { achieved: e.target.value })
@@ -289,7 +289,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruInput
+                                            <Input
                                                 value={row.score}
                                                 onChange={(e) =>
                                                     updateKpi(i, { score: e.target.value })
@@ -302,27 +302,27 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => removeKpi(i)}
                                             >
                                                 <Trash2 className="h-4 w-4 text-destructive" />
-                                            </ZoruButton>
+                                            </Button>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 </div>
 
                 {/* Row 4: Overall rating + Status + Finalized at */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="overallRating">Overall rating (1–5)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="overallRating">Overall rating (1–5)</Label>
+                        <Input
                             id="overallRating"
                             name="overallRating"
                             type="number"
@@ -338,7 +338,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="appraisalFormStatus"
@@ -349,8 +349,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="finalizedAt">Finalized at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="finalizedAt">Finalized at</Label>
+                        <Input
                             id="finalizedAt"
                             name="finalizedAt"
                             type="date"
@@ -361,8 +361,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
 
                 {/* Comments */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="comments">Comments</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="comments">Comments</Label>
+                    <Textarea
                         id="comments"
                         name="comments"
                         rows={4}
@@ -373,15 +373,15 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to reviews
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

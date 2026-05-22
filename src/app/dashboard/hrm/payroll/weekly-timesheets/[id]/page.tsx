@@ -184,32 +184,32 @@ export default function WeeklyTimesheetDetailPage() {
       actions={
         <div className="flex items-center gap-2">
           {sheet.status === 'draft' && (
-            <ZoruButton
+            <Button
               onClick={handleSubmit}
               disabled={isSaving}
             >
               <Send className="h-4 w-4" strokeWidth={1.75} />
               Submit
-            </ZoruButton>
+            </Button>
           )}
           {sheet.status === 'submitted' && (
             <>
-              <ZoruButton
+              <Button
                 variant="outline"
                 onClick={handleApprove}
                 disabled={isSaving}
               >
                 <Check className="h-4 w-4" strokeWidth={1.75} />
                 Approve
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 onClick={handleReject}
                 disabled={isSaving}
               >
                 <X className="h-4 w-4" strokeWidth={1.75} />
                 Reject
-              </ZoruButton>
+              </Button>
             </>
           )}
         </div>
@@ -218,30 +218,30 @@ export default function WeeklyTimesheetDetailPage() {
 
       {/* Summary bar */}
       <div className="flex flex-wrap gap-4">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <p className="text-[12px] text-zoru-ink-muted">Status</p>
           <div className="mt-1">
-            <ZoruBadge variant={STATUS_VARIANT[sheet.status]}>
+            <Badge variant={STATUS_VARIANT[sheet.status]}>
               {sheet.status}
-            </ZoruBadge>
+            </Badge>
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-6">
+        </Card>
+        <Card className="p-6">
           <p className="text-[12px] text-zoru-ink-muted">Total Hours</p>
           <p className="mt-1 text-[22px] text-zoru-ink">
             {sheet.total_hours}h {String(sheet.total_minutes ?? 0).padStart(2, '0')}m
           </p>
-        </ZoruCard>
+        </Card>
         {sheet.reason && (
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <p className="text-[12px] text-zoru-ink-muted">Rejection Reason</p>
             <p className="mt-1 text-[13px] text-zoru-danger-ink">{sheet.reason}</p>
-          </ZoruCard>
+          </Card>
         )}
       </div>
 
       {/* Timesheet grid */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[16px] text-zoru-ink">Hours Grid</h2>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full min-w-[700px] text-[13px]">
@@ -320,7 +320,7 @@ export default function WeeklyTimesheetDetailPage() {
             Timesheet is {sheet.status} — editing is disabled.
           </p>
         )}
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

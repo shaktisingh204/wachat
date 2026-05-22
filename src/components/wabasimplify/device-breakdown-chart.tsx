@@ -83,12 +83,12 @@ function EmptyState({ message }: { message: string }) {
 export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartProps) {
   if (isLoading) {
     return (
-      <ZoruCard className="p-5 space-y-5">
-        <ZoruSkeleton className="h-5 w-36" />
-        <ZoruSkeleton className="h-[180px] w-full rounded-lg" />
-        <ZoruSkeleton className="h-[140px] w-full rounded-lg" />
-        <ZoruSkeleton className="h-[140px] w-full rounded-lg" />
-      </ZoruCard>
+      <Card className="p-5 space-y-5">
+        <Skeleton className="h-5 w-36" />
+        <Skeleton className="h-[180px] w-full rounded-lg" />
+        <Skeleton className="h-[140px] w-full rounded-lg" />
+        <Skeleton className="h-[140px] w-full rounded-lg" />
+      </Card>
     );
   }
 
@@ -97,7 +97,7 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
   const os = (data?.os ?? []).slice(0, 5);
 
   return (
-    <ZoruCard className="p-5 space-y-6">
+    <Card className="p-5 space-y-6">
       <div className="flex items-center gap-2">
         <Monitor className="h-4 w-4 text-zoru-ink-muted" />
         <span className="text-[13px] text-zoru-ink">Device Breakdown</span>
@@ -215,6 +215,6 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
           </ResponsiveContainer>
         )}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

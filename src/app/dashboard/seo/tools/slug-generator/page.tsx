@@ -27,8 +27,8 @@ export default function SlugGeneratorPage() {
   return (
     <ToolShell title="Slug Generator" description="Convert any title or phrase into a URL-safe slug.">
       <div className="flex flex-col gap-3">
-        <ZoruLabel>Text</ZoruLabel>
-        <ZoruTextarea
+        <Label>Text</Label>
+        <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter a title or sentence…"
@@ -37,15 +37,15 @@ export default function SlugGeneratorPage() {
       </div>
 
       {slug && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
-            <ZoruLabel>Generated slug</ZoruLabel>
+            <Label>Generated slug</Label>
             <div className="font-mono text-lg break-all">{slug}</div>
-            <ZoruButton variant="outline" onClick={copy}>
+            <Button variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

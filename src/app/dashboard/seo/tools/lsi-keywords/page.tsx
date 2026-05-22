@@ -27,22 +27,22 @@ export default function LsiKeywordsPage() {
   return (
     <ToolShell title="LSI Keywords" description="Generate latent semantic (related) terms for a seed keyword.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <ZoruButton onClick={run}>Generate LSI</ZoruButton>
+        <Button onClick={run}>Generate LSI</Button>
       </div>
       {results.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 flex flex-wrap gap-2">
             {results.map((r) => (
-              <ZoruBadge key={r} variant="outline" className="text-sm">{r}</ZoruBadge>
+              <Badge key={r} variant="outline" className="text-sm">{r}</Badge>
             ))}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

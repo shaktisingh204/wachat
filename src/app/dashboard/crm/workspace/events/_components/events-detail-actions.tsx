@@ -94,17 +94,17 @@ export function EventsDetailActions({
 
     return (
         <>
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/workspace/events/${eventId}/edit`}>
                     <Pencil className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
+            </Button>
 
-            <ZoruDropdownMenu>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton variant="outline" size="sm">
+                    <Button variant="outline" size="sm">
                         RSVP <ChevronDown className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuLabel>Mark me as…</ZoruDropdownMenuLabel>
@@ -119,33 +119,33 @@ export function EventsDetailActions({
                         <XIcon className="h-3.5 w-3.5" /> Decline
                     </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
 
-            <ZoruButton variant="outline" size="sm" onClick={handleCopyInvite}>
+            <Button variant="outline" size="sm" onClick={handleCopyInvite}>
                 <Send className="h-3.5 w-3.5" /> Invite
-            </ZoruButton>
+            </Button>
 
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/crm/workspace/events/${eventId}/edit`}>
                     <CalendarX className="h-3.5 w-3.5" /> Reschedule
                 </Link>
-            </ZoruButton>
+            </Button>
 
             {onlineLink ? (
-                <ZoruButton variant="ghost" size="sm" onClick={handleCopyMeetLink}>
+                <Button variant="ghost" size="sm" onClick={handleCopyMeetLink}>
                     <Copy className="h-3.5 w-3.5" /> Copy meet link
-                </ZoruButton>
+                </Button>
             ) : null}
 
-            <ZoruButton asChild variant="ghost" size="sm">
+            <Button asChild variant="ghost" size="sm">
                 <Link href={`/dashboard/crm/workspace/events/${eventId}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
+            </Button>
 
-            <ZoruButton variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={confirmDelete}

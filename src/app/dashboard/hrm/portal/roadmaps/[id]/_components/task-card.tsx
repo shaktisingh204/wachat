@@ -77,7 +77,7 @@ export function TaskCard({
   isDragging,
 }: TaskCardProps) {
   return (
-    <ZoruCard
+    <Card
       draggable={draggable}
       onDragStart={onDragStart}
       className={[
@@ -94,12 +94,12 @@ export function TaskCard({
 
       {/* Badges row */}
       <div className="mb-3 flex flex-wrap items-center gap-1.5">
-        <ZoruBadge variant={PRIORITY_VARIANT[task.priority]}>
+        <Badge variant={PRIORITY_VARIANT[task.priority]}>
           {PRIORITY_LABEL[task.priority]}
-        </ZoruBadge>
-        <ZoruBadge variant={STATUS_VARIANT[task.status]}>
+        </Badge>
+        <Badge variant={STATUS_VARIANT[task.status]}>
           {STATUS_LABEL[task.status]}
-        </ZoruBadge>
+        </Badge>
       </div>
 
       {/* Footer */}
@@ -129,7 +129,7 @@ export function TaskCard({
 
       {/* Mark done button */}
       {task.status !== 'done' && (
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           className="mt-3 w-full"
@@ -140,8 +140,8 @@ export function TaskCard({
         >
           <CheckCircle2 className="h-4 w-4" />
           Mark Done
-        </ZoruButton>
+        </Button>
       )}
-    </ZoruCard>
+    </Card>
   );
 }

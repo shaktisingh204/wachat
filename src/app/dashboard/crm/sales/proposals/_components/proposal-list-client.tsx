@@ -376,22 +376,22 @@ export function ProposalListClient({
         }}
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" asChild>
+            <Button variant="outline" asChild>
               <Link href="/dashboard/crm/sales/proposals/templates">
                 <LayoutTemplate className="h-4 w-4" /> Templates
               </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
+            </Button>
+            <Button asChild>
               <Link href="/dashboard/crm/sales/proposals/new">
                 <Plus className="h-4 w-4" /> New proposal
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
             {[ALL, ...WS_PROPOSAL_STATUSES].map((s) => (
-              <ZoruButton
+              <Button
                 key={s}
                 size="sm"
                 variant={statusFilter === s ? 'default' : 'outline'}
@@ -399,16 +399,16 @@ export function ProposalListClient({
                 className="h-7 text-[12px]"
               >
                 {s === ALL ? 'All' : statusLabels[s] ?? s}
-              </ZoruButton>
+              </Button>
             ))}
-            <ZoruInput
+            <Input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
               className="h-7 w-[140px] text-[12px]"
               aria-label="From date"
             />
-            <ZoruInput
+            <Input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
@@ -416,14 +416,14 @@ export function ProposalListClient({
               aria-label="To date"
             />
             {filtersActive ? (
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => { setStatusFilter(ALL); setDateFrom(''); setDateTo(''); }}
                 className="h-7 text-[12px]"
               >
                 <X className="h-3 w-3" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
@@ -433,29 +433,29 @@ export function ProposalListClient({
               <span className="text-[12.5px] text-zoru-ink">
                 {selected.size} selected
               </span>
-              <ZoruButton size="sm" variant="ghost" onClick={bulkExport}>
+              <Button size="sm" variant="ghost" onClick={bulkExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={bulkExportXlsx}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={bulkExportXlsx}>
                 <Download className="h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setPendingBulkArchive(true)}
               >
                 <Archive className="h-3.5 w-3.5" /> Archive
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setPendingBulkDelete(true)}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
                 <X className="h-3.5 w-3.5" /> Clear selection
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -467,11 +467,11 @@ export function ProposalListClient({
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Create a proposal to start sending to customers.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/proposals/new">
                   <Plus className="h-4 w-4" /> New proposal
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -504,12 +504,12 @@ export function ProposalListClient({
             </div>
           </div>
 
-          <ZoruCard className="overflow-hidden p-0">
-            <ZoruTable>
+          <Card className="overflow-hidden p-0">
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-[36px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
@@ -545,7 +545,7 @@ export function ProposalListClient({
                         data-state={isSelected ? 'selected' : undefined}
                       >
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${p.proposal_number}`}
@@ -581,8 +581,8 @@ export function ProposalListClient({
                   })
                 )}
               </ZoruTableBody>
-            </ZoruTable>
-          </ZoruCard>
+            </Table>
+          </Card>
         </div>
       </EntityListShell>
 

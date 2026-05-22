@@ -96,7 +96,7 @@ export function ApiKeyCreateDialog({
   }, [rawKey]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -120,7 +120,7 @@ export function ApiKeyCreateDialog({
             </div>
             <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 p-2">
               <code className="flex-1 truncate text-xs text-zoru-ink">{rawKey}</code>
-              <ZoruButton
+              <Button
                 type="button"
                 size="sm"
                 variant="outline"
@@ -128,17 +128,17 @@ export function ApiKeyCreateDialog({
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? 'Copied' : 'Copy'}
-              </ZoruButton>
+              </Button>
             </div>
             <ZoruDialogFooter>
-              <ZoruButton onClick={() => onOpenChange(false)}>Done</ZoruButton>
+              <Button onClick={() => onOpenChange(false)}>Done</Button>
             </ZoruDialogFooter>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="api-key-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="api-key-name">Name</Label>
+              <Input
                 id="api-key-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -147,7 +147,7 @@ export function ApiKeyCreateDialog({
               />
             </div>
             <div className="space-y-2">
-              <ZoruLabel>Scopes</ZoruLabel>
+              <Label>Scopes</Label>
               <div className="grid grid-cols-2 gap-2">
                 {AVAILABLE_SCOPES.map((s) => {
                   const checked = scopes.includes(s.value);
@@ -158,7 +158,7 @@ export function ApiKeyCreateDialog({
                       htmlFor={inputId}
                       className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-2 text-sm hover:bg-zoru-surface-2"
                     >
-                      <ZoruCheckbox
+                      <Checkbox
                         id={inputId}
                         checked={checked}
                         onCheckedChange={() => toggleScope(s.value)}
@@ -175,16 +175,16 @@ export function ApiKeyCreateDialog({
               </div>
             </div>
             <ZoruDialogFooter>
-              <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
-              </ZoruButton>
-              <ZoruButton onClick={handleCreate} disabled={pending}>
+              </Button>
+              <Button onClick={handleCreate} disabled={pending}>
                 Create key
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </div>
         )}
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

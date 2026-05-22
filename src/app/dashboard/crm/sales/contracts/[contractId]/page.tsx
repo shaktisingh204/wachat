@@ -86,11 +86,11 @@ export default async function ContractDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Could not load this contract — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/contracts">
               Back to Contracts
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -108,21 +108,21 @@ export default async function ContractDetailPage({
       back={{ href: '/dashboard/crm/sales/contracts', label: 'All contracts' }}
       actions={
         <>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href={`/dashboard/crm/sales/contracts/${contractId}/edit`}>
               <Pencil className="h-4 w-4" /> Edit
             </Link>
-          </ZoruButton>
-          <ZoruButton asChild>
+          </Button>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/contracts/new">
               <Plus className="h-4 w-4" /> New contract
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
     >
       {/* Main details card */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Contract details
         </h3>
@@ -149,7 +149,7 @@ export default async function ContractDetailPage({
           </Field>
           <Field label="E-sign provider">{capitalize(contract.esignProvider)}</Field>
           <Field label="Status">
-            <ZoruBadge
+            <Badge
               variant={
                 status === 'active' || status === 'renewed'
                   ? 'success'
@@ -161,7 +161,7 @@ export default async function ContractDetailPage({
               }
             >
               {capitalize(status)}
-            </ZoruBadge>
+            </Badge>
           </Field>
           {contract.scope ? (
             <Field label="Scope" fullWidth>
@@ -178,11 +178,11 @@ export default async function ContractDetailPage({
             </Field>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Attachments */}
       {Array.isArray(contract.attachments) && contract.attachments.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Attachments
           </h3>
@@ -201,7 +201,7 @@ export default async function ContractDetailPage({
               </li>
             ))}
           </ul>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Meta footer */}

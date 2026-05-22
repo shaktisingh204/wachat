@@ -39,26 +39,26 @@ export default function GaTagGeneratorPage() {
       title="GA4 Tag Generator"
       description="Generate the Google Analytics 4 gtag.js snippet for your website."
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-3">
-          <ZoruLabel htmlFor="ga-id">GA4 Measurement ID</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="ga-id">GA4 Measurement ID</Label>
+          <Input
             id="ga-id"
             value={id}
             onChange={(e) => setId(e.target.value)}
             placeholder="G-XXXXXXXXXX"
           />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <ZoruLabel>Generated snippet</ZoruLabel>
-          <ZoruButton size="sm" variant="outline" onClick={handleCopy}>
+          <Label>Generated snippet</Label>
+          <Button size="sm" variant="outline" onClick={handleCopy}>
             {copied ? 'Copied!' : 'Copy'}
-          </ZoruButton>
+          </Button>
         </div>
-        <ZoruTextarea readOnly value={snippet} className="min-h-[220px] font-mono text-xs" />
+        <Textarea readOnly value={snippet} className="min-h-[220px] font-mono text-xs" />
         <p className="text-xs text-muted-foreground">
           Paste this snippet just before the closing &lt;/head&gt; tag on every page you want to track.
         </p>

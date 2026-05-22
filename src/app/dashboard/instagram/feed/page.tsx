@@ -31,18 +31,18 @@ function FeedPageSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {[...Array(8)].map((_, i) => (
-        <ZoruCard key={i} className="p-0">
+        <Card key={i} className="p-0">
           <ZoruCardHeader>
-            <ZoruSkeleton className="h-4 w-3/4" />
-            <ZoruSkeleton className="h-3 w-1/4" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/4" />
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ZoruSkeleton className="aspect-square w-full" />
+            <Skeleton className="aspect-square w-full" />
           </ZoruCardContent>
           <ZoruCardFooter>
-            <ZoruSkeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
           </ZoruCardFooter>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );
@@ -86,11 +86,11 @@ export default function InstagramFeedPage() {
 
   if (error) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertTitle>Error Loading Feed</ZoruAlertTitle>
         <ZoruAlertDescription>{error}</ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
@@ -106,7 +106,7 @@ export default function InstagramFeedPage() {
         />
       )}
       <div className="flex flex-col gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>
               <span className="inline-flex items-center gap-3">
@@ -118,10 +118,10 @@ export default function InstagramFeedPage() {
               Browse recent posts from your connected Instagram account.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {media.map((item) => (
-            <ZoruCard key={item.id} className="flex flex-col p-0">
+            <Card key={item.id} className="flex flex-col p-0">
               <ZoruCardHeader>
                 <p className="text-xs text-zoru-ink-muted">
                   {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
@@ -153,22 +153,22 @@ export default function InstagramFeedPage() {
                   <span className="flex items-center gap-1">
                     <ThumbsUp className="h-4 w-4" /> {item.like_count}
                   </span>
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="sm"
                     className="p-1 h-auto flex items-center gap-1"
                     onClick={() => setViewingCommentsFor(item)}
                   >
                     <MessageSquare className="h-4 w-4" /> {item.comments_count}
-                  </ZoruButton>
+                  </Button>
                 </div>
-                <ZoruButton variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" asChild>
                   <Link href={`/dashboard/instagram/media/${item.id}`}>
                     <Eye className="h-4 w-4" />
                   </Link>
-                </ZoruButton>
+                </Button>
               </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       </div>

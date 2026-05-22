@@ -115,7 +115,7 @@ export default function IntegrationsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -125,16 +125,16 @@ export default function IntegrationsPage() {
             <ZoruBreadcrumbPage>{t('settings.integrations.title')}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>{t('settings.integrations.title')}</ZoruPageTitle>
           <ZoruPageDescription>
             {t('settings.integrations.subtitle')}
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex flex-wrap gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
@@ -155,7 +155,7 @@ export default function IntegrationsPage() {
           ))}
         </div>
         <div className="ml-auto w-full sm:w-64">
-          <ZoruInput
+          <Input
             placeholder={t('settings.integrations.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -168,15 +168,15 @@ export default function IntegrationsPage() {
         {visible.map((i) => {
           const Icon = i.icon;
           return (
-            <ZoruCard key={i.id} className="flex flex-col gap-3 p-5">
+            <Card key={i.id} className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
                   <Icon className="h-5 w-5" />
                 </div>
                 {i.connected ? (
-                  <ZoruBadge variant="success">{t('settings.integrations.status.connected')}</ZoruBadge>
+                  <Badge variant="success">{t('settings.integrations.status.connected')}</Badge>
                 ) : (
-                  <ZoruBadge variant="ghost">{t('settings.integrations.status.available')}</ZoruBadge>
+                  <Badge variant="ghost">{t('settings.integrations.status.available')}</Badge>
                 )}
               </div>
               <div>
@@ -187,20 +187,20 @@ export default function IntegrationsPage() {
               </div>
               <div className="mt-auto">
                 {i.connected ? (
-                  <ZoruButton variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm">
                     <Check className="h-4 w-4" /> {t('settings.integrations.manage')}
-                  </ZoruButton>
+                  </Button>
                 ) : (
-                  <ZoruButton size="sm">{t('action.connect')}</ZoruButton>
+                  <Button size="sm">{t('action.connect')}</Button>
                 )}
               </div>
-            </ZoruCard>
+            </Card>
           );
         })}
       </div>
 
       {visible.length === 0 && (
-        <ZoruEmptyState
+        <EmptyState
           title={t('settings.integrations.empty.title')}
           description={t('settings.integrations.empty.description')}
         />

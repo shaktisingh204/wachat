@@ -231,7 +231,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                 ) : null}
 
                 {/* ─── Profile ─────────────────────────────────── */}
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Profile</ZoruCardTitle>
                         <ZoruCardDescription>
@@ -241,8 +241,8 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                     </ZoruCardHeader>
                     <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2 md:col-span-2">
-                            <ZoruLabel htmlFor="name">Company name *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="name">Company name *</Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 value={name}
@@ -255,7 +255,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Industry</ZoruLabel>
+                            <Label>Industry</Label>
                             <EntityFormField
                                 entity="industry"
                                 name="industry"
@@ -269,8 +269,8 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="website">Website</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="website">Website</Label>
+                            <Input
                                 id="website"
                                 name="website"
                                 type="url"
@@ -283,8 +283,8 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="phone">Phone</Label>
+                            <Input
                                 id="phone"
                                 name="phone"
                                 value={phone}
@@ -296,7 +296,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Category</ZoruLabel>
+                            <Label>Category</Label>
                             <EnumFormField
                                 enumName="accountCategory"
                                 name="category"
@@ -309,7 +309,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Logo</ZoruLabel>
+                            <Label>Logo</Label>
                             <SabFileUrlInput
                                 name="logoUrl"
                                 accept="image"
@@ -323,10 +323,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Address ─────────────────────────────────── */}
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Address</ZoruCardTitle>
                         <ZoruCardDescription>
@@ -335,7 +335,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                     </ZoruCardHeader>
                     <ZoruCardContent className="grid gap-4 md:grid-cols-3">
                         <div className="space-y-2">
-                            <ZoruLabel>Country</ZoruLabel>
+                            <Label>Country</Label>
                             <EntityFormField
                                 entity="country"
                                 name="country"
@@ -351,7 +351,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>State / Region</ZoruLabel>
+                            <Label>State / Region</Label>
                             <EntityFormField
                                 entity="state"
                                 name="state"
@@ -368,7 +368,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>City</ZoruLabel>
+                            <Label>City</Label>
                             <EntityFormField
                                 entity="city"
                                 name="city"
@@ -388,10 +388,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2 md:col-span-3">
-                            <ZoruLabel htmlFor="address">
+                            <Label htmlFor="address">
                                 Registered address
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="address"
                                 name="address"
                                 rows={2}
@@ -404,10 +404,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2 md:col-span-3 lg:col-span-3">
-                            <ZoruLabel htmlFor="billingAddress">
+                            <Label htmlFor="billingAddress">
                                 Billing address
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="billingAddress"
                                 name="billingAddress"
                                 rows={2}
@@ -420,10 +420,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2 md:col-span-3 lg:col-span-3">
-                            <ZoruLabel htmlFor="shippingAddress">
+                            <Label htmlFor="shippingAddress">
                                 Shipping address
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="shippingAddress"
                                 name="shippingAddress"
                                 rows={2}
@@ -436,10 +436,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Commercial ──────────────────────────────── */}
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Commercial</ZoruCardTitle>
                         <ZoruCardDescription>
@@ -448,7 +448,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                     </ZoruCardHeader>
                     <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel>Currency</ZoruLabel>
+                            <Label>Currency</Label>
                             <EntityFormField
                                 entity="currency"
                                 name="currency"
@@ -462,7 +462,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Payment terms</ZoruLabel>
+                            <Label>Payment terms</Label>
                             <EnumFormField
                                 enumName="paymentTermsLegacy"
                                 name="paymentTerms"
@@ -475,10 +475,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="annualRevenue">
+                            <Label htmlFor="annualRevenue">
                                 Annual revenue
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="annualRevenue"
                                 name="annualRevenue"
                                 type="number"
@@ -492,10 +492,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="employeeCount">
+                            <Label htmlFor="employeeCount">
                                 Employees
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="employeeCount"
                                 name="employeeCount"
                                 type="number"
@@ -509,10 +509,10 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* ─── Identifiers ─────────────────────────────── */}
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Identifiers</ZoruCardTitle>
                         <ZoruCardDescription>
@@ -521,8 +521,8 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                     </ZoruCardHeader>
                     <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="gstin">GSTIN</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="gstin">GSTIN</Label>
+                            <Input
                                 id="gstin"
                                 name="gstin"
                                 value={gstin}
@@ -535,8 +535,8 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="pan">PAN</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="pan">PAN</Label>
+                            <Input
                                 id="pan"
                                 name="pan"
                                 value={pan}
@@ -549,20 +549,20 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 {/* Sticky action bar */}
                 <div className="sticky bottom-0 z-10 -mx-1 border-t border-zoru-line bg-zoru-bg/95 px-1 py-3 backdrop-blur supports-[backdrop-filter]:bg-zoru-bg/75">
                     <div className="flex flex-wrap items-center justify-end gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             onClick={handleCancel}
                         >
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         {mode === 'create' ? (
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 disabled={pending}
@@ -570,26 +570,26 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             >
                                 <UserPlus className="h-4 w-4" /> Save & add
                                 contact
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                         {mode === 'create' ? (
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 disabled={pending}
                                 onClick={() => void submit('save_new')}
                             >
                                 Save & new
-                            </ZoruButton>
+                            </Button>
                         ) : null}
-                        <ZoruButton type="submit" disabled={pending}>
+                        <Button type="submit" disabled={pending}>
                             {pending ? (
                                 <LoaderCircle className="h-4 w-4 animate-spin" />
                             ) : (
                                 <Save className="h-4 w-4" />
                             )}
                             {mode === 'edit' ? 'Save changes' : 'Save account'}
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             </form>

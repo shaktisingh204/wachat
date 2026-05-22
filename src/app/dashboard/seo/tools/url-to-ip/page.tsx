@@ -29,15 +29,15 @@ export default function UrlToIpPage() {
   return (
     <ToolShell title="URL to IP" description="Resolve a URL or hostname to its IP addresses.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="example.com or https://example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Resolve'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="example.com or https://example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Resolve'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {result && (
-        <ZoruCard><ZoruCardContent className="p-4">
+        <Card><ZoruCardContent className="p-4">
           <div className="text-sm font-semibold mb-2">{result.host}</div>
           <pre className="text-xs bg-muted p-3 rounded overflow-auto">{JSON.stringify(result.records, null, 2)}</pre>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

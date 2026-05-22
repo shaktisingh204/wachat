@@ -54,11 +54,11 @@ export function CreateSeoProjectDialog() {
     }
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton className="gap-2">
+                <Button className="gap-2">
                     <Plus className="h-4 w-4" /> Add Project
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-[425px]">
                 <ZoruDialogHeader>
@@ -76,7 +76,7 @@ export function CreateSeoProjectDialog() {
                                 <FormItem>
                                     <FormLabel>Domain</FormLabel>
                                     <FormControl>
-                                        <ZoruInput placeholder="example.com" {...field} />
+                                        <Input placeholder="example.com" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Enter the root domain (without https://)
@@ -92,7 +92,7 @@ export function CreateSeoProjectDialog() {
                                 <FormItem>
                                     <FormLabel>Competitors (Optional)</FormLabel>
                                     <FormControl>
-                                        <ZoruInput placeholder="comp1.com, comp2.com" {...field} />
+                                        <Input placeholder="comp1.com, comp2.com" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Comma-separated list of competitor domains.
@@ -102,11 +102,11 @@ export function CreateSeoProjectDialog() {
                             )}
                         />
                         <ZoruDialogFooter>
-                            <ZoruButton type="submit">Create Project</ZoruButton>
+                            <Button type="submit">Create Project</Button>
                         </ZoruDialogFooter>
                     </form>
                 </Form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

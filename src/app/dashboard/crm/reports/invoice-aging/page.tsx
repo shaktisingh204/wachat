@@ -184,7 +184,7 @@ export default async function InvoiceAgingPage(props: {
       </div>
 
       {/* Chart */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-zoru-ink">By client</h2>
           <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -196,12 +196,12 @@ export default async function InvoiceAgingPage(props: {
         ) : (
           <AgingStackedBar data={byClient.slice(0, 10)} />
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Table with summary row */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Invoice</ZoruTableHead>
@@ -247,7 +247,7 @@ export default async function InvoiceAgingPage(props: {
                       <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.dueDate}</ZoruTableCell>
                       <ZoruTableCell className="text-right text-[13px] text-zoru-ink">{r.daysOverdue}</ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={bucketVariant[r.bucket]}>{r.bucket}</ZoruBadge>
+                        <Badge variant={bucketVariant[r.bucket]}>{r.bucket}</Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-danger-ink">
                         {fmtMoney(r.outstanding)}
@@ -276,9 +276,9 @@ export default async function InvoiceAgingPage(props: {
                 </>
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

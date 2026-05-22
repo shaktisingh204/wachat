@@ -19,10 +19,10 @@ export default function CompetitorsPage({ params }: { params: Promise<{ projectI
                     </h1>
                     <p className="text-zoru-ink-muted mt-1">Analyze where competitors are beating you.</p>
                 </div>
-                <ZoruButton variant="outline">Add Competitor</ZoruButton>
+                <Button variant="outline">Add Competitor</Button>
             </div>
 
-            <ZoruCard className="border-dashed bg-zoru-surface-2/50">
+            <Card className="border-dashed bg-zoru-surface-2/50">
                 <ZoruCardContent className="flex flex-col items-center justify-center py-20 text-center">
                     <div className="mb-4 rounded-full bg-zoru-bg p-4 shadow-[var(--zoru-shadow-sm)]">
                         <Swords className="h-10 w-10 text-zoru-ink-muted" />
@@ -55,12 +55,12 @@ export default function CompetitorsPage({ params }: { params: Promise<{ projectI
                         </div>
                     </div>
 
-                    <ZoruButton className="mt-8" disabled>
+                    <Button className="mt-8" disabled>
                         <Lock className="mr-2 h-4 w-4" />
                         Unlock Full Report (Premium)
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

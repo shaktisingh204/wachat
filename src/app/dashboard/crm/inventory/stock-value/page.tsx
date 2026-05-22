@@ -111,14 +111,14 @@ function KpiTile({
     icon: React.ElementType;
 }): React.JSX.Element {
     return (
-        <ZoruCard>
+        <Card>
             <div className="flex items-center justify-between">
                 <p className="text-[12.5px] font-medium text-muted-foreground">{label}</p>
                 <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
             </div>
             <p className="mt-2 truncate text-[22px] font-semibold text-foreground">{value}</p>
             {sub ? <p className="mt-0.5 truncate text-[11.5px] text-muted-foreground">{sub}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -202,21 +202,21 @@ export default function StockValueDeepPage(): React.JSX.Element {
             subtitle="Real-time valuation of every SKU across every warehouse."
             primaryAction={
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         onClick={handleCsv}
                         disabled={isLoading || exportRows.length === 0}
                     >
                         <Download className="mr-2 h-4 w-4" />
                         CSV
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="outline"
                         onClick={handleXlsx}
                         disabled={isLoading || exportRows.length === 0}
                     >
                         XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
@@ -247,7 +247,7 @@ export default function StockValueDeepPage(): React.JSX.Element {
                 />
             </div>
 
-            <ZoruCard className="mt-4">
+            <Card className="mt-4">
                 <h2 className="text-[16px] font-semibold text-foreground">Value by warehouse</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                     Where your inventory dollars are sitting.
@@ -286,12 +286,12 @@ export default function StockValueDeepPage(): React.JSX.Element {
                         </ResponsiveContainer>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="mt-4">
+            <Card className="mt-4">
                 <h2 className="text-[16px] font-semibold text-foreground">Valuation details</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Product</ZoruTableHead>
@@ -345,12 +345,12 @@ export default function StockValueDeepPage(): React.JSX.Element {
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
                 <p className="mt-4 text-[11.5px] text-muted-foreground">
                     Valuation uses each product&rsquo;s buying price (cost). If the cost is unset, the selling price is used as a fallback.
                 </p>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

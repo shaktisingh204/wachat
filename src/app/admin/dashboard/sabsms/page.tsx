@@ -69,7 +69,7 @@ export default async function SabsmsAdminOverviewPage() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>SabSMS</ZoruPageTitle>
           <ZoruPageDescription>
@@ -86,9 +86,9 @@ export default async function SabsmsAdminOverviewPage() {
             </Link>
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Engine</ZoruCardTitle>
           <ZoruCardDescription>
@@ -97,9 +97,9 @@ export default async function SabsmsAdminOverviewPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="flex flex-wrap items-center gap-3 text-sm">
           {health.reachable ? (
-            <ZoruBadge variant="default">healthy</ZoruBadge>
+            <Badge variant="default">healthy</Badge>
           ) : (
-            <ZoruBadge variant="destructive">unreachable</ZoruBadge>
+            <Badge variant="destructive">unreachable</Badge>
           )}
           {health.version && (
             <span className="text-slate-600">version {health.version}</span>
@@ -108,14 +108,14 @@ export default async function SabsmsAdminOverviewPage() {
             <span className="text-rose-600">{health.error}</span>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        <ZoruStatCard label="Total" value={counts.total.toLocaleString()} />
-        <ZoruStatCard label="Queued" value={counts.queued.toLocaleString()} />
-        <ZoruStatCard label="Sent" value={counts.sent.toLocaleString()} />
-        <ZoruStatCard label="Delivered" value={counts.delivered.toLocaleString()} />
-        <ZoruStatCard label="Failed" value={counts.failed.toLocaleString()} />
+        <StatCard label="Total" value={counts.total.toLocaleString()} />
+        <StatCard label="Queued" value={counts.queued.toLocaleString()} />
+        <StatCard label="Sent" value={counts.sent.toLocaleString()} />
+        <StatCard label="Delivered" value={counts.delivered.toLocaleString()} />
+        <StatCard label="Failed" value={counts.failed.toLocaleString()} />
       </div>
     </div>
   );

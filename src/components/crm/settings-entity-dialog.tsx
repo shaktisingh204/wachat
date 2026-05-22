@@ -56,7 +56,7 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
     } = props;
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="max-w-2xl">
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>
@@ -79,12 +79,12 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
                                 key={field.name}
                                 className={field.fullWidth ? 'md:col-span-2' : ''}
                             >
-                                <ZoruLabel htmlFor={field.name}>
+                                <Label htmlFor={field.name}>
                                     {field.label}
                                     {field.required ? (
                                         <span className="text-zoru-danger-ink"> *</span>
                                     ) : null}
-                                </ZoruLabel>
+                                </Label>
                                 <div className="mt-1.5">
                                     <FieldRenderer
                                         field={field}
@@ -109,22 +109,22 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
                         ))}
                     </div>
                     <ZoruDialogFooter className="gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton type="submit" disabled={isSaving}>
+                        </Button>
+                        <Button type="submit" disabled={isSaving}>
                             {isSaving ? (
                                 <LoaderCircle className="h-4 w-4 animate-spin" />
                             ) : null}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

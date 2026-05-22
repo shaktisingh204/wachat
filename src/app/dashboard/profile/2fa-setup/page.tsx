@@ -61,7 +61,7 @@ export default function TwoFactorSetupPage() {
         </p>
       </header>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="flex items-start justify-between gap-4 p-4">
           <div className="flex items-start gap-3">
             {isEnabled ? (
@@ -83,10 +83,10 @@ export default function TwoFactorSetupPage() {
           {isEnabled ? (
             <DisableButton onDone={refresh} />
           ) : (
-            <ZoruBadge variant="outline">Disabled</ZoruBadge>
+            <Badge variant="outline">Disabled</Badge>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="inline-flex rounded-md border border-zoru-line bg-zoru-bg p-1">
         <button
@@ -175,7 +175,7 @@ function EmailPanel({
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Email-based 2FA</ZoruCardTitle>
       </ZoruCardHeader>
@@ -188,24 +188,24 @@ function EmailPanel({
         {isMine ? (
           <div className="flex items-center justify-between rounded-md border border-emerald-200 bg-emerald-50/50 p-3">
             <p className="text-sm">Email 2FA is currently active.</p>
-            <ZoruButton variant="outline" onClick={onDisable} disabled={pending}>
+            <Button variant="outline" onClick={onDisable} disabled={pending}>
               {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Disable
-            </ZoruButton>
+            </Button>
           </div>
         ) : (
           <>
             <div className="flex flex-wrap items-end gap-3">
-              <ZoruButton onClick={onSend} disabled={pending}>
+              <Button onClick={onSend} disabled={pending}>
                 {pending && !sent ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 {sent ? 'Resend code' : 'Send verification code'}
-              </ZoruButton>
+              </Button>
             </div>
             {sent ? (
               <div className="space-y-2">
-                <ZoruLabel htmlFor="email-code">Enter the 6-digit code</ZoruLabel>
+                <Label htmlFor="email-code">Enter the 6-digit code</Label>
                 <div className="flex gap-2">
-                  <ZoruInput
+                  <Input
                     id="email-code"
                     inputMode="numeric"
                     maxLength={6}
@@ -213,10 +213,10 @@ function EmailPanel({
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="123456"
                   />
-                  <ZoruButton onClick={onVerify} disabled={pending || code.length !== 6}>
+                  <Button onClick={onVerify} disabled={pending || code.length !== 6}>
                     {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                     Verify & enable
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
             ) : null}
@@ -226,7 +226,7 @@ function EmailPanel({
         {msg ? <p className="text-xs text-emerald-700">{msg}</p> : null}
         {err ? <p className="text-xs text-red-600">{err}</p> : null}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -272,7 +272,7 @@ function TotpPanel({
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Authenticator app</ZoruCardTitle>
       </ZoruCardHeader>
@@ -288,10 +288,10 @@ function TotpPanel({
             to remove it (requires password).
           </p>
         ) : !setup ? (
-          <ZoruButton onClick={onStart} disabled={pending}>
+          <Button onClick={onStart} disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             Set up authenticator
-          </ZoruButton>
+          </Button>
         ) : (
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-[200px_1fr]">
@@ -314,9 +314,9 @@ function TotpPanel({
             </div>
 
             <div className="space-y-2">
-              <ZoruLabel htmlFor="totp-code">Enter the 6-digit code from the app</ZoruLabel>
+              <Label htmlFor="totp-code">Enter the 6-digit code from the app</Label>
               <div className="flex gap-2">
-                <ZoruInput
+                <Input
                   id="totp-code"
                   inputMode="numeric"
                   maxLength={6}
@@ -324,14 +324,14 @@ function TotpPanel({
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="123456"
                 />
-                <ZoruButton onClick={onVerify} disabled={pending || code.length !== 6}>
+                <Button onClick={onVerify} disabled={pending || code.length !== 6}>
                   {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                   Verify & enable
-                </ZoruButton>
+                </Button>
               </div>
             </div>
 
-            <ZoruSeparator />
+            <Separator />
 
             <div>
               <p className="text-sm font-medium">Backup codes</p>
@@ -353,7 +353,7 @@ function TotpPanel({
         {msg ? <p className="text-xs text-emerald-700">{msg}</p> : null}
         {err ? <p className="text-xs text-red-600">{err}</p> : null}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -375,7 +375,7 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Backup codes</ZoruCardTitle>
       </ZoruCardHeader>
@@ -384,10 +384,10 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
           You have <strong>{remaining}</strong> unused backup code{remaining === 1 ? '' : 's'}.
           Regenerating will invalidate any existing codes.
         </p>
-        <ZoruButton variant="outline" onClick={onRegen} disabled={pending}>
+        <Button variant="outline" onClick={onRegen} disabled={pending}>
           {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
           Regenerate codes
-        </ZoruButton>
+        </Button>
         {codes ? (
           <div className="grid grid-cols-2 gap-2 font-mono text-sm">
             {codes.map((c) => (
@@ -399,7 +399,7 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
         ) : null}
         {err ? <p className="text-xs text-red-600">{err}</p> : null}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -425,27 +425,27 @@ function DisableButton({ onDone }: { onDone: () => void }) {
 
   if (!open) {
     return (
-      <ZoruButton variant="outline" onClick={() => setOpen(true)}>
+      <Button variant="outline" onClick={() => setOpen(true)}>
         Disable 2FA
-      </ZoruButton>
+      </Button>
     );
   }
   return (
     <div className="flex items-center gap-2">
-      <ZoruInput
+      <Input
         type="password"
         placeholder="Confirm password"
         value={pwd}
         onChange={(e) => setPwd(e.target.value)}
         className="w-56"
       />
-      <ZoruButton onClick={onSubmit} disabled={pending || !pwd}>
+      <Button onClick={onSubmit} disabled={pending || !pwd}>
         {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
         Confirm
-      </ZoruButton>
-      <ZoruButton variant="ghost" onClick={() => { setOpen(false); setErr(null); }}>
+      </Button>
+      <Button variant="ghost" onClick={() => { setOpen(false); setErr(null); }}>
         Cancel
-      </ZoruButton>
+      </Button>
       {err ? <span className="text-xs text-red-600">{err}</span> : null}
     </div>
   );

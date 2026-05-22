@@ -57,12 +57,12 @@ function KpiSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {Array.from({ length: 6 }).map((_, i) => (
-        <ZoruCard key={i}>
+        <Card key={i}>
           <ZoruCardContent className="p-4">
             <div className="h-3 w-16 animate-pulse rounded-full bg-muted" />
             <div className="mt-3 h-7 w-20 animate-pulse rounded bg-muted" />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );
@@ -70,13 +70,13 @@ function KpiSkeleton() {
 
 function CampaignsSkeleton() {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="space-y-3 p-1">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />
         ))}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -96,10 +96,10 @@ function NoAccountState() {
           your Facebook & Instagram ad campaigns.
         </p>
       </div>
-      <ZoruButton variant="default" size="md" onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
+      <Button variant="default" size="md" onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
         <Plus className="mr-1.5 h-3.5 w-3.5" />
         Connect ad account
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -234,7 +234,7 @@ export default function AdManagerOverviewPage() {
             {kpis.map((kpi) => {
               const Icon = kpi.icon;
               return (
-                <ZoruCard key={kpi.id}>
+                <Card key={kpi.id}>
                   <ZoruCardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <Icon className={cn('h-4 w-4', kpi.color)} strokeWidth={2} />
@@ -248,7 +248,7 @@ export default function AdManagerOverviewPage() {
                       </p>
                     </div>
                   </ZoruCardContent>
-                </ZoruCard>
+                </Card>
               );
             })}
           </div>
@@ -261,29 +261,29 @@ export default function AdManagerOverviewPage() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <p className="text-[13px] font-semibold text-foreground">Top campaigns</p>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => router.push('/dashboard/ad-manager/campaigns')}
             >
               View all
               <ArrowRight className="ml-1 h-3 w-3" />
-            </ZoruButton>
+            </Button>
           </div>
 
           {loading ? (
             <CampaignsSkeleton />
           ) : topCampaigns.length === 0 ? (
-            <ZoruCard>
+            <Card>
               <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
                 <Megaphone className="h-6 w-6 text-muted-foreground/40" strokeWidth={1.5} />
                 <p className="text-[13px] text-muted-foreground">
                   No campaigns yet. Create your first campaign to see results here.
                 </p>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           ) : (
-            <ZoruCard>
+            <Card>
               <div className="divide-y divide-border">
                 {topCampaigns.map((c) => (
                   <Link
@@ -312,7 +312,7 @@ export default function AdManagerOverviewPage() {
                   </Link>
                 ))}
               </div>
-            </ZoruCard>
+            </Card>
           )}
         </div>
 
@@ -321,7 +321,7 @@ export default function AdManagerOverviewPage() {
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold text-foreground">Quick actions</p>
             <div className="flex items-center gap-1.5">
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="icon-sm"
                 className="h-7 w-7"
@@ -351,8 +351,8 @@ export default function AdManagerOverviewPage() {
                 }}
               >
                 <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')} strokeWidth={2} />
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="ghost"
                 size="icon-sm"
                 className="h-7 w-7"
@@ -368,11 +368,11 @@ export default function AdManagerOverviewPage() {
                 }}
               >
                 <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
-              </ZoruButton>
+              </Button>
             </div>
           </div>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-2 p-4">
               <QuickAction
                 label="Create campaign"
@@ -400,10 +400,10 @@ export default function AdManagerOverviewPage() {
                 onClick={() => router.push('/dashboard/ad-manager/pixels')}
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Account info */}
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="p-4">
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Active account
@@ -415,7 +415,7 @@ export default function AdManagerOverviewPage() {
                 {activeAccount.account_id}
               </p>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </div>
       </div>
     </>

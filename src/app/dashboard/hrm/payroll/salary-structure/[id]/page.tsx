@@ -75,15 +75,15 @@ export default async function SalaryStructureDetailPage({
             status={{ label: status, tone: tone as 'green' | 'neutral' }}
             back={{ href: BASE, label: 'Salary structures' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${id}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
@@ -202,7 +202,7 @@ export default async function SalaryStructureDetailPage({
                         {inr.format(net)}
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

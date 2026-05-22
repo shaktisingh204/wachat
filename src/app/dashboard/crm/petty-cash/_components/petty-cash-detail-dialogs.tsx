@@ -82,7 +82,7 @@ export function PettyCashTopUpDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Top up float</ZoruDialogTitle>
@@ -92,8 +92,8 @@ export function PettyCashTopUpDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="pt-amount">Amount</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="pt-amount">Amount</Label>
+            <Input
               id="pt-amount"
               type="number"
               inputMode="decimal"
@@ -104,8 +104,8 @@ export function PettyCashTopUpDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="pt-notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="pt-notes">Notes</Label>
+            <Textarea
               id="pt-notes"
               rows={3}
               value={notes}
@@ -116,15 +116,15 @@ export function PettyCashTopUpDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Top up'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -191,7 +191,7 @@ export function PettyCashVoucherDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Record voucher</ZoruDialogTitle>
@@ -201,7 +201,7 @@ export function PettyCashVoucherDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="pv-category">Category</ZoruLabel>
+            <Label htmlFor="pv-category">Category</Label>
             <select
               id="pv-category"
               value={category}
@@ -216,8 +216,8 @@ export function PettyCashVoucherDialog({
             </select>
           </div>
           <div>
-            <ZoruLabel htmlFor="pv-amount">Amount</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="pv-amount">Amount</Label>
+            <Input
               id="pv-amount"
               type="number"
               inputMode="decimal"
@@ -228,8 +228,8 @@ export function PettyCashVoucherDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="pv-payee">Payee</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="pv-payee">Payee</Label>
+            <Input
               id="pv-payee"
               value={payee}
               onChange={(e) => setPayee(e.target.value)}
@@ -238,8 +238,8 @@ export function PettyCashVoucherDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="pv-date">Date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="pv-date">Date</Label>
+            <Input
               id="pv-date"
               type="date"
               value={date}
@@ -249,15 +249,15 @@ export function PettyCashVoucherDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Record voucher'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -306,7 +306,7 @@ export function PettyCashReconcileDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Reconcile float</ZoruDialogTitle>
@@ -317,8 +317,8 @@ export function PettyCashReconcileDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="pr-counted">Counted amount</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="pr-counted">Counted amount</Label>
+            <Input
               id="pr-counted"
               type="number"
               inputMode="decimal"
@@ -329,8 +329,8 @@ export function PettyCashReconcileDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="pr-notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="pr-notes">Notes</Label>
+            <Textarea
               id="pr-notes"
               rows={3}
               value={notes}
@@ -341,14 +341,14 @@ export function PettyCashReconcileDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Reconcile'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

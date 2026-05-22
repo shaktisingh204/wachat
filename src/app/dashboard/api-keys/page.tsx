@@ -125,7 +125,7 @@ export default function ApiKeysPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -135,51 +135,51 @@ export default function ApiKeysPage() {
             <ZoruBreadcrumbPage>API keys</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>API keys</ZoruPageTitle>
             <ZoruPageDescription>
               Manage API keys for programmatic access to WhatsApp APIs.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton size="sm" onClick={() => setShowCreate(true)}>
+        </PageHeader>
+        <Button size="sm" onClick={() => setShowCreate(true)}>
           <Plus className="h-3.5 w-3.5" /> Create new key
-        </ZoruButton>
+        </Button>
       </div>
 
       {showCreate && (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <h2 className="mb-3 text-[15px] text-zoru-ink">New API key</h2>
           <div className="flex max-w-md gap-3">
-            <ZoruInput
+            <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
               placeholder="Key name (e.g. Production)"
               className="flex-1"
             />
-            <ZoruButton size="sm" onClick={handleCreate} disabled={!newName.trim() || isMutating}>
+            <Button size="sm" onClick={handleCreate} disabled={!newName.trim() || isMutating}>
               Create
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={() => setShowCreate(false)}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setShowCreate(false)}>
               Cancel
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {newlyCreatedKey && (
-        <ZoruAlert variant="success">
+        <Alert variant="success">
           <Key className="h-4 w-4" />
           <ZoruAlertTitle>New key created</ZoruAlertTitle>
           <ZoruAlertDescription>
             Copy it now — it will not be shown in full again.
             <code className="mt-1 block break-all font-mono text-xs">{newlyCreatedKey}</code>
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               className="mt-2"
@@ -190,20 +190,20 @@ export default function ApiKeysPage() {
             >
               <Copy className="h-3.5 w-3.5" />
               Copy key
-            </ZoruButton>
+            </Button>
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
-      <ZoruAlert variant="warning">
+      <Alert variant="warning">
         <ShieldAlert className="h-4 w-4" />
         <ZoruAlertDescription>
           Keep your API keys secure. Do not share them in public repositories or client-side code.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
 
       {keys.length > 0 ? (
-        <ZoruCard className="overflow-x-auto p-0">
+        <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -220,16 +220,16 @@ export default function ApiKeysPage() {
                   <td className="px-5 py-3 text-sm text-zoru-ink">{k.name}</td>
                   <td className="px-5 py-3 font-mono text-sm text-zoru-ink">{maskKey(k.key)}</td>
                   <td className="px-5 py-3">
-                    <ZoruBadge variant={k.isActive ? 'success' : 'danger'}>
+                    <Badge variant={k.isActive ? 'success' : 'danger'}>
                       {k.isActive ? 'Active' : 'Revoked'}
-                    </ZoruBadge>
+                    </Badge>
                   </td>
                   <td className="px-5 py-3 text-xs text-zoru-ink-muted">
                     {k.createdAt ? new Date(k.createdAt).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <ZoruButton
+                      <Button
                         size="icon-sm"
                         variant="ghost"
                         onClick={() => handleCopy(k.key, k._id)}
@@ -240,9 +240,9 @@ export default function ApiKeysPage() {
                         ) : (
                           <Copy className="h-3.5 w-3.5" />
                         )}
-                      </ZoruButton>
+                      </Button>
                       {k.isActive && (
-                        <ZoruButton
+                        <Button
                           size="icon-sm"
                           variant="ghost"
                           onClick={() => handleRevoke(k._id, k.name || 'Unnamed')}
@@ -250,7 +250,7 @@ export default function ApiKeysPage() {
                           aria-label="Revoke"
                         >
                           <Trash2 className="h-3.5 w-3.5 text-zoru-danger" />
-                        </ZoruButton>
+                        </Button>
                       )}
                     </div>
                   </td>
@@ -258,9 +258,9 @@ export default function ApiKeysPage() {
               ))}
             </tbody>
           </table>
-        </ZoruCard>
+        </Card>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Key className="h-12 w-12" />}
           title="No API keys yet"
           description="Create one to get started."

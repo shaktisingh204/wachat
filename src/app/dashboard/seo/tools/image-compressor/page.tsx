@@ -46,14 +46,14 @@ export default function ImageCompressorPage() {
 
   return (
     <ToolShell title="Image Compressor" description="Compress images client-side with adjustable JPEG quality.">
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <ZoruLabel>Image file</ZoruLabel>
-            <ZoruInput type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            <Label>Image file</Label>
+            <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
           <div>
-            <ZoruLabel>Quality: {quality.toFixed(2)}</ZoruLabel>
+            <Label>Quality: {quality.toFixed(2)}</Label>
             <input
               type="range"
               min={0.1}
@@ -64,14 +64,14 @@ export default function ImageCompressorPage() {
               className="w-full"
             />
           </div>
-          <ZoruButton onClick={compress} disabled={!file}>
+          <Button onClick={compress} disabled={!file}>
             Compress
-          </ZoruButton>
+          </Button>
           {err && <div className="text-sm text-destructive">{err}</div>}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
       {outUrl && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
@@ -89,7 +89,7 @@ export default function ImageCompressorPage() {
               Download compressed image
             </a>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

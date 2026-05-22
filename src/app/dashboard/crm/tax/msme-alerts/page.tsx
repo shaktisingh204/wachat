@@ -72,11 +72,11 @@ export default async function MsmeAlertsPage() {
                 title="MSME 45-day alerts"
                 subtitle="Indian MSMED Act 2006 & IT §43B(h) compliance."
             >
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-[13px] text-amber-700">
                         Could not load MSME alerts: {result.error}
                     </div>
-                </ZoruCard>
+                </Card>
             </EntityListShell>
         );
     }
@@ -116,7 +116,7 @@ export default async function MsmeAlertsPage() {
                 />
             </div>
 
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <div className="flex items-center justify-between gap-3 border-b border-border/60 px-4 py-3">
                     <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-rose-500" />
@@ -133,9 +133,9 @@ export default async function MsmeAlertsPage() {
                     </Link>
                 </div>
                 <MsmeAlertsTable rows={overdue} bucket="overdue" />
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <div className="flex items-center justify-between gap-3 border-b border-border/60 px-4 py-3">
                     <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-amber-500" />
@@ -146,7 +146,7 @@ export default async function MsmeAlertsPage() {
                     </div>
                 </div>
                 <MsmeAlertsTable rows={atRisk} bucket="at_risk" />
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

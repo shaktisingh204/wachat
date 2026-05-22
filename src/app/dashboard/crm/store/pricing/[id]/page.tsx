@@ -81,12 +81,12 @@ export default async function PricingRuleDetailPage({
                 label: 'Back to pricing rules',
             }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`/dashboard/crm/store/pricing/${id}/edit`}>
                         <Pencil className="h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
             audit={
                 <EntityAuditTimeline
@@ -95,7 +95,7 @@ export default async function PricingRuleDetailPage({
                 />
             }
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Rule details
                 </h2>
@@ -121,16 +121,16 @@ export default async function PricingRuleDetailPage({
                         </span>
                     </Field>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Conditions
                 </h2>
                 <pre className="overflow-x-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-[11.5px] text-zoru-ink">
                     {conditionsJson}
                 </pre>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

@@ -45,22 +45,22 @@ export default function FaviconGeneratorPage() {
 
   return (
     <ToolShell title="Favicon Generator" description="Generate favicon PNGs at 16, 32, 48 and 180 px.">
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <ZoruLabel>Source image (square works best)</ZoruLabel>
-            <ZoruInput type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            <Label>Source image (square works best)</Label>
+            <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
-          <ZoruButton onClick={generate} disabled={!file}>
+          <Button onClick={generate} disabled={!file}>
             Generate
-          </ZoruButton>
+          </Button>
           {err && <div className="text-sm text-destructive">{err}</div>}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
       {outputs.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {outputs.map((o) => (
-            <ZoruCard key={o.size}>
+            <Card key={o.size}>
               <ZoruCardContent className="p-4 text-center space-y-2">
                 <div className="text-sm text-muted-foreground">
                   {o.size}x{o.size}
@@ -71,7 +71,7 @@ export default function FaviconGeneratorPage() {
                   Download
                 </a>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       )}

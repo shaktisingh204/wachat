@@ -62,10 +62,10 @@ const initialState: { message: string | null; error: string | null; success?: bo
 function CreateSubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <PlusCircle />}
       {pending ? "Creating…" : "Create collection"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -105,7 +105,7 @@ export function CreateCollectionDialog({
   }, [state, toast, onOpenChange, onCreated]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
           <ZoruDialogHeader>
@@ -120,15 +120,15 @@ export function CreateCollectionDialog({
           <input type="hidden" name="catalogId" value={catalogId} />
 
           {state?.error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
 
           <div className="grid gap-1.5">
-            <ZoruLabel htmlFor="cc-name">Collection name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="cc-name">Collection name</Label>
+            <Input
               id="cc-name"
               name="name"
               placeholder="e.g. Summer Collection"
@@ -137,18 +137,18 @@ export function CreateCollectionDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <CreateSubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

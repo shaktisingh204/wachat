@@ -227,19 +227,19 @@ export default function TeamChatPage() {
     if (!canRead) {
         return (
             <div className="flex flex-col gap-6">
-                <ZoruCard className="p-10 text-center">
-                    <ZoruBadge variant="danger">Restricted</ZoruBadge>
+                <Card className="p-10 text-center">
+                    <Badge variant="danger">Restricted</Badge>
                     <p className="mt-3 text-[13px] text-zoru-ink-muted">
                         You don&apos;t have permission to view Team Chat.
                     </p>
-                </ZoruCard>
+                </Card>
             </div>
         );
     }
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -253,9 +253,9 @@ export default function TeamChatPage() {
                         <ZoruBreadcrumbPage>Chat</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Team chat</ZoruPageTitle>
                     <ZoruPageDescription>
@@ -264,26 +264,26 @@ export default function TeamChatPage() {
                 </ZoruPageHeading>
                 <div className="flex items-center gap-2">
                     {notifPerm === 'default' ? (
-                        <ZoruButton variant="outline" size="md" onClick={requestNotifPerm}>
+                        <Button variant="outline" size="md" onClick={requestNotifPerm}>
                             <Bell className="h-3.5 w-3.5" />
                             Enable notifications
-                        </ZoruButton>
+                        </Button>
                     ) : notifPerm === 'granted' ? (
-                        <ZoruBadge variant="success">Notifications on</ZoruBadge>
+                        <Badge variant="success">Notifications on</Badge>
                     ) : (
-                        <ZoruBadge variant="danger">Notifications blocked</ZoruBadge>
+                        <Badge variant="danger">Notifications blocked</Badge>
                     )}
                     {canSend ? (
                         <NewGroupDialog members={members} onCreated={reloadChannels} toast={toast} />
                     ) : null}
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
-            <ZoruCard className="flex h-[640px] overflow-hidden p-0">
+            <Card className="flex h-[640px] overflow-hidden p-0">
                 {/* ─── Sidebar ─────────────────── */}
                 <div className="flex w-[300px] shrink-0 flex-col border-r border-zoru-line bg-zoru-surface-2">
                     <div className="border-b border-zoru-line p-3">
-                        <ZoruInput
+                        <Input
                             leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
                             placeholder="Search conversations"
                             value={sidebarQuery}
@@ -375,7 +375,7 @@ export default function TeamChatPage() {
                                         </div>
                                     ) : null}
                                     <div className="flex items-center gap-2">
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="outline"
                                             size="icon"
@@ -384,7 +384,7 @@ export default function TeamChatPage() {
                                             title="Attach file"
                                         >
                                             <Paperclip className="h-4 w-4" />
-                                        </ZoruButton>
+                                        </Button>
                                         <input
                                             ref={fileInputRef}
                                             type="file"
@@ -407,14 +407,14 @@ export default function TeamChatPage() {
                                         >
                                             SabFiles
                                         </SabFileToFileButton>
-                                        <ZoruInput
+                                        <Input
                                             className="flex-1"
                                             placeholder="Message…"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
                                             disabled={sending}
                                         />
-                                        <ZoruButton
+                                        <Button
                                             type="submit"
                                             size="icon"
                                             disabled={sending || (!input.trim() && attachmentQueue.length === 0)}
@@ -425,7 +425,7 @@ export default function TeamChatPage() {
                                             ) : (
                                                 <Send className="h-4 w-4" />
                                             )}
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 </form>
                             ) : (
@@ -441,7 +441,7 @@ export default function TeamChatPage() {
                         </div>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -690,12 +690,12 @@ function NewGroupDialog({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton size="md">
+                <Button size="md">
                     <Plus className="h-3.5 w-3.5" />
                     New group
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="max-w-md">
                 <form onSubmit={submit} className="flex flex-col gap-4">
@@ -706,7 +706,7 @@ function NewGroupDialog({
                         <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
                             Group name
                         </label>
-                        <ZoruInput
+                        <Input
                             className="mt-1.5"
                             placeholder="Growth squad"
                             value={name}
@@ -758,21 +758,21 @@ function NewGroupDialog({
                         </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                        <ZoruButton type="button" variant="outline" size="md" onClick={() => setOpen(false)} disabled={pending}>
+                        <Button type="button" variant="outline" size="md" onClick={() => setOpen(false)} disabled={pending}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="submit"
                             size="md"
                             disabled={pending || !name.trim() || picked.size === 0}
                         >
                             {pending ? <Loader className="h-3.5 w-3.5 animate-spin" /> : null}
                             Create group
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 

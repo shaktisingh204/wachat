@@ -69,14 +69,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Generate run'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -113,7 +113,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="runId" value={initialData!._id} />
@@ -121,8 +121,8 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="period_month">Period month *</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="period_month">Period month *</Label>
+                        <Select
                             name="period_month"
                             defaultValue={String(
                                 initialData?.period_month ?? new Date().getMonth() + 1,
@@ -139,12 +139,12 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="period_year">Period year *</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="period_year">Period year *</Label>
+                        <Select
                             name="period_year"
                             defaultValue={String(
                                 initialData?.period_year ?? currentYear,
@@ -161,14 +161,14 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="run_date">Run date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="run_date">Run date</Label>
+                        <Input
                             id="run_date"
                             name="run_date"
                             type="date"
@@ -176,7 +176,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="payrollRunStatus"
@@ -188,8 +188,8 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -208,15 +208,15 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                 ) : null}
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to runs
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

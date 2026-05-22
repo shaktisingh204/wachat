@@ -22,11 +22,11 @@ export function InstagramEmbeddedSignup({ appId, state }: InstagramEmbeddedSignu
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
-        return <ZoruButton disabled size="lg">App URL not configured</ZoruButton>;
+        return <Button disabled size="lg">App URL not configured</Button>;
     }
 
     if (!isClient) {
-        return <ZoruButton disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin" />Loading...</ZoruButton>;
+        return <Button disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin" />Loading...</Button>;
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
@@ -36,12 +36,12 @@ export function InstagramEmbeddedSignup({ appId, state }: InstagramEmbeddedSignu
     const facebookLoginUrl = `/api/auth/meta-suite/login?state=${state}`;
 
     return (
-        <ZoruButton asChild size="lg" className="bg-instagram hover:bg-instagram/90 w-full">
+        <Button asChild size="lg" className="bg-instagram hover:bg-instagram/90 w-full">
             <a href={facebookLoginUrl}>
                 <InstagramIcon className="mr-2 h-5 w-5" />
                 Connect with Instagram
             </a>
-        </ZoruButton>
+        </Button>
     );
 }
 

@@ -210,7 +210,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
             {selectionCount > 0 && (
                 <div className="flex flex-wrap items-center gap-2 border-b border-border/60 bg-muted/40 px-4 py-2 text-[13px]">
                     <span className="font-medium">{selectionCount} selected</span>
-                    <ZoruButton
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={handleBulkPaid}
@@ -218,8 +218,8 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                     >
                         {bulkPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wallet className="h-3.5 w-3.5" />}
                         Mark paid
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={handleBulkExtension}
@@ -227,8 +227,8 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                     >
                         {bulkPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CalendarClock className="h-3.5 w-3.5" />}
                         Request extension
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={handleCsv}
@@ -236,8 +236,8 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                     >
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={handleXlsx}
@@ -245,25 +245,25 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                     >
                         <Download className="h-3.5 w-3.5" />
                         Export XLSX
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="ghost" onClick={clearSelection} disabled={bulkPending}>
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={clearSelection} disabled={bulkPending}>
                         <X className="h-3.5 w-3.5" />
                         Clear
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
             {/* Export all (no selection) */}
             {selectionCount === 0 && (
                 <div className="flex items-center justify-end gap-2 border-b border-border/60 px-4 py-2">
-                    <ZoruButton size="sm" variant="outline" onClick={handleCsv}>
+                    <Button size="sm" variant="outline" onClick={handleCsv}>
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" onClick={handleXlsx}>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleXlsx}>
                         <Download className="h-3.5 w-3.5" />
                         Export XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
@@ -280,7 +280,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                     <thead className="border-b border-border/60 bg-muted/30 text-[12px] uppercase tracking-wide text-muted-foreground">
                         <tr>
                             <th className="px-4 py-2 text-left font-medium">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                     onCheckedChange={toggleAll}
                                     aria-label="Select all"
@@ -309,7 +309,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                                     className={`border-b border-border/40 last:border-b-0 ${selected.has(r.billId) ? 'bg-muted/30' : ''}`}
                                 >
                                     <td className="px-4 py-2.5">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={selected.has(r.billId)}
                                             onCheckedChange={() => toggleRow(r.billId)}
                                             aria-label={`Select bill ${r.billNo ?? r.billId}`}
@@ -342,11 +342,11 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                                         {formatDate(r.billDate)}
                                     </td>
                                     <td className="px-4 py-2.5 text-right">
-                                        <ZoruBadge
+                                        <Badge
                                             variant={bucket === 'overdue' ? 'danger' : 'warning'}
                                         >
                                             {labelDays}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </td>
                                     <td className="px-4 py-2.5 text-right font-medium">
                                         {formatINR(r.amountOutstanding)}
@@ -359,18 +359,18 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                                             <Link
                                                 href={`/dashboard/crm/purchases/expenses/${r.billId}`}
                                             >
-                                                <ZoruButton variant="outline" size="sm">
+                                                <Button variant="outline" size="sm">
                                                     <Wallet className="h-3.5 w-3.5" />
                                                     Mark paid
-                                                </ZoruButton>
+                                                </Button>
                                             </Link>
                                             <Link
                                                 href={`/dashboard/crm/purchases/expenses/${r.billId}/edit`}
                                             >
-                                                <ZoruButton variant="ghost" size="sm">
+                                                <Button variant="ghost" size="sm">
                                                     <CalendarClock className="h-3.5 w-3.5" />
                                                     Negotiate extension
-                                                </ZoruButton>
+                                                </Button>
                                             </Link>
                                         </div>
                                     </td>

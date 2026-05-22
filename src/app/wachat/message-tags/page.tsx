@@ -197,22 +197,22 @@ export default function MessageTagsPage() {
         header: '',
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Edit"
               onClick={() => openEdit(row.original)}
             >
               <Pencil />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Delete"
               onClick={() => setDeleting(row.original)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -223,14 +223,14 @@ export default function MessageTagsPage() {
   if (isLoading && tags.length === 0) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruSkeleton className="h-3 w-52" />
+        <Skeleton className="h-3 w-52" />
         <div className="mt-5 space-y-3">
-          <ZoruSkeleton className="h-9 w-72" />
-          <ZoruSkeleton className="h-4 w-96" />
+          <Skeleton className="h-9 w-72" />
+          <Skeleton className="h-4 w-96" />
         </div>
         <div className="mt-8 grid gap-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-12" />
+            <Skeleton key={i} className="h-12" />
           ))}
         </div>
       </div>
@@ -239,7 +239,7 @@ export default function MessageTagsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -253,9 +253,9 @@ export default function MessageTagsPage() {
             <ZoruBreadcrumbPage>Message Tags</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>
             WaChat · {activeProject?.name ?? 'Project'}
@@ -266,38 +266,38 @@ export default function MessageTagsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={openCreate}>
+          <Button onClick={openCreate}>
             <Plus /> New tag
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6">
         {tags.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Tag />}
             title="No tags yet"
             description="Create tags to keep conversations organized and easy to filter."
             action={
-              <ZoruButton onClick={openCreate}>
+              <Button onClick={openCreate}>
                 <Plus /> New tag
-              </ZoruButton>
+              </Button>
             }
           />
         ) : (
-          <ZoruCard className="p-4">
-            <ZoruDataTable
+          <Card className="p-4">
+            <DataTable
               columns={columns}
               data={tags}
               filterColumn="name"
               filterPlaceholder="Search tags…"
             />
-          </ZoruCard>
+          </Card>
         )}
       </div>
 
       {/* Create / edit tag dialog */}
-      <ZoruDialog
+      <Dialog
         open={dialogOpen}
         onOpenChange={(open) => {
           setDialogOpen(open);
@@ -318,8 +318,8 @@ export default function MessageTagsPage() {
           </ZoruDialogHeader>
 
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="tag-name">Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="tag-name">Name</Label>
+            <Input
               id="tag-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -332,7 +332,7 @@ export default function MessageTagsPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Color</ZoruLabel>
+            <Label>Color</Label>
             <ZoruColorPicker
               value={color}
               onChange={setColor}
@@ -341,7 +341,7 @@ export default function MessageTagsPage() {
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => {
                 setDialogOpen(false);
@@ -350,16 +350,16 @@ export default function MessageTagsPage() {
               }}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={handleSave}
               disabled={isMutating || !name.trim()}
             >
               {editing ? 'Save changes' : 'Create tag'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Delete tag alert */}
       <ZoruAlertDialog

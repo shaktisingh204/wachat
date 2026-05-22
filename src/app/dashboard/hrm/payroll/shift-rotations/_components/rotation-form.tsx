@@ -73,14 +73,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create rotation'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -177,7 +177,7 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="rotationId" value={initialData!._id} />
@@ -187,8 +187,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
-                        <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -197,8 +197,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5 sm:col-span-2">
-                        <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
                             id="description"
                             name="description"
                             rows={2}
@@ -210,8 +210,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="Optional"
@@ -219,8 +219,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="departmentId">Department ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="departmentId">Department ID</Label>
+                        <Input
                             id="departmentId"
                             name="departmentId"
                             placeholder="Optional"
@@ -228,8 +228,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="teamId">Team ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="teamId">Team ID</Label>
+                        <Input
                             id="teamId"
                             name="teamId"
                             placeholder="Optional"
@@ -240,8 +240,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="cycleDays">Cycle length (days) *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="cycleDays">Cycle length (days) *</Label>
+                        <Input
                             id="cycleDays"
                             name="cycleDays"
                             type="number"
@@ -253,8 +253,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startDate">Start date *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startDate">Start date *</Label>
+                        <Input
                             id="startDate"
                             name="startDate"
                             type="date"
@@ -266,8 +266,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="endDate">End date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endDate">End date</Label>
+                        <Input
                             id="endDate"
                             name="endDate"
                             type="date"
@@ -279,8 +279,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                 {isEditing ? (
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="status-trigger">Status</Label>
+                            <Select
                                 value={status}
                                 onValueChange={(v) =>
                                     setStatus(v as CrmShiftRotationStatus)
@@ -296,17 +296,17 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="flex items-end gap-2 pb-1.5">
-                            <ZoruCheckbox
+                            <Checkbox
                                 id="inactive"
                                 name="inactive"
                                 defaultChecked={!initialData?.isActive}
                             />
-                            <ZoruLabel htmlFor="inactive" className="cursor-pointer">
+                            <Label htmlFor="inactive" className="cursor-pointer">
                                 Pause assignments
-                            </ZoruLabel>
+                            </Label>
                         </div>
                     </div>
                 ) : null}
@@ -323,14 +323,14 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                 mark it as off.
                             </div>
                         </div>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={addRow}
                         >
                             <Plus className="mr-1 h-3.5 w-3.5" /> Add day
-                        </ZoruButton>
+                        </Button>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -347,10 +347,10 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                         className="grid items-end gap-3 rounded-md border border-zoru-line bg-zoru-bg p-3 md:grid-cols-[100px_1fr_auto_auto]"
                                     >
                                         <div className="space-y-1.5">
-                                            <ZoruLabel className="text-[12px]">
+                                            <Label className="text-[12px]">
                                                 Day offset
-                                            </ZoruLabel>
-                                            <ZoruInput
+                                            </Label>
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 max={Math.max(0, cycleDays - 1)}
@@ -363,8 +363,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel className="text-[12px]">Shift</ZoruLabel>
-                                            <ZoruSelect
+                                            <Label className="text-[12px]">Shift</Label>
+                                            <Select
                                                 value={row.shiftId || ''}
                                                 onValueChange={(v) =>
                                                     updateRow(row.rowId, { shiftId: v })
@@ -387,10 +387,10 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                                         </ZoruSelectItem>
                                                     ))}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </div>
                                         <label className="flex items-center gap-2 pb-2 text-[12.5px] text-zoru-ink">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={!!row.isOff}
                                                 onCheckedChange={(v) =>
                                                     updateRow(row.rowId, {
@@ -401,7 +401,7 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                             />
                                             Off
                                         </label>
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
@@ -409,7 +409,7 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                             aria-label="Remove pattern row"
                                         >
                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 );
                             })
@@ -418,15 +418,15 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to rotations
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

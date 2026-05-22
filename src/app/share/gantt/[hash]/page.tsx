@@ -54,7 +54,7 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -71,20 +71,20 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
               </p>
             ) : null}
           </div>
-          <ZoruBadge
+          <Badge
             variant={STATUS_VARIANT[project.status.toLowerCase()] || 'outline'}
           >
             {project.status}
-          </ZoruBadge>
+          </Badge>
         </ZoruCardHeader>
         <ZoruCardContent className="grid gap-3 border-t border-zinc-200 pt-4 sm:grid-cols-3">
           <Stat label="Tasks" value={tasks.length} />
           <Stat label="Milestones" value={milestones.length} />
           <Stat label="Dependencies" value={links.length} />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Gantt</ZoruCardTitle>
         </ZoruCardHeader>
@@ -95,7 +95,7 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
             milestones={milestones}
           />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

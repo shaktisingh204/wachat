@@ -103,7 +103,7 @@ export default async function CrmEmailHubPage() {
         >
             <div className="flex flex-col gap-6">
                 {!isConfigured ? (
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-start gap-3">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
@@ -119,12 +119,12 @@ export default async function CrmEmailHubPage() {
                                 </div>
                             </div>
                             <Link href="/dashboard/crm/settings">
-                                <ZoruButton variant="outline" size="sm">
+                                <Button variant="outline" size="sm">
                                     Configure SMTP
-                                </ZoruButton>
+                                </Button>
                             </Link>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 ) : null}
 
                 <HubKpiGrid kpis={kpis} />

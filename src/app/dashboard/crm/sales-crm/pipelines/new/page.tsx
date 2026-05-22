@@ -55,11 +55,11 @@ export default function NewPipelinePage() {
         </h1>
       </div>
 
-      <ZoruCard>
+      <Card>
         <div className="space-y-6">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="pipeline-name" className="text-foreground">Pipeline Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="pipeline-name" className="text-foreground">Pipeline Name</Label>
+            <Input
               id="pipeline-name"
               className="h-10 rounded-lg border-border bg-card text-[13px]"
               value={pipelineName}
@@ -67,8 +67,8 @@ export default function NewPipelinePage() {
             />
           </div>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="description" className="text-foreground">Description</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="description" className="text-foreground">Description</Label>
+            <Input
               id="description"
               className="h-10 rounded-lg border-border bg-card text-[13px]"
               value={description}
@@ -76,9 +76,9 @@ export default function NewPipelinePage() {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <div className="mb-4">
           <h2 className="text-[16px] font-semibold text-foreground">Edit Pipeline Stages</h2>
         </div>
@@ -87,8 +87,8 @@ export default function NewPipelinePage() {
             {stages.map((stage, index) => (
               <div key={stage.id} className="flex items-center gap-4 rounded-lg border border-border bg-secondary p-2">
                 <div className="flex-1 space-y-1">
-                  <ZoruLabel htmlFor={`stage-name-${index}`} className="text-xs text-muted-foreground">Stage Name</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor={`stage-name-${index}`} className="text-xs text-muted-foreground">Stage Name</Label>
+                  <Input
                     id={`stage-name-${index}`}
                     className="h-10 rounded-lg border-border bg-card text-[13px]"
                     value={stage.name}
@@ -96,8 +96,8 @@ export default function NewPipelinePage() {
                   />
                 </div>
                 <div className="w-32 space-y-1">
-                  <ZoruLabel htmlFor={`stage-chance-${index}`} className="text-xs text-muted-foreground">Closure Chances (%)</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor={`stage-chance-${index}`} className="text-xs text-muted-foreground">Closure Chances (%)</Label>
+                  <Input
                     id={`stage-chance-${index}`}
                     type="number"
                     className="h-10 rounded-lg border-border bg-card text-[13px]"
@@ -105,26 +105,26 @@ export default function NewPipelinePage() {
                     onChange={e => handleStageChange(stage.id, 'chance', Number(e.target.value))}
                   />
                 </div>
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => handleRemoveStage(stage.id)}
                   className="self-end mb-1"
                 >
                   <Trash2 className="h-4 w-4 text-red-600" />
-                </ZoruButton>
+                </Button>
               </div>
             ))}
           </div>
-          <ZoruButton variant="outline" onClick={handleAddStage}>
+          <Button variant="outline" onClick={handleAddStage}>
             Add New Stage
-          </ZoruButton>
+          </Button>
         </div>
         <div className="mt-6 flex justify-end gap-2">
-          <ZoruButton variant="ghost">Cancel</ZoruButton>
-          <ZoruButton>Save Changes</ZoruButton>
+          <Button variant="ghost">Cancel</Button>
+          <Button>Save Changes</Button>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

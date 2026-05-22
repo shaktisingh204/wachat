@@ -102,8 +102,8 @@ type SessionUser =
 function ChatSkeleton() {
   return (
     <div className="flex h-full w-full gap-3 p-3">
-      <ZoruSkeleton className="h-full w-full md:w-[320px] md:shrink-0" />
-      <ZoruSkeleton className="hidden h-full flex-1 md:block" />
+      <Skeleton className="h-full w-full md:w-[320px] md:shrink-0" />
+      <Skeleton className="hidden h-full flex-1 md:block" />
     </div>
   );
 }
@@ -111,10 +111,10 @@ function ChatSkeleton() {
 function ConversationRowSkeleton() {
   return (
     <div className="flex items-center gap-3 p-3">
-      <ZoruSkeleton className="h-10 w-10 rounded-full" />
+      <Skeleton className="h-10 w-10 rounded-full" />
       <div className="flex-1 space-y-2">
-        <ZoruSkeleton className="h-4 w-3/4" />
-        <ZoruSkeleton className="h-3 w-1/2" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
       </div>
     </div>
   );
@@ -181,7 +181,7 @@ const ConversationListPane = React.memo(function ConversationListPane({
       <div className="flex shrink-0 items-center justify-between border-b border-zoru-line p-3">
         {sessionUser ? (
           <div className="flex min-w-0 items-center gap-3">
-            <ZoruAvatar>
+            <Avatar>
               <ZoruAvatarImage
                 src={`https://i.pravatar.cc/150?u=${sessionUser.email}`}
                 alt={sessionUser.name}
@@ -189,30 +189,30 @@ const ConversationListPane = React.memo(function ConversationListPane({
               <ZoruAvatarFallback>
                 {sessionUser.name.charAt(0)}
               </ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <p className="truncate text-zoru-ink">{sessionUser.name}</p>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <ZoruSkeleton className="h-10 w-10 rounded-full" />
-            <ZoruSkeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="h-4 w-24" />
           </div>
         )}
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           onClick={onNewChat}
           aria-label="New chat"
         >
           <MessageSquarePlus />
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* Search */}
       <div className="shrink-0 border-b border-zoru-line p-3">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             placeholder="Search conversations…"
             className="pl-8"
             value={search}
@@ -249,7 +249,7 @@ const ConversationListPane = React.memo(function ConversationListPane({
         </button>
       </div>
 
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         {isLoading ? (
           <div className="space-y-1 p-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -273,7 +273,7 @@ const ConversationListPane = React.memo(function ConversationListPane({
                     : "hover:bg-zoru-surface",
                 )}
               >
-                <ZoruAvatar>
+                <Avatar>
                   <ZoruAvatarImage
                     src={`https://graph.facebook.com/${participant?.id}/picture`}
                     alt={participant?.name || "User"}
@@ -281,7 +281,7 @@ const ConversationListPane = React.memo(function ConversationListPane({
                   <ZoruAvatarFallback>
                     {(participant?.name || "U").charAt(0).toUpperCase()}
                   </ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
                 <div className="min-w-0 flex-1 pt-0.5">
                   <div className="flex items-start justify-between gap-2">
                     <span
@@ -301,9 +301,9 @@ const ConversationListPane = React.memo(function ConversationListPane({
                       {convo.snippet || "—"}
                     </span>
                     {unread > 0 && (
-                      <ZoruBadge className="ml-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0 text-[10px]">
+                      <Badge className="ml-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0 text-[10px]">
                         {unread}
-                      </ZoruBadge>
+                      </Badge>
                     )}
                   </div>
                 </div>
@@ -318,7 +318,7 @@ const ConversationListPane = React.memo(function ConversationListPane({
             <div>No conversations found.</div>
           </div>
         )}
-      </ZoruScrollArea>
+      </ScrollArea>
     </div>
   );
 });
@@ -333,14 +333,14 @@ const sendInitialState: { success?: boolean; error?: string } = {
 function MessageInputSubmit() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton
+    <Button
       type="submit"
       size="icon"
       disabled={pending}
       aria-label="Send message"
     >
       {pending ? <LoaderCircle className="animate-spin" /> : <Send />}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -386,7 +386,7 @@ function MessageInput({
     >
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="recipientId" value={recipientId} />
-      <ZoruInput
+      <Input
         name="messageText"
         placeholder={
           disabled
@@ -424,7 +424,7 @@ const ChatMessageBubble = React.memo(function ChatMessageBubble({
       )}
     >
       {!isOutgoing && (
-        <ZoruAvatar className="h-8 w-8 self-end">
+        <Avatar className="h-8 w-8 self-end">
           <ZoruAvatarImage
             src={`https://graph.facebook.com/${participant.id}/picture`}
             alt={participant.name}
@@ -432,7 +432,7 @@ const ChatMessageBubble = React.memo(function ChatMessageBubble({
           <ZoruAvatarFallback>
             {participant.name.charAt(0).toUpperCase()}
           </ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
       )}
       <div
         className={cn(
@@ -490,7 +490,7 @@ function ChatThreadPane({
       {/* Header */}
       <div className="flex h-[73px] shrink-0 items-center justify-between gap-3 border-b border-zoru-line bg-zoru-bg p-3">
         <div className="flex min-w-0 items-center gap-3">
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon-sm"
             className="md:hidden"
@@ -498,8 +498,8 @@ function ChatThreadPane({
             aria-label="Back to conversations"
           >
             <ArrowLeft />
-          </ZoruButton>
-          <ZoruAvatar>
+          </Button>
+          <Avatar>
             <ZoruAvatarImage
               src={`https://graph.facebook.com/${participant?.id}/picture`}
               alt={participant?.name || "User"}
@@ -507,42 +507,42 @@ function ChatThreadPane({
             <ZoruAvatarFallback>
               {(participant?.name || "U").charAt(0).toUpperCase()}
             </ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
           <div className="min-w-0">
             <p className="truncate text-zoru-ink">{participant?.name}</p>
             <p className="text-xs text-zoru-ink-muted">online</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon-sm"
             disabled
             aria-label="Voice call"
           >
             <Phone />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             size="icon-sm"
             disabled
             aria-label="Video call"
           >
             <Video />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             size="icon-sm"
             onClick={onShowInfo}
             aria-label="Conversation info"
           >
             <Info />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {/* Messages scroll area */}
-      <ZoruScrollArea className="flex-1 bg-zoru-surface">
+      <ScrollArea className="flex-1 bg-zoru-surface">
         <div className="space-y-4 p-4">
           {isLoading ? (
             <div className="flex h-full items-center justify-center">
@@ -560,7 +560,7 @@ function ChatThreadPane({
           )}
           <div ref={messagesEndRef} />
         </div>
-      </ZoruScrollArea>
+      </ScrollArea>
 
       {/* Composer */}
       <div className="flex shrink-0 items-center gap-2 border-t border-zoru-line bg-zoru-bg p-3">
@@ -600,7 +600,7 @@ function ContactInfoPanelBody({
   return (
     <div className="flex h-full flex-col gap-5 p-5">
       <div className="flex flex-col items-center gap-2">
-        <ZoruAvatar className="h-16 w-16">
+        <Avatar className="h-16 w-16">
           <ZoruAvatarImage
             src={`https://graph.facebook.com/${participant?.id}/picture`}
             alt={participant?.name || "User"}
@@ -608,7 +608,7 @@ function ContactInfoPanelBody({
           <ZoruAvatarFallback>
             {(participant?.name || "U").charAt(0).toUpperCase()}
           </ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
         <p className="text-[15px] text-zoru-ink">
           {participant?.name || "Unknown user"}
         </p>
@@ -802,14 +802,14 @@ export function ZoruFacebookChatClient() {
   if (!projectId) {
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <ZoruAlert variant="destructive" className="max-w-md">
+        <Alert variant="destructive" className="max-w-md">
           <AlertCircle />
           <ZoruAlertTitle>No project selected</ZoruAlertTitle>
           <ZoruAlertDescription>
             Please select a project from the main dashboard to use the Facebook
             inbox.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       </div>
     );
   }
@@ -817,7 +817,7 @@ export function ZoruFacebookChatClient() {
   return (
     <>
       {/* New-chat info dialog */}
-      <ZoruDialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+      <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Start a conversation</ZoruDialogTitle>
@@ -828,13 +828,13 @@ export function ZoruFacebookChatClient() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton onClick={() => setShowInfoDialog(false)}>OK</ZoruButton>
+            <Button onClick={() => setShowInfoDialog(false)}>OK</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Permission error dialog */}
-      <ZoruDialog
+      <Dialog
         open={!!permissionError}
         onOpenChange={(o) => !o && setPermissionError(null)}
       >
@@ -847,26 +847,26 @@ export function ZoruFacebookChatClient() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setPermissionError(null)}
             >
               Dismiss
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 setPermissionError(null);
                 router.push("/dashboard/facebook/setup");
               }}
             >
               Reconnect
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Mobile contact info sheet */}
-      <ZoruSheet open={showInfoSheet} onOpenChange={setShowInfoSheet}>
+      <Sheet open={showInfoSheet} onOpenChange={setShowInfoSheet}>
         <ZoruSheetContent side="right" className="w-full sm:max-w-md p-0">
           <ZoruSheetHeader className="border-b border-zoru-line p-5">
             <ZoruSheetTitle>Contact info</ZoruSheetTitle>
@@ -879,7 +879,7 @@ export function ZoruFacebookChatClient() {
             pageId={project?.facebookPageId}
           />
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       {/* Three-pane shell */}
       <div className="flex h-full overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg">

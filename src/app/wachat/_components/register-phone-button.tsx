@@ -49,7 +49,7 @@ export function RegisterPhoneButton({
   };
 
   return (
-    <ZoruButton
+    <Button
       onClick={handleRegister}
       disabled={isPending}
       variant="outline"
@@ -58,6 +58,6 @@ export function RegisterPhoneButton({
     >
       {isPending ? <Loader2 className="animate-spin" /> : <CheckSquare />}
       Register
-    </ZoruButton>
+    </Button>
   );
 }

@@ -24,7 +24,7 @@ import type { Backlink, SiteMetrics } from '@/lib/definitions';
 
 const ChartContainer = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartContainer), {
     ssr: false,
-    loading: () => <ZoruSkeleton className="h-64 w-full" />,
+    loading: () => <Skeleton className="h-64 w-full" />,
 }) as any;
 const ChartTooltip = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartTooltip), { ssr: false }) as any;
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
@@ -32,7 +32,7 @@ import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 const chartConfigBacklinks = { count: { label: 'Backlinks', color: 'hsl(var(--chart-1))' } };
 
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
-    <ZoruCard>
+    <Card>
         <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
             <ZoruCardTitle className="text-sm">{title}</ZoruCardTitle>
             <Icon className="h-4 w-4 text-zoru-ink-muted" />
@@ -42,7 +42,7 @@ const StatCard = ({ title, value, icon: Icon }: { title: string; value: string |
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
         </ZoruCardContent>
-    </ZoruCard>
+    </Card>
 );
 
 export default function SiteExplorerPage() {
@@ -90,17 +90,17 @@ export default function SiteExplorerPage() {
                 </div>
 
                 <div className="flex gap-2">
-                    <ZoruInput
+                    <Input
                         placeholder="Enter a domain, e.g., sabnode.com"
                         className="flex-1"
                         value={domain}
                         onChange={(e) => setDomain(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
                     />
-                    <ZoruButton onClick={handleAnalyze} disabled={isLoading}>
+                    <Button onClick={handleAnalyze} disabled={isLoading}>
                         <Search className="mr-2 h-4 w-4" />
                         Analyze
-                    </ZoruButton>
+                    </Button>
                 </div>
 
                 <div className="rounded-[var(--zoru-radius)] border-2 border-dashed border-zoru-line p-12 text-center text-zoru-ink-muted">
@@ -111,7 +111,7 @@ export default function SiteExplorerPage() {
     }
 
     if (isLoading && !metrics) {
-        return <ZoruSkeleton className="h-full w-full" />;
+        return <Skeleton className="h-full w-full" />;
     }
 
     if (!metrics) return null;
@@ -132,17 +132,17 @@ export default function SiteExplorerPage() {
             </div>
 
             <div className="flex gap-2">
-                <ZoruInput
+                <Input
                     placeholder="Enter a domain, e.g., sabnode.com"
                     className="flex-1"
                     value={domain}
                     onChange={(e) => setDomain(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
                 />
-                <ZoruButton onClick={handleAnalyze} disabled={isLoading}>
+                <Button onClick={handleAnalyze} disabled={isLoading}>
                     <Search className="mr-2 h-4 w-4" />
                     {isLoading ? 'Analyzing...' : 'Analyze'}
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -152,7 +152,7 @@ export default function SiteExplorerPage() {
                 <StatCard title="Toxicity Score" value={`${metrics.toxicityScore}%`} icon={BarChart} />
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Backlink Growth</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -173,10 +173,10 @@ export default function SiteExplorerPage() {
                         </AreaChart>
                     </ChartContainer>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="grid gap-8 md:grid-cols-2">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Anchor Text Distribution</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -188,13 +188,13 @@ export default function SiteExplorerPage() {
                                         <p className="text-sm text-zoru-ink truncate">{item.text}</p>
                                         <p className="text-xs text-zoru-ink-muted">{item.percentage.toFixed(0)}%</p>
                                     </div>
-                                    <ZoruProgress value={item.percentage} />
+                                    <Progress value={item.percentage} />
                                 </div>
                             ))}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Top Linking Domains</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -220,7 +220,7 @@ export default function SiteExplorerPage() {
                                                 })()}
                                             </td>
                                             <td className="p-3 text-right">
-                                                <ZoruBadge variant="outline">{item.linkType}</ZoruBadge>
+                                                <Badge variant="outline">{item.linkType}</Badge>
                                             </td>
                                         </tr>
                                     ))}
@@ -228,7 +228,7 @@ export default function SiteExplorerPage() {
                             </table>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

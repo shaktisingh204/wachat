@@ -23,10 +23,10 @@ const sendInitialState = { success: false, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="icon" disabled={pending}>
+        <Button type="submit" size="icon" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send Message</span>
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -49,7 +49,7 @@ export function FacebookMessageInput({ projectId, recipientId, onMessageSent, di
         <form ref={formRef} action={sendFormAction} className="flex-1 flex items-center gap-2">
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="recipientId" value={recipientId} />
-            <ZoruInput
+            <Input
                 name="messageText"
                 placeholder={disabled ? "You can no longer reply to this conversation." : "Type a message..."}
                 autoComplete="off"

@@ -224,11 +224,11 @@ export default function BankReconciliationMatchPage() {
             subtitle="Import a CSV bank statement and tick matched book entries."
         >
 
-            <ZoruCard>
+            <Card>
                 <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <div className="space-y-2">
-                        <ZoruLabel>Bank Account</ZoruLabel>
-                        <ZoruSelect
+                        <Label>Bank Account</Label>
+                        <Select
                             value={selectedAccountId}
                             onValueChange={setSelectedAccountId}
                         >
@@ -245,19 +245,19 @@ export default function BankReconciliationMatchPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>From</ZoruLabel>
-                        <ZoruDatePicker value={startDate} onChange={setStartDate} />
+                        <Label>From</Label>
+                        <DatePicker value={startDate} onChange={setStartDate} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>To</ZoruLabel>
-                        <ZoruDatePicker value={endDate} onChange={setEndDate} />
+                        <Label>To</Label>
+                        <DatePicker value={endDate} onChange={setEndDate} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Bank Statement (CSV)</ZoruLabel>
-                        <ZoruInput
+                        <Label>Bank Statement (CSV)</Label>
+                        <Input
                             type="file"
                             accept=".csv"
                             onChange={(e) =>
@@ -269,22 +269,22 @@ export default function BankReconciliationMatchPage() {
                 </div>
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex gap-2">
-                        <ZoruButton onClick={handleFetchData} disabled={isLoading}>
+                        <Button onClick={handleFetchData} disabled={isLoading}>
                             Load Data
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             onClick={handleAutoMatch}
                             disabled={!reconciliationData}
                         >
                             Auto-Match
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <p className="text-[12px] text-zoru-ink-muted">
                         Use the CRUD page to persist a reconciliation record.
                     </p>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {reconciliationData && (
                 <>
@@ -344,10 +344,10 @@ const TransactionTable = ({
     totalCredit: number;
     isBankStatement?: boolean;
 }) => (
-    <ZoruCard>
+    <Card>
         <h3 className="mb-4 text-[15px] font-semibold text-foreground">{title}</h3>
         <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-lg border border-border">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader className="sticky top-0 bg-card">
                     <ZoruTableRow className="border-border hover:bg-transparent">
                         <ZoruTableHead className="w-10 text-muted-foreground">
@@ -382,7 +382,7 @@ const TransactionTable = ({
                                 data-state={matchedIds.has(e._id) ? 'selected' : ''}
                             >
                                 <ZoruTableCell>
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={matchedIds.has(e._id)}
                                         onCheckedChange={() => onMatchToggle(e._id)}
                                     />
@@ -403,7 +403,7 @@ const TransactionTable = ({
                         );
                     })}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
         <div className="mt-4 flex justify-end gap-6 border-t border-border pt-2 text-[13px] font-semibold text-foreground">
             <div className="text-right">
@@ -413,5 +413,5 @@ const TransactionTable = ({
                 Credit: <span className="font-mono">₹{totalCredit.toFixed(2)}</span>
             </div>
         </div>
-    </ZoruCard>
+    </Card>
 );

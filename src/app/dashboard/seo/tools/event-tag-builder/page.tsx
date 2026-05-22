@@ -19,19 +19,19 @@ export default function EventTagBuilderPage() {
 
   return (
     <ToolShell title="GA4 Event Tag Builder" description="Build a gtag('event', ...) snippet for GA4.">
-      <div className="space-y-1"><ZoruLabel>Event name</ZoruLabel><ZoruInput value={name} onChange={(e) => setName(e.target.value)} /></div>
+      <div className="space-y-1"><Label>Event name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
       <div className="space-y-2">
         {rows.map((r, i) => (
           <div key={i} className="flex gap-2">
-            <ZoruInput value={r.k} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, k: e.target.value } : rr))} placeholder="param" />
-            <ZoruInput value={r.v} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, v: e.target.value } : rr))} placeholder="value" />
-            <ZoruButton variant="ghost" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</ZoruButton>
+            <Input value={r.k} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, k: e.target.value } : rr))} placeholder="param" />
+            <Input value={r.v} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, v: e.target.value } : rr))} placeholder="value" />
+            <Button variant="ghost" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</Button>
           </div>
         ))}
-        <ZoruButton variant="outline" onClick={() => setRows((r) => [...r, { k: '', v: '' }])}>+ Add param</ZoruButton>
+        <Button variant="outline" onClick={() => setRows((r) => [...r, { k: '', v: '' }])}>+ Add param</Button>
       </div>
-      <ZoruTextarea readOnly value={snippet} className="min-h-[160px] font-mono text-xs" />
-      <ZoruButton onClick={() => navigator.clipboard.writeText(snippet)}>Copy</ZoruButton>
+      <Textarea readOnly value={snippet} className="min-h-[160px] font-mono text-xs" />
+      <Button onClick={() => navigator.clipboard.writeText(snippet)}>Copy</Button>
     </ToolShell>
   );
 }

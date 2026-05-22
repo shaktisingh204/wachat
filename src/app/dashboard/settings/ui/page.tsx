@@ -90,7 +90,7 @@ export default function AppearanceSettingsPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -100,25 +100,25 @@ export default function AppearanceSettingsPage() {
                         <ZoruBreadcrumbPage>{t('settings.appearance.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <ZoruPageTitle>{t('settings.appearance.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
                             {t('settings.appearance.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
-                <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
+                </PageHeader>
+                <Button size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {saving ? t('common.saving') : t('action.save')}
-                </ZoruButton>
+                </Button>
             </div>
 
             {/* Theme */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionTitle
                     icon={<Eye className="h-4 w-4" />}
                     title={t('settings.appearance.theme.title')}
@@ -144,10 +144,10 @@ export default function AppearanceSettingsPage() {
                         onClick={() => setPrefs({ ...prefs, theme: 'dark' })}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Density */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionTitle
                     icon={<Eye className="h-4 w-4" />}
                     title={t('settings.appearance.density.title')}
@@ -167,10 +167,10 @@ export default function AppearanceSettingsPage() {
                         onClick={() => setPrefs({ ...prefs, density: 'compact' })}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Misc */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <SectionTitle
                     icon={<Eye className="h-4 w-4" />}
                     title={t('settings.appearance.motion.title')}
@@ -192,7 +192,7 @@ export default function AppearanceSettingsPage() {
                         onChange={(v) => setPrefs({ ...prefs, reducedMotion: v })}
                     />
                 </ul>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -298,12 +298,12 @@ function Row({
     return (
         <li className="flex items-start justify-between gap-4 py-3">
             <div>
-                <ZoruLabel htmlFor={id} className="text-[13px]">
+                <Label htmlFor={id} className="text-[13px]">
                     {label}
-                </ZoruLabel>
+                </Label>
                 <p className="mt-0.5 text-xs text-zoru-ink-muted">{description}</p>
             </div>
-            <ZoruSwitch id={id} checked={checked} onCheckedChange={onChange} />
+            <Switch id={id} checked={checked} onCheckedChange={onChange} />
         </li>
     );
 }

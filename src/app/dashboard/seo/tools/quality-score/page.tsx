@@ -19,14 +19,14 @@ export default function QualityScorePage() {
   return (
     <ToolShell title="Quality Score Estimator" description="Composite Google Ads quality score from three signals.">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-1"><ZoruLabel>Expected CTR (1-10)</ZoruLabel><ZoruInput type="number" min={1} max={10} value={ctr} onChange={(e) => setCtr(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><ZoruLabel>Ad relevance (1-10)</ZoruLabel><ZoruInput type="number" min={1} max={10} value={rel} onChange={(e) => setRel(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><ZoruLabel>Landing page (1-10)</ZoruLabel><ZoruInput type="number" min={1} max={10} value={lp} onChange={(e) => setLp(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><Label>Expected CTR (1-10)</Label><Input type="number" min={1} max={10} value={ctr} onChange={(e) => setCtr(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><Label>Ad relevance (1-10)</Label><Input type="number" min={1} max={10} value={rel} onChange={(e) => setRel(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><Label>Landing page (1-10)</Label><Input type="number" min={1} max={10} value={lp} onChange={(e) => setLp(Number(e.target.value) || 0)} /></div>
       </div>
-      <ZoruCard><ZoruCardContent className="p-6 text-center">
+      <Card><ZoruCardContent className="p-6 text-center">
         <div className="text-6xl font-bold">{score}</div>
         <div className="text-sm text-muted-foreground mt-2">{label}</div>
-      </ZoruCardContent></ZoruCard>
+      </ZoruCardContent></Card>
     </ToolShell>
   );
 }

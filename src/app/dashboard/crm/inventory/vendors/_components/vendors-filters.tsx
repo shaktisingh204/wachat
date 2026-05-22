@@ -63,7 +63,7 @@ export function VendorsFiltersRow({
     return (
         <div className="flex flex-wrap items-center gap-2">
             <div className="w-44">
-                <ZoruSelect
+                <Select
                     value={statusFilter}
                     onValueChange={(v) => onStatusChange(v as VendorsKpiFilter)}
                 >
@@ -77,11 +77,11 @@ export function VendorsFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="w-56">
-                <ZoruSelect
+                <Select
                     value={vendorTypeFilter || '__all__'}
                     onValueChange={(v) => onVendorTypeChange(v === '__all__' ? '' : v)}
                 >
@@ -96,7 +96,7 @@ export function VendorsFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="w-72">
@@ -109,10 +109,10 @@ export function VendorsFiltersRow({
 
             {hasActiveFilters ? (
                 <>
-                    <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                    <Button variant="ghost" size="sm" onClick={onClear}>
                         <X className="h-3.5 w-3.5" /> Clear
-                    </ZoruButton>
-                    <ZoruBadge variant="secondary">Filters active</ZoruBadge>
+                    </Button>
+                    <Badge variant="secondary">Filters active</Badge>
                 </>
             ) : null}
         </div>

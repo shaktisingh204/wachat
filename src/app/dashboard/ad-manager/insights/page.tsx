@@ -133,17 +133,17 @@ export default function InsightsPage() {
                 title="Performance insights"
                 description="Deep dive into your account performance with breakdown-level insights."
                 actions={
-                    <ZoruButton variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
+                    <Button variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
                         <Download className="h-4 w-4 mr-1" /> Export CSV
-                    </ZoruButton>
+                    </Button>
                 }
             />
 
             {/* Custom date range inputs */}
             <div className="flex items-end gap-3">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-xs">Since</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-xs">Since</Label>
+                    <Input
                         type="date"
                         value={customSince}
                         onChange={(e) => setCustomSince(e.target.value)}
@@ -151,15 +151,15 @@ export default function InsightsPage() {
                     />
                 </div>
                 <div className="space-y-1">
-                    <ZoruLabel className="text-xs">Until</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-xs">Until</Label>
+                    <Input
                         type="date"
                         value={customUntil}
                         onChange={(e) => setCustomUntil(e.target.value)}
                         className="h-8 w-40 text-xs"
                     />
                 </div>
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="outline"
                     disabled={!customSince || !customUntil || loading}
@@ -190,27 +190,27 @@ export default function InsightsPage() {
                     }}
                 >
                     Apply
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {loading
-                    ? Array.from({ length: 6 }).map((_, i) => <ZoruSkeleton key={i} className="h-24" />)
+                    ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24" />)
                     : kpis.map((k) => (
-                          <ZoruCard key={k.label}>
+                          <Card key={k.label}>
                               <ZoruCardContent className="p-4">
                                   <k.icon className="h-4 w-4 text-muted-foreground" />
                                   <div className="mt-2 text-xs text-muted-foreground">{k.label}</div>
                                   <div className="text-2xl font-bold tabular-nums">{k.value}</div>
                               </ZoruCardContent>
-                          </ZoruCard>
+                          </Card>
                       ))}
             </div>
 
             {/* Segmented buttons replace Tabs (no tab primitive in Zoru). */}
             <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1 w-fit">
                 {TABS.map((t) => (
-                    <ZoruButton
+                    <Button
                         key={t.value}
                         type="button"
                         size="sm"
@@ -219,7 +219,7 @@ export default function InsightsPage() {
                         onClick={() => setActiveTab(t.value)}
                     >
                         {t.label}
-                    </ZoruButton>
+                    </Button>
                 ))}
             </div>
 
@@ -252,9 +252,9 @@ function BreakdownTable({
     columns: string[];
 }) {
     return (
-        <ZoruCard className="mt-3">
+        <Card className="mt-3">
             <ZoruCardContent className="p-0">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             {columns.map((c) => (
@@ -284,8 +284,8 @@ function BreakdownTable({
                             ))
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

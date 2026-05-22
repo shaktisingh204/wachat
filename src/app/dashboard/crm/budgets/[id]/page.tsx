@@ -125,7 +125,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="budget" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Variance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -153,9 +153,9 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Stewards</ZoruCardTitle>
             </ZoruCardHeader>
@@ -175,9 +175,9 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Scenario</ZoruCardTitle>
             </ZoruCardHeader>
@@ -185,9 +185,9 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Current</span>
-                  <ZoruBadge variant="outline">
+                  <Badge variant="outline">
                     {budget.scenario || 'base'}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
                 <Link
                   href={`/dashboard/crm/budgets?period=${budget.period || ''}&compare=1`}
@@ -197,9 +197,9 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -213,11 +213,11 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -256,7 +256,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               label="Locked"
               value={
                 budget.locked ? (
-                  <ZoruBadge variant="warning">Yes</ZoruBadge>
+                  <Badge variant="warning">Yes</Badge>
                 ) : (
                   'No'
                 )
@@ -264,9 +264,9 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             />
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Allocation breakdown</ZoruCardTitle>
         </ZoruCardHeader>
@@ -277,9 +277,9 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             cost center on the edit page.
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Actual vs Planned</ZoruCardTitle>
         </ZoruCardHeader>
@@ -315,9 +315,9 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             </tbody>
           </table>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Variance analysis</ZoruCardTitle>
         </ZoruCardHeader>
@@ -351,10 +351,10 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             </table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {budget.notes ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -363,11 +363,11 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               {budget.notes}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {budget.rejectReason ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Rejection reason</ZoruCardTitle>
           </ZoruCardHeader>
@@ -376,7 +376,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               {budget.rejectReason}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

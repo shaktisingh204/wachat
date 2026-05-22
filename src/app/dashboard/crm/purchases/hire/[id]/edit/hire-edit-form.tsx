@@ -42,14 +42,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Save changes
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -73,13 +73,13 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
   }, [state, toast, router, hireId]);
 
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <form action={formAction} className="flex flex-col gap-6">
         <input type="hidden" name="hireId" value={hireId} />
 
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="title">Title *</Label>
+          <Input
             id="title"
             name="title"
             required
@@ -89,16 +89,16 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="category">Category</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="category">Category</Label>
+            <Input
               id="category"
               name="category"
               defaultValue={initial.category}
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="vendorCandidate">Vendor candidate</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="vendorCandidate">Vendor candidate</Label>
+            <Input
               id="vendorCandidate"
               name="vendorCandidate"
               defaultValue={initial.vendorCandidate}
@@ -108,8 +108,8 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="requiredBy">Required by</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="requiredBy">Required by</Label>
+            <Input
               id="requiredBy"
               name="requiredBy"
               type="date"
@@ -117,8 +117,8 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="quantity">Quantity</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="quantity">Quantity</Label>
+            <Input
               id="quantity"
               name="quantity"
               type="number"
@@ -131,8 +131,8 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="estimatedBudget">Estimated budget</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="estimatedBudget">Estimated budget</Label>
+            <Input
               id="estimatedBudget"
               name="estimatedBudget"
               type="number"
@@ -142,8 +142,8 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="owner">Owner</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="owner">Owner</Label>
+            <Input
               id="owner"
               name="owner"
               defaultValue={initial.owner}
@@ -153,8 +153,8 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="stage">Stage</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="stage">Stage</Label>
+            <Input
               id="stage"
               name="stage"
               defaultValue={initial.stage}
@@ -162,8 +162,8 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="status">Status</Label>
+            <Input
               id="status"
               name="status"
               defaultValue={initial.status}
@@ -173,8 +173,8 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
         </div>
 
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="specs">Specifications / scope</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="specs">Specifications / scope</Label>
+          <Textarea
             id="specs"
             name="specs"
             rows={4}
@@ -183,7 +183,7 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
         </div>
 
         <div className="flex items-center justify-between border-t border-zoru-line pt-4">
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             className="text-zoru-ink-muted hover:text-zoru-ink"
@@ -192,10 +192,10 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
             <Link href={`/dashboard/crm/purchases/hire/${hireId}`}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Cancel
             </Link>
-          </ZoruButton>
+          </Button>
           <SubmitButton />
         </div>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

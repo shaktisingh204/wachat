@@ -127,10 +127,10 @@ function toNum(v: string): number {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create GRN'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -229,16 +229,16 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
       <input type="hidden" name="status" value={status} />
 
       {/* ─── Header ─────────────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="grnNo">
+            <Label htmlFor="grnNo">
               GRN number <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="grnNo"
               name="grnNo"
               required={!editing}
@@ -255,10 +255,10 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             ) : null}
           </div>
           <div>
-            <ZoruLabel htmlFor="date">
+            <Label htmlFor="date">
               Receipt date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="date"
               name="date"
               type="date"
@@ -268,9 +268,9 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Vendor <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="vendor"
@@ -281,9 +281,9 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Warehouse <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="warehouse"
@@ -294,7 +294,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </div>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel>Linked Purchase Order</ZoruLabel>
+            <Label>Linked Purchase Order</Label>
             <div className="mt-1.5">
               {editing || seed?.poId ? (
                 <input
@@ -325,15 +325,15 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </p>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Line Items ─────────────────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Line items
           </h3>
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
@@ -341,7 +341,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
           >
             <Plus className="h-3.5 w-3.5" />
             Add line
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="space-y-4">
@@ -354,7 +354,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                 <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                   Line {String(idx + 1).padStart(2, '0')}
                 </span>
-                <ZoruButton
+                <Button
                   type="button"
                   size="sm"
                   variant="ghost"
@@ -364,12 +364,12 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                   aria-label="Remove line"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <ZoruLabel>Item</ZoruLabel>
+                  <Label>Item</Label>
                   <div className="mt-1.5">
                     <EntityFormField
                       entity="item"
@@ -383,8 +383,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                 </div>
 
                 <div>
-                  <ZoruLabel>Ordered qty</ZoruLabel>
-                  <ZoruInput
+                  <Label>Ordered qty</Label>
+                  <Input
                     type="number"
                     step="any"
                     min={0}
@@ -396,8 +396,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                   />
                 </div>
                 <div>
-                  <ZoruLabel>Received qty</ZoruLabel>
-                  <ZoruInput
+                  <Label>Received qty</Label>
+                  <Input
                     type="number"
                     step="any"
                     min={0}
@@ -409,8 +409,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                   />
                 </div>
                 <div>
-                  <ZoruLabel>Accepted qty</ZoruLabel>
-                  <ZoruInput
+                  <Label>Accepted qty</Label>
+                  <Input
                     type="number"
                     step="any"
                     min={0}
@@ -422,8 +422,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                   />
                 </div>
                 <div>
-                  <ZoruLabel>Rejected qty (damaged/short)</ZoruLabel>
-                  <ZoruInput
+                  <Label>Rejected qty (damaged/short)</Label>
+                  <Input
                     type="number"
                     step="any"
                     min={0}
@@ -436,8 +436,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                 </div>
 
                 <div>
-                  <ZoruLabel>Batch / lot</ZoruLabel>
-                  <ZoruInput
+                  <Label>Batch / lot</Label>
+                  <Input
                     value={line.batch}
                     onChange={(e) =>
                       updateLine(line.key, { batch: e.target.value })
@@ -448,8 +448,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                   />
                 </div>
                 <div>
-                  <ZoruLabel>Expiry</ZoruLabel>
-                  <ZoruInput
+                  <Label>Expiry</Label>
+                  <Input
                     type="date"
                     value={line.expiry}
                     onChange={(e) =>
@@ -459,8 +459,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <ZoruLabel>Serial numbers (comma-separated)</ZoruLabel>
-                  <ZoruInput
+                  <Label>Serial numbers (comma-separated)</Label>
+                  <Input
                     value={line.serialNos}
                     onChange={(e) =>
                       updateLine(line.key, { serialNos: e.target.value })
@@ -473,16 +473,16 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </div>
           ))}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Inspector + Workflow ───────────────────────────────── */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Inspector</ZoruLabel>
+            <Label>Inspector</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -492,7 +492,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Status</ZoruLabel>
+            <Label>Status</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="grnStatus"
@@ -504,8 +504,8 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </div>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="notes">Inspection notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Inspection notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               rows={3}
@@ -517,10 +517,10 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </p>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -530,7 +530,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

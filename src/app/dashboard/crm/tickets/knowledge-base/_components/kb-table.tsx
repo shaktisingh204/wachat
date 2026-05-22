@@ -83,11 +83,11 @@ export function KbTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all articles"
                                 checked={
                                     allSelected
@@ -115,7 +115,7 @@ export function KbTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={10}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -143,7 +143,7 @@ export function KbTable({
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label={`Select article ${a.title || id}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
@@ -194,11 +194,11 @@ export function KbTable({
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {visibility ? (
-                                            <ZoruBadge
+                                            <Badge
                                                 variant={VISIBILITY_VARIANTS[visibility] ?? 'ghost'}
                                             >
                                                 {visibility}
-                                            </ZoruBadge>
+                                            </Badge>
                                         ) : (
                                             <span className="text-[12px] text-zoru-ink-muted">—</span>
                                         )}
@@ -209,9 +209,9 @@ export function KbTable({
                                         ) : (
                                             <div className="flex flex-wrap gap-1">
                                                 {tags.slice(0, 3).map((t) => (
-                                                    <ZoruBadge key={t} variant="ghost">
+                                                    <Badge key={t} variant="ghost">
                                                         {t}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 ))}
                                                 {tags.length > 3 ? (
                                                     <span className="text-[11px] text-zoru-ink-muted">
@@ -245,7 +245,7 @@ export function KbTable({
                                             : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
@@ -281,14 +281,14 @@ export function KbTable({
                                                     Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

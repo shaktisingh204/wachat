@@ -117,7 +117,7 @@ export default function TeamPerformancePage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -131,7 +131,7 @@ export default function TeamPerformancePage() {
             <ZoruBreadcrumbPage>Team Performance</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -143,12 +143,12 @@ export default function TeamPerformancePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 {TIME_RANGE_LABELS[timeRange]}
                 <ChevronDown className="opacity-60" />
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
@@ -161,38 +161,38 @@ export default function TeamPerformancePage() {
                 <ZoruDropdownMenuRadioItem value="90d">Last 90 days</ZoruDropdownMenuRadioItem>
               </ZoruDropdownMenuRadioGroup>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
-          <ZoruButton variant="outline" size="sm" onClick={fetchData} disabled={isPending}>
+          </DropdownMenu>
+          <Button variant="outline" size="sm" onClick={fetchData} disabled={isPending}>
             <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {isPending && agents.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[120px]" />
+            <Skeleton key={i} className="h-[120px]" />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Active Agents"
             value={agents.length.toLocaleString()}
             icon={<Users />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Total Messages"
             value={totalMessages.toLocaleString()}
             icon={<MessageSquare />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Avg Response"
             value={formatResponseTime(avgResp)}
             icon={<Timer />}
             period="Lower is better"
           />
-          <ZoruStatCard
+          <StatCard
             label="Top Agent"
             value={topAgent?.agentName ?? '--'}
             period={
@@ -204,7 +204,7 @@ export default function TeamPerformancePage() {
         </div>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Agent Leaderboard</ZoruCardTitle>
         </ZoruCardHeader>
@@ -212,17 +212,17 @@ export default function TeamPerformancePage() {
           {isPending && agents.length === 0 ? (
             <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="h-10" />
+                <Skeleton key={i} className="h-10" />
               ))}
             </div>
           ) : agents.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Users />}
               title="No agent activity"
               description="Agent leaderboard will populate once your team starts sending messages."
             />
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="w-[1%]">#</ZoruTableHead>
@@ -246,7 +246,7 @@ export default function TeamPerformancePage() {
                         <span className="inline-flex items-center gap-2">
                           {a.agentName}
                           {i === 0 && (
-                            <ZoruBadge variant="success">Top</ZoruBadge>
+                            <Badge variant="success">Top</Badge>
                           )}
                         </span>
                       </ZoruTableCell>
@@ -257,28 +257,28 @@ export default function TeamPerformancePage() {
                         {formatResponseTime(a.avgResponseMs)}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruProgress value={value} className="h-2" />
+                        <Progress value={value} className="h-2" />
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setDrillAgent(a)}
                         >
                           <Eye /> View
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Per-agent drill-in sheet */}
-      <ZoruSheet
+      <Sheet
         open={!!drillAgent}
         onOpenChange={(open) => {
           if (!open) setDrillAgent(null);
@@ -293,25 +293,25 @@ export default function TeamPerformancePage() {
           </ZoruSheetHeader>
           {drillAgent && (
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <ZoruStatCard
+              <StatCard
                 label="Messages Sent"
                 value={(drillAgent.messagesSent ?? 0).toLocaleString()}
                 icon={<MessageSquare />}
               />
-              <ZoruStatCard
+              <StatCard
                 label="Avg Response"
                 value={formatResponseTime(drillAgent.avgResponseMs)}
                 icon={<Timer />}
                 period="Lower is better"
               />
               {typeof drillAgent.totalConversations === 'number' && (
-                <ZoruStatCard
+                <StatCard
                   label="Conversations"
                   value={drillAgent.totalConversations.toLocaleString()}
                   icon={<Users />}
                 />
               )}
-              <ZoruStatCard
+              <StatCard
                 label="Share of Volume"
                 value={`${Math.round(
                   ((drillAgent.messagesSent ?? 0) / Math.max(totalMessages, 1)) * 100,
@@ -320,7 +320,7 @@ export default function TeamPerformancePage() {
             </div>
           )}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
 
       <div className="h-6" />
     </div>

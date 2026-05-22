@@ -187,14 +187,14 @@ export default async function AdminUsersPage({
                 <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
                     <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                     <div className="flex gap-2">
-                        <ZoruButton variant="outline" size="sm" asChild disabled={currentPage <= 1}
+                        <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
                             className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
                             <Link href={`/admin/dashboard/users?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
+                        </Button>
+                        <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
                             className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
                             <Link href={`/admin/dashboard/users?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             </div>

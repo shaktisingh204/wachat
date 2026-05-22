@@ -59,7 +59,7 @@ function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onD
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -124,13 +124,13 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
             open={!!selectedQrData}
             onOpenChange={(open) => !open && setSelectedQrData(null)}
         />
-        <ZoruCard className="card-gradient card-gradient-purple">
+        <Card className="card-gradient card-gradient-purple">
             <ZoruCardHeader>
                 <ZoruCardTitle>Your Saved QR Codes</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
                 <div className="border rounded-md">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow>
                                 <ZoruTableHead>Name</ZoruTableHead>
@@ -141,40 +141,40 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
-                            {isLoading ? <ZoruTableRow><ZoruTableCell colSpan={5}><ZoruSkeleton className="h-10 w-full"/></ZoruTableCell></ZoruTableRow>
+                            {isLoading ? <ZoruTableRow><ZoruTableCell colSpan={5}><Skeleton className="h-10 w-full"/></ZoruTableCell></ZoruTableRow>
                             : qrCodes.length > 0 ? qrCodes.map(code => (
                                 <ZoruTableRow key={code._id.toString()}>
                                     <ZoruTableCell className="font-medium">{code.name}</ZoruTableCell>
                                     <ZoruTableCell>
                                         <div className="flex flex-col gap-1">
-                                            <ZoruBadge variant="outline" className="capitalize">{code.dataType}</ZoruBadge>
-                                            {code.shortUrl && <ZoruBadge variant="secondary">Dynamic</ZoruBadge>}
+                                            <Badge variant="outline" className="capitalize">{code.dataType}</Badge>
+                                            {code.shortUrl && <Badge variant="secondary">Dynamic</Badge>}
                                         </div>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-muted-foreground truncate max-w-xs font-mono text-xs">
                                         {code.shortUrl ? (
-                                            <ZoruButton asChild variant="outline" size="sm">
+                                            <Button asChild variant="outline" size="sm">
                                                 <Link href={`/dashboard/url-shortener/${code.shortUrl._id}`}>
                                                     View Analytics
                                                 </Link>
-                                            </ZoruButton>
+                                            </Button>
                                         ) : (
                                             generateDataString(code)
                                         )}
                                     </ZoruTableCell>
                                     <ZoruTableCell>{new Date(code.createdAt).toLocaleDateString()}</ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruButton variant="ghost" size="icon" onClick={() => handleViewQr(code)}><Eye className="h-4 w-4"/></ZoruButton>
+                                        <Button variant="ghost" size="icon" onClick={() => handleViewQr(code)}><Eye className="h-4 w-4"/></Button>
                                         <DeleteQrCodeButton qrCode={code} onDeleted={fetchData} />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ))
                             : <ZoruTableRow><ZoruTableCell colSpan={5} className="text-center h-24">No QR codes saved yet.</ZoruTableCell></ZoruTableRow>}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
         </>
     );
 }

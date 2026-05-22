@@ -60,22 +60,22 @@ export function AdminTemplateCategoryManager() {
     };
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardHeader>
                 <ZoruCardTitle>Template Categories</ZoruCardTitle>
                 <ZoruCardDescription>Manage the categories available for custom library templates.</ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent>
                 <form action={handleSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-2 mb-4">
-                    <ZoruInput name="name" placeholder="New Category Name" required />
-                    <ZoruInput name="description" placeholder="Description (optional)" />
-                    <ZoruButton type="submit" disabled={isSaving} size="sm">
+                    <Input name="name" placeholder="New Category Name" required />
+                    <Input name="description" placeholder="Description (optional)" />
+                    <Button type="submit" disabled={isSaving} size="sm">
                         {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
                         Add
-                    </ZoruButton>
+                    </Button>
                 </form>
                 <div className="border rounded-md">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableBody>
                             {isLoading ? <ZoruTableRow><ZoruTableCell><LoaderCircle className="h-5 w-5 animate-spin"/></ZoruTableCell></ZoruTableRow>
                             : categories.length > 0 ? categories.map(cat => (
@@ -83,17 +83,17 @@ export function AdminTemplateCategoryManager() {
                                     <ZoruTableCell className="font-medium">{cat.name}</ZoruTableCell>
                                     <ZoruTableCell className="text-muted-foreground">{cat.description}</ZoruTableCell>
                                     <ZoruTableCell className="text-right w-16">
-                                        <ZoruButton variant="ghost" size="icon" disabled>
+                                        <Button variant="ghost" size="icon" disabled>
                                             <Trash2 className="h-4 w-4 text-destructive"/>
-                                        </ZoruButton>
+                                        </Button>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ))
                             : <ZoruTableRow><ZoruTableCell className="text-center text-muted-foreground">No custom categories created yet.</ZoruTableCell></ZoruTableRow>}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

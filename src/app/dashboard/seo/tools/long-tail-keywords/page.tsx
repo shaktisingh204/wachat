@@ -30,16 +30,16 @@ export default function LongTailKeywordsPage() {
   return (
     <ToolShell title="Long-Tail Keyword Expander" description="Expand a seed keyword with long-tail modifiers for more specific queries.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <ZoruButton onClick={run}>Expand</ZoruButton>
+        <Button onClick={run}>Expand</Button>
       </div>
       {results.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4">
             <ul className="grid md:grid-cols-2 gap-2 text-sm">
               {results.map((r) => (
@@ -47,7 +47,7 @@ export default function LongTailKeywordsPage() {
               ))}
             </ul>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

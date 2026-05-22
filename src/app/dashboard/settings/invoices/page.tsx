@@ -49,7 +49,7 @@ export default function InvoicesPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -59,33 +59,33 @@ export default function InvoicesPage() {
             <ZoruBreadcrumbPage>{t('settings.invoices.title')}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>{t('settings.invoices.title')}</ZoruPageTitle>
             <ZoruPageDescription>
               {t('settings.invoices.subtitle')}
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton variant="ghost" size="sm" asChild>
+        </PageHeader>
+        <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/user/billing">
             {t('settings.invoices.billingHome')} <ArrowUpRight className="h-4 w-4" />
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         {loading ? (
           <div className="space-y-2 p-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-14 w-full" />
+              <Skeleton key={i} className="h-14 w-full" />
             ))}
           </div>
         ) : rows.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Receipt className="h-10 w-10" />}
             title={t('settings.invoices.empty.title')}
             description={t('settings.invoices.empty.description')}
@@ -118,17 +118,17 @@ export default function InvoicesPage() {
                     <span className="text-sm text-zoru-ink">
                       {formatCurrency(amount, currency, locale)}
                     </span>
-                    <ZoruButton variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm">
                       <Download className="h-4 w-4" />
                       {t('settings.invoices.receipt')}
-                    </ZoruButton>
+                    </Button>
                   </div>
                 </li>
               );
             })}
           </ul>
         )}
-      </ZoruCard>
+      </Card>
     </div>
   );
 }
@@ -137,12 +137,12 @@ function StatusBadge({ status }: { status: string }) {
   const { t } = useT();
   const s = status.toLowerCase();
   if (s === 'completed' || s === 'paid' || s === 'success')
-    return <ZoruBadge variant="success">{t('settings.invoices.status.paid')}</ZoruBadge>;
+    return <Badge variant="success">{t('settings.invoices.status.paid')}</Badge>;
   if (s === 'pending' || s === 'processing')
-    return <ZoruBadge variant="warning">{t('settings.invoices.status.pending')}</ZoruBadge>;
+    return <Badge variant="warning">{t('settings.invoices.status.pending')}</Badge>;
   if (s === 'failed' || s === 'declined')
-    return <ZoruBadge variant="danger">{t('settings.invoices.status.failed')}</ZoruBadge>;
-  return <ZoruBadge variant="ghost">{status}</ZoruBadge>;
+    return <Badge variant="danger">{t('settings.invoices.status.failed')}</Badge>;
+  return <Badge variant="ghost">{status}</Badge>;
 }
 
 function prettyLabel(key: string): string {

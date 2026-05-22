@@ -36,13 +36,13 @@ export default function PeopleAlsoAskPage() {
   return (
     <ToolShell title="People Also Ask" description="Question-based autocomplete variants for your seed.">
       <div className="flex gap-2">
-        <ZoruInput value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo" onKeyDown={(e) => e.key === 'Enter' && run()} />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Get questions'}</ZoruButton>
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo" onKeyDown={(e) => e.key === 'Enter' && run()} />
+        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Get questions'}</Button>
       </div>
       {results.length > 0 && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-1">
+        <Card><ZoruCardContent className="p-4 space-y-1">
           {results.map((s, i) => <div key={i} className="text-sm border-b last:border-0 py-1">{s}</div>)}
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

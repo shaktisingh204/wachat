@@ -96,7 +96,7 @@ export function AssignTaskDrawer({
     }
 
     return (
-        <ZoruSheet open={open} onOpenChange={handleOpenChange}>
+        <Sheet open={open} onOpenChange={handleOpenChange}>
             <ZoruSheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
                 <ZoruSheetHeader>
                     <ZoruSheetTitle>Assign Task</ZoruSheetTitle>
@@ -123,10 +123,10 @@ export function AssignTaskDrawer({
 
                     {/* Title */}
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="task-title">
+                        <Label htmlFor="task-title">
                             Task title <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="task-title"
                             placeholder="e.g. Prepare Q2 report"
                             value={title}
@@ -138,8 +138,8 @@ export function AssignTaskDrawer({
 
                     {/* Description */}
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="task-desc">Description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="task-desc">Description</Label>
+                        <Textarea
                             id="task-desc"
                             placeholder="Optional details or instructions…"
                             rows={3}
@@ -151,8 +151,8 @@ export function AssignTaskDrawer({
 
                     {/* Due date */}
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="task-due">Due date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="task-due">Due date</Label>
+                        <Input
                             id="task-due"
                             type="date"
                             value={dueDate}
@@ -163,8 +163,8 @@ export function AssignTaskDrawer({
 
                     {/* Priority */}
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="task-priority">Priority</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="task-priority">Priority</Label>
+                        <Select
                             value={priority}
                             onValueChange={(v) => setPriority(v as Priority)}
                             disabled={isPending}
@@ -179,30 +179,30 @@ export function AssignTaskDrawer({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
 
                     <ZoruSheetFooter className="mt-2 flex gap-2">
                         <ZoruSheetClose asChild>
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 disabled={isPending}
                                 className="flex-1"
                             >
                                 Cancel
-                            </ZoruButton>
+                            </Button>
                         </ZoruSheetClose>
-                        <ZoruButton
+                        <Button
                             type="submit"
                             disabled={isPending || !employee}
                             className="flex-1"
                         >
                             {isPending ? 'Assigning…' : 'Assign Task'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruSheetFooter>
                 </form>
             </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
     );
 }

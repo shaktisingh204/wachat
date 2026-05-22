@@ -113,7 +113,7 @@ export default function ChatExportPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -127,7 +127,7 @@ export default function ChatExportPage() {
             <ZoruBreadcrumbPage>Chat Export</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="min-w-0">
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -138,12 +138,12 @@ export default function ChatExportPage() {
         </p>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[16px] text-zoru-ink">Export settings</h2>
         <form onSubmit={handleExport} className="flex max-w-md flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="export-contact-id">Contact ID</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="export-contact-id">Contact ID</Label>
+            <Input
               id="export-contact-id"
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
@@ -152,8 +152,8 @@ export default function ChatExportPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="export-format">Export format</ZoruLabel>
-            <ZoruSelect value={format} onValueChange={setFormat}>
+            <Label htmlFor="export-format">Export format</Label>
+            <Select value={format} onValueChange={setFormat}>
               <ZoruSelectTrigger id="export-format" className="w-full">
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -162,17 +162,17 @@ export default function ChatExportPage() {
                 <ZoruSelectItem value="csv">CSV</ZoruSelectItem>
                 <ZoruSelectItem value="txt">Plain text (TXT)</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
-            <ZoruButton
+            <Button
               type="submit"
               size="md"
               disabled={isExporting || !projectId || !contactId.trim()}
             >
               {isExporting ? <Loader2 className="animate-spin" /> : <Download />}
               {isExporting ? 'Exporting...' : 'Export Chat'}
-            </ZoruButton>
+            </Button>
           </div>
         </form>
 
@@ -186,7 +186,7 @@ export default function ChatExportPage() {
             </span>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       <div className="h-6" />
     </div>

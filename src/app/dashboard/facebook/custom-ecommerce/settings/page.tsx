@@ -51,7 +51,7 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Cog />}
           title="No project selected"
           description="Pick a project to manage its Custom Shops settings."
@@ -62,7 +62,7 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
@@ -78,7 +78,7 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header>
         <h1 className="text-2xl text-zoru-ink">Custom Shops settings</h1>
@@ -89,14 +89,14 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
       </header>
 
       {loaded && shops.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Store />}
           title="No shops yet"
           description="Create a shop on the Custom Shops dashboard before configuring settings."
           action={
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href="/dashboard/facebook/custom-ecommerce">Open Custom Shops</Link>
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
@@ -105,7 +105,7 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
             const id = s._id.toString();
             const slug = (s as unknown as { slug?: string }).slug ?? '';
             return (
-              <ZoruCard key={id} className="flex flex-col gap-3 p-5">
+              <Card key={id} className="flex flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="line-clamp-1 text-base text-zoru-ink">{s.name}</p>
@@ -113,23 +113,23 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
                       <p className="font-mono text-[11px] text-zoru-ink-muted">/{slug}</p>
                     ) : null}
                   </div>
-                  <ZoruBadge variant="ghost">
+                  <Badge variant="ghost">
                     {(s as unknown as { isPublished?: boolean }).isPublished
                       ? 'live'
                       : 'draft'}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
                 <footer className="flex justify-end border-t border-zoru-line pt-3">
-                  <ZoruButton asChild size="sm">
+                  <Button asChild size="sm">
                     <Link
                       href={`/dashboard/facebook/custom-ecommerce/manage/${id}/settings`}
                     >
                       <Cog className="mr-2 h-4 w-4" />
                       Configure
                     </Link>
-                  </ZoruButton>
+                  </Button>
                 </footer>
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>

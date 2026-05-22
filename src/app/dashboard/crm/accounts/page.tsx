@@ -380,11 +380,11 @@ export default function CrmAccountsPage() {
                     placeholder: t('crm.accounts.list.search.placeholder'),
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/accounts/new">
                             <Plus className="h-4 w-4" /> {t('crm.accounts.list.action.new')}
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <AccountsFiltersRow
@@ -444,11 +444,11 @@ export default function CrmAccountsPage() {
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 {t('crm.accounts.list.empty.subtitle')}
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/accounts/new">
                                     <Plus className="h-4 w-4" /> {t('crm.accounts.list.empty.action')}
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

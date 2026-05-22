@@ -56,10 +56,10 @@ const initialState: { message: string | null; error: string | null } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : <Save />}
       Save
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -166,8 +166,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
       case 'welcomeMessage':
         return (
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="message">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="message">Message</Label>
+            <Textarea
               id="message"
               name="message"
               defaultValue={
@@ -182,8 +182,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
         return (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="context">Business Context</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="context">Business Context</Label>
+              <Textarea
                 id="context"
                 name="context"
                 className="min-h-32"
@@ -198,13 +198,13 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <ZoruSwitch
+              <Switch
                 checked={autoTranslate}
                 onCheckedChange={setAutoTranslate}
               />
-              <ZoruLabel className="font-normal">
+              <Label className="font-normal">
                 Auto-detect &amp; translate to user&apos;s language
-              </ZoruLabel>
+              </Label>
             </div>
           </div>
         );
@@ -214,8 +214,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
         return (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="message">Away Message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="message">Away Message</Label>
+              <Textarea
                 id="message"
                 name="message"
                 defaultValue={settings?.message || ''}
@@ -224,8 +224,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="startTime">Away From (Start)</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="startTime">Away From (Start)</Label>
+                <Input
                   id="startTime"
                   name="startTime"
                   type="time"
@@ -233,8 +233,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="endTime">Available At (End)</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="endTime">Available At (End)</Label>
+                <Input
                   id="endTime"
                   name="endTime"
                   type="time"
@@ -243,8 +243,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
               </div>
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="timezone">Timezone</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="timezone">Timezone</Label>
+              <Select
                 name="timezone"
                 defaultValue={settings?.timezone || 'Asia/Kolkata'}
               >
@@ -258,10 +258,10 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel>Active on these days</ZoruLabel>
+              <Label>Active on these days</Label>
               <p className="text-[11.5px] text-zoru-ink-muted">
                 Away message will be sent on selected days during the inactive
                 hours.
@@ -303,7 +303,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                 key={rule.id}
                 className="relative flex flex-col gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4"
               >
-                <ZoruButton
+                <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
@@ -312,10 +312,10 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                   onClick={() => removeReplyRule(rule.id)}
                 >
                   <Trash2 />
-                </ZoruButton>
+                </Button>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Keywords (comma-separated)</ZoruLabel>
-                  <ZoruInput
+                  <Label>Keywords (comma-separated)</Label>
+                  <Input
                     value={rule.keywords}
                     onChange={(e) =>
                       handleReplyRuleChange(rule.id, 'keywords', e.target.value)
@@ -324,8 +324,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Reply Message</ZoruLabel>
-                  <ZoruTextarea
+                  <Label>Reply Message</Label>
+                  <Textarea
                     value={rule.reply}
                     onChange={(e) =>
                       handleReplyRuleChange(rule.id, 'reply', e.target.value)
@@ -333,7 +333,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     placeholder="Hi there! How can I help you?"
                   />
                 </div>
-                <ZoruSelect
+                <Select
                   value={rule.matchType}
                   onValueChange={(val) =>
                     handleReplyRuleChange(rule.id, 'matchType', val)
@@ -348,10 +348,10 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     </ZoruSelectItem>
                     <ZoruSelectItem value="exact">Exact match</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             ))}
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               size="sm"
@@ -359,7 +359,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
             >
               <PlusCircle />
               Add Rule
-            </ZoruButton>
+            </Button>
           </div>
         );
       }
@@ -369,7 +369,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <form action={formAction as any} ref={formRef}>
         <input type="hidden" name="projectId" value={project._id.toString()} />
         <input type="hidden" name="replyType" value={type} />
@@ -400,7 +400,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                 {formDetails[type].description}
               </ZoruCardDescription>
             </div>
-            <ZoruSwitch checked={isEnabled} onCheckedChange={setIsEnabled} />
+            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
           </div>
         </ZoruCardHeader>
         <ZoruCardContent
@@ -412,6 +412,6 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
           <SubmitButton />
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

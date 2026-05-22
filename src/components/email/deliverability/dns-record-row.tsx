@@ -55,9 +55,9 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
         <span className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
           {label ?? record.type}
         </span>
-        <ZoruBadge variant={statusToTone[record.status] ?? 'secondary'}>
+        <Badge variant={statusToTone[record.status] ?? 'secondary'}>
           {statusToLabel[record.status] ?? record.status}
-        </ZoruBadge>
+        </Badge>
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         {record.host ? (
@@ -72,7 +72,7 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
           <span className="text-xs text-zoru-danger-ink">{record.error}</span>
         ) : null}
       </div>
-      <ZoruButton
+      <Button
         type="button"
         variant="ghost"
         size="sm"
@@ -82,7 +82,7 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
       >
         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
         {copied ? 'Copied' : 'Copy'}
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

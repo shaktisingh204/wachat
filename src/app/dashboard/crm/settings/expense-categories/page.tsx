@@ -85,10 +85,10 @@ const saveInitialState: {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isEditing ? 'Save changes' : 'Create category'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -152,7 +152,7 @@ function ExpenseCategoryDialog({
     );
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-2xl">
                 <form action={formAction}>
                     {isEditing ? (
@@ -178,8 +178,8 @@ function ExpenseCategoryDialog({
 
                     <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
                         <div className="space-y-2 sm:col-span-2">
-                            <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="name">Name *</Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 placeholder="e.g. Travel & Transport"
@@ -189,8 +189,8 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="code">Code</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="code">Code</Label>
+                            <Input
                                 id="code"
                                 name="code"
                                 placeholder="e.g. TRV"
@@ -199,8 +199,8 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="parentId">Parent category</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="parentId">Parent category</Label>
+                            <Select
                                 value={parentId || 'none'}
                                 onValueChange={(v) => setParentId(v === 'none' ? '' : v)}
                             >
@@ -215,12 +215,12 @@ function ExpenseCategoryDialog({
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
 
                         <div className="space-y-2 sm:col-span-2">
-                            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                            <ZoruTextarea
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
                                 id="description"
                                 name="description"
                                 rows={2}
@@ -230,7 +230,7 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2 sm:col-span-2">
-                            <ZoruLabel>Default GL account</ZoruLabel>
+                            <Label>Default GL account</Label>
                             <EntityFormField
                                 entity="account"
                                 name="__defaultAccountId_picker"
@@ -245,8 +245,8 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="taxRate">Tax rate (%)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="taxRate">Tax rate (%)</Label>
+                            <Input
                                 id="taxRate"
                                 name="taxRate"
                                 type="number"
@@ -258,8 +258,8 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="maxAmount">Max amount</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="maxAmount">Max amount</Label>
+                            <Input
                                 id="maxAmount"
                                 name="maxAmount"
                                 type="number"
@@ -271,10 +271,10 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2 sm:col-span-2">
-                            <ZoruLabel htmlFor="requiresReceiptAbove">
+                            <Label htmlFor="requiresReceiptAbove">
                                 Requires receipt above
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="requiresReceiptAbove"
                                 name="requiresReceiptAbove"
                                 type="number"
@@ -289,23 +289,23 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel>Color</ZoruLabel>
+                            <Label>Color</Label>
                             <ZoruColorPicker value={color} onChange={setColor} />
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel>Icon</ZoruLabel>
+                            <Label>Icon</Label>
                             <ZoruIconPicker value={icon} onChange={setIcon} color={color} />
                         </div>
 
                         <div className="flex items-center justify-between rounded-md border border-border p-3">
                             <div>
-                                <ZoruLabel htmlFor="isBillable">Billable</ZoruLabel>
+                                <Label htmlFor="isBillable">Billable</Label>
                                 <p className="text-xs text-muted-foreground">
                                     Pass-through to customers.
                                 </p>
                             </div>
-                            <ZoruSwitch
+                            <Switch
                                 id="isBillable"
                                 checked={isBillable}
                                 onCheckedChange={setIsBillable}
@@ -314,12 +314,12 @@ function ExpenseCategoryDialog({
 
                         <div className="flex items-center justify-between rounded-md border border-border p-3">
                             <div>
-                                <ZoruLabel htmlFor="isReimbursable">Reimbursable</ZoruLabel>
+                                <Label htmlFor="isReimbursable">Reimbursable</Label>
                                 <p className="text-xs text-muted-foreground">
                                     Refundable to employees.
                                 </p>
                             </div>
-                            <ZoruSwitch
+                            <Switch
                                 id="isReimbursable"
                                 checked={isReimbursable}
                                 onCheckedChange={setIsReimbursable}
@@ -328,12 +328,12 @@ function ExpenseCategoryDialog({
 
                         <div className="flex items-center justify-between rounded-md border border-border p-3 sm:col-span-2">
                             <div>
-                                <ZoruLabel htmlFor="isActive">Active</ZoruLabel>
+                                <Label htmlFor="isActive">Active</Label>
                                 <p className="text-xs text-muted-foreground">
                                     Inactive categories are hidden from expense forms.
                                 </p>
                             </div>
-                            <ZoruSwitch
+                            <Switch
                                 id="isActive"
                                 checked={isActive}
                                 onCheckedChange={setIsActive}
@@ -342,14 +342,14 @@ function ExpenseCategoryDialog({
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -580,16 +580,16 @@ export default function ExpenseCategoriesPage() {
                 subtitle="Classify expenses for accounting, billing, and reimbursement."
                 primaryAction={
                     <div className="flex items-center gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             onClick={handleExport}
                             disabled={filtered.length === 0}
                         >
                             <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-                        </ZoruButton>
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                        </Button>
+                        <Button onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New Category
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 search={{
@@ -599,7 +599,7 @@ export default function ExpenseCategoriesPage() {
                 }}
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
@@ -611,8 +611,8 @@ export default function ExpenseCategoriesPage() {
                                 <ZoruSelectItem value="active">Active</ZoruSelectItem>
                                 <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={billableFilter}
                             onValueChange={(v) => setBillableFilter(v as BoolFilter)}
                         >
@@ -624,8 +624,8 @@ export default function ExpenseCategoriesPage() {
                                 <ZoruSelectItem value="true">Billable: yes</ZoruSelectItem>
                                 <ZoruSelectItem value="false">Billable: no</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={reimbursableFilter}
                             onValueChange={(v) => setReimbursableFilter(v as BoolFilter)}
                         >
@@ -637,17 +637,17 @@ export default function ExpenseCategoriesPage() {
                                 <ZoruSelectItem value="true">Reimbursable: yes</ZoruSelectItem>
                                 <ZoruSelectItem value="false">Reimbursable: no</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 }
                 loading={isLoading && categories.length === 0}
             >
                 {/* KPI strip */}
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
-                    <ZoruStatCard label="Total categories" value={totalCategories.toLocaleString()} />
-                    <ZoruStatCard label="Active" value={activeCategories.toLocaleString()} />
-                    <ZoruStatCard label="Inactive" value={inactiveCategories.toLocaleString()} />
-                    <ZoruStatCard
+                    <StatCard label="Total categories" value={totalCategories.toLocaleString()} />
+                    <StatCard label="Active" value={activeCategories.toLocaleString()} />
+                    <StatCard label="Inactive" value={inactiveCategories.toLocaleString()} />
+                    <StatCard
                         label="Top by sub-categories"
                         value={topCategoryName}
                     />
@@ -659,7 +659,7 @@ export default function ExpenseCategoriesPage() {
                         <span className="font-medium text-foreground">
                             {selectedIds.length} selected
                         </span>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             disabled={bulkPending}
@@ -667,17 +667,17 @@ export default function ExpenseCategoriesPage() {
                         >
                             {bulkPending ? <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
                             Activate
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             size="sm"
                             disabled={bulkPending}
                             onClick={handleBulkDeactivate}
                         >
                             Deactivate
-                        </ZoruButton>
+                        </Button>
                         <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                            <ZoruButton
+                            <Button
                                 variant="destructive"
                                 size="sm"
                                 disabled={bulkPending}
@@ -685,7 +685,7 @@ export default function ExpenseCategoriesPage() {
                             >
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                 Delete selected
-                            </ZoruButton>
+                            </Button>
                             <ZoruAlertDialogContent>
                                 <ZoruAlertDialogHeader>
                                     <ZoruAlertDialogTitle>
@@ -710,22 +710,22 @@ export default function ExpenseCategoriesPage() {
                                 </ZoruAlertDialogFooter>
                             </ZoruAlertDialogContent>
                         </ZoruAlertDialog>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelected(new Set())}
                         >
                             Clear selection
-                        </ZoruButton>
+                        </Button>
                     </div>
                 )}
 
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={allChecked}
                                         aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
                                         onCheckedChange={toggleAll}
@@ -770,7 +770,7 @@ export default function ExpenseCategoriesPage() {
                                 filtered.map((c) => (
                                     <ZoruTableRow key={c._id} className="border-border">
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(c._id)}
                                                 onCheckedChange={() => toggleOne(c._id)}
                                                 aria-label={`Select ${c.name}`}
@@ -875,28 +875,28 @@ export default function ExpenseCategoriesPage() {
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right">
-                                            <ZoruButton
+                                            <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => handleOpenDialog(c)}
                                                 aria-label={`Edit ${c.name}`}
                                             >
                                                 <Edit className="h-4 w-4" />
-                                            </ZoruButton>
-                                            <ZoruButton
+                                            </Button>
+                                            <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => setPendingDelete(c)}
                                                 aria-label={`Delete ${c.name}`}
                                             >
                                                 <Trash2 className="h-4 w-4 text-destructive" />
-                                            </ZoruButton>
+                                            </Button>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
             </EntityListShell>
 

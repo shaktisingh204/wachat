@@ -259,10 +259,10 @@ export default function TelegramConnectionsPage() {
                     href={`/dashboard/telegram/projects?next=${encodeURIComponent('/dashboard/telegram/connections')}`}
                     className="shrink-0"
                 >
-                    <ZoruButton variant="outline" size="sm">
+                    <Button variant="outline" size="sm">
                         {activeProject ? 'Switch project' : 'Pick a project'}
                         <ArrowRight className="h-3 w-3" />
-                    </ZoruButton>
+                    </Button>
                 </Link>
             </div>
 
@@ -291,18 +291,18 @@ export default function TelegramConnectionsPage() {
             ) : null}
 
             {/* Bot connection */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-[15px] text-zoru-ink">Bot API</h2>
-                            <ZoruBadge variant="ghost">Recommended</ZoruBadge>
+                            <Badge variant="ghost">Recommended</Badge>
                         </div>
                         <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                             Create a bot with @BotFather and paste the token below.
                         </p>
                     </div>
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() =>
@@ -315,14 +315,14 @@ export default function TelegramConnectionsPage() {
                     >
                         Open BotFather
                         <ExternalLink className="h-3 w-3" />
-                    </ZoruButton>
+                    </Button>
                 </div>
                 <div className="mt-5 flex flex-col gap-4">
                     <label className="flex flex-col gap-1.5">
                         <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                             Bot token
                         </span>
-                        <ZoruInput
+                        <Input
                             placeholder="123456789:AA-Example-TokenFromBotFather"
                             value={token}
                             onChange={(e) => setToken(e.target.value)}
@@ -338,7 +338,7 @@ export default function TelegramConnectionsPage() {
                             <code className="flex-1 truncate rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 font-mono text-[12px] text-zoru-ink">
                                 {placeholderWebhookUrl}
                             </code>
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() =>
@@ -351,7 +351,7 @@ export default function TelegramConnectionsPage() {
                                     <Copy className="h-3 w-3" />
                                 )}
                                 {copiedKey === 'placeholder' ? 'Copied' : 'Copy'}
-                            </ZoruButton>
+                            </Button>
                         </div>
                         <p className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
                             The real bot id is filled in automatically after you click
@@ -372,7 +372,7 @@ export default function TelegramConnectionsPage() {
                     </p>
                 ) : null}
                 <div className="mt-5 flex justify-end gap-2">
-                    <ZoruButton
+                    <Button
                         size="sm"
                         disabled={!token.trim() || submitting || !projectId}
                         onClick={async () => {
@@ -411,23 +411,23 @@ export default function TelegramConnectionsPage() {
                     >
                         {submitting ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                         Connect bot
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Connected bots — visible right where you connect them. */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-[15px] text-zoru-ink">
                                 Connected bots
                             </h2>
-                            <ZoruBadge variant="ghost">
+                            <Badge variant="ghost">
                                 {bots.length === 0
                                     ? 'None yet'
                                     : `${bots.length} active`}
-                            </ZoruBadge>
+                            </Badge>
                         </div>
                         <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                             Bots linked to this project. The webhook URL below is the
@@ -435,7 +435,7 @@ export default function TelegramConnectionsPage() {
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => void reloadBots()}
@@ -447,7 +447,7 @@ export default function TelegramConnectionsPage() {
                                 <RefreshCw className="h-3 w-3" />
                             )}
                             Refresh
-                        </ZoruButton>
+                        </Button>
                         <Link
                             href="/dashboard/telegram/bots"
                             className="text-[12px] text-zoru-ink hover:underline"
@@ -498,7 +498,7 @@ export default function TelegramConnectionsPage() {
                                                     <span className="font-mono text-[11.5px] text-zoru-ink-muted">
                                                         @{b.username}
                                                     </span>
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant={
                                                             b.status === 'active'
                                                                 ? 'success'
@@ -508,10 +508,10 @@ export default function TelegramConnectionsPage() {
                                                         }
                                                     >
                                                         {b.status}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </div>
                                             </div>
-                                            <ZoruButton
+                                            <Button
                                                 variant="outline"
                                                 size="sm"
                                                 disabled={isBusy}
@@ -553,13 +553,13 @@ export default function TelegramConnectionsPage() {
                                                     <Unlink className="h-3 w-3" />
                                                 )}
                                                 Disconnect
-                                            </ZoruButton>
+                                            </Button>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <code className="flex-1 truncate rounded-lg border border-zoru-line bg-zoru-surface px-2 py-1.5 font-mono text-[11.5px] text-zoru-ink">
                                                 {url}
                                             </code>
-                                            <ZoruButton
+                                            <Button
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => copy(url, b._id)}
@@ -570,7 +570,7 @@ export default function TelegramConnectionsPage() {
                                                     <Copy className="h-3 w-3" />
                                                 )}
                                                 {isCopied ? 'Copied' : 'Copy'}
-                                            </ZoruButton>
+                                            </Button>
                                         </div>
                                     </li>
                                 );
@@ -578,18 +578,18 @@ export default function TelegramConnectionsPage() {
                         </ul>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* MTProto / Client API — wired to telegram-api-credentials */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-[15px] text-zoru-ink">
                                 Client API (MTProto)
                             </h2>
-                            <ZoruBadge variant="ghost">Advanced</ZoruBadge>
-                            <ZoruBadge variant="warning">Preview</ZoruBadge>
+                            <Badge variant="ghost">Advanced</Badge>
+                            <Badge variant="warning">Preview</Badge>
                         </div>
                         <p className="mt-1 max-w-2xl text-[12.5px] text-zoru-ink-muted">
                             Needed for user-account automation: reading channel history,
@@ -599,7 +599,7 @@ export default function TelegramConnectionsPage() {
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() =>
@@ -612,7 +612,7 @@ export default function TelegramConnectionsPage() {
                         >
                             my.telegram.org
                             <ExternalLink className="h-3 w-3" />
-                        </ZoruButton>
+                        </Button>
                         <Link
                             href="/dashboard/telegram/api-credentials"
                             className="text-[12px] text-zoru-ink hover:underline"
@@ -671,11 +671,11 @@ export default function TelegramConnectionsPage() {
                                                     </span>
                                                 )}
                                             </span>
-                                            <ZoruBadge
+                                            <Badge
                                                 variant={STATUS_VARIANT[c.status] ?? 'ghost'}
                                             >
                                                 {STATUS_LABEL[c.status] ?? c.status}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </div>
                                         <p className="mt-0.5 font-mono text-[11.5px] text-zoru-ink-muted">
                                             api_id={c.apiId} · {c.phoneNumberMasked} ·{' '}
@@ -695,7 +695,7 @@ export default function TelegramConnectionsPage() {
                 </div>
 
                 <div className="mt-5 flex justify-end gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() =>
@@ -704,8 +704,8 @@ export default function TelegramConnectionsPage() {
                     >
                         Manage all
                         <ArrowRight className="h-3 w-3" />
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         onClick={() => {
                             setAddErr(null);
@@ -715,12 +715,12 @@ export default function TelegramConnectionsPage() {
                     >
                         <Plus className="h-3 w-3" />
                         Add credentials
-                    </ZoruButton>
+                    </Button>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Add credentials dialog — inline shortcut from the connections page. */}
-            <ZoruDialog open={addOpen} onOpenChange={setAddOpen}>
+            <Dialog open={addOpen} onOpenChange={setAddOpen}>
                 <ZoruDialogContent className="max-w-lg">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Add MTProto credentials</ZoruDialogTitle>
@@ -735,7 +735,7 @@ export default function TelegramConnectionsPage() {
                             <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                                 Label (optional)
                             </span>
-                            <ZoruInput
+                            <Input
                                 value={addLabel}
                                 onChange={(e) => setAddLabel(e.target.value)}
                                 placeholder="e.g. main user account"
@@ -746,7 +746,7 @@ export default function TelegramConnectionsPage() {
                                 <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                                     api_id
                                 </span>
-                                <ZoruInput
+                                <Input
                                     inputMode="numeric"
                                     value={apiId}
                                     placeholder="1234567"
@@ -757,7 +757,7 @@ export default function TelegramConnectionsPage() {
                                 <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                                     Phone number (E.164)
                                 </span>
-                                <ZoruInput
+                                <Input
                                     value={phoneNumber}
                                     placeholder="+14155552671"
                                     onChange={(e) => setPhoneNumber(e.target.value)}
@@ -768,7 +768,7 @@ export default function TelegramConnectionsPage() {
                             <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                                 api_hash
                             </span>
-                            <ZoruInput
+                            <Input
                                 type="password"
                                 value={apiHash}
                                 placeholder="32-character hex string"
@@ -782,7 +782,7 @@ export default function TelegramConnectionsPage() {
                                     Route through Telegram's test DC pair.
                                 </p>
                             </div>
-                            <ZoruSwitch
+                            <Switch
                                 checked={testMode}
                                 onCheckedChange={(v) => setTestMode(!!v)}
                             />
@@ -795,25 +795,25 @@ export default function TelegramConnectionsPage() {
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setAddOpen(false)}
                             disabled={addBusy}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             onClick={saveNewCredentials}
                             disabled={addBusy}
                         >
                             {addBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                             Save & open
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

@@ -208,7 +208,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<MessagesSquare />}
           title="No project selected"
           description="Pick a Facebook page / project to moderate visitor posts."
@@ -219,7 +219,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -233,7 +233,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Visitor Posts</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -243,7 +243,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruSelect
+          <Select
             value={filter}
             onValueChange={(v) => setFilter(v as StatusFilter)}
           >
@@ -256,32 +256,32 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
               <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
               <ZoruSelectItem value="spam">Spam</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          </Select>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load visitor posts</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="pt-6">
           {loading && posts.length === 0 ? (
             <div className="flex flex-col gap-2">
-              <ZoruSkeleton className="h-14 w-full" />
-              <ZoruSkeleton className="h-14 w-full" />
-              <ZoruSkeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
             </div>
           ) : filtered.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<MessagesSquare />}
               title={posts.length === 0 ? 'No visitor posts' : 'No matches'}
               description={
@@ -309,7 +309,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
                         <span className="line-clamp-1 text-sm font-medium text-zoru-ink">
                           {p.from?.name ?? 'Unknown visitor'}
                         </span>
-                        <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+                        <Badge variant={statusVariant(status)}>{status}</Badge>
                       </div>
                       <p className="line-clamp-2 text-xs text-zoru-ink-muted">
                         {preview}
@@ -324,9 +324,9 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSheet
+      <Sheet
         open={!!selected}
         onOpenChange={(open) => !open && closeSheet()}
       >
@@ -346,52 +346,52 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruBadge variant={statusVariant(inferStatus(selected))}>
+                <Badge variant={statusVariant(inferStatus(selected))}>
                   {inferStatus(selected)}
-                </ZoruBadge>
-                <ZoruBadge variant="outline">id: {selected.id}</ZoruBadge>
+                </Badge>
+                <Badge variant="outline">id: {selected.id}</Badge>
               </div>
 
               <div className="flex flex-col gap-2">
                 <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
                   Reply
                 </p>
-                <ZoruTextarea
+                <Textarea
                   rows={3}
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Type a reply as the Page..."
                 />
                 <div className="flex justify-end">
-                  <ZoruButton
+                  <Button
                     size="sm"
                     onClick={handleReply}
                     disabled={replying || !replyText.trim()}
                   >
                     <MessageSquareReply className="mr-2 h-4 w-4" />
                     {replying ? 'Posting...' : 'Post reply'}
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2 border-t border-zoru-line pt-3">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="ghost"
                   onClick={handleLike}
                   disabled={acting}
                 >
                   Like
-                </ZoruButton>
-                <ZoruButton size="sm" variant="ghost" onClick={handleHide}>
+                </Button>
+                <Button size="sm" variant="ghost" onClick={handleHide}>
                   <EyeOff className="mr-2 h-4 w-4" />
                   Hide
-                </ZoruButton>
-                <ZoruButton size="sm" variant="ghost" onClick={handleSpam}>
+                </Button>
+                <Button size="sm" variant="ghost" onClick={handleSpam}>
                   <Flag className="mr-2 h-4 w-4" />
                   Mark spam
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="destructive"
                   onClick={handleDelete}
@@ -400,12 +400,12 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
   const total = data.reduce((s, d) => s + d.count, 0);
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="flex items-center gap-2">
           <PieIcon className="h-4 w-4" /> {title}
@@ -77,13 +77,13 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
             </ul>
           </div>
         ) : (
-          <ZoruEmptyState
+          <EmptyState
             icon={<PieIcon />}
             title="No device data"
             description="Open events with user-agent metadata will populate this chart."
           />
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

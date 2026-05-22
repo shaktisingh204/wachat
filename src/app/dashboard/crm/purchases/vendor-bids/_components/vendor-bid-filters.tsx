@@ -76,7 +76,7 @@ export function VendorBidFilters(props: VendorBidFiltersProps) {
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           <EnumFilterField
             enumName="vendorBidStatus"
             value={statusFilter}
@@ -86,7 +86,7 @@ export function VendorBidFilters(props: VendorBidFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Linked RFQ</ZoruLabel>
+          <Label>Linked RFQ</Label>
           <EntityFormField
             entity="rfq"
             name="_filter_rfq"
@@ -97,7 +97,7 @@ export function VendorBidFilters(props: VendorBidFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Vendor</ZoruLabel>
+          <Label>Vendor</Label>
           <EntityFormField
             entity="vendor"
             name="_filter_vendor"
@@ -107,8 +107,8 @@ export function VendorBidFilters(props: VendorBidFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Lead time</ZoruLabel>
-          <ZoruSelect value={leadTimeFilter} onValueChange={onLeadTimeChange}>
+          <Label>Lead time</Label>
+          <Select value={leadTimeFilter} onValueChange={onLeadTimeChange}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -119,20 +119,20 @@ export function VendorBidFilters(props: VendorBidFiltersProps) {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Submitted — from</ZoruLabel>
-          <ZoruInput
+          <Label>Submitted — from</Label>
+          <Input
             type="date"
             value={submittedFrom}
             onChange={(e) => onSubmittedFromChange(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Submitted — to</ZoruLabel>
-          <ZoruInput
+          <Label>Submitted — to</Label>
+          <Input
             type="date"
             value={submittedTo}
             onChange={(e) => onSubmittedToChange(e.target.value)}

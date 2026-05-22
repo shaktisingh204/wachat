@@ -58,10 +58,10 @@ function AnalyticsSkeleton() {
     <div className="flex w-full flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-28 w-full" />
+          <Skeleton key={i} className="h-28 w-full" />
         ))}
       </div>
-      <ZoruSkeleton className="h-80 w-full" />
+      <Skeleton className="h-80 w-full" />
     </div>
   );
 }
@@ -79,7 +79,7 @@ export default function SabChatAnalyticsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -95,50 +95,50 @@ export default function SabChatAnalyticsPage() {
             <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Analytics</ZoruPageTitle>
           <ZoruPageDescription>
             SabChat performance metrics.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {isLoading || !data ? (
         <AnalyticsSkeleton />
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            <ZoruStatCard
+            <StatCard
               label="Total chats"
               value={data.totalChats.toLocaleString()}
               icon={<MessageSquare />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Open chats"
               value={data.openChats.toLocaleString()}
               icon={<Inbox />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Closed chats"
               value={data.closedChats.toLocaleString()}
               icon={<CheckCircle />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Avg. first response"
               value={`${data.avgResponseTime}s`}
               icon={<Clock />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Customer satisfaction"
               value={`${data.satisfaction}%`}
               icon={<Smile />}
             />
           </div>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Daily chat volume</ZoruCardTitle>
             </ZoruCardHeader>
@@ -176,7 +176,7 @@ export default function SabChatAnalyticsPage() {
                 </ZoruChart.BarChart>
               </ZoruChartContainer>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       )}
     </div>

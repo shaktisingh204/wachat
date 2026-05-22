@@ -17,9 +17,9 @@ import { Suspense } from "react";
 function ChatPageFallback() {
   return (
     <div className="flex h-full w-full gap-3 p-3">
-      <ZoruSkeleton className="h-full w-full md:w-[320px] md:shrink-0" />
-      <ZoruSkeleton className="hidden h-full flex-1 md:block" />
-      <ZoruSkeleton className="hidden h-full w-[300px] shrink-0 lg:block" />
+      <Skeleton className="h-full w-full md:w-[320px] md:shrink-0" />
+      <Skeleton className="hidden h-full flex-1 md:block" />
+      <Skeleton className="hidden h-full w-[300px] shrink-0 lg:block" />
     </div>
   );
 }

@@ -289,11 +289,11 @@ export default function PaymentReceiptsPage() {
                     placeholder: 'Search by receipt #, reference, txn id…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/sales/receipts/new">
                             <Plus className="h-4 w-4" /> New Receipt
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <ReceiptFiltersRow
@@ -356,11 +356,11 @@ export default function PaymentReceiptsPage() {
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Record your first payment received from a customer.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/sales/receipts/new">
                                     <Plus className="h-4 w-4" /> Add first receipt
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

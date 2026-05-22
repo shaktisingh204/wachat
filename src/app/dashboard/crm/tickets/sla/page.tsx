@@ -264,22 +264,22 @@ export default function SlaPoliciesPage(): React.JSX.Element {
     <>
       {/* KPI strip */}
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <ZoruStatCard
+        <StatCard
           label="Total policies"
           value={kpi.total.toLocaleString()}
           icon={<Shield className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Active"
           value={kpi.active.toLocaleString()}
           icon={<ShieldCheck className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Short-response (<= 15m)"
           value={kpi.shortResponse.toLocaleString()}
           icon={<ShieldAlert className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="At-risk (<= 1h resolution)"
           value={kpi.atRisk.toLocaleString()}
           icon={<Timer className="h-4 w-4" />}
@@ -291,19 +291,19 @@ export default function SlaPoliciesPage(): React.JSX.Element {
         subtitle="Define first-response and resolution targets per ticket priority."
         primaryAction={
           <>
-            <ZoruButton variant="outline" onClick={handleExport}>
+            <Button variant="outline" onClick={handleExport}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton asChild>
+            </Button>
+            <Button asChild>
               <Link href="/dashboard/crm/tickets/sla/new">
                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New SLA
               </Link>
-            </ZoruButton>
+            </Button>
           </>
         }
         search={{ value: search, onChange: setSearch, placeholder: 'Search policy name…' }}
         filters={
-          <ZoruSelect value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
             <ZoruSelectTrigger className="h-9 w-[160px]">
               <ZoruSelectValue placeholder="Status" />
             </ZoruSelectTrigger>
@@ -312,38 +312,38 @@ export default function SlaPoliciesPage(): React.JSX.Element {
               <ZoruSelectItem value="active">Active</ZoruSelectItem>
               <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         }
         bulkBar={
           selection.size > 0 ? (
             <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selection.size} selected</span>
-              <ZoruButton variant="outline" size="sm" onClick={() => setConfirmBulk('activate')} disabled={isPending}>
+              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('activate')} disabled={isPending}>
                 <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Activate
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={() => setConfirmBulk('deactivate')} disabled={isPending}>
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('deactivate')} disabled={isPending}>
                 <ShieldOff className="mr-1 h-3.5 w-3.5" /> Deactivate
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="mr-1 h-3.5 w-3.5" /> Export
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={isPending}>
+              </Button>
+              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={isPending}>
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
                 <X className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
         loading={isLoading && rows.length === 0}
       >
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allChecked || (someChecked ? 'indeterminate' : false)}
                     onCheckedChange={(v) => handleToggleAll(!!v)}
                     aria-label="Select all"
@@ -377,7 +377,7 @@ export default function SlaPoliciesPage(): React.JSX.Element {
                 filtered.map((r) => (
                   <ZoruTableRow key={r._id} className="border-zoru-line">
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selection.has(r._id)}
                         onCheckedChange={() => handleToggle(r._id)}
                         aria-label={`Select ${r.name}`}
@@ -395,15 +395,15 @@ export default function SlaPoliciesPage(): React.JSX.Element {
                             <div>
                               <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Priority</dt>
                               <dd className="mt-0.5">
-                                <ZoruBadge variant={priorityVariant(r.priority)}>{r.priority}</ZoruBadge>
+                                <Badge variant={priorityVariant(r.priority)}>{r.priority}</Badge>
                               </dd>
                             </div>
                             <div>
                               <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Status</dt>
                               <dd className="mt-0.5">
-                                <ZoruBadge variant={r.active ? 'success' : 'ghost'}>
+                                <Badge variant={r.active ? 'success' : 'ghost'}>
                                   {r.active ? 'Active' : 'Archived'}
-                                </ZoruBadge>
+                                </Badge>
                               </dd>
                             </div>
                             <div>
@@ -432,30 +432,30 @@ export default function SlaPoliciesPage(): React.JSX.Element {
                             </div>
                           ) : null}
                           <div className="flex gap-2 pt-2">
-                            <ZoruButton asChild size="sm" variant="outline">
+                            <Button asChild size="sm" variant="outline">
                               <Link href={`/dashboard/crm/tickets/sla/${r._id}`}>View details</Link>
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </div>
                       </RowDrawer>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={priorityVariant(r.priority)}>{r.priority}</ZoruBadge>
+                      <Badge variant={priorityVariant(r.priority)}>{r.priority}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink">{fmtMins(r.firstResponseMinutes)}</ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink">{fmtMins(r.resolutionMinutes)}</ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={r.businessHoursOnly ? 'success' : 'ghost'}>
+                      <Badge variant={r.businessHoursOnly ? 'success' : 'ghost'}>
                         {r.businessHoursOnly ? 'Yes' : 'No'}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={r.active ? 'success' : 'ghost'}>
+                      <Badge variant={r.active ? 'success' : 'ghost'}>
                         {r.active ? 'Active' : 'Archived'}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon"
                         className="text-zoru-danger"
@@ -463,13 +463,13 @@ export default function SlaPoliciesPage(): React.JSX.Element {
                         aria-label={`Delete ${r.name}`}
                       >
                         <Trash2 className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
       </EntityListShell>
 

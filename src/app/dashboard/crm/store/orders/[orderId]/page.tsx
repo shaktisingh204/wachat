@@ -104,7 +104,7 @@ export default async function StoreOrderDetailPage({
                 />
             }
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Order details
                 </h2>
@@ -141,9 +141,9 @@ export default async function StoreOrderDetailPage({
                         </span>
                     </Field>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Line items
                 </h2>
@@ -179,7 +179,7 @@ export default async function StoreOrderDetailPage({
                         })}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

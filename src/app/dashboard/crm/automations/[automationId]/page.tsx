@@ -62,16 +62,16 @@ export default async function AutomationDetailPage({
             title={automation.name}
             back={{ href: BASE, label: 'Automations' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${automationId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
@@ -108,10 +108,10 @@ export default async function AutomationDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Nodes timeline */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center justify-between">
                     <div className="text-[15px] font-medium text-zoru-ink">Nodes</div>
                     <div className="text-[12px] text-zoru-ink-muted">
@@ -139,9 +139,9 @@ export default async function AutomationDetailPage({
                                     <span className="font-mono text-[11px] text-zoru-ink-muted">
                                         #{i + 1}
                                     </span>
-                                    <ZoruBadge variant="ghost">
+                                    <Badge variant="ghost">
                                         {n.type.replace(/^action_/, '').replace(/_/g, ' ')}
-                                    </ZoruBadge>
+                                    </Badge>
                                     <span className="text-[13px] font-medium text-zoru-ink">
                                         {label}
                                     </span>
@@ -150,7 +150,7 @@ export default async function AutomationDetailPage({
                         })}
                     </ol>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

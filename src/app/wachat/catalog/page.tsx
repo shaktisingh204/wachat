@@ -49,7 +49,7 @@ import * as React from 'react';
 
 function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
   return (
-    <ZoruCard className="flex flex-col p-5">
+    <Card className="flex flex-col p-5">
       <div className="flex items-center gap-3">
         <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
           <ShoppingBag className="h-[18px] w-[18px]" />
@@ -73,14 +73,14 @@ function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
       </div>
 
       <div className="mt-auto pt-5">
-        <ZoruButton asChild block>
+        <Button asChild block>
           <Link href={`/wachat/catalog/${catalog.metaCatalogId}`}>
             <ShoppingBag className="h-3.5 w-3.5" />
             View products
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -113,7 +113,7 @@ export default function CatalogPage() {
 
   const header = (
     <>
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -127,9 +127,9 @@ export default function CatalogPage() {
             <ZoruBreadcrumbPage>Catalog</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Ecomm + catalog</ZoruPageTitle>
             <ZoruPageDescription>
@@ -137,7 +137,7 @@ export default function CatalogPage() {
               multi-product carousels.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
         {hasCatalogAccess && activeProjectId ? (
           <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
         ) : null}
@@ -151,7 +151,7 @@ export default function CatalogPage() {
         {header}
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[220px]" />
+            <Skeleton key={i} className="h-[220px]" />
           ))}
         </div>
       </div>
@@ -162,11 +162,11 @@ export default function CatalogPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {header}
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert className="h-10 w-10" />}
           title="No project selected"
           description="Please select a WhatsApp project from the main dashboard to manage its catalog."
-          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
       </div>
     );
@@ -176,7 +176,7 @@ export default function CatalogPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {header}
-        <ZoruEmptyState
+        <EmptyState
           icon={<CircleAlert className="h-10 w-10" />}
           title="Invalid project type"
           description="This section is for WhatsApp projects. The selected project is not a WhatsApp project."
@@ -190,7 +190,7 @@ export default function CatalogPage() {
       {header}
 
       {!hasCatalogAccess ? (
-        <ZoruCard className="p-8">
+        <Card className="p-8">
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <span className="flex h-16 w-16 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-danger/10 text-zoru-danger-ink">
               <Lock className="h-7 w-7" />
@@ -219,7 +219,7 @@ export default function CatalogPage() {
               )}
             </div>
           </div>
-        </ZoruCard>
+        </Card>
       ) : catalogs.length > 0 ? (
         <div>
           <div className="mb-4 flex items-center justify-between">
@@ -234,7 +234,7 @@ export default function CatalogPage() {
           </div>
         </div>
       ) : (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
               <GitBranch className="h-4 w-4" />
@@ -355,7 +355,7 @@ export default function CatalogPage() {
               </p>
             </GuideStep>
           </div>
-        </ZoruCard>
+        </Card>
       )}
     </div>
   );

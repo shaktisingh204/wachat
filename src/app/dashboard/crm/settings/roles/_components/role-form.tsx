@@ -62,17 +62,17 @@ export function RoleForm({
   }, [state, toast, router, isEditing, initialData]);
 
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <form action={formAction} className="max-w-xl space-y-4 p-6">
         {isEditing ? (
           <input type="hidden" name="_id" value={initialData!._id} />
         ) : null}
 
         <div>
-          <ZoruLabel htmlFor="display_name">
+          <Label htmlFor="display_name">
             Display name <span className="text-zoru-danger-ink">*</span>
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             id="display_name"
             name="display_name"
             required
@@ -82,8 +82,8 @@ export function RoleForm({
         </div>
 
         <div>
-          <ZoruLabel htmlFor="name">Slug</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="name">Slug</Label>
+          <Input
             id="name"
             name="name"
             placeholder="auto-generated from display name"
@@ -98,8 +98,8 @@ export function RoleForm({
         </div>
 
         <div>
-          <ZoruLabel htmlFor="description">Description</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="description">Description</Label>
+          <Textarea
             id="description"
             name="description"
             rows={3}
@@ -108,7 +108,7 @@ export function RoleForm({
         </div>
 
         <div className="flex items-start gap-2">
-          <ZoruCheckbox
+          <Checkbox
             id="is_admin"
             name="is_admin"
             value="true"
@@ -116,9 +116,9 @@ export function RoleForm({
             disabled={initialData?.is_system ?? false}
           />
           <div className="space-y-1">
-            <ZoruLabel htmlFor="is_admin" className="text-[13px] text-zoru-ink">
+            <Label htmlFor="is_admin" className="text-[13px] text-zoru-ink">
               Admin role — grants all permissions automatically
-            </ZoruLabel>
+            </Label>
             {initialData?.is_system ? (
               <p className="text-[12px] text-zoru-ink-muted">
                 System roles cannot have their admin flag changed.
@@ -128,22 +128,22 @@ export function RoleForm({
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <ZoruButton type="button" variant="outline" asChild>
+          <Button type="button" variant="outline" asChild>
             <Link href={isEditing ? `${BASE}/${initialData!._id}` : BASE}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Cancel
             </Link>
-          </ZoruButton>
-          <ZoruButton type="submit" disabled={isPending}>
+          </Button>
+          <Button type="submit" disabled={isPending}>
             {isPending ? (
               <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create role'}
-          </ZoruButton>
+          </Button>
         </div>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

@@ -22,12 +22,12 @@ export default function JsonFormatterPage() {
 
   return (
     <ToolShell title="JSON Formatter" description="Format or minify JSON with validation.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[260px] font-mono text-xs" placeholder='{"hello": "world"}' />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[260px] font-mono text-xs" placeholder='{"hello": "world"}' />
       <div className="flex gap-2">
-        <ZoruButton onClick={format}>Format</ZoruButton>
-        <ZoruButton variant="outline" onClick={minify}>Minify</ZoruButton>
+        <Button onClick={format}>Format</Button>
+        <Button variant="outline" onClick={minify}>Minify</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
     </ToolShell>
   );
 }

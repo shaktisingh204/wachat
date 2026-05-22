@@ -28,7 +28,7 @@ export default function NewProductPage() {
 
   return (
     <div className="space-y-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -46,22 +46,22 @@ export default function NewProductPage() {
             <ZoruBreadcrumbPage>New product</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Add new product</ZoruPageTitle>
           <ZoruPageDescription>
             Fill in the details to add a new product to your catalog.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruButton variant="ghost" size="sm" asChild className="-ml-2">
+      <Button variant="ghost" size="sm" asChild className="-ml-2">
         <Link href={backHref}>
           <ArrowLeft className="mr-1 h-4 w-4" /> Back to products
         </Link>
-      </ZoruButton>
+      </Button>
 
       <ProductForm />
     </div>

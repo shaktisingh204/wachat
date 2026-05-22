@@ -14,7 +14,7 @@ export default function DeprecatedCannedMessagesPage() {
   }, [router]);
 
   return (
-    <ZoruEmptyState
+    <EmptyState
       icon={<Loader2 className="h-6 w-6 animate-spin" strokeWidth={1.75} />}
       title="This page has moved"
       description="Redirecting you to Settings → Canned messages…"

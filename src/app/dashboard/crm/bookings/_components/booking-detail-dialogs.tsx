@@ -70,7 +70,7 @@ export function BookingCancelDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Cancel this booking?</ZoruDialogTitle>
@@ -81,8 +81,8 @@ export function BookingCancelDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="cancel-reason">Reason</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="cancel-reason">Reason</Label>
+            <Textarea
               id="cancel-reason"
               rows={3}
               value={reason}
@@ -93,19 +93,19 @@ export function BookingCancelDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Back
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="destructive"
             onClick={onSubmit}
             disabled={pending}
           >
             {pending ? 'Cancelling…' : 'Cancel booking'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -172,7 +172,7 @@ export function BookingRescheduleDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Reschedule booking</ZoruDialogTitle>
@@ -183,8 +183,8 @@ export function BookingRescheduleDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="resched-start">New start</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="resched-start">New start</Label>
+            <Input
               id="resched-start"
               type="datetime-local"
               value={start}
@@ -193,8 +193,8 @@ export function BookingRescheduleDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="resched-end">New end</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="resched-end">New end</Label>
+            <Input
               id="resched-end"
               type="datetime-local"
               value={end}
@@ -204,15 +204,15 @@ export function BookingRescheduleDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Reschedule'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -255,7 +255,7 @@ export function BookingSendConfirmationDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Send confirmation</ZoruDialogTitle>
@@ -265,8 +265,8 @@ export function BookingSendConfirmationDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="bcd-to">Recipient email</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="bcd-to">Recipient email</Label>
+            <Input
               id="bcd-to"
               type="email"
               value={to}
@@ -276,8 +276,8 @@ export function BookingSendConfirmationDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="bcd-msg">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="bcd-msg">Message</Label>
+            <Textarea
               id="bcd-msg"
               rows={4}
               value={message}
@@ -287,12 +287,12 @@ export function BookingSendConfirmationDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit}>Open mail client</ZoruButton>
+          </Button>
+          <Button onClick={onSubmit}>Open mail client</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

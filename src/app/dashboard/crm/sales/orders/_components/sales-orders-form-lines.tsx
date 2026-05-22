@@ -68,9 +68,9 @@ export function SoLineItemsTable({
         <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Line items
         </h3>
-        <ZoruButton type="button" variant="outline" size="sm" onClick={onAdd}>
+        <Button type="button" variant="outline" size="sm" onClick={onAdd}>
           <Plus className="h-3.5 w-3.5" /> Add line
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="overflow-x-auto rounded-md border border-zoru-line">
@@ -105,7 +105,7 @@ export function SoLineItemsTable({
                       />
                     </td>
                     <td className="min-w-[180px] p-2">
-                      <ZoruInput
+                      <Input
                         value={row.description}
                         onChange={(e) => onPatch(row.key, { description: e.target.value })}
                         placeholder="Description"
@@ -113,7 +113,7 @@ export function SoLineItemsTable({
                       />
                     </td>
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         type="number"
                         step="any"
                         min={0}
@@ -132,7 +132,7 @@ export function SoLineItemsTable({
                       />
                     </td>
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         type="number"
                         step="any"
                         min={0}
@@ -142,7 +142,7 @@ export function SoLineItemsTable({
                       />
                     </td>
                     <td className="p-2">
-                      <ZoruInput
+                      <Input
                         type="number"
                         step="any"
                         min={0}
@@ -161,7 +161,7 @@ export function SoLineItemsTable({
                       {fmtMoney(total, currency)}
                     </td>
                     <td className="p-2 text-right">
-                      <ZoruButton
+                      <Button
                         type="button"
                         size="sm"
                         variant="ghost"
@@ -170,7 +170,7 @@ export function SoLineItemsTable({
                         className="text-zoru-danger-ink"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
+                      </Button>
                     </td>
                   </tr>
                   {editing &&

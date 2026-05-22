@@ -13,11 +13,11 @@ import { AdminLayout } from '@/components/admin-panel/layout/admin-layout';
 
 const FullPageSkeleton = () => (
     <div className="flex h-screen w-screen bg-background p-2 gap-2">
-        <div className="w-16 rounded-lg bg-card p-2"><ZoruSkeleton className="h-full w-full" /></div>
-        <div className="w-[70px] rounded-lg bg-card p-2"><ZoruSkeleton className="h-full w-full" /></div>
+        <div className="w-16 rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
+        <div className="w-[70px] rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
         <div className="flex-1 flex flex-col gap-2">
-            <div className="h-16 rounded-lg bg-card p-4"><ZoruSkeleton className="h-full w-full" /></div>
-            <div className="flex-1 rounded-lg bg-card p-4"><ZoruSkeleton className="h-full w-full" /></div>
+            <div className="h-16 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="flex-1 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
         </div>
     </div>
 );

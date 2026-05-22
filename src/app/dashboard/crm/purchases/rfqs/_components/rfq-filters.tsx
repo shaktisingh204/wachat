@@ -84,7 +84,7 @@ export function RfqFilters(props: RfqFiltersProps) {
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           <EnumFilterField
             enumName="rfqStatus"
             value={statusFilter}
@@ -94,7 +94,7 @@ export function RfqFilters(props: RfqFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Owner</ZoruLabel>
+          <Label>Owner</Label>
           <EntityFormField
             entity="user"
             name="_filter_owner"
@@ -104,8 +104,8 @@ export function RfqFilters(props: RfqFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Scope category</ZoruLabel>
-          <ZoruSelect value={scopeFilter} onValueChange={onScopeChange}>
+          <Label>Scope category</Label>
+          <Select value={scopeFilter} onValueChange={onScopeChange}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -116,12 +116,12 @@ export function RfqFilters(props: RfqFiltersProps) {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Vendors invited</ZoruLabel>
-          <ZoruSelect
+          <Label>Vendors invited</Label>
+          <Select
             value={vendorsInvitedFilter}
             onValueChange={onVendorsInvitedChange}
           >
@@ -135,20 +135,20 @@ export function RfqFilters(props: RfqFiltersProps) {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Deadline — from</ZoruLabel>
-          <ZoruInput
+          <Label>Deadline — from</Label>
+          <Input
             type="date"
             value={deadlineFrom}
             onChange={(e) => onDeadlineFromChange(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Deadline — to</ZoruLabel>
-          <ZoruInput
+          <Label>Deadline — to</Label>
+          <Input
             type="date"
             value={deadlineTo}
             onChange={(e) => onDeadlineToChange(e.target.value)}

@@ -75,10 +75,10 @@ function resolveStatus(form: WithId<CrmForm>): string {
 
 function StatusBadge({ form }: { form: WithId<CrmForm> }) {
   const s = resolveStatus(form);
-  if (s === 'published') return <ZoruBadge variant="success">Published</ZoruBadge>;
-  if (s === 'draft') return <ZoruBadge variant="outline">Draft</ZoruBadge>;
-  if (s === 'archived') return <ZoruBadge variant="default">Archived</ZoruBadge>;
-  return <ZoruBadge variant="outline">{s}</ZoruBadge>;
+  if (s === 'published') return <Badge variant="success">Published</Badge>;
+  if (s === 'draft') return <Badge variant="outline">Draft</Badge>;
+  if (s === 'archived') return <Badge variant="default">Archived</Badge>;
+  return <Badge variant="outline">{s}</Badge>;
 }
 
 /* ─── KPI card ─────────────────────────────────────────────────────── */
@@ -293,18 +293,18 @@ export default function CrmFormsPage() {
         search={{ value: searchQuery, onChange: handleSearch, placeholder: 'Search forms…' }}
         primaryAction={
           <Link href="/dashboard/crm/sales-crm/forms/new">
-            <ZoruButton>
+            <Button>
               <Plus className="h-4 w-4" /> New Form
-            </ZoruButton>
+            </Button>
           </Link>
         }
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Status
-              </ZoruLabel>
-              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+              </Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <ZoruSelectTrigger className="h-8 w-[150px]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -314,49 +314,49 @@ export default function CrmFormsPage() {
                   <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                   <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             {statusFilter !== 'all' ? (
-              <ZoruButton variant="ghost" size="sm" onClick={() => setStatusFilter('all')}>
+              <Button variant="ghost" size="sm" onClick={() => setStatusFilter('all')}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
-              <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
-              <ZoruButton
+              <Badge variant="info">{selected.size} selected</Badge>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setBulkPublishPending(true)}
                 disabled={bulkPending}
               >
                 <Globe className="h-3.5 w-3.5" /> Publish
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setBulkArchivePending(true)}
                 disabled={bulkPending}
               >
                 <Archive className="h-3.5 w-3.5" /> Archive
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => setBulkDeletePending(true)}
                 disabled={bulkPending}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -387,19 +387,19 @@ export default function CrmFormsPage() {
 
         {/* Export bar */}
         <div className="flex items-center justify-end">
-          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+          <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
+          </Button>
         </div>
 
         {isLoading && forms.length === 0 ? (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
-              <ZoruSkeleton key={i} className="h-12 w-full" />
+              <Skeleton key={i} className="h-12 w-full" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <ZoruCard variant="outline" className="border-dashed">
+          <Card variant="outline" className="border-dashed">
             <div className="flex flex-col items-center gap-3 py-12 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
                 <ClipboardList
@@ -414,20 +414,20 @@ export default function CrmFormsPage() {
                   : 'Create your first form to start capturing leads.'}
               </p>
               <Link href="/dashboard/crm/sales-crm/forms/new">
-                <ZoruButton>
+                <Button>
                   <Plus className="h-4 w-4" /> Create Form
-                </ZoruButton>
+                </Button>
               </Link>
             </div>
-          </ZoruCard>
+          </Card>
         ) : (
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             <div className="overflow-x-auto">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10 pl-3">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allSelectedOnPage}
                         onCheckedChange={toggleAll}
                         aria-label="Select all on page"
@@ -446,7 +446,7 @@ export default function CrmFormsPage() {
                     return (
                       <ZoruTableRow key={id} className="border-zoru-line">
                         <ZoruTableCell className="pl-3">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={selected.has(id)}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${form.name}`}
@@ -478,56 +478,56 @@ export default function CrmFormsPage() {
                               rel="noopener noreferrer"
                               aria-label="Preview embed"
                             >
-                              <ZoruButton variant="ghost" size="icon">
+                              <Button variant="ghost" size="icon">
                                 <Eye className="h-4 w-4" />
-                              </ZoruButton>
+                              </Button>
                             </a>
                             <Link href={`/dashboard/crm/sales-crm/forms/${id}/edit`}>
-                              <ZoruButton variant="ghost" size="icon" aria-label="Edit">
+                              <Button variant="ghost" size="icon" aria-label="Edit">
                                 <Edit className="h-4 w-4" />
-                              </ZoruButton>
+                              </Button>
                             </Link>
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="icon"
                               aria-label="Delete"
                               onClick={() => setDeletingId(id)}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         )}
 
         {/* Pagination */}
         {totalPages > 1 ? (
           <div className="flex items-center justify-between">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage((p) => p - 1)}
             >
               Previous
-            </ZoruButton>
+            </Button>
             <span className="text-[13px] text-zoru-ink-muted">
               Page {currentPage} of {totalPages}
             </span>
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
             >
               Next
-            </ZoruButton>
+            </Button>
           </div>
         ) : null}
       </EntityListShell>

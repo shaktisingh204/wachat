@@ -282,7 +282,7 @@ export function GrnListClient({
                 onPick={pickKpiBucket}
             />
 
-            <ZoruCard className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0">
                 <GrnFiltersBar
                     filters={filters}
                     onQueryChange={setQuery}
@@ -307,11 +307,11 @@ export function GrnListClient({
                     onDelete={() => setPendingBulkDelete(true)}
                 />
 
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead className="w-[36px]">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={allSelected}
                                     onCheckedChange={toggleAll}
                                     aria-label="Select all"
@@ -369,7 +369,7 @@ export function GrnListClient({
                                         data-state={isSelected ? 'selected' : undefined}
                                     >
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={isSelected}
                                                 onCheckedChange={() => toggleOne(id)}
                                                 aria-label={`Select ${grn.grnNo}`}
@@ -439,7 +439,7 @@ export function GrnListClient({
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                <ZoruButton
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     asChild
@@ -450,22 +450,22 @@ export function GrnListClient({
                                                     >
                                                         <ArrowRightCircle className="h-3.5 w-3.5" />
                                                     </Link>
-                                                </ZoruButton>
-                                                <ZoruButton size="sm" variant="ghost" asChild>
+                                                </Button>
+                                                <Button size="sm" variant="ghost" asChild>
                                                     <Link
                                                         href={`/dashboard/crm/inventory/grn/${id}/edit`}
                                                     >
                                                         <Pencil className="h-3.5 w-3.5" />
                                                     </Link>
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => setPendingDelete(grn)}
                                                     className="text-zoru-danger-ink"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -473,7 +473,7 @@ export function GrnListClient({
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
 
                 <PaginationBar page={page} limit={limit} hasMore={hasMore} />
 
@@ -545,7 +545,7 @@ export function GrnListClient({
                         </ZoruAlertDialogFooter>
                     </ZoruAlertDialogContent>
                 </ZoruAlertDialog>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

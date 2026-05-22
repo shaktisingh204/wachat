@@ -56,14 +56,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create batch'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -90,7 +90,7 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="batchId" value={initialData!._id} />
@@ -99,7 +99,7 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                 {/* Row 1: Item picker + Batch number */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="itemId">Item *</ZoruLabel>
+                        <Label htmlFor="itemId">Item *</Label>
                         <EntityFormField
                             entity="item"
                             name="itemId"
@@ -110,8 +110,8 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="batchNumber">Batch number *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="batchNumber">Batch number *</Label>
+                        <Input
                             id="batchNumber"
                             name="batchNumber"
                             required
@@ -124,8 +124,8 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                 {/* Row 2: Manufacture + Expiry */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="manufactureDate">Manufacture date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="manufactureDate">Manufacture date</Label>
+                        <Input
                             id="manufactureDate"
                             name="manufactureDate"
                             type="date"
@@ -133,8 +133,8 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiryDate">Expiry date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiryDate">Expiry date</Label>
+                        <Input
                             id="expiryDate"
                             name="expiryDate"
                             type="date"
@@ -146,8 +146,8 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                 {/* Row 3: Quantity + Unit + Cost */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="quantity">Quantity *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="quantity">Quantity *</Label>
+                        <Input
                             id="quantity"
                             name="quantity"
                             type="number"
@@ -158,8 +158,8 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="unit">Unit</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="unit">Unit</Label>
+                        <Input
                             id="unit"
                             name="unit"
                             placeholder="e.g. PCS, KG, L"
@@ -167,8 +167,8 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="costPrice">Cost price</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="costPrice">Cost price</Label>
+                        <Input
                             id="costPrice"
                             name="costPrice"
                             type="number"
@@ -182,7 +182,7 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                 {/* Row 4: Location + Supplier */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="locationId">Location (warehouse)</ZoruLabel>
+                        <Label htmlFor="locationId">Location (warehouse)</Label>
                         <EntityFormField
                             entity="warehouse"
                             name="locationId"
@@ -191,7 +191,7 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="supplierId">Supplier</ZoruLabel>
+                        <Label htmlFor="supplierId">Supplier</Label>
                         <EntityFormField
                             entity="vendor"
                             name="supplierId"
@@ -204,7 +204,7 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                 {/* Row 5: Status + Notes */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                        <Label htmlFor="status">Status</Label>
                         <EnumFormField
                             enumName="itemBatchStatus"
                             name="status"
@@ -212,8 +212,8 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={2}
@@ -225,14 +225,14 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to batches
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

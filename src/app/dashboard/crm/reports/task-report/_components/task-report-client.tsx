@@ -147,7 +147,7 @@ export function TaskReportClient({ data, filters }: Props) {
             className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
-        <ZoruButton type="submit" size="sm">Apply</ZoruButton>
+        <Button type="submit" size="sm">Apply</Button>
       </form>
 
       {/* KPIs */}
@@ -164,7 +164,7 @@ export function TaskReportClient({ data, filters }: Props) {
       </div>
 
       {/* Chart */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">Tasks completed per week</h2>
           <p className="mt-0.5 text-[12.5px] text-muted-foreground">Weekly completion trend across the selected range.</p>
@@ -195,16 +195,16 @@ export function TaskReportClient({ data, filters }: Props) {
             </ResponsiveContainer>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Export toolbar */}
       <div className="flex justify-end">
-        <ZoruDropdownMenu>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton variant="outline" size="sm">
+            <Button variant="outline" size="sm">
               <Download className="mr-1.5 h-3.5 w-3.5" />
               Export
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent align="end">
             <ZoruDropdownMenuItem onClick={handleCsv}>
@@ -214,13 +214,13 @@ export function TaskReportClient({ data, filters }: Props) {
               <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
             </ZoruDropdownMenuItem>
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
       </div>
 
       {/* Table */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">Task</ZoruTableHead>
@@ -255,14 +255,14 @@ export function TaskReportClient({ data, filters }: Props) {
                     <ZoruTableCell className="text-[13px] text-muted-foreground">{r.projectName}</ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-foreground">{r.assignedTo}</ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={STATUS_VARIANT[r.status] ?? 'secondary'}>
+                      <Badge variant={STATUS_VARIANT[r.status] ?? 'secondary'}>
                         {r.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
+                      <Badge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
                         {r.priority}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-muted-foreground">
                       {r.createdAt ? r.createdAt.slice(0, 10) : '—'}
@@ -277,9 +277,9 @@ export function TaskReportClient({ data, filters }: Props) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </>
   );
 }

@@ -282,7 +282,7 @@ export default function PurposeConsentsPage() {
       title="Purpose Consents"
       subtitle="Processing purposes leads and users can grant or revoke consent for."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -290,7 +290,7 @@ export default function PurposeConsentsPage() {
         >
           <Plus className="h-4 w-4" />
           Add Purpose
-        </ZoruButton>
+        </Button>
       }
       search={{
         value: search,
@@ -300,7 +300,7 @@ export default function PurposeConsentsPage() {
       filters={
         <>
           {(['all', 'active', 'inactive'] as StatusFilter[]).map((s) => (
-            <ZoruButton
+            <Button
               key={s}
               variant={statusFilter === s ? 'default' : 'outline'}
               size="sm"
@@ -310,11 +310,11 @@ export default function PurposeConsentsPage() {
               }}
             >
               {s === 'all' ? 'All' : s === 'active' ? 'Active' : 'Inactive'}
-            </ZoruButton>
+            </Button>
           ))}
           <span className="mx-1 h-4 w-px bg-zoru-line" />
           {(['all', 'both', 'lead', 'user'] as AppliesFilter[]).map((a) => (
-            <ZoruButton
+            <Button
               key={a}
               variant={appliesFilter === a ? 'default' : 'outline'}
               size="sm"
@@ -326,7 +326,7 @@ export default function PurposeConsentsPage() {
               {a === 'all'
                 ? 'Any'
                 : a.charAt(0).toUpperCase() + a.slice(1)}
-            </ZoruButton>
+            </Button>
           ))}
         </>
       }
@@ -337,7 +337,7 @@ export default function PurposeConsentsPage() {
               {selected.size} selected
             </span>
             <span className="text-zoru-ink-muted">·</span>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
@@ -345,32 +345,32 @@ export default function PurposeConsentsPage() {
             >
               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
               Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('csv')}
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('xlsx')}
             >
               <FileSpreadsheet className="h-3.5 w-3.5" />
               Export XLSX
-            </ZoruButton>
+            </Button>
             <span className="ml-auto" />
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelected(new Set())}
             >
               <X className="h-3.5 w-3.5" />
               Clear
-            </ZoruButton>
+            </Button>
           </div>
         ) : null
       }
@@ -378,35 +378,35 @@ export default function PurposeConsentsPage() {
     >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Total purposes"
             value={kpis.total}
             icon={<ListChecks className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Active"
             value={kpis.active}
             icon={<CheckCircle2 className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="With consent text"
             value={kpis.with_consent_text}
             icon={<FileText className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Last updated"
             value={formatRelative(kpis.last_updated_at)}
             icon={<Clock className="h-4 w-4" />}
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="w-[40px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
@@ -455,7 +455,7 @@ export default function PurposeConsentsPage() {
                   pageRows.map((row) => (
                     <ZoruTableRow key={row._id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(row._id)}
                           onCheckedChange={() => toggleOne(row._id)}
                           aria-label={`Select ${row.title}`}
@@ -512,7 +512,7 @@ export default function PurposeConsentsPage() {
                               </div>
                             </div>
                             <div className="pt-2">
-                              <ZoruButton
+                              <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
@@ -522,39 +522,39 @@ export default function PurposeConsentsPage() {
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                                 Edit
-                              </ZoruButton>
+                              </Button>
                             </div>
                           </div>
                         </RowDrawer>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                           {row.applies_to
                             ? row.applies_to.charAt(0).toUpperCase() +
                               row.applies_to.slice(1)
                             : 'Both'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant={row.is_required ? 'default' : 'ghost'}>
+                        <Badge variant={row.is_required ? 'default' : 'ghost'}>
                           {row.is_required ? 'Required' : 'Optional'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge
+                        <Badge
                           variant={
                             row.is_active === false ? 'ghost' : 'success'
                           }
                         >
                           {row.is_active === false ? 'Inactive' : 'Active'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                         {row.sort_order ?? 0}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
@@ -564,22 +564,22 @@ export default function PurposeConsentsPage() {
                             aria-label="Edit"
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setDeletingId(row._id)}
                             aria-label="Delete"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
           <PaginationBar
             page={page}
@@ -593,10 +593,10 @@ export default function PurposeConsentsPage() {
               },
             }}
           />
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
             <ZoruDialogTitle>
@@ -611,10 +611,10 @@ export default function PurposeConsentsPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <ZoruLabel htmlFor="title">
+              <Label htmlFor="title">
                 Title <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="title"
                 name="title"
                 required
@@ -623,8 +623,8 @@ export default function PurposeConsentsPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="description">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="description">Description</Label>
+              <Textarea
                 id="description"
                 name="description"
                 rows={3}
@@ -634,7 +634,7 @@ export default function PurposeConsentsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <ZoruLabel htmlFor="applies_to">Applies to</ZoruLabel>
+                <Label htmlFor="applies_to">Applies to</Label>
                 <select
                   id="applies_to"
                   name="applies_to"
@@ -647,8 +647,8 @@ export default function PurposeConsentsPage() {
                 </select>
               </div>
               <div>
-                <ZoruLabel htmlFor="sort_order">Sort order</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="sort_order">Sort order</Label>
+                <Input
                   id="sort_order"
                   name="sort_order"
                   type="number"
@@ -656,7 +656,7 @@ export default function PurposeConsentsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel htmlFor="is_required">Required</ZoruLabel>
+                <Label htmlFor="is_required">Required</Label>
                 <select
                   id="is_required"
                   name="is_required"
@@ -668,7 +668,7 @@ export default function PurposeConsentsPage() {
                 </select>
               </div>
               <div>
-                <ZoruLabel htmlFor="is_active">Status</ZoruLabel>
+                <Label htmlFor="is_active">Status</Label>
                 <select
                   id="is_active"
                   name="is_active"
@@ -681,23 +681,23 @@ export default function PurposeConsentsPage() {
               </div>
             </div>
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingId !== null}

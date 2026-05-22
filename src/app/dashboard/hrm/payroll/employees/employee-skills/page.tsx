@@ -134,17 +134,17 @@ export default function EmployeeSkillsPage() {
       title="Employee Skills"
       subtitle="Assign skills from the master list to employees."
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Assign Skill
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <ZoruLabel className="text-[12px] text-zoru-ink-muted">Filter by Employee</ZoruLabel>
-          <ZoruSelect value={filterEmp} onValueChange={setFilterEmp}>
+          <Label className="text-[12px] text-zoru-ink-muted">Filter by Employee</Label>
+          <Select value={filterEmp} onValueChange={setFilterEmp}>
             <ZoruSelectTrigger className="h-9 w-[220px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -152,7 +152,7 @@ export default function EmployeeSkillsPage() {
               <ZoruSelectItem value="__all__">All Employees</ZoruSelectItem>
               {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
           <span className="text-[12px] text-zoru-ink-muted">{filtered.length} assignment{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
@@ -178,16 +178,16 @@ export default function EmployeeSkillsPage() {
                     <tr key={String(a._id)} className="border-t border-zoru-line hover:bg-zoru-surface-2/50">
                       <td className="px-4 py-2.5 text-zoru-ink">{empMap.get(String(a.user_id)) || a.user_id}</td>
                       <td className="px-4 py-2.5">
-                        <ZoruBadge variant="secondary">{skillMap.get(String(a.skill_id)) || a.skill_id}</ZoruBadge>
+                        <Badge variant="secondary">{skillMap.get(String(a.skill_id)) || a.skill_id}</Badge>
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(a)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(a)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(String(a._id))}>
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(String(a._id))}>
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -197,17 +197,17 @@ export default function EmployeeSkillsPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-md border-zoru-line bg-zoru-bg">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">{form._id ? 'Edit Skill Assignment' : 'Assign Skill to Employee'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruSelect value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
+              <Label className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></Label>
+              <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select employee…" />
                 </ZoruSelectTrigger>
@@ -215,11 +215,11 @@ export default function EmployeeSkillsPage() {
                   <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
                   {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Skill <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruSelect value={form.skill_id || '__none__'} onValueChange={(v) => set('skill_id', v === '__none__' ? '' : v)}>
+              <Label className="text-[12px] text-zoru-ink-muted">Skill <span className="text-zoru-danger-ink">*</span></Label>
+              <Select value={form.skill_id || '__none__'} onValueChange={(v) => set('skill_id', v === '__none__' ? '' : v)}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select skill…" />
                 </ZoruSelectTrigger>
@@ -227,18 +227,18 @@ export default function EmployeeSkillsPage() {
                   <ZoruSelectItem value="__none__">— Select skill —</ZoruSelectItem>
                   {skills.map((s) => <ZoruSelectItem key={s._id} value={s._id}>{s.name}</ZoruSelectItem>)}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>Cancel</ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Assign'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

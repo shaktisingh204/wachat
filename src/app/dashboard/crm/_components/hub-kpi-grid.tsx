@@ -26,7 +26,7 @@ export function HubKpiGrid({ kpis }: { kpis: HubKpi[] }) {
                 const Icon = kpi.icon;
                 const tone = kpi.tone ?? 'default';
                 const inner = (
-                    <ZoruCard className="h-full p-5">
+                    <Card className="h-full p-5">
                         <div className="flex items-start justify-between gap-3">
                             <p className="text-[12px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
                                 {kpi.label}
@@ -43,7 +43,7 @@ export function HubKpiGrid({ kpis }: { kpis: HubKpi[] }) {
                         {kpi.hint ? (
                             <p className="mt-2 text-[12px] text-zoru-ink-muted">{kpi.hint}</p>
                         ) : null}
-                    </ZoruCard>
+                    </Card>
                 );
                 return kpi.href ? (
                     <Link key={kpi.label} href={kpi.href} className="block">
@@ -71,7 +71,7 @@ export function HubQuickLinkGrid({ links }: { links: HubQuickLink[] }) {
                 const Icon = link.icon;
                 return (
                     <Link key={link.href} href={link.href} className="group">
-                        <ZoruCard className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
+                        <Card className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
                             <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
                                 <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
                             </div>
@@ -82,7 +82,7 @@ export function HubQuickLinkGrid({ links }: { links: HubQuickLink[] }) {
                             <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                                 {link.description}
                             </p>
-                        </ZoruCard>
+                        </Card>
                     </Link>
                 );
             })}
@@ -110,7 +110,7 @@ export function HubRecentList({
     viewAllHref?: string;
 }) {
     return (
-        <ZoruCard className="p-5">
+        <Card className="p-5">
             <div className="mb-3 flex items-center justify-between gap-2">
                 <h2 className="text-[14px] font-medium text-zoru-ink">{title}</h2>
                 {viewAllHref ? (
@@ -162,6 +162,6 @@ export function HubRecentList({
                     })}
                 </ul>
             )}
-        </ZoruCard>
+        </Card>
     );
 }

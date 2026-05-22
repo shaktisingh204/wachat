@@ -86,11 +86,11 @@ export function LeadsTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all leads on this page"
                                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
@@ -115,7 +115,7 @@ export function LeadsTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={13}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -145,7 +145,7 @@ export function LeadsTable({
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label={`Select lead ${lead.title}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
@@ -205,7 +205,7 @@ export function LeadsTable({
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                                         {lead.source ? (
-                                            <ZoruBadge variant="secondary">{lead.source}</ZoruBadge>
+                                            <Badge variant="secondary">{lead.source}</Badge>
                                         ) : (
                                             '—'
                                         )}
@@ -254,7 +254,7 @@ export function LeadsTable({
                                             : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
@@ -299,14 +299,14 @@ export function LeadsTable({
                                                     Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

@@ -188,7 +188,7 @@ function EditCategoryDialog({
   }, [sessionId, name, color, icon, category, onSaved, onOpenChange, toast]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>{category ? 'Edit category' : 'New category'}</ZoruDialogTitle>
@@ -198,8 +198,8 @@ function EditCategoryDialog({
         </ZoruDialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="cat-name">Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="cat-name">Name</Label>
+            <Input
               id="cat-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -209,7 +209,7 @@ function EditCategoryDialog({
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel>Colour</ZoruLabel>
+            <Label>Colour</Label>
             <div className="flex flex-wrap gap-2">
               {PRESET_COLORS.map((c) => (
                 <button
@@ -228,7 +228,7 @@ function EditCategoryDialog({
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel>Icon</ZoruLabel>
+            <Label>Icon</Label>
             <div className="grid grid-cols-5 gap-2">
               {CURATED_ICONS.map(({ name: n, Icon }) => (
                 <button
@@ -250,15 +250,15 @@ function EditCategoryDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSave} disabled={submitting}>
+          </Button>
+          <Button onClick={onSave} disabled={submitting}>
             {submitting ? 'Saving…' : 'Save'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -285,7 +285,7 @@ const CategoryRow = React.memo(function CategoryRow({
   return (
     <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
       <div className="flex flex-col">
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           className="h-6 w-6"
@@ -294,8 +294,8 @@ const CategoryRow = React.memo(function CategoryRow({
           aria-label="Move up"
         >
           <ChevronUp className="h-3.5 w-3.5" />
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           variant="ghost"
           size="icon-sm"
           className="h-6 w-6"
@@ -304,7 +304,7 @@ const CategoryRow = React.memo(function CategoryRow({
           aria-label="Move down"
         >
           <ChevronDown className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
       <span
         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-zoru-ink"
@@ -327,10 +327,10 @@ const CategoryRow = React.memo(function CategoryRow({
             : '— groups'}
         </div>
       </div>
-      <ZoruButton variant="ghost" size="icon" onClick={onEdit} aria-label="Edit category">
+      <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit category">
         <Edit className="h-4 w-4" />
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="ghost"
         size="icon"
         onClick={onDelete}
@@ -338,7 +338,7 @@ const CategoryRow = React.memo(function CategoryRow({
         className="text-zoru-danger hover:text-zoru-danger"
       >
         <Trash2 className="h-4 w-4" />
-      </ZoruButton>
+      </Button>
     </div>
   );
 });
@@ -441,7 +441,7 @@ function BulkAssignDialog({
   }, [sessionId, targetCategoryId, selected, toast, onDone, onOpenChange]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Bulk-assign uncategorised groups</ZoruDialogTitle>
@@ -452,7 +452,7 @@ function BulkAssignDialog({
 
         <div className="space-y-3">
           <div>
-            <ZoruLabel>Target category</ZoruLabel>
+            <Label>Target category</Label>
             <div className="mt-1 flex flex-wrap gap-2">
               {categories.length === 0 ? (
                 <span className="text-sm text-zoru-ink-muted">
@@ -460,7 +460,7 @@ function BulkAssignDialog({
                 </span>
               ) : (
                 categories.map((c) => (
-                  <ZoruButton
+                  <Button
                     key={c.id}
                     variant={targetCategoryId === c.id ? 'default' : 'outline'}
                     size="sm"
@@ -471,19 +471,19 @@ function BulkAssignDialog({
                       style={{ backgroundColor: c.color }}
                     />
                     {c.name}
-                  </ZoruButton>
+                  </Button>
                 ))
               )}
             </div>
           </div>
 
           <div>
-            <ZoruLabel>Uncategorised groups</ZoruLabel>
-            <ZoruScrollArea className="mt-1 h-64 rounded-[var(--zoru-radius)] border border-zoru-line">
+            <Label>Uncategorised groups</Label>
+            <ScrollArea className="mt-1 h-64 rounded-[var(--zoru-radius)] border border-zoru-line">
               <div className="divide-y divide-zoru-line">
                 {loading ? (
                   Array.from({ length: 4 }).map((_, i) => (
-                    <ZoruSkeleton key={i} className="m-2 h-10" />
+                    <Skeleton key={i} className="m-2 h-10" />
                   ))
                 ) : uncategorised.length === 0 ? (
                   <p className="p-3 text-sm text-zoru-ink-muted">
@@ -495,7 +495,7 @@ function BulkAssignDialog({
                       key={g.jid}
                       className="flex cursor-pointer items-center gap-3 p-2.5 hover:bg-zoru-surface"
                     >
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(g.jid)}
                         onCheckedChange={() => toggle(g.jid)}
                       />
@@ -509,23 +509,23 @@ function BulkAssignDialog({
                   ))
                 )}
               </div>
-            </ZoruScrollArea>
+            </ScrollArea>
           </div>
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={onApply}
             disabled={submitting || !targetCategoryId || selected.size === 0}
           >
             {submitting ? 'Assigning…' : `Assign (${selected.size})`}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -631,7 +631,7 @@ export function CategoriesPageClient() {
 
   return (
     <div className="mx-auto w-full max-w-[1280px] px-4 pt-6 pb-10 md:px-6 lg:px-8">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -649,7 +649,7 @@ export function CategoriesPageClient() {
             <ZoruBreadcrumbPage>Categories</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-3">
@@ -666,22 +666,22 @@ export function CategoriesPageClient() {
           </div>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             onClick={() => setBulkOpen(true)}
             disabled={!sessionId}
           >
             <CheckSquare />
             Bulk assign
-          </ZoruButton>
-          <ZoruButton onClick={() => onEdit(null)} disabled={!sessionId}>
+          </Button>
+          <Button onClick={() => onEdit(null)} disabled={!sessionId}>
             <Plus />
             New category
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
-      <ZoruCard className="mt-4">
+      <Card className="mt-4">
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Categories</ZoruCardTitle>
         </ZoruCardHeader>
@@ -692,7 +692,7 @@ export function CategoriesPageClient() {
             </p>
           ) : loading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-14 w-full" />
+              <Skeleton key={i} className="h-14 w-full" />
             ))
           ) : categories.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
@@ -700,10 +700,10 @@ export function CategoriesPageClient() {
               <p className="text-sm text-zoru-ink-muted">
                 No categories yet. Create one to get started.
               </p>
-              <ZoruButton onClick={() => onEdit(null)}>
+              <Button onClick={() => onEdit(null)}>
                 <Plus />
                 New category
-              </ZoruButton>
+              </Button>
             </div>
           ) : (
             categories.map((cat, i) => (
@@ -719,7 +719,7 @@ export function CategoriesPageClient() {
             ))
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <EditCategoryDialog
         open={editorOpen}

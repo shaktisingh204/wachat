@@ -126,9 +126,9 @@ export function BankTransactionForm({
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
-                                <ZoruLabel htmlFor="accountId">
+                                <Label htmlFor="accountId">
                                     Account <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
+                                </Label>
                                 <div className="mt-1.5">
                                     <EntityFormField
                                         entity="bankAccount"
@@ -144,10 +144,10 @@ export function BankTransactionForm({
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="transactionDate">
+                                <Label htmlFor="transactionDate">
                                     Date <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="transactionDate"
                                     name="transactionDate"
                                     type="date"
@@ -157,10 +157,10 @@ export function BankTransactionForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="amount">
+                                <Label htmlFor="amount">
                                     Amount <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="amount"
                                     name="amount"
                                     type="number"
@@ -177,9 +177,9 @@ export function BankTransactionForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="type">
+                                <Label htmlFor="type">
                                     Direction <span className="text-zoru-danger-ink">*</span>
-                                </ZoruLabel>
+                                </Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="type"
@@ -190,8 +190,8 @@ export function BankTransactionForm({
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="balanceAfter">Balance after</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="balanceAfter">Balance after</Label>
+                                <Input
                                     id="balanceAfter"
                                     name="balanceAfter"
                                     type="number"
@@ -206,7 +206,7 @@ export function BankTransactionForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                                <Label htmlFor="status">Status</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="status"
@@ -225,8 +225,8 @@ export function BankTransactionForm({
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="md:col-span-2">
-                                <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
                                     id="description"
                                     name="description"
                                     rows={3}
@@ -236,10 +236,10 @@ export function BankTransactionForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="referenceNumber">
+                                <Label htmlFor="referenceNumber">
                                     Reference number
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="referenceNumber"
                                     name="referenceNumber"
                                     defaultValue={initial?.referenceNumber ?? ''}
@@ -248,8 +248,8 @@ export function BankTransactionForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="category">Category</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="category">Category</Label>
+                                <Input
                                     id="category"
                                     name="category"
                                     defaultValue={initial?.category ?? ''}
@@ -283,7 +283,7 @@ export function BankTransactionForm({
                                     <span className="truncate text-[12px] text-zoru-ink">
                                         {sourceFileName || sourceFileUrl}
                                     </span>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
@@ -294,7 +294,7 @@ export function BankTransactionForm({
                                         }}
                                     >
                                         <X className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ) : null}
                         </div>

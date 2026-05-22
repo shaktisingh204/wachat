@@ -20,7 +20,7 @@ export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
   ({ className, leading, trailing, sizeVariant = 'md', ...props }, ref) => {
     if (!leading && !trailing) {
       return (
-        <ZoruInput
+        <Input
           ref={ref}
           className={cn(
             sizeVariant === 'sm' && 'h-8 py-1.5 text-[12.5px]',

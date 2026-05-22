@@ -103,7 +103,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="portal_user" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Status</ZoruCardTitle>
             </ZoruCardHeader>
@@ -111,7 +111,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Status</span>
-                  <ZoruBadge variant="outline">{status}</ZoruBadge>
+                  <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Last login</span>
@@ -125,9 +125,9 @@ export default async function PortalDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Linked entity</ZoruCardTitle>
             </ZoruCardHeader>
@@ -149,9 +149,9 @@ export default async function PortalDetailPage({ params }: PageProps) {
                 </span>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Last invite</ZoruCardTitle>
             </ZoruCardHeader>
@@ -160,11 +160,11 @@ export default async function PortalDetailPage({ params }: PageProps) {
                 {fmtDateTime(user.lastMagicLinkAt)}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -176,7 +176,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
             <Field label="Portal type" value={user.portalType || '—'} />
             <Field
               label="Status"
-              value={<ZoruBadge variant="outline">{status}</ZoruBadge>}
+              value={<Badge variant="outline">{status}</Badge>}
             />
             <Field
               label="Suspended at"
@@ -184,9 +184,9 @@ export default async function PortalDetailPage({ params }: PageProps) {
             />
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Capabilities</ZoruCardTitle>
         </ZoruCardHeader>
@@ -198,16 +198,16 @@ export default async function PortalDetailPage({ params }: PageProps) {
           ) : (
             <div className="flex flex-wrap gap-2">
               {capabilities.map((c) => (
-                <ZoruBadge key={c} variant="outline">
+                <Badge key={c} variant="outline">
                   {c.replace(/_/g, ' ')}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Login history</ZoruCardTitle>
         </ZoruCardHeader>
@@ -245,9 +245,9 @@ export default async function PortalDetailPage({ params }: PageProps) {
             </table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Linked entity</ZoruCardTitle>
         </ZoruCardHeader>
@@ -270,10 +270,10 @@ export default async function PortalDetailPage({ params }: PageProps) {
             </p>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {user.notes ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -282,7 +282,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
               {user.notes}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

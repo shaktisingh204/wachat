@@ -48,8 +48,8 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
 
     return (
         <div className="space-y-2 rounded-lg border p-4">
-            <ZoruLabel className="font-semibold">{label}</ZoruLabel>
-            <ZoruSelect value={actionName} onValueChange={handleNameChange}>
+            <Label className="font-semibold">{label}</Label>
+            <Select value={actionName} onValueChange={handleNameChange}>
                 <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                 <ZoruSelectContent>
                     <ZoruSelectItem value="complete">Complete Flow</ZoruSelectItem>
@@ -57,12 +57,12 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
                     <ZoruSelectItem value="data_exchange">Data Exchange (API)</ZoruSelectItem>
                     <ZoruSelectItem value="open_url">Open URL</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
             {actionName === 'navigate' && (
                 <div className="space-y-2 pt-2">
-                    <ZoruLabel htmlFor="next-screen">Next Screen</ZoruLabel>
-                     <ZoruSelect
+                    <Label htmlFor="next-screen">Next Screen</Label>
+                     <Select
                         value={action?.next?.name || ''}
                         onValueChange={(val) => onActionChange({ ...action, next: { type: 'screen', name: val } })}
                     >
@@ -72,14 +72,14 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
                                 <ZoruSelectItem key={screen.id} value={screen.id}>{screen.title || screen.id}</ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
             )}
             
             {actionName === 'open_url' && (
                 <div className="space-y-2 pt-2">
-                    <ZoruLabel htmlFor="url">URL to Open</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="url">URL to Open</Label>
+                    <Input
                         id="url"
                         placeholder="https://example.com"
                         value={action?.url || ''}
@@ -88,11 +88,11 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
                 </div>
             )}
 
-            <ZoruSeparator className="my-4" />
+            <Separator className="my-4" />
             
             <div className="space-y-2">
-                 <ZoruLabel htmlFor="payload">Payload (JSON)</ZoruLabel>
-                 <ZoruTextarea
+                 <Label htmlFor="payload">Payload (JSON)</Label>
+                 <Textarea
                     id="payload"
                     className="font-mono text-xs h-24"
                     placeholder={`{\n  "source": "on_boarding_flow"\n}`}

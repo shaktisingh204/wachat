@@ -27,10 +27,10 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SubmitButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending || disabled}>
+        <Button type="submit" disabled={pending || disabled}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Tags
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -101,7 +101,7 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
     };
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-lg">
                 <form action={validateAndSubmit}>
                     <input type="hidden" name="projectId" value={project._id.toString()} />
@@ -119,35 +119,35 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
                         <div className="space-y-2">
                             {tags.map(tag => (
                                 <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
-                                    <ZoruInput
+                                    <Input
                                         value={tag.name}
                                         onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
                                         placeholder="Enter tag name"
                                     />
-                                    <ZoruInput
+                                    <Input
                                         type="color"
                                         value={tag.color}
                                         onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
                                         className="h-9 w-14 p-1"
                                     />
-                                    <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
-                        <ZoruButton type="button" variant="outline" className="w-full" onClick={handleAddTag}>
+                        <Button type="button" variant="outline" className="w-full" onClick={handleAddTag}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Tag
-                        </ZoruButton>
+                        </Button>
                         {validationError && <p className="text-sm text-destructive">{validationError}</p>}
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton disabled={!!validationError} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

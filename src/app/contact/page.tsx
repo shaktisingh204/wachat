@@ -24,33 +24,33 @@ export default function ContactPage() {
                 &larr; Back to Home
             </Link>
         </div>
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-3xl font-bold font-headline">Contact Us</ZoruCardTitle>
             <p className="text-muted-foreground">We'd love to hear from you. Please fill out the form below and we'll get back to you as soon as possible.</p>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-4">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="name">Name</ZoruLabel>
-                <ZoruInput id="name" placeholder="Your Name" />
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" placeholder="Your Name" />
             </div>
              <div className="space-y-2">
-                <ZoruLabel htmlFor="email">Email</ZoruLabel>
-                <ZoruInput id="email" type="email" placeholder="your@email.com" />
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" placeholder="your@email.com" />
             </div>
              <div className="space-y-2">
-                <ZoruLabel htmlFor="message">Message</ZoruLabel>
-                <ZoruTextarea id="message" placeholder="How can we help you?" className="min-h-[150px]" />
+                <Label htmlFor="message">Message</Label>
+                <Textarea id="message" placeholder="How can we help you?" className="min-h-[150px]" />
             </div>
-            <ZoruButton className="w-full">Send Message</ZoruButton>
-            <ZoruSeparator className="my-6" />
+            <Button className="w-full">Send Message</Button>
+            <Separator className="my-6" />
             <div className="text-center text-muted-foreground space-y-2">
                 <h3 className="font-semibold text-lg text-foreground">Our Information</h3>
                 <p>Email: <a href="mailto:info@sabnode.in" className="text-primary">info@sabnode.in</a></p>
                 <p>Address: D829 sector 5 malviya nagar jaipur 302017</p>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
       </div>
     </div>

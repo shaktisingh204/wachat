@@ -81,14 +81,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create plan'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -163,7 +163,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="planId" value={initialData!._id} />
@@ -182,8 +182,8 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
 
                 {/* Role title */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="roleTitle">Role title *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="roleTitle">Role title *</Label>
+                    <Input
                         id="roleTitle"
                         name="roleTitle"
                         required
@@ -195,8 +195,8 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                 {/* Current incumbent + Critical role */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currentIncumbent">Current incumbent</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currentIncumbent">Current incumbent</Label>
+                        <Input
                             id="currentIncumbent"
                             name="currentIncumbent"
                             placeholder="Name of the person currently in role"
@@ -204,22 +204,22 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                         />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="criticalRole"
                             name="criticalRole"
                             defaultChecked={!!initialData?.criticalRole}
                         />
-                        <ZoruLabel htmlFor="criticalRole" className="cursor-pointer">
+                        <Label htmlFor="criticalRole" className="cursor-pointer">
                             Critical role (business-impacting)
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 {/* Successors repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Successors</ZoruLabel>
-                        <ZoruButton
+                        <Label>Successors</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -227,7 +227,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add successor
-                        </ZoruButton>
+                        </Button>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -236,14 +236,14 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                 key={idx}
                                 className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]"
                             >
-                                <ZoruInput
+                                <Input
                                     placeholder="Successor name"
                                     value={s.name}
                                     onChange={(e) =>
                                         updateSuccessor(idx, 'name', e.target.value)
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     placeholder="Employee ID"
                                     value={s.employeeId ?? ''}
                                     onChange={(e) =>
@@ -264,7 +264,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                         </option>
                                     ))}
                                 </select>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon"
@@ -273,7 +273,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                     aria-label="Remove successor"
                                 >
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ))}
                     </div>
@@ -282,10 +282,10 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                 {/* Readiness + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="readiness-trigger">
+                        <Label htmlFor="readiness-trigger">
                             Overall readiness
-                        </ZoruLabel>
-                        <ZoruSelect
+                        </Label>
+                        <Select
                             value={readinessOverall || 'none'}
                             onValueChange={(v) =>
                                 setReadinessOverall(
@@ -306,11 +306,11 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmSuccessionStatus)}
                         >
@@ -324,14 +324,14 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={4}
@@ -342,15 +342,15 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to plans
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

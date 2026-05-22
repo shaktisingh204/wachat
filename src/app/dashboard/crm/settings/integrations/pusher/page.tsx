@@ -186,8 +186,8 @@ export default function PusherIntegrationPage() {
         >
           {!doc && !id ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -197,27 +197,27 @@ export default function PusherIntegrationPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="app_id">App ID</ZoruLabel>
+                <Label htmlFor="app_id">App ID</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="app_id" name="app_id" defaultValue={v('app_id')} />
+                  <Input id="app_id" name="app_id" defaultValue={v('app_id')} />
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="cluster">Cluster</ZoruLabel>
+                <Label htmlFor="cluster">Cluster</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="cluster" name="cluster" defaultValue={v('cluster')} placeholder="mt1" />
+                  <Input id="cluster" name="cluster" defaultValue={v('cluster')} placeholder="mt1" />
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="app_key">App Key</ZoruLabel>
+                <Label htmlFor="app_key">App Key</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="app_key" name="app_key" defaultValue={v('app_key')} />
+                  <Input id="app_key" name="app_key" defaultValue={v('app_key')} />
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="app_secret">App Secret</ZoruLabel>
+                <Label htmlFor="app_secret">App Secret</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="app_secret" name="app_secret" type="password" defaultValue={v('app_secret')} />
+                  <Input id="app_secret" name="app_secret" type="password" defaultValue={v('app_secret')} />
                 </div>
               </div>
 
@@ -228,21 +228,21 @@ export default function PusherIntegrationPage() {
                     Enable Pusher realtime broadcasts.
                   </div>
                 </div>
-                <ZoruSwitch checked={isActive} onCheckedChange={setIsActive} aria-label="Pusher active" />
+                <Switch checked={isActive} onCheckedChange={setIsActive} aria-label="Pusher active" />
               </div>
             </div>
 
             <div className="flex flex-wrap justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -252,7 +252,7 @@ export default function PusherIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <IntegrationActivityFeed

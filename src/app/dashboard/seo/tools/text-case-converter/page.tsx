@@ -21,7 +21,7 @@ export default function TextCaseConverterPage() {
 
   return (
     <ToolShell title="Text Case Converter" description="Convert text between UPPER, lower, Title, Sentence, camelCase, etc.">
-      <ZoruTextarea
+      <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Type or paste text…"
@@ -29,13 +29,13 @@ export default function TextCaseConverterPage() {
       />
       <div className="flex flex-wrap gap-2">
         {actions.map((a) => (
-          <ZoruButton key={a.label} variant="outline" onClick={() => setText(a.fn(text))}>
+          <Button key={a.label} variant="outline" onClick={() => setText(a.fn(text))}>
             {a.label}
-          </ZoruButton>
+          </Button>
         ))}
-        <ZoruButton variant="ghost" onClick={() => setText('')}>
+        <Button variant="ghost" onClick={() => setText('')}>
           Clear
-        </ZoruButton>
+        </Button>
       </div>
     </ToolShell>
   );

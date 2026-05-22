@@ -55,10 +55,10 @@ const addDomainInitialState: { success?: boolean; error?: string } = {
 function AddDomainButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="animate-spin" /> : null}
       Add domain
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -92,10 +92,10 @@ function VerifyButton({
   };
 
   return (
-    <ZoruButton onClick={onVerify} size="sm" disabled={isPending}>
+    <Button onClick={onVerify} size="sm" disabled={isPending}>
       {isPending ? <LoaderCircle className="animate-spin" /> : null}
       Verify
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -125,7 +125,7 @@ function DeleteButton({
   };
 
   return (
-    <ZoruButton
+    <Button
       variant="ghost"
       size="icon"
       onClick={onDelete}
@@ -133,7 +133,7 @@ function DeleteButton({
       aria-label="Delete domain"
     >
       {isPending ? <LoaderCircle className="animate-spin" /> : <Trash2 />}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -177,7 +177,7 @@ export function EcommCustomDomainForm() {
   }, [addState, toast]);
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>Custom domains</ZoruCardTitle>
         <ZoruCardDescription>
@@ -187,9 +187,9 @@ export function EcommCustomDomainForm() {
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-6">
         <form action={addAction} ref={addFormRef} className="space-y-2">
-          <ZoruLabel htmlFor="hostname">Add new domain</ZoruLabel>
+          <Label htmlFor="hostname">Add new domain</Label>
           <div className="flex gap-2">
-            <ZoruInput
+            <Input
               id="hostname"
               name="hostname"
               placeholder="e.g., shop.mybrand.com"
@@ -199,12 +199,12 @@ export function EcommCustomDomainForm() {
           </div>
         </form>
 
-        <ZoruSeparator />
+        <Separator />
 
         <div className="space-y-4">
           <h4 className="text-sm tracking-tight text-zoru-ink">Your domains</h4>
           {isLoading ? (
-            <ZoruSkeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
           ) : domains.length > 0 ? (
             domains.map((domain) => (
               <div
@@ -217,11 +217,11 @@ export function EcommCustomDomainForm() {
                       {domain.hostname}
                     </p>
                     {domain.verified ? (
-                      <ZoruBadge>
+                      <Badge>
                         <CheckCircle className="mr-1 h-3 w-3" /> Verified
-                      </ZoruBadge>
+                      </Badge>
                     ) : (
-                      <ZoruBadge variant="secondary">Unverified</ZoruBadge>
+                      <Badge variant="secondary">Unverified</Badge>
                     )}
                   </div>
                   <DeleteButton
@@ -241,14 +241,14 @@ export function EcommCustomDomainForm() {
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="break-all">cname.sabnode.com</span>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => copy("cname.sabnode.com")}
                           aria-label="Copy CNAME target"
                         >
                           <Copy className="h-3 w-3" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -264,14 +264,14 @@ export function EcommCustomDomainForm() {
                         <span className="break-all">
                           {domain.verificationCode}
                         </span>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => copy(domain.verificationCode)}
                           aria-label="Copy verification code"
                         >
                           <Key className="h-3 w-3" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </div>
                     <div className="flex justify-end pt-2">
@@ -291,6 +291,6 @@ export function EcommCustomDomainForm() {
           )}
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

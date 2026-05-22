@@ -96,14 +96,14 @@ function filenameFromUrl(u: string): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create contract'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -154,7 +154,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
     const attachmentsJson = JSON.stringify(attachments.map((e) => e.url));
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="contractId" value={initialData!._id} />
@@ -169,8 +169,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Title + Counter-party */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Title *</Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -179,8 +179,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="partyName">Counter-party *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="partyName">Counter-party *</Label>
+                        <Input
                             id="partyName"
                             name="partyName"
                             required
@@ -193,7 +193,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Type + Contract # */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Type</ZoruLabel>
+                        <Label>Type</Label>
                         <EnumFormField
                             enumName="contractType"
                             name="__type_picker"
@@ -202,8 +202,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="contractNo">Contract #</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="contractNo">Contract #</Label>
+                        <Input
                             id="contractNo"
                             name="contractNo"
                             placeholder="Auto-generated if empty"
@@ -215,8 +215,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Party email + Signatory */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="partyEmail">Party email</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="partyEmail">Party email</Label>
+                        <Input
                             id="partyEmail"
                             name="partyEmail"
                             type="email"
@@ -225,8 +225,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="signatoryName">Signatory name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="signatoryName">Signatory name</Label>
+                        <Input
                             id="signatoryName"
                             name="signatoryName"
                             placeholder="Authorised signatory"
@@ -237,8 +237,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
 
                 {/* Scope */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="scope">Scope</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="scope">Scope</Label>
+                    <Textarea
                         id="scope"
                         name="scope"
                         rows={3}
@@ -250,7 +250,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Currency + Value */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="__currency_picker"
@@ -259,8 +259,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="value">Contract value</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="value">Contract value</Label>
+                        <Input
                             id="value"
                             name="value"
                             type="number"
@@ -275,8 +275,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Effective + Expiry dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="effectiveDate">Effective date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="effectiveDate">Effective date</Label>
+                        <Input
                             id="effectiveDate"
                             name="effectiveDate"
                             type="date"
@@ -284,8 +284,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiryDate">Expiry date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiryDate">Expiry date</Label>
+                        <Input
                             id="expiryDate"
                             name="expiryDate"
                             type="date"
@@ -297,18 +297,18 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Auto-renew + Notice + e-sign provider */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="flex items-center gap-2 self-end pb-1.5">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="autoRenew"
                             checked={autoRenew}
                             onCheckedChange={(v) => setAutoRenew(!!v)}
                         />
-                        <ZoruLabel htmlFor="autoRenew" className="cursor-pointer">
+                        <Label htmlFor="autoRenew" className="cursor-pointer">
                             Auto-renew
-                        </ZoruLabel>
+                        </Label>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="renewalNoticeDays">Renewal notice (days)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="renewalNoticeDays">Renewal notice (days)</Label>
+                        <Input
                             id="renewalNoticeDays"
                             name="renewalNoticeDays"
                             type="number"
@@ -319,7 +319,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>E-sign provider</ZoruLabel>
+                        <Label>E-sign provider</Label>
                         <EnumFormField
                             enumName="esignProvider"
                             name="__esign_picker"
@@ -332,7 +332,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Attachments — SabFiles only */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Attachments (from SabFiles)</ZoruLabel>
+                        <Label>Attachments (from SabFiles)</Label>
                         <SabFilePickerButton
                             accept="all"
                             onPick={onPickAttachment}
@@ -363,7 +363,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                                     >
                                         {e.name || e.url}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -371,7 +371,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                                         aria-label="Remove attachment"
                                     >
                                         <X className="h-4 w-4" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -381,8 +381,8 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 {/* Notes + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={3}
@@ -391,7 +391,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="contractStatusV2"
                             name="__status_picker"
@@ -403,15 +403,15 @@ export function ContractForm({ initialData }: ContractFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to contracts
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

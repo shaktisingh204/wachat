@@ -29,10 +29,10 @@ export default async function CrmNotificationsPage() {
     if ('error' in result) {
         return (
             <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <h1 className="mb-1 text-base font-semibold text-zoru-ink">Notifications</h1>
                     <p className="text-sm text-zoru-ink-muted">{result.error}</p>
-                </ZoruCard>
+                </Card>
             </div>
         );
     }

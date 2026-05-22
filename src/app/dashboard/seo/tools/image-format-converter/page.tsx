@@ -33,7 +33,7 @@ export default function ImageFormatConverterPage() {
   return (
     <ToolShell title="Image Format Converter" description="Convert between PNG, JPEG and WebP.">
       <div className="flex items-end gap-3">
-        <div className="space-y-1"><ZoruLabel>Target format</ZoruLabel>
+        <div className="space-y-1"><Label>Target format</Label>
           <select className="border rounded h-9 px-2 bg-background" value={format} onChange={(e) => setFormat(e.target.value as any)}>
             <option value="png">PNG</option>
             <option value="jpeg">JPEG</option>

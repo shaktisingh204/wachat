@@ -25,7 +25,7 @@ export default async function PersonalTokensPage(): Promise<JSX.Element> {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
@@ -35,9 +35,9 @@ export default async function PersonalTokensPage(): Promise<JSX.Element> {
             <ZoruBreadcrumbPage>Personal Access Tokens</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Personal Access Tokens</ZoruPageTitle>
           <ZoruPageDescription>
@@ -45,13 +45,13 @@ export default async function PersonalTokensPage(): Promise<JSX.Element> {
             Format: <code className="font-mono">sab_pat_*</code>.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loadError ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>Failed to load tokens: {loadError}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       <PatsClient initialTokens={initial} />

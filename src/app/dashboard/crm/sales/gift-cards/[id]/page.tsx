@@ -82,16 +82,16 @@ export default async function GiftCardDetailPage({
             status={{ label: status, tone }}
             back={{ href: '/dashboard/crm/sales/gift-cards', label: 'Back to gift cards' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`/dashboard/crm/sales/gift-cards/${id}/edit`}>
                         <Pencil className="h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
             audit={<EntityAuditTimeline entityKind="giftCard" entityId={id} />}
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Gift card details
                 </h2>
@@ -114,7 +114,7 @@ export default async function GiftCardDetailPage({
                         </Field>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

@@ -41,14 +41,14 @@ export function HrDeleteButton({
 
   return (
     <>
-      <ZoruButton
+      <Button
         variant="destructive"
         size="sm"
         onClick={() => setDeleting(true)}
       >
         <Trash2 className="h-3.5 w-3.5" />
         Delete
-      </ZoruButton>
+      </Button>
       <ConfirmDialog
         open={deleting}
         onOpenChange={setDeleting}

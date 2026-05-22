@@ -106,15 +106,15 @@ export function JourneyCanvas({
               />
               {!readOnly && node.type !== 'trigger' ? (
                 <div className="flex flex-col gap-1">
-                  <ZoruButton size="icon" variant="ghost" aria-label="Move up" disabled={i <= 1} onClick={() => move(i, -1)}>
+                  <Button size="icon" variant="ghost" aria-label="Move up" disabled={i <= 1} onClick={() => move(i, -1)}>
                     <ArrowUp className="h-3 w-3" />
-                  </ZoruButton>
-                  <ZoruButton size="icon" variant="ghost" aria-label="Move down" disabled={i >= nodes.length - 1} onClick={() => move(i, 1)}>
+                  </Button>
+                  <Button size="icon" variant="ghost" aria-label="Move down" disabled={i >= nodes.length - 1} onClick={() => move(i, 1)}>
                     <ArrowDown className="h-3 w-3" />
-                  </ZoruButton>
-                  <ZoruButton size="icon" variant="ghost" aria-label="Delete" onClick={() => remove(i)}>
+                  </Button>
+                  <Button size="icon" variant="ghost" aria-label="Delete" onClick={() => remove(i)}>
                     <Trash2 className="h-3 w-3" />
-                  </ZoruButton>
+                  </Button>
                 </div>
               ) : null}
             </div>
@@ -127,11 +127,11 @@ export function JourneyCanvas({
 
       {!readOnly ? (
         <div className="mt-4">
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 <Plus className="h-4 w-4" /> Add step
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="center">
               {ADDABLE_TYPES.map((k) => {
@@ -143,7 +143,7 @@ export function JourneyCanvas({
                 );
               })}
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         </div>
       ) : null}
 

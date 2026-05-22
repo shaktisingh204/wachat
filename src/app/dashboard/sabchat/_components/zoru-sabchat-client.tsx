@@ -80,8 +80,8 @@ const sendInitialState: { success: boolean; error?: string } = {
 function ChatPageSkeleton() {
   return (
     <div className="flex h-full w-full gap-3 p-3">
-      <ZoruSkeleton className="h-full w-[320px] shrink-0" />
-      <ZoruSkeleton className="h-full flex-1" />
+      <Skeleton className="h-full w-[320px] shrink-0" />
+      <Skeleton className="h-full flex-1" />
     </div>
   );
 }
@@ -89,10 +89,10 @@ function ChatPageSkeleton() {
 function ConversationRowSkeleton() {
   return (
     <div className="flex items-center gap-3 p-3">
-      <ZoruSkeleton className="h-10 w-10 rounded-full" />
+      <Skeleton className="h-10 w-10 rounded-full" />
       <div className="flex-1 space-y-2">
-        <ZoruSkeleton className="h-4 w-3/4" />
-        <ZoruSkeleton className="h-3 w-1/2" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
       </div>
     </div>
   );
@@ -134,7 +134,7 @@ function ZoruConversationListPane({
       <div className="shrink-0 border-b border-zoru-line p-3">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             placeholder="Search by email or message..."
             className="pl-8"
             onChange={(e) => handleSearch(e.target.value)}
@@ -143,7 +143,7 @@ function ZoruConversationListPane({
       </div>
 
       {/* Conversation list */}
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         {isLoading ? (
           <div className="space-y-1 p-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -171,9 +171,9 @@ function ZoruConversationListPane({
                       : "hover:bg-zoru-surface",
                   )}
                 >
-                  <ZoruAvatar>
+                  <Avatar>
                     <ZoruAvatarFallback>{initial}</ZoruAvatarFallback>
-                  </ZoruAvatar>
+                  </Avatar>
                   <div className="min-w-0 flex-1 pt-0.5">
                     <div className="flex items-start justify-between gap-2">
                       <span className="truncate pr-2 text-zoru-ink">
@@ -201,7 +201,7 @@ function ZoruConversationListPane({
             <div>No conversations found.</div>
           </div>
         )}
-      </ZoruScrollArea>
+      </ScrollArea>
     </div>
   );
 }
@@ -223,9 +223,9 @@ function ChatMessageBubble({
       )}
     >
       {!isAgent && (
-        <ZoruAvatar className="h-8 w-8 self-end">
+        <Avatar className="h-8 w-8 self-end">
           <ZoruAvatarFallback>V</ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
       )}
       <div
         className={cn(
@@ -252,13 +252,13 @@ function ChatMessageBubble({
 function SendButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="icon-sm" disabled={pending} aria-label="Send">
+    <Button type="submit" size="icon-sm" disabled={pending} aria-label="Send">
       {pending ? (
         <LoaderCircle className="animate-spin" />
       ) : (
         <Send />
       )}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -309,7 +309,7 @@ function ZoruSabChatWindow({
       {/* Header */}
       <div className="flex h-[73px] shrink-0 items-center justify-between gap-3 border-b border-zoru-line bg-zoru-bg p-3">
         <div className="flex items-center gap-3">
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon-sm"
             className="md:hidden"
@@ -317,10 +317,10 @@ function ZoruSabChatWindow({
             aria-label="Back"
           >
             <ArrowLeft />
-          </ZoruButton>
-          <ZoruAvatar>
+          </Button>
+          <Avatar>
             <ZoruAvatarFallback>{initial}</ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
           <div className="min-w-0">
             <p className="truncate text-zoru-ink">{visitorEmail}</p>
             {session.visitorInfo?.ip && (
@@ -331,18 +331,18 @@ function ZoruSabChatWindow({
           </div>
         </div>
         {session.visitorInfo?.page && (
-          <ZoruBadge
+          <Badge
             variant="outline"
             className="hidden max-w-[260px] truncate font-mono text-[11px] md:inline-flex"
             title={session.visitorInfo.page}
           >
             {session.visitorInfo.page}
-          </ZoruBadge>
+          </Badge>
         )}
       </div>
 
       {/* Thread */}
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         {isLoading ? (
           <div className="flex h-full items-center justify-center py-16">
             <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
@@ -359,7 +359,7 @@ function ZoruSabChatWindow({
             <div ref={messagesEndRef} />
           </div>
         )}
-      </ZoruScrollArea>
+      </ScrollArea>
 
       {/* Composer */}
       <div className="flex shrink-0 items-center border-t border-zoru-line bg-zoru-bg p-3">
@@ -374,7 +374,7 @@ function ZoruSabChatWindow({
             value={session._id.toString()}
           />
           <input type="hidden" name="sender" value="agent" />
-          <ZoruInput
+          <Input
             name="content"
             placeholder="Type your reply..."
             autoComplete="off"
@@ -454,19 +454,19 @@ export function ZoruSabChatClient() {
   if (!sessionUser) {
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <ZoruAlert variant="destructive" className="max-w-md">
+        <Alert variant="destructive" className="max-w-md">
           <AlertCircle />
           <ZoruAlertTitle>Not logged in</ZoruAlertTitle>
           <ZoruAlertDescription>
             Please log in to use the live chat inbox.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <ZoruCard className="flex h-full w-full flex-col overflow-hidden p-0">
+    <Card className="flex h-full w-full flex-col overflow-hidden p-0">
       <div className="flex flex-1 overflow-hidden">
         {/* Pane 1 — conversations list */}
         <div
@@ -511,6 +511,6 @@ export function ZoruSabChatClient() {
           )}
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

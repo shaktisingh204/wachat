@@ -31,26 +31,26 @@ function fmtMoney(value: number, currency: string): string {
 export function RecurringExpensesKpiStrip({ kpi, currency }: KpiStripProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-      <ZoruStatCard
+      <StatCard
         label="Active"
         value={kpi.active.toLocaleString()}
         period="schedules running"
         icon={<Activity />}
       />
-      <ZoruStatCard
+      <StatCard
         label="MTD spend"
         value={fmtMoney(kpi.mtdSpend, currency)}
         period="recurring this month"
         icon={<TrendingUp />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Expiring"
         value={kpi.expiringCount.toLocaleString()}
         period="within 30 days"
         icon={<CalendarX />}
         invertDelta
       />
-      <ZoruStatCard
+      <StatCard
         label="Top vendor"
         value={kpi.topVendor ?? '—'}
         period={
@@ -60,19 +60,19 @@ export function RecurringExpensesKpiStrip({ kpi, currency }: KpiStripProps) {
         }
         icon={<Building2 />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Paused"
         value={kpi.paused.toLocaleString()}
         period="on hold"
         icon={<PauseCircle />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Next 7 days"
         value={kpi.dueNext7.toLocaleString()}
         period="scheduled runs"
         icon={<CalendarClock />}
       />
-      <ZoruStatCard
+      <StatCard
         label="Total monthly value"
         value={fmtMoney(kpi.totalMonthlyValue, currency)}
         period="normalized to month"

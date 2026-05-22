@@ -121,8 +121,8 @@ export default function RecurringExpenseDetailPage(props: {
   if (isLoading && !doc) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
@@ -130,9 +130,9 @@ export default function RecurringExpenseDetailPage(props: {
   if (!doc) {
     return (
       <EntityListShell title="Not found" subtitle="The recurring expense does not exist.">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/dashboard/crm/purchases/recurring-expenses">Back</Link>
-        </ZoruButton>
+        </Button>
       </EntityListShell>
     );
   }
@@ -150,12 +150,12 @@ export default function RecurringExpenseDetailPage(props: {
       actions={
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill label={doc.status} tone={statusToTone(doc.status)} />
-          <ZoruButton size="sm" variant="outline" asChild>
+          <Button size="sm" variant="outline" asChild>
             <Link href={`/dashboard/crm/purchases/recurring-expenses/${id}/edit`}>
               <Pencil className="h-3.5 w-3.5" /> Edit
             </Link>
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             onClick={() =>
               handle(() => runRecurringExpenseNow(id), 'Expense recorded')
@@ -163,49 +163,49 @@ export default function RecurringExpenseDetailPage(props: {
             disabled={isMutating || doc.status === 'stopped'}
           >
             <Zap className="h-3.5 w-3.5" /> Run now
-          </ZoruButton>
+          </Button>
           {doc.status === 'active' ? (
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={() => handle(() => pauseRecurringExpense(id), 'Paused')}
               disabled={isMutating}
             >
               <Pause className="h-3.5 w-3.5" /> Pause
-            </ZoruButton>
+            </Button>
           ) : doc.status === 'paused' ? (
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={() => handle(() => resumeRecurringExpense(id), 'Resumed')}
               disabled={isMutating}
             >
               <Play className="h-3.5 w-3.5" /> Resume
-            </ZoruButton>
+            </Button>
           ) : null}
           {doc.status !== 'stopped' ? (
-            <ZoruButton
+            <Button
               size="sm"
               variant="outline"
               onClick={() => handle(() => stopRecurringExpense(id), 'Stopped')}
               disabled={isMutating}
             >
               <StopCircle className="h-3.5 w-3.5" /> Stop
-            </ZoruButton>
+            </Button>
           ) : null}
-          <ZoruButton
+          <Button
             size="sm"
             variant="destructive"
             onClick={() => setDeleteOpen(true)}
             disabled={isMutating}
           >
             <Trash2 className="h-3.5 w-3.5" /> Delete
-          </ZoruButton>
+          </Button>
         </div>
       }
     >
       <div className="grid gap-6 md:grid-cols-4">
-        <ZoruCard className="p-4">
+        <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Runs
           </div>
@@ -213,34 +213,34 @@ export default function RecurringExpenseDetailPage(props: {
             {doc.run_count || 0}
             {doc.stop_at_count ? ` / ${doc.stop_at_count}` : ''}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-4">
+        </Card>
+        <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Last run
           </div>
           <div className="mt-1 text-[15px] font-medium text-zoru-ink">
             {fmtDate(doc.last_run_date)}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-4">
+        </Card>
+        <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Next run
           </div>
           <div className="mt-1 text-[15px] font-medium text-zoru-ink">
             {fmtDate(doc.next_run_date)}
           </div>
-        </ZoruCard>
-        <ZoruCard className="p-4">
+        </Card>
+        <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Amount
           </div>
           <div className="mt-1 text-[18px] font-semibold text-zoru-ink">
             {fmtMoney(doc.amount, doc.currency)}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Schedule
         </h3>
@@ -262,9 +262,9 @@ export default function RecurringExpenseDetailPage(props: {
             </div>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Generated expenses ({generated.length})
         </h3>
@@ -286,7 +286,7 @@ export default function RecurringExpenseDetailPage(props: {
             ))}
           </ul>
         )}
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={deleteOpen}

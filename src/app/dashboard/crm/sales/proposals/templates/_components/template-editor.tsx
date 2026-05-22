@@ -106,8 +106,8 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-3">
           <div>
-            <ZoruLabel className="text-foreground">Template Name</ZoruLabel>
-            <ZoruInput
+            <Label className="text-foreground">Template Name</Label>
+            <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Standard SaaS Proposal"
@@ -115,8 +115,8 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
             />
           </div>
           <div className="md:col-span-1">
-            <ZoruLabel className="text-foreground">Default Title</ZoruLabel>
-            <ZoruInput
+            <Label className="text-foreground">Default Title</Label>
+            <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Proposal for <Client>"
@@ -124,8 +124,8 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
             />
           </div>
           <div>
-            <ZoruLabel className="text-foreground">Currency</ZoruLabel>
-            <ZoruInput
+            <Label className="text-foreground">Currency</Label>
+            <Input
               value={currency}
               onChange={(e) => setCurrency(e.target.value.toUpperCase())}
               className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
@@ -134,17 +134,17 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
         </div>
 
         <div className="mt-4 flex items-center gap-3">
-          <ZoruSwitch
+          <Switch
             id="signature_required"
             checked={signatureRequired}
             onCheckedChange={setSignatureRequired}
           />
-          <ZoruLabel
+          <Label
             htmlFor="signature_required"
             className="cursor-pointer text-[13px] text-foreground"
           >
             Require e-signature on acceptance
-          </ZoruLabel>
+          </Label>
         </div>
       </ClayCard>
 
@@ -163,7 +163,7 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
       </ClayCard>
 
       <div className="flex flex-wrap justify-end gap-2">
-        <ZoruButton
+        <Button
           variant="obsidian"
           disabled={isSaving}
           onClick={handleSave}
@@ -176,7 +176,7 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
           }
         >
           Save Template
-        </ZoruButton>
+        </Button>
       </div>
     </EntityListShell>
   );

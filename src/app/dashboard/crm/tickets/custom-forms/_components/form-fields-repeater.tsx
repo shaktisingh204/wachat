@@ -86,16 +86,16 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <ZoruLabel>Form fields</ZoruLabel>
+          <Label>Form fields</Label>
           <p className="text-xs text-muted-foreground">
             Add, reorder, and remove the inputs that ticket creators will see.
             Order here is the order on the rendered form.
           </p>
         </div>
-        <ZoruButton type="button" variant="outline" size="sm" onClick={addRow}>
+        <Button type="button" variant="outline" size="sm" onClick={addRow}>
           <Plus className="mr-1.5 h-3.5 w-3.5" />
           Add field
-        </ZoruButton>
+        </Button>
       </div>
 
       {rows.length === 0 ? (
@@ -119,7 +119,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                     Field #{idx + 1}
                   </div>
                   <div className="flex items-center gap-1">
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -127,8 +127,8 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       disabled={idx === 0}
                     >
                       ↑
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -136,8 +136,8 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       disabled={idx === rows.length - 1}
                     >
                       ↓
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon"
@@ -145,14 +145,14 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       aria-label="Remove field"
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor={`${prefix}-name`}>Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor={`${prefix}-name`}>Name *</Label>
+                    <Input
                       id={`${prefix}-name`}
                       name={`${prefix}[name]`}
                       required
@@ -165,8 +165,8 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor={`${prefix}-label`}>Label</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor={`${prefix}-label`}>Label</Label>
+                    <Input
                       id={`${prefix}-label`}
                       name={`${prefix}[label]`}
                       placeholder="e.g. Order ID"
@@ -177,7 +177,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel>Type</ZoruLabel>
+                    <Label>Type</Label>
                     <EnumFormField
                       enumName="formFieldType"
                       name={`${prefix}[type]`}
@@ -190,10 +190,10 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor={`${prefix}-placeholder`}>
+                    <Label htmlFor={`${prefix}-placeholder`}>
                       Placeholder
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                       id={`${prefix}-placeholder`}
                       name={`${prefix}[placeholder]`}
                       placeholder="Optional hint shown inside the input"
@@ -205,10 +205,10 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                   </div>
                   {needsOptions ? (
                     <div className="space-y-1.5 sm:col-span-2">
-                      <ZoruLabel htmlFor={`${prefix}-options`}>
+                      <Label htmlFor={`${prefix}-options`}>
                         Options
-                      </ZoruLabel>
-                      <ZoruTextarea
+                      </Label>
+                      <Textarea
                         id={`${prefix}-options`}
                         name={`${prefix}[options]`}
                         rows={3}
@@ -227,14 +227,14 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                   ) : null}
                   <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
                     <div className="flex flex-col">
-                      <ZoruLabel htmlFor={`${prefix}-required`}>
+                      <Label htmlFor={`${prefix}-required`}>
                         Required
-                      </ZoruLabel>
+                      </Label>
                       <span className="text-xs text-muted-foreground">
                         Must be filled before the form can be submitted.
                       </span>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                       id={`${prefix}-required`}
                       checked={!!row.required}
                       onCheckedChange={(v) =>

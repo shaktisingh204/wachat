@@ -39,7 +39,7 @@ export function ContactDetailBody({
     return (
         <>
             {/* ─── Overview ───────────────────────────────────────── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Overview</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -100,9 +100,9 @@ export function ContactDetailBody({
                         label="Source"
                         value={
                             contact.leadSource ?? contact.source ? (
-                                <ZoruBadge variant="secondary">
+                                <Badge variant="secondary">
                                     {contact.leadSource ?? contact.source}
-                                </ZoruBadge>
+                                </Badge>
                             ) : (
                                 '—'
                             )
@@ -129,10 +129,10 @@ export function ContactDetailBody({
                         }
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Address ────────────────────────────────────────── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Address</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -152,10 +152,10 @@ export function ContactDetailBody({
                         value={(anyContact.city as string | undefined) ?? '—'}
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Social ─────────────────────────────────────────── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Social</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -199,10 +199,10 @@ export function ContactDetailBody({
                         }
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Notes ──────────────────────────────────────────── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Notes</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -248,10 +248,10 @@ export function ContactDetailBody({
                         the existing `addCrmContactNote` action covers append-only;
                         a dedicated composer dialog ships in a follow-up batch. */}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Attachments ───────────────────────────────────── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Attachments</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -264,10 +264,10 @@ export function ContactDetailBody({
                         isn't part of the current type. Linkable via custom-fields once
                         the per-tenant schema ships. */}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Tags ──────────────────────────────────────────── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Tags</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -275,9 +275,9 @@ export function ContactDetailBody({
                     {Array.isArray(contact.tags) && contact.tags.length > 0 ? (
                         <div className="flex flex-wrap gap-1.5">
                             {contact.tags.map((t) => (
-                                <ZoruBadge key={t} variant="secondary">
+                                <Badge key={t} variant="secondary">
                                     {t}
-                                </ZoruBadge>
+                                </Badge>
                             ))}
                         </div>
                     ) : (
@@ -286,10 +286,10 @@ export function ContactDetailBody({
                         </p>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Custom fields ─────────────────────────────────── */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Custom fields</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -301,7 +301,7 @@ export function ContactDetailBody({
                         `applyCustomFieldsToEntity('contact', …)` once the
                         read-side helper ships. */}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </>
     );
 }

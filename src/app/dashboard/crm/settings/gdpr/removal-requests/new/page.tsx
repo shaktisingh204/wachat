@@ -115,10 +115,10 @@ export default function NewGdprEraseRequestPage() {
         >
 
             <form onSubmit={onSubmit}>
-                <ZoruCard className="space-y-5 p-6">
+                <Card className="space-y-5 p-6">
                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="subject-kind">Subject kind</ZoruLabel>
+                            <Label htmlFor="subject-kind">Subject kind</Label>
                             <EnumFormField
                                 name="__subjectKind"
                                 enumName="eraseSubjectKind"
@@ -133,7 +133,7 @@ export default function NewGdprEraseRequestPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel>Subject</ZoruLabel>
+                            <Label>Subject</Label>
                             <EntityFormField
                                 entity={activeEntity}
                                 name="subjectId"
@@ -160,7 +160,7 @@ export default function NewGdprEraseRequestPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="scope">Scope</ZoruLabel>
+                        <Label htmlFor="scope">Scope</Label>
                         <EnumFormField
                             name="__scope"
                             enumName="eraseScope"
@@ -174,8 +174,8 @@ export default function NewGdprEraseRequestPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="reason">Reason (optional)</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="reason">Reason (optional)</Label>
+                        <Textarea
                             id="reason"
                             rows={3}
                             value={reason}
@@ -185,21 +185,21 @@ export default function NewGdprEraseRequestPage() {
                     </div>
 
                     <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
-                        <ZoruButton type="button" variant="outline" asChild>
+                        <Button type="button" variant="outline" asChild>
                             <Link href="/dashboard/crm/settings/gdpr/removal-requests">
                                 Cancel
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton type="submit" disabled={isPending}>
+                        </Button>
+                        <Button type="submit" disabled={isPending}>
                             {isPending ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
                                 <Save className="mr-2 h-4 w-4" />
                             )}
                             File request
-                        </ZoruButton>
+                        </Button>
                     </div>
-                </ZoruCard>
+                </Card>
             </form>
         </EntityDetailShell>
     );

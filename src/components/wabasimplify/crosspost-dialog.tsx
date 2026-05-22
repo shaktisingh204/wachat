@@ -33,10 +33,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Share2 className="mr-2 h-4 w-4" />}
       Crosspost Video
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -81,7 +81,7 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
   }, [state, toast, onOpenChange, onSuccess]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={projectId} />
@@ -95,19 +95,19 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
-              <ZoruLabel>Eligible Pages</ZoruLabel>
+              <Label>Eligible Pages</Label>
               <div className="mt-2 rounded-md border p-2">
                 {isLoading ? (
                   <div className="space-y-2">
-                    <ZoruSkeleton className="h-8 w-full" />
-                    <ZoruSkeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
                   </div>
                 ) : eligiblePages.length > 0 ? (
                   <div className="space-y-2">
                     {eligiblePages.map(page => (
                       <div key={page.id} className="flex items-center space-x-2">
-                        <ZoruCheckbox id={page.id} name="targetPageIds" value={page.id} />
-                        <ZoruLabel htmlFor={page.id} className="font-normal">{page.name}</ZoruLabel>
+                        <Checkbox id={page.id} name="targetPageIds" value={page.id} />
+                        <Label htmlFor={page.id} className="font-normal">{page.name}</Label>
                       </div>
                     ))}
                   </div>
@@ -119,11 +119,11 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
           </div>
 
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

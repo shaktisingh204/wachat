@@ -103,7 +103,7 @@ export default function BulkMessagingPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -117,7 +117,7 @@ export default function BulkMessagingPage() {
             <ZoruBreadcrumbPage>Bulk Messaging</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -129,12 +129,12 @@ export default function BulkMessagingPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <ZoruCard className="flex flex-col gap-4 p-6">
+        <Card className="flex flex-col gap-4 p-6">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="bm-numbers">
+            <Label htmlFor="bm-numbers">
               Phone numbers (one per line)
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="bm-numbers"
               value={numbers}
               onChange={(e) => setNumbers(e.target.value)}
@@ -145,8 +145,8 @@ export default function BulkMessagingPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="bm-message">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="bm-message">Message</Label>
+            <Textarea
               id="bm-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -158,14 +158,14 @@ export default function BulkMessagingPage() {
           <div>
             <ZoruAlertDialog>
               <ZoruAlertDialogTrigger asChild>
-                <ZoruButton disabled={sending || !canSend}>
+                <Button disabled={sending || !canSend}>
                   {sending ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     <Send className="h-3.5 w-3.5" />
                   )}
                   {sending ? 'Sending…' : 'Send all'}
-                </ZoruButton>
+                </Button>
               </ZoruAlertDialogTrigger>
               <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -188,9 +188,9 @@ export default function BulkMessagingPage() {
               </ZoruAlertDialogContent>
             </ZoruAlertDialog>
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="text-sm text-zoru-ink mb-4">Result</h2>
           {sending ? (
             <div className="flex h-20 items-center justify-center gap-3">
@@ -201,7 +201,7 @@ export default function BulkMessagingPage() {
             </div>
           ) : result ? (
             <>
-              <ZoruProgress value={100} className="mb-4 h-3" />
+              <Progress value={100} className="mb-4 h-3" />
               <p className="mb-4 text-[13px] text-zoru-ink">
                 {result.total} processed
               </p>
@@ -225,7 +225,7 @@ export default function BulkMessagingPage() {
               Enter numbers and a message, then click Send all.
             </p>
           )}
-        </ZoruCard>
+        </Card>
       </div>
       <div className="h-6" />
     </div>

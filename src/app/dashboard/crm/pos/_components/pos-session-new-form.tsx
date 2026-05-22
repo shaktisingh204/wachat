@@ -33,12 +33,12 @@ export function PosSessionNewForm() {
     }, [state, router]);
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="p-5">
                 <form action={formAction} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <ZoruLabel htmlFor="terminalId">Terminal</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="terminalId">Terminal</Label>
+                        <Input
                             id="terminalId"
                             name="terminalId"
                             placeholder="e.g. Counter-1, Kiosk-A"
@@ -51,8 +51,8 @@ export function PosSessionNewForm() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <ZoruLabel htmlFor="openingCash">Opening cash (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="openingCash">Opening cash (₹)</Label>
+                        <Input
                             id="openingCash"
                             name="openingCash"
                             type="number"
@@ -64,8 +64,8 @@ export function PosSessionNewForm() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={3}
@@ -80,19 +80,19 @@ export function PosSessionNewForm() {
                     ) : null}
 
                     <div className="flex justify-end gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             onClick={() => router.back()}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton type="submit" disabled={isPending}>
+                        </Button>
+                        <Button type="submit" disabled={isPending}>
                             {isPending ? 'Opening…' : 'Open session'}
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

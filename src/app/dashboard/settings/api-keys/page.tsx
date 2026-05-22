@@ -79,7 +79,7 @@ export default function ApiKeysPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -89,17 +89,17 @@ export default function ApiKeysPage() {
                         <ZoruBreadcrumbPage>{t('settings.apiKeys.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <ZoruPageTitle>{t('settings.apiKeys.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
                             {t('settings.apiKeys.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
+                </PageHeader>
                 <CreateKeyDialog onCreated={refresh} />
             </div>
 
@@ -109,11 +109,11 @@ export default function ApiKeysPage() {
                 <StatCard label={t('settings.apiKeys.stats.revoked')} value={keys.length - activeCount} tone="red" />
             </div>
 
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 {loading ? (
                     <div className="space-y-2 p-4">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-14 w-full" />
+                            <Skeleton key={i} className="h-14 w-full" />
                         ))}
                     </div>
                 ) : keys.length === 0 ? (
@@ -125,9 +125,9 @@ export default function ApiKeysPage() {
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <Key className="h-4 w-4" />
@@ -139,7 +139,7 @@ export default function ApiKeysPage() {
                         </p>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -178,7 +178,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
     };
 
     return (
-        <ZoruDialog
+        <Dialog
             open={open}
             onOpenChange={(next) => {
                 setOpen(next);
@@ -190,10 +190,10 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
             }}
         >
             <ZoruDialogTrigger asChild>
-                <ZoruButton size="sm">
+                <Button size="sm">
                     <Plus className="h-4 w-4" />
                     {t('settings.apiKeys.newApiKey')}
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
@@ -207,10 +207,10 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
 
                 {newKey ? (
                     <div className="py-2">
-                        <ZoruLabel className="mb-1.5 block text-xs">
+                        <Label className="mb-1.5 block text-xs">
                             {t('settings.apiKeys.dialog.generated.label')}
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             readOnly
                             value={newKey}
                             trailingSlot={
@@ -227,8 +227,8 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                     </div>
                 ) : (
                     <div className="py-2">
-                        <ZoruLabel className="mb-1.5 block text-xs">{t('settings.apiKeys.dialog.generate.label')}</ZoruLabel>
-                        <ZoruInput
+                        <Label className="mb-1.5 block text-xs">{t('settings.apiKeys.dialog.generate.label')}</Label>
+                        <Input
                             placeholder={t('settings.apiKeys.dialog.generate.placeholder')}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -238,27 +238,27 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
 
                 <ZoruDialogFooter>
                     {newKey ? (
-                        <ZoruButton size="sm" onClick={() => setOpen(false)}>
+                        <Button size="sm" onClick={() => setOpen(false)}>
                             {t('settings.apiKeys.done')}
-                        </ZoruButton>
+                        </Button>
                     ) : (
                         <>
-                            <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
                                 {t('action.cancel')}
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 size="sm"
                                 onClick={handleCreate}
                                 disabled={pending}
                             >
                                 {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                                 {t('settings.apiKeys.generate')}
-                            </ZoruButton>
+                            </Button>
                         </>
                     )}
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -285,9 +285,9 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
                 <div className="flex items-center gap-2">
                     <p className="truncate text-sm text-zoru-ink">{row.name}</p>
                     {row.revoked ? (
-                        <ZoruBadge variant="danger">{t('settings.apiKeys.status.revoked')}</ZoruBadge>
+                        <Badge variant="danger">{t('settings.apiKeys.status.revoked')}</Badge>
                     ) : (
-                        <ZoruBadge variant="success">{t('settings.apiKeys.status.active')}</ZoruBadge>
+                        <Badge variant="success">{t('settings.apiKeys.status.active')}</Badge>
                     )}
                 </div>
                 <p className="mt-1 text-xs text-zoru-ink-muted">
@@ -298,10 +298,10 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
             {!row.revoked && (
                 <ZoruAlertDialog>
                     <ZoruAlertDialogTrigger asChild>
-                        <ZoruButton variant="ghost" size="sm" disabled={pending}>
+                        <Button variant="ghost" size="sm" disabled={pending}>
                             <Trash2 className="h-4 w-4" />
                             {t('settings.apiKeys.revoke')}
-                        </ZoruButton>
+                        </Button>
                     </ZoruAlertDialogTrigger>
                     <ZoruAlertDialogContent>
                         <ZoruAlertDialogHeader>
@@ -355,14 +355,14 @@ function StatCard({
 }) {
     const { t } = useT();
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">{label}</p>
             <div className="mt-1 flex items-baseline gap-2">
                 <p className="text-[26px] leading-none text-zoru-ink">{value}</p>
-                {tone === 'green' && value > 0 && <ZoruBadge variant="success">{t('settings.apiKeys.inUse')}</ZoruBadge>}
-                {tone === 'red' && value > 0 && <ZoruBadge variant="danger">{t('settings.apiKeys.status.revoked')}</ZoruBadge>}
+                {tone === 'green' && value > 0 && <Badge variant="success">{t('settings.apiKeys.inUse')}</Badge>}
+                {tone === 'red' && value > 0 && <Badge variant="danger">{t('settings.apiKeys.status.revoked')}</Badge>}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 

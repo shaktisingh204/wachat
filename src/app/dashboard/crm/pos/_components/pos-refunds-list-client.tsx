@@ -83,7 +83,7 @@ interface KpiTileProps {
 
 function KpiTile({ label, value, icon: Icon, tone, hint }: KpiTileProps) {
     return (
-        <ZoruCard className="overflow-hidden">
+        <Card className="overflow-hidden">
             <ZoruCardContent className="flex items-start justify-between gap-2 p-3.5">
                 <div className="min-w-0">
                     <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -108,7 +108,7 @@ function KpiTile({ label, value, icon: Icon, tone, hint }: KpiTileProps) {
                     <Icon className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -321,14 +321,14 @@ export function PosRefundsListClient({ refunds }: Props) {
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-sm flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                    <ZoruInput
+                    <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search txn # or reason…"
                         className="h-9 pl-9 text-[13px]"
                     />
                 </div>
-                <ZoruSelect
+                <Select
                     value={statusFilter}
                     onValueChange={(v) =>
                         setStatusFilter(v as PosRefundStatus | 'all')
@@ -343,8 +343,8 @@ export function PosRefundsListClient({ refunds }: Props) {
                         <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
                         <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruSelect
+                </Select>
+                <Select
                     value={methodFilter}
                     onValueChange={(v) =>
                         setMethodFilter(v as PosPaymentMethod | 'all')
@@ -361,15 +361,15 @@ export function PosRefundsListClient({ refunds }: Props) {
                         <ZoruSelectItem value="split">Split</ZoruSelectItem>
                         <ZoruSelectItem value="other">Other</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruInput
+                </Select>
+                <Input
                     type="date"
                     value={dateFromFilter}
                     onChange={(e) => setDateFromFilter(e.target.value)}
                     className="h-9 w-[150px] text-[13px]"
                     aria-label="From"
                 />
-                <ZoruInput
+                <Input
                     type="date"
                     value={dateToFilter}
                     onChange={(e) => setDateToFilter(e.target.value)}
@@ -377,17 +377,17 @@ export function PosRefundsListClient({ refunds }: Props) {
                     aria-label="To"
                 />
                 {hasFilters ? (
-                    <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                    <Button variant="ghost" size="sm" onClick={clearFilters}>
                         <X className="h-3.5 w-3.5" /> Clear
-                    </ZoruButton>
+                    </Button>
                 ) : null}
                 <div className="ml-auto flex items-center gap-1">
-                    <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+                    <Button size="sm" variant="outline" onClick={exportCsv}>
                         <Download className="h-3.5 w-3.5" /> CSV
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={exportXlsx}>
                         <Download className="h-3.5 w-3.5" /> XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
@@ -399,32 +399,32 @@ export function PosRefundsListClient({ refunds }: Props) {
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
-                        <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+                        <Button size="sm" variant="outline" onClick={exportCsv}>
                             Export CSV
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={exportXlsx}>
                             Export XLSX
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setSelected(new Set())}
                             aria-label="Clear selection"
                         >
                             <X className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             ) : null}
 
             {/* Table */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <div className="overflow-x-auto">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-8">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={headChecked}
                                         onCheckedChange={(c) =>
                                             toggleAll(Boolean(c))
@@ -458,7 +458,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                                 paged.map((r) => (
                                     <ZoruTableRow key={r._id}>
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(r._id)}
                                                 onCheckedChange={() =>
                                                     toggleOne(r._id)
@@ -509,7 +509,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
 
                 {/* Pagination */}
@@ -517,7 +517,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-3 py-2.5">
                         <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
                             <span>Rows per page</span>
-                            <ZoruSelect
+                            <Select
                                 value={String(pageSize)}
                                 onValueChange={(v) => setPageSize(Number(v))}
                             >
@@ -534,7 +534,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="flex items-center gap-3 text-[12px] text-zoru-ink-muted">
                             <span>
@@ -543,27 +543,27 @@ export function PosRefundsListClient({ refunds }: Props) {
                                 of {filtered.length}
                             </span>
                             <div className="flex items-center gap-1">
-                                <ZoruButton
+                                <Button
                                     size="sm"
                                     variant="outline"
                                     disabled={!hasPrev}
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                 >
                                     Prev
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     size="sm"
                                     variant="outline"
                                     disabled={!hasNext}
                                     onClick={() => setPage((p) => p + 1)}
                                 >
                                     Next
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

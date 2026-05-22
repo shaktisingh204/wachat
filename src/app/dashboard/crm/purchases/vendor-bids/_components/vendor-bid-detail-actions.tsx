@@ -103,7 +103,7 @@ export function VendorBidDetailActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Status pill → status-change dropdown */}
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -123,41 +123,41 @@ export function VendorBidDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/purchases/vendor-bids/${bidId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => moveTo('submitted')}>
+      <Button size="sm" variant="outline" onClick={() => moveTo('submitted')}>
         <Send className="h-3.5 w-3.5" /> Submit
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => moveTo('shortlisted')}>
+      <Button size="sm" variant="outline" onClick={() => moveTo('shortlisted')}>
         <ListChecks className="h-3.5 w-3.5" /> Shortlist
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => moveTo('awarded')}>
+      <Button size="sm" variant="outline" onClick={() => moveTo('awarded')}>
         <Award className="h-3.5 w-3.5" /> Award
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => moveTo('rejected')}>
+      <Button size="sm" variant="outline" onClick={() => moveTo('rejected')}>
         <ThumbsDown className="h-3.5 w-3.5" /> Reject
-      </ZoruButton>
+      </Button>
 
       {isAwarded ? (
-        <ZoruButton size="sm" variant="default" asChild>
+        <Button size="sm" variant="default" asChild>
           <Link
             href={`/dashboard/crm/purchases/orders/new?fromKind=vendorBid&fromId=${bidId}`}
           >
             <ArrowRight className="h-3.5 w-3.5" /> Convert to PO
           </Link>
-        </ZoruButton>
+        </Button>
       ) : null}
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/purchases/vendor-bids/${bidId}?print=1`}
           target="_blank"
@@ -165,17 +165,17 @@ export function VendorBidDetailActions({
         >
           <Printer className="h-3.5 w-3.5" /> Print
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/purchases/vendor-bids/${bidId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <ConfirmDialog
         open={archiveOpen}

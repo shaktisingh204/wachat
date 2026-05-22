@@ -144,43 +144,43 @@ export default async function VendorDetailPage({ params }: PageProps) {
             }}
             actions={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                         <Link
                             href={`/dashboard/crm/purchases/orders/new?vendorId=${id}`}
                         >
                             New PO
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
                         <Link
                             href={`/dashboard/crm/purchases/expenses/new?vendorId=${id}`}
                         >
                             New bill
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
                         <Link
                             href={`/dashboard/crm/purchases/payouts/new?vendorId=${id}`}
                         >
                             New payout
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/crm/purchases/vendors/${id}/activity`}>
                             Activity
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton size="sm" asChild>
+                    </Button>
+                    <Button size="sm" asChild>
                         <Link href={`/dashboard/crm/purchases/vendors/${id}/edit`}>
                             Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
             rightRail={
                 <>
                     {/* At-a-glance commercial */}
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>At a glance</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -192,10 +192,10 @@ export default async function VendorDetailPage({ params }: PageProps) {
                                 <Row label="Country" value={v.country} />
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
                     {/* Related rails */}
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Related</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -210,15 +210,15 @@ export default async function VendorDetailPage({ params }: PageProps) {
                                         {item.icon}
                                         {item.label}
                                     </span>
-                                    <ZoruBadge variant="secondary">{item.count}</ZoruBadge>
+                                    <Badge variant="secondary">{item.count}</Badge>
                                 </Link>
                             ))}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
                     {/* Identifiers */}
                     {(v.gstin || v.pan || v.msmeNumber) ? (
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Identifiers</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -231,14 +231,14 @@ export default async function VendorDetailPage({ params }: PageProps) {
                                     ) : null}
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
                 </>
             }
             audit={<EntityAuditTimeline entityKind="vendor" entityId={id} />}
         >
             {/* Profile */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>
                         <Building2 className="inline h-4 w-4 mr-2 align-text-bottom" />
@@ -255,10 +255,10 @@ export default async function VendorDetailPage({ params }: PageProps) {
                         <Row label="Website" value={v.website} />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Address */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Address</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -271,10 +271,10 @@ export default async function VendorDetailPage({ params }: PageProps) {
                         <Row label="Pincode" value={v.pincode} />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Commercial */}
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Commercial</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -300,11 +300,11 @@ export default async function VendorDetailPage({ params }: PageProps) {
                         ) : null}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Notes */}
             {v.notes ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -313,7 +313,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                             {v.notes}
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

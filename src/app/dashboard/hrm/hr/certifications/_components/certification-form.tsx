@@ -67,14 +67,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create certification'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -123,7 +123,7 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -138,8 +138,8 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                 {/* Row 1: Name + Issuer */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -148,8 +148,8 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="issuer">Issuer</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="issuer">Issuer</Label>
+                        <Input
                             id="issuer"
                             name="issuer"
                             placeholder="e.g. Amazon Web Services"
@@ -161,8 +161,8 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                 {/* Row 2: Employee link */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             placeholder="Display name (optional)"
@@ -170,8 +170,8 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee id</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             placeholder="Optional employee ObjectId"
@@ -182,10 +182,10 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
 
                 {/* Row 3: Certification number */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="certificationNumber">
+                    <Label htmlFor="certificationNumber">
                         Certification number
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         id="certificationNumber"
                         name="certificationNumber"
                         placeholder="e.g. AWS-ASA-123456"
@@ -196,8 +196,8 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                 {/* Row 4: Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="issueDate">Issue date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="issueDate">Issue date</Label>
+                        <Input
                             id="issueDate"
                             name="issueDate"
                             type="date"
@@ -205,8 +205,8 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expiryDate">Expiry date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expiryDate">Expiry date</Label>
+                        <Input
                             id="expiryDate"
                             name="expiryDate"
                             type="date"
@@ -217,7 +217,7 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
 
                 {/* Row 5: Certificate file (SabFile) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Certificate file</ZoruLabel>
+                    <Label>Certificate file</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -237,14 +237,14 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                                 >
                                     {certificateName || certificateUrl}
                                 </a>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearFile}
                                 >
                                     Remove
-                                </ZoruButton>
+                                </Button>
                             </>
                         ) : (
                             <span className="text-[12px] text-zoru-ink-muted">
@@ -256,7 +256,7 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
 
                 {/* Row 6: Status */}
                 <div className="space-y-1.5 sm:w-1/2">
-                    <ZoruLabel>Status</ZoruLabel>
+                    <Label>Status</Label>
                     <EnumFormField
                         name="status-picker"
                         enumName="certificationStatus"
@@ -270,15 +270,15 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to certifications
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

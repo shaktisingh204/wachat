@@ -184,9 +184,9 @@ export default function SmtpIntegrationPage() {
         >
           {!doc && !id ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -196,41 +196,41 @@ export default function SmtpIntegrationPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="mail_driver">Driver</ZoruLabel>
+                <Label htmlFor="mail_driver">Driver</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="mail_driver" name="mail_driver" defaultValue={v('mail_driver')} placeholder="smtp" />
+                  <Input id="mail_driver" name="mail_driver" defaultValue={v('mail_driver')} placeholder="smtp" />
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="encryption">Encryption</ZoruLabel>
+                <Label htmlFor="encryption">Encryption</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="encryption" name="encryption" defaultValue={v('encryption')} placeholder="tls / ssl / none" />
-                </div>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="host">Host</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput id="host" name="host" defaultValue={v('host')} placeholder="smtp.example.com" />
-                </div>
-              </div>
-              <div>
-                <ZoruLabel htmlFor="port">Port</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput id="port" name="port" defaultValue={v('port')} placeholder="587" />
+                  <Input id="encryption" name="encryption" defaultValue={v('encryption')} placeholder="tls / ssl / none" />
                 </div>
               </div>
 
               <div>
-                <ZoruLabel htmlFor="username">Username</ZoruLabel>
+                <Label htmlFor="host">Host</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="username" name="username" defaultValue={v('username')} autoComplete="off" />
+                  <Input id="host" name="host" defaultValue={v('host')} placeholder="smtp.example.com" />
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="password">Password</ZoruLabel>
+                <Label htmlFor="port">Port</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="password" name="password" type="password" defaultValue={v('password')} autoComplete="new-password" />
+                  <Input id="port" name="port" defaultValue={v('port')} placeholder="587" />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <div className="mt-1.5">
+                  <Input id="username" name="username" defaultValue={v('username')} autoComplete="off" />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <div className="mt-1.5">
+                  <Input id="password" name="password" type="password" defaultValue={v('password')} autoComplete="new-password" />
                 </div>
               </div>
             </div>
@@ -254,15 +254,15 @@ export default function SmtpIntegrationPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="from_name">From name</ZoruLabel>
+                <Label htmlFor="from_name">From name</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="from_name" name="from_name" defaultValue={v('from_name')} placeholder="Acme Sales" />
+                  <Input id="from_name" name="from_name" defaultValue={v('from_name')} placeholder="Acme Sales" />
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="from_email">From email</ZoruLabel>
+                <Label htmlFor="from_email">From email</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="from_email" name="from_email" type="email" defaultValue={v('from_email')} placeholder="sales@acme.com" />
+                  <Input id="from_email" name="from_email" type="email" defaultValue={v('from_email')} placeholder="sales@acme.com" />
                 </div>
               </div>
 
@@ -273,21 +273,21 @@ export default function SmtpIntegrationPage() {
                     Toggle on once the from address is authenticated (SPF / DKIM).
                   </div>
                 </div>
-                <ZoruSwitch checked={verified} onCheckedChange={setVerified} aria-label="SMTP verified" />
+                <Switch checked={verified} onCheckedChange={setVerified} aria-label="SMTP verified" />
               </div>
             </div>
 
             <div className="flex justify-end pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -297,7 +297,7 @@ export default function SmtpIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <IntegrationActivityFeed

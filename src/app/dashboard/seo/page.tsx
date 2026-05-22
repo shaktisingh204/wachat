@@ -22,24 +22,24 @@ export default function SeoProjectsPage() {
         });
     }, []);
 
-    if (loading) return <ZoruSkeleton className="h-[400px] w-full" />;
+    if (loading) return <Skeleton className="h-[400px] w-full" />;
 
     return (
         <div className="flex flex-col gap-8 w-full">
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <ZoruPageTitle>SEO Projects</ZoruPageTitle>
                         <ZoruPageDescription>
                             Manage your website rankings, audits, and competitors.
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
+                </PageHeader>
                 <CreateSeoProjectDialog />
             </div>
 
             {projects.length === 0 ? (
-                <ZoruCard className="border-dashed p-12">
+                <Card className="border-dashed p-12">
                     <div className="flex flex-col items-center justify-center text-center">
                         <div className="h-16 w-16 bg-zoru-surface-2 rounded-full flex items-center justify-center mb-4">
                             <BarChart className="h-8 w-8 text-zoru-ink-muted" />
@@ -50,7 +50,7 @@ export default function SeoProjectsPage() {
                         </p>
                         <CreateSeoProjectDialog />
                     </div>
-                </ZoruCard>
+                </Card>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {projects.map((project: any) => (

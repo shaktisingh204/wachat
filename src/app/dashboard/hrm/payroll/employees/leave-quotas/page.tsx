@@ -139,17 +139,17 @@ export default function EmployeeLeaveQuotasPage() {
       title="Leave Quotas"
       subtitle="Allocate annual leave quotas per employee and leave type."
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Add Quota
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <ZoruLabel className="text-[12px] text-zoru-ink-muted">Filter by Employee</ZoruLabel>
-          <ZoruSelect value={filterEmp} onValueChange={setFilterEmp}>
+          <Label className="text-[12px] text-zoru-ink-muted">Filter by Employee</Label>
+          <Select value={filterEmp} onValueChange={setFilterEmp}>
             <ZoruSelectTrigger className="h-9 w-[220px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -157,7 +157,7 @@ export default function EmployeeLeaveQuotasPage() {
               <ZoruSelectItem value="__all__">All Employees</ZoruSelectItem>
               {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
           <span className="text-[12px] text-zoru-ink-muted">{filtered.length} quota{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
@@ -191,12 +191,12 @@ export default function EmployeeLeaveQuotasPage() {
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(q)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(q)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(String(q._id))}>
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(String(q._id))}>
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -206,17 +206,17 @@ export default function EmployeeLeaveQuotasPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-md border-zoru-line bg-zoru-bg">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">{form._id ? 'Edit Leave Quota' : 'Add Leave Quota'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruSelect value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
+              <Label className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></Label>
+              <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select employee…" />
                 </ZoruSelectTrigger>
@@ -224,11 +224,11 @@ export default function EmployeeLeaveQuotasPage() {
                   <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
                   {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Leave Type <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruSelect value={form.leave_type_id || '__none__'} onValueChange={(v) => set('leave_type_id', v === '__none__' ? '' : v)}>
+              <Label className="text-[12px] text-zoru-ink-muted">Leave Type <span className="text-zoru-danger-ink">*</span></Label>
+              <Select value={form.leave_type_id || '__none__'} onValueChange={(v) => set('leave_type_id', v === '__none__' ? '' : v)}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select leave type…" />
                 </ZoruSelectTrigger>
@@ -236,22 +236,22 @@ export default function EmployeeLeaveQuotasPage() {
                   <ZoruSelectItem value="__none__">— Select leave type —</ZoruSelectItem>
                   {leaveTypes.map((lt) => <ZoruSelectItem key={lt._id} value={lt._id}>{lt.name}</ZoruSelectItem>)}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Number of Leaves <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruInput type="number" min="0" value={form.no_of_leaves} onChange={(e) => set('no_of_leaves', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-zoru-ink-muted">Number of Leaves <span className="text-zoru-danger-ink">*</span></Label>
+              <Input type="number" min="0" value={form.no_of_leaves} onChange={(e) => set('no_of_leaves', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
           </div>
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>Cancel</ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

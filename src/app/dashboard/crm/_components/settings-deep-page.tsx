@@ -159,10 +159,10 @@ const PAGE_SIZE_DEFAULT = 20;
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       {isEditing ? 'Save changes' : 'Create'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -208,7 +208,7 @@ function SettingsEditDialog<T extends SettingsRow>({
   }, [state, toast, onSaved, onOpenChange]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-xl">
         <form action={formAction}>
           {isEditing ? (
@@ -234,12 +234,12 @@ function SettingsEditDialog<T extends SettingsRow>({
                     field.fullWidth ? 'space-y-2 sm:col-span-2' : 'space-y-2'
                   }
                 >
-                  <ZoruLabel htmlFor={field.name}>
+                  <Label htmlFor={field.name}>
                     {field.label}
                     {field.required ? (
                       <span className="text-zoru-danger-ink"> *</span>
                     ) : null}
-                  </ZoruLabel>
+                  </Label>
                   {field.type === 'textarea' ? (
                     <textarea
                       id={field.name}
@@ -251,7 +251,7 @@ function SettingsEditDialog<T extends SettingsRow>({
                       className="flex min-h-[60px] w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink"
                     />
                   ) : field.type === 'select' ? (
-                    <ZoruSelect
+                    <Select
                       name={field.name}
                       defaultValue={initialValue || undefined}
                     >
@@ -267,9 +267,9 @@ function SettingsEditDialog<T extends SettingsRow>({
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   ) : (
-                    <ZoruInput
+                    <Input
                       id={field.name}
                       name={field.name}
                       type="text"
@@ -284,18 +284,18 @@ function SettingsEditDialog<T extends SettingsRow>({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton isEditing={isEditing} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -560,7 +560,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
         title={title}
         subtitle={subtitle}
         primaryAction={
-          <ZoruButton
+          <Button
             onClick={() => {
               setEditing(null);
               setIsDialogOpen(true);
@@ -568,7 +568,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             New {singular}
-          </ZoruButton>
+          </Button>
         }
         search={{
           value: search,
@@ -577,7 +577,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
         }}
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <Select
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
@@ -589,9 +589,9 @@ export function SettingsDeepPage<T extends SettingsRow>({
                 <ZoruSelectItem value="active">Active</ZoruSelectItem>
                 <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {search || statusFilter !== 'all' ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -600,7 +600,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                 }}
               >
                 <X className="mr-1 h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
         }
@@ -608,9 +608,9 @@ export function SettingsDeepPage<T extends SettingsRow>({
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                <ZoruBadge variant="default">
+                <Badge variant="default">
                   {selected.size} selected
-                </ZoruBadge>
+                </Badge>
                 <button
                   type="button"
                   onClick={() => setSelected(new Set())}
@@ -620,14 +620,14 @@ export function SettingsDeepPage<T extends SettingsRow>({
                 </button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExportCsv}
                 >
                   <Download className="mr-1 h-3.5 w-3.5" /> Export CSV
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
@@ -635,8 +635,8 @@ export function SettingsDeepPage<T extends SettingsRow>({
                   }}
                 >
                   <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => setPendingBulk(true)}
@@ -644,7 +644,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                 >
                   <Trash2 className="mr-1 h-3.5 w-3.5" />
                   Delete {selected.size}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -670,19 +670,19 @@ export function SettingsDeepPage<T extends SettingsRow>({
         <div className="flex flex-col gap-4">
           {/* KPI strip */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label={`Total ${singular.toLowerCase()}s`}
               value={kpis.total.toLocaleString()}
             />
-            <ZoruStatCard
+            <StatCard
               label="Active"
               value={Math.max(
                 0,
                 kpis.total - rows.filter((r) => r.archived === true).length,
               ).toLocaleString()}
             />
-            <ZoruStatCard label="In use" value={kpis.inUse.toLocaleString()} />
-            <ZoruStatCard
+            <StatCard label="In use" value={kpis.inUse.toLocaleString()} />
+            <StatCard
               label="Last added"
               value={formatStamp(kpis.lastAddedAt)}
               icon={<CalendarClock className="h-4 w-4" />}
@@ -692,15 +692,15 @@ export function SettingsDeepPage<T extends SettingsRow>({
           {/* Toolbar action — bulk export when nothing is selected */}
           {selected.size === 0 ? (
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportCsv}
                 disabled={filtered.length === 0}
               >
                 <Download className="mr-1 h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
@@ -709,18 +709,18 @@ export function SettingsDeepPage<T extends SettingsRow>({
                 disabled={filtered.length === 0}
               >
                 <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
+              </Button>
             </div>
           ) : null}
 
           {/* Table */}
-          <ZoruCard className="p-0">
+          <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={
                           allOnPageSelected
                             ? true
@@ -752,7 +752,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                     Array.from({ length: 4 }).map((_, i) => (
                       <ZoruTableRow key={i}>
                         <ZoruTableCell colSpan={columns.length + 2}>
-                          <ZoruSkeleton className="h-8 w-full" />
+                          <Skeleton className="h-8 w-full" />
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))
@@ -771,7 +771,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                       return (
                         <ZoruTableRow key={id} className="border-zoru-line">
                           <ZoruTableCell>
-                            <ZoruCheckbox
+                            <Checkbox
                               checked={selected.has(id)}
                               onCheckedChange={() => toggleOne(id)}
                               aria-label={`Select ${displayName(row)}`}
@@ -843,7 +843,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                           })}
                           <ZoruTableCell className="text-right">
                             <div className="flex justify-end gap-1">
-                              <ZoruButton
+                              <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
@@ -853,15 +853,15 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                 aria-label={`Edit ${displayName(row)}`}
                               >
                                 Edit
-                              </ZoruButton>
-                              <ZoruButton
+                              </Button>
+                              <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setPendingDelete(row)}
                                 aria-label={`Delete ${displayName(row)}`}
                               >
                                 <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                              </ZoruButton>
+                              </Button>
                             </div>
                           </ZoruTableCell>
                         </ZoruTableRow>
@@ -869,9 +869,9 @@ export function SettingsDeepPage<T extends SettingsRow>({
                     })
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

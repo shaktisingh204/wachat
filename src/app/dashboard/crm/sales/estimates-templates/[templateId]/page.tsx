@@ -78,17 +78,17 @@ export default async function EstimateTemplateDetailPage({
             title={(tpl.name as string) || 'Estimate template'}
             back={{ href: BASE, label: 'Estimate Templates' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${templateId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Summary */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
@@ -114,10 +114,10 @@ export default async function EstimateTemplateDetailPage({
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Body */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Template body
                 </div>
@@ -130,10 +130,10 @@ export default async function EstimateTemplateDetailPage({
                         No template body. Add markdown when editing.
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Line items */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Default line items
                 </div>
@@ -209,18 +209,18 @@ export default async function EstimateTemplateDetailPage({
                         </table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Default terms */}
             {tpl.defaultTerms ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Default terms
                     </div>
                     <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
                         {String(tpl.defaultTerms)}
                     </pre>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

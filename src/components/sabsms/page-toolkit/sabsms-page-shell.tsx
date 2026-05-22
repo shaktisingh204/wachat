@@ -78,7 +78,7 @@ export function SabsmsPageShell({
   return (
     <div className="space-y-6 p-6">
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink asChild>
@@ -102,25 +102,25 @@ export function SabsmsPageShell({
               </React.Fragment>
             ))}
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
       )}
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           {eyebrow && <ZoruPageEyebrow>{eyebrow}</ZoruPageEyebrow>}
           <div className="flex items-center gap-2">
             <ZoruPageTitle>{title}</ZoruPageTitle>
             {helpBody && (
-              <ZoruPopover>
+              <Popover>
                 <ZoruPopoverTrigger asChild>
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7"
                     aria-label="Help"
                   >
                     <HelpCircle className="h-4 w-4 text-slate-500" />
-                  </ZoruButton>
+                  </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent className="w-80 text-sm">
                   {helpTitle && (
@@ -128,7 +128,7 @@ export function SabsmsPageShell({
                   )}
                   <div className="text-slate-600">{helpBody}</div>
                 </ZoruPopoverContent>
-              </ZoruPopover>
+              </Popover>
             )}
           </div>
           {description && (
@@ -139,11 +139,11 @@ export function SabsmsPageShell({
         {(primaryAction || (secondaryActions && secondaryActions.length > 0)) && (
           <ZoruPageActions>
             {secondaryActions && secondaryActions.length > 0 && (
-              <ZoruDropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                  <ZoruButton variant="outline" size="icon" aria-label="More actions">
+                  <Button variant="outline" size="icon" aria-label="More actions">
                     <MoreHorizontal className="h-4 w-4" />
-                  </ZoruButton>
+                  </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                   {secondaryActions.map((a, i) =>
@@ -170,21 +170,21 @@ export function SabsmsPageShell({
                     ),
                   )}
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
+              </DropdownMenu>
             )}
             {primaryAction &&
               (primaryAction.href ? (
-                <ZoruButton asChild>
+                <Button asChild>
                   <Link href={primaryAction.href}>{primaryAction.label}</Link>
-                </ZoruButton>
+                </Button>
               ) : (
-                <ZoruButton onClick={primaryAction.onClick}>
+                <Button onClick={primaryAction.onClick}>
                   {primaryAction.label}
-                </ZoruButton>
+                </Button>
               ))}
           </ZoruPageActions>
         )}
-      </ZoruPageHeader>
+      </PageHeader>
 
       {toolbar}
 

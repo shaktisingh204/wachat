@@ -60,12 +60,12 @@ export interface PoFiltersRowProps {
 
 export function PoFiltersRow(props: PoFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="productionOrderStatus"
                         value={props.status}
@@ -75,10 +75,10 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         BOM
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         placeholder="BOM ref / code"
                         value={props.bomFilter}
                         onChange={(e) => props.onBomFilterChange(e.target.value)}
@@ -86,16 +86,16 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Date range
-                    </ZoruLabel>
+                    </Label>
                     <div className="flex items-center gap-1">
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={props.dateFrom}
                             onChange={(e) => props.onDateFromChange(e.target.value)}
                         />
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={props.dateTo}
                             onChange={(e) => props.onDateToChange(e.target.value)}
@@ -104,10 +104,10 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Machine
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         placeholder="Line / machine id"
                         value={props.machineFilter}
                         onChange={(e) => props.onMachineFilterChange(e.target.value)}
@@ -115,9 +115,9 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Operator
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="employee"
                         name="operatorFilter"
@@ -128,10 +128,10 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Yield
-                    </ZoruLabel>
-                    <ZoruSelect
+                    </Label>
+                    <Select
                         value={props.yieldBucket}
                         onValueChange={(v) => props.onYieldBucketChange(v as PoYieldBucket)}
                     >
@@ -144,18 +144,18 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                             <ZoruSelectItem value="mid">60 – 90%</ZoruSelectItem>
                             <ZoruSelectItem value="high">90% +</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-6">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -178,8 +178,8 @@ export function PoBulkBar({
 }: PoBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="info">{count} selected</ZoruBadge>
-            <ZoruSelect onValueChange={(v) => onChangeStatus(v as PoBulkOp)}>
+            <Badge variant="info">{count} selected</Badge>
+            <Select onValueChange={(v) => onChangeStatus(v as PoBulkOp)}>
                 <ZoruSelectTrigger className="h-8 w-[180px]">
                     <ZoruSelectValue placeholder="Set status…" />
                 </ZoruSelectTrigger>
@@ -191,16 +191,16 @@ export function PoBulkBar({
                     <ZoruSelectItem value="status_closed">Closed</ZoruSelectItem>
                     <ZoruSelectItem value="status_cancelled">Cancelled</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+            </Select>
+            <Button size="sm" variant="outline" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+            </Button>
+            <Button size="sm" variant="destructive" onClick={onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

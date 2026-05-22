@@ -51,17 +51,17 @@ export function VendorBidBulkBar({
         {count} selected
       </div>
       <div className="flex items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+        <Button size="sm" variant="outline" onClick={onArchive}>
           Archive
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
-        <ZoruDropdownMenu>
+        </Button>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton size="sm" variant="outline">
+            <Button size="sm" variant="outline">
               Change status
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent>
             {STATUS_OPTIONS.map((s) => (
@@ -70,13 +70,13 @@ export function VendorBidBulkBar({
               </ZoruDropdownMenuItem>
             ))}
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
-        <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+        </DropdownMenu>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-        <ZoruButton size="sm" variant="ghost" onClick={onClear} aria-label="Clear selection">
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onClear} aria-label="Clear selection">
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

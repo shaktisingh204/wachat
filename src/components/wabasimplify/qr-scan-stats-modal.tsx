@@ -55,7 +55,7 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
   }, [open, qrCodeId, isDynamic]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-sm">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
@@ -81,12 +81,12 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
           {isDynamic && isLoading && (
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 border rounded-lg space-y-2">
-                <ZoruSkeleton className="h-4 w-20" />
-                <ZoruSkeleton className="h-8 w-12" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-8 w-12" />
               </div>
               <div className="p-4 border rounded-lg space-y-2">
-                <ZoruSkeleton className="h-4 w-20" />
-                <ZoruSkeleton className="h-8 w-12" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-8 w-12" />
               </div>
             </div>
           )}
@@ -126,9 +126,9 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
         </div>
 
         <div className="flex justify-end pt-2">
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>Close</ZoruButton>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Close</Button>
         </div>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

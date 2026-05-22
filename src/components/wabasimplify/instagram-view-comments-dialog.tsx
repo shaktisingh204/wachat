@@ -70,7 +70,7 @@ export function InstagramViewCommentsDialog({ isOpen, onOpenChange, media, proje
   }, [isOpen, media.id, projectId, toast]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Comments</ZoruDialogTitle>
@@ -96,11 +96,11 @@ export function InstagramViewCommentsDialog({ isOpen, onOpenChange, media, proje
         </ScrollArea>
         <ZoruDialogFooter className="mt-auto border-t pt-4">
            <form className="w-full flex items-center gap-2">
-                <ZoruTextarea name="message" placeholder="Write a comment..." className="flex-1" required disabled/>
-                <ZoruButton type="submit" disabled><Send className="h-4 w-4" /></ZoruButton>
+                <Textarea name="message" placeholder="Write a comment..." className="flex-1" required disabled/>
+                <Button type="submit" disabled><Send className="h-4 w-4" /></Button>
            </form>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

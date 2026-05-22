@@ -95,7 +95,7 @@ export default function ConversationKanbanPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -109,7 +109,7 @@ export default function ConversationKanbanPage() {
             <ZoruBreadcrumbPage>Conversation Kanban</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-center justify-between">
         <div>
@@ -120,7 +120,7 @@ export default function ConversationKanbanPage() {
             View conversations organized by status ({totalCards} contacts).
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           onClick={load}
@@ -132,7 +132,7 @@ export default function ConversationKanbanPage() {
             <RefreshCw />
           )}
           Refresh
-        </ZoruButton>
+        </Button>
       </div>
 
       {isPending && columns.length === 0 ? (
@@ -143,20 +143,20 @@ export default function ConversationKanbanPage() {
           </span>
         </div>
       ) : (
-        <ZoruScrollArea className="pb-4">
+        <ScrollArea className="pb-4">
           <div className="flex gap-4">
             {columns.map((col) => (
               <div key={col.id} className="w-80 flex-shrink-0">
                 <div className="mb-3 flex items-center gap-2">
                   <span className={cn('h-3 w-3 rounded-full', col.dotClass)} />
                   <h2 className="text-[15px] text-zoru-ink">{col.title}</h2>
-                  <ZoruBadge variant="secondary" className="ml-auto">
+                  <Badge variant="secondary" className="ml-auto">
                     {col.items.length}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
                 <div className="flex flex-col gap-3">
                   {col.items.map((item: any) => (
-                    <ZoruCard
+                    <Card
                       key={item._id}
                       className="p-4 transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
                     >
@@ -180,7 +180,7 @@ export default function ConversationKanbanPage() {
                           {item.tagIds.length} tag(s)
                         </div>
                       )}
-                    </ZoruCard>
+                    </Card>
                   ))}
                   {col.items.length === 0 && (
                     <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line p-6 text-center text-[12px] text-zoru-ink-muted">
@@ -191,7 +191,7 @@ export default function ConversationKanbanPage() {
               </div>
             ))}
           </div>
-        </ZoruScrollArea>
+        </ScrollArea>
       )}
       <div className="h-6" />
     </div>

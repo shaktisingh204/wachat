@@ -33,14 +33,14 @@ const initialState: { message?: string; error?: string; id?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Save contract
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -67,13 +67,13 @@ export default function NewContractPage() {
       back={{ href: '/dashboard/crm/sales/contracts', label: 'Contracts' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Row 1: Contract Title + Contract Type */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="title">Contract Title</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="title">Contract Title</Label>
+              <Input
                 id="title"
                 name="title"
                 placeholder="e.g. Software Services Agreement"
@@ -81,7 +81,7 @@ export default function NewContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Contract Type</ZoruLabel>
+              <Label>Contract Type</Label>
               <EnumFormField
                 enumName="contractTypeExtended"
                 name="type"
@@ -94,7 +94,7 @@ export default function NewContractPage() {
           {/* Row 2: Counter-party (client picker, dual-writes partyName) + Email */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel>Counter-party</ZoruLabel>
+              <Label>Counter-party</Label>
               <EntityFormField
                 entity="client"
                 name="clientId"
@@ -103,8 +103,8 @@ export default function NewContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="partyEmail">Counter-party Email</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="partyEmail">Counter-party Email</Label>
+              <Input
                 id="partyEmail"
                 name="partyEmail"
                 type="email"
@@ -116,20 +116,20 @@ export default function NewContractPage() {
           {/* Row 3: Effective Date + Expiry Date */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="effectiveDate">Effective Date</ZoruLabel>
-              <ZoruInput id="effectiveDate" name="effectiveDate" type="date" />
+              <Label htmlFor="effectiveDate">Effective Date</Label>
+              <Input id="effectiveDate" name="effectiveDate" type="date" />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="expiryDate">Expiry Date</ZoruLabel>
-              <ZoruInput id="expiryDate" name="expiryDate" type="date" />
+              <Label htmlFor="expiryDate">Expiry Date</Label>
+              <Input id="expiryDate" name="expiryDate" type="date" />
             </div>
           </div>
 
           {/* Row 4: Contract Value + E-Signature Provider */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="value">Contract Value (₹)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="value">Contract Value (₹)</Label>
+              <Input
                 id="value"
                 name="value"
                 type="number"
@@ -139,7 +139,7 @@ export default function NewContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>E-Signature Provider</ZoruLabel>
+              <Label>E-Signature Provider</Label>
               <EnumFormField
                 enumName="esignProviderExtended"
                 name="esignProvider"
@@ -160,14 +160,14 @@ export default function NewContractPage() {
                 checked={autoRenew}
                 onChange={(e) => setAutoRenew(e.target.checked)}
               />
-              <ZoruLabel htmlFor="autoRenew" className="cursor-pointer">
+              <Label htmlFor="autoRenew" className="cursor-pointer">
                 Auto-renew
-              </ZoruLabel>
+              </Label>
             </div>
             {autoRenew && (
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="renewalNoticeDays">Renewal Notice (days before expiry)</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="renewalNoticeDays">Renewal Notice (days before expiry)</Label>
+                <Input
                   id="renewalNoticeDays"
                   name="renewalNoticeDays"
                   type="number"
@@ -181,8 +181,8 @@ export default function NewContractPage() {
 
           {/* Row 6: Notes */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
               id="notes"
               name="notes"
               placeholder="Internal notes or special terms"
@@ -194,7 +194,7 @@ export default function NewContractPage() {
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

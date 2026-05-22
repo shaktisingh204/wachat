@@ -29,10 +29,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       Connect Page
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -65,12 +65,12 @@ export function ManualFacebookSetupDialog({ onSuccess }: ManualFacebookSetupDial
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline">
+        <Button variant="outline">
           <Wrench className="mr-2 h-4 w-4" />
           Manual Setup
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
@@ -84,30 +84,30 @@ export function ManualFacebookSetupDialog({ onSuccess }: ManualFacebookSetupDial
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="projectName">Project Name</ZoruLabel>
-                <ZoruInput id="projectName" name="projectName" placeholder="e.g., My Facebook Page" required />
+                <Label htmlFor="projectName">Project Name</Label>
+                <Input id="projectName" name="projectName" placeholder="e.g., My Facebook Page" required />
                 <p className="text-xs text-muted-foreground">A name for you to identify this connection.</p>
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="facebookPageId">Facebook Page ID</ZoruLabel>
-                <ZoruInput id="facebookPageId" name="facebookPageId" placeholder="Your Facebook Page ID" required />
+                <Label htmlFor="facebookPageId">Facebook Page ID</Label>
+                <Input id="facebookPageId" name="facebookPageId" placeholder="Your Facebook Page ID" required />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="adAccountId">Ad Account ID</ZoruLabel>
-                <ZoruInput id="adAccountId" name="adAccountId" placeholder="act_xxxxxxxxxxxx" required />
+                <Label htmlFor="adAccountId">Ad Account ID</Label>
+                <Input id="adAccountId" name="adAccountId" placeholder="act_xxxxxxxxxxxx" required />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="accessToken">Permanent Access Token</ZoruLabel>
-                <ZoruInput id="accessToken" name="accessToken" type="password" placeholder="A non-expiring System User Token" required />
+                <Label htmlFor="accessToken">Permanent Access Token</Label>
+                <Input id="accessToken" name="accessToken" type="password" placeholder="A non-expiring System User Token" required />
               </div>
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

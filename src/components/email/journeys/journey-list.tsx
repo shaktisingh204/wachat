@@ -76,7 +76,7 @@ export function JourneyList({ journeys, onChanged }: JourneyListProps) {
         const completed = j.stats?.completed ?? 0;
         const updated = j.updatedAt ? formatDistanceToNow(new Date(j.updatedAt), { addSuffix: true }) : '—';
         return (
-          <ZoruCard key={j._id} className="p-4 flex flex-col gap-3">
+          <Card key={j._id} className="p-4 flex flex-col gap-3">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <Link
@@ -89,11 +89,11 @@ export function JourneyList({ journeys, onChanged }: JourneyListProps) {
                   <p className="text-xs text-zoru-ink-muted line-clamp-2 mt-1">{j.description}</p>
                 ) : null}
               </div>
-              <ZoruDropdownMenu>
+              <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                  <ZoruButton variant="ghost" size="icon" aria-label="Journey actions">
+                  <Button variant="ghost" size="icon" aria-label="Journey actions">
                     <MoreHorizontal className="h-4 w-4" />
-                  </ZoruButton>
+                  </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                   <ZoruDropdownMenuItem asChild>
@@ -118,11 +118,11 @@ export function JourneyList({ journeys, onChanged }: JourneyListProps) {
                     <Trash2 className="h-4 w-4" /> Delete
                   </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-              </ZoruDropdownMenu>
+              </DropdownMenu>
             </div>
 
             <div className="flex items-center gap-2">
-              <ZoruBadge variant={STATUS_VARIANTS[j.status] ?? 'outline'}>{j.status}</ZoruBadge>
+              <Badge variant={STATUS_VARIANTS[j.status] ?? 'outline'}>{j.status}</Badge>
               <span className="text-xs text-zoru-ink-muted">Edited {updated}</span>
             </div>
 
@@ -131,7 +131,7 @@ export function JourneyList({ journeys, onChanged }: JourneyListProps) {
               <KpiCell icon={<Play className="h-3 w-3" />} label="Active" value={active} />
               <KpiCell icon={<CheckCircle2 className="h-3 w-3" />} label="Completed" value={completed} />
             </div>
-          </ZoruCard>
+          </Card>
         );
       })}
     </div>

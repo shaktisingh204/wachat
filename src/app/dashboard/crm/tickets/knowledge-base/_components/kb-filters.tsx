@@ -48,7 +48,7 @@ export interface KbFiltersRowProps {
 
 export function KbFiltersRow(props: KbFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <FilterField label="Status">
                     <EnumFilterField
@@ -107,13 +107,13 @@ export function KbFiltersRow(props: KbFiltersRowProps) {
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-6">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -126,9 +126,9 @@ function FilterField({
 }) {
     return (
         <div className="space-y-1">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                 {label}
-            </ZoruLabel>
+            </Label>
             {children}
         </div>
     );
@@ -155,22 +155,22 @@ export function KbBulkBar({
 }: KbBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="info">{count} selected</ZoruBadge>
-            <ZoruButton size="sm" variant="outline" onClick={onPublish}>
+            <Badge variant="info">{count} selected</Badge>
+            <Button size="sm" variant="outline" onClick={onPublish}>
                 Publish
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onUnpublish}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onUnpublish}>
                 Unpublish
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onExport}>
                 Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+            </Button>
+            <Button size="sm" variant="destructive" onClick={onDelete}>
                 Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

@@ -51,7 +51,7 @@ export function EventsKpiStrip({ counts, active, onPick }: EventsKpiStripProps):
                             handleClick ? '' : 'opacity-90 cursor-default',
                         ].join(' ')}
                     >
-                        <ZoruStatCard label={c.label} value={c.value} icon={c.icon} />
+                        <StatCard label={c.label} value={c.value} icon={c.icon} />
                     </button>
                 );
             })}

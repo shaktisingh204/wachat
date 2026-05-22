@@ -145,7 +145,7 @@ export function UrlShortenerSidebar({
     <aside className="w-full lg:w-60 flex-shrink-0 flex flex-col gap-4">
       {/* Search */}
       <div className="px-1">
-        <ZoruInput
+        <Input
           placeholder="Search links..."
           leadingSlot={<Search />}
           value={search}
@@ -190,7 +190,7 @@ export function UrlShortenerSidebar({
         </nav>
       </div>
 
-      <ZoruSeparator />
+      <Separator />
 
       {/* Sort */}
       <div className="space-y-1.5">
@@ -222,7 +222,7 @@ export function UrlShortenerSidebar({
       {/* Tags */}
       {userTags.length > 0 ? (
         <>
-          <ZoruSeparator />
+          <Separator />
           <div className="space-y-1.5">
             <div className="flex items-center justify-between px-3">
               <span className="text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
@@ -267,7 +267,7 @@ export function UrlShortenerSidebar({
         </>
       ) : null}
 
-      <ZoruSeparator />
+      <Separator />
 
       {/* Collections */}
       <div className="space-y-1.5">
@@ -275,14 +275,14 @@ export function UrlShortenerSidebar({
           <span className="text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
             Collections
           </span>
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => setAdding((v) => !v)}
             title="New collection"
           >
             <Plus className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
 
         <button
@@ -301,7 +301,7 @@ export function UrlShortenerSidebar({
 
         {adding ? (
           <div className="mx-2 p-2 rounded-md border border-zoru-line bg-zoru-surface-2 space-y-2">
-            <ZoruInput
+            <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Collection name"
@@ -327,17 +327,17 @@ export function UrlShortenerSidebar({
               ))}
             </div>
             <div className="flex gap-1">
-              <ZoruButton
+              <Button
                 size="sm"
                 onClick={handleCreate}
                 disabled={isPending || !newName.trim()}
                 className="flex-1"
               >
                 {isPending ? <LoaderCircle className="h-3 w-3 animate-spin" /> : 'Add'}
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setAdding(false)}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setAdding(false)}>
                 ✕
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null}
@@ -380,12 +380,12 @@ export function UrlShortenerSidebar({
 
       {hasFilters ? (
         <>
-          <ZoruSeparator />
+          <Separator />
           <div className="px-2">
-            <ZoruButton variant="ghost" size="sm" onClick={clearAll} className="w-full justify-start">
+            <Button variant="ghost" size="sm" onClick={clearAll} className="w-full justify-start">
               <Filter className="h-3.5 w-3.5" />
               Reset filters
-            </ZoruButton>
+            </Button>
           </div>
         </>
       ) : null}

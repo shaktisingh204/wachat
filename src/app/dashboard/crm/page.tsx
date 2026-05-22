@@ -62,7 +62,7 @@ function StatCard({
   };
 
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <div className="flex items-start justify-between gap-3">
         <p className="text-[12.5px] text-zoru-ink-muted">{title}</p>
         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${toneBg[tone]}`}>
@@ -70,7 +70,7 @@ function StatCard({
         </div>
       </div>
       <p className="mt-3 text-[26px] leading-none text-zoru-ink">{value}</p>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -80,17 +80,17 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
   const { t } = useT();
   if (!items || items.length === 0) return null;
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <div className="flex items-center justify-between pb-3">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
             <Pin className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
           </div>
           <h2 className="text-[15px] text-zoru-ink">{t('crm.dashboard.pinned.title')}</h2>
-          <ZoruBadge variant="ghost">{items.length}</ZoruBadge>
+          <Badge variant="ghost">{items.length}</Badge>
         </div>
         <Link href="/dashboard/crm/pinned">
-          <ZoruButton variant="outline" size="sm">{t('crm.dashboard.pinned.viewAll')}</ZoruButton>
+          <Button variant="outline" size="sm">{t('crm.dashboard.pinned.viewAll')}</Button>
         </Link>
       </div>
       <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
@@ -99,14 +99,14 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
             key={it._id}
             className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-2"
           >
-            <ZoruBadge variant="ghost">{it.resource_type}</ZoruBadge>
+            <Badge variant="ghost">{it.resource_type}</Badge>
             <span className="min-w-0 flex-1 truncate text-[12.5px] text-zoru-ink">
               {it.title || `${it.resource_type} ${String(it.resource_id).slice(-6)}`}
             </span>
           </li>
         ))}
       </ul>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -155,18 +155,18 @@ export default function CrmDashboardPage() {
     return (
       <div className="flex w-full flex-col gap-6">
         <div>
-          <ZoruSkeleton className="h-8 w-64" />
-          <ZoruSkeleton className="mt-2 h-4 w-96" />
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="mt-2 h-4 w-96" />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <ZoruSkeleton className="h-28 w-full rounded-xl" />
-          <ZoruSkeleton className="h-28 w-full rounded-xl" />
-          <ZoruSkeleton className="h-28 w-full rounded-xl" />
-          <ZoruSkeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
-          <ZoruSkeleton className="h-64 w-full rounded-xl lg:col-span-2" />
-          <ZoruSkeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl lg:col-span-2" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       </div>
     );
@@ -177,30 +177,30 @@ export default function CrmDashboardPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>{t('crm.dashboard.title')}</ZoruPageTitle>
             <ZoruPageDescription>
               {t('crm.dashboard.subtitle')}
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
         <div className="flex flex-wrap items-center gap-2">
           <WidgetConfigDrawer
             dashboardType="overview"
             onConfigChange={() => setWidgetReloadKey((k) => k + 1)}
           />
-          <ZoruButton
+          <Button
             variant="outline"
             onClick={() => router.push('/dashboard/crm/contacts')}
           >
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             {t('crm.dashboard.action.newContact')}
-          </ZoruButton>
-          <ZoruButton onClick={() => router.push('/dashboard/crm/deals')}>
+          </Button>
+          <Button onClick={() => router.push('/dashboard/crm/deals')}>
             <Handshake className="h-4 w-4" strokeWidth={1.75} />
             {t('crm.dashboard.action.newDeal')}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 

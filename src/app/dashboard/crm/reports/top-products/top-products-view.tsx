@@ -91,7 +91,7 @@ export function TopProductsView({ rows, page, limit }: Props) {
         <StatCard label="Avg unit price" value={fmtMoney(avgUnitPrice)} />
       </div>
 
-      <ZoruCard>
+      <Card>
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">
             Top 10 products by revenue
@@ -117,11 +117,11 @@ export function TopProductsView({ rows, page, limit }: Props) {
             </ResponsiveContainer>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="w-10 text-muted-foreground">#</ZoruTableHead>
@@ -158,10 +158,10 @@ export function TopProductsView({ rows, page, limit }: Props) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
           <PaginationBar page={page} limit={limit} hasMore={hasMore} total={rows.length} />
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

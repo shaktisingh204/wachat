@@ -35,7 +35,7 @@ import { useProject } from '@/context/project-context';
 const CONTACTS_PER_PAGE = 30;
 
 function ChatPageSkeleton() {
-    return <ZoruSkeleton className="h-full w-full rounded-xl" />;
+    return <Skeleton className="h-full w-full rounded-xl" />;
 }
 
 export function ChatClient() {
@@ -235,13 +235,13 @@ export function ChatClient() {
     if (!activeProjectId) {
         return (
             <div className="h-full flex items-center justify-center p-4">
-                <ZoruAlert variant="destructive" className="max-w-md">
+                <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
                     <ZoruAlertDescription>
                         Please select a project from the main dashboard to use the chat interface.
                     </ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -292,12 +292,12 @@ export function ChatClient() {
                                 </div>
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p className="max-w-xs text-sm">Choose a contact from the list or start a new chat to begin messaging.</p>
-                                <ZoruButton
+                                <Button
                                     onClick={() => setIsNewChatDialogOpen(true)}
                                     className="mt-4"
                                 >
                                     Start New Conversation
-                                </ZoruButton>
+                                </Button>
                             </div>
                         )}
                     </div>

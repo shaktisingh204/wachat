@@ -75,7 +75,7 @@ export function EventsTable({
                                 className="px-3 py-2 text-left font-medium first:pl-3 last:pr-3"
                             >
                                 {c.key === 'select' ? (
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         aria-label="Select all"
                                         checked={allSelected}
                                         onCheckedChange={(v) => onToggleAll(!!v)}
@@ -102,7 +102,7 @@ export function EventsTable({
                         return (
                             <tr key={e._id} className="hover:bg-zoru-surface">
                                 <td className="px-3 py-2">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         aria-label={`Select ${e.event_name}`}
                                         checked={checked}
                                         onCheckedChange={() => onToggleOne(e._id)}
@@ -137,20 +137,20 @@ export function EventsTable({
                                 </td>
                                 <td className="px-3 py-2">
                                     {e.repeat ? (
-                                        <ZoruBadge variant="warning">Repeating</ZoruBadge>
+                                        <Badge variant="warning">Repeating</Badge>
                                     ) : (
-                                        <ZoruBadge variant="ghost">One-off</ZoruBadge>
+                                        <Badge variant="ghost">One-off</Badge>
                                     )}
                                 </td>
                                 <td className="px-3 py-2">
                                     <StatusPill label={s} tone={tone} />
                                 </td>
                                 <td className="px-3 py-2 text-right">
-                                    <ZoruDropdownMenu>
+                                    <DropdownMenu>
                                         <ZoruDropdownMenuTrigger asChild>
-                                            <ZoruButton variant="ghost" size="sm" aria-label="Row actions">
+                                            <Button variant="ghost" size="sm" aria-label="Row actions">
                                                 <MoreHorizontal className="h-4 w-4" />
-                                            </ZoruButton>
+                                            </Button>
                                         </ZoruDropdownMenuTrigger>
                                         <ZoruDropdownMenuContent align="end">
                                             <ZoruDropdownMenuItem asChild>
@@ -163,7 +163,7 @@ export function EventsTable({
                                                 <Trash2 className="h-3.5 w-3.5" /> Delete
                                             </ZoruDropdownMenuItem>
                                         </ZoruDropdownMenuContent>
-                                    </ZoruDropdownMenu>
+                                    </DropdownMenu>
                                 </td>
                             </tr>
                         );

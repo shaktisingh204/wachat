@@ -65,9 +65,9 @@ const initialState = { message: undefined, error: undefined };
 function PageSkeleton() {
     return (
         <div className="space-y-4">
-            <ZoruSkeleton className="h-10 w-64" />
-            <ZoruSkeleton className="h-4 w-96" />
-            <ZoruSkeleton className="h-80 w-full" />
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-4 w-96" />
+            <Skeleton className="h-80 w-full" />
         </div>
     );
 }
@@ -120,9 +120,9 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton><Plus className="h-4 w-4" strokeWidth={1.75} />Add Role</ZoruButton>
+                <Button><Plus className="h-4 w-4" strokeWidth={1.75} />Add Role</Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
@@ -130,8 +130,8 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                     <ZoruDialogDescription>Give your new role a name. You can set its permissions after creating it.</ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <div className="py-4">
-                    <ZoruLabel htmlFor="roleName">Role Name</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="roleName">Role Name</Label>
+                    <Input
                         id="roleName"
                         value={roleName}
                         onChange={(e) => setRoleName(e.target.value)}
@@ -139,14 +139,14 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                     />
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-                    <ZoruButton onClick={handleAddRole} disabled={isPending}>
+                    <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button onClick={handleAddRole} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Create Role
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -177,14 +177,14 @@ function DeleteRoleButton({
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                </ZoruButton>
+                </Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -366,14 +366,14 @@ export default function ManageRolesPage() {
             subtitle="Define what different roles can access and do across the platform."
             primaryAction={
                 <div className="flex items-center gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         onClick={handleExport}
                         disabled={allRoles.length === 0}
                     >
                         <Download className="mr-1.5 h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
+                    </Button>
                     <AddRoleDialog onRoleAdded={fetchUser} />
                 </div>
             }
@@ -385,17 +385,17 @@ export default function ManageRolesPage() {
         >
             {/* KPI strip */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
-                <ZoruStatCard label="Total roles" value={totalRoles.toLocaleString()} />
-                <ZoruStatCard label="System roles" value={systemRoles.toLocaleString()} />
-                <ZoruStatCard label="Custom roles" value={customRolesCount.toLocaleString()} />
-                <ZoruStatCard label="Most permissions" value={mostUsedRole} />
+                <StatCard label="Total roles" value={totalRoles.toLocaleString()} />
+                <StatCard label="System roles" value={systemRoles.toLocaleString()} />
+                <StatCard label="Custom roles" value={customRolesCount.toLocaleString()} />
+                <StatCard label="Most permissions" value={mostUsedRole} />
             </div>
 
             {/* Bulk selection header for custom roles */}
             {customRoleIds.length > 0 && (
                 <div className="mb-3 flex items-center gap-3">
                     <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                        <ZoruCheckbox
+                        <Checkbox
                             checked={allCustomChecked}
                             aria-checked={someCustomChecked && !allCustomChecked ? 'mixed' : allCustomChecked}
                             onCheckedChange={toggleAllCustom}
@@ -413,7 +413,7 @@ export default function ManageRolesPage() {
                         {selectedIds.length} selected
                     </span>
                     <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                        <ZoruButton
+                        <Button
                             variant="destructive"
                             size="sm"
                             disabled={bulkPending}
@@ -421,7 +421,7 @@ export default function ManageRolesPage() {
                         >
                             <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                             Delete selected
-                        </ZoruButton>
+                        </Button>
                         <ZoruAlertDialogContent>
                             <ZoruAlertDialogHeader>
                                 <ZoruAlertDialogTitle>
@@ -446,18 +446,18 @@ export default function ManageRolesPage() {
                             </ZoruAlertDialogFooter>
                         </ZoruAlertDialogContent>
                     </ZoruAlertDialog>
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setSelected(new Set())}
                     >
                         Clear selection
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
             <form action={formAction}>
-                <ZoruAccordion type="single" collapsible className="w-full space-y-4">
+                <Accordion type="single" collapsible className="w-full space-y-4">
                     {filteredRoles.map((role) => {
                         const crmPermissions = (role.permissions || {}) as Record<string, Record<string, boolean>>;
                         const isSystem = role.id === 'agent';
@@ -471,7 +471,7 @@ export default function ManageRolesPage() {
                                 <ZoruAccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
                                     <div className="flex items-center gap-3">
                                         {!isSystem && (
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(role.id)}
                                                 onCheckedChange={() => toggleOne(role.id)}
                                                 aria-label={`Select ${role.name}`}
@@ -486,7 +486,7 @@ export default function ManageRolesPage() {
                                 </ZoruAccordionTrigger>
                                 <ZoruAccordionContent className="p-4 pt-0">
                                     <input type="hidden" name="roleId" value={role.id} />
-                                    <ZoruTable>
+                                    <Table>
                                         <ZoruTableHeader>
                                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                                 <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
@@ -508,7 +508,7 @@ export default function ManageRolesPage() {
                                                     </ZoruTableCell>
                                                     {actions.map((action) => (
                                                         <ZoruTableCell key={action} className="text-center">
-                                                            <ZoruCheckbox
+                                                            <Checkbox
                                                                 name={`${role.id}_${module.id}_${action}`}
                                                                 defaultChecked={
                                                                     crmPermissions[module.id]?.[action] ?? false
@@ -519,17 +519,17 @@ export default function ManageRolesPage() {
                                                 </ZoruTableRow>
                                             ))}
                                         </ZoruTableBody>
-                                    </ZoruTable>
+                                    </Table>
                                 </ZoruAccordionContent>
                             </ZoruAccordionItem>
                         );
                     })}
-                </ZoruAccordion>
+                </Accordion>
                 <div className="mt-6 flex justify-end">
-                    <ZoruButton type="submit">
+                    <Button type="submit">
                         <Save className="h-4 w-4" strokeWidth={1.75} />
                         Save Permissions
-                    </ZoruButton>
+                    </Button>
                 </div>
             </form>
         </EntityListShell>

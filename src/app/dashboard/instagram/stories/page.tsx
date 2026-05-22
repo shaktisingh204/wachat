@@ -104,9 +104,9 @@ function StoryInsightsRow({
   if (loading) {
     return (
       <div className="mt-2 grid grid-cols-3 gap-2">
-        <ZoruSkeleton className="h-10 w-full" />
-        <ZoruSkeleton className="h-10 w-full" />
-        <ZoruSkeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
       </div>
     );
   }
@@ -157,7 +157,7 @@ export default function InstagramStoriesPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<PanelsTopLeft />}
           title="No project selected"
           description="Pick a project with a connected Instagram account to view its stories."
@@ -168,7 +168,7 @@ export default function InstagramStoriesPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -182,7 +182,7 @@ export default function InstagramStoriesPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Stories</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -192,28 +192,28 @@ export default function InstagramStoriesPage(): React.JSX.Element {
             (24-hour expiry).
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+        <Button variant="ghost" onClick={refresh} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load stories</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {loading && stories.length === 0 ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <ZoruSkeleton className="h-72 w-full" />
-          <ZoruSkeleton className="h-72 w-full" />
-          <ZoruSkeleton className="h-72 w-full" />
+          <Skeleton className="h-72 w-full" />
+          <Skeleton className="h-72 w-full" />
+          <Skeleton className="h-72 w-full" />
         </div>
       ) : stories.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<PanelsTopLeft />}
           title="No active stories"
           description="This account doesn't have any stories live right now."
@@ -223,7 +223,7 @@ export default function InstagramStoriesPage(): React.JSX.Element {
           {stories.map((s) => {
             const src = s.thumbnail_url || s.media_url;
             return (
-              <ZoruCard key={s.id} className="flex flex-col gap-3 p-3">
+              <Card key={s.id} className="flex flex-col gap-3 p-3">
                 <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                   {src ? (
                     s.media_type === 'VIDEO' ? (
@@ -240,18 +240,18 @@ export default function InstagramStoriesPage(): React.JSX.Element {
                   ) : null}
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <ZoruBadge variant="outline">{s.media_type ?? 'STORY'}</ZoruBadge>
+                  <Badge variant="outline">{s.media_type ?? 'STORY'}</Badge>
                   <span className="text-zoru-ink-muted">{safeRelative(s.timestamp)}</span>
                 </div>
                 <StoryInsightsRow projectId={projectId} storyId={s.id} />
                 {s.permalink ? (
-                  <ZoruButton asChild variant="outline" size="sm">
+                  <Button asChild variant="outline" size="sm">
                     <a href={s.permalink} target="_blank" rel="noopener noreferrer">
                       Open <ExternalLink className="h-3 w-3" />
                     </a>
-                  </ZoruButton>
+                  </Button>
                 ) : null}
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>

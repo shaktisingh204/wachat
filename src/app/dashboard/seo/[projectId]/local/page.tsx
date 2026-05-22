@@ -31,14 +31,14 @@ export default function LocalSeoPage({ params }: { params: Promise<{ projectId: 
                     </h1>
                     <p className="text-zoru-ink-muted mt-1">Track your rankings across specific neighborhoods.</p>
                 </div>
-                <ZoruButton>
+                <Button>
                     <Search className="mr-2 h-4 w-4" />
                     New Scan
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Rank Map: &quot;Coffee Shop&quot;</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -58,9 +58,9 @@ export default function LocalSeoPage({ params }: { params: Promise<{ projectId: 
                             ))}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>How it works</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -81,7 +81,7 @@ export default function LocalSeoPage({ params }: { params: Promise<{ projectId: 
                             <span className="text-sm text-zoru-ink">Rank 10+ (Invisible)</span>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

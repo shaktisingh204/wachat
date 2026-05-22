@@ -86,7 +86,7 @@ export default function ActivityLogPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -100,21 +100,21 @@ export default function ActivityLogPage() {
                         <ZoruBreadcrumbPage>Activity</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Activity</ZoruPageTitle>
                     <ZoruPageDescription>
                         Every invite, role change, task move, and chat event — chronologically.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-            </ZoruPageHeader>
+            </PageHeader>
 
-            <ZoruCard className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="w-[180px]">
-                        <ZoruSelect
+                        <Select
                             value={actor}
                             onValueChange={(v) => {
                                 setActor(v);
@@ -132,10 +132,10 @@ export default function ActivityLogPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="w-[180px]">
-                        <ZoruSelect
+                        <Select
                             value={group}
                             onValueChange={(v) => {
                                 setGroup(v as ActionGroup);
@@ -152,9 +152,9 @@ export default function ActivityLogPage() {
                                 <ZoruSelectItem value="ROLE">Roles</ZoruSelectItem>
                                 <ZoruSelectItem value="CHAT">Chat</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
-                    <ZoruInput
+                    <Input
                         className="w-[160px]"
                         type="date"
                         value={since}
@@ -163,7 +163,7 @@ export default function ActivityLogPage() {
                             setPage(1);
                         }}
                     />
-                    <ZoruInput
+                    <Input
                         className="w-[160px]"
                         type="date"
                         value={until}
@@ -191,9 +191,9 @@ export default function ActivityLogPage() {
                 <div className="text-[12px] text-zoru-ink-muted">
                     {total.toLocaleString()} event{total === 1 ? '' : 's'}
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0">
                 {loading ? (
                     <div className="flex items-center justify-center gap-2 p-10 text-zoru-ink-muted">
                         <Loader className="h-4 w-4 animate-spin" />
@@ -216,11 +216,11 @@ export default function ActivityLogPage() {
                         ))}
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {totalPages > 1 ? (
                 <div className="flex items-center justify-end gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         disabled={page <= 1 || loading}
@@ -228,11 +228,11 @@ export default function ActivityLogPage() {
                     >
                         <ChevronLeft className="h-3.5 w-3.5" />
                         Previous
-                    </ZoruButton>
+                    </Button>
                     <span className="text-[12px] text-zoru-ink-muted">
                         Page {page} of {totalPages}
                     </span>
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         disabled={page >= totalPages || loading}
@@ -240,7 +240,7 @@ export default function ActivityLogPage() {
                     >
                         Next
                         <ChevronRight className="h-3.5 w-3.5" />
-                    </ZoruButton>
+                    </Button>
                 </div>
             ) : null}
         </div>
@@ -275,14 +275,14 @@ function ActivityRow({ log }: { log: WithId<ActivityLog> }) {
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                    <ZoruBadge variant={variant}>
+                    <Badge variant={variant}>
                         <span className="inline-flex items-center gap-1">
                             {icon}
                             {prettyAction(log.action as string)}
                         </span>
-                    </ZoruBadge>
+                    </Badge>
                     {(log.details as any)?.project ? (
-                        <ZoruBadge variant="ghost">{(log.details as any).project}</ZoruBadge>
+                        <Badge variant="ghost">{(log.details as any).project}</Badge>
                     ) : null}
                 </div>
             </div>

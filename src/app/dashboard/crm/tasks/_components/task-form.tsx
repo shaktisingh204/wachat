@@ -75,14 +75,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create task'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -150,7 +150,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
         setAttachments((prev) => prev.filter((_, i) => i !== idx));
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="taskId" value={initialData!._id} />
@@ -173,8 +173,8 @@ export function TaskForm({ initialData }: TaskFormProps) {
 
                 {/* Title */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
                         id="title"
                         name="title"
                         required
@@ -185,8 +185,8 @@ export function TaskForm({ initialData }: TaskFormProps) {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={4}
@@ -198,8 +198,8 @@ export function TaskForm({ initialData }: TaskFormProps) {
                 {/* Type + Priority + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="type">Type</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="type">Type</Label>
+                        <Input
                             id="type"
                             name="type"
                             placeholder="follow-up, call, …"
@@ -207,7 +207,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Priority</ZoruLabel>
+                        <Label>Priority</Label>
                         <EnumFormField
                             enumName="priorityLegacy"
                             name="priorityPicker"
@@ -217,7 +217,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="taskStatusLegacy"
                             name="statusPicker"
@@ -232,8 +232,8 @@ export function TaskForm({ initialData }: TaskFormProps) {
                 {/* Due + Reminders + Assigned */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="dueDate">Due date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="dueDate">Due date</Label>
+                        <Input
                             id="dueDate"
                             name="dueDate"
                             type="date"
@@ -241,8 +241,8 @@ export function TaskForm({ initialData }: TaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="reminders">Reminders</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="reminders">Reminders</Label>
+                        <Input
                             id="reminders"
                             name="reminders"
                             placeholder="2025-12-15, 2025-12-20"
@@ -257,7 +257,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                         </p>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Assigned to</ZoruLabel>
+                        <Label>Assigned to</Label>
                         <EntityFormField
                             entity="user"
                             name="assignedTo"
@@ -270,7 +270,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                 {/* Linked entity */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Linked entity</ZoruLabel>
+                        <Label>Linked entity</Label>
                         <EnumFormField
                             enumName="linkedEntityKind"
                             name="linkedKindPicker"
@@ -282,7 +282,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                     </div>
                     {linkedKind !== 'none' && LINKED_ENTITY_BY_KIND[linkedKind] ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel>Linked record</ZoruLabel>
+                            <Label>Linked record</Label>
                             <EntityFormField
                                 key={linkedKind}
                                 entity={LINKED_ENTITY_BY_KIND[linkedKind]!}
@@ -297,15 +297,15 @@ export function TaskForm({ initialData }: TaskFormProps) {
                 {/* Checklist repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Checklist</ZoruLabel>
-                        <ZoruButton
+                        <Label>Checklist</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
                             onClick={addChecklistRow}
                         >
                             <Plus className="mr-1 h-3.5 w-3.5" /> Add item
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {checklist.length === 0 ? (
                         <p className="text-[12px] text-zoru-ink-muted">
@@ -318,13 +318,13 @@ export function TaskForm({ initialData }: TaskFormProps) {
                                     key={idx}
                                     className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 p-2"
                                 >
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={!!row.done}
                                         onCheckedChange={(v) =>
                                             updateChecklistRow(idx, { done: !!v })
                                         }
                                     />
-                                    <ZoruInput
+                                    <Input
                                         value={row.text}
                                         onChange={(e) =>
                                             updateChecklistRow(idx, { text: e.target.value })
@@ -332,14 +332,14 @@ export function TaskForm({ initialData }: TaskFormProps) {
                                         placeholder={`Step ${idx + 1}`}
                                         className="flex-1"
                                     />
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => removeChecklistRow(idx)}
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -348,7 +348,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
 
                 {/* Attachments */}
                 <div className="space-y-2">
-                    <ZoruLabel>Attachments</ZoruLabel>
+                    <Label>Attachments</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="any"
@@ -373,14 +373,14 @@ export function TaskForm({ initialData }: TaskFormProps) {
                                     >
                                         {a.name}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => removeAttachment(idx)}
                                     >
                                         <X className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -393,15 +393,15 @@ export function TaskForm({ initialData }: TaskFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to tasks
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }
 

@@ -220,7 +220,7 @@ export default function SabWaChatsPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -234,7 +234,7 @@ export default function SabWaChatsPage() {
               <ZoruBreadcrumbPage>Chats</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
         <div className="mt-6">
           <ZoruEmptyState
             icon={<Smartphone />}
@@ -242,7 +242,7 @@ export default function SabWaChatsPage() {
             description="Pick a connected account on the SabWa overview to start using this page."
             action={
               <Link href="/sabwa/overview">
-                <ZoruButton size="md">Open accounts</ZoruButton>
+                <Button size="md">Open accounts</Button>
               </Link>
             }
           />
@@ -255,7 +255,7 @@ export default function SabWaChatsPage() {
     <div className="flex h-full min-h-[60vh] flex-col bg-zoru-bg">
       {/* ── Breadcrumb ─────────────────────────────────────────────── */}
       <div className="shrink-0 border-b border-zoru-line px-4 py-2 md:px-6">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -269,7 +269,7 @@ export default function SabWaChatsPage() {
               <ZoruBreadcrumbPage>Chats</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
       </div>
 
       {/* ── Header ─────────────────────────────────────────────────── */}
@@ -285,9 +285,9 @@ export default function SabWaChatsPage() {
             <h1 className="text-[24px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.2] md:text-2xl">
               Chats
             </h1>
-            <ZoruBadge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs">
               {filtered.length} of {chats?.length ?? 0}
-            </ZoruBadge>
+            </Badge>
           </div>
           <p className="mt-0.5 text-xs text-zoru-ink-muted">
             One-on-one conversations. Toggle bulk-select for sweeping actions.
@@ -312,7 +312,7 @@ export default function SabWaChatsPage() {
 
       {/* ── Mobile toolbar: hamburger collapses controls ───────────── */}
       <div className="flex items-center gap-2 border-b border-zoru-line px-4 py-2 md:hidden">
-        <ZoruButton
+        <Button
           type="button"
           variant="outline"
           size="icon"
@@ -321,10 +321,10 @@ export default function SabWaChatsPage() {
           onClick={() => setMobileToolbarOpen((v) => !v)}
         >
           <MenuIcon className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -342,7 +342,7 @@ export default function SabWaChatsPage() {
             className="grid w-full grid-cols-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
           >
             {(["all", "unread", "read"] as const).map((value) => (
-              <ZoruButton
+              <Button
                 key={value}
                 type="button"
                 variant={filter === value ? "default" : "ghost"}
@@ -351,11 +351,11 @@ export default function SabWaChatsPage() {
                 onClick={() => setFilter(value)}
               >
                 {value}
-              </ZoruButton>
+              </Button>
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <ZoruSelect value={sort} onValueChange={(v) => setSort(v as SortMode)}>
+            <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
               <ZoruSelectTrigger className="h-9 flex-1">
                 <ZoruSelectValue placeholder="Sort" />
               </ZoruSelectTrigger>
@@ -363,8 +363,8 @@ export default function SabWaChatsPage() {
                 <ZoruSelectItem value="recent">Recent</ZoruSelectItem>
                 <ZoruSelectItem value="name">Name</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruButton
+            </Select>
+            <Button
               type="button"
               variant={bulkMode ? "default" : "outline"}
               size="sm"
@@ -373,7 +373,7 @@ export default function SabWaChatsPage() {
             >
               <CheckSquare className="mr-1 h-4 w-4" />
               {bulkMode ? "Exit" : "Bulk"}
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
@@ -381,7 +381,7 @@ export default function SabWaChatsPage() {
       {/* ── Bulk header (visible when bulk mode is on) ─────────────── */}
       {bulkMode ? (
         <div className="flex items-center gap-2 border-b border-zoru-line bg-zoru-surface/60 px-4 py-2 md:px-6">
-          <ZoruCheckbox
+          <Checkbox
             id="select-all"
             checked={allVisibleSelected}
             onCheckedChange={toggleSelectAllVisible}
@@ -396,7 +396,7 @@ export default function SabWaChatsPage() {
               : "Select all visible"}
           </label>
           {selectionCount > 0 ? (
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               size="sm"
@@ -404,7 +404,7 @@ export default function SabWaChatsPage() {
               className="ml-auto h-7 px-2"
             >
               <X className="mr-1 h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
       ) : null}
@@ -425,7 +425,7 @@ export default function SabWaChatsPage() {
               return (
                 <li key={chat.jid} className="flex items-center gap-2">
                   {bulkMode ? (
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={checked}
                       onCheckedChange={() => toggleSelect(chat.jid)}
                       aria-label={`Select ${displayName}`}
@@ -504,7 +504,7 @@ function Toolbar({
     <>
       <div className="relative flex-1 max-w-md">
         <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -521,7 +521,7 @@ function Toolbar({
         className="hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 lg:inline-flex"
       >
         {(["all", "unread", "read"] as const).map((value) => (
-          <ZoruButton
+          <Button
             key={value}
             type="button"
             variant={filter === value ? "default" : "ghost"}
@@ -530,11 +530,11 @@ function Toolbar({
             onClick={() => setFilter(value)}
           >
             {value}
-          </ZoruButton>
+          </Button>
         ))}
       </div>
 
-      <ZoruSelect value={sort} onValueChange={(v) => setSort(v as SortMode)}>
+      <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
         <ZoruSelectTrigger className="h-9 w-32">
           <ZoruSelectValue placeholder="Sort" />
         </ZoruSelectTrigger>
@@ -542,9 +542,9 @@ function Toolbar({
           <ZoruSelectItem value="recent">Recent</ZoruSelectItem>
           <ZoruSelectItem value="name">Name</ZoruSelectItem>
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
 
-      <ZoruButton
+      <Button
         type="button"
         variant={bulkMode ? "default" : "outline"}
         size="sm"
@@ -553,7 +553,7 @@ function Toolbar({
       >
         <CheckSquare className="mr-1 h-4 w-4" />
         {bulkMode ? "Exit bulk" : "Bulk select"}
-      </ZoruButton>
+      </Button>
     </>
   );
 }
@@ -584,7 +584,7 @@ function BulkFooter({
       <span className="text-xs font-medium text-zoru-ink-muted">
         {selectionCount} selected
       </span>
-      <ZoruButton
+      <Button
         type="button"
         size="sm"
         variant="outline"
@@ -594,8 +594,8 @@ function BulkFooter({
       >
         <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
         Mark read
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         type="button"
         size="sm"
         variant="outline"
@@ -605,8 +605,8 @@ function BulkFooter({
       >
         <EyeOff className="mr-1.5 h-3.5 w-3.5" />
         Mark unread
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         type="button"
         size="sm"
         variant="outline"
@@ -616,10 +616,10 @@ function BulkFooter({
       >
         <Archive className="mr-1.5 h-3.5 w-3.5" />
         Archive
-      </ZoruButton>
-      <ZoruPopover>
+      </Button>
+      <Popover>
         <ZoruPopoverTrigger asChild>
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
@@ -628,7 +628,7 @@ function BulkFooter({
           >
             <BellOff className="mr-1.5 h-3.5 w-3.5" />
             Mute
-          </ZoruButton>
+          </Button>
         </ZoruPopoverTrigger>
         <ZoruPopoverContent align="end" className="w-44 p-1">
           <ul className="flex flex-col">
@@ -647,10 +647,10 @@ function BulkFooter({
             ))}
           </ul>
         </ZoruPopoverContent>
-      </ZoruPopover>
-      <ZoruPopover>
+      </Popover>
+      <Popover>
         <ZoruPopoverTrigger asChild>
-          <ZoruButton
+          <Button
             type="button"
             size="sm"
             variant="outline"
@@ -659,7 +659,7 @@ function BulkFooter({
           >
             <TagIcon className="mr-1.5 h-3.5 w-3.5" />
             Add label
-          </ZoruButton>
+          </Button>
         </ZoruPopoverTrigger>
         <ZoruPopoverContent align="end" className="w-56 p-1">
           {labels.length === 0 ? (
@@ -687,7 +687,7 @@ function BulkFooter({
             </ul>
           )}
         </ZoruPopoverContent>
-      </ZoruPopover>
+      </Popover>
     </footer>
   );
 }
@@ -700,12 +700,12 @@ function ListSkeleton() {
           key={i}
           className="flex items-center gap-3 rounded-[var(--zoru-radius)] px-3 py-2"
         >
-          <ZoruSkeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-10 w-10 rounded-full" />
           <div className="flex-1 space-y-2">
-            <ZoruSkeleton className="h-3 w-1/3" />
-            <ZoruSkeleton className="h-3 w-2/3" />
+            <Skeleton className="h-3 w-1/3" />
+            <Skeleton className="h-3 w-2/3" />
           </div>
-          <ZoruSkeleton className="h-3 w-10" />
+          <Skeleton className="h-3 w-10" />
         </li>
       ))}
     </ul>
@@ -733,10 +733,10 @@ function EmptyState({
         action={
           isFiltered ? null : (
             <Link href="/sabwa/inbox">
-              <ZoruButton size="md">
+              <Button size="md">
                 <MessageSquare className="mr-1.5 h-4 w-4" />
                 Open inbox
-              </ZoruButton>
+              </Button>
             </Link>
           )
         }
@@ -753,16 +753,16 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <ZoruCard className="m-4 border-zoru-danger/50">
+    <Card className="m-4 border-zoru-danger/50">
       <ZoruCardContent className="flex flex-col items-start gap-2 py-6">
         <p className="text-sm font-semibold text-zoru-danger">
           Couldn’t load chats
         </p>
         <p className="text-xs text-zoru-ink-muted">{message}</p>
-        <ZoruButton type="button" size="sm" variant="outline" onClick={onRetry}>
+        <Button type="button" size="sm" variant="outline" onClick={onRetry}>
           Retry
-        </ZoruButton>
+        </Button>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

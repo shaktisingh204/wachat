@@ -55,14 +55,14 @@ const initialState: ActionResult = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
       ) : (
         <Save className="h-4 w-4" strokeWidth={1.75} />
       )}
       Save Changes
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -103,7 +103,7 @@ export function EditContactForm({ initial }: Props) {
         <input type="hidden" name="contactId" value={initial._id} />
 
         <div className="space-y-6">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Identity</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -112,13 +112,13 @@ export function EditContactForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="name"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Full name <span className="text-zoru-danger">*</span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="name"
                   name="name"
                   required
@@ -127,13 +127,13 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="jobTitle"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Job title
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="jobTitle"
                   name="jobTitle"
                   defaultValue={initial.jobTitle}
@@ -141,9 +141,9 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Salutation
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                   entity="salutation"
                   name="salutation"
@@ -152,13 +152,13 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="status"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Status
-                </ZoruLabel>
-                <ZoruSelect name="status" defaultValue={initial.status}>
+                </Label>
+                <Select name="status" defaultValue={initial.status}>
                   <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
@@ -170,12 +170,12 @@ export function EditContactForm({ initial }: Props) {
                     <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
                     <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Organisation</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -184,9 +184,9 @@ export function EditContactForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Account
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                   entity="account"
                   name="accountId"
@@ -195,13 +195,13 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="company"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Company (free text)
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="company"
                   name="company"
                   defaultValue={initial.company}
@@ -209,9 +209,9 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">
                 Contact channels
@@ -222,13 +222,13 @@ export function EditContactForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="email"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Email <span className="text-zoru-danger">*</span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="email"
                   name="email"
                   type="email"
@@ -238,13 +238,13 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="phone"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Phone
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="phone"
                   name="phone"
                   defaultValue={initial.phone}
@@ -252,13 +252,13 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="linkedinUrl"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   LinkedIn URL
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="linkedinUrl"
                   name="linkedinUrl"
                   defaultValue={initial.linkedinUrl}
@@ -266,13 +266,13 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="twitterHandle"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   X / Twitter handle
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="twitterHandle"
                   name="twitterHandle"
                   defaultValue={initial.twitterHandle}
@@ -280,9 +280,9 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Lifecycle</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -291,13 +291,13 @@ export function EditContactForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="lifecycleStage"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Lifecycle stage
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                   name="lifecycleStage"
                   defaultValue={initial.lifecycleStage || 'lead'}
                 >
@@ -312,16 +312,16 @@ export function EditContactForm({ initial }: Props) {
                     <ZoruSelectItem value="evangelist">Evangelist</ZoruSelectItem>
                     <ZoruSelectItem value="other">Other</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="source"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Source
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                   name="source"
                   defaultValue={initial.source || 'other'}
                 >
@@ -337,16 +337,16 @@ export function EditContactForm({ initial }: Props) {
                     <ZoruSelectItem value="ad">Ad</ZoruSelectItem>
                     <ZoruSelectItem value="other">Other</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="leadScore"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Lead score
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="leadScore"
                   name="leadScore"
                   type="number"
@@ -357,9 +357,9 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Owner
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                   entity="user"
                   name="owner"
@@ -368,9 +368,9 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">
                 Tags &amp; locale
@@ -381,13 +381,13 @@ export function EditContactForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
-                <ZoruLabel
+                <Label
                   htmlFor="tags"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Tags
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="tags"
                   name="tags"
                   defaultValue={initial.tags.join(', ')}
@@ -396,13 +396,13 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="dateOfBirth"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Date of birth
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="dateOfBirth"
                   name="dateOfBirth"
                   type="date"
@@ -411,9 +411,9 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Timezone
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                   entity="timezone"
                   name="timezone"
@@ -422,10 +422,10 @@ export function EditContactForm({ initial }: Props) {
                 />
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
           <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => {
@@ -433,7 +433,7 @@ export function EditContactForm({ initial }: Props) {
               }}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </div>
         </div>

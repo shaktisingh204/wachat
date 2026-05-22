@@ -76,22 +76,22 @@ function InfoRow({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <ZoruLabel>{label}</ZoruLabel>
+      <Label>{label}</Label>
       <div className="flex items-center gap-2">
-        <ZoruInput
+        <Input
           readOnly
           value={value}
           type={isSecret ? 'password' : 'text'}
           className="font-mono"
         />
-        <ZoruButton
+        <Button
           variant="outline"
           size="icon"
           onClick={handleCopy}
           aria-label={`Copy ${label}`}
         >
           <Copy />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );
@@ -136,7 +136,7 @@ function WebhookStatus() {
   }, []);
 
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex flex-row items-center justify-between gap-2">
         <div>
           <h3 className="text-[15px] text-zoru-ink">Live Status</h3>
@@ -144,7 +144,7 @@ function WebhookStatus() {
             Real-time status of your webhook subscription from Meta.
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="outline"
           size="icon"
           onClick={checkStatus}
@@ -152,11 +152,11 @@ function WebhookStatus() {
           aria-label="Refresh status"
         >
           {isLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
-        </ZoruButton>
+        </Button>
       </div>
       <div className="mt-4">
         {isLoading ? (
-          <ZoruSkeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
         ) : status && projectId ? (
           <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4">
             <div className="flex items-center gap-3">
@@ -192,7 +192,7 @@ function WebhookStatus() {
           </p>
         )}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -216,24 +216,24 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
 
   if (!isClient) {
     return (
-      <ZoruCard className="p-5">
-        <ZoruSkeleton className="h-6 w-1/3" />
-        <ZoruSkeleton className="mt-2 h-4 w-2/3" />
+      <Card className="p-5">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="mt-2 h-4 w-2/3" />
         <div className="mt-4 flex flex-col gap-2">
-          <ZoruSkeleton className="h-4 w-1/4" />
-          <ZoruSkeleton className="h-10 w-full" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-10 w-full" />
         </div>
         <div className="mt-4 flex flex-col gap-2">
-          <ZoruSkeleton className="h-4 w-1/4" />
-          <ZoruSkeleton className="h-10 w-full" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-10 w-full" />
         </div>
-      </ZoruCard>
+      </Card>
     );
   }
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h3 className="text-[15px] text-zoru-ink">Webhook Configuration</h3>
         <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
           Copy these values into your Meta App configuration.
@@ -246,7 +246,7 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
             isSecret
           />
         </div>
-      </ZoruCard>
+      </Card>
       <WebhookStatus />
     </div>
   );

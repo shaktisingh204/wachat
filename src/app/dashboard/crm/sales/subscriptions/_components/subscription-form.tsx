@@ -126,9 +126,9 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
   const clientSection = (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel>
+        <Label>
           Customer <span className="text-zoru-danger-ink">*</span>
-        </ZoruLabel>
+        </Label>
         <div className="mt-1.5">
           <EntityFormField
             entity="client"
@@ -150,9 +150,9 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
   const planSection = (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel>
+        <Label>
           Plan / item <span className="text-zoru-danger-ink">*</span>
-        </ZoruLabel>
+        </Label>
         <div className="mt-1.5">
           <EntityFormField
             entity="item"
@@ -163,8 +163,8 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
         </div>
       </div>
       <div>
-        <ZoruLabel htmlFor="qty">Quantity</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="qty">Quantity</Label>
+        <Input
           id="qty"
           name="qty"
           type="number"
@@ -175,8 +175,8 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="rate">Rate / amount</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="rate">Rate / amount</Label>
+        <Input
           id="rate"
           name="rate"
           type="number"
@@ -188,7 +188,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
         />
       </div>
       <div>
-        <ZoruLabel>Currency</ZoruLabel>
+        <Label>Currency</Label>
         <div className="mt-1.5">
           <EntityFormField
             entity="currency"
@@ -203,9 +203,9 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
   const scheduleSection = (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel>
+        <Label>
           Billing cycle <span className="text-zoru-danger-ink">*</span>
-        </ZoruLabel>
+        </Label>
         <div className="mt-1.5">
           <EnumFormField
             enumName="subBillingFrequency"
@@ -216,10 +216,10 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
         </div>
       </div>
       <div>
-        <ZoruLabel htmlFor="startedAt">
+        <Label htmlFor="startedAt">
           Start date <span className="text-zoru-danger-ink">*</span>
-        </ZoruLabel>
-        <ZoruInput
+        </Label>
+        <Input
           id="startedAt"
           name="startedAt"
           type="date"
@@ -235,8 +235,8 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
         ) : null}
       </div>
       <div>
-        <ZoruLabel htmlFor="trialUntil">Trial ends (optional)</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="trialUntil">Trial ends (optional)</Label>
+        <Input
           id="trialUntil"
           name="trialUntil"
           type="date"
@@ -245,8 +245,8 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
         />
       </div>
       <div>
-        <ZoruLabel htmlFor="nextBillingAt">Next billing date</ZoruLabel>
-        <ZoruInput
+        <Label htmlFor="nextBillingAt">Next billing date</Label>
+        <Input
           id="nextBillingAt"
           name="nextBillingAt"
           type="date"
@@ -260,9 +260,9 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
   const pricingSection = (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
-        <ZoruLabel>
+        <Label>
           Renewal mode <span className="text-zoru-danger-ink">*</span>
-        </ZoruLabel>
+        </Label>
         <div className="mt-1.5">
           <EnumFormField
             enumName="subRenewalMode"
@@ -273,7 +273,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
         </div>
       </div>
       <div>
-        <ZoruLabel>Status</ZoruLabel>
+        <Label>Status</Label>
         <div className="mt-1.5">
           {/*
             Status uses the catalogued `subscriptionStatus` enum
@@ -299,7 +299,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
       </div>
       <div className="flex items-end md:col-span-2">
         <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-          <ZoruCheckbox
+          <Checkbox
             name="prorationEnabled"
             defaultChecked={Boolean(initial?.prorationEnabled)}
           />

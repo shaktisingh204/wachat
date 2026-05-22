@@ -128,7 +128,7 @@ export function ConversationList({
         </div>
       )}
 
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         {visible.length === 0 ? (
           <div className="p-4">
             <SabsmsEmpty
@@ -150,7 +150,7 @@ export function ConversationList({
             ))}
           </ul>
         )}
-      </ZoruScrollArea>
+      </ScrollArea>
 
       <div className="border-t border-slate-200 px-3 py-2">
         <div className="flex flex-wrap gap-1.5 text-[11px] text-slate-500">
@@ -199,7 +199,7 @@ function ConversationRow({
           e.stopPropagation();
         }}
       >
-        <ZoruCheckbox
+        <Checkbox
           checked={isSelected}
           onCheckedChange={() => onToggleSelect()}
           aria-label="Select conversation"
@@ -226,34 +226,34 @@ function ConversationRow({
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           {conversation.unreadCount > 0 && (
-            <ZoruBadge variant="default" className="text-[10px]">
+            <Badge variant="default" className="text-[10px]">
               {conversation.unreadCount} unread
-            </ZoruBadge>
+            </Badge>
           )}
           {conversation.status === "snoozed" && (
-            <ZoruBadge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-[10px]">
               snoozed
-            </ZoruBadge>
+            </Badge>
           )}
           {conversation.status === "closed" && (
-            <ZoruBadge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-[10px]">
               closed
-            </ZoruBadge>
+            </Badge>
           )}
           {conversation.assignedAgentId && (
-            <ZoruBadge variant="outline" className="text-[10px]">
+            <Badge variant="outline" className="text-[10px]">
               {conversation.assignedAgentId}
-            </ZoruBadge>
+            </Badge>
           )}
           {conversation.labels.map((l) => (
-            <ZoruBadge key={l} variant="secondary" className="text-[10px]">
+            <Badge key={l} variant="secondary" className="text-[10px]">
               {l}
-            </ZoruBadge>
+            </Badge>
           ))}
           {breaching && (
-            <ZoruBadge variant="destructive" className="text-[10px]">
+            <Badge variant="destructive" className="text-[10px]">
               SLA
-            </ZoruBadge>
+            </Badge>
           )}
         </div>
       </div>
@@ -264,9 +264,9 @@ function ConversationRow({
 export function ConversationListEmpty() {
   return (
     <div className="flex h-full items-center justify-center p-6">
-      <ZoruButton variant="ghost" disabled>
+      <Button variant="ghost" disabled>
         Select a scope on the left to begin
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

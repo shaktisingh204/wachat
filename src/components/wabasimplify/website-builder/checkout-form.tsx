@@ -93,7 +93,7 @@ export function CheckoutForm() {
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <ZoruInput {...field} />
+                                    <Input {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -102,7 +102,7 @@ export function CheckoutForm() {
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <ZoruInput {...field} />
+                                    <Input {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -111,7 +111,7 @@ export function CheckoutForm() {
                             <FormItem>
                                 <FormLabel>Phone (Optional)</FormLabel>
                                 <FormControl>
-                                    <ZoruInput {...field} />
+                                    <Input {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -120,7 +120,7 @@ export function CheckoutForm() {
                              <FormItem>
                                 <FormLabel>Street Address</FormLabel>
                                 <FormControl>
-                                    <ZoruInput {...field} />
+                                    <Input {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -130,7 +130,7 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>City</FormLabel>
                                     <FormControl>
-                                        <ZoruInput {...field} />
+                                        <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -139,7 +139,7 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>State</FormLabel>
                                     <FormControl>
-                                        <ZoruInput {...field} />
+                                        <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -150,7 +150,7 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>ZIP Code</FormLabel>
                                     <FormControl>
-                                        <ZoruInput {...field} />
+                                        <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -159,21 +159,21 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>Country</FormLabel>
                                     <FormControl>
-                                        <ZoruInput {...field} />
+                                        <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
                         </div>
-                        <ZoruButton type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
+                        <Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
                             {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                             Place Order & Proceed to Payment
-                        </ZoruButton>
+                        </Button>
                     </form>
                 </Form>
             </div>
             <div>
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader><ZoruCardTitle>Your Order</ZoruCardTitle></ZoruCardHeader>
                     <ZoruCardContent className="space-y-4">
                         {cart.map(item => (
@@ -182,13 +182,13 @@ export function CheckoutForm() {
                                 <span className="font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</span>
                              </div>
                         ))}
-                        <ZoruSeparator />
+                        <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

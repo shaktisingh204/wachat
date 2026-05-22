@@ -164,13 +164,13 @@ export default function RateLimitsPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -193,7 +193,7 @@ export default function RateLimitsPage() {
       </div>
       <SettingsTabs />
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Sending profile</ZoruCardTitle>
           <ZoruCardDescription>
@@ -201,7 +201,7 @@ export default function RateLimitsPage() {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ZoruRadioGroup
+          <RadioGroup
             value={profile}
             onValueChange={(v) => setProfile(v as SabwaRateLimitProfile)}
             className="grid gap-3 md:grid-cols-3"
@@ -210,7 +210,7 @@ export default function RateLimitsPage() {
               const Icon = p.icon;
               const active = profile === p.value;
               return (
-                <ZoruLabel
+                <Label
                   key={p.value}
                   htmlFor={`profile-${p.value}`}
                   className={cn(
@@ -222,7 +222,7 @@ export default function RateLimitsPage() {
                     <div className="flex items-center gap-2">
                       <Icon className="h-5 w-5" />
                       <span className="font-semibold">{p.title}</span>
-                      {p.recommended && <ZoruBadge variant="secondary">Recommended</ZoruBadge>}
+                      {p.recommended && <Badge variant="secondary">Recommended</Badge>}
                     </div>
                     <ZoruRadioGroupItem id={`profile-${p.value}`} value={p.value} />
                   </div>
@@ -241,14 +241,14 @@ export default function RateLimitsPage() {
                       <span>{p.warning}</span>
                     </div>
                   )}
-                </ZoruLabel>
+                </Label>
               );
             })}
-          </ZoruRadioGroup>
+          </RadioGroup>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Warmup mode</ZoruCardTitle>
           <ZoruCardDescription>
@@ -257,12 +257,12 @@ export default function RateLimitsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           <div className="flex items-center gap-3">
-            <ZoruSwitch
+            <Switch
               checked={warmupEnabled}
               onCheckedChange={setWarmupEnabled}
               aria-label="Toggle warmup mode"
             />
-            <ZoruLabel className="text-sm">Enable warmup ramp</ZoruLabel>
+            <Label className="text-sm">Enable warmup ramp</Label>
           </div>
           {warmupEnabled && effectiveRate !== null && (
             <div className="rounded-md border bg-muted/40 p-3 text-sm">
@@ -282,9 +282,9 @@ export default function RateLimitsPage() {
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Per-action overrides</ZoruCardTitle>
           <ZoruCardDescription>
@@ -292,7 +292,7 @@ export default function RateLimitsPage() {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Action</ZoruTableHead>
@@ -308,7 +308,7 @@ export default function RateLimitsPage() {
                     {row.defaultCap}/min
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruInput
+                    <Input
                       type="number"
                       inputMode="numeric"
                       min={1}
@@ -333,11 +333,11 @@ export default function RateLimitsPage() {
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Daily reset</ZoruCardTitle>
           <ZoruCardDescription>
@@ -345,7 +345,7 @@ export default function RateLimitsPage() {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ZoruSelect value={timezone} onValueChange={setTimezone}>
+          <Select value={timezone} onValueChange={setTimezone}>
             <ZoruSelectTrigger className="max-w-sm">
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -356,16 +356,16 @@ export default function RateLimitsPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div className="flex justify-end">
-        <ZoruButton onClick={onSave} disabled={pending}>
+        <Button onClick={onSave} disabled={pending}>
           Save rate-limit settings
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

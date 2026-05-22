@@ -25,10 +25,10 @@ const INITIAL_STATE = { message: undefined, error: undefined, id: undefined };
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create department'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -55,20 +55,20 @@ export function DepartmentForm({ initial }: Props) {
       {editing ? <input type="hidden" name="_id" value={String(initial!._id)} /> : null}
       <input type="hidden" name="active" value={String(active)} />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="name">
+            <Label htmlFor="name">
               Name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput id="name" name="name" required defaultValue={initial?.name ?? ''} className="mt-1.5" placeholder="Engineering" />
+            </Label>
+            <Input id="name" name="name" required defaultValue={initial?.name ?? ''} className="mt-1.5" placeholder="Engineering" />
           </div>
           <div>
-            <ZoruLabel htmlFor="code">Code</ZoruLabel>
-            <ZoruInput id="code" name="code" defaultValue={initial?.code ?? ''} className="mt-1.5" placeholder="ENG" />
+            <Label htmlFor="code">Code</Label>
+            <Input id="code" name="code" defaultValue={initial?.code ?? ''} className="mt-1.5" placeholder="ENG" />
           </div>
           <div>
-            <ZoruLabel>Parent department</ZoruLabel>
+            <Label>Parent department</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="department"
@@ -79,7 +79,7 @@ export function DepartmentForm({ initial }: Props) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Head (employee)</ZoruLabel>
+            <Label>Head (employee)</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="employee"
@@ -89,8 +89,8 @@ export function DepartmentForm({ initial }: Props) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="costCenter">Cost center</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="costCenter">Cost center</Label>
+            <Input
               id="costCenter"
               name="costCenter"
               defaultValue={initial?.costCenter ?? ''}
@@ -99,15 +99,15 @@ export function DepartmentForm({ initial }: Props) {
             />
           </div>
           <div>
-            <ZoruLabel>Color</ZoruLabel>
+            <Label>Color</Label>
             <input type="hidden" name="color" value={color} />
             <div className="mt-1.5">
               <ZoruColorPicker value={color} onChange={setColor} />
             </div>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               rows={3}
@@ -122,15 +122,15 @@ export function DepartmentForm({ initial }: Props) {
                 Inactive departments are hidden from new employee selectors.
               </div>
             </div>
-            <ZoruSwitch checked={active} onCheckedChange={setActive} aria-label="Active" />
+            <Switch checked={active} onCheckedChange={setActive} aria-label="Active" />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/dashboard/crm/hr-payroll/departments">Cancel</Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

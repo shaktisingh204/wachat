@@ -17,11 +17,11 @@ export default function TextComparePage() {
   return (
     <ToolShell title="Text Compare (Diff)" description="Line-by-line side-by-side comparison of two texts.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <ZoruTextarea value={a} onChange={(e) => setA(e.target.value)} placeholder="Original text…" className="min-h-[240px]" />
-        <ZoruTextarea value={b} onChange={(e) => setB(e.target.value)} placeholder="Changed text…" className="min-h-[240px]" />
+        <Textarea value={a} onChange={(e) => setA(e.target.value)} placeholder="Original text…" className="min-h-[240px]" />
+        <Textarea value={b} onChange={(e) => setB(e.target.value)} placeholder="Changed text…" className="min-h-[240px]" />
       </div>
       <div className="text-sm text-muted-foreground">{diffs} differing line(s)</div>
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-0">
           <div className="font-mono text-xs">
             {rows.map((r, i) => (
@@ -32,7 +32,7 @@ export default function TextComparePage() {
             ))}
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </ToolShell>
   );
 }

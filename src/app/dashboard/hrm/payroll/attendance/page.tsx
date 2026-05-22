@@ -161,11 +161,11 @@ export default function AttendanceListPage(): React.JSX.Element {
                 title="Attendance"
                 subtitle="Daily attendance roster. Pick a date, filter by department, then bulk-mark."
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href={`${BASE}/new?date=${dateIso}`}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Bulk-mark for date
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 search={{
                     value: search,
@@ -176,14 +176,14 @@ export default function AttendanceListPage(): React.JSX.Element {
                     <>
                         <div className="flex items-center gap-2">
                             <span className="text-[12px] text-zoru-ink-muted">Date</span>
-                            <ZoruInput
+                            <Input
                                 type="date"
                                 value={dateIso}
                                 onChange={(e) => setDateIso(e.target.value)}
                                 className="h-9 w-[160px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
-                        <ZoruSelect value={departmentFilter} onValueChange={setDepartmentFilter}>
+                        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                             <ZoruSelectTrigger className="h-9 w-[200px]">
                                 <ZoruSelectValue placeholder="Department" />
                             </ZoruSelectTrigger>
@@ -195,13 +195,13 @@ export default function AttendanceListPage(): React.JSX.Element {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </>
                 }
                 loading={isPending && rows.length === 0}
             >
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
@@ -250,18 +250,18 @@ export default function AttendanceListPage(): React.JSX.Element {
                                                 {fmtTime(r.checkOut)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton variant="ghost" size="icon" asChild>
+                                                <Button variant="ghost" size="icon" asChild>
                                                     <Link href={`${BASE}/${r._id}`}>
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
 
             <p className="text-[12px] text-zoru-ink-muted">

@@ -130,14 +130,14 @@ function normalizeAllocations(raw: unknown): AllocationLine[] {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
             ) : (
                 <Save className="h-4 w-4" strokeWidth={1.75} />
             )}
             Save changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -248,16 +248,16 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                 <input type="hidden" name="budgetHeadType" value={headType} />
                 <input type="hidden" name="locked" value={locked ? 'true' : 'false'} />
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Identification</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-zoru-ink-muted">
                                     Head type
-                                </ZoruLabel>
+                                </Label>
                                 <div className="flex flex-wrap gap-1.5">
                                     {(['account', 'department', 'project'] as HeadType[]).map(
                                         (option) => (
@@ -278,9 +278,9 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-zoru-ink-muted">
                                     Budget head
-                                </ZoruLabel>
+                                </Label>
                                 <EntityFormField
                                     entity={headType as EntityKey}
                                     name="budgetHeadId"
@@ -292,13 +292,13 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel
+                                <Label
                                     htmlFor="period"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
                                     Period
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="period"
                                     name="period"
                                     defaultValue={budget.period ?? ''}
@@ -308,9 +308,9 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-zoru-ink-muted">
                                     Scenario
-                                </ZoruLabel>
+                                </Label>
                                 <div className="flex flex-wrap gap-1.5">
                                     {SCENARIO_OPTIONS.map((opt) => (
                                         <button
@@ -330,22 +330,22 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             </div>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Plan & alerts</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="grid gap-4 md:grid-cols-3">
                             <div className="space-y-2">
-                                <ZoruLabel
+                                <Label
                                     htmlFor="planAmount"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
                                     Plan amount
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="planAmount"
                                     name="planAmount"
                                     type="number"
@@ -360,13 +360,13 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel
+                                <Label
                                     htmlFor="alertAt"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
                                     Alert at (%)
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="alertAt"
                                     name="alertAt"
                                     type="number"
@@ -377,9 +377,9 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-zoru-ink-muted">
                                     Status
-                                </ZoruLabel>
+                                </Label>
                                 <select
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value as Status)}
@@ -400,16 +400,16 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                     Locked budgets can&apos;t accrue further actuals.
                                 </div>
                             </div>
-                            <ZoruSwitch
+                            <Switch
                                 checked={locked}
                                 onCheckedChange={(v) => setLocked(Boolean(v))}
                                 aria-label="Lock budget"
                             />
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Allocation breakdown</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -427,9 +427,9 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                         className="grid gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 md:grid-cols-12"
                                     >
                                         <div className="md:col-span-4">
-                                            <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                                 Department
-                                            </ZoruLabel>
+                                            </Label>
                                             <EntityFormField
                                                 entity="department"
                                                 name={`alloc-${row.id}-dept`}
@@ -446,10 +446,10 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                             />
                                         </div>
                                         <div className="md:col-span-3">
-                                            <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                                 Period
-                                            </ZoruLabel>
-                                            <ZoruInput
+                                            </Label>
+                                            <Input
                                                 value={row.period}
                                                 onChange={(e) =>
                                                     patchAllocation(row.id, {
@@ -461,10 +461,10 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                             />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                                 Amount
-                                            </ZoruLabel>
-                                            <ZoruInput
+                                            </Label>
+                                            <Input
                                                 type="number"
                                                 step="0.01"
                                                 min="0"
@@ -483,10 +483,10 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                             />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                                 Note
-                                            </ZoruLabel>
-                                            <ZoruInput
+                                            </Label>
+                                            <Input
                                                 value={row.note}
                                                 onChange={(e) =>
                                                     patchAllocation(row.id, {
@@ -512,7 +512,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             </div>
                         )}
                         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="outline"
                                 onClick={addAllocation}
@@ -520,7 +520,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             >
                                 <Plus className="h-4 w-4" />
                                 Add allocation
-                            </ZoruButton>
+                            </Button>
                             {allocations.length > 0 ? (
                                 <div className="text-[12px] text-zoru-ink-muted">
                                     Allocated:{' '}
@@ -547,18 +547,18 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             ) : null}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Ownership</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-zoru-ink-muted">
                                     Owner
-                                </ZoruLabel>
+                                </Label>
                                 <EntityFormField
                                     entity="user"
                                     name="ownerId"
@@ -569,9 +569,9 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-zoru-ink-muted">
                                     Approver
-                                </ZoruLabel>
+                                </Label>
                                 <EntityFormField
                                     entity="user"
                                     name="approverId"
@@ -583,9 +583,9 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             </div>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Supporting document</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -619,14 +619,14 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             )}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <ZoruTextarea
+                        <Textarea
                             id="notes"
                             name="notes"
                             defaultValue={budget.notes ?? ''}
@@ -635,12 +635,12 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={`/dashboard/crm/budgets/${budgetId}`}>Cancel</Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton />
                 </div>
             </form>

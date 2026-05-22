@@ -176,18 +176,18 @@ export default function N8NWorkflowListPage() {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>n8n Workflows</ZoruPageTitle>
             <ZoruPageDescription>
               Build and automate multi-step workflows with a node-based visual editor.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton onClick={() => setShowCreate(true)}>
+        </PageHeader>
+        <Button onClick={() => setShowCreate(true)}>
           <CirclePlus className="h-4 w-4" />
           New workflow
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* Stats */}
@@ -198,20 +198,20 @@ export default function N8NWorkflowListPage() {
           { label: 'Inactive', value: stats.inactive, icon: CirclePause },
           { label: 'Total nodes', value: stats.totalNodes, icon: Activity },
         ].map(({ label, value, icon: Icon }) => (
-          <ZoruCard key={label} className="p-4">
+          <Card key={label} className="p-4">
             <Icon className="h-4 w-4 mb-2 text-zoru-ink-muted" />
             <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               {label}
             </div>
             <div className="text-[22px] text-zoru-ink">{value}</div>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
 
       {/* Search + list */}
-      <ZoruCard className="flex flex-col min-h-[480px] p-0">
+      <Card className="flex flex-col min-h-[480px] p-0">
         <div className="flex items-center gap-3 p-4 border-b border-zoru-line">
-          <ZoruInput
+          <Input
             type="text"
             placeholder="Search workflows…"
             value={query}
@@ -219,7 +219,7 @@ export default function N8NWorkflowListPage() {
             leadingSlot={<Search className="h-3.5 w-3.5" />}
             className="max-w-sm"
           />
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={fetchWorkflows}
@@ -227,7 +227,7 @@ export default function N8NWorkflowListPage() {
           >
             <RefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} />
             Refresh
-          </ZoruButton>
+          </Button>
           <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
             {filtered.length} / {workflows.length}
           </span>
@@ -257,10 +257,10 @@ export default function N8NWorkflowListPage() {
                 : 'Create your first n8n workflow to start automating tasks.'}
             </div>
             {!query && (
-              <ZoruButton size="sm" onClick={() => setShowCreate(true)} className="mt-1">
+              <Button size="sm" onClick={() => setShowCreate(true)} className="mt-1">
                 <CirclePlus className="h-3.5 w-3.5" />
                 Create workflow
-              </ZoruButton>
+              </Button>
             )}
           </div>
         ) : (
@@ -304,7 +304,7 @@ export default function N8NWorkflowListPage() {
                       className="inline-flex items-center gap-1.5 group"
                       title={wf.active ? 'Click to deactivate' : 'Click to activate'}
                     >
-                      <ZoruBadge variant={wf.active ? 'success' : 'ghost'}>
+                      <Badge variant={wf.active ? 'success' : 'ghost'}>
                         <span
                           className={cn(
                             'h-1.5 w-1.5 rounded-full',
@@ -312,7 +312,7 @@ export default function N8NWorkflowListPage() {
                           )}
                         />
                         {wf.active ? 'Active' : 'Inactive'}
-                      </ZoruBadge>
+                      </Badge>
                       {wf.active ? (
                         <ToggleRight className="h-4 w-4 text-zoru-success-ink opacity-0 group-hover:opacity-100 transition-opacity" />
                       ) : (
@@ -322,9 +322,9 @@ export default function N8NWorkflowListPage() {
                   </td>
                   <td className="px-4 py-3 text-zoru-ink-muted">{wf.nodes?.length ?? 0}</td>
                   <td className="px-4 py-3">
-                    <ZoruBadge variant={runStatusVariant(wf.lastRunStatus)}>
+                    <Badge variant={runStatusVariant(wf.lastRunStatus)}>
                       {runStatusLabel(wf.lastRunStatus)}
-                    </ZoruBadge>
+                    </Badge>
                     {wf.lastRunAt && (
                       <span className="ml-1.5 text-[11px] text-zoru-ink-muted">
                         {format(new Date(wf.lastRunAt), 'MMM d · HH:mm')}
@@ -335,11 +335,11 @@ export default function N8NWorkflowListPage() {
                     {wf.updatedAt ? format(new Date(wf.updatedAt), 'MMM d, yyyy · HH:mm') : '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon">
                           <Ellipsis className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruDropdownMenuTrigger>
                       <ZoruDropdownMenuContent align="end" className="w-48">
                         <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
@@ -361,23 +361,23 @@ export default function N8NWorkflowListPage() {
                           <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Create dialog */}
-      <ZoruDialog open={showCreate} onOpenChange={setShowCreate}>
+      <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <ZoruDialogContent className="max-w-sm">
           <ZoruDialogHeader>
             <ZoruDialogTitle>New Workflow</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="py-2">
-            <ZoruInput
+            <Input
               placeholder="Workflow name…"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -386,15 +386,15 @@ export default function N8NWorkflowListPage() {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setShowCreate(false)}>
+            <Button variant="outline" onClick={() => setShowCreate(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleCreate} disabled={creating}>
+            </Button>
+            <Button onClick={handleCreate} disabled={creating}>
               {creating ? 'Creating…' : 'Create'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

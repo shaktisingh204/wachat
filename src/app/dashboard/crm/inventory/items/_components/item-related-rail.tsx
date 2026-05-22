@@ -53,7 +53,7 @@ export function ItemRelatedRail({
 
   return (
     <div className="space-y-4">
-      <ZoruCard className="p-4">
+      <Card className="p-4">
         <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Stock summary
         </h3>
@@ -85,38 +85,38 @@ export function ItemRelatedRail({
             {message}
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-4">
+      <Card className="p-4">
         <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Quick actions
         </h3>
         <div className="flex flex-col gap-2">
-          <ZoruButton size="sm" variant="outline" asChild>
+          <Button size="sm" variant="outline" asChild>
             <Link
               href={`/dashboard/crm/sales/invoices/new?defaultItemId=${productId}`}
             >
               <Plus className="h-3.5 w-3.5" /> Add to Invoice
             </Link>
-          </ZoruButton>
-          <ZoruButton size="sm" variant="outline" asChild>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
             <Link
               href={`/dashboard/crm/inventory/purchase-orders/new?defaultItemId=${productId}`}
             >
               <Plus className="h-3.5 w-3.5" /> Add to PO
             </Link>
-          </ZoruButton>
-          <ZoruButton size="sm" variant="outline" asChild>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
             <Link
               href={`/dashboard/crm/inventory/adjustments/new?productId=${productId}`}
             >
               <Plus className="h-3.5 w-3.5" /> Adjust stock
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-4">
+      <Card className="p-4">
         <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Related
         </h3>
@@ -147,7 +147,7 @@ export function ItemRelatedRail({
             label="BOMs containing this"
           />
         </ul>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

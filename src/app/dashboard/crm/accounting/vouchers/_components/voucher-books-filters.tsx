@@ -34,7 +34,7 @@ export function VoucherBooksFilters({ value, onChange }: VoucherBooksFiltersProp
                 onChange={(v) => onChange({ ...value, type: v as VoucherBookFilterState['type'] })}
                 allLabel="All types"
             />
-            <ZoruSelect
+            <Select
                 value={value.status}
                 onValueChange={(v) => onChange({ ...value, status: v as VoucherBookFilterState['status'] })}
             >
@@ -46,8 +46,8 @@ export function VoucherBooksFilters({ value, onChange }: VoucherBooksFiltersProp
                     <ZoruSelectItem value="active">Active</ZoruSelectItem>
                     <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
                 value={value.defaultOnly}
                 onValueChange={(v) => onChange({ ...value, defaultOnly: v as VoucherBookFilterState['defaultOnly'] })}
             >
@@ -59,8 +59,8 @@ export function VoucherBooksFilters({ value, onChange }: VoucherBooksFiltersProp
                     <ZoruSelectItem value="yes">Default only</ZoruSelectItem>
                     <ZoruSelectItem value="no">Non-default</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect
+            </Select>
+            <Select
                 value={value.approval}
                 onValueChange={(v) => onChange({ ...value, approval: v as VoucherBookFilterState['approval'] })}
             >
@@ -72,7 +72,7 @@ export function VoucherBooksFilters({ value, onChange }: VoucherBooksFiltersProp
                     <ZoruSelectItem value="yes">Approval required</ZoruSelectItem>
                     <ZoruSelectItem value="no">Approval not required</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
         </div>
     );
 }

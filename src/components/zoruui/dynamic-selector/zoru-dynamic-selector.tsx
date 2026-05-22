@@ -121,7 +121,7 @@ export function ZoruDynamicSelector({
   };
 
   return (
-    <ZoruPopover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <ZoruPopoverTrigger asChild>
         <button
           type="button"
@@ -141,7 +141,7 @@ export function ZoruDynamicSelector({
       </ZoruPopoverTrigger>
       <ZoruPopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <div className="border-b border-zoru-line p-2">
-          <ZoruInput
+          <Input
             autoFocus
             placeholder={searchPlaceholder}
             value={query}
@@ -202,7 +202,7 @@ export function ZoruDynamicSelector({
         </div>
         {showCreate && (
           <div className="border-t border-zoru-line p-1">
-            <ZoruButton
+            <Button
               size="sm"
               variant="ghost"
               block
@@ -215,7 +215,7 @@ export function ZoruDynamicSelector({
                 <Plus className="h-4 w-4" />
               )}
               Create &ldquo;{query.trim()}&rdquo;
-            </ZoruButton>
+            </Button>
           </div>
         )}
         {error && (
@@ -224,6 +224,6 @@ export function ZoruDynamicSelector({
           </p>
         )}
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

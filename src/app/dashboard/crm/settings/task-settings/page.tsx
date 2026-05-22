@@ -36,14 +36,14 @@ function ToggleRow({
   return (
     <div className="flex items-start justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
       <div className="flex-1">
-        <ZoruLabel htmlFor={name} className="text-[13px] text-zoru-ink">
+        <Label htmlFor={name} className="text-[13px] text-zoru-ink">
           {label}
-        </ZoruLabel>
+        </Label>
         {description ? (
           <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{description}</p>
         ) : null}
       </div>
-      <ZoruSwitch id={name} checked={checked} onCheckedChange={setChecked} />
+      <Switch id={name} checked={checked} onCheckedChange={setChecked} />
       <input type="hidden" name={name} value={checked ? 'yes' : 'no'} />
     </div>
   );
@@ -90,22 +90,22 @@ export default function TaskSettingsPage() {
     >
       {settings ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Subtasks"
             value={settings.enable_subtasks ? 'Enabled' : 'Disabled'}
             icon={<CheckCircle2 className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Dependencies"
             value={settings.enable_dependencies ? 'Enabled' : 'Disabled'}
             icon={<GitBranch className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Recurring tasks"
             value={settings.enable_recurring_tasks ? 'Enabled' : 'Disabled'}
             icon={<RefreshCw className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Time logging"
             value={settings.enable_time_logs ? 'Enabled' : 'Disabled'}
             icon={<CheckCircle2 className="h-4 w-4" />}
@@ -113,11 +113,11 @@ export default function TaskSettingsPage() {
         </div>
       ) : null}
       {isLoading && !settings ? (
-        <ZoruCard className="p-6">
-          <ZoruSkeleton className="h-[400px] w-full" />
-        </ZoruCard>
+        <Card className="p-6">
+          <Skeleton className="h-[400px] w-full" />
+        </Card>
       ) : (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <form action={formAction} className="space-y-6">
             <section className="space-y-3">
               <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
@@ -169,9 +169,9 @@ export default function TaskSettingsPage() {
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <ZoruLabel htmlFor="default_priority" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="default_priority" className="text-[13px] text-zoru-ink">
                     Default Priority
-                  </ZoruLabel>
+                  </Label>
                   <div className="mt-1.5">
                     <EnumFormField
                       name="default_priority"
@@ -184,13 +184,13 @@ export default function TaskSettingsPage() {
             </section>
 
             <div className="flex justify-end">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save Task Settings
-              </ZoruButton>
+              </Button>
             </div>
           </form>
-        </ZoruCard>
+        </Card>
       )}
     </EntityListShell>
   );

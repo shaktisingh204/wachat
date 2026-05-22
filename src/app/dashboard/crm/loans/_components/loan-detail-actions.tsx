@@ -84,59 +84,59 @@ export function LoanDetailActions({ loanId, status }: LoanDetailActionsProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/loans/${loanId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runDisburse}
         disabled={status === 'closed' || status === 'npa'}
       >
         <Send className="h-3.5 w-3.5" /> Disburse
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setPaymentOpen(true)}
       >
         <Receipt className="h-3.5 w-3.5" /> Record payment
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={runGenerate}>
+      <Button size="sm" variant="outline" onClick={runGenerate}>
         <Calculator className="h-3.5 w-3.5" /> Generate EMI schedule
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setNpaOpen(true)}
         disabled={status === 'npa' || status === 'closed'}
       >
         <BadgeAlert className="h-3.5 w-3.5" /> Mark NPA
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => window.print()}>
+      <Button size="sm" variant="outline" onClick={() => window.print()}>
         <Printer className="h-3.5 w-3.5" /> Print statement
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setArchiveOpen(true)}
       >
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/loans/${loanId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <span aria-hidden className="sr-only">
         <CircleDollarSign />

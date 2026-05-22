@@ -30,15 +30,15 @@ export default function KeywordExtractorPage() {
 
   return (
     <ToolShell title="Keyword Extractor" description="Extract the most important keywords from a piece of text (stopwords filtered).">
-      <ZoruTextarea
+      <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste text content…"
         className="min-h-[220px]"
       />
-      <ZoruButton onClick={run} className="w-fit">Extract Keywords</ZoruButton>
+      <Button onClick={run} className="w-fit">Extract Keywords</Button>
       {results.length > 0 && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
               {results.map((r) => (
@@ -49,7 +49,7 @@ export default function KeywordExtractorPage() {
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

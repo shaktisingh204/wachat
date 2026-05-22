@@ -101,7 +101,7 @@ export function PaginationBar({
     >
       <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
         <span>Rows per page</span>
-        <ZoruSelect
+        <Select
           value={String(limit)}
           onValueChange={(v) => setQuery({ limit: Number(v) })}
         >
@@ -115,13 +115,13 @@ export function PaginationBar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
 
       <div className="flex items-center gap-3 text-[12px] text-zoru-ink-muted">
         <span>{rangeText}</span>
         <div className="flex items-center gap-1">
-          <ZoruButton
+          <Button
             size="sm"
             variant="outline"
             disabled={prevDisabled}
@@ -130,8 +130,8 @@ export function PaginationBar({
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             Prev
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             variant="outline"
             disabled={nextDisabled}
@@ -140,7 +140,7 @@ export function PaginationBar({
           >
             Next
             <ChevronRight className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     </div>

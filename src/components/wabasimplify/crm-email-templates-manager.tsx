@@ -73,22 +73,22 @@ export function CrmEmailTemplatesManager() {
                 template={editingTemplate}
                 onSuccess={fetchData}
             />
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex justify-between items-center mb-4">
                     <div>
                         <h2 className="text-zoru-ink font-semibold text-lg">Email Templates</h2>
                         <p className="text-zoru-ink-muted text-sm">Create and manage reusable email templates for your CRM.</p>
                     </div>
-                    <ZoruButton onClick={handleCreateNew}>
+                    <Button onClick={handleCreateNew}>
                         <Plus className="h-4 w-4" />
                         New Template
-                    </ZoruButton>
+                    </Button>
                 </div>
                 <div>
                      {isLoading ? (
                          <div className="space-y-2">
-                            <ZoruSkeleton className="h-10 w-full" />
-                            <ZoruSkeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
                          </div>
                     ) : templates.length > 0 ? (
                         <div className="border border-zoru-line rounded-md">
@@ -99,10 +99,10 @@ export function CrmEmailTemplatesManager() {
                                         <p className="text-sm text-zoru-ink-muted">{template.subject}</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <ZoruButton variant="ghost" size="icon" onClick={() => handleEdit(template)}><Edit className="h-4 w-4"/></ZoruButton>
+                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}><Edit className="h-4 w-4"/></Button>
                                          <ZoruAlertDialog>
                                             <ZoruAlertDialogTrigger asChild>
-                                                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></ZoruButton>
+                                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></Button>
                                             </ZoruAlertDialogTrigger>
                                             <ZoruAlertDialogContent>
                                                 <ZoruAlertDialogHeader>
@@ -125,7 +125,7 @@ export function CrmEmailTemplatesManager() {
                         </div>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
         </>
     );
 }

@@ -113,7 +113,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
 
     return (
         <div className="flex h-full flex-col gap-6">
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageEyebrow>Settings</ZoruPageEyebrow>
                     <ZoruPageTitle>Email notification templates</ZoruPageTitle>
@@ -129,13 +129,13 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                         {customizedCount} of {events.length} customized
                     </span>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
                 {/* Left rail */}
                 <aside className="flex min-h-0 flex-col overflow-hidden rounded-md border border-zoru-line bg-zoru-bg">
                     <div className="border-b border-zoru-line p-3">
-                        <ZoruInput
+                        <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search events…"
@@ -178,7 +178,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                                                                 {evt.label}
                                                             </span>
                                                             {evt.isCustomized ? (
-                                                                <ZoruBadge
+                                                                <Badge
                                                                     variant={isActive ? 'outline' : 'secondary'}
                                                                     className={cn(
                                                                         'shrink-0 text-[10px]',
@@ -186,7 +186,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                                                                     )}
                                                                 >
                                                                     Custom
-                                                                </ZoruBadge>
+                                                                </Badge>
                                                             ) : null}
                                                         </button>
                                                     </li>

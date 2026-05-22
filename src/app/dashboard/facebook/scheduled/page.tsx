@@ -71,15 +71,15 @@ import {
 
 function ScheduleBadge({ post }: { post: FacebookPost }) {
   if (!post.scheduled_publish_time) {
-    return <ZoruBadge variant="ghost">Draft</ZoruBadge>;
+    return <Badge variant="ghost">Draft</Badge>;
   }
   const at = new Date(post.scheduled_publish_time * 1000);
   const isPast = at.getTime() < Date.now();
   return (
-    <ZoruBadge variant={isPast ? "danger" : "warning"}>
+    <Badge variant={isPast ? "danger" : "warning"}>
       <CalendarClock />
       {isPast ? "Overdue" : "Queued"}
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -88,20 +88,20 @@ function ScheduleBadge({ post }: { post: FacebookPost }) {
 function ScheduledPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-56" />
-          <ZoruSkeleton className="h-4 w-72" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-56" />
+          <Skeleton className="h-4 w-72" />
         </div>
-        <ZoruSkeleton className="h-9 w-28" />
+        <Skeleton className="h-9 w-28" />
       </div>
       <div className="mt-6 flex flex-col gap-2">
-        <ZoruSkeleton className="h-10 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </div>
     </div>
   );
@@ -150,7 +150,7 @@ function RowActions({
         projectId={projectId}
         onPostUpdated={onActionComplete}
       />
-      <ZoruButton
+      <Button
         variant="ghost"
         size="icon-sm"
         aria-label="Publish now"
@@ -158,15 +158,15 @@ function RowActions({
         disabled={isPublishing}
       >
         {isPublishing ? <Loader2 className="animate-spin" /> : <Send />}
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         variant="ghost"
         size="icon-sm"
         aria-label="Edit scheduled post"
         onClick={() => setIsEditOpen(true)}
       >
         <Edit />
-      </ZoruButton>
+      </Button>
       <CancelScheduleDialog
         postId={post.id}
         projectId={projectId}
@@ -306,7 +306,7 @@ export default function ScheduledPostsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -322,9 +322,9 @@ export default function ScheduledPostsPage() {
             <ZoruBreadcrumbPage>Scheduled</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false} className="mt-5">
+      <PageHeader bordered={false} className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
           <ZoruPageTitle>Scheduled posts</ZoruPageTitle>
@@ -334,20 +334,20 @@ export default function ScheduledPostsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruBadge variant="secondary">
+          <Badge variant="secondary">
             <CalendarRange />
             {posts.length} queued
-          </ZoruBadge>
-          <ZoruButton variant="outline" size="sm" onClick={fetchPosts}>
+          </Badge>
+          <Button variant="outline" size="sm" onClick={fetchPosts}>
             <RefreshCw /> Refresh
-          </ZoruButton>
-          <ZoruButton size="sm" asChild>
+          </Button>
+          <Button size="sm" asChild>
             <Link href="/dashboard/facebook/create-post">
               <Send /> New post
             </Link>
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6">
         {!projectId ? (
@@ -355,20 +355,20 @@ export default function ScheduledPostsPage() {
         ) : error ? (
           <ErrorState message={error} />
         ) : posts.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<CalendarClock />}
             title="No scheduled posts"
             description="You have no posts queued for the future. Create one to start filling your content calendar."
             action={
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/facebook/create-post">
                   <Send /> Create post
                 </Link>
-              </ZoruButton>
+              </Button>
             }
           />
         ) : (
-          <ZoruDataTable
+          <DataTable
             columns={columns}
             data={posts}
             filterColumn="post"

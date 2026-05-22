@@ -75,11 +75,11 @@ export default function CatalogsPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Catalogs" />
-                <ZoruAlert>
+                <Alert>
                     <CircleAlert className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to manage catalogs.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -92,49 +92,49 @@ export default function CatalogsPage() {
                 description="Manage catalogs for Dynamic Product Ads, Advantage+ catalog ads, and Shops."
                 actions={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" size="icon" onClick={fetchCatalogs} disabled={loading}>
+                        <Button variant="outline" size="icon" onClick={fetchCatalogs} disabled={loading}>
                             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                        </ZoruButton>
-                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
+                        </Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
                             <Plus className="h-4 w-4 mr-1" /> New catalog
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
             />
 
-            <ZoruAlert>
+            <Alert>
                 <Package className="h-4 w-4" />
                 <ZoruAlertTitle>Tip</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Catalogs live at the business level. Connect a Meta Business account from Settings
                     to manage product feeds, product sets, and DPA creative here.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
 
             {loading ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-40" />)}
+                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
                 </div>
             ) : catalogs.length === 0 ? (
-                <ZoruCard className="border-dashed">
+                <Card className="border-dashed">
                     <ZoruCardContent className="py-16 text-center">
                         <Package className="h-12 w-12 mx-auto text-muted-foreground" />
                         <p className="mt-3 font-semibold">No catalogs yet</p>
                         <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1">
                             Create a catalog from your Shopify/WooCommerce store or upload a CSV feed.
                         </p>
-                        <ZoruButton variant="outline" className="mt-4" asChild>
+                        <Button variant="outline" className="mt-4" asChild>
                             <a href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">
                                 Open Commerce Manager <ExternalLink className="h-3 w-3 ml-1" />
                             </a>
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : (
                 <>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {catalogs.map((c) => (
-                            <ZoruCard key={c.id}>
+                            <Card key={c.id}>
                                 <ZoruCardHeader className="pb-2">
                                     <ZoruCardTitle className="text-base">{c.name}</ZoruCardTitle>
                                 </ZoruCardHeader>
@@ -145,25 +145,25 @@ export default function CatalogsPage() {
                                     </div>
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-muted-foreground">Vertical</span>
-                                        <ZoruBadge variant="outline">{c.vertical || 'COMMERCE'}</ZoruBadge>
+                                        <Badge variant="outline">{c.vertical || 'COMMERCE'}</Badge>
                                     </div>
                                     <div className="text-xs text-muted-foreground">ID: {c.id}</div>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ))}
                     </div>
                     <div className="flex justify-center">
-                        <ZoruButton variant="outline" asChild>
+                        <Button variant="outline" asChild>
                             <a href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">
                                 Open Commerce Manager <ExternalLink className="h-3 w-3 ml-1" />
                             </a>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </>
             )}
 
             {/* Create dialog */}
-            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); setName(''); } else setDialogOpen(true); }}>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); setName(''); } else setDialogOpen(true); }}>
                 <ZoruDialogContent className="max-w-md">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>New catalog</ZoruDialogTitle>
@@ -171,18 +171,18 @@ export default function CatalogsPage() {
                     </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Catalog name *</ZoruLabel>
-                            <ZoruInput placeholder="e.g. Spring Collection 2026" value={name} onChange={e => setName(e.target.value)} />
+                            <Label>Catalog name *</Label>
+                            <Input placeholder="e.g. Spring Collection 2026" value={name} onChange={e => setName(e.target.value)} />
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => { setDialogOpen(false); setName(''); }}>Cancel</ZoruButton>
-                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting || !name.trim()}>
+                        <Button variant="outline" onClick={() => { setDialogOpen(false); setName(''); }}>Cancel</Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting || !name.trim()}>
                             {submitting ? 'Creating…' : 'Create'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

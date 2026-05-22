@@ -321,38 +321,38 @@ export default function ProjectIssuesPage() {
         }}
         primaryAction={
           <>
-            <ZoruButton variant="outline" onClick={handleExport}>
+            <Button variant="outline" onClick={handleExport}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton asChild>
+            </Button>
+            <Button asChild>
               <Link href="/dashboard/crm/projects/issues/new">
                 <Plus className="h-4 w-4" /> New issue
               </Link>
-            </ZoruButton>
+            </Button>
           </>
         }
         bulkBar={
           selection.size > 0 ? (
             <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selection.size} selected</span>
-              <ZoruButton variant="outline" size="sm" onClick={() => setConfirmBulk('close')} disabled={bulkPending}>
+              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('close')} disabled={bulkPending}>
                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Close
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="mr-1 h-3.5 w-3.5" /> Export
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+              </Button>
+              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
                 <X className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
         filters={
           <>
-            <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -364,8 +364,8 @@ export default function ProjectIssuesPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={priorityFilter} onValueChange={setPriorityFilter}>
+            </Select>
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="Priority" />
               </ZoruSelectTrigger>
@@ -377,15 +377,15 @@ export default function ProjectIssuesPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruInput
+            </Select>
+            <Input
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
               placeholder="Project id"
               className="h-9 w-[200px] text-[13px]"
             />
             {hasActiveFilters ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -395,7 +395,7 @@ export default function ProjectIssuesPage() {
                 }}
               >
                 Clear filters
-              </ZoruButton>
+              </Button>
             ) : null}
           </>
         }
@@ -407,11 +407,11 @@ export default function ProjectIssuesPage() {
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Track bugs, blockers, and incidents against your projects.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/projects/issues/new">
                   <Plus className="h-4 w-4" /> New issue
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -419,22 +419,22 @@ export default function ProjectIssuesPage() {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Open"
               value={kpis.open.toLocaleString()}
               icon={<Bug className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Critical (urgent)"
               value={kpis.critical.toLocaleString()}
               icon={<AlertTriangle className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Resolved (30d)"
               value={kpis.resolvedMonth.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Avg resolution"
               value={`${kpis.avgDays}d`}
               icon={<Clock className="h-4 w-4" />}
@@ -515,11 +515,11 @@ function IssuesTable({
   }
   return (
     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="border-zoru-line hover:bg-transparent">
             <ZoruTableHead className="w-10">
-              <ZoruCheckbox
+              <Checkbox
                 checked={allChecked || (someChecked ? 'indeterminate' : false)}
                 onCheckedChange={(v) => onToggleAll(!!v)}
                 aria-label="Select all"
@@ -541,7 +541,7 @@ function IssuesTable({
             return (
               <ZoruTableRow key={r._id} className="border-zoru-line transition-colors">
                 <ZoruTableCell>
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={selection.has(r._id)}
                     onCheckedChange={() => onToggle(r._id)}
                     aria-label={`Select ${r.title}`}
@@ -604,7 +604,7 @@ function IssuesTable({
                   {fmtDate(r.createdAt)}
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
-                  <ZoruDropdownMenu>
+                  <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
                       <button
                         type="button"
@@ -632,13 +632,13 @@ function IssuesTable({
                         <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                       </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                  </ZoruDropdownMenu>
+                  </DropdownMenu>
                 </ZoruTableCell>
               </ZoruTableRow>
             );
           })}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }
@@ -669,7 +669,7 @@ function IssuesKanban({ rows }: { rows: Row[] }) {
               <span className="text-[12px] font-medium uppercase tracking-wider text-zoru-ink-muted">
                 {stage.label}
               </span>
-              <ZoruBadge variant="secondary">{cards.length}</ZoruBadge>
+              <Badge variant="secondary">{cards.length}</Badge>
             </header>
             <div className="flex flex-col gap-2">
               {cards.map((r) => {

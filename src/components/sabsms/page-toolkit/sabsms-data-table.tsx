@@ -190,12 +190,12 @@ export function SabsmsDataTable<T>({
       )}
       <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
         <div className="max-h-[70vh] overflow-auto">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader className="sticky top-0 z-10 bg-slate-50">
               <ZoruTableRow>
                 {selectable && (
                   <ZoruTableHead className="w-[40px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={
                         allOnPageSelected
                           ? true
@@ -245,7 +245,7 @@ export function SabsmsDataTable<T>({
                         }}
                       >
                         <span className="pointer-events-none">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSelected}
                             aria-label={`Select row ${id}`}
                           />
@@ -266,16 +266,16 @@ export function SabsmsDataTable<T>({
                         className={DENSITY_PADDING[density]}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                           <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="icon"
                               className="h-7 w-7"
                               aria-label="Row actions"
                             >
                               <MoreHorizontal className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                           </ZoruDropdownMenuTrigger>
                           <ZoruDropdownMenuContent align="end">
                             {rowActions.map((a) => (
@@ -291,14 +291,14 @@ export function SabsmsDataTable<T>({
                               </ZoruDropdownMenuItem>
                             ))}
                           </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                       </ZoruTableCell>
                     )}
                   </ZoruTableRow>
                 );
               })}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
       </div>
       {(page !== undefined && pageSize && total !== undefined) ? (

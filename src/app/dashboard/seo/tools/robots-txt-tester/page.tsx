@@ -27,14 +27,14 @@ export default function RobotsTxtTesterPage() {
   return (
     <ToolShell title="Robots.txt Tester" description="Fetch and inspect a site's robots.txt file.">
       <div className="flex gap-2">
-        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Fetching…' : 'Fetch'}</ZoruButton>
+        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Fetching…' : 'Fetch'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {content && (
-        <ZoruCard><ZoruCardContent className="p-4">
+        <Card><ZoruCardContent className="p-4">
           <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap max-h-96">{content}</pre>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

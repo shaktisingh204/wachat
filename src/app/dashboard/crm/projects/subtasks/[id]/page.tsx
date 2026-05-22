@@ -55,17 +55,17 @@ export default async function SubtaskDetailPage({
             back={{ href: BASE, label: 'Subtasks' }}
             actions={
                 canEdit ? (
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href={`${BASE}/${id}/edit`}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 ) : undefined
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
@@ -121,9 +121,9 @@ export default async function SubtaskDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="text-[14px] font-semibold text-zoru-ink">Audit</h2>
                 <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-[12.5px]">
                     <div className="text-zoru-ink-muted">Created</div>
@@ -131,7 +131,7 @@ export default async function SubtaskDetailPage({
                     <div className="text-zoru-ink-muted">Updated</div>
                     <div className="text-zoru-ink">{fmtDate(subtask.updatedAt)}</div>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

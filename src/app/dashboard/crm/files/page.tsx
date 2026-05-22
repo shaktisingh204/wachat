@@ -159,26 +159,26 @@ export default function CrmFilesPage() {
       primaryAction={
         <>
           <Link href="/dashboard/crm/files/folders">
-            <ZoruButton variant="ghost">
+            <Button variant="ghost">
               <FolderTree className="h-4 w-4" />
               Manage folders
-            </ZoruButton>
+            </Button>
           </Link>
           <Link href="/dashboard/crm/files/new">
-            <ZoruButton>
+            <Button>
               <Plus className="h-4 w-4" />
               Attach file
-            </ZoruButton>
+            </Button>
           </Link>
         </>
       }
     >
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-[13.5px] font-semibold text-zoru-ink">Folders</h3>
-            <ZoruBadge variant="ghost">{tree.length}</ZoruBadge>
+            <Badge variant="ghost">{tree.length}</Badge>
           </div>
           <div className="space-y-0.5">
             <button
@@ -213,9 +213,9 @@ export default function CrmFilesPage() {
               ))
             )}
           </div>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
               <h2 className="text-[16px] font-semibold text-zoru-ink">
@@ -228,7 +228,7 @@ export default function CrmFilesPage() {
           </div>
 
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
@@ -243,7 +243,7 @@ export default function CrmFilesPage() {
                   [...Array(4)].map((_, i) => (
                     <ZoruTableRow key={i} className="border-zoru-line">
                       <ZoruTableCell colSpan={5}>
-                        <ZoruSkeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -280,9 +280,9 @@ export default function CrmFilesPage() {
                       </ZoruTableCell>
                       <ZoruTableCell>
                         {file.attached_to_type ? (
-                          <ZoruBadge variant="danger">
+                          <Badge variant="danger">
                             {file.attached_to_type}
-                          </ZoruBadge>
+                          </Badge>
                         ) : (
                           <span className="text-[12.5px] text-zoru-ink-muted">
                             —
@@ -316,9 +316,9 @@ export default function CrmFilesPage() {
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
     </EntityListShell>
   );

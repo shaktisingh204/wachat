@@ -60,7 +60,7 @@ export function BillsToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
       <div className="relative w-full max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search bill #, vendor invoice # or vendor…"
@@ -70,7 +70,7 @@ export function BillsToolbar({
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">
-        <ZoruSelect
+        <Select
           value={preset}
           onValueChange={(v) => onPresetChange(v as BillPresetKey)}
         >
@@ -84,9 +84,9 @@ export function BillsToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruSelect
+        <Select
           value={density}
           onValueChange={(v) => onDensityChange(v as BillDensity)}
         >
@@ -98,10 +98,10 @@ export function BillsToolbar({
             <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
             <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-          <ZoruButton
+          <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}
             size="sm"
@@ -110,8 +110,8 @@ export function BillsToolbar({
             aria-label="Table view"
           >
             <TableIcon className="h-3.5 w-3.5" />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant={view === 'calendar' ? 'default' : 'ghost'}
             size="sm"
@@ -120,18 +120,18 @@ export function BillsToolbar({
             aria-label="Calendar view"
           >
             <CalendarRange className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+        <Button variant="outline" size="sm" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export
-        </ZoruButton>
+        </Button>
 
-        <ZoruButton size="sm" asChild>
+        <Button size="sm" asChild>
           <Link href="/dashboard/crm/purchases/expenses/new">
             <Plus className="h-3.5 w-3.5" /> New bill
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

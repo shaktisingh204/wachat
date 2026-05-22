@@ -56,14 +56,14 @@ type Summary = {
 type ZoruSelectItem = { _id: string; name: string };
 
 const StatCard = ({ title, value, sub, icon: Icon }: { title: string; value: string; sub?: string; icon: React.ElementType }) => (
-    <ZoruCard className="flex flex-col gap-1 p-6">
+    <Card className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
             <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
             <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
         </div>
         <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
         {sub ? <p className="text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
-    </ZoruCard>
+    </Card>
 );
 
 function attendanceBadgeVariant(pct: number): 'success' | 'warning' | 'danger' {
@@ -133,24 +133,24 @@ export default function AttendanceReportPage() {
             subtitle="Detailed attendance summary for your employees."
             primaryAction={
                 <>
-                    <ZoruPopover>
+                    <Popover>
                         <ZoruPopoverTrigger asChild>
-                            <ZoruButton variant="outline">
+                            <Button variant="outline">
                                 <SlidersHorizontal className="h-4 w-4" />
                                 Filters
-                            </ZoruButton>
+                            </Button>
                         </ZoruPopoverTrigger>
                             <ZoruPopoverContent className="w-80 space-y-4 p-4">
                                 <div className="space-y-1.5">
-                                    <ZoruLabel className="text-[12.5px]">Start Date</ZoruLabel>
+                                    <Label className="text-[12.5px]">Start Date</Label>
                                     <DatePicker date={startDate} setDate={setStartDate} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <ZoruLabel className="text-[12.5px]">End Date</ZoruLabel>
+                                    <Label className="text-[12.5px]">End Date</Label>
                                     <DatePicker date={endDate} setDate={setEndDate} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <ZoruLabel className="text-[12.5px]">Employee</ZoruLabel>
+                                    <Label className="text-[12.5px]">Employee</Label>
                                     <select
                                         value={selectedEmployee}
                                         onChange={e => setSelectedEmployee(e.target.value)}
@@ -161,7 +161,7 @@ export default function AttendanceReportPage() {
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <ZoruLabel className="text-[12.5px]">Department</ZoruLabel>
+                                    <Label className="text-[12.5px]">Department</Label>
                                     <select
                                         value={selectedDept}
                                         onChange={e => setSelectedDept(e.target.value)}
@@ -171,20 +171,20 @@ export default function AttendanceReportPage() {
                                         {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                                     </select>
                                 </div>
-                                <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">
+                                <Button onClick={fetchData} disabled={isLoading} className="w-full">
                                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Apply Filters
-                                </ZoruButton>
+                                </Button>
                             </ZoruPopoverContent>
-                        </ZoruPopover>
-                        <ZoruButton
+                        </Popover>
+                        <Button
                             variant="outline"
                             onClick={handleDownload}
                             disabled={isLoading || reportData.length === 0}
                         >
                             <Download className="h-4 w-4" />
                             Download CSV
-                        </ZoruButton>
+                        </Button>
                     </>
                 }
         >
@@ -197,7 +197,7 @@ export default function AttendanceReportPage() {
                 <StatCard title="Total Absent Days" value={summary.totalAbsent.toLocaleString()} icon={UserX} />
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
                         <h2 className="text-[16px] text-zoru-ink">Employee Attendance Breakdown</h2>
@@ -249,9 +249,9 @@ export default function AttendanceReportPage() {
                                             <td className="px-4 py-3 text-center text-zoru-ink">{row.leave}</td>
                                             <td className="px-4 py-3 text-center text-zoru-ink">{row.totalWorkingDays}</td>
                                             <td className="px-4 py-3 text-center">
-                                                <ZoruBadge variant={attendanceBadgeVariant(row.attendancePercentage)}>
+                                                <Badge variant={attendanceBadgeVariant(row.attendancePercentage)}>
                                                     {row.attendancePercentage.toFixed(1)}%
-                                                </ZoruBadge>
+                                                </Badge>
                                             </td>
                                         </tr>
                                     ))}
@@ -281,7 +281,7 @@ export default function AttendanceReportPage() {
                         </tbody>
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

@@ -61,10 +61,10 @@ const sendInitialState = {
 function SubmitButton({ onClick, disabled }: { onClick: () => void, disabled?: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="button" size="icon" onClick={onClick} disabled={pending || disabled}>
+        <Button type="button" size="icon" onClick={onClick} disabled={pending || disabled}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send Message</span>
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -235,7 +235,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 />
             )}
 
-            <ZoruDialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
+            <Dialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
                 <ZoruDialogContent className="p-0">
                     <ZoruDialogHeader className="px-4 pt-4 pb-2">
                         <ZoruDialogTitle>Select a Template</ZoruDialogTitle>
@@ -262,7 +262,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                         </ZoruCommandList>
                     </ZoruCommand>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             <div className="flex w-full items-center gap-2 p-2 relative">
                 <ChatAttachmentMenu
@@ -290,10 +290,10 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                     Then clicking one sets `templateToSend`.
                 */}
 
-                <ZoruPopover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
+                <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
                     <ZoruPopoverAnchor asChild>
                         <div className="flex-1 bg-secondary/50 focus-within:bg-secondary rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
-                            <ZoruInput
+                            <Input
                                 name="messageText"
                                 placeholder={isUploading ? "Uploading..." : "Type a message"}
                                 autoComplete="off"
@@ -313,7 +313,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                         onOpenAutoFocus={(e) => e.preventDefault()}
                         align="end" side="top"
                     >
-                        <ZoruScrollArea className="max-h-60">
+                        <ScrollArea className="max-h-60">
                             <div className="p-1">
                                 {filteredCannedMessages.length > 0 ? (
                                     filteredCannedMessages.map(msg => (
@@ -336,9 +336,9 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                     </p>
                                 )}
                             </div>
-                        </ZoruScrollArea>
+                        </ScrollArea>
                     </ZoruPopoverContent>
-                </ZoruPopover>
+                </Popover>
 
                 <div className="flex-shrink-0">
                     <SubmitButton onClick={handleTextSend} disabled={!inputValue.trim() || disabled || isUploading} />

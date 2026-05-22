@@ -92,8 +92,8 @@ export function KbInternalForm({
                     children: (
                         <div className="grid gap-4">
                             <div>
-                                <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="title">Title *</Label>
+                                <Input
                                     id="title"
                                     name="title"
                                     required
@@ -102,8 +102,8 @@ export function KbInternalForm({
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
                                     id="description"
                                     name="description"
                                     rows={10}
@@ -122,9 +122,9 @@ export function KbInternalForm({
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
-                                <ZoruLabel htmlFor="category_id">Category</ZoruLabel>
+                                <Label htmlFor="category_id">Category</Label>
                                 {/* TODO 1E.sweep: dynamic list — needs EntityKey "knowledgeBaseCategory" */}
-                                <ZoruSelect
+                                <Select
                                     name="category_id"
                                     defaultValue={article?.category_id ?? ''}
                                 >
@@ -138,10 +138,10 @@ export function KbInternalForm({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="type">Type *</ZoruLabel>
+                                <Label htmlFor="type">Type *</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="type"
@@ -152,7 +152,7 @@ export function KbInternalForm({
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="to_do">To-do</ZoruLabel>
+                                <Label htmlFor="to_do">To-do</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="to_do"
@@ -163,7 +163,7 @@ export function KbInternalForm({
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="pinned">Pinned (published)</ZoruLabel>
+                                <Label htmlFor="pinned">Pinned (published)</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="pinned"

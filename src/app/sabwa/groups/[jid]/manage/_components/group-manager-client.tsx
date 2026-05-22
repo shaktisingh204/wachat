@@ -249,7 +249,7 @@ function AddMembersDialog({
   }, [sessionId, groupJid, jids, onDone, onOpenChange, toast]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Add members</ZoruDialogTitle>
@@ -259,7 +259,7 @@ function AddMembersDialog({
         </ZoruDialogHeader>
         <div className="space-y-3">
           <div className="flex gap-2">
-            <ZoruInput
+            <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
@@ -271,14 +271,14 @@ function AddMembersDialog({
               placeholder="+919876543210"
               autoFocus
             />
-            <ZoruButton type="button" onClick={add}>
+            <Button type="button" onClick={add}>
               <Plus className="h-4 w-4" />
-            </ZoruButton>
+            </Button>
           </div>
           {jids.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {jids.map((j) => (
-                <ZoruBadge
+                <Badge
                   key={j}
                   variant="secondary"
                   className="cursor-pointer gap-1"
@@ -286,21 +286,21 @@ function AddMembersDialog({
                 >
                   {j}
                   <X className="h-3 w-3" />
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           )}
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={submitting || jids.length === 0}>
+          </Button>
+          <Button onClick={onSubmit} disabled={submitting || jids.length === 0}>
             {submitting ? 'Adding…' : `Add ${jids.length} member(s)`}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -430,28 +430,28 @@ function MembersTab({
           {selected.size > 0 ? ` · ${selected.size} selected` : ''}
         </p>
         <div className="ml-auto flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             onClick={onBulkDm}
             disabled={selected.size === 0}
           >
             <Send />
             Bulk DM ({selected.size})
-          </ZoruButton>
-          <ZoruButton onClick={onAddMembers}>
+          </Button>
+          <Button onClick={onAddMembers}>
             <UserPlus />
             Add members
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
-      <ZoruCard>
+      <Card>
         <div className="hidden md:block">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead className="w-10">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected}
                     onCheckedChange={onToggleAll}
                     aria-label="Select all"
@@ -470,17 +470,17 @@ function MembersTab({
                 return (
                   <ZoruTableRow key={p.jid}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(p.jid)}
                         onCheckedChange={() => onToggleSelected(p.jid)}
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex items-center gap-2">
-                        <ZoruAvatar className="h-8 w-8">
+                        <Avatar className="h-8 w-8">
                           {p.profilePicUrl ? <ZoruAvatarImage src={p.profilePicUrl} alt="" /> : null}
                           <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium text-zoru-ink">
                             {displayName}
@@ -492,7 +492,7 @@ function MembersTab({
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={p.isAdmin ? 'secondary' : 'outline'}>{role}</ZoruBadge>
+                      <Badge variant={p.isAdmin ? 'secondary' : 'outline'}>{role}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-xs text-zoru-ink-muted">
                       {formatDate(p.joinedAt)}
@@ -500,7 +500,7 @@ function MembersTab({
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         {p.isAdmin ? (
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onDemote(p)}
@@ -508,9 +508,9 @@ function MembersTab({
                           >
                             <ShieldCheck className="mr-1 h-3.5 w-3.5" />
                             Demote
-                          </ZoruButton>
+                          </Button>
                         ) : (
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onPromote(p)}
@@ -518,9 +518,9 @@ function MembersTab({
                           >
                             <ShieldCheck className="mr-1 h-3.5 w-3.5" />
                             Promote
-                          </ZoruButton>
+                          </Button>
                         )}
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           className="text-zoru-danger hover:text-zoru-danger"
@@ -529,40 +529,40 @@ function MembersTab({
                         >
                           <UserMinus className="mr-1 h-3.5 w-3.5" />
                           Remove
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 );
               })}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
         {/* Mobile cards */}
         <div className="md:hidden">
-          <ZoruScrollArea className="max-h-[60vh]">
+          <ScrollArea className="max-h-[60vh]">
             <div className="divide-y divide-zoru-line">
               {group.participants.map((p) => {
                 const role = p.isSuperAdmin ? 'Super admin' : p.isAdmin ? 'Admin' : 'Member';
                 const displayName = p.name?.trim() || resolve(p.jid);
                 return (
                   <div key={p.jid} className="flex items-center gap-3 p-3">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={selected.has(p.jid)}
                       onCheckedChange={() => onToggleSelected(p.jid)}
                     />
-                    <ZoruAvatar className="h-9 w-9">
+                    <Avatar className="h-9 w-9">
                       {p.profilePicUrl ? <ZoruAvatarImage src={p.profilePicUrl} alt="" /> : null}
                       <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium text-zoru-ink">{displayName}</div>
                       <div className="truncate text-xs text-zoru-ink-muted">{formatJid(p.jid)}</div>
-                      <ZoruBadge variant="outline" className="mt-1">
+                      <Badge variant="outline" className="mt-1">
                         {role}
-                      </ZoruBadge>
+                      </Badge>
                     </div>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => (p.isAdmin ? onDemote(p) : onPromote(p))}
@@ -570,8 +570,8 @@ function MembersTab({
                       disabled={busy === p.jid}
                     >
                       <ShieldCheck className="h-4 w-4" />
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       variant="ghost"
                       size="icon"
                       className="text-zoru-danger"
@@ -580,14 +580,14 @@ function MembersTab({
                       disabled={busy === p.jid}
                     >
                       <UserMinus className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 );
               })}
             </div>
-          </ZoruScrollArea>
+          </ScrollArea>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }
@@ -667,19 +667,19 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
   ]);
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Group identity</ZoruCardTitle>
         <ZoruCardDescription>Subject, description, icon and disappearing-message timer.</ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
         <div className="flex items-center gap-3">
-          <ZoruAvatar className="h-16 w-16">
+          <Avatar className="h-16 w-16">
             {iconUrl ? <ZoruAvatarImage src={iconUrl} alt="" /> : null}
             <ZoruAvatarFallback>
               <ImageIcon className="h-6 w-6 text-zoru-ink-muted" />
             </ZoruAvatarFallback>
-          </ZoruAvatar>
+          </Avatar>
           {/*
             SabFilePickerButton sources files from SabFiles per the
             project-wide SabFiles policy. It still routes through the
@@ -694,14 +694,14 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
             Change icon
           </SabFilePickerButton>
           {iconUrl ? (
-            <ZoruButton variant="ghost" size="sm" onClick={() => setIconUrl('')}>
+            <Button variant="ghost" size="sm" onClick={() => setIconUrl('')}>
               Remove
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="grp-subject">Subject</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="grp-subject">Subject</Label>
+          <Input
             id="grp-subject"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
@@ -709,8 +709,8 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="grp-desc">Description</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="grp-desc">Description</Label>
+          <Textarea
             id="grp-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -725,18 +725,18 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
               Messages auto-delete after 7 days.
             </div>
           </div>
-          <ZoruSwitch
+          <Switch
             checked={ephemeralEnabled}
             onCheckedChange={setEphemeralEnabled}
           />
         </div>
         <div className="flex justify-end">
-          <ZoruButton onClick={onSave} disabled={submitting}>
+          <Button onClick={onSave} disabled={submitting}>
             {submitting ? 'Saving…' : 'Save changes'}
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -787,7 +787,7 @@ function PermissionsTab({
   );
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Permissions</ZoruCardTitle>
         <ZoruCardDescription>Control who can send messages and edit info.</ZoruCardDescription>
@@ -800,7 +800,7 @@ function PermissionsTab({
               {group.announcement ? 'Only admins' : 'All participants'}
             </div>
           </div>
-          <ZoruSwitch
+          <Switch
             checked={group.announcement}
             disabled={busy}
             onCheckedChange={(v) =>
@@ -815,7 +815,7 @@ function PermissionsTab({
               {group.restrict ? 'Only admins' : 'All participants'}
             </div>
           </div>
-          <ZoruSwitch
+          <Switch
             checked={group.restrict}
             disabled={busy}
             onCheckedChange={(v) =>
@@ -824,7 +824,7 @@ function PermissionsTab({
           />
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -911,7 +911,7 @@ function InviteLinkTab({
     : null;
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Invite link</ZoruCardTitle>
         <ZoruCardDescription>Share this link to let people join the group.</ZoruCardDescription>
@@ -922,10 +922,10 @@ function InviteLinkTab({
             <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-2 text-zoru-ink">
               <Link2 className="h-4 w-4" />
             </div>
-            <ZoruInput value={url ?? 'No invite link yet'} readOnly className="font-mono text-xs" />
-            <ZoruButton variant="outline" onClick={onCopy} disabled={!url}>
+            <Input value={url ?? 'No invite link yet'} readOnly className="font-mono text-xs" />
+            <Button variant="outline" onClick={onCopy} disabled={!url}>
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </ZoruButton>
+            </Button>
           </div>
           {qrUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -939,17 +939,17 @@ function InviteLinkTab({
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          <ZoruButton variant="outline" onClick={() => fetchCode(false)} disabled={busy}>
+          <Button variant="outline" onClick={() => fetchCode(false)} disabled={busy}>
             {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <RefreshCcw className="mr-1.5 h-4 w-4" />}
             {code ? 'Refresh' : 'Generate'}
-          </ZoruButton>
-          <ZoruButton variant="destructive" onClick={onRevoke} disabled={busy || !code}>
+          </Button>
+          <Button variant="destructive" onClick={onRevoke} disabled={busy || !code}>
             <Trash2 />
             Revoke & regenerate
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -999,7 +999,7 @@ function PendingTab({
   const pending = group.pendingRequests ?? [];
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Pending join requests</ZoruCardTitle>
         <ZoruCardDescription>
@@ -1019,24 +1019,24 @@ function PendingTab({
               const displayName = resolve(req.jid);
               return (
               <div key={req.jid} className="flex items-center gap-3 py-2">
-                <ZoruAvatar className="h-8 w-8">
+                <Avatar className="h-8 w-8">
                   <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-zoru-ink">{displayName}</div>
                   <div className="text-xs text-zoru-ink-muted">
                     {formatJid(req.jid)} · Requested {formatDate(req.requestedAt)}
                   </div>
                 </div>
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => decide(req.jid, true)}
                   disabled={busy === req.jid}
                 >
                   Approve
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="ghost"
                   size="sm"
                   className="text-zoru-danger"
@@ -1044,14 +1044,14 @@ function PendingTab({
                   disabled={busy === req.jid}
                 >
                   Deny
-                </ZoruButton>
+                </Button>
               </div>
               );
             })}
           </div>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -1059,7 +1059,7 @@ function PendingTab({
 
 function ExportTab({ group }: { group: SabwaGroupDetail }) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">Export member list</ZoruCardTitle>
         <ZoruCardDescription>
@@ -1067,12 +1067,12 @@ function ExportTab({ group }: { group: SabwaGroupDetail }) {
         </ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent>
-        <ZoruButton onClick={() => downloadMembersCsv(group)}>
+        <Button onClick={() => downloadMembersCsv(group)}>
           <Download />
           Export CSV ({group.participants.length})
-        </ZoruButton>
+        </Button>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -1163,7 +1163,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1280px] space-y-3 px-4 pt-6 pb-10 md:px-6 lg:px-8">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -1181,30 +1181,30 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
               <ZoruBreadcrumbPage>Manage</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
-        <ZoruButton variant="ghost" asChild className="-ml-2">
+        </Breadcrumb>
+        <Button variant="ghost" asChild className="-ml-2">
           <Link href="/sabwa/groups">
             <ArrowLeft />
             Back to groups
           </Link>
-        </ZoruButton>
-        <ZoruCard>
+        </Button>
+        <Card>
           <ZoruCardContent className="flex flex-col items-center gap-2 py-12 text-center">
             <p className="text-sm text-zoru-ink-muted">
               Connect a SabWa session to manage groups.
             </p>
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href="/sabwa/connect">Connect now</Link>
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="mx-auto w-full max-w-[1280px] space-y-4 px-4 pt-6 pb-10 md:px-6 lg:px-8">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -1224,61 +1224,61 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
             </ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-center gap-2">
-        <ZoruButton variant="ghost" asChild className="-ml-2">
+        <Button variant="ghost" asChild className="-ml-2">
           <Link href="/sabwa/groups">
             <ArrowLeft />
             Back to groups
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
 
       {loadError ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="flex flex-col items-center gap-2 py-12 text-center">
             <p className="text-sm text-zoru-danger">{loadError}</p>
-            <ZoruButton variant="outline" onClick={fetchGroup}>
+            <Button variant="outline" onClick={fetchGroup}>
               Retry
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : loading || !group ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="flex items-center justify-center gap-2 py-12 text-sm text-zoru-ink-muted">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading group…
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : (
         <>
           <div className="flex flex-wrap items-start gap-3">
-            <ZoruAvatar className="h-14 w-14">
+            <Avatar className="h-14 w-14">
               {group.iconUrl ? <ZoruAvatarImage src={group.iconUrl} alt="" /> : null}
               <ZoruAvatarFallback>{initials(group.subject || '#')}</ZoruAvatarFallback>
-            </ZoruAvatar>
+            </Avatar>
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-[24px] font-semibold leading-[1.15] tracking-[-0.015em] text-zoru-ink">
                 {group.subject}
               </h1>
               <p className="truncate text-xs text-zoru-ink-muted">{formatJid(group.jid)}</p>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                <ZoruBadge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1">
                   <Users className="h-3 w-3" />
                   {group.participants.length}
-                </ZoruBadge>
+                </Badge>
                 {group.announcement ? (
-                  <ZoruBadge variant="outline">Announcement only</ZoruBadge>
+                  <Badge variant="outline">Announcement only</Badge>
                 ) : null}
                 {group.restrict ? (
-                  <ZoruBadge variant="outline" className="gap-1">
+                  <Badge variant="outline" className="gap-1">
                     <Lock className="h-3 w-3" />
                     Locked
-                  </ZoruBadge>
+                  </Badge>
                 ) : null}
                 {group.category ? (
-                  <ZoruBadge variant="outline">{group.category}</ZoruBadge>
+                  <Badge variant="outline">{group.category}</Badge>
                 ) : null}
               </div>
             </div>
@@ -1297,7 +1297,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
             {sections.map(({ key, label, Icon }) => {
               const active = section === key;
               return (
-                <ZoruButton
+                <Button
                   key={key}
                   type="button"
                   role="tab"
@@ -1309,7 +1309,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {label}
-                </ZoruButton>
+                </Button>
               );
             })}
           </div>

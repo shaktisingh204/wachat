@@ -33,7 +33,7 @@ export function LeaveKpiStrip({
         onClick={() => onSelect('pending')}
         ariaLabel="Show pending leave requests"
       >
-        <ZoruStatCard
+        <StatCard
           label="Pending"
           value={kpi.pending.toLocaleString()}
           period="awaiting approval"
@@ -45,7 +45,7 @@ export function LeaveKpiStrip({
         onClick={() => onSelect('approved')}
         ariaLabel="Show approved leave requests"
       >
-        <ZoruStatCard
+        <StatCard
           label="Approved"
           value={kpi.approved.toLocaleString()}
           period="active period"
@@ -57,7 +57,7 @@ export function LeaveKpiStrip({
         onClick={() => onSelect('rejected')}
         ariaLabel="Show rejected leave requests"
       >
-        <ZoruStatCard
+        <StatCard
           label="Rejected"
           value={kpi.rejected.toLocaleString()}
           period="denied / cancelled"
@@ -70,7 +70,7 @@ export function LeaveKpiStrip({
         onClick={() => onSelect('balance')}
         ariaLabel="Show my available leave balance"
       >
-        <ZoruStatCard
+        <StatCard
           label="Available balance"
           value={
             kpi.availableBalance != null
@@ -86,7 +86,7 @@ export function LeaveKpiStrip({
         onClick={() => onSelect('used')}
         ariaLabel="Show leave used this month"
       >
-        <ZoruStatCard
+        <StatCard
           label="Used this month"
           value={`${kpi.usedThisMonth.toFixed(1)} d`}
           period="approved · current month"

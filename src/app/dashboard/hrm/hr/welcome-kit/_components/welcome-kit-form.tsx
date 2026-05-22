@@ -53,14 +53,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create welcome kit'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -117,7 +117,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="kitId" value={initialData!._id} />
@@ -132,8 +132,8 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                 {/* Row 1: Employee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_id">Employee id *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employee_id">Employee id *</Label>
+                        <Input
                             id="employee_id"
                             name="employee_id"
                             required
@@ -142,8 +142,8 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_name">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employee_name">Employee name</Label>
+                        <Input
                             id="employee_name"
                             name="employee_name"
                             placeholder="Friendly display name"
@@ -155,8 +155,8 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                 {/* Row 2: Shipping address + tracking */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="shipping_address">Shipping address</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="shipping_address">Shipping address</Label>
+                        <Textarea
                             id="shipping_address"
                             name="shipping_address"
                             rows={3}
@@ -165,8 +165,8 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tracking_number">Tracking number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tracking_number">Tracking number</Label>
+                        <Input
                             id="tracking_number"
                             name="tracking_number"
                             placeholder="Courier tracking reference"
@@ -178,7 +178,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                 {/* Row 3: Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="welcomeKitStatus"
@@ -193,15 +193,15 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                 {/* Items */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Items</ZoruLabel>
-                        <ZoruButton
+                        <Label>Items</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={addItem}
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add item
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {items.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -215,10 +215,10 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                     className="grid grid-cols-1 items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 sm:grid-cols-[1fr_140px_140px_120px_auto]"
                                 >
                                     <div className="space-y-1">
-                                        <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                                        <Label className="text-[11px] text-zoru-ink-muted">
                                             Item name
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             value={it.name}
                                             onChange={(e) =>
                                                 updateItem(idx, { name: e.target.value })
@@ -228,10 +228,10 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                                        <Label className="text-[11px] text-zoru-ink-muted">
                                             SKU
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             value={it.sku ?? ''}
                                             onChange={(e) =>
                                                 updateItem(idx, { sku: e.target.value })
@@ -240,10 +240,10 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                                        <Label className="text-[11px] text-zoru-ink-muted">
                                             Delivered at
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             type="date"
                                             value={toDateInput(it.delivered_at)}
                                             onChange={(e) =>
@@ -254,21 +254,21 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         />
                                     </div>
                                     <div className="flex items-center gap-2 pb-2">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             id={`item-delivered-${idx}`}
                                             checked={!!it.delivered}
                                             onCheckedChange={(c) =>
                                                 updateItem(idx, { delivered: !!c })
                                             }
                                         />
-                                        <ZoruLabel
+                                        <Label
                                             htmlFor={`item-delivered-${idx}`}
                                             className="cursor-pointer text-[12px]"
                                         >
                                             Delivered
-                                        </ZoruLabel>
+                                        </Label>
                                     </div>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -276,7 +276,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         aria-label="Remove item"
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -285,15 +285,15 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to welcome kits
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

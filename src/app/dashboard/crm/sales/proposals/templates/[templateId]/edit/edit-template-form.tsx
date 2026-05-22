@@ -242,7 +242,7 @@ export function EditTemplateForm({ initial }: Props) {
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">
                 Template basics
@@ -253,10 +253,10 @@ export function EditTemplateForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Template name <span className="text-zoru-danger">*</span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Standard SaaS Proposal"
@@ -264,10 +264,10 @@ export function EditTemplateForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Default proposal title
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Proposal for {{client.name}}"
@@ -275,20 +275,20 @@ export function EditTemplateForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Currency
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                   className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Default discount
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   type="number"
                   value={discount}
                   onChange={(e) => setDiscount(Number(e.target.value) || 0)}
@@ -296,22 +296,22 @@ export function EditTemplateForm({ initial }: Props) {
                 />
               </div>
               <div className="flex items-end gap-2">
-                <ZoruSwitch
+                <Switch
                   id="signatureRequired"
                   checked={signatureRequired}
                   onCheckedChange={setSignatureRequired}
                 />
-                <ZoruLabel
+                <Label
                   htmlFor="signatureRequired"
                   className="cursor-pointer pb-2 text-[13px] text-zoru-ink"
                 >
                   Require e-signature
-                </ZoruLabel>
+                </Label>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-[14px] font-semibold text-zoru-ink">Sections</h2>
@@ -319,7 +319,7 @@ export function EditTemplateForm({ initial }: Props) {
                   Each section maps to one proposal line item.
                 </p>
               </div>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -327,7 +327,7 @@ export function EditTemplateForm({ initial }: Props) {
               >
                 <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Add section
-              </ZoruButton>
+              </Button>
             </div>
             <div className="space-y-4">
               {sections.map((section, idx) => (
@@ -341,7 +341,7 @@ export function EditTemplateForm({ initial }: Props) {
                   onClick={() => setActiveSectionId(section.id)}
                 >
                   <div className="mb-3 flex items-center justify-between gap-2">
-                    <ZoruInput
+                    <Input
                       value={section.title}
                       onChange={(e) =>
                         updateSection(section.id, { title: e.target.value })
@@ -350,7 +350,7 @@ export function EditTemplateForm({ initial }: Props) {
                       className="h-9 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px] font-medium"
                     />
                     <div className="flex shrink-0 gap-1">
-                      <ZoruButton
+                      <Button
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -361,8 +361,8 @@ export function EditTemplateForm({ initial }: Props) {
                         disabled={idx === 0}
                       >
                         <ArrowUp className="h-3.5 w-3.5" strokeWidth={1.75} />
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -373,8 +373,8 @@ export function EditTemplateForm({ initial }: Props) {
                         disabled={idx === sections.length - 1}
                       >
                         <ArrowDown className="h-3.5 w-3.5" strokeWidth={1.75} />
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -385,10 +385,10 @@ export function EditTemplateForm({ initial }: Props) {
                         disabled={sections.length === 1}
                       >
                         <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
-                  <ZoruTextarea
+                  <Textarea
                     ref={(el) => {
                       contentRefs.current[section.id] = el;
                     }}
@@ -403,10 +403,10 @@ export function EditTemplateForm({ initial }: Props) {
                   />
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <div className="space-y-1">
-                      <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                      <Label className="text-[11px] text-zoru-ink-muted">
                         Quantity
-                      </ZoruLabel>
-                      <ZoruInput
+                      </Label>
+                      <Input
                         type="number"
                         value={section.quantity}
                         onChange={(e) =>
@@ -418,10 +418,10 @@ export function EditTemplateForm({ initial }: Props) {
                       />
                     </div>
                     <div className="space-y-1">
-                      <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                      <Label className="text-[11px] text-zoru-ink-muted">
                         Unit price
-                      </ZoruLabel>
-                      <ZoruInput
+                      </Label>
+                      <Input
                         type="number"
                         value={section.unitPrice}
                         onChange={(e) =>
@@ -433,10 +433,10 @@ export function EditTemplateForm({ initial }: Props) {
                       />
                     </div>
                     <div className="space-y-1">
-                      <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                      <Label className="text-[11px] text-zoru-ink-muted">
                         Tax %
-                      </ZoruLabel>
-                      <ZoruInput
+                      </Label>
+                      <Input
                         type="number"
                         value={section.tax}
                         onChange={(e) =>
@@ -451,9 +451,9 @@ export function EditTemplateForm({ initial }: Props) {
                 </div>
               ))}
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">
                 Note &amp; terms
@@ -464,10 +464,10 @@ export function EditTemplateForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Note
-                </ZoruLabel>
-                <ZoruTextarea
+                </Label>
+                <Textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   rows={4}
@@ -475,10 +475,10 @@ export function EditTemplateForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Terms
-                </ZoruLabel>
-                <ZoruTextarea
+                </Label>
+                <Textarea
                   value={terms}
                   onChange={(e) => setTerms(e.target.value)}
                   rows={4}
@@ -486,9 +486,9 @@ export function EditTemplateForm({ initial }: Props) {
                 />
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">
                 Live preview
@@ -554,10 +554,10 @@ export function EditTemplateForm({ initial }: Props) {
                 </p>
               )}
             </div>
-          </ZoruCard>
+          </Card>
 
           <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() =>
@@ -567,8 +567,8 @@ export function EditTemplateForm({ initial }: Props) {
               }
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               type="button"
               onClick={handleSave}
               disabled={isSaving}
@@ -582,12 +582,12 @@ export function EditTemplateForm({ initial }: Props) {
                 <Save className="h-4 w-4" strokeWidth={1.75} />
               )}
               Save template
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
         <aside className="lg:sticky lg:top-6 lg:self-start">
-          <ZoruCard className="p-5">
+          <Card className="p-5">
             <div className="mb-3">
               <h2 className="text-[13px] font-semibold text-zoru-ink">
                 Variables
@@ -614,7 +614,7 @@ export function EditTemplateForm({ initial }: Props) {
                 </li>
               ))}
             </ul>
-          </ZoruCard>
+          </Card>
         </aside>
       </div>
     </EntityDetailShell>

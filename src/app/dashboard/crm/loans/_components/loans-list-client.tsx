@@ -249,14 +249,14 @@ export function LoansListClient({ loans }: LoansListClientProps) {
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search borrower, type, status…"
             className="h-9 pl-9 text-[13px]"
           />
         </div>
-        <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Status" />
           </ZoruSelectTrigger>
@@ -268,8 +268,8 @@ export function LoansListClient({ loans }: LoansListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruSelect value={typeFilter} onValueChange={setTypeFilter}>
+        </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Type" />
           </ZoruSelectTrigger>
@@ -281,21 +281,21 @@ export function LoansListClient({ loans }: LoansListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         <EnumFilterField
           enumName="borrowerType"
           value={borrowerTypeFilter}
           onChange={setBorrowerTypeFilter}
           allLabel="All borrowers"
         />
-        <ZoruInput
+        <Input
           type="date"
           value={dateFromFilter}
           onChange={(e) => setDateFromFilter(e.target.value)}
           className="h-9 w-[150px] text-[13px]"
           aria-label="From"
         />
-        <ZoruInput
+        <Input
           type="date"
           value={dateToFilter}
           onChange={(e) => setDateToFilter(e.target.value)}
@@ -303,9 +303,9 @@ export function LoansListClient({ loans }: LoansListClientProps) {
           aria-label="To"
         />
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
@@ -316,28 +316,28 @@ export function LoansListClient({ loans }: LoansListClientProps) {
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
-            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-8">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
@@ -371,7 +371,7 @@ export function LoansListClient({ loans }: LoansListClientProps) {
                 filtered.map((r) => (
                   <ZoruTableRow key={r._id}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(r._id)}
                         onCheckedChange={() => toggleOne(r._id)}
                         aria-label={`Select loan`}
@@ -406,19 +406,19 @@ export function LoansListClient({ loans }: LoansListClientProps) {
                     </ZoruTableCell>
                     <ZoruTableCell>{fmtDate(r.nextPaymentAt)}</ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton size="sm" variant="ghost" asChild>
+                      <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/crm/loans/${r._id}/edit`}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

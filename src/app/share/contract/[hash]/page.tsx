@@ -73,7 +73,7 @@ export default async function PublicContractPage({ params }: { params: Params })
 
   return (
     <div className="space-y-6">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>{contract.name || 'Contract'}</ZoruCardTitle>
@@ -90,9 +90,9 @@ export default async function PublicContractPage({ params }: { params: Params })
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruBadge variant={contract.signed ? 'default' : 'secondary'}>
+            <Badge variant={contract.signed ? 'default' : 'secondary'}>
               {contract.signed ? 'Signed' : 'Pending signature'}
-            </ZoruBadge>
+            </Badge>
             <a
               href={`/share/contract/${hash}/download`}
               target="_blank"
@@ -109,7 +109,7 @@ export default async function PublicContractPage({ params }: { params: Params })
             dangerouslySetInnerHTML={{ __html: sanitiseHtml(contract.contractDetail || '') }}
           />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <ContractSignPanel
         hash={hash}

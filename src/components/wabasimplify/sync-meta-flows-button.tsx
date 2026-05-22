@@ -44,7 +44,7 @@ export function SyncMetaFlowsButton({ projectId, onSyncComplete }: SyncMetaFlows
   };
 
   return (
-    <ZoruButton onClick={onSync} variant="outline" disabled={isPending || !projectId}>
+    <Button onClick={onSync} variant="outline" disabled={isPending || !projectId}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -56,6 +56,6 @@ export function SyncMetaFlowsButton({ projectId, onSyncComplete }: SyncMetaFlows
           Sync with Meta
         </>
       )}
-    </ZoruButton>
+    </Button>
   );
 }

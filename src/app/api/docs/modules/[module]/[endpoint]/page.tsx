@@ -80,7 +80,7 @@ function ParamTable({
     <div className="my-4">
       <p className="text-xs font-semibold text-zoru-ink mb-2">{title}</p>
       <div className="rounded-[var(--zoru-radius)] border border-zoru-line overflow-hidden">
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>Name</ZoruTableHead>
@@ -99,7 +99,7 @@ function ParamTable({
               </ZoruTableRow>
             ))}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
       </div>
     </div>
   );
@@ -128,7 +128,7 @@ export default async function Page({
     <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
       <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex flex-col gap-6">
-          <ZoruBreadcrumb>
+          <Breadcrumb>
             <ZoruBreadcrumbList>
               <ZoruBreadcrumbItem>
                 <ZoruBreadcrumbLink href="/api/docs/modules">All modules</ZoruBreadcrumbLink>
@@ -146,9 +146,9 @@ export default async function Page({
                 </ZoruBreadcrumbPage>
               </ZoruBreadcrumbItem>
             </ZoruBreadcrumbList>
-          </ZoruBreadcrumb>
+          </Breadcrumb>
 
-          <ZoruPageHeader>
+          <PageHeader>
             <ZoruPageHeading>
               <div className="flex items-center gap-2 mb-1">
                 <MethodBadge method={e.method} />
@@ -159,7 +159,7 @@ export default async function Page({
                 <ZoruPageDescription>{e.description}</ZoruPageDescription>
               ) : null}
             </ZoruPageHeading>
-          </ZoruPageHeader>
+          </PageHeader>
 
           <div className="flex flex-wrap gap-2">
             <span className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">

@@ -51,7 +51,7 @@ export function HistoryTable({ reports, loading }: HistoryTableProps) {
 
   return (
     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="border-zoru-line hover:bg-transparent">
             <ZoruTableHead className="text-zoru-ink-muted">Task Title</ZoruTableHead>
@@ -85,16 +85,16 @@ export function HistoryTable({ reports, loading }: HistoryTableProps) {
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {isAcked ? (
-                    <ZoruBadge variant="success">Yes</ZoruBadge>
+                    <Badge variant="success">Yes</Badge>
                   ) : (
-                    <ZoruBadge variant="ghost">Pending</ZoruBadge>
+                    <Badge variant="ghost">Pending</Badge>
                   )}
                 </ZoruTableCell>
               </ZoruTableRow>
             );
           })}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }

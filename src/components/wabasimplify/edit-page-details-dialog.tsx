@@ -30,10 +30,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Changes
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -62,7 +62,7 @@ export function EditPageDetailsDialog({ isOpen, onOpenChange, pageDetails, proje
   }, [state, toast, onOpenChange, onSuccess]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={projectId} />
@@ -76,25 +76,25 @@ export function EditPageDetailsDialog({ isOpen, onOpenChange, pageDetails, proje
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="space-y-4">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="about">About</ZoruLabel>
-                <ZoruTextarea id="about" name="about" defaultValue={pageDetails.about || ''} className="min-h-32" />
+                <Label htmlFor="about">About</Label>
+                <Textarea id="about" name="about" defaultValue={pageDetails.about || ''} className="min-h-32" />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="phone">Phone Number</ZoruLabel>
-                <ZoruInput id="phone" name="phone" defaultValue={pageDetails.phone || ''} />
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input id="phone" name="phone" defaultValue={pageDetails.phone || ''} />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="website">Website</ZoruLabel>
-                <ZoruInput id="website" name="website" type="url" defaultValue={pageDetails.website || ''} />
+                <Label htmlFor="website">Website</Label>
+                <Input id="website" name="website" type="url" defaultValue={pageDetails.website || ''} />
               </div>
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

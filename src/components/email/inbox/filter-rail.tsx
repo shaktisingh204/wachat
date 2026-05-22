@@ -105,7 +105,7 @@ export function FilterRail({
         <div className="flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           <Tag className="h-3 w-3" /> Label
         </div>
-        <ZoruInput
+        <Input
           value={labelDraft}
           onChange={(e) => setLabelDraft(e.target.value)}
           onBlur={() => commitLabel(labelDraft)}

@@ -58,14 +58,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create record'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -96,7 +96,7 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -107,8 +107,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                 ) : null}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name *</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             required
@@ -116,8 +116,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             defaultValue={(initialData?.employeeId as string | undefined) ?? ''}
@@ -127,8 +127,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="month">Month (YYYY-MM) *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="month">Month (YYYY-MM) *</Label>
+                        <Input
                             id="month"
                             name="month"
                             type="month"
@@ -139,7 +139,7 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="pfEsiStatus"
@@ -158,8 +158,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                     </div>
                     <div className="grid gap-4 sm:grid-cols-3">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="pfEmployer">Employer share (₹)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="pfEmployer">Employer share (₹)</Label>
+                            <Input
                                 id="pfEmployer"
                                 name="pfEmployer"
                                 type="number"
@@ -173,8 +173,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="pfEmployee">Employee share (₹)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="pfEmployee">Employee share (₹)</Label>
+                            <Input
                                 id="pfEmployee"
                                 name="pfEmployee"
                                 type="number"
@@ -188,8 +188,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="pfUan">UAN</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="pfUan">UAN</Label>
+                            <Input
                                 id="pfUan"
                                 name="pfUan"
                                 placeholder="12-digit UAN"
@@ -206,8 +206,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                     </div>
                     <div className="grid gap-4 sm:grid-cols-3">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="esiEmployer">Employer share (₹)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="esiEmployer">Employer share (₹)</Label>
+                            <Input
                                 id="esiEmployer"
                                 name="esiEmployer"
                                 type="number"
@@ -221,8 +221,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="esiEmployee">Employee share (₹)</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="esiEmployee">Employee share (₹)</Label>
+                            <Input
                                 id="esiEmployee"
                                 name="esiEmployee"
                                 type="number"
@@ -236,8 +236,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="esiIcNumber">ESI IC number</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="esiIcNumber">ESI IC number</Label>
+                            <Input
                                 id="esiIcNumber"
                                 name="esiIcNumber"
                                 defaultValue={(initialData?.esiIcNumber as string | undefined) ?? ''}
@@ -249,16 +249,16 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                 {/* Deposit block */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="challanNumber">Challan number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="challanNumber">Challan number</Label>
+                        <Input
                             id="challanNumber"
                             name="challanNumber"
                             defaultValue={(initialData?.challanNumber as string | undefined) ?? ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="depositDate">Deposit date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="depositDate">Deposit date</Label>
+                        <Input
                             id="depositDate"
                             name="depositDate"
                             type="date"
@@ -268,8 +268,8 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -278,15 +278,15 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to PF/ESI list
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

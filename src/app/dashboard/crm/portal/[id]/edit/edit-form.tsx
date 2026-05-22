@@ -172,14 +172,14 @@ function normalizeCapabilities(raw: PortalUser['capabilities']): string[] {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -259,17 +259,17 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
             <input type="hidden" name="logoFileUrl" value={logo?.url ?? ''} />
             <input type="hidden" name="logoFileName" value={logo?.name ?? ''} />
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Identification</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="name">
+                            <Label htmlFor="name">
                                 Full name <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 defaultValue={user.name ?? ''}
@@ -278,10 +278,10 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="email">
+                            <Label htmlFor="email">
                                 Email <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="email"
                                 name="email"
                                 type="email"
@@ -291,8 +291,8 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="phone">Phone</Label>
+                            <Input
                                 id="phone"
                                 name="phone"
                                 type="tel"
@@ -301,7 +301,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Portal type</ZoruLabel>
+                            <Label>Portal type</Label>
                             <div className="flex flex-wrap gap-1.5">
                                 {PORTAL_TYPES.map((opt) => (
                                     <button
@@ -320,7 +320,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             </div>
                         </div>
                         <div className="space-y-2 md:col-span-2">
-                            <ZoruLabel>Status</ZoruLabel>
+                            <Label>Status</Label>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as PortalStatus)}
@@ -335,9 +335,9 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>
                         Linked{' '}
@@ -350,9 +350,9 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="space-y-2">
-                        <ZoruLabel>
+                        <Label>
                             Pick the {portalType} record this portal user maps to.
-                        </ZoruLabel>
+                        </Label>
                         <EntityFormField
                             entity={linkedEntityForPortalType(portalType)}
                             name="linkedEntityId"
@@ -363,9 +363,9 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         />
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Role & access</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -409,7 +409,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                                     key={cap.key}
                                                     className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 hover:bg-zoru-surface-2"
                                                 >
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={checked}
                                                         onCheckedChange={() =>
                                                             toggleCapability(cap.key)
@@ -433,9 +433,9 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Branding</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -443,7 +443,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                     <div className="grid gap-4 md:grid-cols-[1fr_220px]">
                         <div className="space-y-3">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="brandColor">Brand colour</ZoruLabel>
+                                <Label htmlFor="brandColor">Brand colour</Label>
                                 <div className="flex items-center gap-2">
                                     <input
                                         id="brandColor"
@@ -453,7 +453,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                         className="h-9 w-12 cursor-pointer rounded border border-zoru-line bg-transparent"
                                         aria-label="Brand colour"
                                     />
-                                    <ZoruInput
+                                    <Input
                                         value={brandColor}
                                         onChange={(e) => setBrandColor(e.target.value)}
                                         pattern="^#[0-9a-fA-F]{6}$"
@@ -463,8 +463,8 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="welcomeMessage">Welcome message</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="welcomeMessage">Welcome message</Label>
+                                <Textarea
                                     id="welcomeMessage"
                                     name="welcomeMessage"
                                     defaultValue={user.welcomeMessage ?? ''}
@@ -474,7 +474,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Logo</ZoruLabel>
+                            <Label>Logo</Label>
                             <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2/40">
                                 {logo?.url ? (
                                     // eslint-disable-next-line @next/next/no-img-element
@@ -508,14 +508,14 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Internal notes</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <ZoruTextarea
+                    <Textarea
                         id="notes"
                         name="notes"
                         defaultValue={user.notes ?? ''}
@@ -523,7 +523,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         placeholder="Internal notes about this portal user."
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
                 <div className="text-sm">
@@ -534,9 +534,9 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                     ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={`/dashboard/crm/portal/${userId}`}>Cancel</Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton />
                 </div>
             </div>

@@ -296,7 +296,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
       {/* ── Canvas ─────────────────────────────────────────────── */}
       <div className="space-y-4">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
             <div>
               <ZoruCardTitle>Canvas</ZoruCardTitle>
@@ -315,7 +315,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
             </div>
           </ZoruCardHeader>
           <ZoruCardContent className="px-4 pb-6">
-            <ZoruScrollArea className="max-h-[68vh] pr-3">
+            <ScrollArea className="max-h-[68vh] pr-3">
               <div className="mx-auto max-w-md space-y-2">
                 {start ? (
                   <CanvasTrunk
@@ -335,39 +335,39 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                     onSuggest={handleSuggest}
                   />
                 ) : (
-                  <ZoruAlert>
+                  <Alert>
                     <AlertTriangle className="h-4 w-4" />
                     <ZoruAlertTitle>Empty drip</ZoruAlertTitle>
                     <ZoruAlertDescription>
                       No start node. Reset the drip JSON or import a valid
                       definition.
                     </ZoruAlertDescription>
-                  </ZoruAlert>
+                  </Alert>
                 )}
               </div>
-            </ZoruScrollArea>
+            </ScrollArea>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* ── Side rail ─────────────────────────────────────────── */}
       <aside className="space-y-4">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">Drip settings</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-3">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="drip-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="drip-name">Name</Label>
+              <Input
                 id="drip-name"
                 value={draft.name}
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Entry trigger</ZoruLabel>
-              <ZoruSelect
+              <Label>Entry trigger</Label>
+              <Select
                 value={draft.entryTrigger.kind}
                 onValueChange={(v) => {
                   if (v === "manual") {
@@ -393,9 +393,9 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                   <ZoruSelectItem value="segment_join">Segment join</ZoruSelectItem>
                   <ZoruSelectItem value="event">Custom event</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
               {draft.entryTrigger.kind === "segment_join" && (
-                <ZoruInput
+                <Input
                   placeholder="segmentId"
                   value={draft.entryTrigger.segmentId}
                   onChange={(e) =>
@@ -407,7 +407,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 />
               )}
               {draft.entryTrigger.kind === "event" && (
-                <ZoruInput
+                <Input
                   placeholder="event_key e.g. checkout.completed"
                   value={draft.entryTrigger.eventKey}
                   onChange={(e) =>
@@ -419,7 +419,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 />
               )}
             </div>
-            <ZoruSeparator />
+            <Separator />
             <label className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-1.5 text-slate-700">
                 {enabled ? (
@@ -429,7 +429,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 )}
                 {enabled ? "Running" : "Paused"}
               </span>
-              <ZoruSwitch checked={enabled} onCheckedChange={handleToggleEnabled} />
+              <Switch checked={enabled} onCheckedChange={handleToggleEnabled} />
             </label>
             <div className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-xs">
               <span className="flex items-center gap-1.5 text-slate-600">
@@ -439,9 +439,9 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
             </div>
             <SabsmsRefreshButton onRefresh={handleRefreshEnrol} defaultInterval={30} />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">Exit conditions</ZoruCardTitle>
             <ZoruCardDescription>
@@ -462,7 +462,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 className="flex items-center justify-between text-xs text-slate-700"
               >
                 {label}
-                <ZoruSwitch
+                <Switch
                   checked={!!draft.exitConditions?.[key]}
                   onCheckedChange={(v) =>
                     setDraft({
@@ -474,9 +474,9 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
               </label>
             ))}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">Validation</ZoruCardTitle>
           </ZoruCardHeader>
@@ -504,29 +504,29 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
               </div>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         <div className="grid grid-cols-2 gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setHistoryOpen(true)}
           >
             <History className="mr-1.5 h-3.5 w-3.5" /> History
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setDryRunOpen(true)}
           >
             <FlaskConical className="mr-1.5 h-3.5 w-3.5" /> Dry-run
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={() => setCloneOpen(true)}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setCloneOpen(true)}>
             <Copy className="mr-1.5 h-3.5 w-3.5" /> Clone from
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="mr-1.5 h-3.5 w-3.5" /> Export JSON
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="flex items-center justify-between rounded-md border border-slate-200 bg-white p-3 text-xs text-slate-500">
@@ -534,9 +534,9 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
             Last saved{" "}
             {lastSavedAt ? new Date(lastSavedAt).toLocaleString() : "—"}
           </span>
-          <ZoruButton size="sm" onClick={handleSave} disabled={saving || !validation.ok}>
+          <Button size="sm" onClick={handleSave} disabled={saving || !validation.ok}>
             {saving ? "Saving…" : "Save"}
-          </ZoruButton>
+          </Button>
         </div>
         <div className="text-[11px] text-slate-500">
           Tip: press <ZoruKbd>⌘</ZoruKbd>
@@ -545,7 +545,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
       </aside>
 
       {/* ── Add step dialog ───────────────────────────────────── */}
-      <ZoruDialog open={!!addOpen} onOpenChange={(o) => !o && setAddOpen(null)}>
+      <Dialog open={!!addOpen} onOpenChange={(o) => !o && setAddOpen(null)}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Add a step</ZoruDialogTitle>
@@ -580,10 +580,10 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
             />
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── History dialog ────────────────────────────────────── */}
-      <ZoruDialog open={historyOpen} onOpenChange={setHistoryOpen}>
+      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
             <ZoruDialogTitle>Version history</ZoruDialogTitle>
@@ -613,7 +613,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                         {v.draft.nodes.length} nodes · {v.draft.edges.length} edges
                       </div>
                     </div>
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="outline"
                       onClick={async () => {
@@ -623,13 +623,13 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                       }}
                     >
                       Roll back
-                    </ZoruButton>
+                    </Button>
                   </div>
                 ))
             )}
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Dry-run dialog ────────────────────────────────────── */}
       <DryRunDialog
@@ -640,7 +640,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
       />
 
       {/* ── Clone dialog ──────────────────────────────────────── */}
-      <ZoruDialog open={cloneOpen} onOpenChange={setCloneOpen}>
+      <Dialog open={cloneOpen} onOpenChange={setCloneOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Clone steps from another drip</ZoruDialogTitle>
@@ -654,7 +654,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
               <div className="text-sm text-slate-500">No other drips to clone from.</div>
             ) : (
               otherDrips.map((d) => (
-                <ZoruButton
+                <Button
                   key={d.id}
                   variant="outline"
                   className="w-full justify-between"
@@ -662,12 +662,12 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 >
                   <span>{d.name}</span>
                   <ArrowDown className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
               ))
             )}
           </div>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Confirm delete ────────────────────────────────────── */}
       <ZoruAlertDialog
@@ -772,14 +772,14 @@ function CanvasTrunk({
         {node.kind !== "exit" && (
           <div className="flex flex-col items-center gap-1 py-1">
             <ArrowDown className="h-3.5 w-3.5 text-slate-400" />
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               className="h-7 gap-1 text-[11px]"
               onClick={() => onAdd(node.id)}
             >
               <Plus className="h-3 w-3" /> Add step
-            </ZoruButton>
+            </Button>
             <ArrowDown className="h-3.5 w-3.5 text-slate-400" />
           </div>
         )}
@@ -795,13 +795,13 @@ function CanvasTrunk({
         >
           <div>
             <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-emerald-700">
-              <ZoruBadge variant="default" className="h-4 px-1 text-[9px]">YES</ZoruBadge>
+              <Badge variant="default" className="h-4 px-1 text-[9px]">YES</Badge>
             </div>
             {tEdge && <CanvasSub edgeTo={tEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
           </div>
           <div>
             <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-rose-700">
-              <ZoruBadge variant="secondary" className="h-4 px-1 text-[9px]">NO</ZoruBadge>
+              <Badge variant="secondary" className="h-4 px-1 text-[9px]">NO</Badge>
             </div>
             {fEdge && <CanvasSub edgeTo={fEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
           </div>
@@ -875,7 +875,7 @@ function DryRunDialog({
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Dry-run with a sample contact</ZoruDialogTitle>
@@ -885,12 +885,12 @@ function DryRunDialog({
         </ZoruDialogHeader>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
-            <ZoruLabel>Phone (E.164)</ZoruLabel>
-            <ZoruInput value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <Label>Phone (E.164)</Label>
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>First name</ZoruLabel>
-            <ZoruInput value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Label>First name</Label>
+            <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
         </div>
         {steps && (
@@ -912,9 +912,9 @@ function DryRunDialog({
                     </div>
                   </div>
                   {s.skipped && (
-                    <ZoruBadge variant="secondary" className="text-[10px]">
+                    <Badge variant="secondary" className="text-[10px]">
                       skipped
-                    </ZoruBadge>
+                    </Badge>
                   )}
                 </div>
               );
@@ -922,14 +922,14 @@ function DryRunDialog({
           </div>
         )}
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Close
-          </ZoruButton>
-          <ZoruButton onClick={run} disabled={busy}>
+          </Button>
+          <Button onClick={run} disabled={busy}>
             {busy ? "Simulating…" : "Run"}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

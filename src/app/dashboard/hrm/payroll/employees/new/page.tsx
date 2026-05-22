@@ -16,10 +16,10 @@ export default function NewEmployeePage() {
         <div className="flex w-full max-w-4xl flex-col gap-6">
             <div>
                 <Link href="/dashboard/hrm/payroll/employees" className="inline-flex">
-                    <ZoruButton variant="ghost">
+                    <Button variant="ghost">
                         <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
                         Back to Employee Directory
-                    </ZoruButton>
+                    </Button>
                 </Link>
                 <h1 className="mt-2 text-[26px] leading-tight text-zoru-ink">
                     Add New Employee

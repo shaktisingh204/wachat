@@ -171,14 +171,14 @@ export default function EmployeeDocumentsPage() {
       title="Employee Documents"
       subtitle="Upload and track employee documents with expiry dates."
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Add Document
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
@@ -230,9 +230,9 @@ export default function EmployeeDocumentsPage() {
                       </td>
                       <td className="px-4 py-2.5">
                         {d.expiry_date ? (
-                          <ZoruBadge variant={expiryVariant(d.expiry_date)}>
+                          <Badge variant={expiryVariant(d.expiry_date)}>
                             {expiryLabel(d.expiry_date)}
-                          </ZoruBadge>
+                          </Badge>
                         ) : (
                           <span className="text-zoru-ink-muted">—</span>
                         )}
@@ -254,16 +254,16 @@ export default function EmployeeDocumentsPage() {
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(d)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(d)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(String(d._id))}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -273,9 +273,9 @@ export default function EmployeeDocumentsPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-md border-zoru-line bg-zoru-bg">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">
@@ -285,10 +285,10 @@ export default function EmployeeDocumentsPage() {
 
           <div className="grid gap-4 py-2">
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              <Label className="text-[12px] text-zoru-ink-muted">
                 Employee <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruSelect
+              </Label>
+              <Select
                 value={form.user_id || '__none__'}
                 onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}
               >
@@ -303,14 +303,14 @@ export default function EmployeeDocumentsPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              <Label className="text-[12px] text-zoru-ink-muted">
                 Document Name <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 value={form.name}
                 onChange={(e) => set('name', e.target.value)}
                 placeholder="e.g. Passport, ID Card…"
@@ -319,9 +319,9 @@ export default function EmployeeDocumentsPage() {
             </div>
 
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">File URL</ZoruLabel>
+              <Label className="text-[12px] text-zoru-ink-muted">File URL</Label>
               <div className="mt-1.5 flex items-center gap-2">
-                <ZoruInput
+                <Input
                   type="url"
                   value={form.file}
                   onChange={(e) => set('file', e.target.value)}
@@ -339,8 +339,8 @@ export default function EmployeeDocumentsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Uploaded Date</ZoruLabel>
-                <ZoruInput
+                <Label className="text-[12px] text-zoru-ink-muted">Uploaded Date</Label>
+                <Input
                   type="date"
                   value={form.uploaded_at}
                   onChange={(e) => set('uploaded_at', e.target.value)}
@@ -348,8 +348,8 @@ export default function EmployeeDocumentsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Expiry Date</ZoruLabel>
-                <ZoruInput
+                <Label className="text-[12px] text-zoru-ink-muted">Expiry Date</Label>
+                <Input
                   type="date"
                   value={form.expiry_date}
                   onChange={(e) => set('expiry_date', e.target.value)}
@@ -360,16 +360,16 @@ export default function EmployeeDocumentsPage() {
           </div>
 
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

@@ -43,9 +43,9 @@ export function ReportToolbar({
         />
       </label>
       {extra}
-      <ZoruButton type="submit" size="sm">
+      <Button type="submit" size="sm">
         Apply
-      </ZoruButton>
+      </Button>
     </form>
   );
 }

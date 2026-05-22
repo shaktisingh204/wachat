@@ -194,40 +194,40 @@ export function NotificationsClient({
             title="Notifications"
             subtitle="Audit-log events that need your attention — assignments, mentions, SLA breaches, status changes."
             primaryAction={
-                <ZoruButton
+                <Button
                     variant="ghost"
                     onClick={handleMarkAll}
                     disabled={pending || kpis.unread === 0}
                 >
                     <CheckCheck className="h-4 w-4" />
                     Mark all read
-                </ZoruButton>
+                </Button>
             }
             filters={
                 <div className="flex flex-wrap items-center gap-2">
                     <div className="flex flex-wrap items-center gap-1">
                         {KIND_CHIPS.map((chip) => (
-                            <ZoruButton
+                            <Button
                                 key={chip.value}
                                 variant={kindFilter === chip.value ? 'secondary' : 'ghost'}
                                 size="sm"
                                 onClick={() => setKindFilter(chip.value)}
                             >
                                 {chip.label}
-                            </ZoruButton>
+                            </Button>
                         ))}
                     </div>
                     <span className="h-4 w-px bg-zoru-line" aria-hidden />
                     <div className="flex flex-wrap items-center gap-1">
                         {STATUS_CHIPS.map((chip) => (
-                            <ZoruButton
+                            <Button
                                 key={chip.value}
                                 variant={statusFilter === chip.value ? 'secondary' : 'ghost'}
                                 size="sm"
                                 onClick={() => setStatusFilter(chip.value)}
                             >
                                 {chip.label}
-                            </ZoruButton>
+                            </Button>
                         ))}
                     </div>
                 </div>
@@ -236,15 +236,15 @@ export function NotificationsClient({
         >
             <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-                    <ZoruStatCard label="Unread" value={kpis.unread.toLocaleString()} />
-                    <ZoruStatCard label="Today" value={kpis.today.toLocaleString()} />
-                    <ZoruStatCard label="This week" value={kpis.thisWeek.toLocaleString()} />
-                    <ZoruStatCard label="Overdue tasks" value={kpis.overdue.toLocaleString()} />
-                    <ZoruStatCard label="SLA at risk" value={kpis.slaAtRisk.toLocaleString()} />
+                    <StatCard label="Unread" value={kpis.unread.toLocaleString()} />
+                    <StatCard label="Today" value={kpis.today.toLocaleString()} />
+                    <StatCard label="This week" value={kpis.thisWeek.toLocaleString()} />
+                    <StatCard label="Overdue tasks" value={kpis.overdue.toLocaleString()} />
+                    <StatCard label="SLA at risk" value={kpis.slaAtRisk.toLocaleString()} />
                 </div>
 
                 {filtered.length > 0 ? (
-                    <ZoruCard className="p-0">
+                    <Card className="p-0">
                         <ul className="divide-y divide-zoru-line">
                             {filtered.map((row) => {
                                 const Icon = KIND_ICON[row.kind] ?? Bell;
@@ -260,12 +260,12 @@ export function NotificationsClient({
                                             <Icon className="mt-1 h-4 w-4 shrink-0 text-zoru-ink-muted" />
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2">
-                                                    <ZoruBadge variant="secondary">
+                                                    <Badge variant="secondary">
                                                         {row.entityKind}
-                                                    </ZoruBadge>
-                                                    <ZoruBadge variant="secondary">
+                                                    </Badge>
+                                                    <Badge variant="secondary">
                                                         {row.kind}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                     <p className="text-[13px] text-zoru-ink">
                                                         <span className="font-medium">
                                                             {actorLabel(row.actorId, row.actorIsYou)}
@@ -288,15 +288,15 @@ export function NotificationsClient({
                                         </div>
                                         <div className="flex shrink-0 items-center gap-1">
                                             {row.entityHref ? (
-                                                <ZoruButton asChild variant="ghost" size="sm">
+                                                <Button asChild variant="ghost" size="sm">
                                                     <Link href={row.entityHref}>
                                                         <ExternalLink className="h-3.5 w-3.5" />
                                                         Open
                                                     </Link>
-                                                </ZoruButton>
+                                                </Button>
                                             ) : null}
                                             {!row.read ? (
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleMarkOne(row._id)}
@@ -304,14 +304,14 @@ export function NotificationsClient({
                                                 >
                                                     <Check className="h-3.5 w-3.5" />
                                                     Read
-                                                </ZoruButton>
+                                                </Button>
                                             ) : null}
                                         </div>
                                     </li>
                                 );
                             })}
                         </ul>
-                    </ZoruCard>
+                    </Card>
                 ) : null}
             </div>
         </EntityListShell>

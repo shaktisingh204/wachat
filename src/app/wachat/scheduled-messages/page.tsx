@@ -80,11 +80,11 @@ function EditScheduleSheet({ message }: { message: any }) {
   const { toast } = useZoruToast();
 
   return (
-    <ZoruSheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <ZoruSheetTrigger asChild>
-        <ZoruButton variant="ghost" size="icon-sm" aria-label="Edit schedule">
+        <Button variant="ghost" size="icon-sm" aria-label="Edit schedule">
           <Pencil className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </ZoruSheetTrigger>
       <ZoruSheetContent side="right" className="sm:max-w-md">
         <ZoruSheetHeader>
@@ -105,16 +105,16 @@ function EditScheduleSheet({ message }: { message: any }) {
           className="mt-5 flex flex-col gap-4"
         >
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="es-phone">Recipient phone</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="es-phone">Recipient phone</Label>
+            <Input
               id="es-phone"
               defaultValue={message.recipientPhone}
               required
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="es-text">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="es-text">Message</Label>
+            <Textarea
               id="es-text"
               defaultValue={message.messageText}
               rows={4}
@@ -122,8 +122,8 @@ function EditScheduleSheet({ message }: { message: any }) {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="es-when">Scheduled at</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="es-when">Scheduled at</Label>
+            <Input
               id="es-when"
               type="datetime-local"
               defaultValue={
@@ -135,18 +135,18 @@ function EditScheduleSheet({ message }: { message: any }) {
             />
           </div>
           <ZoruSheetFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit">Save changes</ZoruButton>
+            </Button>
+            <Button type="submit">Save changes</Button>
           </ZoruSheetFooter>
         </form>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }
 
@@ -228,7 +228,7 @@ export default function ScheduledMessagesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -242,7 +242,7 @@ export default function ScheduledMessagesPage() {
             <ZoruBreadcrumbPage>Scheduled Messages</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -254,7 +254,7 @@ export default function ScheduledMessagesPage() {
       </div>
 
       {/* Schedule form */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-sm text-zoru-ink">Schedule a message</h2>
         <form
           action={formAction}
@@ -262,8 +262,8 @@ export default function ScheduledMessagesPage() {
         >
           <input type="hidden" name="projectId" value={projectId || ''} />
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="sm-phone">Recipient phone</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sm-phone">Recipient phone</Label>
+            <Input
               id="sm-phone"
               name="recipientPhone"
               placeholder="+919876543210"
@@ -271,8 +271,8 @@ export default function ScheduledMessagesPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="sm-text">Message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="sm-text">Message</Label>
+            <Textarea
               id="sm-text"
               name="messageText"
               rows={3}
@@ -281,8 +281,8 @@ export default function ScheduledMessagesPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="sm-when">Scheduled at</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sm-when">Scheduled at</Label>
+            <Input
               id="sm-when"
               name="scheduledAt"
               type="datetime-local"
@@ -290,21 +290,21 @@ export default function ScheduledMessagesPage() {
             />
           </div>
           <div>
-            <ZoruButton type="submit" disabled={isPending || !projectId}>
+            <Button type="submit" disabled={isPending || !projectId}>
               <Send className="h-3.5 w-3.5" />
               {isPending ? 'Scheduling…' : 'Schedule message'}
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
 
       {/* Messages table */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <h2 className="text-sm text-zoru-ink">Messages ({filtered.length})</h2>
           <div className="ml-auto flex gap-1">
             {STATUS_FILTERS.map((s) => (
-              <ZoruButton
+              <Button
                 key={s}
                 size="sm"
                 variant={statusFilter === s ? 'default' : 'outline'}
@@ -312,7 +312,7 @@ export default function ScheduledMessagesPage() {
                 className="capitalize"
               >
                 {s}
-              </ZoruButton>
+              </Button>
             ))}
           </div>
         </div>
@@ -321,7 +321,7 @@ export default function ScheduledMessagesPage() {
             <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
         ) : messages.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Clock />}
             title="No scheduled messages"
             description="Schedule your first message above."
@@ -354,9 +354,9 @@ export default function ScheduledMessagesPage() {
                       {new Date(msg.scheduledAt).toLocaleString()}
                     </td>
                     <td className="px-4 py-3">
-                      <ZoruBadge variant={statusVariant(msg.status)}>
+                      <Badge variant={statusVariant(msg.status)}>
                         {msg.status}
-                      </ZoruBadge>
+                      </Badge>
                     </td>
                     <td className="px-4 py-3 text-right">
                       {msg.status === 'pending' && (
@@ -364,7 +364,7 @@ export default function ScheduledMessagesPage() {
                           <EditScheduleSheet message={msg} />
                           <ZoruAlertDialog>
                             <ZoruAlertDialogTrigger asChild>
-                              <ZoruButton
+                              <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 aria-label="Cancel schedule"
@@ -372,7 +372,7 @@ export default function ScheduledMessagesPage() {
                                 className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
                               >
                                 <Ban className="h-3.5 w-3.5" />
-                              </ZoruButton>
+                              </Button>
                             </ZoruAlertDialogTrigger>
                             <ZoruAlertDialogContent>
                               <ZoruAlertDialogHeader>
@@ -406,7 +406,7 @@ export default function ScheduledMessagesPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       <div className="h-6" />
     </div>

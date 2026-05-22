@@ -14,10 +14,10 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -28,14 +28,14 @@ export function ExitForm({ exit }: { exit?: Record<string, any> }) {
     } as any);
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     {exit?._id ? <input type="hidden" name="exitId" value={String(exit._id)} /> : null}
                     <div>
-                        <ZoruLabel htmlFor="employeeId">
+                        <Label htmlFor="employeeId">
                             Employee <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
+                        </Label>
                         <EntityFormField
                             entity="employee"
                             name="employeeId"
@@ -52,12 +52,12 @@ export function ExitForm({ exit }: { exit?: Record<string, any> }) {
                     <Field name="nocStatus" label="NOC status" defaultValue={exit?.nocStatus} />
                     <Field name="assetReturnStatus" label="Asset return" defaultValue={exit?.assetReturnStatus} />
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="exitInterviewNotes">Exit interview notes</ZoruLabel>
-                        <ZoruTextarea id="exitInterviewNotes" name="exitInterviewNotes" defaultValue={exit?.exitInterviewNotes ?? ''} rows={4} />
+                        <Label htmlFor="exitInterviewNotes">Exit interview notes</Label>
+                        <Textarea id="exitInterviewNotes" name="exitInterviewNotes" defaultValue={exit?.exitInterviewNotes ?? ''} rows={4} />
                     </div>
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="knowledgeTransfer">Knowledge transfer</ZoruLabel>
-                        <ZoruTextarea id="knowledgeTransfer" name="knowledgeTransfer" defaultValue={exit?.knowledgeTransfer ?? ''} rows={3} />
+                        <Label htmlFor="knowledgeTransfer">Knowledge transfer</Label>
+                        <Textarea id="knowledgeTransfer" name="knowledgeTransfer" defaultValue={exit?.knowledgeTransfer ?? ''} rows={3} />
                     </div>
                     <div className="md:col-span-2 flex items-center justify-between gap-3">
                         <div className="text-sm">
@@ -67,17 +67,17 @@ export function ExitForm({ exit }: { exit?: Record<string, any> }) {
                     </div>
                 </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
 function Field({ name, label, defaultValue, required, type = 'text' }: { name: string; label: string; defaultValue?: any; required?: boolean; type?: string }) {
     return (
         <div>
-            <ZoruLabel htmlFor={name}>
+            <Label htmlFor={name}>
                 {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
                 id={name}
                 name={name}
                 type={type}

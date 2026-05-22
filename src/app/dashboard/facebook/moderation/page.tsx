@@ -197,7 +197,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<ShieldCheck />}
           title="No project selected"
           description="Pick a Facebook project to manage moderation rules."
@@ -208,7 +208,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -222,7 +222,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Moderation</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -232,31 +232,31 @@ export default function FacebookModerationPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
-          </ZoruButton>
-          <ZoruButton onClick={() => setDialogOpen(true)}>
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> New rule
-          </ZoruButton>
+          </Button>
         </div>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load moderation rules</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {loading && rules.length === 0 ? (
         <div className="flex flex-col gap-3">
-          <ZoruSkeleton className="h-20 w-full" />
-          <ZoruSkeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
         </div>
       ) : rules.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<ShieldCheck />}
           title="No moderation rules"
           description="Add a rule to automatically hide, delete, or flag matching comments."
@@ -267,16 +267,16 @@ export default function FacebookModerationPage(): React.JSX.Element {
             const id = getRuleId(r);
             return (
               <li key={id || (r.keywords ?? r.name)}>
-                <ZoruCard className="flex flex-col gap-2 p-4">
+                <Card className="flex flex-col gap-2 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <p className="line-clamp-1 text-base text-zoru-ink">
                           {r.name ?? r.keywords ?? '(unnamed)'}
                         </p>
-                        <ZoruBadge variant={actionVariant(r.action)}>
+                        <Badge variant={actionVariant(r.action)}>
                           {r.action ?? 'hide'}
-                        </ZoruBadge>
+                        </Badge>
                       </div>
                       {r.keywords || r.pattern ? (
                         <p className="mt-1 line-clamp-1 font-mono text-xs text-zoru-ink-muted">
@@ -291,7 +291,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
-                        <ZoruSwitch
+                        <Switch
                           checked={!!r.isActive}
                           onCheckedChange={(v) => onToggle(r, v)}
                           disabled={mutating}
@@ -301,7 +301,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
                           {r.isActive ? 'Enabled' : 'Disabled'}
                         </span>
                       </div>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onDelete(r)}
@@ -309,17 +309,17 @@ export default function FacebookModerationPage(): React.JSX.Element {
                         aria-label="Delete rule"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
-                </ZoruCard>
+                </Card>
               </li>
             );
           })}
         </ul>
       )}
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>New moderation rule</ZoruDialogTitle>
@@ -330,8 +330,8 @@ export default function FacebookModerationPage(): React.JSX.Element {
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <ZoruLabel htmlFor="rule-name">Name (optional)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="rule-name">Name (optional)</Label>
+              <Input
                 id="rule-name"
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
@@ -339,8 +339,8 @@ export default function FacebookModerationPage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <ZoruLabel htmlFor="rule-keywords">Pattern / keywords</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="rule-keywords">Pattern / keywords</Label>
+              <Textarea
                 id="rule-keywords"
                 rows={3}
                 value={form.keywords}
@@ -351,8 +351,8 @@ export default function FacebookModerationPage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <ZoruLabel>Action</ZoruLabel>
-              <ZoruSelect
+              <Label>Action</Label>
+              <Select
                 value={form.action}
                 onValueChange={(v) =>
                   setForm((p) => ({ ...p, action: v as RuleAction }))
@@ -368,11 +368,11 @@ export default function FacebookModerationPage(): React.JSX.Element {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="flex flex-col gap-1">
-              <ZoruLabel htmlFor="rule-reply">Auto-reply (optional)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="rule-reply">Auto-reply (optional)</Label>
+              <Input
                 id="rule-reply"
                 value={form.autoReplyText}
                 onChange={(e) =>
@@ -382,8 +382,8 @@ export default function FacebookModerationPage(): React.JSX.Element {
               />
             </div>
             <div className="flex items-center justify-between">
-              <ZoruLabel htmlFor="rule-active">Enabled</ZoruLabel>
-              <ZoruSwitch
+              <Label htmlFor="rule-active">Enabled</Label>
+              <Switch
                 id="rule-active"
                 checked={form.isActive}
                 onCheckedChange={(v) => setForm((p) => ({ ...p, isActive: v }))}
@@ -392,19 +392,19 @@ export default function FacebookModerationPage(): React.JSX.Element {
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setDialogOpen(false)}
               disabled={mutating}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={() => submit()} disabled={mutating}>
+            </Button>
+            <Button onClick={() => submit()} disabled={mutating}>
               {mutating ? 'Saving…' : 'Save rule'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

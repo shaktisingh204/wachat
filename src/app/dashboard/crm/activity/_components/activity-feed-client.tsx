@@ -208,8 +208,8 @@ export function ActivityFeedClient({
             filters={
                 <div className="flex flex-wrap items-end gap-2">
                     <div className="w-44">
-                        <ZoruLabel className="text-[11px]">Entity kind</ZoruLabel>
-                        <ZoruSelect
+                        <Label className="text-[11px]">Entity kind</Label>
+                        <Select
                             value={filters.entityKind || 'all'}
                             onValueChange={(v) =>
                                 setFilters((f) => ({
@@ -229,10 +229,10 @@ export function ActivityFeedClient({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="w-64">
-                        <ZoruLabel className="text-[11px]">Actor</ZoruLabel>
+                        <Label className="text-[11px]">Actor</Label>
                         <EntityPicker
                             entity="employee"
                             value={filters.actorId || null}
@@ -246,10 +246,10 @@ export function ActivityFeedClient({
                         />
                     </div>
                     <div className="w-36">
-                        <ZoruLabel className="text-[11px]" htmlFor="act-from">
+                        <Label className="text-[11px]" htmlFor="act-from">
                             From
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="act-from"
                             type="date"
                             value={filters.from}
@@ -259,10 +259,10 @@ export function ActivityFeedClient({
                         />
                     </div>
                     <div className="w-36">
-                        <ZoruLabel className="text-[11px]" htmlFor="act-to">
+                        <Label className="text-[11px]" htmlFor="act-to">
                             To
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="act-to"
                             type="date"
                             value={filters.to}
@@ -271,18 +271,18 @@ export function ActivityFeedClient({
                             }
                         />
                     </div>
-                    <ZoruButton size="sm" onClick={applyFilters} className="mb-1">
+                    <Button size="sm" onClick={applyFilters} className="mb-1">
                         <Filter className="h-3.5 w-3.5" /> Apply
-                    </ZoruButton>
+                    </Button>
                     {hasFilters ? (
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="sm"
                             onClick={clearFilters}
                             className="mb-1"
                         >
                             <X className="h-3.5 w-3.5" /> Clear
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </div>
             }
@@ -304,15 +304,15 @@ export function ActivityFeedClient({
         >
             <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                    <ZoruStatCard
+                    <StatCard
                         label="Events today"
                         value={kpis.eventsToday.toLocaleString()}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Events this week"
                         value={kpis.eventsThisWeek.toLocaleString()}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Top actor (week)"
                         value={
                             kpis.topActorId
@@ -322,7 +322,7 @@ export function ActivityFeedClient({
                                 : '—'
                         }
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Top entity (week)"
                         value={kpis.topEntityKind ?? '—'}
                     />
@@ -341,14 +341,14 @@ export function ActivityFeedClient({
 
                 {cursor ? (
                     <div className="flex flex-col items-center gap-2 py-3">
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="sm"
                             onClick={handleLoadMore}
                             disabled={loadingMore}
                         >
                             {loadingMore ? 'Loading…' : 'Load more'}
-                        </ZoruButton>
+                        </Button>
                         {loadMoreError ? (
                             <p className="text-xs text-zoru-danger-ink">{loadMoreError}</p>
                         ) : null}
@@ -373,10 +373,10 @@ interface BucketCardProps {
 
 function BucketCard({ title, rows, currentUserId }: BucketCardProps): React.JSX.Element {
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <div className="flex items-center gap-2 border-b border-zoru-line p-4">
                 <h2 className="text-[14px] font-semibold text-zoru-ink">{title}</h2>
-                <ZoruBadge variant="secondary">{rows.length}</ZoruBadge>
+                <Badge variant="secondary">{rows.length}</Badge>
             </div>
             <ul className="divide-y divide-zoru-line">
                 {rows.map((entry) => (
@@ -387,6 +387,6 @@ function BucketCard({ title, rows, currentUserId }: BucketCardProps): React.JSX.
                     />
                 ))}
             </ul>
-        </ZoruCard>
+        </Card>
     );
 }

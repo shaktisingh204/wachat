@@ -28,25 +28,25 @@ function fmtMoney(value: number, currency: string): string {
 export function BankingKpiStrip({ kpi }: { kpi: BankingKpi }) {
     return (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
                 label="Total accounts"
                 value={kpi.totalAccounts.toLocaleString()}
                 period="all payment accounts"
                 icon={<Layers />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Active"
                 value={kpi.activeAccounts.toLocaleString()}
                 period="status = active"
                 icon={<CheckCircle2 />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Total balance"
                 value={fmtMoney(kpi.totalBalance, kpi.currency)}
                 period="sum across accounts"
                 icon={<Banknote />}
             />
-            <ZoruStatCard
+            <StatCard
                 label="Last reconciled"
                 value={kpi.lastReconciledLabel}
                 period="latest reconcile run"

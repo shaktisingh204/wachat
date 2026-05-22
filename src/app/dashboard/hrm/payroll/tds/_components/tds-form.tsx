@@ -79,14 +79,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create TDS record'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -123,7 +123,7 @@ export function TdsForm({ initialData }: TdsFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -138,8 +138,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name *</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             required
@@ -147,8 +147,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeId">Employee ID</Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             defaultValue={(initialData?.employeeId as string | undefined) ?? ''}
@@ -158,9 +158,9 @@ export function TdsForm({ initialData }: TdsFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="fy-trigger">Financial year</ZoruLabel>
+                        <Label htmlFor="fy-trigger">Financial year</Label>
                         {/* TODO 1E.sweep: dynamic list — needs <EnumFieldYearRange> variant (rolling 6-FY window) */}
-                        <ZoruSelect value={financialYear} onValueChange={setFinancialYear}>
+                        <Select value={financialYear} onValueChange={setFinancialYear}>
                             <ZoruSelectTrigger id="fy-trigger">
                                 <ZoruSelectValue placeholder="FY" />
                             </ZoruSelectTrigger>
@@ -171,10 +171,10 @@ export function TdsForm({ initialData }: TdsFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Quarter</ZoruLabel>
+                        <Label>Quarter</Label>
                         <EnumFormField
                             name="quarter-picker"
                             enumName="tdsQuarter"
@@ -185,7 +185,7 @@ export function TdsForm({ initialData }: TdsFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="tdsStatus"
@@ -199,8 +199,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="grossAmount">Gross amount (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="grossAmount">Gross amount (₹)</Label>
+                        <Input
                             id="grossAmount"
                             name="grossAmount"
                             type="number"
@@ -214,8 +214,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tdsAmount">TDS amount (₹)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tdsAmount">TDS amount (₹)</Label>
+                        <Input
                             id="tdsAmount"
                             name="tdsAmount"
                             type="number"
@@ -232,8 +232,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="certificateNumber">Certificate number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="certificateNumber">Certificate number</Label>
+                        <Input
                             id="certificateNumber"
                             name="certificateNumber"
                             placeholder="e.g. TDS-2025-Q1-001"
@@ -241,8 +241,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="depositChallanNumber">Deposit challan number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="depositChallanNumber">Deposit challan number</Label>
+                        <Input
                             id="depositChallanNumber"
                             name="depositChallanNumber"
                             placeholder="Challan #"
@@ -250,8 +250,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="depositDate">Deposit date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="depositDate">Deposit date</Label>
+                        <Input
                             id="depositDate"
                             name="depositDate"
                             type="date"
@@ -261,8 +261,8 @@ export function TdsForm({ initialData }: TdsFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -272,15 +272,15 @@ export function TdsForm({ initialData }: TdsFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to TDS list
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -338,7 +338,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
   }, [accountInsight]);
 
   const breadcrumbs = (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -352,7 +352,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
           <ZoruBreadcrumbPage>WhatsApp Ads</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 
   // Empty/setup states.
@@ -360,13 +360,13 @@ export default function WhatsAppAdsPage(): React.ReactElement {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruSkeleton className="h-9 w-64" />
+        <Skeleton className="h-9 w-64" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[118px]" />
+            <Skeleton key={i} className="h-[118px]" />
           ))}
         </div>
-        <ZoruSkeleton className="h-[260px]" />
+        <Skeleton className="h-[260px]" />
       </div>
     );
   }
@@ -375,7 +375,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruEmptyState
+        <EmptyState
           icon={<Megaphone className="h-10 w-10" />}
           title="Connect an ad account to launch click-to-WhatsApp campaigns"
           description={
@@ -385,23 +385,23 @@ export default function WhatsAppAdsPage(): React.ReactElement {
           }
           action={
             <div className="flex flex-wrap gap-2">
-              <ZoruButton onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
+              <Button onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
                 <Plus className="h-3.5 w-3.5" />
                 Connect ad account
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 onClick={() => router.push('/wachat/whatsapp-ads/setup')}
               >
                 Setup guide
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="ghost"
                 onClick={() => router.push('/wachat/whatsapp-ads/roadmap')}
               >
                 Roadmap
                 <ArrowUpRight className="h-3.5 w-3.5" />
-              </ZoruButton>
+              </Button>
             </div>
           }
         />
@@ -414,7 +414,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
       {breadcrumbs}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>WhatsApp Ads</ZoruPageTitle>
             <ZoruPageDescription>
@@ -422,10 +422,10 @@ export default function WhatsAppAdsPage(): React.ReactElement {
               {activeProject?.name ? ` · ${activeProject.name}` : ''}
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
 
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruSelect
+          <Select
             value={selectedAccountId ?? undefined}
             onValueChange={(v) => setSelectedAccountId(v)}
           >
@@ -440,12 +440,12 @@ export default function WhatsAppAdsPage(): React.ReactElement {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruButton variant="outline" size="sm" onClick={loadData} disabled={dataLoading}>
+          </Select>
+          <Button variant="outline" size="sm" onClick={loadData} disabled={dataLoading}>
             <RefreshCw className={cn('h-3.5 w-3.5', dataLoading && 'animate-spin')} />
             Refresh
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={() =>
               router.push(
                 '/dashboard/ad-manager/create?destination=WHATSAPP&objective=OUTCOME_ENGAGEMENT',
@@ -454,37 +454,37 @@ export default function WhatsAppAdsPage(): React.ReactElement {
           >
             <Plus className="h-3.5 w-3.5" />
             New CTW campaign
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {/* KPI strip — last 30 days, scoped to CTW-eligible campaigns */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <ZoruStatCard
+        <StatCard
           label="Spend (30d)"
           value={fmtMoney(kpi.spend, currency)}
           icon={<DollarSign className="h-4 w-4" />}
           period={accountKpi ? `${fmtMoney(accountKpi.spend, currency)} account total` : undefined}
         />
-        <ZoruStatCard
+        <StatCard
           label="Impressions"
           value={fmtNum(kpi.impressions)}
           icon={<Eye className="h-4 w-4" />}
           period={accountKpi ? `${fmtNum(accountKpi.impressions)} account total` : undefined}
         />
-        <ZoruStatCard
+        <StatCard
           label="Link clicks"
           value={fmtNum(kpi.clicks)}
           icon={<MousePointerClick className="h-4 w-4" />}
           period={accountKpi ? `${fmtNum(accountKpi.clicks)} account total` : undefined}
         />
-        <ZoruStatCard label="CTR" value={fmtPct(kpi.ctr)} icon={<Target className="h-4 w-4" />} />
-        <ZoruStatCard
+        <StatCard label="CTR" value={fmtPct(kpi.ctr)} icon={<Target className="h-4 w-4" />} />
+        <StatCard
           label="Avg. CPC"
           value={fmtMoney(kpi.cpc, currency)}
           icon={<DollarSign className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Chats started"
           value={fmtNum(kpi.msgs)}
           icon={<MessagesSquare className="h-4 w-4" />}
@@ -503,12 +503,12 @@ export default function WhatsAppAdsPage(): React.ReactElement {
                 : `${campaigns.length} CTW-eligible campaign${campaigns.length === 1 ? '' : 's'} · last 30 days insights`}
             </p>
           </div>
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 More
                 <ChevronDown className="h-3 w-3 opacity-60" />
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               <ZoruDropdownMenuLabel>Manage</ZoruDropdownMenuLabel>
@@ -538,24 +538,24 @@ export default function WhatsAppAdsPage(): React.ReactElement {
                 Roadmap
               </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         </div>
 
-        <ZoruCard className="mt-5">
+        <Card className="mt-5">
           {dataLoading && campaigns.length === 0 ? (
             <div className="flex flex-col gap-3 p-6">
               {Array.from({ length: 4 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="h-14" />
+                <Skeleton key={i} className="h-14" />
               ))}
             </div>
           ) : campaigns.length === 0 ? (
             <div className="p-6">
-              <ZoruEmptyState
+              <EmptyState
                 icon={<MessagesSquare className="h-10 w-10" />}
                 title="No CTW campaigns yet"
                 description="Launch your first click-to-WhatsApp campaign and start collecting inbound conversations."
                 action={
-                  <ZoruButton
+                  <Button
                     onClick={() =>
                       router.push(
                         '/dashboard/ad-manager/create?destination=WHATSAPP&objective=OUTCOME_ENGAGEMENT',
@@ -564,7 +564,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Create campaign
-                  </ZoruButton>
+                  </Button>
                 }
               />
             </div>
@@ -583,11 +583,11 @@ export default function WhatsAppAdsPage(): React.ReactElement {
               ))}
             </div>
           )}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Cross-link to full Ad Manager */}
-      <ZoruCard className="flex flex-wrap items-center justify-between gap-3 p-4">
+      <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex items-center gap-3">
           <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
           <div>
@@ -597,11 +597,11 @@ export default function WhatsAppAdsPage(): React.ReactElement {
             </div>
           </div>
         </div>
-        <ZoruButton variant="outline" size="sm" onClick={() => router.push('/dashboard/ad-manager')}>
+        <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/ad-manager')}>
           Open Ad Manager
           <ArrowUpRight className="h-3.5 w-3.5" />
-        </ZoruButton>
-      </ZoruCard>
+        </Button>
+      </Card>
     </div>
   );
 }
@@ -641,7 +641,7 @@ function CampaignRow({
           {campaign.name}
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
-          <ZoruBadge variant={badgeVariant}>{status}</ZoruBadge>
+          <Badge variant={badgeVariant}>{status}</Badge>
           {campaign.objective && <span>{campaign.objective.replace(/^OUTCOME_/, '')}</span>}
           {campaign.daily_budget !== undefined && campaign.daily_budget !== null && (
             <span>{fmtMoney(budgetMajor(campaign.daily_budget), currency)}/day</span>
@@ -659,7 +659,7 @@ function CampaignRow({
         />
       </div>
       <div className="flex items-center gap-1">
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon-sm"
           aria-label={isActive ? 'Pause campaign' : 'Resume campaign'}
@@ -667,10 +667,10 @@ function CampaignRow({
           disabled={toggling}
         >
           {isActive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-        </ZoruButton>
-        <ZoruButton variant="ghost" size="icon-sm" aria-label="Open campaign" onClick={onOpen}>
+        </Button>
+        <Button variant="ghost" size="icon-sm" aria-label="Open campaign" onClick={onOpen}>
           <ArrowUpRight className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

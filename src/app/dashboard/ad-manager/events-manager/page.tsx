@@ -104,11 +104,11 @@ export default function EventsManagerPage() {
         return (
             <div>
                 <AmBreadcrumb page="Events manager" />
-                <ZoruAlert className="mt-6">
+                <Alert className="mt-6">
                     <CircleAlert className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to view pixel events.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -121,16 +121,16 @@ export default function EventsManagerPage() {
                 description="Monitor pixel events, conversion API traffic and offline events."
                 actions={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" size="icon" onClick={() => { fetchPixels(); fetchStats(); }} disabled={loading || statsLoading}>
+                        <Button variant="outline" size="icon" onClick={() => { fetchPixels(); fetchStats(); }} disabled={loading || statsLoading}>
                             <RefreshCw className={`h-4 w-4 ${(loading || statsLoading) ? 'animate-spin' : ''}`} />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                             onClick={() => setTestDialogOpen(true)}
                             disabled={!selectedPixel}
                         >
                             <Send className="h-4 w-4 mr-1" /> Send Test Event
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
             />
@@ -138,10 +138,10 @@ export default function EventsManagerPage() {
             {/* Pixel selector */}
             {loading ? (
                 <div className="flex gap-2">
-                    {Array.from({ length: 2 }).map((_, i) => <ZoruSkeleton key={i} className="h-10 w-40" />)}
+                    {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-10 w-40" />)}
                 </div>
             ) : pixels.length === 0 ? (
-                <ZoruCard className="border-dashed">
+                <Card className="border-dashed">
                     <ZoruCardContent className="py-16 text-center">
                         <Radio className="h-12 w-12 mx-auto text-muted-foreground" />
                         <p className="mt-3 font-semibold">No pixels found</p>
@@ -149,12 +149,12 @@ export default function EventsManagerPage() {
                             Create a pixel in your Meta ad account first.
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : (
                 <>
                     <div className="flex flex-wrap gap-2">
                         {pixels.map(p => (
-                            <ZoruButton
+                            <Button
                                 key={p.id}
                                 variant={selectedPixel === p.id ? 'default' : 'outline'}
                                 size="sm"
@@ -163,12 +163,12 @@ export default function EventsManagerPage() {
                             >
                                 <Radio className="h-3 w-3 mr-1" />
                                 {p.name}
-                            </ZoruButton>
+                            </Button>
                         ))}
                     </div>
 
                     {/* Event stats table */}
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader className="pb-2">
                             <ZoruCardTitle className="text-base">
                                 Event activity{' '}
@@ -182,7 +182,7 @@ export default function EventsManagerPage() {
                         <ZoruCardContent className="p-0">
                             {statsLoading ? (
                                 <div className="p-4 space-y-2">
-                                    {Array.from({ length: 4 }).map((_, i) => <ZoruSkeleton key={i} className="h-10" />)}
+                                    {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
                                 </div>
                             ) : eventStats.length === 0 ? (
                                 <div className="py-12 text-center text-muted-foreground">
@@ -190,7 +190,7 @@ export default function EventsManagerPage() {
                                     <p className="text-sm mt-1">Use the "Send Test Event" button to fire a test event.</p>
                                 </div>
                             ) : (
-                                <ZoruTable>
+                                <Table>
                                     <ZoruTableHeader>
                                         <ZoruTableRow>
                                             <ZoruTableHead>Event name</ZoruTableHead>
@@ -202,7 +202,7 @@ export default function EventsManagerPage() {
                                         {eventStats.map((s, i) => (
                                             <ZoruTableRow key={i}>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant="outline">{s.event || s.event_name || s.key || 'Unknown'}</ZoruBadge>
+                                                    <Badge variant="outline">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="tabular-nums font-medium">
                                                     {s.count ?? s.value ?? 0}
@@ -215,15 +215,15 @@ export default function EventsManagerPage() {
                                             </ZoruTableRow>
                                         ))}
                                     </ZoruTableBody>
-                                </ZoruTable>
+                                </Table>
                             )}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             )}
 
             {/* Send test event dialog */}
-            <ZoruDialog open={testDialogOpen} onOpenChange={(open) => { if (!open) setTestDialogOpen(false); else setTestDialogOpen(true); }}>
+            <Dialog open={testDialogOpen} onOpenChange={(open) => { if (!open) setTestDialogOpen(false); else setTestDialogOpen(true); }}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Send test event</ZoruDialogTitle>
@@ -234,23 +234,23 @@ export default function EventsManagerPage() {
                     </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Event name</ZoruLabel>
-                            <ZoruSelect value={testEvent} onValueChange={setTestEvent}>
+                            <Label>Event name</Label>
+                            <Select value={testEvent} onValueChange={setTestEvent}>
                                 <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     {TEST_EVENTS.map(e => <ZoruSelectItem key={e} value={e}>{e}</ZoruSelectItem>)}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => setTestDialogOpen(false)}>Cancel</ZoruButton>
-                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleSendTest} disabled={sending}>
+                        <Button variant="outline" onClick={() => setTestDialogOpen(false)}>Cancel</Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleSendTest} disabled={sending}>
                             {sending ? 'Sending…' : 'Send'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

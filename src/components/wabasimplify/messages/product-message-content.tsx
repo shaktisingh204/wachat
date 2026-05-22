@@ -14,7 +14,7 @@ export function ProductMessageContent({ catalogId, productRetailerId, isReply = 
   // For this component, we'll just display the information we have.
   return (
     <div className={isReply ? "w-full" : "w-64"}>
-      <ZoruCard className="shadow-none border-0 bg-transparent">
+      <Card className="shadow-none border-0 bg-transparent">
         <ZoruCardHeader className="p-2">
             <div className="flex items-center gap-2">
                  <ShoppingBag className="h-5 w-5 text-primary"/>
@@ -33,10 +33,10 @@ export function ProductMessageContent({ catalogId, productRetailerId, isReply = 
         </ZoruCardContent>
         {!isReply && (
             <ZoruCardFooter className="p-2">
-                <ZoruButton variant="outline" size="sm" className="w-full">View Product Details</ZoruButton>
+                <Button variant="outline" size="sm" className="w-full">View Product Details</Button>
             </ZoruCardFooter>
         )}
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

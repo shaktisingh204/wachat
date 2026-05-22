@@ -142,7 +142,7 @@ export default function MessageAnalyticsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -156,7 +156,7 @@ export default function MessageAnalyticsPage() {
             <ZoruBreadcrumbPage>Message Analytics</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -168,12 +168,12 @@ export default function MessageAnalyticsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 {PERIOD_LABELS[period]}
                 <ChevronDown className="opacity-60" />
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
@@ -186,33 +186,33 @@ export default function MessageAnalyticsPage() {
                 <ZoruDropdownMenuRadioItem value="90">Last 90 days</ZoruDropdownMenuRadioItem>
               </ZoruDropdownMenuRadioGroup>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
-          <ZoruButton
+          </DropdownMenu>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setExportOpen(true)}
             disabled={rows.length === 0}
           >
             <Download /> Export
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <ZoruStatCard
+        <StatCard
           label="Total Outgoing"
           value={totals.out.toLocaleString()}
           icon={<ArrowUpRight />}
           period={PERIOD_LABELS[period]}
         />
-        <ZoruStatCard
+        <StatCard
           label="Total Incoming"
           value={totals.inc.toLocaleString()}
           icon={<ArrowDownLeft />}
           period={PERIOD_LABELS[period]}
         />
-        <ZoruStatCard
+        <StatCard
           label="Avg Response Time"
           value={fmtTime(totals.avgMs)}
           icon={<Clock />}
@@ -221,7 +221,7 @@ export default function MessageAnalyticsPage() {
       </div>
 
       {/* Daily breakdown */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -238,13 +238,13 @@ export default function MessageAnalyticsPage() {
         <ZoruCardContent>
           {isPending && rows.length === 0 ? (
             <div className="space-y-3">
-              <ZoruSkeleton className="h-[240px] w-full" />
-              <ZoruSkeleton className="h-8 w-full" />
-              <ZoruSkeleton className="h-8 w-full" />
-              <ZoruSkeleton className="h-8 w-full" />
+              <Skeleton className="h-[240px] w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
             </div>
           ) : rows.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<Inbox />}
               title="No data for this period"
               description="Once messages are exchanged, daily volume will appear here."
@@ -294,7 +294,7 @@ export default function MessageAnalyticsPage() {
               </ZoruChartContainer>
 
               <div className="mt-5">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="hover:bg-transparent">
                       <ZoruTableHead>Date</ZoruTableHead>
@@ -322,15 +322,15 @@ export default function MessageAnalyticsPage() {
                       );
                     })}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
             </>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Export CSV dialog */}
-      <ZoruDialog open={exportOpen} onOpenChange={setExportOpen}>
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Export analytics</ZoruDialogTitle>
@@ -339,15 +339,15 @@ export default function MessageAnalyticsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setExportOpen(false)}>
+            <Button variant="ghost" onClick={() => setExportOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleExport}>
+            </Button>
+            <Button onClick={handleExport}>
               <Download /> Download CSV
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

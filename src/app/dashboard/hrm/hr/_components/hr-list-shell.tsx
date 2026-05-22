@@ -226,17 +226,17 @@ export function HrListShell<T>({
         primaryAction={
           <div className="flex items-center gap-2">
             {exportColumns && exportColumns.length > 0 ? (
-              <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+              <Button variant="outline" size="sm" onClick={handleExport}>
                 <FileDown className="h-4 w-4" />
                 CSV
-              </ZoruButton>
+              </Button>
             ) : null}
-            <ZoruButton asChild>
+            <Button asChild>
               <Link href={newHref}>
                 <Plus className="h-4 w-4" />
                 New
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         }
         search={
@@ -254,22 +254,22 @@ export function HrListShell<T>({
             <div className="flex flex-wrap items-center gap-2">
               {statusOptions ? (
                 <>
-                  <ZoruButton
+                  <Button
                     variant={statusFilter === 'all' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setStatusFilter('all')}
                   >
                     All
-                  </ZoruButton>
+                  </Button>
                   {statusOptions.map((opt) => (
-                    <ZoruButton
+                    <Button
                       key={opt.value}
                       variant={statusFilter === opt.value ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setStatusFilter(opt.value)}
                     >
                       {opt.label}
-                    </ZoruButton>
+                    </Button>
                   ))}
                 </>
               ) : null}
@@ -284,21 +284,21 @@ export function HrListShell<T>({
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setSelected(new Set())}
                 >
                   Clear
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="sm"
                   variant="destructive"
                   onClick={() => setBulkDeleteOpen(true)}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Delete
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -311,12 +311,12 @@ export function HrListShell<T>({
               <h3 className="text-base font-medium text-zoru-ink">
                 {emptyText ?? 'Nothing here yet'}
               </h3>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href={newHref}>
                   <Plus className="h-4 w-4" />
                   Add first
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -325,7 +325,7 @@ export function HrListShell<T>({
           {kpis.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {kpis.map((k) => (
-                <ZoruCard
+                <Card
                   key={k.label}
                   className={`p-3 ${k.onClick ? 'cursor-pointer transition-colors hover:bg-zoru-surface-2' : ''} ${k.active ? 'ring-2 ring-zoru-ink' : ''}`}
                   onClick={k.onClick}
@@ -346,19 +346,19 @@ export function HrListShell<T>({
                   {k.hint ? (
                     <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{k.hint}</p>
                   ) : null}
-                </ZoruCard>
+                </Card>
               ))}
             </div>
           ) : null}
 
           {children ?? (
-            <ZoruCard className="p-0">
+            <Card className="p-0">
               <div className="overflow-x-auto rounded-[var(--zoru-radius)]">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow>
                       <ZoruTableHead className="w-10">
-                        <ZoruCheckbox
+                        <Checkbox
                           aria-label="Select all"
                           checked={
                             filtered.length > 0 &&
@@ -384,7 +384,7 @@ export function HrListShell<T>({
                       return (
                         <ZoruTableRow key={id}>
                           <ZoruTableCell>
-                            <ZoruCheckbox
+                            <Checkbox
                               aria-label="Select row"
                               checked={selected.has(id)}
                               onCheckedChange={() => toggleOne(id)}
@@ -419,28 +419,28 @@ export function HrListShell<T>({
                           })}
                           <ZoruTableCell className="text-right">
                             <div className="flex justify-end gap-1">
-                              <ZoruButton variant="ghost" size="sm" asChild>
+                              <Button variant="ghost" size="sm" asChild>
                                 <Link href={href} aria-label="View / Edit">
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Link>
-                              </ZoruButton>
-                              <ZoruButton
+                              </Button>
+                              <Button
                                 variant="ghost"
                                 size="sm"
                                 aria-label="Delete"
                                 onClick={() => setDeletingId(id)}
                               >
                                 <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                              </ZoruButton>
+                              </Button>
                             </div>
                           </ZoruTableCell>
                         </ZoruTableRow>
                       );
                     })}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
-            </ZoruCard>
+            </Card>
           )}
         </div>
       </EntityListShell>
@@ -509,5 +509,5 @@ export function HrProgressCell({ value }: { value: unknown }) {
 
 /** Small badge used for type/category chips. */
 export function HrChip({ children }: { children: React.ReactNode }) {
-  return <ZoruBadge variant="secondary">{children}</ZoruBadge>;
+  return <Badge variant="secondary">{children}</Badge>;
 }

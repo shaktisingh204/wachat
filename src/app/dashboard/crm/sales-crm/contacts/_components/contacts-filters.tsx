@@ -67,12 +67,12 @@ export interface ContactsFiltersRowProps {
 
 export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="contactStatus"
                         value={props.statusFilter}
@@ -82,9 +82,9 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Lifecycle
-                    </ZoruLabel>
+                    </Label>
                     <EnumFilterField
                         enumName="lifecycleStage"
                         value={props.lifecycleFilter}
@@ -94,9 +94,9 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Source
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="leadSource"
                         name="sourceFilter"
@@ -107,9 +107,9 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Owner
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="user"
                         name="ownerFilter"
@@ -120,9 +120,9 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Account
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="client"
                         name="accountFilter"
@@ -133,9 +133,9 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Tag
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="tag"
                         name="tagFilter"
@@ -147,13 +147,13 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-6">
-                        <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                        <Button variant="ghost" size="sm" onClick={props.onClear}>
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -177,24 +177,24 @@ export function ContactsBulkBar({
 }: ContactsBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruBadge variant="info">{count} selected</ZoruBadge>
+            <Badge variant="info">{count} selected</Badge>
             <EnumFormField
                 enumName="contactStatus"
                 onChange={(v) => v && onStatusChange(v)}
                 placeholder="Set status…"
             />
-            <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+            <Button size="sm" variant="outline" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> Archive
-            </ZoruButton>
-            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+            </Button>
+            <Button size="sm" variant="outline" onClick={onExport}>
                 Export CSV
-            </ZoruButton>
-            <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+            </Button>
+            <Button size="sm" variant="destructive" onClick={onDelete}>
                 Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
             {/* TODO 1D.1: bulk assign-to-user picker + tag-add deferred — both depend on a dialog wrapper we haven't shipped here. */}
         </div>
     );

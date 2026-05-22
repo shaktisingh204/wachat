@@ -73,9 +73,9 @@ function RemoveAgentButton({ agentId, onAgentRemoved }: { agentId: string, onAge
     return (
          <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="destructive" size="sm" disabled={isPending}>
+                <Button variant="destructive" size="sm" disabled={isPending}>
                     {isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4" />}
-                </ZoruButton>
+                </Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -117,7 +117,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
     }, [state, toast, onAgentInvited]);
 
     return (
-        <ZoruCard className="border-dashed p-6">
+        <Card className="border-dashed p-6">
             <div className="mb-4">
                 <h2 className="text-[16px] font-semibold text-zoru-ink">Invite a New Team Member</h2>
                 <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -126,25 +126,25 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
             </div>
             <form action={handleFormSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-4">
                 <div className="space-y-2 flex-grow">
-                    <ZoruLabel htmlFor="email" className="sr-only">Email</ZoruLabel>
-                    <ZoruInput id="email" name="email" type="email" placeholder="Enter agent's email" required className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                    <Label htmlFor="email" className="sr-only">Email</Label>
+                    <Input id="email" name="email" type="email" placeholder="Enter agent's email" required className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="role" className="sr-only">Role</ZoruLabel>
-                    <ZoruSelect name="role" defaultValue="agent">
+                    <Label htmlFor="role" className="sr-only">Role</Label>
+                    <Select name="role" defaultValue="agent">
                         <ZoruSelectTrigger id="role" className="w-full sm:w-[180px]"><ZoruSelectValue placeholder="Select role" /></ZoruSelectTrigger>
                         <ZoruSelectContent>
                             <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
                             <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
-                <ZoruButton type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending}>
                     {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" strokeWidth={1.75} />}
                     Invite Agent
-                </ZoruButton>
+                </Button>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -170,9 +170,9 @@ export default function TeamChatPage() {
         >
 
             <InviteAgentForm onAgentInvited={fetchData} />
-            <ZoruSeparator />
+            <Separator />
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-zoru-ink">Team Members</h2>
                     <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">A list of all users in your team.</p>
@@ -180,17 +180,17 @@ export default function TeamChatPage() {
                 <div className="space-y-4">
                     {isLoading ? (
                         <div className="space-y-3">
-                            <ZoruSkeleton className="h-16 w-full" />
-                            <ZoruSkeleton className="h-16 w-full" />
+                            <Skeleton className="h-16 w-full" />
+                            <Skeleton className="h-16 w-full" />
                         </div>
                     ) : teamMembers.length > 0 ? (
                         teamMembers.map((agent: any) => (
                             <div key={agent._id.toString()} className="flex items-center justify-between gap-4 rounded-lg border border-zoru-line p-4">
                                 <div className="flex items-center gap-4">
-                                    <ZoruAvatar>
+                                    <Avatar>
                                         <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${agent.email}`} alt={agent.name} />
                                         <ZoruAvatarFallback className="bg-accent text-accent-foreground">{agent.name.substring(0, 2).toUpperCase()}</ZoruAvatarFallback>
-                                    </ZoruAvatar>
+                                    </Avatar>
                                     <div className="space-y-0.5">
                                         <p className="text-[13px] font-medium leading-none text-zoru-ink">{agent.name}</p>
                                         <p className="text-[12.5px] text-zoru-ink-muted">{agent.email}</p>
@@ -211,7 +211,7 @@ export default function TeamChatPage() {
                         <p className="text-[13px] text-zoru-ink-muted text-center py-8">No team members have been invited yet.</p>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     )
 }

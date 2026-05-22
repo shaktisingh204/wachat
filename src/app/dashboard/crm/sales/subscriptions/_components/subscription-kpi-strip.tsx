@@ -60,7 +60,7 @@ export function SubscriptionKpiStrip({
         onClick={() => onSelect(active === 'active' ? null : 'active')}
         ariaLabel="Show active subscriptions"
       >
-        <ZoruStatCard
+        <StatCard
           label="Active"
           value={kpi.activeCount.toLocaleString()}
           period="currently billing"
@@ -72,7 +72,7 @@ export function SubscriptionKpiStrip({
         onClick={() => onSelect(active === 'trial' ? null : 'trial')}
         ariaLabel="Show trial subscriptions"
       >
-        <ZoruStatCard
+        <StatCard
           label="Trial"
           value={kpi.trialCount.toLocaleString()}
           period="in trial window"
@@ -84,7 +84,7 @@ export function SubscriptionKpiStrip({
         onClick={() => onSelect(active === 'past_due' ? null : 'past_due')}
         ariaLabel="Show past-due subscriptions"
       >
-        <ZoruStatCard
+        <StatCard
           label="Past due"
           value={kpi.pastDueCount.toLocaleString()}
           period="payment failed"
@@ -97,14 +97,14 @@ export function SubscriptionKpiStrip({
         onClick={() => onSelect(active === 'churned' ? null : 'churned')}
         ariaLabel="Show churned subscriptions"
       >
-        <ZoruStatCard
+        <StatCard
           label="Churned"
           value={kpi.churnedCount.toLocaleString()}
           period="cancelled or expired"
           icon={<PauseCircle />}
         />
       </KpiButton>
-      <ZoruStatCard
+      <StatCard
         label="MRR"
         value={fmtMoney(kpi.mrr, kpi.currency)}
         period="active + trial"

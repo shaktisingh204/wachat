@@ -66,10 +66,10 @@ const NO_BANK_FORMAT = '__none__';
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create payroll run'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -116,7 +116,7 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
       {editing ? (
         <input type="hidden" name="_id" value={String(initial!._id)} />
       ) : null}
-      {/* Hidden field mirrors the controlled <ZoruSelect> so the form
+      {/* Hidden field mirrors the controlled <Select> so the form
           submission carries the chosen bank file format. */}
       <input
         type="hidden"
@@ -124,16 +124,16 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
         value={bankFileFormat}
       />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Period
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="periodFrom">
+            <Label htmlFor="periodFrom">
               Period start <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="periodFrom"
               name="periodFrom"
               type="date"
@@ -143,10 +143,10 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="periodTo">
+            <Label htmlFor="periodTo">
               Period end <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="periodTo"
               name="periodTo"
               type="date"
@@ -156,8 +156,8 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="payDate">Pay date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="payDate">Pay date</Label>
+            <Input
               id="payDate"
               name="payDate"
               type="date"
@@ -166,8 +166,8 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="lockDate">Lock date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lockDate">Lock date</Label>
+            <Input
               id="lockDate"
               name="lockDate"
               type="date"
@@ -176,17 +176,17 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Bank disbursal
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="bankFileFormatSelect">Bank file format</ZoruLabel>
+            <Label htmlFor="bankFileFormatSelect">Bank file format</Label>
             <div className="mt-1.5">
-              <ZoruSelect
+              <Select
                 value={bankFileFormat || NO_BANK_FORMAT}
                 onValueChange={(v) =>
                   setBankFileFormat(v === NO_BANK_FORMAT ? '' : v)
@@ -203,7 +203,7 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <p className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
               Format used when generating the disbursal file. Optional —
@@ -211,10 +211,10 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
             </p>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -224,7 +224,7 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

@@ -268,17 +268,17 @@ export function CoaListClient(): React.JSX.Element {
                     subtitle="Manage your company's financial accounts."
                     primaryAction={
                         <>
-                            <ZoruButton asChild variant="outline">
+                            <Button asChild variant="outline">
                                 <Link href="/dashboard/crm/accounting/groups">Account groups</Link>
-                            </ZoruButton>
-                            <ZoruButton onClick={handleExport} variant="outline">
+                            </Button>
+                            <Button onClick={handleExport} variant="outline">
                                 Export CSV
-                            </ZoruButton>
-                            <ZoruButton asChild>
+                            </Button>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/accounting/charts/new">
                                     <Plus className="mr-1.5 h-3.5 w-3.5" /> New Account
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </>
                     }
                     search={{ value: search, onChange: setSearch, placeholder: 'Search accounts…' }}

@@ -35,14 +35,14 @@ export default function AutocompleteSuggestionsPage() {
   return (
     <ToolShell title="Autocomplete Suggestions" description="Google autocomplete for your seed keyword.">
       <div className="flex gap-2">
-        <ZoruInput value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo tools" onKeyDown={(e) => e.key === 'Enter' && run()} />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Suggest'}</ZoruButton>
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo tools" onKeyDown={(e) => e.key === 'Enter' && run()} />
+        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Suggest'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {results.length > 0 && (
-        <ZoruCard><ZoruCardContent className="p-4 space-y-1">
+        <Card><ZoruCardContent className="p-4 space-y-1">
           {results.map((s, i) => <div key={i} className="text-sm border-b last:border-0 py-1">{s}</div>)}
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

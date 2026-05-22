@@ -127,7 +127,7 @@ export function ProjectPublicSharePanel({ projectId }: Props): React.ReactElemen
     : '';
 
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <header className="mb-4 flex items-center gap-2">
         <Share2 className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
         <div>
@@ -170,7 +170,7 @@ export function ProjectPublicSharePanel({ projectId }: Props): React.ReactElemen
           />
         </div>
       )}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -207,7 +207,7 @@ function ShareRow({
             Always on
           </span>
         ) : (
-          <ZoruSwitch
+          <Switch
             checked={enabled}
             disabled={disabled}
             onCheckedChange={(v) => onToggle?.(Boolean(v))}
@@ -245,7 +245,7 @@ function CopyLink({ url }: { url: string }): React.ReactElement {
       <code className="min-w-0 flex-1 truncate text-[12px] text-zoru-ink">
         {url}
       </code>
-      <ZoruButton
+      <Button
         type="button"
         size="sm"
         variant="ghost"
@@ -257,7 +257,7 @@ function CopyLink({ url }: { url: string }): React.ReactElement {
         ) : (
           <Copy className="h-3.5 w-3.5" />
         )}
-      </ZoruButton>
+      </Button>
       <a
         href={url}
         target="_blank"

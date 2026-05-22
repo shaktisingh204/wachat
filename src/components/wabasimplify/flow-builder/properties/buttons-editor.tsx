@@ -36,25 +36,25 @@ export function ButtonsEditor({ node, onUpdate }: EditorProps) {
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="buttons-text">Message Text</ZoruLabel>
-                <ZoruTextarea id="buttons-text" placeholder="Choose an option:" value={node.data.text || ''} onChange={(e) => onUpdate({ text: e.target.value })} />
+                <Label htmlFor="buttons-text">Message Text</Label>
+                <Textarea id="buttons-text" placeholder="Choose an option:" value={node.data.text || ''} onChange={(e) => onUpdate({ text: e.target.value })} />
             </div>
             <div className="space-y-2">
-                <ZoruLabel>Buttons</ZoruLabel>
+                <Label>Buttons</Label>
                 <div className="space-y-3">
                     {(node.data.buttons || []).map((btn: any, index: number) => (
                         <div key={btn.id || index} className="flex items-center gap-2">
-                            <ZoruInput 
+                            <Input 
                                 placeholder="Button Text" 
                                 value={btn.text} 
                                 onChange={(e) => handleButtonChange(index, 'text', e.target.value)} 
                                 maxLength={20}
                             />
-                            <ZoruButton type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeFlowButton(index)}><Trash2 className="h-3 w-3"/></ZoruButton>
+                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeFlowButton(index)}><Trash2 className="h-3 w-3"/></Button>
                         </div>
                     ))}
                 </div>
-                <ZoruButton type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addFlowButton}><Plus className="mr-2 h-4 w-4"/>Add Button</ZoruButton>
+                <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addFlowButton}><Plus className="mr-2 h-4 w-4"/>Add Button</Button>
             </div>
         </div>
     );

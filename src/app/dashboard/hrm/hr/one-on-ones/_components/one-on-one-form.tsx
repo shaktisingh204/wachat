@@ -94,14 +94,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Schedule one-on-one'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -174,7 +174,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
         );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -195,8 +195,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                 {/* Row 1: Manager + Report */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="managerId">Manager (user id) *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="managerId">Manager (user id) *</Label>
+                        <Input
                             id="managerId"
                             name="managerId"
                             required
@@ -205,8 +205,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="managerName">Manager name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="managerName">Manager name</Label>
+                        <Input
                             id="managerName"
                             name="managerName"
                             placeholder="Display name"
@@ -216,8 +216,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="reportId">Report (user id) *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="reportId">Report (user id) *</Label>
+                        <Input
                             id="reportId"
                             name="reportId"
                             required
@@ -226,8 +226,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="reportName">Report name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="reportName">Report name</Label>
+                        <Input
                             id="reportName"
                             name="reportName"
                             placeholder="Display name"
@@ -239,8 +239,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                 {/* Row 2: Scheduled / Duration / Location */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="scheduledAt">Scheduled at *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="scheduledAt">Scheduled at *</Label>
+                        <Input
                             id="scheduledAt"
                             name="scheduledAt"
                             type="datetime-local"
@@ -249,8 +249,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="durationMinutes">Duration (min)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="durationMinutes">Duration (min)</Label>
+                        <Input
                             id="durationMinutes"
                             name="durationMinutes"
                             type="number"
@@ -265,8 +265,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="location">Location</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="location">Location</Label>
+                        <Input
                             id="location"
                             name="location"
                             placeholder="Room / link"
@@ -278,8 +278,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                 {/* Row 3: Status / Mood / Engagement / Next */}
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmOneOnOneStatus)}
                         >
@@ -293,11 +293,11 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="mood-trigger">Mood</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="mood-trigger">Mood</Label>
+                        <Select
                             value={mood || ''}
                             onValueChange={(v) => setMood((v as CrmOneOnOneMood) || '')}
                         >
@@ -311,11 +311,11 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="engagementScore">Engagement score</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="engagementScore">Engagement score</Label>
+                        <Input
                             id="engagementScore"
                             name="engagementScore"
                             type="number"
@@ -331,8 +331,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="nextMeetingAt">Next meeting</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="nextMeetingAt">Next meeting</Label>
+                        <Input
                             id="nextMeetingAt"
                             name="nextMeetingAt"
                             type="datetime-local"
@@ -343,8 +343,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
 
                 {/* Discussion notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="discussionNotes">Discussion notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="discussionNotes">Discussion notes</Label>
+                    <Textarea
                         id="discussionNotes"
                         name="discussionNotes"
                         rows={5}
@@ -355,21 +355,21 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
 
                 {/* Private toggle */}
                 <div className="flex items-center gap-2">
-                    <ZoruCheckbox
+                    <Checkbox
                         id="isPrivate"
                         name="isPrivate"
                         defaultChecked={!!initialData?.isPrivate}
                     />
-                    <ZoruLabel htmlFor="isPrivate" className="cursor-pointer">
+                    <Label htmlFor="isPrivate" className="cursor-pointer">
                         Mark as private (visible only to manager and report)
-                    </ZoruLabel>
+                    </Label>
                 </div>
 
                 {/* Agenda */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Agenda</ZoruLabel>
-                        <ZoruButton
+                        <Label>Agenda</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -377,7 +377,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add topic
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {agenda.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -392,8 +392,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                 >
                                     <div className="flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">
-                                            <ZoruLabel>Topic *</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Topic *</Label>
+                                            <Input
                                                 value={ag.topic}
                                                 onChange={(e) =>
                                                     updateAgenda(ag.id, 'topic', e.target.value)
@@ -401,7 +401,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                                 placeholder="What to discuss"
                                             />
                                         </div>
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
@@ -409,12 +409,12 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             aria-label="Remove topic"
                                         >
                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                     <div className="mt-3 grid gap-3 sm:grid-cols-3">
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Owner</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Owner</Label>
+                                            <Input
                                                 value={ag.owner ?? ''}
                                                 onChange={(e) =>
                                                     updateAgenda(ag.id, 'owner', e.target.value)
@@ -423,8 +423,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Time (min)</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Time (min)</Label>
+                                            <Input
                                                 type="number"
                                                 min={0}
                                                 value={
@@ -445,7 +445,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             />
                                         </div>
                                         <div className="flex items-center gap-2 self-end pb-1.5">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={!!ag.discussed}
                                                 onCheckedChange={(v) =>
                                                     updateAgenda(ag.id, 'discussed', !!v)
@@ -465,8 +465,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                 {/* Action items */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Action items</ZoruLabel>
-                        <ZoruButton
+                        <Label>Action items</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -474,7 +474,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add action
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {actionItems.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -489,8 +489,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                 >
                                     <div className="flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">
-                                            <ZoruLabel>Description *</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Description *</Label>
+                                            <Input
                                                 value={ai.description}
                                                 onChange={(e) =>
                                                     updateAction(ai.id, 'description', e.target.value)
@@ -498,7 +498,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                                 placeholder="What needs to happen"
                                             />
                                         </div>
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
@@ -506,12 +506,12 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             aria-label="Remove action item"
                                         >
                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                     <div className="mt-3 grid gap-3 sm:grid-cols-3">
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Assignee id</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Assignee id</Label>
+                                            <Input
                                                 value={ai.assigneeId ?? ''}
                                                 onChange={(e) =>
                                                     updateAction(ai.id, 'assigneeId', e.target.value)
@@ -520,8 +520,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Due date</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Due date</Label>
+                                            <Input
                                                 type="date"
                                                 value={
                                                     ai.dueDate
@@ -540,8 +540,8 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Status</ZoruLabel>
-                                            <ZoruSelect
+                                            <Label>Status</Label>
+                                            <Select
                                                 value={ai.status}
                                                 onValueChange={(v) =>
                                                     updateAction(ai.id, 'status', v)
@@ -560,7 +560,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                                         </ZoruSelectItem>
                                                     ))}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </div>
                                     </div>
                                 </div>
@@ -571,15 +571,15 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to one-on-ones
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

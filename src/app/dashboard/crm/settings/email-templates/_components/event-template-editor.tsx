@@ -190,7 +190,7 @@ export function EventTemplateEditor({
     };
 
     return (
-        <ZoruCard className="flex h-full flex-col">
+        <Card className="flex h-full flex-col">
             <ZoruCardHeader className="border-b border-zoru-line">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -199,9 +199,9 @@ export function EventTemplateEditor({
                                 {template.label}
                             </ZoruCardTitle>
                             {template.isCustomized ? (
-                                <ZoruBadge variant="secondary">Customized</ZoruBadge>
+                                <Badge variant="secondary">Customized</Badge>
                             ) : (
-                                <ZoruBadge variant="outline">Using default</ZoruBadge>
+                                <Badge variant="outline">Using default</Badge>
                             )}
                         </div>
                         <p className="mt-1 text-sm text-zoru-ink-muted">
@@ -254,10 +254,10 @@ export function EventTemplateEditor({
                         {viewMode === 'edit' ? (
                             <>
                                 <div className="flex flex-col gap-1.5">
-                                    <ZoruLabel htmlFor="email-template-subject">
+                                    <Label htmlFor="email-template-subject">
                                         Subject
-                                    </ZoruLabel>
-                                    <ZoruInput
+                                    </Label>
+                                    <Input
                                         id="email-template-subject"
                                         ref={subjectRef}
                                         value={subject}
@@ -269,10 +269,10 @@ export function EventTemplateEditor({
                                     />
                                 </div>
                                 <div className="flex min-h-0 flex-1 flex-col gap-1.5">
-                                    <ZoruLabel htmlFor="email-template-body">
+                                    <Label htmlFor="email-template-body">
                                         HTML body
-                                    </ZoruLabel>
-                                    <ZoruTextarea
+                                    </Label>
+                                    <Textarea
                                         id="email-template-body"
                                         ref={bodyRef}
                                         value={body}
@@ -338,7 +338,7 @@ export function EventTemplateEditor({
                                 <ul className="flex flex-col gap-1">
                                     {template.variables.map((v) => (
                                         <li key={v.key}>
-                                            <ZoruTooltip>
+                                            <Tooltip>
                                                 <ZoruTooltipTrigger asChild>
                                                     <button
                                                         type="button"
@@ -359,7 +359,7 @@ export function EventTemplateEditor({
                                                         e.g. {v.example}
                                                     </p>
                                                 </ZoruTooltipContent>
-                                            </ZoruTooltip>
+                                            </Tooltip>
                                         </li>
                                     ))}
                                 </ul>
@@ -374,7 +374,7 @@ export function EventTemplateEditor({
                 {/* Footer actions */}
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line pt-3">
                     <div className="flex items-center gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             onClick={handleRestore}
                             disabled={
@@ -387,8 +387,8 @@ export function EventTemplateEditor({
                                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
                             )}
                             Restore default
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             onClick={handleTestSend}
                             disabled={testPending || savePending}
@@ -399,7 +399,7 @@ export function EventTemplateEditor({
                                 <Send className="mr-1.5 h-3.5 w-3.5" />
                             )}
                             Send test to me
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="flex items-center gap-2">
                         {isDirty ? (
@@ -411,7 +411,7 @@ export function EventTemplateEditor({
                                 Last saved {new Date(template.updatedAt).toLocaleString()}
                             </span>
                         ) : null}
-                        <ZoruButton
+                        <Button
                             onClick={handleSave}
                             disabled={!isDirty || savePending}
                         >
@@ -421,10 +421,10 @@ export function EventTemplateEditor({
                                 <Save className="mr-1.5 h-3.5 w-3.5" />
                             )}
                             Save changes
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

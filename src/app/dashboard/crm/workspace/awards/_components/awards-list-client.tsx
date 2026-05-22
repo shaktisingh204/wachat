@@ -289,16 +289,16 @@ export function AwardsListClient({
                 }}
                 primaryAction={
                     <div className="flex gap-2">
-                        <ZoruButton asChild variant="outline">
+                        <Button asChild variant="outline">
                             <Link href="/dashboard/crm/workspace/awards/appreciations">
                                 <Heart className="h-4 w-4" /> Appreciations
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link href="/dashboard/crm/workspace/awards/new">
                                 <Plus className="h-4 w-4" /> New award
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 viewSwitcher={
@@ -324,7 +324,7 @@ export function AwardsListClient({
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
                         {tab === 'programs' ? (
-                            <ZoruSelect
+                            <Select
                                 value={frequency}
                                 onValueChange={(v) => setFrequency(v as FrequencyFilter)}
                             >
@@ -338,10 +338,10 @@ export function AwardsListClient({
                                     <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
                                     <ZoruSelectItem value="annual">Annual</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         ) : (
                             <>
-                                <ZoruSelect
+                                <Select
                                     value={awardFilter}
                                     onValueChange={(v) => setAwardFilter(v)}
                                 >
@@ -356,15 +356,15 @@ export function AwardsListClient({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
-                                <ZoruInput
+                                </Select>
+                                <Input
                                     type="date"
                                     value={fromIso}
                                     onChange={(e) => setFromIso(e.target.value)}
                                     className="h-9 w-[150px]"
                                     aria-label="Given from"
                                 />
-                                <ZoruInput
+                                <Input
                                     type="date"
                                     value={toIso}
                                     onChange={(e) => setToIso(e.target.value)}
@@ -374,13 +374,13 @@ export function AwardsListClient({
                             </>
                         )}
                         {hasActiveFilters ? (
-                            <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                            <Button variant="ghost" size="sm" onClick={clearFilters}>
                                 <X className="h-3.5 w-3.5" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
-                        <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                        <Button variant="ghost" size="sm" onClick={exportCsv}>
                             Export CSV
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 bulkBar={
@@ -390,23 +390,23 @@ export function AwardsListClient({
                                 {selectedSet.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
-                                <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                                <Button variant="ghost" size="sm" onClick={exportCsv}>
                                     Export CSV
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setBulkDeleteMode(tab)}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setSelected(new Set())}
                                 >
                                     Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -425,11 +425,11 @@ export function AwardsListClient({
                                     ? 'Define a recognition program and grant appreciations against it.'
                                     : 'Give your first appreciation from the Appreciations page.'}
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/workspace/awards/new">
                                     <Plus className="h-4 w-4" /> Create award
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -438,22 +438,22 @@ export function AwardsListClient({
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Active programs"
                             value={kpis.totalPrograms}
                             icon={<AwardIcon className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Nominations this month"
                             value={kpis.thisMonth}
                             icon={<Heart className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Unique recipients"
                             value={kpis.uniqueRecipients}
                             icon={<Trophy className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Award types"
                             value={kpis.awardTypes}
                             icon={<Users className="h-4 w-4" />}
@@ -467,7 +467,7 @@ export function AwardsListClient({
                                 <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                                     <tr>
                                         <th className="px-3 py-2">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(v) => toggleAll(!!v)}
@@ -504,7 +504,7 @@ export function AwardsListClient({
                                         return (
                                             <tr key={a._id} className="hover:bg-zoru-surface">
                                                 <td className="px-3 py-2">
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         aria-label={`Select ${a.title}`}
                                                         checked={checked}
                                                         onCheckedChange={() => toggleOne(a._id)}
@@ -521,12 +521,12 @@ export function AwardsListClient({
                                                     {a.icon || ''}
                                                 </td>
                                                 <td className="px-3 py-2">
-                                                    <ZoruBadge
+                                                    <Badge
                                                         variant="warning"
                                                         className="capitalize"
                                                     >
                                                         {a.frequency}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </td>
                                                 <td className="px-3 py-2 text-zoru-ink-muted">
                                                     {nominations}
@@ -535,7 +535,7 @@ export function AwardsListClient({
                                                     <StatusPill label="Active" tone="green" />
                                                 </td>
                                                 <td className="px-3 py-2 text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => {
@@ -545,7 +545,7 @@ export function AwardsListClient({
                                                         aria-label={`Delete ${a.title}`}
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         );
@@ -560,7 +560,7 @@ export function AwardsListClient({
                                 <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                                     <tr>
                                         <th className="px-3 py-2">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(v) => toggleAll(!!v)}
@@ -603,7 +603,7 @@ export function AwardsListClient({
                                         return (
                                             <tr key={a._id} className="hover:bg-zoru-surface">
                                                 <td className="px-3 py-2">
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         aria-label={`Select appreciation ${a._id}`}
                                                         checked={checked}
                                                         onCheckedChange={() => toggleOne(a._id)}
@@ -629,7 +629,7 @@ export function AwardsListClient({
                                                         : '—'}
                                                 </td>
                                                 <td className="px-3 py-2 text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => {
@@ -639,7 +639,7 @@ export function AwardsListClient({
                                                         aria-label="Delete appreciation"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         );

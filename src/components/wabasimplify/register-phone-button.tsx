@@ -28,9 +28,9 @@ export function RegisterPhoneButton({ projectId, phoneNumberId }: RegisterPhoneB
     };
 
     return (
-        <ZoruButton onClick={handleRegister} disabled={isPending} variant="outline" size="sm">
+        <Button onClick={handleRegister} disabled={isPending} variant="outline" size="sm">
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <CheckSquare className="mr-2 h-4 w-4" />}
             Register
-        </ZoruButton>
+        </Button>
     );
 }

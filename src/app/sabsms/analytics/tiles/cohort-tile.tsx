@@ -40,7 +40,7 @@ export function CohortTile({
   }
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>Cohort retention</ZoruCardTitle>
@@ -97,6 +97,6 @@ export function CohortTile({
           </div>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

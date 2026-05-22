@@ -155,12 +155,12 @@ export default function ContractTemplatesListPage() {
                     title="Contract templates"
                     subtitle="Reusable contract bodies with default term, auto-renew and variables."
                     primaryAction={
-                        <ZoruButton asChild>
+                        <Button asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New
                                 template
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -170,7 +170,7 @@ export default function ContractTemplatesListPage() {
                     filters={
                         <>
                             {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                            <ZoruSelect
+                            <Select
                                 value={statusFilter}
                                 onValueChange={(v) =>
                                     setStatusFilter(
@@ -191,9 +191,9 @@ export default function ContractTemplatesListPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                            <ZoruSelect
+                            <Select
                                 value={typeFilter}
                                 onValueChange={(v) =>
                                     setTypeFilter(
@@ -214,13 +214,13 @@ export default function ContractTemplatesListPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </>
                     }
                     loading={isLoading && items.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">
@@ -307,13 +307,13 @@ export default function ContractTemplatesListPage() {
                                                             {vars
                                                                 .slice(0, 3)
                                                                 .map((v) => (
-                                                                    <ZoruBadge
+                                                                    <Badge
                                                                         key={v}
                                                                         variant="ghost"
                                                                         className="font-mono text-[11px]"
                                                                     >
                                                                         {v}
-                                                                    </ZoruBadge>
+                                                                    </Badge>
                                                                 ))}
                                                             {vars.length > 3 ? (
                                                                 <span className="text-[11px] text-zoru-ink-muted">
@@ -332,7 +332,7 @@ export default function ContractTemplatesListPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         asChild
@@ -342,8 +342,8 @@ export default function ContractTemplatesListPage() {
                                                         >
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() =>
@@ -351,14 +351,14 @@ export default function ContractTemplatesListPage() {
                                                         }
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 </EntityListShell>
 

@@ -91,11 +91,11 @@ export function ReportsInboxTable({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="border-zoru-line hover:bg-transparent">
             <ZoruTableHead className="w-10 pl-4">
-              <ZoruCheckbox
+              <Checkbox
                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                 onCheckedChange={onToggleAll}
                 aria-label="Select all"
@@ -117,7 +117,7 @@ export function ReportsInboxTable({
             return (
               <ZoruTableRow key={report._id} className="border-zoru-line">
                 <ZoruTableCell className="pl-4">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={selectedIds.has(report._id)}
                     onCheckedChange={() => onToggleSelect(report._id)}
                     aria-label={`Select ${report.taskTitle}`}
@@ -153,14 +153,14 @@ export function ReportsInboxTable({
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {isAcked ? (
-                    <ZoruBadge variant="success">Acknowledged</ZoruBadge>
+                    <Badge variant="success">Acknowledged</Badge>
                   ) : (
-                    <ZoruBadge variant="warning">Unacknowledged</ZoruBadge>
+                    <Badge variant="warning">Unacknowledged</Badge>
                   )}
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right pr-4">
                   {!isAcked && (
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="outline"
                       disabled={isPending}
@@ -173,14 +173,14 @@ export function ReportsInboxTable({
                         <CheckCheck className="h-3.5 w-3.5" />
                       )}
                       Acknowledge
-                    </ZoruButton>
+                    </Button>
                   )}
                 </ZoruTableCell>
               </ZoruTableRow>
             );
           })}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }

@@ -157,11 +157,11 @@ export default function NewProposalPage() {
       subtitle="Compose a sales proposal with line items, terms, and totals."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="md:col-span-2">
-            <ZoruLabel className="text-zoru-ink">Title</ZoruLabel>
-            <ZoruInput
+            <Label className="text-zoru-ink">Title</Label>
+            <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Website redesign – Phase 1"
@@ -169,7 +169,7 @@ export default function NewProposalPage() {
             />
           </div>
           <div>
-            <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
+            <Label className="text-zoru-ink">Currency</Label>
             <div className="mt-1.5">
               <EntityPicker
                 entity="currency"
@@ -183,7 +183,7 @@ export default function NewProposalPage() {
           </div>
 
           <div>
-            <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
+            <Label className="text-zoru-ink">Client</Label>
             <div className="mt-1.5">
               <EntityPicker
                 entity="client"
@@ -197,8 +197,8 @@ export default function NewProposalPage() {
             </div>
           </div>
           <div>
-            <ZoruLabel className="text-zoru-ink">Issue Date</ZoruLabel>
-            <ZoruInput
+            <Label className="text-zoru-ink">Issue Date</Label>
+            <Input
               type="date"
               value={issueDate}
               onChange={(e) => setIssueDate(e.target.value)}
@@ -206,8 +206,8 @@ export default function NewProposalPage() {
             />
           </div>
           <div>
-            <ZoruLabel className="text-zoru-ink">Valid Until</ZoruLabel>
-            <ZoruInput
+            <Label className="text-zoru-ink">Valid Until</Label>
+            <Input
               type="date"
               value={validUntil}
               onChange={(e) => setValidUntil(e.target.value)}
@@ -225,7 +225,7 @@ export default function NewProposalPage() {
             <span className="text-[12.5px] text-zoru-ink">
               Start from a template
             </span>
-            <ZoruSelect value={selectedTemplate} onValueChange={setSelectedTemplate}>
+            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
               <ZoruSelectTrigger className="w-60">
                 <ZoruSelectValue placeholder="Select template" />
               </ZoruSelectTrigger>
@@ -242,9 +242,9 @@ export default function NewProposalPage() {
                   ))
                 )}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
-          <ZoruButton
+          <Button
             variant="outline"
             disabled={!selectedTemplate || isApplyingTemplate}
             onClick={applyTemplate}
@@ -253,25 +253,25 @@ export default function NewProposalPage() {
               <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : null}
             Use Template
-          </ZoruButton>
+          </Button>
         </div>
 
         <div className="mt-3 flex items-center gap-3">
-          <ZoruSwitch
+          <Switch
             id="signature_required"
             checked={signatureRequired}
             onCheckedChange={setSignatureRequired}
           />
-          <ZoruLabel
+          <Label
             htmlFor="signature_required"
             className="cursor-pointer text-[13px] text-zoru-ink"
           >
             Require e-signature on acceptance
-          </ZoruLabel>
+          </Label>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <ProposalComposer
           lines={lines}
           onLinesChange={setLines}
@@ -283,18 +283,18 @@ export default function NewProposalPage() {
           onTermsChange={setTerms}
           currency={currency}
         />
-      </ZoruCard>
+      </Card>
 
       <div className="flex flex-wrap justify-end gap-2">
-        <ZoruButton
+        <Button
           variant="outline"
           disabled={isSaving}
           onClick={() => handleSave('draft')}
         >
           {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
           Save as Draft
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           disabled={isSaving}
           onClick={() => handleSave('sent')}
         >
@@ -304,7 +304,7 @@ export default function NewProposalPage() {
             <Save className="h-4 w-4" />
           )}
           Save &amp; Send
-        </ZoruButton>
+        </Button>
       </div>
     </EntityListShell>
   );

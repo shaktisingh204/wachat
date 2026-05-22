@@ -87,7 +87,7 @@ export function TopClientsView({ rows, page, limit }: Props) {
         <StatCard label="Avg per client" value={fmtMoney(avg)} />
       </div>
 
-      <ZoruCard>
+      <Card>
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">
             Top 10 clients by revenue
@@ -113,11 +113,11 @@ export function TopClientsView({ rows, page, limit }: Props) {
             </ResponsiveContainer>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="w-10 text-muted-foreground">#</ZoruTableHead>
@@ -154,10 +154,10 @@ export function TopClientsView({ rows, page, limit }: Props) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
           <PaginationBar page={page} limit={limit} hasMore={hasMore} total={rows.length} />
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

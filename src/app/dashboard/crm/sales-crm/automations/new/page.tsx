@@ -68,12 +68,12 @@ export default function NewAutomationPage() {
       subtitle="Set up a trigger-based workflow to automate CRM actions."
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Automation Name */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="name">Automation Name *</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="name">Automation Name *</Label>
+            <Input
               id="name"
               name="name"
               placeholder="e.g. Welcome new leads"
@@ -83,7 +83,7 @@ export default function NewAutomationPage() {
 
           {/* Trigger */}
           <div className="space-y-1.5">
-            <ZoruLabel>Trigger Event</ZoruLabel>
+            <Label>Trigger Event</Label>
             <EnumFormField
               enumName="automationTrigger"
               name="trigger"
@@ -93,8 +93,8 @@ export default function NewAutomationPage() {
 
           {/* Description */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               placeholder="What does this automation do?"
@@ -103,17 +103,17 @@ export default function NewAutomationPage() {
           </div>
 
           <div className="flex justify-end">
-            <ZoruButton type="submit" disabled={pending}>
+            <Button type="submit" disabled={pending}>
               {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <Save className="mr-2 h-4 w-4" />
               )}
               Create automation
-            </ZoruButton>
+            </Button>
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

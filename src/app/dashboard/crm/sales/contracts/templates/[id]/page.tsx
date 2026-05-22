@@ -60,28 +60,28 @@ export default async function ContractTemplateDetailPage({
             title={template.name}
             back={{ href: BASE, label: 'Templates' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${id}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
                     <StatusPill label={pretty(status)} tone={tone} />
-                    <ZoruBadge variant="ghost" className="uppercase font-mono">
+                    <Badge variant="ghost" className="uppercase font-mono">
                         {template.type}
-                    </ZoruBadge>
+                    </Badge>
                     {template.isActive ? (
-                        <ZoruBadge variant="success">Available</ZoruBadge>
+                        <Badge variant="success">Available</Badge>
                     ) : (
-                        <ZoruBadge variant="ghost">Hidden</ZoruBadge>
+                        <Badge variant="ghost">Hidden</Badge>
                     )}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -102,28 +102,28 @@ export default async function ContractTemplateDetailPage({
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {variables.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Variables
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                         {variables.map((v) => (
-                            <ZoruBadge
+                            <Badge
                                 key={v}
                                 variant="ghost"
                                 className="font-mono text-[12px]"
                             >
                                 {`{{${v}}}`}
-                            </ZoruBadge>
+                            </Badge>
                         ))}
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Body (markdown)
                 </div>
@@ -136,7 +136,7 @@ export default async function ContractTemplateDetailPage({
                         No body content yet.
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

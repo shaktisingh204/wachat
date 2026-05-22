@@ -160,7 +160,7 @@ function BulkDeductionModal({
                     </label>
                     <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
                         Amount (INR)
-                        <ZoruInput
+                        <Input
                             type="number"
                             step="0.01"
                             min="0.01"
@@ -170,16 +170,16 @@ function BulkDeductionModal({
                     </label>
                     {error && <p className="text-[12px] text-destructive">{error}</p>}
                     <div className="flex gap-2">
-                        <ZoruButton type="submit" disabled={submitting} className="flex-1">
+                        <Button type="submit" disabled={submitting} className="flex-1">
                             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                             Save
-                        </ZoruButton>
-                        <ZoruButton type="button" variant="outline" onClick={onSkip} disabled={submitting}>
+                        </Button>
+                        <Button type="button" variant="outline" onClick={onSkip} disabled={submitting}>
                             Skip
-                        </ZoruButton>
-                        <ZoruButton type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
+                        </Button>
+                        <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
                             <X className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </form>
             </div>
@@ -313,54 +313,54 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
             {selectionCount > 0 && (
                 <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-[13px]">
                     <span className="font-medium">{selectionCount} selected</span>
-                    <ZoruButton size="sm" variant="outline" onClick={handleCsv}>
+                    <Button size="sm" variant="outline" onClick={handleCsv}>
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" onClick={handleXlsx}>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleXlsx}>
                         <Download className="h-3.5 w-3.5" />
                         Export XLSX
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         onClick={startBulkDeduction}
                         disabled={selectedRows.every((r) => r.tdsToDeduct <= r.tdsDeducted)}
                         title="Opens a deduction form for each selected vendor that has outstanding TDS"
                     >
                         Record deductions
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setSelected(new Set())}
                     >
                         <X className="h-3.5 w-3.5" />
                         Clear
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
             {/* Export all (no selection) */}
             {selectionCount === 0 && rows.length > 0 && (
                 <div className="flex items-center justify-end gap-2">
-                    <ZoruButton size="sm" variant="outline" onClick={handleCsv}>
+                    <Button size="sm" variant="outline" onClick={handleCsv}>
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" onClick={handleXlsx}>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleXlsx}>
                         <Download className="h-3.5 w-3.5" />
                         Export XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-border">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow className="border-border hover:bg-transparent">
                             <ZoruTableHead className="w-8">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                     onCheckedChange={toggleAll}
                                     aria-label="Select all vendors"
@@ -394,7 +394,7 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
                                         className={`border-border ${selected.has(row.vendorId) ? 'bg-muted/30' : ''}`}
                                     >
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(row.vendorId)}
                                                 onCheckedChange={() => toggleRow(row.vendorId)}
                                                 aria-label={`Select ${row.vendorName}`}
@@ -438,7 +438,7 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
 
             {!applicable && rows.length > 0 ? (

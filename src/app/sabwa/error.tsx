@@ -19,7 +19,7 @@ export default function SabwaError({
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-      <ZoruEmptyState
+      <EmptyState
         icon={<AlertTriangle />}
         title="Something went wrong"
         description={
@@ -29,13 +29,13 @@ export default function SabwaError({
         }
         action={
           <div className="flex items-center gap-2">
-            <ZoruButton size="md" onClick={() => reset()}>
+            <Button size="md" onClick={() => reset()}>
               Try again
-            </ZoruButton>
+            </Button>
             <Link href="/sabwa/overview">
-              <ZoruButton size="md" variant="outline">
+              <Button size="md" variant="outline">
                 Back to overview
-              </ZoruButton>
+              </Button>
             </Link>
           </div>
         }

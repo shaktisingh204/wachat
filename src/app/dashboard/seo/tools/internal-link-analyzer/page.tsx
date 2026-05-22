@@ -53,24 +53,24 @@ export default function InternalLinkAnalyzerPage() {
   return (
     <ToolShell title="Internal Link Analyzer" description="List all links that point to the same domain as the page.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={loading || !url}>
+        <Button onClick={run} disabled={loading || !url}>
           {loading ? 'Analyzing…' : 'Analyze'}
-        </ZoruButton>
+        </Button>
       </div>
 
       {error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {links && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="text-sm font-semibold">{links.length} internal links</div>
             <div className="space-y-2 max-h-[600px] overflow-auto">
@@ -82,7 +82,7 @@ export default function InternalLinkAnalyzerPage() {
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

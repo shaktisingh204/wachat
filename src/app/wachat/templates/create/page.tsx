@@ -197,9 +197,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <ZoruLabel className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+      <Label className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
         {label} {required && <span className="text-zoru-danger">*</span>}
-      </ZoruLabel>
+      </Label>
       {children}
       {hint && (
         <p className="text-[11px] text-zoru-ink-muted">{hint}</p>
@@ -359,22 +359,22 @@ function AIBodyGenerator({
       <div className="flex items-center gap-1.5 text-[11px] font-semibold text-zoru-ink">
         <Sparkles className="h-3 w-3" /> AI Body Generator
       </div>
-      <ZoruInput
+      <Input
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder="Describe your message (e.g., 'order confirmation with tracking')"
       />
       <div className="flex gap-2">
-        <ZoruButton size="sm" onClick={generate}>
+        <Button size="sm" onClick={generate}>
           Generate
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           variant="ghost"
           size="sm"
           onClick={() => setOpen(false)}
         >
           Cancel
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );
@@ -419,7 +419,7 @@ function VariableExamples({
             <span className="w-12 font-mono text-[11px] text-zoru-ink-muted">
               {`{{${v}}}`}
             </span>
-            <ZoruInput
+            <Input
               name={`${prefix}_example_${v}`}
               placeholder={
                 suggestions[v] || `Example for variable ${v}`
@@ -669,7 +669,7 @@ function CreateTemplateContent() {
   if (!activeProject) {
     return (
       <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -689,15 +689,15 @@ function CreateTemplateContent() {
               <ZoruBreadcrumbPage>Create</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
-        <ZoruEmptyState
+        </Breadcrumb>
+        <EmptyState
           icon={<CircleAlert />}
           title="Select a project first"
           description="Choose a project from the dashboard to create templates."
           action={
-            <ZoruButton size="sm" onClick={() => router.push('/wachat')}>
+            <Button size="sm" onClick={() => router.push('/wachat')}>
               Choose a project
-            </ZoruButton>
+            </Button>
           }
         />
       </div>
@@ -706,7 +706,7 @@ function CreateTemplateContent() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -728,10 +728,10 @@ function CreateTemplateContent() {
             </ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
-      <ZoruPageHeader bordered={false}>
+      <PageHeader bordered={false}>
         <ZoruPageHeading>
           <button
             type="button"
@@ -749,15 +749,15 @@ function CreateTemplateContent() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setShowPreview(!showPreview)}
           >
             <Eye /> {showPreview ? 'Hide preview' : 'Show preview'}
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Template Type Selector */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -811,14 +811,14 @@ function CreateTemplateContent() {
         {/* ── Editor Column ── */}
         <div className="space-y-5">
           {/* Details */}
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-4 pt-6">
               <h3 className="text-[13px] font-semibold text-zoru-ink">
                 Template details
               </h3>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Name" required>
-                  <ZoruInput
+                  <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g., order_confirmation"
@@ -827,7 +827,7 @@ function CreateTemplateContent() {
                 </Field>
                 {templateType !== 'AUTH' && (
                   <Field label="Category" required>
-                    <ZoruSelect value={category} onValueChange={setCategory}>
+                    <Select value={category} onValueChange={setCategory}>
                       <ZoruSelectTrigger>
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
@@ -838,11 +838,11 @@ function CreateTemplateContent() {
                           </ZoruSelectItem>
                         ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </Field>
                 )}
                 <Field label="Language" required>
-                  <ZoruSelect value={language} onValueChange={setLanguage}>
+                  <Select value={language} onValueChange={setLanguage}>
                     <ZoruSelectTrigger>
                       <ZoruSelectValue />
                     </ZoruSelectTrigger>
@@ -853,21 +853,21 @@ function CreateTemplateContent() {
                         </ZoruSelectItem>
                       ))}
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </Field>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* AUTH */}
           {templateType === 'AUTH' && (
-            <ZoruCard>
+            <Card>
               <ZoruCardContent className="space-y-4 pt-6">
                 <h3 className="text-[13px] font-semibold text-zoru-ink">
                   Authentication settings
                 </h3>
                 <Field label="OTP type">
-                  <ZoruSelect
+                  <Select
                     value={otpType}
                     onValueChange={(v) => setOtpType(v as any)}
                   >
@@ -885,10 +885,10 @@ function CreateTemplateContent() {
                         Zero-tap (auto-verify)
                       </ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </Field>
                 <Field label="Code expiry (minutes)">
-                  <ZoruInput
+                  <Input
                     value={codeExpiry}
                     onChange={(e) => setCodeExpiry(e.target.value)}
                     placeholder="10"
@@ -901,12 +901,12 @@ function CreateTemplateContent() {
                   <p className="font-mono">{`{{1}} is your verification code. This code expires in ${codeExpiry} minutes.`}</p>
                 </div>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           )}
 
           {/* LTO */}
           {templateType === 'LTO' && (
-            <ZoruCard>
+            <Card>
               <ZoruCardContent className="space-y-4 pt-6">
                 <h3 className="text-[13px] font-semibold text-zoru-ink">
                   Limited time offer
@@ -915,28 +915,28 @@ function CreateTemplateContent() {
                   label="Offer expiry"
                   hint="When the offer expires (shown as countdown)"
                 >
-                  <ZoruInput
+                  <Input
                     type="datetime-local"
                     value={ltoExpiry}
                     onChange={(e) => setLtoExpiry(e.target.value)}
                   />
                 </Field>
                 <Field label="Coupon code">
-                  <ZoruInput
+                  <Input
                     value={ltoCoupon}
                     onChange={(e) => setLtoCoupon(e.target.value)}
                     placeholder="SAVE20"
                   />
                 </Field>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           )}
 
           {/* Standard / LTO / Carousel content */}
           {(templateType === 'STANDARD' ||
             templateType === 'LTO' ||
             templateType === 'CAROUSEL') && (
-            <ZoruCard>
+            <Card>
               <ZoruCardContent className="space-y-4 pt-6">
                 <h3 className="text-[13px] font-semibold text-zoru-ink">
                   {templateType === 'CAROUSEL'
@@ -970,7 +970,7 @@ function CreateTemplateContent() {
 
                     {headerFormat === 'TEXT' && (
                       <div className="mt-2 space-y-2">
-                        <ZoruInput
+                        <Input
                           name="headerText"
                           value={headerText}
                           onChange={(e) => setHeaderText(e.target.value)}
@@ -1015,7 +1015,7 @@ function CreateTemplateContent() {
                   required
                   hint={`${charCount}/1024 chars · ${varCount} variable(s)`}
                 >
-                  <ZoruTextarea
+                  <Textarea
                     name="body"
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
@@ -1030,7 +1030,7 @@ function CreateTemplateContent() {
                 </Field>
 
                 <Field label="Footer" hint="Optional, max 60 chars">
-                  <ZoruInput
+                  <Input
                     name="footer"
                     value={footer}
                     onChange={(e) => setFooter(e.target.value.slice(0, 60))}
@@ -1038,12 +1038,12 @@ function CreateTemplateContent() {
                   />
                 </Field>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           )}
 
           {/* Buttons */}
           {(templateType === 'STANDARD' || templateType === 'CAROUSEL') && (
-            <ZoruCard>
+            <Card>
               <ZoruCardContent className="space-y-3 pt-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-[13px] font-semibold text-zoru-ink">
@@ -1060,16 +1060,16 @@ function CreateTemplateContent() {
                       <span className="text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
                         {btn.type.replace('_', ' ')}
                       </span>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => removeButton(i)}
                         aria-label="Remove button"
                       >
                         <Trash2 />
-                      </ZoruButton>
+                      </Button>
                     </div>
-                    <ZoruInput
+                    <Input
                       value={btn.text}
                       onChange={(e) =>
                         updateButton(i, 'text', e.target.value)
@@ -1078,7 +1078,7 @@ function CreateTemplateContent() {
                     />
                     {btn.type === 'URL' && (
                       <>
-                        <ZoruInput
+                        <Input
                           value={btn.url || ''}
                           onChange={(e) =>
                             updateButton(i, 'url', e.target.value)
@@ -1086,7 +1086,7 @@ function CreateTemplateContent() {
                           placeholder="https://example.com/{{1}}"
                         />
                         {btn.url?.includes('{{') && (
-                          <ZoruInput
+                          <Input
                             name={`btn_${i}_url_example`}
                             placeholder="URL variable example"
                             className="text-[11px]"
@@ -1095,7 +1095,7 @@ function CreateTemplateContent() {
                       </>
                     )}
                     {btn.type === 'PHONE_NUMBER' && (
-                      <ZoruInput
+                      <Input
                         value={btn.phone_number || ''}
                         onChange={(e) =>
                           updateButton(i, 'phone_number', e.target.value)
@@ -1104,7 +1104,7 @@ function CreateTemplateContent() {
                       />
                     )}
                     {btn.type === 'COPY_CODE' && (
-                      <ZoruInput
+                      <Input
                         value={(btn.example || [''])[0]}
                         onChange={(e) => {
                           const updated = [...buttons];
@@ -1135,11 +1135,11 @@ function CreateTemplateContent() {
                   </div>
                 )}
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           )}
 
           {/* SabNode features */}
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="space-y-3 pt-6">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-zoru-ink" />
@@ -1152,11 +1152,11 @@ function CreateTemplateContent() {
                 onChange={setCloneLanguages}
               />
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Submit */}
           <div className="flex items-center gap-3">
-            <ZoruButton
+            <Button
               onClick={() => setConfirmOpen(true)}
               disabled={
                 isPending ||
@@ -1173,14 +1173,14 @@ function CreateTemplateContent() {
                   <Send /> Submit for approval
                 </>
               )}
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => router.push('/wachat/templates')}
             >
               Cancel
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -1191,7 +1191,7 @@ function CreateTemplateContent() {
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
                 <Smartphone className="h-3.5 w-3.5" /> Live preview
               </div>
-              <ZoruCard variant="elevated">
+              <Card variant="elevated">
                 <ZoruCardContent className="pt-6">
                   <PhonePreview
                     headerFormat={headerFormat}
@@ -1206,7 +1206,7 @@ function CreateTemplateContent() {
                     templateType={templateType}
                   />
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
               <div className="space-y-1 text-center">
                 <p className="text-[10px] text-zoru-ink-muted">
                   {charCount}/1024 characters
@@ -1226,7 +1226,7 @@ function CreateTemplateContent() {
       </div>
 
       {/* Submit-for-review confirm dialog */}
-      <ZoruDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Submit for Meta approval?</ZoruDialogTitle>
@@ -1236,14 +1236,14 @@ function CreateTemplateContent() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setConfirmOpen(false)}
               disabled={isPending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 setConfirmOpen(false);
                 handleSubmit();
@@ -1251,10 +1251,10 @@ function CreateTemplateContent() {
               disabled={isPending}
             >
               <Send /> Submit
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }
@@ -1264,7 +1264,7 @@ export default function CreateTemplatePage() {
     <Suspense
       fallback={
         <div className="mx-auto w-full max-w-[1320px] px-6 pt-6">
-          <ZoruSkeleton className="h-[400px] w-full" />
+          <Skeleton className="h-[400px] w-full" />
         </div>
       }
     >

@@ -137,7 +137,7 @@ export default async function ConversionsFunnelPage() {
         >
 
             {/* Overall headline */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                     <div>
                         <div className="text-[12.5px] text-zoru-ink-muted">
@@ -166,7 +166,7 @@ export default async function ConversionsFunnelPage() {
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Funnel stages */}
             <div className="grid gap-3 sm:grid-cols-3">
@@ -203,7 +203,7 @@ export default async function ConversionsFunnelPage() {
             </div>
 
             {/* Step-by-step rates */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
                     <div className="text-[15px] font-medium text-zoru-ink">
@@ -213,9 +213,9 @@ export default async function ConversionsFunnelPage() {
                 <ul className="space-y-3">
                     <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3">
                         <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                            <ZoruBadge variant="ghost">Leads</ZoruBadge>
+                            <Badge variant="ghost">Leads</Badge>
                             <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
-                            <ZoruBadge variant="ghost">Deals</ZoruBadge>
+                            <Badge variant="ghost">Deals</Badge>
                         </div>
                         <div className="flex items-baseline gap-2">
                             <span className="font-mono text-[16px] text-zoru-ink">
@@ -229,9 +229,9 @@ export default async function ConversionsFunnelPage() {
                     </li>
                     <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3">
                         <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                            <ZoruBadge variant="ghost">Deals</ZoruBadge>
+                            <Badge variant="ghost">Deals</Badge>
                             <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
-                            <ZoruBadge variant="ghost">Invoices</ZoruBadge>
+                            <Badge variant="ghost">Invoices</Badge>
                         </div>
                         <div className="flex items-baseline gap-2">
                             <span className="font-mono text-[16px] text-zoru-ink">
@@ -255,7 +255,7 @@ export default async function ConversionsFunnelPage() {
                     </Link>{' '}
                     module.
                 </p>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

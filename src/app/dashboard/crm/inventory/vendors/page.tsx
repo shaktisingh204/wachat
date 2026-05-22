@@ -421,11 +421,11 @@ export default function VendorsPage() {
                     placeholder: 'Search name, email, phone, type…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/purchases/vendors/new">
                             <Plus className="h-4 w-4" /> New Vendor
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <VendorsFiltersRow
@@ -473,11 +473,11 @@ export default function VendorsPage() {
                                 Add your first supplier to start tracking purchase orders,
                                 bills, and payouts.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/purchases/vendors/new">
                                     <Plus className="h-4 w-4" /> Add your first vendor
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -504,22 +504,22 @@ export default function VendorsPage() {
                         onPickStatus={handlePickStatus}
                     />
 
-                    <ZoruCard>
+                    <Card>
                         <h2 className="text-[16px] font-semibold text-foreground">
                             All Vendors
                             {totalFiltered !== allVendors.length ? (
-                                <ZoruBadge variant="secondary" className="ml-2">
+                                <Badge variant="secondary" className="ml-2">
                                     {totalFiltered.toLocaleString()} match
                                     {totalFiltered === 1 ? '' : 'es'}
-                                </ZoruBadge>
+                                </Badge>
                             ) : null}
                         </h2>
                         <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-border hover:bg-transparent">
                                         <ZoruTableHead className="w-10 text-muted-foreground">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all on page"
                                                 checked={
                                                     allChecked ? true : someChecked ? 'indeterminate' : false
@@ -558,7 +558,7 @@ export default function VendorsPage() {
                                                     data-state={isSel ? 'selected' : undefined}
                                                 >
                                                     <ZoruTableCell>
-                                                        <ZoruCheckbox
+                                                        <Checkbox
                                                             aria-label={`Select ${vendor.name}`}
                                                             checked={isSel}
                                                             onCheckedChange={() => handleToggleOne(id)}
@@ -583,19 +583,19 @@ export default function VendorsPage() {
                                                         {vendor.phone || 'N/A'}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>
-                                                        <ZoruBadge variant="ghost" className="capitalize">
+                                                        <Badge variant="ghost" className="capitalize">
                                                             {vendor.vendorType ?? '—'}
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-right">
-                                                        <ZoruButton
+                                                        <Button
                                                             variant="ghost"
                                                             size="icon"
                                                             aria-label={`Delete ${vendor.name}`}
                                                             onClick={() => setDeleteTargetId(id)}
                                                         >
                                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>
                                             );
@@ -613,9 +613,9 @@ export default function VendorsPage() {
                                         </ZoruTableRow>
                                     )}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
             </EntityListShell>
 

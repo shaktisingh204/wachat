@@ -495,17 +495,17 @@ export default function VendorLeadsPage() {
                 }}
                 primaryAction={
                     <div className="flex items-center gap-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             onClick={() => setImportOpen(true)}
                         >
                             <Upload className="h-4 w-4" /> Import CSV
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link href="/dashboard/crm/purchases/vendors/new">
                                 <Plus className="h-4 w-4" /> New Vendor Lead
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
@@ -561,14 +561,14 @@ export default function VendorLeadsPage() {
                                 form, import a CSV, or add manually below.
                             </p>
                             <div className="flex flex-col gap-2 sm:flex-row">
-                                <ZoruButton asChild>
+                                <Button asChild>
                                     <Link href="/dashboard/crm/purchases/vendors/new">
                                         <Plus className="h-4 w-4" /> Add your first lead
                                     </Link>
-                                </ZoruButton>
-                                <ZoruButton variant="outline" onClick={() => setImportOpen(true)}>
+                                </Button>
+                                <Button variant="outline" onClick={() => setImportOpen(true)}>
                                     <Upload className="h-4 w-4" /> Import CSV
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -596,21 +596,21 @@ export default function VendorLeadsPage() {
                         onPickStatus={handlePickStatus}
                     />
 
-                    <ZoruCard>
+                    <Card>
                         <h2 className="text-[16px] font-semibold text-foreground">
                             All Vendor Leads
                             {total > 0 ? (
-                                <ZoruBadge variant="secondary" className="ml-2">
+                                <Badge variant="secondary" className="ml-2">
                                     {total.toLocaleString()} total
-                                </ZoruBadge>
+                                </Badge>
                             ) : null}
                         </h2>
                         <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-border hover:bg-transparent">
                                         <ZoruTableHead className="w-10 text-muted-foreground">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all on page"
                                                 checked={
                                                     allChecked ? true : someChecked ? 'indeterminate' : false
@@ -652,7 +652,7 @@ export default function VendorLeadsPage() {
                                                     data-state={isSel ? 'selected' : undefined}
                                                 >
                                                     <ZoruTableCell>
-                                                        <ZoruCheckbox
+                                                        <Checkbox
                                                             aria-label={`Select ${lead.title || lead.contactName}`}
                                                             checked={isSel}
                                                             onCheckedChange={() => handleToggleOne(id)}
@@ -672,30 +672,30 @@ export default function VendorLeadsPage() {
                                                         {lead.company || 'N/A'}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>
-                                                        <ZoruBadge variant="ghost" className="capitalize">
+                                                        <Badge variant="ghost" className="capitalize">
                                                             {lead.status || 'New'}
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-foreground">
                                                         {lead.source || '—'}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-right">
                                                         <div className="flex justify-end gap-1">
-                                                            <ZoruButton
+                                                            <Button
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleArchiveOne(id)}
                                                             >
                                                                 Archive
-                                                            </ZoruButton>
-                                                            <ZoruButton
+                                                            </Button>
+                                                            <Button
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => setDeleteTargetId(id)}
                                                                 className="text-destructive"
                                                             >
                                                                 Delete
-                                                            </ZoruButton>
+                                                            </Button>
                                                         </div>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>
@@ -714,9 +714,9 @@ export default function VendorLeadsPage() {
                                         </ZoruTableRow>
                                     )}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
             </EntityListShell>
 
@@ -747,7 +747,7 @@ export default function VendorLeadsPage() {
             />
 
             {/* CSV import dialog */}
-            <ZoruDialog open={importOpen} onOpenChange={setImportOpen}>
+            <Dialog open={importOpen} onOpenChange={setImportOpen}>
                 <ZoruDialogContent className="sm:max-w-md">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Import leads from CSV</ZoruDialogTitle>
@@ -787,16 +787,16 @@ export default function VendorLeadsPage() {
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             onClick={() => setImportOpen(false)}
                             disabled={importBusy}
                         >
                             {importBusy ? 'Working…' : 'Close'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </>
     );
 }

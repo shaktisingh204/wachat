@@ -64,10 +64,10 @@ const initialState: { message?: string | null; error?: string } = {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="animate-spin" /> : <Save />}
       {isEditing ? "Save changes" : "Create product"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -153,7 +153,7 @@ export function EcommProductDialog({
   };
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onDialogChange}>
+    <Dialog open={isOpen} onOpenChange={onDialogChange}>
       <ZoruDialogContent className="sm:max-w-3xl">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="shopId" value={shop._id.toString()} />
@@ -181,8 +181,8 @@ export function EcommProductDialog({
             </ZoruDialogTitle>
           </ZoruDialogHeader>
 
-          <ZoruScrollArea className="-mx-6 my-4 max-h-[70vh] px-6">
-            <ZoruAccordion
+          <ScrollArea className="-mx-6 my-4 max-h-[70vh] px-6">
+            <Accordion
               type="multiple"
               defaultValue={["basic", "pricing", "identifiers"]}
               className="w-full"
@@ -191,8 +191,8 @@ export function EcommProductDialog({
                 <ZoruAccordionTrigger>Basic information</ZoruAccordionTrigger>
                 <ZoruAccordionContent className="space-y-4 pt-4">
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="title">Product name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="title">Product name *</Label>
+                    <Input
                       id="title"
                       name="title"
                       defaultValue={product?.name}
@@ -200,8 +200,8 @@ export function EcommProductDialog({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description *</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description *</Label>
+                    <Textarea
                       id="description"
                       name="description"
                       defaultValue={product?.description}
@@ -209,8 +209,8 @@ export function EcommProductDialog({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="link">Product link *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="link">Product link *</Label>
+                    <Input
                       id="link"
                       name="link"
                       type="url"
@@ -226,7 +226,7 @@ export function EcommProductDialog({
                 <ZoruAccordionTrigger>Images</ZoruAccordionTrigger>
                 <ZoruAccordionContent className="space-y-4 pt-4">
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="image_link">Main image URL *</ZoruLabel>
+                    <Label htmlFor="image_link">Main image URL *</Label>
                     <SabFileUrlInput
                       id="image_link"
                       name="image_link"
@@ -236,10 +236,10 @@ export function EcommProductDialog({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="additional_image_link">
+                    <Label htmlFor="additional_image_link">
                       Additional image URLs (one per line)
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                       id="additional_image_link"
                       name="additional_image_link"
                       defaultValue={
@@ -259,8 +259,8 @@ export function EcommProductDialog({
                 <ZoruAccordionContent className="space-y-4 pt-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="price">Price *</ZoruLabel>
-                      <ZoruInput
+                      <Label htmlFor="price">Price *</Label>
+                      <Input
                         id="price"
                         name="price"
                         placeholder={`e.g. 999 ${shop.currency}`}
@@ -269,10 +269,10 @@ export function EcommProductDialog({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="availability">
+                      <Label htmlFor="availability">
                         Availability *
-                      </ZoruLabel>
-                      <ZoruSelect
+                      </Label>
+                      <Select
                         name="availability"
                         defaultValue={
                           (p?.availability as string | undefined) ?? "in stock"
@@ -292,21 +292,21 @@ export function EcommProductDialog({
                             Preorder
                           </ZoruSelectItem>
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="sale_price">Sale price</ZoruLabel>
-                      <ZoruInput
+                      <Label htmlFor="sale_price">Sale price</Label>
+                      <Input
                         id="sale_price"
                         name="sale_price"
                         defaultValue={p?.sale_price as string | undefined}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel>Sale dates</ZoruLabel>
-                      <ZoruDatePicker
+                      <Label>Sale dates</Label>
+                      <DatePicker
                         value={salePriceEffectiveDate}
                         onChange={setSalePriceEffectiveDate}
                       />
@@ -322,10 +322,10 @@ export function EcommProductDialog({
                 <ZoruAccordionContent className="space-y-4 pt-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="retailer_id">
+                      <Label htmlFor="retailer_id">
                         SKU / retailer_id *
-                      </ZoruLabel>
-                      <ZoruInput
+                      </Label>
+                      <Input
                         id="retailer_id"
                         name="retailer_id"
                         defaultValue={p?.retailer_id as string | undefined}
@@ -333,8 +333,8 @@ export function EcommProductDialog({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="condition">Condition *</ZoruLabel>
-                      <ZoruSelect
+                      <Label htmlFor="condition">Condition *</Label>
+                      <Select
                         name="condition"
                         defaultValue={(p?.condition as string | undefined) ?? "new"}
                       >
@@ -348,21 +348,21 @@ export function EcommProductDialog({
                             Refurbished
                           </ZoruSelectItem>
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="brand">Brand</ZoruLabel>
-                      <ZoruInput
+                      <Label htmlFor="brand">Brand</Label>
+                      <Input
                         id="brand"
                         name="brand"
                         defaultValue={p?.brand as string | undefined}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="gtin">GTIN (Barcode)</ZoruLabel>
-                      <ZoruInput
+                      <Label htmlFor="gtin">GTIN (Barcode)</Label>
+                      <Input
                         id="gtin"
                         name="gtin"
                         defaultValue={p?.gtin as string | undefined}
@@ -371,10 +371,10 @@ export function EcommProductDialog({
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="google_product_category">
+                      <Label htmlFor="google_product_category">
                         Google product category
-                      </ZoruLabel>
-                      <ZoruInput
+                      </Label>
+                      <Input
                         id="google_product_category"
                         name="google_product_category"
                         defaultValue={
@@ -383,10 +383,10 @@ export function EcommProductDialog({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="product_type">
+                      <Label htmlFor="product_type">
                         Your product type
-                      </ZoruLabel>
-                      <ZoruInput
+                      </Label>
+                      <Input
                         id="product_type"
                         name="product_type"
                         defaultValue={p?.product_type as string | undefined}
@@ -395,8 +395,8 @@ export function EcommProductDialog({
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="mpn">MPN</ZoruLabel>
-                      <ZoruInput
+                      <Label htmlFor="mpn">MPN</Label>
+                      <Input
                         id="mpn"
                         name="mpn"
                         defaultValue={p?.mpn as string | undefined}
@@ -412,10 +412,10 @@ export function EcommProductDialog({
                 </ZoruAccordionTrigger>
                 <ZoruAccordionContent className="space-y-4 pt-4">
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="item_group_id">
+                    <Label htmlFor="item_group_id">
                       Item group ID
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                       id="item_group_id"
                       name="item_group_id"
                       defaultValue={p?.item_group_id as string | undefined}
@@ -425,16 +425,16 @@ export function EcommProductDialog({
                       group ID.
                     </p>
                   </div>
-                  <ZoruSeparator />
+                  <Separator />
                   <div className="space-y-2">
-                    <ZoruLabel>Variant attributes</ZoruLabel>
+                    <Label>Variant attributes</Label>
                     <div className="space-y-3">
                       {variants.map((variant) => (
                         <div
                           key={variant.id}
                           className="grid grid-cols-[1fr_2fr_auto] items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line p-2"
                         >
-                          <ZoruInput
+                          <Input
                             placeholder="Name (e.g. Color)"
                             value={variant.name}
                             onChange={(e) =>
@@ -445,7 +445,7 @@ export function EcommProductDialog({
                               )
                             }
                           />
-                          <ZoruInput
+                          <Input
                             placeholder="Options (comma-separated)"
                             value={variant.options}
                             onChange={(e) =>
@@ -456,18 +456,18 @@ export function EcommProductDialog({
                               )
                             }
                           />
-                          <ZoruButton
+                          <Button
                             type="button"
                             variant="ghost"
                             size="icon"
                             onClick={() => handleRemoveVariant(variant.id)}
                           >
                             <Trash2 />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       ))}
                     </div>
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="outline"
                       size="sm"
@@ -477,13 +477,13 @@ export function EcommProductDialog({
                     >
                       <Plus />
                       Add variant attribute
-                    </ZoruButton>
+                    </Button>
                   </div>
-                  <ZoruSeparator />
+                  <Separator />
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="gender">Gender</ZoruLabel>
-                      <ZoruSelect
+                      <Label htmlFor="gender">Gender</Label>
+                      <Select
                         name="gender"
                         defaultValue={p?.gender as string | undefined}
                       >
@@ -495,11 +495,11 @@ export function EcommProductDialog({
                           <ZoruSelectItem value="female">Female</ZoruSelectItem>
                           <ZoruSelectItem value="unisex">Unisex</ZoruSelectItem>
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel htmlFor="age_group">Age group</ZoruLabel>
-                      <ZoruSelect
+                      <Label htmlFor="age_group">Age group</Label>
+                      <Select
                         name="age_group"
                         defaultValue={p?.age_group as string | undefined}
                       >
@@ -510,7 +510,7 @@ export function EcommProductDialog({
                           <ZoruSelectItem value="adult">Adult</ZoruSelectItem>
                           <ZoruSelectItem value="kids">Kids</ZoruSelectItem>
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </div>
                   </div>
                 </ZoruAccordionContent>
@@ -522,8 +522,8 @@ export function EcommProductDialog({
                 </ZoruAccordionTrigger>
                 <ZoruAccordionContent className="space-y-4 pt-4">
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="inventory">Stock quantity</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="inventory">Stock quantity</Label>
+                    <Input
                       id="inventory"
                       name="inventory"
                       type="number"
@@ -531,10 +531,10 @@ export function EcommProductDialog({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="shipping_weight">
+                    <Label htmlFor="shipping_weight">
                       Shipping weight
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                       id="shipping_weight"
                       name="shipping_weight"
                       defaultValue={p?.shipping_weight as string | undefined}
@@ -543,8 +543,8 @@ export function EcommProductDialog({
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-1.5">
-                      <ZoruLabel>Length (cm)</ZoruLabel>
-                      <ZoruInput
+                      <Label>Length (cm)</Label>
+                      <Input
                         name="shipping_length"
                         type="number"
                         step="0.01"
@@ -555,8 +555,8 @@ export function EcommProductDialog({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel>Width (cm)</ZoruLabel>
-                      <ZoruInput
+                      <Label>Width (cm)</Label>
+                      <Input
                         name="shipping_width"
                         type="number"
                         step="0.01"
@@ -567,8 +567,8 @@ export function EcommProductDialog({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <ZoruLabel>Height (cm)</ZoruLabel>
-                      <ZoruInput
+                      <Label>Height (cm)</Label>
+                      <Input
                         name="shipping_height"
                         type="number"
                         step="0.01"
@@ -581,21 +581,21 @@ export function EcommProductDialog({
                   </div>
                 </ZoruAccordionContent>
               </ZoruAccordionItem>
-            </ZoruAccordion>
-          </ZoruScrollArea>
+            </Accordion>
+          </ScrollArea>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onDialogChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton isEditing={isEditing} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

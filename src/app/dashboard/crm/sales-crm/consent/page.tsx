@@ -53,13 +53,13 @@ function formatDateTime(value?: Date | string) {
 
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
-        <ZoruCard>
+        <Card>
             <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
             <p className="mt-1 text-[28px] font-semibold text-foreground">
                 {value.toLocaleString()}
             </p>
             {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -312,10 +312,10 @@ export default function LeadConsentPage() {
             title="Lead Consent"
             subtitle="Record purpose consents and revocations per lead with IP/UA capture."
             primaryAction={
-                <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
+                <Button variant="outline" size="sm" onClick={exportCsv}>
                     <Download className="h-3.5 w-3.5" />
                     Export CSV
-                </ZoruButton>
+                </Button>
             }
         >
             {/* KPI strip */}
@@ -331,11 +331,11 @@ export default function LeadConsentPage() {
             </div>
 
             {/* Filters + tenant-wide log */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-4 flex flex-wrap items-end gap-3">
                     <div className="min-w-[200px] flex-1">
-                        <ZoruLabel className="text-foreground">Search</ZoruLabel>
-                        <ZoruInput
+                        <Label className="text-foreground">Search</Label>
+                        <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search lead, purpose, IP…"
@@ -343,8 +343,8 @@ export default function LeadConsentPage() {
                         />
                     </div>
                     <div className="min-w-[160px]">
-                        <ZoruLabel className="text-foreground">State</ZoruLabel>
-                        <ZoruSelect
+                        <Label className="text-foreground">State</Label>
+                        <Select
                             value={stateFilter}
                             onValueChange={(v) => setStateFilter(v as StateFilter)}
                         >
@@ -356,11 +356,11 @@ export default function LeadConsentPage() {
                                 <ZoruSelectItem value="granted">Granted</ZoruSelectItem>
                                 <ZoruSelectItem value="revoked">Revoked</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="min-w-[200px]">
-                        <ZoruLabel className="text-foreground">Purpose</ZoruLabel>
-                        <ZoruSelect value={purposeFilter} onValueChange={setPurposeFilter}>
+                        <Label className="text-foreground">Purpose</Label>
+                        <Select value={purposeFilter} onValueChange={setPurposeFilter}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="All purposes" />
                             </ZoruSelectTrigger>
@@ -371,12 +371,12 @@ export default function LeadConsentPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Lead</ZoruTableHead>
@@ -403,9 +403,9 @@ export default function LeadConsentPage() {
                                             {purposeNameById.get(row.purpose_consent_id) ?? row.purpose_consent_id}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge variant={row.granted ? 'success' : 'destructive'}>
+                                            <Badge variant={row.granted ? 'success' : 'destructive'}>
                                                 {row.granted ? 'Granted' : 'Revoked'}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-[13px] text-muted-foreground">
                                             {formatDateTime(row.granted_at)}
@@ -417,20 +417,20 @@ export default function LeadConsentPage() {
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
                 {filteredEvents.length > 200 ? (
                     <p className="mt-2 text-[11.5px] text-muted-foreground">
                         Showing first 200 of {filteredEvents.length.toLocaleString()} — export for the full set.
                     </p>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
             {/* Per-lead lookup */}
-            <ZoruCard>
+            <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[240px] flex-1">
-                        <ZoruLabel className="text-foreground">Lead</ZoruLabel>
+                        <Label className="text-foreground">Lead</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="lead"
@@ -441,23 +441,23 @@ export default function LeadConsentPage() {
                             />
                         </div>
                     </div>
-                    <ZoruButton onClick={onLookup}>Load</ZoruButton>
+                    <Button onClick={onLookup}>Load</Button>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {activeLeadId ? (
                 <>
-                    <ZoruCard>
+                    <Card>
                         <div className="mb-3 flex items-center justify-between">
                             <h2 className="text-[14px] font-semibold text-foreground">Active purposes</h2>
-                            <ZoruButton disabled={pending} onClick={onGrant}>
+                            <Button disabled={pending} onClick={onGrant}>
                                 Grant selected
-                            </ZoruButton>
+                            </Button>
                         </div>
                         {isLoading && purposes.length === 0 ? (
                             <div className="space-y-2">
-                                <ZoruSkeleton className="h-8 w-full" />
-                                <ZoruSkeleton className="h-8 w-full" />
+                                <Skeleton className="h-8 w-full" />
+                                <Skeleton className="h-8 w-full" />
                             </div>
                         ) : purposes.length === 0 ? (
                             <p className="text-[13px] text-muted-foreground">
@@ -465,7 +465,7 @@ export default function LeadConsentPage() {
                             </p>
                         ) : (
                             <div className="overflow-x-auto rounded-lg border border-border">
-                                <ZoruTable>
+                                <Table>
                                     <ZoruTableHeader>
                                         <ZoruTableRow className="border-border hover:bg-transparent">
                                             <ZoruTableHead className="w-[40px]" />
@@ -482,7 +482,7 @@ export default function LeadConsentPage() {
                                             return (
                                                 <ZoruTableRow key={p._id} className="border-border">
                                                     <ZoruTableCell>
-                                                        <ZoruCheckbox
+                                                        <Checkbox
                                                             checked={!!selected[p._id]}
                                                             onCheckedChange={(v) => togglePurpose(p._id, !!v)}
                                                             aria-label={`Select ${p.title}`}
@@ -498,11 +498,11 @@ export default function LeadConsentPage() {
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>
                                                         {latest ? (
-                                                            <ZoruBadge variant={isGranted ? 'success' : 'destructive'}>
+                                                            <Badge variant={isGranted ? 'success' : 'destructive'}>
                                                                 {isGranted ? 'Granted' : 'Revoked'}
-                                                            </ZoruBadge>
+                                                            </Badge>
                                                         ) : (
-                                                            <ZoruBadge variant="ghost">No record</ZoruBadge>
+                                                            <Badge variant="ghost">No record</Badge>
                                                         )}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-[13px] text-muted-foreground">
@@ -510,26 +510,26 @@ export default function LeadConsentPage() {
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-right">
                                                         {isGranted ? (
-                                                            <ZoruButton
+                                                            <Button
                                                                 type="button"
                                                                 variant="outline"
                                                                 disabled={pending}
                                                                 onClick={() => onRevoke(p._id)}
                                                             >
                                                                 Revoke
-                                                            </ZoruButton>
+                                                            </Button>
                                                         ) : null}
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>
                                             );
                                         })}
                                     </ZoruTableBody>
-                                </ZoruTable>
+                                </Table>
                             </div>
                         )}
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <h2 className="mb-3 text-[14px] font-semibold text-foreground">History</h2>
                         {history.length === 0 ? (
                             <p className="text-[13px] text-muted-foreground">
@@ -537,7 +537,7 @@ export default function LeadConsentPage() {
                             </p>
                         ) : (
                             <div className="overflow-x-auto rounded-lg border border-border">
-                                <ZoruTable>
+                                <Table>
                                     <ZoruTableHeader>
                                         <ZoruTableRow className="border-border hover:bg-transparent">
                                             <ZoruTableHead className="text-muted-foreground">Purpose</ZoruTableHead>
@@ -555,9 +555,9 @@ export default function LeadConsentPage() {
                                                         {p ? p.title : row.purpose_consent_id}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>
-                                                        <ZoruBadge variant={row.granted ? 'success' : 'destructive'}>
+                                                        <Badge variant={row.granted ? 'success' : 'destructive'}>
                                                             {row.granted ? 'Granted' : 'Revoked'}
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-[13px] text-muted-foreground">
                                                         {formatDateTime(row.granted_at)}
@@ -569,10 +569,10 @@ export default function LeadConsentPage() {
                                             );
                                         })}
                                     </ZoruTableBody>
-                                </ZoruTable>
+                                </Table>
                             </div>
                         )}
-                    </ZoruCard>
+                    </Card>
                 </>
             ) : null}
         </EntityListShell>

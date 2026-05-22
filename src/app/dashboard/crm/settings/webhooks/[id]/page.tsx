@@ -166,8 +166,8 @@ export default function CrmWebhookDetailPage() {
     if (loading) {
         return (
             <div className="flex min-h-full flex-col gap-4 p-4">
-                <ZoruSkeleton className="h-8 w-1/3" />
-                <ZoruSkeleton className="h-32 w-full" />
+                <Skeleton className="h-8 w-1/3" />
+                <Skeleton className="h-32 w-full" />
             </div>
         );
     }
@@ -188,7 +188,7 @@ export default function CrmWebhookDetailPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/crm/settings/webhooks">
@@ -200,23 +200,23 @@ export default function CrmWebhookDetailPage() {
                         <ZoruBreadcrumbPage>{row.name}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <ZoruPageHeading>
                             <Webhook className="size-5" />
                             <ZoruPageTitle>{row.name}</ZoruPageTitle>
-                            <ZoruBadge
+                            <Badge
                                 variant={row.status === 'active' ? 'default' : 'secondary'}
                             >
                                 {row.status}
-                            </ZoruBadge>
+                            </Badge>
                         </ZoruPageHeading>
                     </div>
                     <div className="flex gap-2">
-                        <ZoruButton variant="outline" onClick={toggleStatus} disabled={saving}>
+                        <Button variant="outline" onClick={toggleStatus} disabled={saving}>
                             {row.status === 'active' ? (
                                 <>
                                     <Pause className="mr-2 size-4" />
@@ -228,13 +228,13 @@ export default function CrmWebhookDetailPage() {
                                     Resume
                                 </>
                             )}
-                        </ZoruButton>
+                        </Button>
                         <ZoruAlertDialog>
                             <ZoruAlertDialogTrigger asChild>
-                                <ZoruButton variant="destructive" disabled={deleting}>
+                                <Button variant="destructive" disabled={deleting}>
                                     <Trash2 className="mr-2 size-4" />
                                     Delete
-                                </ZoruButton>
+                                </Button>
                             </ZoruAlertDialogTrigger>
                             <ZoruAlertDialogContent>
                                 <ZoruAlertDialogHeader>
@@ -255,12 +255,12 @@ export default function CrmWebhookDetailPage() {
                         </ZoruAlertDialog>
                     </div>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
-            <ZoruCard className="space-y-4 p-4">
+            <Card className="space-y-4 p-4">
                 <div>
-                    <ZoruLabel htmlFor="wh-name">Name</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-name">Name</Label>
+                    <Input
                         id="wh-name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -268,8 +268,8 @@ export default function CrmWebhookDetailPage() {
                     />
                 </div>
                 <div>
-                    <ZoruLabel htmlFor="wh-url">Target URL</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-url">Target URL</Label>
+                    <Input
                         id="wh-url"
                         value={targetUrl}
                         onChange={(e) => setTargetUrl(e.target.value)}
@@ -284,11 +284,11 @@ export default function CrmWebhookDetailPage() {
                         </span>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <div className="mb-3 flex items-center justify-between">
-                    <ZoruLabel>Events</ZoruLabel>
+                    <Label>Events</Label>
                     <span className="text-sm text-muted-foreground">
                         {selected.size} selected
                     </span>
@@ -296,7 +296,7 @@ export default function CrmWebhookDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {eventsCatalog.map((ev) => (
                         <label key={ev} className="flex items-center gap-2 text-sm">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={selected.has(ev)}
                                 onCheckedChange={() => toggleEvent(ev)}
                                 disabled={saving}
@@ -305,13 +305,13 @@ export default function CrmWebhookDetailPage() {
                         </label>
                     ))}
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div>
-                <ZoruButton onClick={handleSave} disabled={saving}>
+                <Button onClick={handleSave} disabled={saving}>
                     {saving && <LoaderCircle className="mr-2 size-4 animate-spin" />}
                     Save changes
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );

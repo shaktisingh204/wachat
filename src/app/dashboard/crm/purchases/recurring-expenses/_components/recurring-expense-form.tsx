@@ -63,14 +63,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create schedule'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -139,16 +139,16 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
             <input type="hidden" name="frequency" value={frequency} />
             <input type="hidden" name="status" value={status} />
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Schedule details
                 </h3>
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-1.5 md:col-span-2">
-                        <ZoruLabel className="text-foreground">
+                        <Label className="text-foreground">
                             Name <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             name="name"
                             required
                             placeholder="e.g. AWS hosting"
@@ -156,7 +156,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">Currency</ZoruLabel>
+                        <Label className="text-foreground">Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -165,10 +165,10 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">
+                        <Label className="text-foreground">
                             Amount <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             name="amount"
                             type="number"
                             step="0.01"
@@ -177,7 +177,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">Vendor</ZoruLabel>
+                        <Label className="text-foreground">Vendor</Label>
                         <EntityFormField
                             entity="vendor"
                             name="vendor_id"
@@ -191,7 +191,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">Category</ZoruLabel>
+                        <Label className="text-foreground">Category</Label>
                         <EntityFormField
                             entity="category"
                             name="category_id"
@@ -204,16 +204,16 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Recurrence
                 </h3>
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">Every</ZoruLabel>
-                        <ZoruInput
+                        <Label className="text-foreground">Every</Label>
+                        <Input
                             name="frequency_count"
                             type="number"
                             min={1}
@@ -221,7 +221,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">Frequency</ZoruLabel>
+                        <Label className="text-foreground">Frequency</Label>
                         <EnumFormField
                             enumName="wsFrequency"
                             name="__frequency_picker"
@@ -230,11 +230,11 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">
+                        <Label className="text-foreground">
                             Start date{' '}
                             <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             name="start_date"
                             type="date"
                             defaultValue={startDateDefault}
@@ -242,18 +242,18 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">Until date</ZoruLabel>
-                        <ZoruInput
+                        <Label className="text-foreground">Until date</Label>
+                        <Input
                             name="until_date"
                             type="date"
                             defaultValue={toDateInput(initialData?.until_date)}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">
+                        <Label className="text-foreground">
                             Stop after N runs
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             name="stop_at_count"
                             type="number"
                             min={0}
@@ -261,7 +261,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">Status</ZoruLabel>
+                        <Label className="text-foreground">Status</Label>
                         <EnumFormField
                             enumName="wsRecurringStatus"
                             name="__status_picker"
@@ -270,27 +270,27 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Payment
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">
+                        <Label className="text-foreground">
                             Payment method
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             name="payment_method"
                             placeholder="Cash, Card, Bank, …"
                             defaultValue={initialData?.payment_method ?? ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel className="text-foreground">
+                        <Label className="text-foreground">
                             Bank account
-                        </ZoruLabel>
+                        </Label>
                         <EntityFormField
                             entity="bankAccount"
                             name="bank_account_id"
@@ -302,21 +302,21 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Notes
                 </h3>
-                <ZoruTextarea
+                <Textarea
                     name="notes"
                     rows={3}
                     defaultValue={initialData?.notes ?? ''}
                 />
-            </ZoruCard>
+            </Card>
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
-                <ZoruButton variant="outline" asChild>
+                <Button variant="outline" asChild>
                     <Link
                         href={
                             isEditing
@@ -326,7 +326,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                     >
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton isEditing={isEditing} />
             </div>
         </form>

@@ -123,7 +123,7 @@ export function QuotationDetailActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Status pill → status-change dropdown */}
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -140,39 +140,39 @@ export function QuotationDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/sales/quotations/${quotationId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={sendQuotation}>
+      <Button size="sm" variant="outline" onClick={sendQuotation}>
         <Send className="h-3.5 w-3.5" /> Send
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/sales/invoices/new?fromKind=quotation&fromId=${quotationId}`}
         >
           <ArrowRight className="h-3.5 w-3.5" /> Convert to invoice
         </Link>
-      </ZoruButton>
+      </Button>
 
       {/* TODO §1D: Convert to SO / Proforma / Duplicate — pending the
           create-from-quotation flows on each sibling module. */}
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a href={emailHref} target="_blank" rel="noopener noreferrer">
           <Mail className="h-3.5 w-3.5" /> Email
         </a>
-      </ZoruButton>
+      </Button>
 
       {/* TODO §1D: WhatsApp action — depends on a contactPhone lookup
           which isn't part of the quotation document yet. */}
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/sales/quotations/${quotationId}?print=1`}
           target="_blank"
@@ -180,17 +180,17 @@ export function QuotationDetailActions({
         >
           <Printer className="h-3.5 w-3.5" /> Print
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/sales/quotations/${quotationId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <ConfirmDialog
         open={archiveOpen}

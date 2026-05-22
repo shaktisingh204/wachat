@@ -141,7 +141,7 @@ export function MentionTextarea({
 
   return (
     <div className={cn('relative', className)}>
-      <ZoruTextarea
+      <Textarea
         id={id}
         ref={textareaRef}
         value={value}

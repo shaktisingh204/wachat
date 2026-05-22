@@ -231,7 +231,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <ZoruCard className="overflow-hidden">
+      <Card className="overflow-hidden">
         <ZoruCardHeader>
           <div className="flex items-start gap-4">
             <motion.div
@@ -263,32 +263,32 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
             <div className="flex gap-2">
               {connection?.status === 'connected' ? (
                 <>
-                  <ZoruButton
+                  <Button
                     size="sm"
                     variant="outline"
                     onClick={startWizard}
                   >
                     Reconnect
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     size="sm"
                     variant="ghost"
                     onClick={handleDisconnect}
                   >
                     <PowerOff className="h-4 w-4" />
                     Disconnect
-                  </ZoruButton>
+                  </Button>
                 </>
               ) : (
-                <ZoruButton size="sm" onClick={startWizard}>
+                <Button size="sm" onClick={startWizard}>
                   <Plug className="h-4 w-4" />
                   Connect
-                </ZoruButton>
+                </Button>
               )}
             </div>
           </div>
         </ZoruCardHeader>
-      </ZoruCard>
+      </Card>
 
       {/* Body */}
       <AnimatePresence mode="wait">
@@ -300,14 +300,14 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.25 }}
           >
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <StepperHeader
                   steps={steps}
                   current={stepIdx}
                 />
               </ZoruCardHeader>
-              <ZoruSeparator />
+              <Separator />
               <ZoruCardContent className="p-6">
                 <AnimatePresence mode="wait" custom={direction}>
                   <motion.div
@@ -343,21 +343,21 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                   </motion.div>
                 </AnimatePresence>
               </ZoruCardContent>
-              <ZoruSeparator />
+              <Separator />
               <div className="flex items-center justify-between p-4">
-                <ZoruButton
+                <Button
                   variant="ghost"
                   onClick={goBack}
                   disabled={validating || submitting}
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {stepIdx === 0 ? 'Cancel' : 'Back'}
-                </ZoruButton>
+                </Button>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-zoru-ink-muted">
                     Step {stepIdx + 1} of {steps.length}
                   </span>
-                  <ZoruButton
+                  <Button
                     onClick={goNext}
                     disabled={validating || submitting}
                   >
@@ -368,10 +368,10 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                     {stepIdx === steps.length - 1 ? null : (
                       <ArrowRight className="h-4 w-4" />
                     )}
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
           </motion.div>
         ) : (
           <motion.div
@@ -384,7 +384,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
             {connection?.status === 'connected' && manageView ? (
               manageView({ connection, onReconnect: startWizard })
             ) : (
-              <ZoruCard>
+              <Card>
                 <ZoruCardContent className="p-8 flex flex-col items-center text-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface border border-zoru-line">
                     <Plug className="h-6 w-6 text-zoru-ink-muted" />
@@ -399,12 +399,12 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                       you through the {steps.length}-step setup.
                     </p>
                   </div>
-                  <ZoruButton onClick={startWizard}>
+                  <Button onClick={startWizard}>
                     <Plug className="h-4 w-4" />
                     Start setup
-                  </ZoruButton>
+                  </Button>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             )}
           </motion.div>
         )}
@@ -422,10 +422,10 @@ function ConnectionBadge({
 }) {
   if (loading) {
     return (
-      <ZoruBadge variant="outline" className="gap-1">
+      <Badge variant="outline" className="gap-1">
         <Loader2 className="h-3 w-3 animate-spin" />
         Checking…
-      </ZoruBadge>
+      </Badge>
     );
   }
   if (status === 'connected') {
@@ -435,17 +435,17 @@ function ConnectionBadge({
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 18 }}
       >
-        <ZoruBadge variant="default" className="gap-1 bg-emerald-500/15 text-emerald-700 border-emerald-500/30">
+        <Badge variant="default" className="gap-1 bg-emerald-500/15 text-emerald-700 border-emerald-500/30">
           <CheckCircle2 className="h-3 w-3" />
           Connected
-        </ZoruBadge>
+        </Badge>
       </motion.span>
     );
   }
   return (
-    <ZoruBadge variant="outline" className="gap-1">
+    <Badge variant="outline" className="gap-1">
       Disconnected
-    </ZoruBadge>
+    </Badge>
   );
 }
 

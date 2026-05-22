@@ -28,24 +28,24 @@ export default function KeywordGrouperPage() {
 
   return (
     <ToolShell title="Keyword Grouper" description="Group a list of keywords by their common root/stem.">
-      <ZoruTextarea
+      <Textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Paste keywords, one per line…"
         className="min-h-[200px]"
       />
-      <ZoruButton onClick={run} className="w-fit">Group Keywords</ZoruButton>
+      <Button onClick={run} className="w-fit">Group Keywords</Button>
       {groups && (
         <div className="grid md:grid-cols-2 gap-3">
           {Object.entries(groups).map(([key, items]) => (
-            <ZoruCard key={key}>
+            <Card key={key}>
               <ZoruCardContent className="p-4">
                 <div className="font-semibold capitalize mb-2">{key} <span className="text-xs text-muted-foreground">({items.length})</span></div>
                 <ul className="text-sm space-y-1">
                   {items.map((i) => <li key={i}>{i}</li>)}
                 </ul>
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       )}

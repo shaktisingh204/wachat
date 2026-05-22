@@ -279,7 +279,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
           placeholder: 'Search categories…',
         }}
         primaryAction={
-          <ZoruDialog
+          <Dialog
             open={open}
             onOpenChange={(o) => {
               setOpen(o);
@@ -287,9 +287,9 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
             }}
           >
             <ZoruDialogTrigger asChild>
-              <ZoruButton>
+              <Button>
                 <Plus className="h-4 w-4" /> New category
-              </ZoruButton>
+              </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
               <ZoruDialogHeader>
@@ -303,8 +303,8 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
               </ZoruDialogHeader>
               <form action={handleSubmit} className="grid gap-3">
                 <div>
-                  <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="name">Name *</Label>
+                  <Input
                     id="name"
                     name="name"
                     required
@@ -314,15 +314,15 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   <div>
-                    <ZoruLabel>Colour</ZoruLabel>
+                    <Label>Colour</Label>
                     <input type="hidden" name="color" value={color} />
                     <div className="mt-1.5">
                       <ZoruColorPicker value={color} onChange={setColor} />
                     </div>
                   </div>
                   <div>
-                    <ZoruLabel htmlFor="parent">Parent</ZoruLabel>
-                    <ZoruSelect
+                    <Label htmlFor="parent">Parent</Label>
+                    <Select
                       name="parent"
                       defaultValue={editing?.parent ?? ''}
                     >
@@ -339,12 +339,12 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                             </ZoruSelectItem>
                           ))}
                       </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                   </div>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                  <ZoruTextarea
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
                     id="description"
                     name="description"
                     rows={3}
@@ -354,21 +354,21 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                 </div>
                 <ZoruDialogFooter>
                   <ZoruDialogClose asChild>
-                    <ZoruButton variant="ghost" type="button">
+                    <Button variant="ghost" type="button">
                       Cancel
-                    </ZoruButton>
+                    </Button>
                   </ZoruDialogClose>
-                  <ZoruButton type="submit">
+                  <Button type="submit">
                     {editing ? 'Save changes' : 'Create'}
-                  </ZoruButton>
+                  </Button>
                 </ZoruDialogFooter>
               </form>
             </ZoruDialogContent>
-          </ZoruDialog>
+          </Dialog>
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <Select
               value={filters.parent}
               onValueChange={(v) => setFilters((p) => ({ ...p, parent: v }))}
             >
@@ -384,23 +384,23 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
             {filtersActive ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setFilters(INITIAL)}
               >
                 <X className="h-3.5 w-3.5" /> Clear
-              </ZoruButton>
+              </Button>
             ) : null}
             <div className="ml-auto flex gap-1">
-              <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+              <Button variant="ghost" size="sm" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> CSV
-              </ZoruButton>
-              <ZoruButton variant="ghost" size="sm" onClick={exportXlsx}>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exportXlsx}>
                 <Download className="h-3.5 w-3.5" /> XLSX
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         }
@@ -411,20 +411,20 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelected(new Set())}
                 >
                   Clear
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => setBulkConfirm(true)}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Delete
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null
@@ -443,17 +443,17 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <ZoruStatCard
+            <StatCard
               label="Total categories"
               value={rows.length}
               icon={<Folder className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Active discussions"
               value={discussions.length}
               icon={<MessageSquare className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Top trending"
               value={topTrendingName}
               icon={<Flame className="h-4 w-4" />}
@@ -474,7 +474,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
               <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                 <tr>
                   <th className="w-8 px-3 py-2 text-left">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={
                         allSelected
                           ? true
@@ -507,7 +507,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                   return (
                     <tr key={r._id} className="hover:bg-zoru-surface">
                       <td className="px-3 py-2">
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(r._id)}
                           onCheckedChange={() => toggleOne(r._id)}
                           aria-label={`Select ${r.name}`}
@@ -539,21 +539,21 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                       </td>
                       <td className="px-3 py-2">
                         {parent ? (
-                          <ZoruBadge variant="ghost">{parent.name}</ZoruBadge>
+                          <Badge variant="ghost">{parent.name}</Badge>
                         ) : (
                           <span className="text-zoru-ink-muted">—</span>
                         )}
                       </td>
                       <td className="px-3 py-2">
-                        <ZoruBadge variant={count > 0 ? 'default' : 'ghost'}>
+                        <Badge variant={count > 0 ? 'default' : 'ghost'}>
                           {count}
-                        </ZoruBadge>
+                        </Badge>
                       </td>
                       <td className="px-3 py-2 text-zoru-ink-muted">
                         {r.description || '—'}
                       </td>
                       <td className="px-3 py-2 text-right">
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
@@ -562,14 +562,14 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                           }}
                         >
                           Edit
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeleteId(r._id)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </td>
                     </tr>
                   );

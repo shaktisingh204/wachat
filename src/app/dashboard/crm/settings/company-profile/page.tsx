@@ -58,10 +58,10 @@ function TextField({
 }) {
     return (
         <div className={fullWidth ? 'md:col-span-2' : ''}>
-            <ZoruLabel htmlFor={name} className="text-[13px] text-zoru-ink">
+            <Label htmlFor={name} className="text-[13px] text-zoru-ink">
                 {label}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
                 id={name}
                 name={name}
                 type={type}
@@ -90,7 +90,7 @@ function PickerField({
 }) {
     return (
         <div>
-            <ZoruLabel className="text-[13px] text-zoru-ink">{label}</ZoruLabel>
+            <Label className="text-[13px] text-zoru-ink">{label}</Label>
             <div className="mt-1.5">
                 <EntityFormField
                     entity={entity}
@@ -146,9 +146,9 @@ export default function CompanyProfilePage() {
                 title="Company Profile"
                 subtitle="Master details for your organization — branding, contact, fiscal year, and document prefixes."
             >
-                <ZoruCard className="p-6">
-                    <ZoruSkeleton className="h-[420px] w-full" />
-                </ZoruCard>
+                <Card className="p-6">
+                    <Skeleton className="h-[420px] w-full" />
+                </Card>
             </EntityListShell>
         );
     }
@@ -160,22 +160,22 @@ export default function CompanyProfilePage() {
         >
             {profile ? (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <ZoruStatCard
+                    <StatCard
                         label="Company"
                         value={profile.company_name || '—'}
                         icon={<Building2 className="h-4 w-4" />}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Timezone"
                         value={profile.timezone || '—'}
                         icon={<Clock className="h-4 w-4" />}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Currency"
                         value={profile.currency_code || '—'}
                         icon={<DollarSign className="h-4 w-4" />}
                     />
-                    <ZoruStatCard
+                    <StatCard
                         label="Fiscal year start"
                         value={
                             profile.fiscal_year_start_month
@@ -210,12 +210,12 @@ export default function CompanyProfilePage() {
                                     defaultValue={profile?.legal_name}
                                 />
                                 <div>
-                                    <ZoruLabel
+                                    <Label
                                         htmlFor="logo"
                                         className="text-[13px] text-zoru-ink"
                                     >
                                         Logo
-                                    </ZoruLabel>
+                                    </Label>
                                     <SabFileUrlInput
                                         id="logo"
                                         name="logo"
@@ -274,13 +274,13 @@ export default function CompanyProfilePage() {
                         children: (
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="md:col-span-2">
-                                    <ZoruLabel
+                                    <Label
                                         htmlFor="address"
                                         className="text-[13px] text-zoru-ink"
                                     >
                                         Primary Address
-                                    </ZoruLabel>
-                                    <ZoruTextarea
+                                    </Label>
+                                    <Textarea
                                         id="address"
                                         name="address"
                                         rows={2}

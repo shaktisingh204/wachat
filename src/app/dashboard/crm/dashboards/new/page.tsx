@@ -34,14 +34,14 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
       ) : (
         <Save className="h-4 w-4" />
       )}
       Save Dashboard
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -67,14 +67,14 @@ export default function NewDashboardPage() {
       back={{ href: '/dashboard/crm/dashboards', label: 'Dashboards' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="space-y-6">
           {/* Name + Description */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="name" className="text-zoru-ink">
+            <Label htmlFor="name" className="text-zoru-ink">
               Dashboard Name <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="name"
               name="name"
               placeholder="e.g. Sales Overview, Weekly KPIs"
@@ -84,10 +84,10 @@ export default function NewDashboardPage() {
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="description" className="text-zoru-ink">
+            <Label htmlFor="description" className="text-zoru-ink">
               Description (Optional)
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="description"
               name="description"
               placeholder="What does this dashboard track?"
@@ -98,10 +98,10 @@ export default function NewDashboardPage() {
           {/* Layout + Visibility */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="layout" className="text-zoru-ink">
+              <Label htmlFor="layout" className="text-zoru-ink">
                 Layout
-              </ZoruLabel>
-              <ZoruSelect name="layout" defaultValue="2col">
+              </Label>
+              <Select name="layout" defaultValue="2col">
                 <ZoruSelectTrigger id="layout">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -111,14 +111,14 @@ export default function NewDashboardPage() {
                   <ZoruSelectItem value="3col">3 Columns</ZoruSelectItem>
                   <ZoruSelectItem value="masonry">Masonry</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="sharedWith" className="text-zoru-ink">
+              <Label htmlFor="sharedWith" className="text-zoru-ink">
                 Visibility
-              </ZoruLabel>
-              <ZoruSelect name="sharedWith" defaultValue="private">
+              </Label>
+              <Select name="sharedWith" defaultValue="private">
                 <ZoruSelectTrigger id="sharedWith">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -127,13 +127,13 @@ export default function NewDashboardPage() {
                   <ZoruSelectItem value="team">Team</ZoruSelectItem>
                   <ZoruSelectItem value="workspace">Workspace</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
 
           {/* Owner */}
           <div className="space-y-1.5">
-            <ZoruLabel className="text-zoru-ink">Owner</ZoruLabel>
+            <Label className="text-zoru-ink">Owner</Label>
             <EntityFormField
               entity="user"
               name="ownerId"
@@ -143,11 +143,11 @@ export default function NewDashboardPage() {
 
           {/* Auto-refresh */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="refreshInterval" className="text-zoru-ink">
+            <Label htmlFor="refreshInterval" className="text-zoru-ink">
               Auto-refresh every (Optional)
-            </ZoruLabel>
+            </Label>
             <div className="flex items-center gap-2">
-              <ZoruInput
+              <Input
                 id="refreshInterval"
                 name="refreshInterval"
                 type="number"
@@ -171,16 +171,16 @@ export default function NewDashboardPage() {
               type="checkbox"
               className="h-4 w-4 rounded border-zoru-border accent-zoru-ink"
             />
-            <ZoruLabel htmlFor="isDefault" className="cursor-pointer text-zoru-ink">
+            <Label htmlFor="isDefault" className="cursor-pointer text-zoru-ink">
               Set as default dashboard
-            </ZoruLabel>
+            </Label>
           </div>
 
           <div className="flex justify-end pt-2">
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

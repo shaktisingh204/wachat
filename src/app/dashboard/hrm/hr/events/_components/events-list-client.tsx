@@ -197,7 +197,7 @@ export function EventsListClient({
                 }}
                 filters={
                     <>
-                        <ZoruSelect
+                        <Select
                             value={eventType}
                             onValueChange={(v) => setEventType(v)}
                         >
@@ -211,8 +211,8 @@ export function EventsListClient({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect value={status} onValueChange={(v) => setStatus(v)}>
+                        </Select>
+                        <Select value={status} onValueChange={(v) => setStatus(v)}>
                             <ZoruSelectTrigger className="h-9 w-[180px]">
                                 <ZoruSelectValue placeholder="Status" />
                             </ZoruSelectTrigger>
@@ -223,13 +223,13 @@ export function EventsListClient({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </>
                 }
                 loading={isLoading && events.length === 0}
             >
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="text-zoru-ink-muted">
@@ -321,29 +321,29 @@ export function EventsListClient({
                                                     : ''}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton variant="ghost" size="icon" asChild>
+                                                <Button variant="ghost" size="icon" asChild>
                                                     <Link
                                                         href={`/dashboard/hrm/hr/events/${ev._id}/edit`}
                                                         aria-label={`Edit ${ev.name}`}
                                                     >
                                                         <Edit className="h-4 w-4" />
                                                     </Link>
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     aria-label={`Delete ${ev.name}`}
                                                     onClick={() => setPendingDelete(ev)}
                                                 >
                                                     <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
             </EntityListShell>
 

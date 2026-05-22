@@ -121,7 +121,7 @@ export default function ContactNotesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -141,7 +141,7 @@ export default function ContactNotesPage() {
             <ZoruBreadcrumbPage>Notes</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="min-w-0">
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -153,17 +153,17 @@ export default function ContactNotesPage() {
       </div>
 
       {/* Search */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[15px] text-zoru-ink">Look up contact</h2>
         <form
           onSubmit={handleSearch}
           className="flex max-w-md items-end gap-3"
         >
           <div className="flex flex-1 flex-col gap-1.5">
-            <ZoruLabel htmlFor="cn-contact">
+            <Label htmlFor="cn-contact">
               Contact ID or phone number
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="cn-contact"
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
@@ -171,19 +171,19 @@ export default function ContactNotesPage() {
               required
             />
           </div>
-          <ZoruButton
+          <Button
             type="submit"
             disabled={isSearching || !contactId.trim()}
           >
             {isSearching ? <Loader2 className="animate-spin" /> : <Search />}
             {isSearching ? 'Searching…' : 'Search'}
-          </ZoruButton>
+          </Button>
         </form>
-      </ZoruCard>
+      </Card>
 
       {/* Notes list */}
       {hasSearched && (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-[15px] text-zoru-ink">
               Notes for {contactId} ({notes.length})
@@ -193,11 +193,11 @@ export default function ContactNotesPage() {
           {isSearching ? (
             <div className="flex flex-col gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <ZoruSkeleton key={i} className="h-16 w-full" />
+                <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
           ) : notes.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<StickyNote />}
               title="No notes yet"
               description="Add your first note below."
@@ -221,7 +221,7 @@ export default function ContactNotesPage() {
                   </div>
                   <ZoruAlertDialog>
                     <ZoruAlertDialogTrigger asChild>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         disabled={deletingId === note._id}
@@ -229,7 +229,7 @@ export default function ContactNotesPage() {
                         className="text-zoru-danger hover:bg-zoru-danger/10"
                       >
                         <Trash2 />
-                      </ZoruButton>
+                      </Button>
                     </ZoruAlertDialogTrigger>
                     <ZoruAlertDialogContent>
                       <ZoruAlertDialogHeader>
@@ -269,25 +269,25 @@ export default function ContactNotesPage() {
                 name="projectId"
                 value={projectId || ''}
               />
-              <ZoruTextarea
+              <Textarea
                 name="text"
                 placeholder="Write a note…"
                 rows={3}
                 required
               />
               <div>
-                <ZoruButton type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     <Plus />
                   )}
                   {isPending ? 'Adding…' : 'Add note'}
-                </ZoruButton>
+                </Button>
               </div>
             </form>
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       <div className="h-6" />

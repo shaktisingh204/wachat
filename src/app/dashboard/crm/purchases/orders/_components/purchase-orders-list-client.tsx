@@ -384,7 +384,7 @@ export function PurchaseOrdersListClient({
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <PurchaseOrdersToolbar
           query={query}
           onQueryChange={setQuery}
@@ -457,7 +457,7 @@ export function PurchaseOrdersListClient({
             <PaginationBar page={page} limit={limit} hasMore={hasMore} />
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={archivePending}

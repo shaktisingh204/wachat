@@ -50,7 +50,7 @@ const TONE_BG_ACTIVE: Record<StatusTone, string> = {
 export function LeadsFunnel({ stages, activeKey, onSelect }: LeadsFunnelProps) {
     const total = Math.max(1, stages.reduce((sum, s) => sum + (s.count || 0), 0));
     return (
-        <ZoruCard className="h-full">
+        <Card className="h-full">
             <ZoruCardContent className="flex h-full flex-col gap-2 pt-4">
                 <div className="flex items-center justify-between">
                     <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -94,7 +94,7 @@ export function LeadsFunnel({ stages, activeKey, onSelect }: LeadsFunnelProps) {
                     ))}
                 </ul>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 

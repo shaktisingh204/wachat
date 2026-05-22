@@ -134,11 +134,11 @@ export default function BulkEditorPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Bulk Editor" />
-                <ZoruAlert>
+                <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to bulk edit.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -153,9 +153,9 @@ export default function BulkEditorPage() {
                 description="Spreadsheet-style editing. Change names and budgets for multiple campaigns at once."
                 actions={
                     <div className="flex flex-wrap gap-2">
-                        <ZoruButton variant="outline" onClick={exportCsv}>
+                        <Button variant="outline" onClick={exportCsv}>
                             <Download className="h-4 w-4 mr-1" /> Export CSV
-                        </ZoruButton>
+                        </Button>
                         <input
                             ref={csvRef}
                             type="file"
@@ -195,10 +195,10 @@ export default function BulkEditorPage() {
                                 e.target.value = '';
                             }}
                         />
-                        <ZoruButton variant="outline" onClick={() => csvRef.current?.click()}>
+                        <Button variant="outline" onClick={() => csvRef.current?.click()}>
                             <Upload className="h-4 w-4 mr-1" /> Import CSV
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             onClick={() => {
                                 setRows(originalRows.map((r) => ({ ...r })));
@@ -208,15 +208,15 @@ export default function BulkEditorPage() {
                             disabled={saving || dirtyCount === 0}
                         >
                             <RotateCcw className="h-4 w-4 mr-1" /> Reset Changes
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                             onClick={saveAll}
                             disabled={saving || dirtyCount === 0}
                         >
                             <Save className="h-4 w-4 mr-1" />
                             {saving ? 'Saving…' : `Save ${dirtyCount || ''} changes`}
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
             />
@@ -226,20 +226,20 @@ export default function BulkEditorPage() {
                 <span>Edit campaigns inline; dirty rows are highlighted until saved.</span>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
                             {Array.from({ length: 6 }).map((_, i) => (
-                                <ZoruSkeleton key={i} className="h-10 w-full" />
+                                <Skeleton key={i} className="h-10 w-full" />
                             ))}
                         </div>
                     ) : (
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead className="w-10">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={allSelected}
                                             onCheckedChange={toggleSelectAll}
                                             aria-label="Select all"
@@ -255,7 +255,7 @@ export default function BulkEditorPage() {
                                 {rows.map((r) => (
                                     <ZoruTableRow key={r.id} className={r.dirty ? 'bg-amber-50 dark:bg-amber-950/20' : ''}>
                                         <ZoruTableCell className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selectedIds.has(r.id)}
                                                 onCheckedChange={() => toggleSelect(r.id)}
                                                 aria-label={`Select ${r.name}`}
@@ -263,7 +263,7 @@ export default function BulkEditorPage() {
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-xs font-mono text-muted-foreground">{r.id}</ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruInput
+                                            <Input
                                                 value={r.name}
                                                 onChange={(e) => updateRow(r.id, { name: e.target.value })}
                                                 className="h-8"
@@ -271,7 +271,7 @@ export default function BulkEditorPage() {
                                         </ZoruTableCell>
                                         <ZoruTableCell>{r.status}</ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruInput
+                                            <Input
                                                 type="number"
                                                 value={r.daily_budget}
                                                 onChange={(e) => updateRow(r.id, { daily_budget: Number(e.target.value) })}
@@ -281,10 +281,10 @@ export default function BulkEditorPage() {
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

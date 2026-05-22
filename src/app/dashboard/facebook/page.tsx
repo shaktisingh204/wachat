@@ -108,19 +108,19 @@ function compact(n: number | null | undefined): string {
 function OverviewSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-end justify-between gap-4">
-        <ZoruSkeleton className="h-9 w-72" />
-        <ZoruSkeleton className="h-9 w-36" />
+        <Skeleton className="h-9 w-72" />
+        <Skeleton className="h-9 w-36" />
       </div>
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-28" />
+          <Skeleton key={i} className="h-28" />
         ))}
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-96" />
+          <Skeleton key={i} className="h-96" />
         ))}
       </div>
     </div>
@@ -171,16 +171,16 @@ function PostItemCard({ post }: { post: FacebookPost }) {
     }
   };
   return (
-    <ZoruCard className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0">
       <div className="flex items-start justify-between gap-2 p-3">
         <p className="line-clamp-3 text-[13px] text-zoru-ink leading-snug">
           {post.message || "Media Post"}
         </p>
-        <ZoruDropdownMenu>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton variant="ghost" size="icon-sm" aria-label="Post actions">
+            <Button variant="ghost" size="icon-sm" aria-label="Post actions">
               <MoreHorizontal />
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent align="end">
             <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
@@ -210,7 +210,7 @@ function PostItemCard({ post }: { post: FacebookPost }) {
               </Link>
             </ZoruDropdownMenuItem>
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
       </div>
       {post.full_picture ? (
         <div className="px-3">
@@ -246,21 +246,21 @@ function PostItemCard({ post }: { post: FacebookPost }) {
           </span>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
 function CommentItemCard({ comment }: { comment: FacebookComment }) {
   return (
-    <ZoruCard className="p-3">
+    <Card className="p-3">
       <div className="flex items-start gap-3">
-        <ZoruAvatar className="h-9 w-9">
+        <Avatar className="h-9 w-9">
           <ZoruAvatarImage
             src={`https://graph.facebook.com/${comment.from.id}/picture`}
             alt={comment.from.name}
           />
           <ZoruAvatarFallback>{comment.from.name.charAt(0)}</ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <p className="truncate text-[13px] text-zoru-ink">
@@ -277,7 +277,7 @@ function CommentItemCard({ comment }: { comment: FacebookComment }) {
           </p>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -294,7 +294,7 @@ function PostColumn({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between px-1">
         <h3 className="text-[13px] text-zoru-ink">{title}</h3>
-        <ZoruBadge variant="secondary">{count}</ZoruBadge>
+        <Badge variant="secondary">{count}</Badge>
       </div>
       <div className="flex flex-col gap-3">{children}</div>
     </div>
@@ -417,7 +417,7 @@ export default function FacebookOverviewPage() {
   if (!projectId) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -427,18 +427,18 @@ export default function FacebookOverviewPage() {
               <ZoruBreadcrumbPage>Meta Suite</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<FacebookGlyph />}
             title="No project selected"
             description="Open a connected Facebook Page to see its overview, posts and engagement."
             action={
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/facebook/all-projects">
                   View connected pages <ArrowRight />
                 </Link>
-              </ZoruButton>
+              </Button>
             }
           />
         </div>
@@ -450,7 +450,7 @@ export default function FacebookOverviewPage() {
   if (!pageDetails) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -466,9 +466,9 @@ export default function FacebookOverviewPage() {
               <ZoruBreadcrumbPage>Connection issue</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
         <div className="mt-6 flex justify-center">
-          <ZoruCard className="max-w-xl p-6 text-center">
+          <Card className="max-w-xl p-6 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger/10 text-zoru-danger">
               <AlertCircle className="h-6 w-6" />
             </div>
@@ -480,28 +480,28 @@ export default function FacebookOverviewPage() {
             </p>
             {permissionError || error ? (
               <div className="mt-4 text-left">
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <ZoruAlertTitle>Error from Meta</ZoruAlertTitle>
                   <ZoruAlertDescription>
                     {permissionError || error}
                   </ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
               </div>
             ) : null}
             <div className="mt-5 flex flex-col gap-2">
-              <ZoruButton asChild size="lg">
+              <Button asChild size="lg">
                 <a href="/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth">
                   <FacebookGlyph className="h-4 w-4" /> Re-authorize
                 </a>
-              </ZoruButton>
-              <ZoruButton asChild variant="outline" size="sm">
+              </Button>
+              <Button asChild variant="outline" size="sm">
                 <Link href="/dashboard/facebook/all-projects">
                   Back to connected pages
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       </div>
     );
@@ -523,7 +523,7 @@ export default function FacebookOverviewPage() {
       />
 
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -539,9 +539,9 @@ export default function FacebookOverviewPage() {
               <ZoruBreadcrumbPage>{pageDetails.name}</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
 
-        <ZoruPageHeader className="mt-5" bordered={false}>
+        <PageHeader className="mt-5" bordered={false}>
           <ZoruPageHeading>
             <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
               Page overview
@@ -573,16 +573,16 @@ export default function FacebookOverviewPage() {
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
-              <ZoruInput
+              <Input
                 placeholder="Search posts…"
                 className="h-9 w-56 pl-8"
               />
             </div>
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   <SlidersHorizontal /> Filters
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuLabel>Filter posts</ZoruDropdownMenuLabel>
@@ -590,22 +590,22 @@ export default function FacebookOverviewPage() {
                 <ZoruDropdownMenuItem>Video posts</ZoruDropdownMenuItem>
                 <ZoruDropdownMenuItem>Text posts</ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
-            <ZoruButton asChild size="sm">
+            </DropdownMenu>
+            <Button asChild size="sm">
               <Link href="/dashboard/facebook/create-post">
                 <Plus /> Create post
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruPageHeader>
+        </PageHeader>
 
         {error ? (
           <div className="mt-5">
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertTitle>Error</ZoruAlertTitle>
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           </div>
         ) : null}
 
@@ -647,7 +647,7 @@ export default function FacebookOverviewPage() {
         <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-4">
           <PostColumn title="Latest posts" count={posts.slice(0, 3).length}>
             {posts.slice(0, 3).length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 compact
                 icon={<Newspaper />}
                 title="No posts yet"
@@ -662,7 +662,7 @@ export default function FacebookOverviewPage() {
 
           <PostColumn title="Top posts" count={topPosts.length}>
             {topPosts.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 compact
                 icon={<Sparkles />}
                 title="No top posts"
@@ -677,7 +677,7 @@ export default function FacebookOverviewPage() {
 
           <PostColumn title="Recent comments" count={recentComments.length}>
             {recentComments.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 compact
                 icon={<MessageSquare />}
                 title="No comments yet"
@@ -691,7 +691,7 @@ export default function FacebookOverviewPage() {
           </PostColumn>
 
           <PostColumn title="Quick links" count={4}>
-            <ZoruCard className="divide-y divide-zoru-line p-0">
+            <Card className="divide-y divide-zoru-line p-0">
               {[
                 {
                   href: "/dashboard/facebook/posts",
@@ -726,21 +726,21 @@ export default function FacebookOverviewPage() {
                   <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-subtle" />
                 </Link>
               ))}
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-3">
+            <Card className="p-3">
               <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                 Run a campaign
               </p>
               <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                 Reach new audiences with Meta Ads.
               </p>
-              <ZoruButton asChild size="sm" variant="outline" className="mt-3">
+              <Button asChild size="sm" variant="outline" className="mt-3">
                 <Link href="/dashboard/ad-manager">
                   <Megaphone /> Open Ads Manager
                 </Link>
-              </ZoruButton>
-            </ZoruCard>
+              </Button>
+            </Card>
           </PostColumn>
         </div>
       </div>

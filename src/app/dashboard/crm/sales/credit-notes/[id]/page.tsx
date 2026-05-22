@@ -75,11 +75,11 @@ export default async function CreditNoteDetailPage({
                     <p className="text-[14px] text-zoru-ink">
                         Couldn&apos;t load this credit note — {error}
                     </p>
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href="/dashboard/crm/sales/credit-notes">
                             <ArrowLeft className="h-4 w-4" /> Back to Credit Notes
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             );
         }
@@ -97,30 +97,30 @@ export default async function CreditNoteDetailPage({
             back={{ href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes' }}
             actions={
                 <>
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={`/dashboard/crm/sales/credit-notes/${id}/activity`}>
                             <Activity className="h-4 w-4" /> Activity
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <CreditNoteDetailActions id={id} currentStatus={status} />
-                    <ZoruButton variant="outline" disabled title="Coming soon">
+                    <Button variant="outline" disabled title="Coming soon">
                         <Printer className="h-4 w-4" /> Print
-                    </ZoruButton>
-                    <ZoruButton variant="outline" disabled title="Coming soon">
+                    </Button>
+                    <Button variant="outline" disabled title="Coming soon">
                         <Mail className="h-4 w-4" /> Email
-                    </ZoruButton>
-                    <ZoruButton asChild>
+                    </Button>
+                    <Button asChild>
                         <Link href={`/dashboard/crm/sales/credit-notes/${id}/edit`}>
                             <Pencil className="h-4 w-4" /> Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </>
             }
         >
 
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="flex flex-col gap-6">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Header
                         </h3>
@@ -151,15 +151,15 @@ export default async function CreditNoteDetailPage({
                                 <CreditNoteInlineStatus id={id} status={status} />
                             </Field>
                         </div>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard className="overflow-hidden p-0">
+                    <Card className="overflow-hidden p-0">
                         <div className="border-b border-zoru-line p-4">
                             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Line items
                             </h3>
                         </div>
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Description</ZoruTableHead>
@@ -213,10 +213,10 @@ export default async function CreditNoteDetailPage({
                                     ))
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
-                    </ZoruCard>
+                        </Table>
+                    </Card>
 
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Refund & notes
                         </h3>
@@ -238,7 +238,7 @@ export default async function CreditNoteDetailPage({
                                 </div>
                             </div>
                         ) : null}
-                    </ZoruCard>
+                    </Card>
 
                     <div className="text-[11px] text-zoru-ink-muted">
                         Created {fmtDate(creditNote.createdAt || creditNote.audit?.createdAt)} ·
@@ -247,7 +247,7 @@ export default async function CreditNoteDetailPage({
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Money summary
                         </h3>
@@ -279,7 +279,7 @@ export default async function CreditNoteDetailPage({
                                 <span>{fmtMoney(creditNote.totals?.total, currency)}</span>
                             </div>
                         </div>
-                    </ZoruCard>
+                    </Card>
 
                     <LineageRail
                         current={{

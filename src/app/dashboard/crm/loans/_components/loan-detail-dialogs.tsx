@@ -87,7 +87,7 @@ export function LoanRecordPaymentDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Record loan payment</ZoruDialogTitle>
@@ -98,8 +98,8 @@ export function LoanRecordPaymentDialog({
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <ZoruLabel htmlFor="lp-amount">Amount</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lp-amount">Amount</Label>
+            <Input
               id="lp-amount"
               type="number"
               inputMode="decimal"
@@ -110,8 +110,8 @@ export function LoanRecordPaymentDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="lp-date">Payment date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lp-date">Payment date</Label>
+            <Input
               id="lp-date"
               type="date"
               value={date}
@@ -120,7 +120,7 @@ export function LoanRecordPaymentDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="lp-mode">Mode</ZoruLabel>
+            <Label htmlFor="lp-mode">Mode</Label>
             <select
               id="lp-mode"
               value={mode}
@@ -135,8 +135,8 @@ export function LoanRecordPaymentDialog({
             </select>
           </div>
           <div>
-            <ZoruLabel htmlFor="lp-txn">Txn / reference (optional)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lp-txn">Txn / reference (optional)</Label>
+            <Input
               id="lp-txn"
               value={txnId}
               onChange={(e) => setTxnId(e.target.value)}
@@ -146,14 +146,14 @@ export function LoanRecordPaymentDialog({
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onSubmit} disabled={pending}>
+          </Button>
+          <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Record payment'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

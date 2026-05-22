@@ -156,7 +156,7 @@ export default async function NoticeDetailPage({
                 }
                 rightRail={
                     <>
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Key facts</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -164,7 +164,7 @@ export default async function NoticeDetailPage({
                                 <dl className="grid grid-cols-2 gap-y-1.5 text-[12.5px]">
                                     <dt className="text-zoru-ink-muted">Status</dt>
                                     <dd>
-                                        <ZoruBadge variant="outline">{status.label}</ZoruBadge>
+                                        <Badge variant="outline">{status.label}</Badge>
                                     </dd>
                                     <dt className="text-zoru-ink-muted">Audience</dt>
                                     <dd className="text-zoru-ink">{audience}</dd>
@@ -186,10 +186,10 @@ export default async function NoticeDetailPage({
                                     </dd>
                                 </dl>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
 
                         {n.department_id ? (
-                            <ZoruCard>
+                            <Card>
                                 <ZoruCardHeader>
                                     <ZoruCardTitle>Department</ZoruCardTitle>
                                 </ZoruCardHeader>
@@ -199,11 +199,11 @@ export default async function NoticeDetailPage({
                                         id={n.department_id}
                                     />
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ) : null}
 
                         {Array.isArray(n.employee_ids) && n.employee_ids.length > 0 ? (
-                            <ZoruCard>
+                            <Card>
                                 <ZoruCardHeader>
                                     <ZoruCardTitle>
                                         Recipients ({n.employee_ids.length})
@@ -225,54 +225,54 @@ export default async function NoticeDetailPage({
                                         ) : null}
                                     </div>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         ) : null}
 
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Quick actions</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 <div className="flex flex-col gap-2 text-[12.5px]">
-                                    <ZoruButton asChild variant="outline" size="sm">
+                                    <Button asChild variant="outline" size="sm">
                                         <Link
                                             href={`/dashboard/crm/workspace/notices/${String(n._id)}/edit`}
                                         >
                                             Edit notice
                                         </Link>
-                                    </ZoruButton>
-                                    <ZoruButton asChild variant="ghost" size="sm">
+                                    </Button>
+                                    <Button asChild variant="ghost" size="sm">
                                         <Link href="/dashboard/crm/workspace/notices">
                                             All notices
                                         </Link>
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     </>
                 }
             >
                 <SectionNav active="overview" />
 
-                <ZoruCard id="section-overview">
+                <Card id="section-overview">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Overview</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="mb-4 flex flex-wrap items-center gap-2">
-                            <ZoruBadge variant="ghost">
+                            <Badge variant="ghost">
                                 Audience: {audience}
-                            </ZoruBadge>
+                            </Badge>
                             {n.pinned ? (
-                                <ZoruBadge variant="warning">
+                                <Badge variant="warning">
                                     <Pin className="h-3 w-3" /> Pinned
-                                </ZoruBadge>
+                                </Badge>
                             ) : null}
-                            <ZoruBadge variant="secondary">
+                            <Badge variant="secondary">
                                 Published {fmtDate(n.createdAt)}
-                            </ZoruBadge>
+                            </Badge>
                             {fileAttached ? (
-                                <ZoruBadge variant="info">Attachments</ZoruBadge>
+                                <Badge variant="info">Attachments</Badge>
                             ) : null}
                         </div>
                         <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
@@ -283,9 +283,9 @@ export default async function NoticeDetailPage({
                             )}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-details">
+                <Card id="section-details">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Details</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -305,28 +305,28 @@ export default async function NoticeDetailPage({
                             </Field>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-files">
+                <Card id="section-files">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Attachments</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         {fileAttached ? (
-                            <ZoruEmptyState
+                            <EmptyState
                                 title="Attachments listing pending"
                                 description="The notice is flagged as having attachments. A dedicated getNoticeFiles() endpoint will land with the §1D.2 file-roster server action."
                             />
                         ) : (
-                            <ZoruEmptyState
+                            <EmptyState
                                 title="No attachments"
                                 description="Files attached during notice creation will appear here."
                             />
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-comments">
+                <Card id="section-comments">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Acknowledgements</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -337,9 +337,9 @@ export default async function NoticeDetailPage({
                             getNoticeAcknowledgements() lands (TODO 1D.2).
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard id="section-related">
+                <Card id="section-related">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Related</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -367,7 +367,7 @@ export default async function NoticeDetailPage({
                             ) : null}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
                 <p className="text-[11px] text-zoru-ink-muted">
                     Created {fmtDate(n.createdAt)} · Updated{' '}

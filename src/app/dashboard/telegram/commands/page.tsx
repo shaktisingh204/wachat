@@ -955,32 +955,32 @@ export default function TelegramCommandsPage() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+                    <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
                         <Upload className="h-3.5 w-3.5" />
                         Import
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" onClick={runExport}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={runExport}>
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" onClick={openDiff}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={openDiff}>
                         <Eye className="h-3.5 w-3.5" />
                         Pull from Telegram
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={openCreate} disabled={!projectId}>
+                    </Button>
+                    <Button size="sm" onClick={openCreate} disabled={!projectId}>
                         <Plus className="h-3.5 w-3.5" />
                         New command
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             {!projectId ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="flex items-center gap-2 text-zoru-ink-muted">
                         <AlertCircle className="h-4 w-4" />
                         <span className="text-sm">Select a project to view commands.</span>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* KPI cards */}
@@ -1016,11 +1016,11 @@ export default function TelegramCommandsPage() {
             </div>
 
             {/* Filter bar */}
-            <ZoruCard className="p-3">
+            <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative flex-1 min-w-[220px]">
                         <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
-                        <ZoruInput
+                        <Input
                             placeholder="Search command or description"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -1028,7 +1028,7 @@ export default function TelegramCommandsPage() {
                         />
                     </div>
                     <div className="min-w-[180px]">
-                        <ZoruSelect value={botFilter} onValueChange={setBotFilter}>
+                        <Select value={botFilter} onValueChange={setBotFilter}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -1041,10 +1041,10 @@ export default function TelegramCommandsPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="min-w-[200px]">
-                        <ZoruSelect value={scopeFilter} onValueChange={setScopeFilter}>
+                        <Select value={scopeFilter} onValueChange={setScopeFilter}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -1055,10 +1055,10 @@ export default function TelegramCommandsPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="min-w-[160px]">
-                        <ZoruInput
+                        <Input
                             placeholder="Language (e.g. en)"
                             value={languageFilter}
                             onChange={(e) => setLanguageFilter(e.target.value.toLowerCase())}
@@ -1066,33 +1066,33 @@ export default function TelegramCommandsPage() {
                     </div>
                     {selected.size > 0 ? (
                         <>
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setBulkDeleteOpen(true)}
                             >
                                 <Trash2 className="h-3.5 w-3.5" />
                                 Delete {selected.size}
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setPushBulkOpen(true)}
                             >
                                 <Send className="h-3.5 w-3.5" />
                                 Push to all bots
-                            </ZoruButton>
+                            </Button>
                         </>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Table */}
-            <ZoruCard className="overflow-hidden">
+            <Card className="overflow-hidden">
                 {loading ? (
                     <div className="flex flex-col gap-2 p-4">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-9 w-full" />
+                            <Skeleton key={i} className="h-9 w-full" />
                         ))}
                     </div>
                 ) : data?.error ? (
@@ -1101,15 +1101,15 @@ export default function TelegramCommandsPage() {
                         {data.error}
                     </div>
                 ) : rows.length === 0 ? (
-                    <ZoruEmptyState
+                    <EmptyState
                         title="No commands yet"
                         description="Define a command, attach a handler, then push to one or more bots."
                         icon={<Terminal className="h-5 w-5" />}
                         action={
-                            <ZoruButton size="sm" onClick={openCreate} disabled={!projectId}>
+                            <Button size="sm" onClick={openCreate} disabled={!projectId}>
                                 <Plus className="h-3.5 w-3.5" />
                                 New command
-                            </ZoruButton>
+                            </Button>
                         }
                     />
                 ) : (
@@ -1118,7 +1118,7 @@ export default function TelegramCommandsPage() {
                             <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
                                 <tr>
                                     <th className="w-10 p-3">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={
                                                 allSelected
                                                     ? true
@@ -1152,7 +1152,7 @@ export default function TelegramCommandsPage() {
                                             className="group border-b border-zoru-line/60 last:border-b-0 hover:bg-zoru-surface-2/40"
                                         >
                                             <td className="p-3">
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     checked={checked}
                                                     onCheckedChange={(v) =>
                                                         setSelected((prev) => {
@@ -1185,14 +1185,14 @@ export default function TelegramCommandsPage() {
                                                 {row.languageCode ?? '—'}
                                             </td>
                                             <td className="p-3">
-                                                <ZoruBadge variant="secondary">
+                                                <Badge variant="secondary">
                                                     {HANDLER_OPTIONS.find(
                                                         (h) => h.value === row.handler.kind,
                                                     )?.label ?? row.handler.kind}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </td>
                                             <td className="p-3">
-                                                <ZoruSwitch
+                                                <Switch
                                                     checked={row.hidden}
                                                     onCheckedChange={(v) => toggleHidden(row, v)}
                                                 />
@@ -1201,11 +1201,11 @@ export default function TelegramCommandsPage() {
                                                 {row.runCount.toLocaleString()}
                                             </td>
                                             <td className="p-3">
-                                                <ZoruDropdownMenu>
+                                                <DropdownMenu>
                                                     <ZoruDropdownMenuTrigger asChild>
-                                                        <ZoruButton variant="ghost" size="sm">
+                                                        <Button variant="ghost" size="sm">
                                                             <MoreHorizontal className="h-3.5 w-3.5" />
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </ZoruDropdownMenuTrigger>
                                                     <ZoruDropdownMenuContent align="end">
                                                         <ZoruDropdownMenuItem
@@ -1243,7 +1243,7 @@ export default function TelegramCommandsPage() {
                                                             Delete
                                                         </ZoruDropdownMenuItem>
                                                     </ZoruDropdownMenuContent>
-                                                </ZoruDropdownMenu>
+                                                </DropdownMenu>
                                             </td>
                                         </tr>
                                     );
@@ -1259,7 +1259,7 @@ export default function TelegramCommandsPage() {
                             {data.total}
                         </span>
                         <div className="flex items-center gap-1">
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={page <= 1}
@@ -1267,11 +1267,11 @@ export default function TelegramCommandsPage() {
                             >
                                 <ChevronLeft className="h-3.5 w-3.5" />
                                 Prev
-                            </ZoruButton>
+                            </Button>
                             <span className="px-2">
                                 Page {page} / {totalPages}
                             </span>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={!data.hasMore}
@@ -1279,11 +1279,11 @@ export default function TelegramCommandsPage() {
                             >
                                 Next
                                 <ChevronRight className="h-3.5 w-3.5" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 ) : null}
-            </ZoruCard>
+            </Card>
 
             {/* Editor drawer */}
             <ZoruDrawer open={editorOpen} onOpenChange={setEditorOpen}>
@@ -1298,7 +1298,7 @@ export default function TelegramCommandsPage() {
                     </ZoruDrawerHeader>
                     <div className="grid gap-3 px-6 pb-4 sm:grid-cols-2">
                         <Field label="Command">
-                            <ZoruInput
+                            <Input
                                 value={editorForm.command}
                                 onChange={(e) =>
                                     setEditorForm((f) => ({
@@ -1312,7 +1312,7 @@ export default function TelegramCommandsPage() {
                             />
                         </Field>
                         <Field label="Bot scope">
-                            <ZoruSelect
+                            <Select
                                 value={editorForm.botId || '__none__'}
                                 onValueChange={(v) =>
                                     setEditorForm((f) => ({
@@ -1332,11 +1332,11 @@ export default function TelegramCommandsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <div className="sm:col-span-2">
                             <Field label="Description (max 256)">
-                                <ZoruInput
+                                <Input
                                     value={editorForm.description}
                                     onChange={(e) =>
                                         setEditorForm((f) => ({
@@ -1349,7 +1349,7 @@ export default function TelegramCommandsPage() {
                             </Field>
                         </div>
                         <Field label="Language">
-                            <ZoruSelect
+                            <Select
                                 value={
                                     editorForm.languageMode === 'universal'
                                         ? LANG_UNIVERSAL
@@ -1389,11 +1389,11 @@ export default function TelegramCommandsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         {editorForm.languageMode === 'custom' ? (
                             <Field label="Custom language code">
-                                <ZoruInput
+                                <Input
                                     value={editorForm.language}
                                     onChange={(e) =>
                                         setEditorForm((f) => ({
@@ -1408,7 +1408,7 @@ export default function TelegramCommandsPage() {
                             <div />
                         )}
                         <Field label="Scope">
-                            <ZoruSelect
+                            <Select
                                 value={editorForm.scopeKind}
                                 onValueChange={(v) =>
                                     setEditorForm((f) => ({
@@ -1427,11 +1427,11 @@ export default function TelegramCommandsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Hidden on push">
                             <div className="flex items-center gap-2 pt-1.5">
-                                <ZoruSwitch
+                                <Switch
                                     checked={editorForm.hidden}
                                     onCheckedChange={(v) =>
                                         setEditorForm((f) => ({ ...f, hidden: v }))
@@ -1446,7 +1446,7 @@ export default function TelegramCommandsPage() {
                             editorForm.scopeKind === 'chat_administrators' ||
                             editorForm.scopeKind === 'chat_member') && (
                             <Field label="Chat ID">
-                                <ZoruInput
+                                <Input
                                     value={editorForm.scopeChatId}
                                     onChange={(e) =>
                                         setEditorForm((f) => ({
@@ -1460,7 +1460,7 @@ export default function TelegramCommandsPage() {
                         )}
                         {editorForm.scopeKind === 'chat_member' && (
                             <Field label="User ID">
-                                <ZoruInput
+                                <Input
                                     value={editorForm.scopeUserId}
                                     onChange={(e) =>
                                         setEditorForm((f) => ({
@@ -1474,7 +1474,7 @@ export default function TelegramCommandsPage() {
                         )}
                         <div className="sm:col-span-2">
                             <Field label="Handler">
-                                <ZoruSelect
+                                <Select
                                     value={editorForm.handlerKind}
                                     onValueChange={(v) =>
                                         setEditorForm((f) => ({
@@ -1493,14 +1493,14 @@ export default function TelegramCommandsPage() {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </Field>
                         </div>
                         {editorForm.handlerKind === 'reply_text' && (
                             <>
                                 <div className="sm:col-span-2">
                                     <Field label="Reply text">
-                                        <ZoruTextarea
+                                        <Textarea
                                             rows={4}
                                             value={editorForm.replyText}
                                             onChange={(e) =>
@@ -1514,7 +1514,7 @@ export default function TelegramCommandsPage() {
                                     </Field>
                                 </div>
                                 <Field label="Parse mode">
-                                    <ZoruSelect
+                                    <Select
                                         value={editorForm.parseMode || PARSE_PLAIN}
                                         onValueChange={(v) =>
                                             setEditorForm((f) => ({
@@ -1533,11 +1533,11 @@ export default function TelegramCommandsPage() {
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 <Field label="Disable preview">
                                     <div className="flex items-center gap-2 pt-1.5">
-                                        <ZoruSwitch
+                                        <Switch
                                             checked={editorForm.disablePreview}
                                             onCheckedChange={(v) =>
                                                 setEditorForm((f) => ({
@@ -1553,7 +1553,7 @@ export default function TelegramCommandsPage() {
                         {editorForm.handlerKind === 'reply_media' && (
                             <>
                                 <Field label="Media kind">
-                                    <ZoruSelect
+                                    <Select
                                         value={editorForm.mediaKind}
                                         onValueChange={(v) =>
                                             setEditorForm((f) => ({ ...f, mediaKind: v }))
@@ -1569,7 +1569,7 @@ export default function TelegramCommandsPage() {
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 <Field label="File">
                                     <div className="flex flex-col gap-2">
@@ -1579,7 +1579,7 @@ export default function TelegramCommandsPage() {
                                                     {editorForm.mediaUrl.split('/').pop() ??
                                                         editorForm.mediaUrl}
                                                 </span>
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() =>
@@ -1590,7 +1590,7 @@ export default function TelegramCommandsPage() {
                                                     }
                                                 >
                                                     Clear
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                         ) : null}
                                         <SabFilePickerButton
@@ -1619,7 +1619,7 @@ export default function TelegramCommandsPage() {
                                 </Field>
                                 <div className="sm:col-span-2">
                                     <Field label="Caption (optional)">
-                                        <ZoruTextarea
+                                        <Textarea
                                             rows={2}
                                             value={editorForm.mediaCaption}
                                             onChange={(e) =>
@@ -1636,7 +1636,7 @@ export default function TelegramCommandsPage() {
                         {editorForm.handlerKind === 'run_flow' && (
                             <div className="sm:col-span-2">
                                 <Field label="Flow ID">
-                                    <ZoruInput
+                                    <Input
                                         value={editorForm.flowId}
                                         onChange={(e) =>
                                             setEditorForm((f) => ({
@@ -1652,7 +1652,7 @@ export default function TelegramCommandsPage() {
                         {editorForm.handlerKind === 'http_call' && (
                             <>
                                 <Field label="Method">
-                                    <ZoruSelect
+                                    <Select
                                         value={editorForm.httpMethod}
                                         onValueChange={(v) =>
                                             setEditorForm((f) => ({ ...f, httpMethod: v }))
@@ -1668,10 +1668,10 @@ export default function TelegramCommandsPage() {
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 <Field label="URL">
-                                    <ZoruInput
+                                    <Input
                                         type="url"
                                         value={editorForm.httpUrl}
                                         onChange={(e) =>
@@ -1685,7 +1685,7 @@ export default function TelegramCommandsPage() {
                                 </Field>
                                 <div className="sm:col-span-2">
                                     <Field label="Headers (JSON)">
-                                        <ZoruTextarea
+                                        <Textarea
                                             rows={3}
                                             className="font-mono text-[12px]"
                                             value={editorForm.httpHeaders}
@@ -1701,7 +1701,7 @@ export default function TelegramCommandsPage() {
                                 </div>
                                 <div className="sm:col-span-2">
                                     <Field label="Body (raw)">
-                                        <ZoruTextarea
+                                        <Textarea
                                             rows={3}
                                             className="font-mono text-[12px]"
                                             value={editorForm.httpBody}
@@ -1723,23 +1723,23 @@ export default function TelegramCommandsPage() {
                         ) : null}
                     </div>
                     <div className="flex justify-end gap-2 px-6 pb-6">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setEditorOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={saveEditor} disabled={saving}>
+                        </Button>
+                        <Button size="sm" onClick={saveEditor} disabled={saving}>
                             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruDrawerContent>
             </ZoruDrawer>
 
             {/* Push dialog */}
-            <ZoruDialog open={pushOpen} onOpenChange={setPushOpen}>
+            <Dialog open={pushOpen} onOpenChange={setPushOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Push commands to Telegram</ZoruDialogTitle>
@@ -1751,7 +1751,7 @@ export default function TelegramCommandsPage() {
                     </ZoruDialogHeader>
                     <div className="grid gap-3">
                         <Field label="Bot">
-                            <ZoruSelect value={pushBot} onValueChange={setPushBot}>
+                            <Select value={pushBot} onValueChange={setPushBot}>
                                 <ZoruSelectTrigger>
                                     <ZoruSelectValue placeholder="Pick a bot" />
                                 </ZoruSelectTrigger>
@@ -1762,10 +1762,10 @@ export default function TelegramCommandsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Scope">
-                            <ZoruSelect
+                            <Select
                                 value={pushScope}
                                 onValueChange={(v) =>
                                     setPushScope(v as CommandScopeKind)
@@ -1781,13 +1781,13 @@ export default function TelegramCommandsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         {(pushScope === 'chat' ||
                             pushScope === 'chat_administrators' ||
                             pushScope === 'chat_member') && (
                             <Field label="Chat ID">
-                                <ZoruInput
+                                <Input
                                     value={pushChatId}
                                     onChange={(e) => setPushChatId(e.target.value)}
                                     placeholder="-1001234567890"
@@ -1796,14 +1796,14 @@ export default function TelegramCommandsPage() {
                         )}
                         {pushScope === 'chat_member' && (
                             <Field label="User ID">
-                                <ZoruInput
+                                <Input
                                     value={pushUserId}
                                     onChange={(e) => setPushUserId(e.target.value)}
                                 />
                             </Field>
                         )}
                         <Field label="Language code (optional)">
-                            <ZoruInput
+                            <Input
                                 value={pushLanguage}
                                 onChange={(e) => setPushLanguage(e.target.value.toLowerCase())}
                                 placeholder="en"
@@ -1811,19 +1811,19 @@ export default function TelegramCommandsPage() {
                         </Field>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setPushOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setPushOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runPush} disabled={pushBusy || !pushBot}>
+                        </Button>
+                        <Button size="sm" onClick={runPush} disabled={pushBusy || !pushBot}>
                             {pushBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Push
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Pull/diff dialog */}
-            <ZoruDialog open={diffOpen} onOpenChange={setDiffOpen}>
+            <Dialog open={diffOpen} onOpenChange={setDiffOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Pull live commands</ZoruDialogTitle>
@@ -1834,7 +1834,7 @@ export default function TelegramCommandsPage() {
                     </ZoruDialogHeader>
                     <div className="grid gap-3">
                         <Field label="Bot">
-                            <ZoruSelect value={diffBot} onValueChange={setDiffBot}>
+                            <Select value={diffBot} onValueChange={setDiffBot}>
                                 <ZoruSelectTrigger>
                                     <ZoruSelectValue placeholder="Pick a bot" />
                                 </ZoruSelectTrigger>
@@ -1845,10 +1845,10 @@ export default function TelegramCommandsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Scope">
-                            <ZoruSelect
+                            <Select
                                 value={diffScope}
                                 onValueChange={(v) =>
                                     setDiffScope(v as CommandScopeKind)
@@ -1864,46 +1864,46 @@ export default function TelegramCommandsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Language">
-                            <ZoruInput
+                            <Input
                                 value={diffLanguage}
                                 onChange={(e) => setDiffLanguage(e.target.value.toLowerCase())}
                                 placeholder="e.g. en"
                             />
                         </Field>
-                        <ZoruButton size="sm" onClick={runDiff} disabled={diffBusy || !diffBot}>
+                        <Button size="sm" onClick={runDiff} disabled={diffBusy || !diffBot}>
                             {diffBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Fetch
-                        </ZoruButton>
+                        </Button>
                         {diff ? <DiffView diff={diff} /> : null}
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setDiffOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setDiffOpen(false)}>
                             Close
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={runReplaceLocalWithLive}
                             disabled={!diff}
                         >
                             Replace local with live
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             onClick={runPushLocalOverLive}
                             disabled={!diff || diffBusy}
                         >
                             Push local over live
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Import dialog */}
-            <ZoruDialog open={importOpen} onOpenChange={setImportOpen}>
+            <Dialog open={importOpen} onOpenChange={setImportOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Import commands</ZoruDialogTitle>
@@ -1912,7 +1912,7 @@ export default function TelegramCommandsPage() {
                             <code>commands</code> array.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
-                    <ZoruTextarea
+                    <Textarea
                         value={importJson}
                         onChange={(e) => setImportJson(e.target.value)}
                         rows={12}
@@ -1920,19 +1920,19 @@ export default function TelegramCommandsPage() {
                         className="font-mono text-[12px]"
                     />
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setImportOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runImport} disabled={importing}>
+                        </Button>
+                        <Button size="sm" onClick={runImport} disabled={importing}>
                             {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Import
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Single delete */}
-            <ZoruDialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
+            <Dialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete command?</ZoruDialogTitle>
@@ -1941,36 +1941,36 @@ export default function TelegramCommandsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
+                        <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={confirmDelete}>
+                        </Button>
+                        <Button size="sm" onClick={confirmDelete}>
                             Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Bulk delete */}
-            <ZoruDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+            <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete {selected.size} commands?</ZoruDialogTitle>
                         <ZoruDialogDescription>This cannot be undone.</ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setBulkDeleteOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setBulkDeleteOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={confirmBulkDelete}>
+                        </Button>
+                        <Button size="sm" onClick={confirmBulkDelete}>
                             Delete
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Bulk push */}
-            <ZoruDialog open={pushBulkOpen} onOpenChange={setPushBulkOpen}>
+            <Dialog open={pushBulkOpen} onOpenChange={setPushBulkOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>
@@ -1982,15 +1982,15 @@ export default function TelegramCommandsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" size="sm" onClick={() => setPushBulkOpen(false)}>
+                        <Button variant="outline" size="sm" onClick={() => setPushBulkOpen(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={runBulkPush}>
+                        </Button>
+                        <Button size="sm" onClick={runBulkPush}>
                             Push
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Detail drawer */}
             <ZoruDrawer open={!!detailRow} onOpenChange={(v) => !v && setDetailRow(null)}>
@@ -2005,14 +2005,14 @@ export default function TelegramCommandsPage() {
                             </ZoruDrawerHeader>
                             <div className="flex gap-2 px-6 pb-2">
                                 {(['overview', 'runs', 'diff'] as const).map((t) => (
-                                    <ZoruButton
+                                    <Button
                                         key={t}
                                         size="sm"
                                         variant={detailTab === t ? 'default' : 'outline'}
                                         onClick={() => setDetailTab(t)}
                                     >
                                         {t.charAt(0).toUpperCase() + t.slice(1)}
-                                    </ZoruButton>
+                                    </Button>
                                 ))}
                             </div>
                             <div className="px-6 pb-6">
@@ -2049,18 +2049,18 @@ function KpiCard({
     loading: boolean;
 }) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
                     {label}
                 </p>
                 {loading ? (
-                    <ZoruSkeleton className="h-7 w-24" />
+                    <Skeleton className="h-7 w-24" />
                 ) : (
                     <p className="text-2xl font-semibold tracking-tight text-zoru-ink">{value}</p>
                 )}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -2151,10 +2151,10 @@ function DetailOverview({ row, bots }: { row: CommandRow; bots: BotOption[] }) {
             <Row label="Scope">{scopeLabel(row.scope)}</Row>
             <Row label="Language">{row.languageCode ?? 'Universal'}</Row>
             <Row label="Handler">
-                <ZoruBadge variant="secondary">
+                <Badge variant="secondary">
                     {HANDLER_OPTIONS.find((h) => h.value === row.handler.kind)?.label ??
                         row.handler.kind}
-                </ZoruBadge>
+                </Badge>
             </Row>
             <Row label="Hidden">
                 {row.hidden ? (
@@ -2189,7 +2189,7 @@ function DetailRuns({ runs, loading }: { runs: RunRow[]; loading: boolean }) {
         return (
             <div className="flex flex-col gap-2">
                 {Array.from({ length: 4 }).map((_, i) => (
-                    <ZoruSkeleton key={i} className="h-8 w-full" />
+                    <Skeleton key={i} className="h-8 w-full" />
                 ))}
             </div>
         );
@@ -2219,9 +2219,9 @@ function DetailRuns({ runs, loading }: { runs: RunRow[]; loading: boolean }) {
                             <td className="p-2 font-mono">{r.userId ?? '—'}</td>
                             <td className="p-2">
                                 {r.success ? (
-                                    <ZoruBadge variant="success">ok</ZoruBadge>
+                                    <Badge variant="success">ok</Badge>
                                 ) : (
-                                    <ZoruBadge variant="warning">failed</ZoruBadge>
+                                    <Badge variant="warning">failed</Badge>
                                 )}
                             </td>
                             <td className="p-2 text-zoru-danger-ink">{r.errorMessage ?? '—'}</td>
@@ -2250,7 +2250,7 @@ function DetailDiff({
         );
     }
     if (loading || !diff) {
-        return <ZoruSkeleton className="h-24 w-full" />;
+        return <Skeleton className="h-24 w-full" />;
     }
     return <DiffView diff={diff} />;
 }

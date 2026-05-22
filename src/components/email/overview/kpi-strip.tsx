@@ -66,7 +66,7 @@ export function EmailKpiStrip({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {tiles.map((t) => (
-        <ZoruCard key={t.label} className="p-0">
+        <Card key={t.label} className="p-0">
           <ZoruCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <ZoruCardTitle className="text-sm text-zoru-ink-muted">{t.label}</ZoruCardTitle>
             <t.icon className="h-4 w-4 text-zoru-ink-muted" />
@@ -77,7 +77,7 @@ export function EmailKpiStrip({
               <p className="text-xs text-zoru-ink-muted">{t.delta}</p>
             ) : null}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ))}
     </div>
   );

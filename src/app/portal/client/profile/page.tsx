@@ -31,7 +31,7 @@ export default async function ClientProfilePage() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Account</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -42,9 +42,9 @@ export default async function ClientProfilePage() {
                             initialMobile={profile.mobile ?? ''}
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Company</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -75,7 +75,7 @@ export default async function ClientProfilePage() {
                             </p>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

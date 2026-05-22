@@ -87,14 +87,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create OKR'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -153,7 +153,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="okrId" value={initialData!._id} />
@@ -167,8 +167,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
 
                 {/* Row 1: Objective */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="objective">Objective *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="objective">Objective *</Label>
+                    <Input
                         id="objective"
                         name="objective"
                         required
@@ -179,8 +179,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
 
                 {/* Row 2: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={3}
@@ -192,8 +192,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                 {/* Row 3: Period + Owner */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="period">Period</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="period">Period</Label>
+                        <Input
                             id="period"
                             name="period"
                             placeholder="e.g. 2026-Q2"
@@ -201,8 +201,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="ownerName">Owner name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="ownerName">Owner name</Label>
+                        <Input
                             id="ownerName"
                             name="ownerName"
                             placeholder="Display name"
@@ -214,8 +214,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                 {/* Row 4: Owner id + Team / Department */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="ownerId">Owner (user id)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="ownerId">Owner (user id)</Label>
+                        <Input
                             id="ownerId"
                             name="ownerId"
                             placeholder="Optional"
@@ -223,8 +223,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="teamId">Team id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="teamId">Team id</Label>
+                        <Input
                             id="teamId"
                             name="teamId"
                             placeholder="Optional"
@@ -232,8 +232,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="departmentId">Department id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="departmentId">Department id</Label>
+                        <Input
                             id="departmentId"
                             name="departmentId"
                             placeholder="Optional"
@@ -245,8 +245,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                 {/* Row 5: Dates + parent */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startDate">Start date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startDate">Start date</Label>
+                        <Input
                             id="startDate"
                             name="startDate"
                             type="date"
@@ -254,8 +254,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="endDate">End date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endDate">End date</Label>
+                        <Input
                             id="endDate"
                             name="endDate"
                             type="date"
@@ -263,8 +263,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="parentOkrId">Parent OKR id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="parentOkrId">Parent OKR id</Label>
+                        <Input
                             id="parentOkrId"
                             name="parentOkrId"
                             placeholder="Optional"
@@ -276,8 +276,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                 {/* Row 6: Progress + Confidence + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="progress">Progress %</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="progress">Progress %</Label>
+                        <Input
                             id="progress"
                             name="progress"
                             type="number"
@@ -293,8 +293,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="confidence">Confidence %</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="confidence">Confidence %</Label>
+                        <Input
                             id="confidence"
                             name="confidence"
                             type="number"
@@ -310,8 +310,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmOkrStatus)}
                         >
@@ -325,14 +325,14 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Row 7: Tags */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="tags">Tags</Label>
+                    <Input
                         id="tags"
                         name="tags"
                         placeholder="comma, separated, tags"
@@ -343,8 +343,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                 {/* Key Results editor */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Key results</ZoruLabel>
-                        <ZoruButton
+                        <Label>Key results</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -352,7 +352,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add KR
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {keyResults.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -367,10 +367,10 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                 >
                                     <div className="mb-2 flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">
-                                            <ZoruLabel htmlFor={`kr-title-${kr.id}`}>
+                                            <Label htmlFor={`kr-title-${kr.id}`}>
                                                 Title *
-                                            </ZoruLabel>
-                                            <ZoruInput
+                                            </Label>
+                                            <Input
                                                 id={`kr-title-${kr.id}`}
                                                 value={kr.title}
                                                 onChange={(e) =>
@@ -379,7 +379,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                                 placeholder="Ship feature X"
                                             />
                                         </div>
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
@@ -387,12 +387,12 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                             aria-label="Remove key result"
                                         >
                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                     <div className="grid gap-3 sm:grid-cols-4">
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Metric</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Metric</Label>
+                                            <Input
                                                 value={kr.metric ?? ''}
                                                 onChange={(e) =>
                                                     updateKr(kr.id, 'metric', e.target.value)
@@ -401,8 +401,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Target</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Target</Label>
+                                            <Input
                                                 type="number"
                                                 value={
                                                     typeof kr.targetValue === 'number'
@@ -422,8 +422,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Current</ZoruLabel>
-                                            <ZoruInput
+                                            <Label>Current</Label>
+                                            <Input
                                                 type="number"
                                                 value={
                                                     typeof kr.currentValue === 'number'
@@ -443,8 +443,8 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel>Status</ZoruLabel>
-                                            <ZoruSelect
+                                            <Label>Status</Label>
+                                            <Select
                                                 value={kr.status}
                                                 onValueChange={(v) =>
                                                     updateKr(
@@ -467,7 +467,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                                         </ZoruSelectItem>
                                                     ))}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </div>
                                     </div>
                                 </div>
@@ -478,15 +478,15 @@ export function OkrForm({ initialData }: OkrFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to OKRs
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

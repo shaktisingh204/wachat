@@ -69,7 +69,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -79,9 +79,9 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
             <ZoruBreadcrumbPage>Marketplace</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>App Marketplace</ZoruPageTitle>
           <ZoruPageDescription>
@@ -89,14 +89,14 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
             {total > 0 ? ` — ${total} app${total === 1 ? '' : 's'} available` : ''}.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {loadError ? (
         <div className="rounded-md border border-zoru-danger/40 bg-zoru-danger/10 p-4 text-sm text-zoru-danger-ink">
           {loadError}
         </div>
       ) : apps.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Store />}
           title="No apps found"
           description={
@@ -113,7 +113,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
               href={`/dashboard/marketplace/${encodeURIComponent(app.appId)}`}
               className="group focus:outline-none"
             >
-              <ZoruCard interactive className="h-full">
+              <Card interactive className="h-full">
                 <ZoruCardHeader>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -153,9 +153,9 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
                   )}
                   <div className="flex flex-wrap gap-1.5">
                     {app.manifest.categories.slice(0, 3).map((cat) => (
-                      <ZoruBadge key={cat} variant="secondary" className="text-[10px]">
+                      <Badge key={cat} variant="secondary" className="text-[10px]">
                         {cat}
-                      </ZoruBadge>
+                      </Badge>
                     ))}
                   </div>
                   <div className="mt-auto flex items-center justify-between text-xs text-zoru-ink-muted">
@@ -166,7 +166,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
                     </span>
                   </div>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             </Link>
           ))}
         </div>
@@ -177,7 +177,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
 
 function PriceBadge({ pricing }: { pricing: AppPricing }) {
   if (pricing.type === 'free') {
-    return <ZoruBadge variant="secondary">Free</ZoruBadge>;
+    return <Badge variant="secondary">Free</Badge>;
   }
   const label =
     pricing.type === 'subscription'
@@ -190,8 +190,8 @@ function PriceBadge({ pricing }: { pricing: AppPricing }) {
       ? `${pricing.currency} ${(pricing.amount / 100).toFixed(2)}`
       : null;
   return (
-    <ZoruBadge variant="outline" className="whitespace-nowrap">
+    <Badge variant="outline" className="whitespace-nowrap">
       {formatted ? `${formatted} · ${label}` : label}
-    </ZoruBadge>
+    </Badge>
   );
 }

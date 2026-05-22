@@ -61,14 +61,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create onboarding'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -131,7 +131,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
     };
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -151,7 +151,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                 {/* Row 1: Employee picker (mirrors employeeName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Employee</ZoruLabel>
+                        <Label>Employee</Label>
                         <EntityFormField
                             entity="employee"
                             name="employeeId"
@@ -163,8 +163,8 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="candidateId">Candidate id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="candidateId">Candidate id</Label>
+                        <Input
                             id="candidateId"
                             name="candidateId"
                             placeholder="Source candidate record id"
@@ -176,8 +176,8 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                 {/* Row 2: Job + Department */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="jobId">Job id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="jobId">Job id</Label>
+                        <Input
                             id="jobId"
                             name="jobId"
                             placeholder="Linked job opening"
@@ -185,7 +185,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Department</ZoruLabel>
+                        <Label>Department</Label>
                         <EntityFormField
                             entity="department"
                             name="departmentId"
@@ -199,8 +199,8 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                 {/* Row 3: Joining date + Manager */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="joiningDate">Joining date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="joiningDate">Joining date</Label>
+                        <Input
                             id="joiningDate"
                             name="joiningDate"
                             type="date"
@@ -208,7 +208,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Manager</ZoruLabel>
+                        <Label>Manager</Label>
                         <EntityFormField
                             entity="employee"
                             name="managerId"
@@ -222,7 +222,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                 {/* Row 4: Buddy + Progress */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Buddy</ZoruLabel>
+                        <Label>Buddy</Label>
                         <EntityFormField
                             entity="employee"
                             name="buddyId"
@@ -232,8 +232,8 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="progress">Progress (%)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="progress">Progress (%)</Label>
+                        <Input
                             id="progress"
                             name="progress"
                             type="number"
@@ -252,7 +252,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                 {/* Row 5: Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="onboardingStatus"
                             name="status"
@@ -270,8 +270,8 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                 {/* Row 6: Checklist editor */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Checklist</ZoruLabel>
-                        <ZoruButton
+                        <Label>Checklist</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
@@ -279,7 +279,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                         >
                             <Plus className="mr-1 h-3.5 w-3.5" />
                             Add task
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {checklist.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -294,13 +294,13 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                                     className="grid items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[2fr_1fr_1fr_auto]"
                                 >
                                     <div className="space-y-1">
-                                        <ZoruLabel
+                                        <Label
                                             htmlFor={`task-title-${task.id}`}
                                             className="text-[11.5px]"
                                         >
                                             Title
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             id={`task-title-${task.id}`}
                                             value={task.title}
                                             placeholder="e.g. Submit ID proof"
@@ -312,13 +312,13 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <ZoruLabel
+                                        <Label
                                             htmlFor={`task-due-${task.id}`}
                                             className="text-[11.5px]"
                                         >
                                             Due date
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             id={`task-due-${task.id}`}
                                             type="date"
                                             value={toDateInput(task.dueDate)}
@@ -332,9 +332,9 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <ZoruLabel className="text-[11.5px]">
+                                        <Label className="text-[11.5px]">
                                             Status
-                                        </ZoruLabel>
+                                        </Label>
                                         <EnumFormField
                                             enumName="onboardingTaskStatus"
                                             name={`task-status-${task.id}`}
@@ -349,7 +349,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                                             placeholder="Status"
                                         />
                                     </div>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -357,7 +357,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                                         aria-label="Remove task"
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -366,8 +366,8 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
 
                 {/* Row 7: Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -378,15 +378,15 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to onboarding
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

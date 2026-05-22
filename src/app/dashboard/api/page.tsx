@@ -80,7 +80,7 @@ const cards: NavCard[] = [
 export default function DeveloperApiHubPage(): JSX.Element {
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Developer platform</ZoruPageTitle>
           <ZoruPageDescription>
@@ -88,14 +88,14 @@ export default function DeveloperApiHubPage(): JSX.Element {
             and live API docs.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
             <Link key={card.href} href={card.href} className="group">
-              <ZoruCard className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
+              <Card className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
                 <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
                   <Icon className="h-[18px] w-[18px]" />
                 </div>
@@ -106,7 +106,7 @@ export default function DeveloperApiHubPage(): JSX.Element {
                 <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                   {card.description}
                 </p>
-              </ZoruCard>
+              </Card>
             </Link>
           );
         })}

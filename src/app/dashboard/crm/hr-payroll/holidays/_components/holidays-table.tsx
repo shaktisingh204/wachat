@@ -3,7 +3,7 @@
 /**
  * Holidays list table — `/dashboard/crm/hr-payroll/holidays`.
  *
- * Renders the filtered set of holidays as a `<ZoruTable>` with bulk-select.
+ * Renders the filtered set of holidays as a `<Table>` with bulk-select.
  * Columns (8):
  *   • select          — per-row checkbox
  *   • Name            — `<EntityRowLink>` to the detail page,
@@ -126,11 +126,11 @@ export function HolidaysTable({
 
   return (
     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">
             <ZoruTableHead className="w-10">
-              <ZoruCheckbox
+              <Checkbox
                 aria-label="Select all holidays on this page"
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
@@ -167,7 +167,7 @@ export function HolidaysTable({
               return (
                 <ZoruTableRow key={id} className="border-zoru-line">
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       aria-label={`Select ${name}`}
                       checked={selected.has(id)}
                       onCheckedChange={() => onToggleOne(id)}
@@ -207,30 +207,30 @@ export function HolidaysTable({
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex justify-end gap-1">
-                      <ZoruButton variant="ghost" size="icon" asChild>
+                      <Button variant="ghost" size="icon" asChild>
                         <Link
                           href={`/dashboard/crm/hr-payroll/holidays/${id}`}
                           aria-label={`View ${name}`}
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton variant="ghost" size="icon" asChild>
+                      </Button>
+                      <Button variant="ghost" size="icon" asChild>
                         <Link
                           href={`/dashboard/crm/hr-payroll/holidays/${id}/edit`}
                           aria-label={`Edit ${name}`}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onDelete(id)}
                         aria-label={`Delete ${name}`}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -238,7 +238,7 @@ export function HolidaysTable({
             })
           )}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }

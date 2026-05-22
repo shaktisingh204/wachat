@@ -72,14 +72,14 @@ const initialState: SaveFormState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create form'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -156,7 +156,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
     const settings = (initialData?.settings ?? {}) as Record<string, unknown>;
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="formId" value={initialData!._id} />
@@ -166,8 +166,8 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                 {/* Name + Slug */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Form name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Form name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -176,8 +176,8 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="slug">Slug</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="slug">Slug</Label>
+                        <Input
                             id="slug"
                             name="slug"
                             placeholder="auto-generated from name"
@@ -189,7 +189,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                 {/* Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="activeDraftArchived"
                             name="status"
@@ -202,8 +202,8 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                 {/* Fields repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Fields *</ZoruLabel>
-                        <ZoruButton
+                        <Label>Fields *</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -211,7 +211,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add field
-                        </ZoruButton>
+                        </Button>
                     </div>
                     {fields.length === 0 ? (
                         <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
@@ -238,7 +238,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                             {idx + 1}
                                         </span>
                                     </div>
-                                    <ZoruInput
+                                    <Input
                                         name={`fields[${idx}][name]`}
                                         placeholder="Field name (e.g. email)"
                                         value={f.name}
@@ -247,7 +247,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                         }
                                         required
                                     />
-                                    <ZoruInput
+                                    <Input
                                         name={`fields[${idx}][label]`}
                                         placeholder="Label (e.g. Email address)"
                                         value={f.label ?? ''}
@@ -269,26 +269,26 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                         value={f.type ?? 'text'}
                                     />
                                     <div className="flex items-center justify-center gap-1.5">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             id={`fields-${idx}-required`}
                                             checked={!!f.required}
                                             onCheckedChange={(v) =>
                                                 updateField(idx, 'required', !!v)
                                             }
                                         />
-                                        <ZoruLabel
+                                        <Label
                                             htmlFor={`fields-${idx}-required`}
                                             className="cursor-pointer text-[11px] text-zoru-ink-muted"
                                         >
                                             Req
-                                        </ZoruLabel>
+                                        </Label>
                                         <input
                                             type="hidden"
                                             name={`fields[${idx}][required]`}
                                             value={f.required ? 'true' : 'false'}
                                         />
                                     </div>
-                                    <ZoruInput
+                                    <Input
                                         name={`fields[${idx}][placeholder]`}
                                         placeholder="Placeholder / options (CSV for select)"
                                         value={
@@ -324,7 +324,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                         name={`fields[${idx}][options]`}
                                         value={(f.options ?? []).join(',')}
                                     />
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -332,7 +332,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                         aria-label="Remove field"
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -342,8 +342,8 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                 {/* Settings */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="successMessage">Success message</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="successMessage">Success message</Label>
+                        <Input
                             id="successMessage"
                             name="successMessage"
                             placeholder="Thanks — we'll be in touch."
@@ -355,8 +355,8 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="redirectUrl">Redirect URL</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="redirectUrl">Redirect URL</Label>
+                        <Input
                             id="redirectUrl"
                             name="redirectUrl"
                             placeholder="https://example.com/thanks"
@@ -370,27 +370,27 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <ZoruCheckbox
+                    <Checkbox
                         id="captcha"
                         name="captcha"
                         defaultChecked={!!settings.captcha}
                     />
-                    <ZoruLabel htmlFor="captcha" className="cursor-pointer">
+                    <Label htmlFor="captcha" className="cursor-pointer">
                         Require CAPTCHA on submission
-                    </ZoruLabel>
+                    </Label>
                 </div>
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to forms
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

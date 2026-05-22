@@ -40,7 +40,7 @@ interface AmBreadcrumbProps {
 
 export function AmBreadcrumb({ page, parent }: AmBreadcrumbProps) {
   return (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -66,7 +66,7 @@ export function AmBreadcrumb({ page, parent }: AmBreadcrumbProps) {
           <ZoruBreadcrumbPage>{page}</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 }
 
@@ -84,7 +84,7 @@ export function AmHeader({
   className,
 }: AmHeaderProps) {
   return (
-    <ZoruPageHeader className={className ?? "mt-5"}>
+    <PageHeader className={className ?? "mt-5"}>
       <ZoruPageHeading>
         <ZoruPageTitle>{title}</ZoruPageTitle>
         {description && (
@@ -92,28 +92,28 @@ export function AmHeader({
         )}
       </ZoruPageHeading>
       {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
-    </ZoruPageHeader>
+    </PageHeader>
   );
 }
 
 export function AmNoProject() {
   return (
-    <ZoruAlert variant="destructive" className="mt-6">
+    <Alert variant="destructive" className="mt-6">
       <CircleAlert />
       <ZoruAlertTitle>No project selected</ZoruAlertTitle>
       <ZoruAlertDescription>
         Please select a project from the main dashboard to manage ad campaigns.
       </ZoruAlertDescription>
-    </ZoruAlert>
+    </Alert>
   );
 }
 
 export function AmErrorAlert({ message }: { message: string }) {
   return (
-    <ZoruAlert variant="destructive" className="mt-6">
+    <Alert variant="destructive" className="mt-6">
       <CircleAlert />
       <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
       <ZoruAlertDescription>{message}</ZoruAlertDescription>
-    </ZoruAlert>
+    </Alert>
   );
 }

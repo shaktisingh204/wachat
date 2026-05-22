@@ -49,14 +49,14 @@ const STATUSES = [
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="sm" disabled={pending}>
+        <Button type="submit" size="sm" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {pending ? 'Saving…' : label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -111,7 +111,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
     }, [state, toast, router, storefrontId]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-5">
                 {storefrontId ? (
                     <input
@@ -131,10 +131,10 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="name">
+                        <Label htmlFor="name">
                             Name <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="name"
                             name="name"
                             type="text"
@@ -144,10 +144,10 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="slug">
+                        <Label htmlFor="slug">
                             Slug <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="slug"
                             name="slug"
                             type="text"
@@ -157,8 +157,8 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="domain">Custom domain</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="domain">Custom domain</Label>
+                        <Input
                             id="domain"
                             name="domain"
                             type="text"
@@ -167,8 +167,8 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="currency-select">Currency</ZoruLabel>
-                        <ZoruSelect value={currency} onValueChange={setCurrency}>
+                        <Label htmlFor="currency-select">Currency</Label>
+                        <Select value={currency} onValueChange={setCurrency}>
                             <ZoruSelectTrigger id="currency-select">
                                 <ZoruSelectValue placeholder="Currency" />
                             </ZoruSelectTrigger>
@@ -179,12 +179,12 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel>Logo</ZoruLabel>
+                    <Label>Logo</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="image"
@@ -219,8 +219,8 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="status-select">Status</ZoruLabel>
-                    <ZoruSelect value={status} onValueChange={setStatus}>
+                    <Label htmlFor="status-select">Status</Label>
+                    <Select value={status} onValueChange={setStatus}>
                         <ZoruSelectTrigger
                             id="status-select"
                             className="max-w-xs"
@@ -234,17 +234,17 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="homepageBlocks">
+                    <Label htmlFor="homepageBlocks">
                         Homepage blocks
-                    </ZoruLabel>
+                    </Label>
                     <p className="text-[12px] text-zoru-ink-muted">
                         Rich block editor coming — paste JSON for now.
                     </p>
-                    <ZoruTextarea
+                    <Textarea
                         id="homepageBlocks"
                         rows={8}
                         value={homepageBlocks}
@@ -262,7 +262,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                     <SubmitButton
                         label={storefrontId ? 'Save changes' : 'Create storefront'}
                     />
-                    <ZoruButton variant="ghost" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={
                                 storefrontId
@@ -273,9 +273,9 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                             <ArrowLeft className="h-4 w-4" />
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

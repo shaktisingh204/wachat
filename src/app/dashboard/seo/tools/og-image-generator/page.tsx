@@ -60,14 +60,14 @@ export default function OgImageGeneratorPage() {
   return (
     <ToolShell title="OG Image Generator" description="Generate an Open Graph share image (1200×630).">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><ZoruLabel>Title</ZoruLabel><ZoruInput value={title} onChange={(e) => setTitle(e.target.value)} /></div>
-        <div className="space-y-1"><ZoruLabel>Subtitle</ZoruLabel><ZoruInput value={subtitle} onChange={(e) => setSubtitle(e.target.value)} /></div>
-        <div className="space-y-1"><ZoruLabel>Background</ZoruLabel><input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="h-9 w-16" /></div>
-        <div className="space-y-1"><ZoruLabel>Text</ZoruLabel><input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="h-9 w-16" /></div>
+        <div className="space-y-1"><Label>Title</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} /></div>
+        <div className="space-y-1"><Label>Subtitle</Label><Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} /></div>
+        <div className="space-y-1"><Label>Background</Label><input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="h-9 w-16" /></div>
+        <div className="space-y-1"><Label>Text</Label><input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="h-9 w-16" /></div>
       </div>
       <div className="flex gap-2">
-        <ZoruButton onClick={render}>Preview</ZoruButton>
-        <ZoruButton variant="outline" onClick={download}>Download PNG</ZoruButton>
+        <Button onClick={render}>Preview</Button>
+        <Button variant="outline" onClick={download}>Download PNG</Button>
       </div>
       <canvas ref={canvasRef} className="max-w-full border rounded" style={{ aspectRatio: '1200/630' }} />
     </ToolShell>

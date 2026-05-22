@@ -73,7 +73,7 @@ export default async function SignDonePage({ params }: PageProps) {
     return (
         <main className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
             <div className="mx-auto flex min-h-screen max-w-xl items-center justify-center px-4 py-10">
-                <ZoruCard className="w-full p-0">
+                <Card className="w-full p-0">
                     <ZoruCardContent className="flex flex-col items-center gap-5 p-8 text-center">
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                             <CheckCircle2 className="h-8 w-8" />
@@ -92,25 +92,25 @@ export default async function SignDonePage({ params }: PageProps) {
 
                         <div className="flex flex-wrap items-center justify-center gap-2">
                             {isCompleted ? (
-                                <ZoruBadge variant="success">
+                                <Badge variant="success">
                                     <CheckCircle2 />
                                     All signers complete
-                                </ZoruBadge>
+                                </Badge>
                             ) : stillPending ? (
-                                <ZoruBadge variant="warning">
+                                <Badge variant="warning">
                                     <MailCheck />
                                     Waiting on {totalSigners - completed} more
-                                </ZoruBadge>
+                                </Badge>
                             ) : (
-                                <ZoruBadge variant="success">
+                                <Badge variant="success">
                                     <CheckCircle2 />
                                     Done
-                                </ZoruBadge>
+                                </Badge>
                             )}
                             {me?.signatureMethod ? (
-                                <ZoruBadge variant="ghost">
+                                <Badge variant="ghost">
                                     Method: {me.signatureMethod}
-                                </ZoruBadge>
+                                </Badge>
                             ) : null}
                         </div>
 
@@ -134,7 +134,7 @@ export default async function SignDonePage({ params }: PageProps) {
                             </ul>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </main>
     );

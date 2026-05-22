@@ -107,7 +107,7 @@ interface KpiCardProps {
 
 function KpiCard({ label, value, icon: Icon, tone, hint }: KpiCardProps) {
     return (
-        <ZoruCard className="overflow-hidden">
+        <Card className="overflow-hidden">
             <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
                 <div className="min-w-0">
                     <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -132,7 +132,7 @@ function KpiCard({ label, value, icon: Icon, tone, hint }: KpiCardProps) {
                     <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -236,16 +236,16 @@ export default async function PosHomePage() {
             subtitle="Run shifts, ring up sales, recall held tickets and process refunds."
             primaryAction={
                 <div className="flex flex-wrap items-center gap-2">
-                    <ZoruButton size="sm" variant="outline" asChild>
+                    <Button size="sm" variant="outline" asChild>
                         <Link href="/dashboard/crm/pos/sessions">
                             <Store className="h-4 w-4" /> Sessions
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton size="sm" asChild>
+                    </Button>
+                    <Button size="sm" asChild>
                         <Link href="/dashboard/crm/pos/terminal">
                             <ShoppingCart className="h-4 w-4" /> Open terminal
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
@@ -344,7 +344,7 @@ export default async function PosHomePage() {
 
             {/* Today's activity — two columns */}
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-                <ZoruCard className="lg:col-span-2">
+                <Card className="lg:col-span-2">
                     <ZoruCardHeader className="flex flex-row items-center justify-between">
                         <ZoruCardTitle>Today's transactions</ZoruCardTitle>
                         <Link
@@ -376,12 +376,12 @@ export default async function PosHomePage() {
                                             <span className="truncate text-zoru-ink-muted">
                                                 {t.customerName || 'Walk-in'}
                                             </span>
-                                            <ZoruBadge
+                                            <Badge
                                                 variant="default"
                                                 className="capitalize"
                                             >
                                                 {t.paymentMethod}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </div>
                                         <div className="flex shrink-0 items-center gap-3">
                                             <span className="text-zoru-ink-muted">
@@ -401,9 +401,9 @@ export default async function PosHomePage() {
                             </div>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader className="flex flex-row items-center justify-between">
                         <ZoruCardTitle>Recent refunds</ZoruCardTitle>
                         <Link
@@ -448,7 +448,7 @@ export default async function PosHomePage() {
                             </div>
                         )}
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </EntityListShell>
     );

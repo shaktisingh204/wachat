@@ -92,7 +92,7 @@ export default async function KbArticleActivityPage({
             back={{ href: `/dashboard/crm/tickets/knowledge-base/${articleId}`, label: 'Back to article' }}
         >
 
-            <ZoruCard className="p-4">
+            <Card className="p-4">
                 <ul className="flex flex-col gap-3">
                     {rows.map((r) => (
                         <li
@@ -107,7 +107,7 @@ export default async function KbArticleActivityPage({
                         </li>
                     ))}
                 </ul>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

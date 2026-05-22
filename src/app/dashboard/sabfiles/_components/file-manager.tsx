@@ -569,7 +569,7 @@ export function FileManager({
             />
 
             {/* New folder dialog */}
-            <ZoruDialog open={showNewFolder} onOpenChange={setShowNewFolder}>
+            <Dialog open={showNewFolder} onOpenChange={setShowNewFolder}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>New folder</ZoruDialogTitle>
@@ -577,7 +577,7 @@ export function FileManager({
                             Name your folder. Folder names must be unique inside a parent.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
-                    <ZoruInput
+                    <Input
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
                         placeholder="Untitled folder"
@@ -587,18 +587,18 @@ export function FileManager({
                         }}
                     />
                     <ZoruDialogFooter>
-                        <ZoruButton variant="ghost" onClick={() => setShowNewFolder(false)}>
+                        <Button variant="ghost" onClick={() => setShowNewFolder(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton onClick={submitNewFolder} disabled={!newFolderName.trim()}>
+                        </Button>
+                        <Button onClick={submitNewFolder} disabled={!newFolderName.trim()}>
                             Create
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Rename dialog */}
-            <ZoruDialog open={!!renameTarget} onOpenChange={(o) => !o && setRenameTarget(null)}>
+            <Dialog open={!!renameTarget} onOpenChange={(o) => !o && setRenameTarget(null)}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Rename</ZoruDialogTitle>
@@ -606,7 +606,7 @@ export function FileManager({
                             Choose a new name for "{renameTarget?.name}".
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
-                    <ZoruInput
+                    <Input
                         value={renameDraft}
                         onChange={(e) => setRenameDraft(e.target.value)}
                         autoFocus
@@ -615,16 +615,16 @@ export function FileManager({
                         }}
                     />
                     <ZoruDialogFooter>
-                        <ZoruButton variant="ghost" onClick={() => setRenameTarget(null)}>
+                        <Button variant="ghost" onClick={() => setRenameTarget(null)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton onClick={submitRename}>Save</ZoruButton>
+                        </Button>
+                        <Button onClick={submitRename}>Save</Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Share dialog */}
-            <ZoruDialog open={!!shareTarget} onOpenChange={(o) => !o && setShareTarget(null)}>
+            <Dialog open={!!shareTarget} onOpenChange={(o) => !o && setShareTarget(null)}>
                 <ZoruDialogContent className="max-w-md">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Share "{shareTarget?.name}"</ZoruDialogTitle>
@@ -634,8 +634,8 @@ export function FileManager({
                     </ZoruDialogHeader>
                     <div className="flex flex-col gap-3">
                         <div className="grid gap-1.5">
-                            <ZoruLabel>Expires in (days)</ZoruLabel>
-                            <ZoruInput
+                            <Label>Expires in (days)</Label>
+                            <Input
                                 type="number"
                                 min={0}
                                 placeholder="Never"
@@ -644,8 +644,8 @@ export function FileManager({
                             />
                         </div>
                         <div className="grid gap-1.5">
-                            <ZoruLabel>Password (optional)</ZoruLabel>
-                            <ZoruInput
+                            <Label>Password (optional)</Label>
+                            <Input
                                 type="text"
                                 placeholder="Leave blank for no password"
                                 value={sharePassword}
@@ -654,42 +654,42 @@ export function FileManager({
                         </div>
                         <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-3">
                             <span className="text-sm">Allow download</span>
-                            <ZoruSwitch checked={shareDownload} onCheckedChange={setShareDownload} />
+                            <Switch checked={shareDownload} onCheckedChange={setShareDownload} />
                         </div>
                         {shareUrl && (
                             <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-                                <ZoruLabel className="text-xs text-zoru-ink-muted">Link</ZoruLabel>
+                                <Label className="text-xs text-zoru-ink-muted">Link</Label>
                                 <div className="mt-1 flex items-center gap-2">
-                                    <ZoruInput value={shareUrl} readOnly className="flex-1" />
-                                    <ZoruButton size="sm" onClick={onCopyShare}>
+                                    <Input value={shareUrl} readOnly className="flex-1" />
+                                    <Button size="sm" onClick={onCopyShare}>
                                         Copy
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
                         )}
                     </div>
                     <ZoruDialogFooter className="flex justify-between">
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             onClick={submitRevokeShare}
                             disabled={!shareTarget?.shareToken}
                         >
                             Revoke
-                        </ZoruButton>
+                        </Button>
                         <div className="flex gap-2">
-                            <ZoruButton variant="ghost" onClick={() => setShareTarget(null)}>
+                            <Button variant="ghost" onClick={() => setShareTarget(null)}>
                                 Close
-                            </ZoruButton>
-                            <ZoruButton onClick={submitShare}>
+                            </Button>
+                            <Button onClick={submitShare}>
                                 {shareTarget?.shareToken ? 'Update link' : 'Create link'}
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* File action dialog */}
-            <ZoruDialog open={!!actionTarget} onOpenChange={(o) => !o && setActionTarget(null)}>
+            <Dialog open={!!actionTarget} onOpenChange={(o) => !o && setActionTarget(null)}>
                 <ZoruDialogContent className="max-w-xl">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle className="break-words">{actionTarget?.name}</ZoruDialogTitle>
@@ -718,34 +718,34 @@ export function FileManager({
                                         {actionTarget.name}
                                     </div>
                                     <div className="mt-1 flex flex-wrap items-center gap-2">
-                                        <ZoruBadge variant="secondary">
+                                        <Badge variant="secondary">
                                             {actionTarget.mime || 'File'}
-                                        </ZoruBadge>
-                                        <ZoruBadge variant="ghost">{formatSize(actionTarget.size)}</ZoruBadge>
+                                        </Badge>
+                                        <Badge variant="ghost">{formatSize(actionTarget.size)}</Badge>
                                         {actionTarget.shareToken && (
-                                            <ZoruBadge variant="success">
+                                            <Badge variant="success">
                                                 <Share2 /> Shared
-                                            </ZoruBadge>
+                                            </Badge>
                                         )}
                                         {actionTarget.starred && (
-                                            <ZoruBadge variant="warning">
+                                            <Badge variant="warning">
                                                 <Star /> Starred
-                                            </ZoruBadge>
+                                            </Badge>
                                         )}
                                     </div>
                                 </div>
                             </div>
                             <div className="grid gap-2 sm:grid-cols-2">
-                                <ZoruButton onClick={() => void downloadOne(actionTarget)}>
+                                <Button onClick={() => void downloadOne(actionTarget)}>
                                     <ExternalLink /> Open preview
-                                </ZoruButton>
-                                <ZoruButton variant="outline" onClick={() => void downloadOne(actionTarget)}>
+                                </Button>
+                                <Button variant="outline" onClick={() => void downloadOne(actionTarget)}>
                                     <Download /> Download
-                                </ZoruButton>
-                                <ZoruButton variant="outline" onClick={() => void copyDownloadLink(actionTarget)}>
+                                </Button>
+                                <Button variant="outline" onClick={() => void copyDownloadLink(actionTarget)}>
                                     <Copy /> Copy temporary URL
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     onClick={() => {
                                         setActionTarget(null);
@@ -753,8 +753,8 @@ export function FileManager({
                                     }}
                                 >
                                     <Share2 /> Share
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     onClick={() => {
                                         setActionTarget(null);
@@ -763,19 +763,19 @@ export function FileManager({
                                     }}
                                 >
                                     <Pencil /> Rename
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     onClick={() => handleNodeAction(actionTarget, 'star')}
                                 >
                                     <Star /> {actionTarget.starred ? 'Unstar' : 'Star'}
-                                </ZoruButton>
+                                </Button>
                             </div>
                             <div className="flex justify-between gap-2 border-t border-zoru-line pt-3">
-                                <ZoruButton variant="ghost" onClick={() => setActionTarget(null)}>
+                                <Button variant="ghost" onClick={() => setActionTarget(null)}>
                                     Close
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="destructive"
                                     onClick={() => {
                                         setActionTarget(null);
@@ -784,15 +784,15 @@ export function FileManager({
                                     }}
                                 >
                                     <Trash2 /> Move to trash
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     )}
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Confirm trash dialog */}
-            <ZoruDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+            <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Move to trash?</ZoruDialogTitle>
@@ -802,15 +802,15 @@ export function FileManager({
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="ghost" onClick={() => setConfirmDelete(false)}>
+                        <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton variant="destructive" onClick={trashSelected}>
+                        </Button>
+                        <Button variant="destructive" onClick={trashSelected}>
                             Move to trash
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Drop overlay */}
             {isDragging && (
@@ -909,7 +909,7 @@ function Toolbar({
 }: ToolbarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-2">
-            <ZoruInput
+            <Input
                 value={query}
                 onChange={(e) => onQueryChange(e.target.value)}
                 leadingSlot={<Search />}
@@ -920,18 +920,18 @@ function Toolbar({
             {selectionCount > 0 && (
                 <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-zoru-surface-2 px-2 py-1 text-xs text-zoru-ink">
                     <span className="font-medium">{selectionCount} selected</span>
-                    <ZoruButton size="sm" variant="ghost" onClick={onStarSelected}>
+                    <Button size="sm" variant="ghost" onClick={onStarSelected}>
                         <Star /> Star
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="ghost" onClick={onUnstarSelected}>
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={onUnstarSelected}>
                         <Star /> Unstar
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="ghost" onClick={onTrashSelected}>
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={onTrashSelected}>
                         <Trash2 /> Trash
-                    </ZoruButton>
-                    <ZoruButton variant="ghost" size="icon-sm" onClick={onClearSelection} aria-label="Clear">
+                    </Button>
+                    <Button variant="ghost" size="icon-sm" onClick={onClearSelection} aria-label="Clear">
                         <X />
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
 
@@ -962,12 +962,12 @@ function Toolbar({
                         <FileText className="h-4 w-4" />
                     </button>
                 </div>
-                <ZoruButton variant="outline" onClick={onNewFolder}>
+                <Button variant="outline" onClick={onNewFolder}>
                     <FolderPlus /> New folder
-                </ZoruButton>
-                <ZoruButton onClick={onUploadClick}>
+                </Button>
+                <Button onClick={onUploadClick}>
                     <Upload /> Upload
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );
@@ -981,16 +981,16 @@ function NodeMenu({
     onAction: (n: SabfilesNode, a: 'rename' | 'share' | 'download' | 'trash' | 'star') => void;
 }) {
     return (
-        <ZoruDropdownMenu>
+        <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Actions"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <MoreVertical />
-                </ZoruButton>
+                </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end" className="w-44">
                 <ZoruDropdownMenuItem onSelect={() => onAction(node, 'rename')}>
@@ -1012,7 +1012,7 @@ function NodeMenu({
                     <Trash2 /> Move to trash
                 </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
     );
 }
 
@@ -1033,7 +1033,7 @@ function GridView({ nodes, selected, onToggle, onOpen, onContext }: ViewProps) {
             {nodes.map((n) => {
                 const isSelected = selected.has(n.id);
                 return (
-                    <ZoruCard
+                    <Card
                         key={n.id}
                         className={cn(
                             'group relative flex cursor-pointer flex-col items-center gap-2 p-3 transition-colors hover:border-zoru-ink/30',
@@ -1082,7 +1082,7 @@ function GridView({ nodes, selected, onToggle, onOpen, onContext }: ViewProps) {
                                 {n.type === 'folder' ? 'Folder' : formatSize(n.size)}
                             </div>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 );
             })}
         </div>
@@ -1141,7 +1141,7 @@ function EmptyState({
     onNewFolderClick: () => void;
 }) {
     return (
-        <ZoruCard className="flex flex-col items-center justify-center gap-3 p-12 text-center">
+        <Card className="flex flex-col items-center justify-center gap-3 p-12 text-center">
             <Folder className="h-12 w-12 text-zoru-ink-muted" />
             <div>
                 <div className="text-base font-medium text-zoru-ink">This folder is empty</div>
@@ -1150,14 +1150,14 @@ function EmptyState({
                 </div>
             </div>
             <div className="flex gap-2">
-                <ZoruButton variant="outline" onClick={onNewFolderClick}>
+                <Button variant="outline" onClick={onNewFolderClick}>
                     <FolderPlus /> New folder
-                </ZoruButton>
-                <ZoruButton onClick={onUploadClick}>
+                </Button>
+                <Button onClick={onUploadClick}>
                     <Upload /> Upload files
-                </ZoruButton>
+                </Button>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -1174,7 +1174,7 @@ function UploadDock({
     const inFlight = tasks.filter((t) => t.status === 'uploading' || t.status === 'queued').length;
     return (
         <div className="fixed bottom-24 right-6 z-40 w-[360px] max-w-[calc(100vw-3rem)]">
-            <ZoruCard className="border-zoru-ink/20 shadow-[var(--zoru-shadow-lg)]">
+            <Card className="border-zoru-ink/20 shadow-[var(--zoru-shadow-lg)]">
                 <ZoruCardContent className="p-3">
                     <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-medium text-zoru-ink">
@@ -1183,9 +1183,9 @@ function UploadDock({
                                 <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-zoru-ink-muted" />
                             )}
                         </span>
-                        <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                        <Button variant="ghost" size="sm" onClick={onClear}>
                             Clear
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <ul className="flex max-h-64 flex-col gap-2 overflow-y-auto">
                         {tasks.map((t) => (
@@ -1204,13 +1204,13 @@ function UploadDock({
                                 {t.status === 'error' ? (
                                     <span className="text-[11px] text-red-500">{t.error}</span>
                                 ) : (
-                                    <ZoruProgress value={t.progress} className="h-1" />
+                                    <Progress value={t.progress} className="h-1" />
                                 )}
                             </li>
                         ))}
                     </ul>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

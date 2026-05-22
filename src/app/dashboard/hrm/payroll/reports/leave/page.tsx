@@ -34,13 +34,13 @@ type Summary = { totalEmployees: number; totalUsed: number; totalPending: number
 type SelectItem = { _id: string; name: string };
 
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
-    <ZoruCard className="flex flex-col gap-1 p-6">
+    <Card className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
             <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
             <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
         </div>
         <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
-    </ZoruCard>
+    </Card>
 );
 
 const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
@@ -103,16 +103,16 @@ export default function LeaveReportPage() {
             subtitle="Leave allocation, usage, pending requests, and remaining balances."
             primaryAction={
                 <>
-                    <ZoruPopover>
+                    <Popover>
                         <ZoruPopoverTrigger asChild>
-                            <ZoruButton variant="outline">
+                            <Button variant="outline">
                                 <SlidersHorizontal className="h-4 w-4" />
                                 Filters
-                            </ZoruButton>
+                            </Button>
                         </ZoruPopoverTrigger>
                             <ZoruPopoverContent className="w-72 space-y-4 p-4">
                                 <div className="space-y-1.5">
-                                    <ZoruLabel className="text-[12.5px]">Year</ZoruLabel>
+                                    <Label className="text-[12.5px]">Year</Label>
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
@@ -122,7 +122,7 @@ export default function LeaveReportPage() {
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <ZoruLabel className="text-[12.5px]">Employee</ZoruLabel>
+                                    <Label className="text-[12.5px]">Employee</Label>
                                     <select
                                         value={selectedEmployee}
                                         onChange={e => setSelectedEmployee(e.target.value)}
@@ -133,7 +133,7 @@ export default function LeaveReportPage() {
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <ZoruLabel className="text-[12.5px]">Leave Type</ZoruLabel>
+                                    <Label className="text-[12.5px]">Leave Type</Label>
                                     <select
                                         value={selectedLeaveType}
                                         onChange={e => setSelectedLeaveType(e.target.value)}
@@ -143,20 +143,20 @@ export default function LeaveReportPage() {
                                         {leaveTypes.map(t => <option key={t} value={t}>{t}</option>)}
                                     </select>
                                 </div>
-                                <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">
+                                <Button onClick={fetchData} disabled={isLoading} className="w-full">
                                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Apply Filters
-                                </ZoruButton>
+                                </Button>
                             </ZoruPopoverContent>
-                        </ZoruPopover>
-                        <ZoruButton
+                        </Popover>
+                        <Button
                             variant="outline"
                             onClick={handleDownload}
                             disabled={isLoading || reportData.length === 0}
                         >
                             <Download className="h-4 w-4" />
                             Download CSV
-                        </ZoruButton>
+                        </Button>
                     </>
                 }
         >
@@ -168,7 +168,7 @@ export default function LeaveReportPage() {
                 <StatCard title="Total Days Pending" value={summary.totalPending} icon={Clock} />
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
                         <h2 className="text-[16px] text-zoru-ink">Leave Consumption Summary</h2>
@@ -204,13 +204,13 @@ export default function LeaveReportPage() {
                                         <tr key={`${row.employeeId}-${row.leaveType}-${i}`} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
                                             <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
                                             <td className="px-4 py-3">
-                                                <ZoruBadge variant="secondary">{row.leaveType}</ZoruBadge>
+                                                <Badge variant="secondary">{row.leaveType}</Badge>
                                             </td>
                                             <td className="px-4 py-3 text-center text-zoru-ink">{row.allocated}</td>
                                             <td className="px-4 py-3 text-center font-semibold text-green-600">{row.used}</td>
                                             <td className="px-4 py-3 text-center font-semibold text-amber-500">{row.pending}</td>
                                             <td className="px-4 py-3 text-center">
-                                                <ZoruBadge variant={row.remaining > 0 ? 'info' : 'danger'}>{row.remaining}</ZoruBadge>
+                                                <Badge variant={row.remaining > 0 ? 'info' : 'danger'}>{row.remaining}</Badge>
                                             </td>
                                         </tr>
                                     ))}
@@ -234,7 +234,7 @@ export default function LeaveReportPage() {
                         </tbody>
                     </table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

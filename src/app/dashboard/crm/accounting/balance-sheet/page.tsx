@@ -172,7 +172,7 @@ export default function BalanceSheetPage(): React.JSX.Element {
     );
 
     const table = (
-        <ZoruTable>
+        <Table>
             <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
                     <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
@@ -209,7 +209,7 @@ export default function BalanceSheetPage(): React.JSX.Element {
                     })
                 )}
             </ZoruTableBody>
-        </ZoruTable>
+        </Table>
     );
 
     // Note: balance-sheet is a point-in-time report — no date range, but we

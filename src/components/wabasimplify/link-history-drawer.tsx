@@ -58,11 +58,11 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
 
     return (
         <>
-            <ZoruButton variant="outline" size="sm" onClick={() => setOpen(true)}>
+            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
                 <History className="h-3.5 w-3.5" />
                 History
-            </ZoruButton>
-            <ZoruDialog open={open} onOpenChange={setOpen}>
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <ZoruDialogContent className="max-w-lg">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Link History</ZoruDialogTitle>
@@ -74,7 +74,7 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                         <div className="flex items-start gap-2 p-2.5 rounded-md bg-zinc-900 border border-zoru-border">
                             <div className="h-1.5 w-1.5 rounded-full bg-zoru-success mt-1.5 flex-shrink-0" />
                             <span className="text-[12.5px] text-zoru-ink break-all">{currentUrl}</span>
-                            <ZoruBadge variant="success" className="text-[10px] flex-shrink-0 ml-auto">Current</ZoruBadge>
+                            <Badge variant="success" className="text-[10px] flex-shrink-0 ml-auto">Current</Badge>
                         </div>
                     </div>
 
@@ -83,7 +83,7 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                         <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60">Previous Versions</p>
                         {loading ? (
                             <div className="space-y-2">
-                                {[1, 2].map((i) => <ZoruSkeleton key={i} className="h-12 w-full" />)}
+                                {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
                             </div>
                         ) : history.length === 0 ? (
                             <div className="py-6 text-center text-zoru-ink-muted">
@@ -102,7 +102,7 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                                             <p className="text-[12.5px] text-zoru-ink break-all">{entry.url}</p>
                                             <p className="text-[11px] text-zoru-ink-muted mt-0.5">{formatDate(entry.changedAt)}</p>
                                         </div>
-                                        <ZoruButton
+                                        <Button
                                             variant="ghost"
                                             size="xs"
                                             className={cn('opacity-0 group-hover:opacity-100 flex-shrink-0')}
@@ -115,14 +115,14 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                                                 : <RotateCcw className="h-3 w-3" />
                                             }
                                             Restore
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </>
     );
 }

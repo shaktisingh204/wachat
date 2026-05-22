@@ -100,7 +100,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
-        <ZoruCard
+        <Card
             className={cn(
                 "group relative flex flex-col transition-all duration-300",
                 "border-border/50 bg-background/50 backdrop-blur-sm",
@@ -142,23 +142,23 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                     <div className="flex items-center gap-1 -mr-2">
                         {/* Status Badges */}
                         {project.banState === 'RESTRICTED' && (
-                            <ZoruBadge variant="destructive" className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
+                            <Badge variant="destructive" className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
                                 Disabled
-                            </ZoruBadge>
+                            </Badge>
                         )}
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
-                            <ZoruBadge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
+                            <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
                                 {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
-                            </ZoruBadge>
+                            </Badge>
                         )}
 
                         {/* Actions Menu */}
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                                     <MoreVertical className="h-4 w-4" />
                                     <span className="sr-only">Open menu</span>
-                                </ZoruButton>
+                                </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
                                 {/* We wrap the delete button logic here or just render the component slightly differently if it accepts custom trigger */}
@@ -179,7 +179,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                                     Let's just position the DeleteProjectButton nicely.
                                 */}
                             </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                         <div className="flex items-center">
                             <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
                         </div>
@@ -203,9 +203,9 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                         </span>
                         <span>
                             {throughputLevel ? (
-                                <ZoruBadge variant={getThroughputVariant(throughputLevel)} className="h-5 px-1.5 text-[10px]">
+                                <Badge variant={getThroughputVariant(throughputLevel)} className="h-5 px-1.5 text-[10px]">
                                     {formatThroughput(throughputLevel)}
-                                </ZoruBadge>
+                                </Badge>
                             ) : (<span className="text-muted-foreground">-</span>)}
                         </span>
                     </div>
@@ -243,6 +243,6 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                     )}
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 });

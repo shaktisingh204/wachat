@@ -67,8 +67,8 @@ export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Eleme
                     children: (
                         <div className="grid gap-4">
                             <div>
-                                <ZoruLabel htmlFor="heading">Heading *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="heading">Heading *</Label>
+                                <Input
                                     id="heading"
                                     name="heading"
                                     required
@@ -77,8 +77,8 @@ export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Eleme
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="description">Description *</ZoruLabel>
-                                <ZoruTextarea
+                                <Label htmlFor="description">Description *</Label>
+                                <Textarea
                                     id="description"
                                     name="description"
                                     rows={6}
@@ -97,7 +97,7 @@ export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Eleme
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
-                                <ZoruLabel htmlFor="notice_to">Audience</ZoruLabel>
+                                <Label htmlFor="notice_to">Audience</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="notice_to"
@@ -108,7 +108,7 @@ export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Eleme
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="pinned">Pinned</ZoruLabel>
+                                <Label htmlFor="pinned">Pinned</Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
                                         name="pinned"
@@ -119,8 +119,8 @@ export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Eleme
                                 </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="department_id">Department id</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="department_id">Department id</Label>
+                                <Input
                                     id="department_id"
                                     name="department_id"
                                     defaultValue={notice?.department_id ?? ''}
@@ -129,8 +129,8 @@ export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Eleme
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="employee_ids">Employee ids (JSON)</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="employee_ids">Employee ids (JSON)</Label>
+                                <Input
                                     id="employee_ids"
                                     name="employee_ids"
                                     defaultValue={JSON.stringify(notice?.employee_ids ?? [])}

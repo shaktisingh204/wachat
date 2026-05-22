@@ -272,21 +272,21 @@ export default function EmployeeAccountsPage() {
                 }}
                 primaryAction={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="secondary" onClick={() => exportRows('csv')}>
+                        <Button variant="secondary" onClick={() => exportRows('csv')}>
                             <Download className="h-4 w-4" /> Export
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link href="/dashboard/crm/banking/all/new">
                                 <Plus className="h-4 w-4" /> Add Employee Account
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
                     isEmpty ? null : (
                         <div className="flex flex-wrap items-center gap-2">
                             <div className="w-44">
-                                <ZoruSelect value={bankFilter} onValueChange={(v) => { setBankFilter(v); setPage(1); }}>
+                                <Select value={bankFilter} onValueChange={(v) => { setBankFilter(v); setPage(1); }}>
                                     <ZoruSelectTrigger>
                                         <ZoruSelectValue placeholder="Bank" />
                                     </ZoruSelectTrigger>
@@ -296,10 +296,10 @@ export default function EmployeeAccountsPage() {
                                             <ZoruSelectItem key={b} value={b}>{b}</ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="w-40">
-                                <ZoruSelect
+                                <Select
                                     value={statusFilter}
                                     onValueChange={(v) => { setStatusFilter(v as StatusFilter); setPage(1); }}
                                 >
@@ -311,10 +311,10 @@ export default function EmployeeAccountsPage() {
                                         <ZoruSelectItem value="active">Active</ZoruSelectItem>
                                         <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="w-44">
-                                <ZoruSelect
+                                <Select
                                     value={verificationFilter}
                                     onValueChange={(v) => { setVerificationFilter(v as VerificationFilter); setPage(1); }}
                                 >
@@ -326,12 +326,12 @@ export default function EmployeeAccountsPage() {
                                         <ZoruSelectItem value="verified">Verified</ZoruSelectItem>
                                         <ZoruSelectItem value="unverified">Unverified</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             {hasActiveFilters ? (
-                                <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                                <Button variant="ghost" size="sm" onClick={clearFilters}>
                                     <X className="h-3 w-3" /> Clear
-                                </ZoruButton>
+                                </Button>
                             ) : null}
                             <div className="ml-auto text-xs text-zoru-ink-muted">
                                 {total} of {accounts.length}
@@ -346,21 +346,21 @@ export default function EmployeeAccountsPage() {
                                 {selected.size} selected
                             </span>
                             <div className="ml-auto flex items-center gap-2">
-                                <ZoruButton variant="secondary" size="sm" onClick={() => exportRows('csv')}>
+                                <Button variant="secondary" size="sm" onClick={() => exportRows('csv')}>
                                     <Download className="h-3.5 w-3.5" /> Export CSV
-                                </ZoruButton>
-                                <ZoruButton variant="secondary" size="sm" onClick={() => exportRows('xlsx')}>
+                                </Button>
+                                <Button variant="secondary" size="sm" onClick={() => exportRows('xlsx')}>
                                     <Download className="h-3.5 w-3.5" /> Export XLSX
-                                </ZoruButton>
-                                <ZoruButton variant="secondary" size="sm" onClick={() => setBulkConfirm('archive')}>
+                                </Button>
+                                <Button variant="secondary" size="sm" onClick={() => setBulkConfirm('archive')}>
                                     Deactivate
-                                </ZoruButton>
-                                <ZoruButton variant="destructive" size="sm" onClick={() => setBulkConfirm('delete')}>
+                                </Button>
+                                <Button variant="destructive" size="sm" onClick={() => setBulkConfirm('delete')}>
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
-                                <ZoruButton variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
                                     Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -373,11 +373,11 @@ export default function EmployeeAccountsPage() {
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Add accounts for employees to manage payouts, reimbursements, and salary advances.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/banking/all/new">
                                     <Plus className="h-4 w-4" /> Add your first employee account
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -397,25 +397,25 @@ export default function EmployeeAccountsPage() {
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total Employees"
                             value={kpis.totalEmployees}
                             icon={<Users />}
                             period={kpis.totalEmployees === 1 ? 'employee account' : 'employee accounts'}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Total Balance"
                             value={formatINR(kpis.totalBalance)}
                             icon={<Coins />}
                             period="aggregated payouts"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Active"
                             value={kpis.activeAccounts}
                             icon={<CheckCircle2 />}
                             period={`${kpis.totalEmployees - kpis.activeAccounts} inactive`}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Unverified"
                             value={kpis.unverifiedCount}
                             icon={<AlertTriangle />}
@@ -425,13 +425,13 @@ export default function EmployeeAccountsPage() {
                     </div>
 
                     {/* Table */}
-                    <ZoruCard>
+                    <Card>
                         <div className="overflow-x-auto rounded-lg border border-border">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-border hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={pageRows.length > 0 && pageRows.every((r) => selected.has(String(r._id)))}
                                                 onCheckedChange={(v) => toggleAll(!!v)}
                                                 aria-label="Select all"
@@ -453,7 +453,7 @@ export default function EmployeeAccountsPage() {
                                         return (
                                             <ZoruTableRow key={id} className="border-border">
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={checked}
                                                         onCheckedChange={() => toggleOne(id)}
                                                         aria-label={`Select ${account.accountName}`}
@@ -476,27 +476,27 @@ export default function EmployeeAccountsPage() {
                                                     }).format(account.currentBalance || 0)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant={(verified ? 'green' : 'amber-soft') as any}>
+                                                    <Badge variant={(verified ? 'green' : 'amber-soft') as any}>
                                                         {verified ? 'Verified' : 'Unverified'}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant={(account.status === 'active' ? 'green' : 'rose-soft') as any}>
+                                                    <Badge variant={(account.status === 'active' ? 'green' : 'rose-soft') as any}>
                                                         {account.status}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton variant="ghost" size="icon" disabled>
+                                                    <Button variant="ghost" size="icon" disabled>
                                                         <Edit className="h-4 w-4" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setDeleteTargetId(id)}
                                                         aria-label="Delete"
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
@@ -509,9 +509,9 @@ export default function EmployeeAccountsPage() {
                                         </ZoruTableRow>
                                     ) : null}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
             </EntityListShell>
 

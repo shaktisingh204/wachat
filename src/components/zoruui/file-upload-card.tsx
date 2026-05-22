@@ -132,7 +132,7 @@ export function ZoruFileUploadCard({
                   </p>
                 </div>
                 {item.status === "uploading" && (
-                  <ZoruProgress
+                  <Progress
                     value={item.progress ?? 60}
                     className="mt-2 h-1"
                   />
@@ -147,14 +147,14 @@ export function ZoruFileUploadCard({
                 )}
               </div>
               {onRemove && (
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="icon-sm"
                   onClick={() => onRemove(item.id)}
                   aria-label="Remove file"
                 >
                   <X />
-                </ZoruButton>
+                </Button>
               )}
             </li>
           ))}

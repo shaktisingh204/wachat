@@ -65,7 +65,7 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
   return (
     <>
       {/* Overview */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Overview
         </h2>
@@ -137,10 +137,10 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
             </DetailField>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Pricing */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Pricing
         </h2>
@@ -173,10 +173,10 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
             {product.taxInclusive ? 'Yes' : 'No'}
           </DetailField>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Inventory per warehouse */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Inventory
         </h2>
@@ -248,7 +248,7 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
                           {reorder ? 'Yes' : 'No'}
                         </td>
                         <td className="p-2 text-right align-middle">
-                          <ZoruButton size="sm" variant="ghost" asChild>
+                          <Button size="sm" variant="ghost" asChild>
                             <Link
                               href={`/dashboard/crm/inventory/adjustments/new?productId=${productId}&warehouseId=${String(
                                 row.warehouseId,
@@ -256,7 +256,7 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
                             >
                               <Pencil className="h-3.5 w-3.5" /> Adjust
                             </Link>
-                          </ZoruButton>
+                          </Button>
                         </td>
                       </tr>
                     );
@@ -266,11 +266,11 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Variants */}
       {variants.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Variants
           </h2>
@@ -278,12 +278,12 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
             {variants.length} variant{variants.length === 1 ? '' : 's'} linked.
           </p>
           {/* TODO 1D.2: per-variant table when variant schema lands. */}
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Suppliers / Vendors */}
       {vendorIds.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Vendors
           </h2>
@@ -296,11 +296,11 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
               />
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Accounting refs */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Accounting
         </h2>
@@ -349,10 +349,10 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
             {(product.taxPreference as string | undefined) ?? 'taxable'}
           </DetailField>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Images */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Images
         </h2>
@@ -367,10 +367,10 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
             ))}
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Dimensions */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Dimensions
         </h2>
@@ -394,11 +394,11 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
             {product.weight?.net ? `${product.weight.net} kg` : '—'}
           </DetailField>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Specifications */}
       {specs.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Specifications
           </h2>
@@ -419,12 +419,12 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
               </tbody>
             </table>
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Custom attributes */}
       {customAttrs.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Custom attributes
           </h2>
@@ -435,12 +435,12 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
               </DetailField>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Tags */}
       {tags ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
             Tags
           </h2>
@@ -458,7 +458,7 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
                 </span>
               ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
     </>
   );

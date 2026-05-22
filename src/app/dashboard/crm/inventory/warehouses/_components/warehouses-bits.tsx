@@ -84,7 +84,7 @@ function KpiCard({ label, value, icon, active, onClick }: KpiCardProps) {
                     : '',
             ].join(' ')}
         >
-            <ZoruStatCard label={label} value={value} icon={icon} />
+            <StatCard label={label} value={value} icon={icon} />
         </button>
     );
 }
@@ -176,10 +176,10 @@ export function WarehousesFiltersRow({
     return (
         <div className="grid grid-cols-1 gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 md:grid-cols-3 lg:grid-cols-6">
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Type
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                     value={filters.type || '__any'}
                     onValueChange={(v) =>
                         onChange({
@@ -203,14 +203,14 @@ export function WarehousesFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Status
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                     value={filters.status || '__any'}
                     onValueChange={(v) =>
                         onChange({
@@ -234,13 +234,13 @@ export function WarehousesFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Manager
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                     entity="employee"
                     name="managerFilter"
@@ -251,9 +251,9 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Country
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                     entity="country"
                     name="countryFilter"
@@ -270,9 +270,9 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     State
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                     entity="state"
                     name="stateFilter"
@@ -287,9 +287,9 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     City / Default
-                </ZoruLabel>
+                </Label>
                 <div className="flex items-center gap-1">
                     <EntityFormField
                         entity="city"
@@ -306,7 +306,7 @@ export function WarehousesFiltersRow({
                         placeholder="Any city"
                         onChange={(next) => onChange({ city: next ?? '' })}
                     />
-                    <ZoruSelect
+                    <Select
                         value={filters.isDefault || '__any'}
                         onValueChange={(v) =>
                             onChange({
@@ -325,15 +325,15 @@ export function WarehousesFiltersRow({
                             <ZoruSelectItem value="yes">Default only</ZoruSelectItem>
                             <ZoruSelectItem value="no">Non-default</ZoruSelectItem>
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
             </div>
 
             {hasActiveFilters ? (
                 <div className="md:col-span-3 lg:col-span-6">
-                    <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                    <Button variant="ghost" size="sm" onClick={onClear}>
                         <X className="h-3.5 w-3.5" /> Clear filters
-                    </ZoruButton>
+                    </Button>
                 </div>
             ) : null}
         </div>
@@ -363,24 +363,24 @@ export function WarehousesBulkBar({
             <span className="font-medium text-zoru-ink">
                 {count} selected
             </span>
-            <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+            <Button variant="ghost" size="sm" onClick={onClear}>
                 <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
             <span className="mx-1 h-4 w-px bg-zoru-line" />
-            <ZoruButton variant="outline" size="sm" onClick={onArchive}>
+            <Button variant="outline" size="sm" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> Archive
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={onExport}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={onDelete}
                 className="text-zoru-danger-ink"
             >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

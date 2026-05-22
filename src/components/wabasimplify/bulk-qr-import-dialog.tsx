@@ -164,7 +164,7 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <ZoruDialogContent className="sm:max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
@@ -183,13 +183,13 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
                 <p className="text-sm font-medium">Download Template</p>
                 <p className="text-xs text-muted-foreground">CSV with example rows</p>
               </div>
-              <ZoruButton variant="outline" size="sm" onClick={downloadTemplateCsv}>
+              <Button variant="outline" size="sm" onClick={downloadTemplateCsv}>
                 <FileDown className="h-4 w-4 mr-2" />
                 Template
-              </ZoruButton>
+              </Button>
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="qr-csv-file">CSV File <span className="text-red-500">*</span></ZoruLabel>
+              <Label htmlFor="qr-csv-file">CSV File <span className="text-red-500">*</span></Label>
               <input
                 id="qr-csv-file"
                 ref={fileInputRef}
@@ -207,7 +207,7 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
               </p>
             )}
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton variant="ghost" onClick={() => handleClose(false)}>Cancel</ZoruButton>
+              <Button variant="ghost" onClick={() => handleClose(false)}>Cancel</Button>
             </div>
           </div>
         )}
@@ -215,9 +215,9 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
         {step === 'preview' && (
           <div className="space-y-4 py-2">
             <div className="flex items-center gap-3">
-              <ZoruBadge variant="secondary">{parsedRows.length} rows valid</ZoruBadge>
+              <Badge variant="secondary">{parsedRows.length} rows valid</Badge>
               {parseErrors.length > 0 && (
-                <ZoruBadge variant="destructive">{parseErrors.length} errors</ZoruBadge>
+                <Badge variant="destructive">{parseErrors.length} errors</Badge>
               )}
             </div>
 
@@ -263,10 +263,10 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
             )}
 
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton variant="ghost" onClick={reset}>Back</ZoruButton>
-              <ZoruButton onClick={handleImport} disabled={parsedRows.length === 0}>
+              <Button variant="ghost" onClick={reset}>Back</Button>
+              <Button onClick={handleImport} disabled={parsedRows.length === 0}>
                 Import {parsedRows.length} QR Codes
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         )}
@@ -301,11 +301,11 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
               </div>
             </div>
             <div className="flex justify-center pt-2">
-              <ZoruButton onClick={handleDone}>Done</ZoruButton>
+              <Button onClick={handleDone}>Done</Button>
             </div>
           </div>
         )}
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

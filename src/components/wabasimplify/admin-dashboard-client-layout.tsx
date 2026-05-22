@@ -142,23 +142,23 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                     <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
                         <div className="flex items-center gap-2">
                             <SidebarTrigger>
-                                <ZoruButton variant="ghost" size="icon">
+                                <Button variant="ghost" size="icon">
                                     <PanelLeft />
-                                </ZoruButton>
+                                </Button>
                             </SidebarTrigger>
                             <div className="text-sm font-semibold text-primary">Admin Panel</div>
                         </div>
                         <div className="flex items-center gap-1">
-                            <ZoruDropdownMenu>
+                            <DropdownMenu>
                                 <ZoruDropdownMenuTrigger asChild>
-                                    <ZoruButton variant="ghost" className="flex items-center gap-2">
-                                        <ZoruAvatar className="h-8 w-8">
+                                    <Button variant="ghost" className="flex items-center gap-2">
+                                        <Avatar className="h-8 w-8">
                                             <ZoruAvatarImage src="https://placehold.co/100x100.png" alt="Admin Avatar" data-ai-hint="person avatar" />
                                             <ZoruAvatarFallback>A</ZoruAvatarFallback>
-                                        </ZoruAvatar>
+                                        </Avatar>
                                         <span className="hidden md:inline">Admin User</span>
                                         <ChevronDown className="h-4 w-4" />
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruDropdownMenuTrigger>
                                 <ZoruDropdownMenuContent align="end">
                                     <ZoruDropdownMenuLabel>Admin Account</ZoruDropdownMenuLabel>
@@ -170,12 +170,12 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                                         </Link>
                                     </ZoruDropdownMenuItem>
                                 </ZoruDropdownMenuContent>
-                            </ZoruDropdownMenu>
+                            </DropdownMenu>
                         </div>
                     </header>
                     <div className="flex-1 min-h-0">
                         <main className="h-full overflow-y-auto p-2 md:p-4 lg:p-8">
-                            <React.Suspense fallback={<ZoruSkeleton className="h-full w-full" />}>
+                            <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
                                 {children}
                             </React.Suspense>
                         </main>

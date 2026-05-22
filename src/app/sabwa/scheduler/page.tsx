@@ -266,13 +266,13 @@ export default function SchedulerCalendarPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview before scheduling messages."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -284,7 +284,7 @@ export default function SchedulerCalendarPage() {
     <ZoruTooltipProvider delayDuration={150}>
       <div className="p-4 md:p-6 lg:p-8 space-y-4">
         {/* ─── Breadcrumb ──────────────────────────────────────────── */}
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -298,7 +298,7 @@ export default function SchedulerCalendarPage() {
               <ZoruBreadcrumbPage>Scheduler</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
 
         {/* ─── Toolbar ─────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -324,7 +324,7 @@ export default function SchedulerCalendarPage() {
               className="inline-flex rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5"
             >
               {(["month", "week", "day"] as const).map((m) => (
-                <ZoruButton
+                <Button
                   key={m}
                   type="button"
                   size="sm"
@@ -334,44 +334,44 @@ export default function SchedulerCalendarPage() {
                   aria-pressed={view === m}
                 >
                   {m}
-                </ZoruButton>
+                </Button>
               ))}
             </div>
             <div className="inline-flex items-center gap-1">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="icon"
                 onClick={onPrev}
                 aria-label="Previous"
               >
                 <ChevronLeft className="h-4 w-4" />
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCursor(new Date())}
               >
                 Today
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="icon"
                 onClick={onNext}
                 aria-label="Next"
               >
                 <ChevronRight className="h-4 w-4" />
-              </ZoruButton>
+              </Button>
             </div>
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
               <Link href="/sabwa/scheduler/queue">
                 <ListChecks className="mr-1.5 h-4 w-4" />
                 Queue
               </Link>
-            </ZoruButton>
-            <ZoruButton size="sm" onClick={() => openCreate(cursor)}>
+            </Button>
+            <Button size="sm" onClick={() => openCreate(cursor)}>
               <Plus className="mr-1.5 h-4 w-4" />
               New schedule
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -386,7 +386,7 @@ export default function SchedulerCalendarPage() {
         {!loaded && events.length === 0 && (
           <div className="space-y-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <ZoruSkeleton
+              <Skeleton
                 key={`scheduler-skeleton-${i}`}
                 className="h-[64px] rounded-[var(--zoru-radius-lg)]"
               />
@@ -433,15 +433,15 @@ export default function SchedulerCalendarPage() {
         )}
 
         {loaded && events.length === 0 && (
-          <ZoruEmptyState
+          <EmptyState
             icon={<CalendarClock />}
             title="Calendar is empty"
             description="Schedules you create will appear here. No scheduled messages yet — use the 'New schedule' button to add one."
             action={
-              <ZoruButton size="md" onClick={() => openCreate(cursor)}>
+              <Button size="md" onClick={() => openCreate(cursor)}>
                 <Plus className="mr-1.5 h-4 w-4" />
                 New schedule
-              </ZoruButton>
+              </Button>
             }
           />
         )}
@@ -509,7 +509,7 @@ function MonthGrid({
           const inMonth = d.getMonth() === cursor.getMonth();
           const today = sameDay(d, new Date());
           return (
-            <ZoruTooltip key={key}>
+            <Tooltip key={key}>
               <ZoruTooltipTrigger asChild>
                 <div
                   onDragOver={onCellDragOver}
@@ -568,7 +568,7 @@ function MonthGrid({
                   {dayEvents.length === 1 ? "" : "s"}
                 </ZoruTooltipContent>
               )}
-            </ZoruTooltip>
+            </Tooltip>
           );
         })}
       </div>

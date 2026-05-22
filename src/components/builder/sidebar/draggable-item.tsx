@@ -23,17 +23,17 @@ export const DraggableSidebarItem = ({ type, label }: DraggableSidebarItemProps)
 
     return (
         <div ref={setNodeRef} {...listeners} {...attributes} className={cn("w-full mb-2", isDragging ? "opacity-50" : "opacity-100")}>
-            <ZoruButton variant="secondary" className="w-full justify-start text-sm cursor-grab active:cursor-grabbing">
+            <Button variant="secondary" className="w-full justify-start text-sm cursor-grab active:cursor-grabbing">
                 {label}
-            </ZoruButton>
+            </Button>
         </div>
     );
 };
 
 export const SidebarItemOverlay = ({ label }: { label: string }) => {
     return (
-        <ZoruButton variant="secondary" className="w-[200px] justify-start text-sm cursor-grabbing shadow-xl ring-2 ring-primary">
+        <Button variant="secondary" className="w-[200px] justify-start text-sm cursor-grabbing shadow-xl ring-2 ring-primary">
             {label}
-        </ZoruButton>
+        </Button>
     )
 }

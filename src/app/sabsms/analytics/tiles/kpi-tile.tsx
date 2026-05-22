@@ -46,7 +46,7 @@ export function KpiTile({
 
   return (
     <div className="relative">
-      <ZoruStatCard
+      <StatCard
         label={label}
         value={value.toLocaleString()}
         delta={delta}
@@ -54,9 +54,9 @@ export function KpiTile({
         period={period ?? (delta !== undefined ? "vs previous" : undefined)}
       />
       <div className="mt-1 flex items-center justify-between gap-1 px-1 text-xs text-zoru-ink-muted">
-        <ZoruButton asChild size="sm" variant="ghost" className="h-6 px-2">
+        <Button asChild size="sm" variant="ghost" className="h-6 px-2">
           <Link href={drilldownHref}>Open in logs</Link>
-        </ZoruButton>
+        </Button>
         <TileActions
           metric={metric}
           tileId={`kpi-${metric}`}

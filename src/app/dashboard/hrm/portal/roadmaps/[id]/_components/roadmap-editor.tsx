@@ -217,7 +217,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
         </button>
 
         <h1 className="text-base font-semibold text-zoru-ink">{roadmap.title}</h1>
-        <ZoruBadge variant={STATUS_VARIANT[roadmap.status]}>{roadmap.status}</ZoruBadge>
+        <Badge variant={STATUS_VARIANT[roadmap.status]}>{roadmap.status}</Badge>
 
         {(roadmap.startDate || roadmap.endDate) && (
           <span className="text-xs text-zoru-ink-muted">
@@ -246,11 +246,11 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
           {saveStatus === 'saved' && (
             <span className="text-xs text-zoru-success-ink">Saved</span>
           )}
-          <ZoruButton variant="outline" size="sm" onClick={handleSave} disabled={isPending}>
+          <Button variant="outline" size="sm" onClick={handleSave} disabled={isPending}>
             <Save />
             Save
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             onClick={handleArchive}
@@ -258,7 +258,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
           >
             <Archive />
             Archive
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -278,7 +278,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
               {/* Column header */}
               <div className="flex flex-col gap-2 border-b border-zoru-line px-4 py-3">
                 <div className="flex items-center justify-between gap-2">
-                  <ZoruInput
+                  <Input
                     value={phase.name}
                     onChange={(e) => handleRenamePhase(phase.id, e.target.value)}
                     onBlur={(e) => handleRenamePhaseCommit(phase.id, e.target.value)}
@@ -288,7 +288,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
                     {done}/{phase.tasks.length}
                   </span>
                 </div>
-                <ZoruProgress value={pct} className="h-1.5" />
+                <Progress value={pct} className="h-1.5" />
               </div>
 
               {/* Task cards */}
@@ -312,7 +312,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
 
               {/* Add task button */}
               <div className="border-t border-zoru-line p-3">
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start text-zoru-ink-muted"
@@ -320,7 +320,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
                 >
                   <Plus className="h-4 w-4" />
                   Add Task
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           );

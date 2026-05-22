@@ -17,14 +17,14 @@ interface Props {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -35,7 +35,7 @@ export function VendorEditForm({ vendor }: Props) {
     } as any);
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     <input type="hidden" name="vendorId" value={String(vendor._id ?? '')} />
@@ -46,26 +46,26 @@ export function VendorEditForm({ vendor }: Props) {
                     <Field name="pan" label="PAN" defaultValue={vendor.pan} />
                     <Field name="address" label="Address" defaultValue={vendor.address} />
                     <div>
-                        <ZoruLabel htmlFor="city">City</ZoruLabel>
+                        <Label htmlFor="city">City</Label>
                         <EntityFormField entity="city" name="city" initialId={vendor.city ?? null} initialLabel={vendor.city ?? ''} />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="state">State</ZoruLabel>
+                        <Label htmlFor="state">State</Label>
                         <EntityFormField entity="state" name="state" initialId={vendor.state ?? null} initialLabel={vendor.state ?? ''} />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="country">Country</ZoruLabel>
+                        <Label htmlFor="country">Country</Label>
                         <EntityFormField entity="country" name="country" initialId={vendor.country ?? null} initialLabel={vendor.country ?? ''} />
                     </div>
                     <Field name="website" label="Website" defaultValue={vendor.website} />
                     <div>
-                        <ZoruLabel htmlFor="industry">Industry</ZoruLabel>
+                        <Label htmlFor="industry">Industry</Label>
                         <EntityFormField entity="industry" name="industry" initialId={vendor.industry ?? null} initialLabel={vendor.industry ?? ''} />
                     </div>
                     <Field name="paymentTerms" label="Payment terms" defaultValue={vendor.paymentTerms} />
                     <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea id="notes" name="notes" defaultValue={vendor.notes ?? ''} rows={3} />
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea id="notes" name="notes" defaultValue={vendor.notes ?? ''} rows={3} />
                     </div>
                     {/*
                      * MSME / IT §43B(h) compliance section (§6.10).
@@ -97,7 +97,7 @@ export function VendorEditForm({ vendor }: Props) {
                                 defaultValue={vendor.udyamRegistrationNumber}
                             />
                             <div>
-                                <ZoruLabel htmlFor="msmeCategory">MSME Category</ZoruLabel>
+                                <Label htmlFor="msmeCategory">MSME Category</Label>
                                 <select
                                     id="msmeCategory"
                                     name="msmeCategory"
@@ -134,7 +134,7 @@ export function VendorEditForm({ vendor }: Props) {
                     </div>
                 </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -153,10 +153,10 @@ function Field({
 }) {
     return (
         <div>
-            <ZoruLabel htmlFor={name}>
+            <Label htmlFor={name}>
                 {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
                 id={name}
                 name={name}
                 type={type}

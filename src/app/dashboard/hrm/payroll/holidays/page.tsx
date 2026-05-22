@@ -393,7 +393,7 @@ export default function HolidaysPage(): React.JSX.Element {
         }}
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={addPublicHolidays}
@@ -401,12 +401,12 @@ export default function HolidaysPage(): React.JSX.Element {
             >
               <PartyPopper className="h-3.5 w-3.5" />
               {bulkBusy ? t('hrm.payroll.holidays.action.addingPublic') : t('hrm.payroll.holidays.action.addPublic')}
-            </ZoruButton>
-            <ZoruButton size="sm" asChild>
+            </Button>
+            <Button size="sm" asChild>
               <Link href="/dashboard/hrm/payroll/holidays/new">
                 <Plus className="h-3.5 w-3.5" /> {t('hrm.payroll.holidays.action.new')}
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         }
         filters={
@@ -437,24 +437,24 @@ export default function HolidaysPage(): React.JSX.Element {
                   : t('hrm.payroll.holidays.selection.many', { count: selected.size })}
               </span>
               <span className="mx-1 h-4 w-px bg-zoru-line" aria-hidden />
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setDeletePending(true)}
               >
                 <Trash2 className="h-3.5 w-3.5 text-rose-500" /> {t('hrm.payroll.holidays.bulk.delete')}
-              </ZoruButton>
-              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={exportCsv}>
                 {t('hrm.payroll.holidays.bulk.export')}
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setSelected(new Set())}
                 className="ml-auto"
               >
                 {t('hrm.payroll.holidays.bulk.clear')}
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -470,14 +470,14 @@ export default function HolidaysPage(): React.JSX.Element {
                 {t('hrm.payroll.holidays.empty.subtitle')}
               </p>
               <div className="flex gap-2">
-                <ZoruButton variant="outline" onClick={addPublicHolidays}>
+                <Button variant="outline" onClick={addPublicHolidays}>
                   <PartyPopper className="h-4 w-4" /> {t('hrm.payroll.holidays.action.addPublic')}
-                </ZoruButton>
-                <ZoruButton asChild>
+                </Button>
+                <Button asChild>
                   <Link href="/dashboard/hrm/payroll/holidays/new">
                     <Plus className="h-4 w-4" /> {t('hrm.payroll.holidays.empty.actionAdd')}
                   </Link>
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null

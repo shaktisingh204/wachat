@@ -38,13 +38,13 @@ function BulkActionsSkeleton() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <ZoruSkeleton className="h-9 w-64" />
-        <ZoruSkeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-64" />
+        <Skeleton className="h-9 w-32" />
       </div>
-      <ZoruSkeleton className="h-4 w-96" />
+      <Skeleton className="h-4 w-96" />
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
-          <ZoruSkeleton key={i} className="h-48 w-full" />
+          <Skeleton key={i} className="h-48 w-full" />
         ))}
       </div>
     </div>
@@ -105,7 +105,7 @@ function BulkPageContent() {
 export default function BulkPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -119,7 +119,7 @@ export default function BulkPage() {
             <ZoruBreadcrumbPage>Bulk Actions</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">

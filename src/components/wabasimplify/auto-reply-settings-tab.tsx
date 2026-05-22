@@ -42,7 +42,7 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
     
     return (
         <div className="space-y-6">
-            <ZoruCard>
+            <Card>
                  <ZoruCardHeader>
                     <div className="flex items-center justify-between">
                         <div className="space-y-1.5">
@@ -51,7 +51,7 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
                         </div>
                          <div className="flex items-center gap-2">
                              {isSwitchPending && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
-                             <ZoruSwitch 
+                             <Switch 
                                 defaultChecked={project.autoReplySettings?.masterEnabled !== false}
                                 onCheckedChange={onMasterSwitchChange}
                                 disabled={isSwitchPending}
@@ -59,9 +59,9 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
                         </div>
                     </div>
                 </ZoruCardHeader>
-            </ZoruCard>
+            </Card>
 
-            <ZoruSeparator />
+            <Separator />
             
             <div className="grid md:grid-cols-2 gap-6">
                 <AutoReplyForm type="welcomeMessage" project={project} />
@@ -70,7 +70,7 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
                 <AutoReplyForm type="aiAssistant" project={project} />
             </div>
 
-            <ZoruSeparator />
+            <Separator />
             
             <OptInOutForm project={project} />
 

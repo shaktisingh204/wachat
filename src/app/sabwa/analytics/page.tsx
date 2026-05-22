@@ -131,13 +131,13 @@ export default function AnalyticsPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -148,7 +148,7 @@ export default function AnalyticsPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -162,7 +162,7 @@ export default function AnalyticsPage() {
             <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -189,7 +189,7 @@ export default function AnalyticsPage() {
             className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
           >
             {RANGE_OPTIONS.map((opt) => (
-              <ZoruButton
+              <Button
                 key={opt.value}
                 type="button"
                 size="sm"
@@ -198,18 +198,18 @@ export default function AnalyticsPage() {
                 className="rounded-[calc(var(--zoru-radius)-2px)]"
               >
                 {opt.label}
-              </ZoruButton>
+              </Button>
             ))}
           </div>
           {range === 'custom' ? (
             <>
-              <ZoruDatePicker
+              <DatePicker
                 value={customFrom}
                 onChange={setCustomFrom}
                 placeholder="From"
                 className="w-[160px]"
               />
-              <ZoruDatePicker
+              <DatePicker
                 value={customTo}
                 onChange={setCustomTo}
                 placeholder="To"
@@ -217,7 +217,7 @@ export default function AnalyticsPage() {
               />
             </>
           ) : null}
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => void load()}
@@ -230,19 +230,19 @@ export default function AnalyticsPage() {
               <RefreshCw className="h-4 w-4" />
             )}
             Refresh
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
       {error ? (
-        <ZoruCard className="border-zoru-danger/40 bg-zoru-danger/5">
+        <Card className="border-zoru-danger/40 bg-zoru-danger/5">
           <ZoruCardHeader className="pb-2">
             <ZoruCardTitle className="text-base text-zoru-danger-ink">
               Couldn&apos;t load analytics
             </ZoruCardTitle>
             <ZoruCardDescription>{error}</ZoruCardDescription>
           </ZoruCardHeader>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* KPI grid */}
@@ -288,7 +288,7 @@ export default function AnalyticsPage() {
 
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">
               Messages in/out by day
@@ -300,9 +300,9 @@ export default function AnalyticsPage() {
           <ZoruCardContent>
             <ChartMessagesByDay data={analytics?.messagesByDay ?? []} />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">
               Response time histogram
@@ -316,9 +316,9 @@ export default function AnalyticsPage() {
               data={analytics?.responseHistogram ?? []}
             />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">
               Top 10 contacts by volume
@@ -330,9 +330,9 @@ export default function AnalyticsPage() {
           <ZoruCardContent>
             <ChartTopContacts data={analytics?.topContacts ?? []} />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">
               Group activity heatmap
@@ -344,9 +344,9 @@ export default function AnalyticsPage() {
           <ZoruCardContent>
             <ChartGroupHeatmap data={analytics?.groupHeatmap ?? []} />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">
               Hourly send pattern
@@ -360,9 +360,9 @@ export default function AnalyticsPage() {
               data={analytics?.hourlySendPattern ?? []}
             />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">AI usage by day</ZoruCardTitle>
             <ZoruCardDescription>
@@ -372,7 +372,7 @@ export default function AnalyticsPage() {
           <ZoruCardContent>
             <ChartAiUsage data={analytics?.aiUsageByDay ?? []} />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       <p className="text-[11px] text-zoru-ink-muted">
@@ -396,7 +396,7 @@ interface KpiCardProps {
 
 function KpiCard({ label, value, loading, tone, hint }: KpiCardProps) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="pb-1">
         <ZoruCardDescription className="flex items-center justify-between text-[11px] uppercase tracking-wide">
           <span>{label}</span>
@@ -417,7 +417,7 @@ function KpiCard({ label, value, loading, tone, hint }: KpiCardProps) {
             )}
           </div>
           {tone ? (
-            <ZoruBadge
+            <Badge
               variant={tone}
               className="px-1.5 py-0 text-[10px]"
             >
@@ -426,10 +426,10 @@ function KpiCard({ label, value, loading, tone, hint }: KpiCardProps) {
                 : tone === 'warning'
                   ? 'Watch'
                   : 'High'}
-            </ZoruBadge>
+            </Badge>
           ) : null}
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

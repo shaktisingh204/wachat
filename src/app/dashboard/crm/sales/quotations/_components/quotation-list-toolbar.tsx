@@ -70,7 +70,7 @@ function fmtMoneyShort(value: number, currency: string): string {
 export function QuotationKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <ZoruStatCard
+      <StatCard
         label="Total this month"
         value={kpi.totalThisMonth.toLocaleString()}
         period="quotations dated this month"
@@ -82,7 +82,7 @@ export function QuotationKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('draft')}
         aria-label="Filter to draft quotations"
       >
-        <ZoruStatCard
+        <StatCard
           label="Drafts"
           value={kpi.draft.toLocaleString()}
           period="status = draft"
@@ -94,13 +94,13 @@ export function QuotationKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
         onClick={() => onSegmentClick('accepted')}
         aria-label="Filter to accepted quotations"
       >
-        <ZoruStatCard
+        <StatCard
           label="Accepted"
           value={kpi.accepted.toLocaleString()}
           period="status = accepted"
         />
       </button>
-      <ZoruStatCard
+      <StatCard
         label="Total quoted value"
         value={fmtMoneyShort(kpi.totalQuotedValue, kpi.currency)}
         period="sum across loaded window"
@@ -121,7 +121,7 @@ export function QuotationKpiStripLegacy({ kpi, onSegmentClick }: KpiStripProps) 
         onClick={() => onSegmentClick('open')}
         aria-label="Filter to open quotations"
       >
-        <ZoruStatCard
+        <StatCard
           label="Total open"
           value={kpi.totalOpen.toLocaleString()}
           period="draft + sent"
@@ -134,7 +134,7 @@ export function QuotationKpiStripLegacy({ kpi, onSegmentClick }: KpiStripProps) 
         onClick={() => onSegmentClick('accepted')}
         aria-label="Filter to accepted quotations"
       >
-        <ZoruStatCard
+        <StatCard
           label="Accepted"
           value={kpi.accepted.toLocaleString()}
           period="status = accepted"
@@ -146,7 +146,7 @@ export function QuotationKpiStripLegacy({ kpi, onSegmentClick }: KpiStripProps) 
         onClick={() => onSegmentClick('rejected')}
         aria-label="Filter to rejected quotations"
       >
-        <ZoruStatCard
+        <StatCard
           label="Rejected"
           value={kpi.rejected.toLocaleString()}
           period="status = rejected"
@@ -159,7 +159,7 @@ export function QuotationKpiStripLegacy({ kpi, onSegmentClick }: KpiStripProps) 
         onClick={() => onSegmentClick('expired')}
         aria-label="Filter to expired quotations"
       >
-        <ZoruStatCard
+        <StatCard
           label="Expired"
           value={kpi.expired.toLocaleString()}
           period="past valid-until"
@@ -172,7 +172,7 @@ export function QuotationKpiStripLegacy({ kpi, onSegmentClick }: KpiStripProps) 
         onClick={() => onSegmentClick('converted')}
         aria-label="Filter to converted quotations"
       >
-        <ZoruStatCard
+        <StatCard
           label="Conversion rate"
           value={kpi.conversionRatePct != null ? `${kpi.conversionRatePct}%` : '—'}
           period="(accepted + converted) / total"
@@ -211,7 +211,7 @@ export function QuotationListToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
       <div className="relative w-full max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <ZoruInput
+        <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search by number or customer…"
@@ -222,7 +222,7 @@ export function QuotationListToolbar({
 
       <div className="flex items-center gap-1.5">
         {/* Presets */}
-        <ZoruSelect value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
+        <Select value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
           <ZoruSelectTrigger className="h-9 w-[200px]" aria-label="Saved view">
             <ZoruSelectValue placeholder="Saved view" />
           </ZoruSelectTrigger>
@@ -233,10 +233,10 @@ export function QuotationListToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         {/* Density */}
-        <ZoruSelect value={density} onValueChange={(v) => onDensityChange(v as Density)}>
+        <Select value={density} onValueChange={(v) => onDensityChange(v as Density)}>
           <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -245,11 +245,11 @@ export function QuotationListToolbar({
             <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
             <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         {/* View switcher (table only for now — kept for parity with Deals). */}
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-          <ZoruButton
+          <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}
             size="sm"
@@ -258,18 +258,18 @@ export function QuotationListToolbar({
             aria-label="Table view"
           >
             <TableIcon className="h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+        <Button variant="outline" size="sm" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export
-        </ZoruButton>
+        </Button>
 
-        <ZoruButton size="sm" asChild>
+        <Button size="sm" asChild>
           <Link href="/dashboard/crm/sales/quotations/new">
             <Plus className="h-3.5 w-3.5" /> New quotation
           </Link>
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

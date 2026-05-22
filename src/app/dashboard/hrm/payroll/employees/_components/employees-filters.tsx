@@ -81,7 +81,7 @@ export function EmployeesFilters({
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           <EnumFilterField
             enumName="employeeStatus"
             value={statusFilter}
@@ -90,7 +90,7 @@ export function EmployeesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Department</ZoruLabel>
+          <Label>Department</Label>
           <EntityFormField
             entity="department"
             name="_filter_department"
@@ -99,7 +99,7 @@ export function EmployeesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Designation</ZoruLabel>
+          <Label>Designation</Label>
           <EntityFormField
             entity="designation"
             name="_filter_designation"
@@ -108,7 +108,7 @@ export function EmployeesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Reporting manager</ZoruLabel>
+          <Label>Reporting manager</Label>
           <EntityFormField
             entity="employee"
             name="_filter_manager"
@@ -117,7 +117,7 @@ export function EmployeesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Employment type</ZoruLabel>
+          <Label>Employment type</Label>
           <EnumFilterField
             enumName="employmentType"
             value={employmentTypeFilter}
@@ -126,15 +126,15 @@ export function EmployeesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Work location</ZoruLabel>
-          <ZoruInput
+          <Label>Work location</Label>
+          <Input
             value={locationFilter}
             onChange={(e) => onLocationFilter(e.target.value)}
             placeholder="City or campus name"
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Branch</ZoruLabel>
+          <Label>Branch</Label>
           <EntityFormField
             entity="branch"
             name="_filter_branch"
@@ -143,16 +143,16 @@ export function EmployeesFilters({
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Joined — from</ZoruLabel>
-          <ZoruInput
+          <Label>Joined — from</Label>
+          <Input
             type="date"
             value={joinedFrom}
             onChange={(e) => onJoinedFrom(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Joined — to</ZoruLabel>
-          <ZoruInput
+          <Label>Joined — to</Label>
+          <Input
             type="date"
             value={joinedTo}
             onChange={(e) => onJoinedTo(e.target.value)}

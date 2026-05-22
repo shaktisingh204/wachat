@@ -26,8 +26,8 @@ export function DelayEditor({ node, onUpdate }: EditorProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-2">
         <div className="col-span-2 space-y-2">
-          <ZoruLabel htmlFor="delay-value">Delay Value</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="delay-value">Delay Value</Label>
+          <Input
             id="delay-value"
             type="text"
             placeholder="e.g. 5 or {{variable}}"
@@ -45,8 +45,8 @@ export function DelayEditor({ node, onUpdate }: EditorProps) {
           />
         </div>
         <div className="space-y-2">
-          <ZoruLabel htmlFor="delay-unit">Unit</ZoruLabel>
-          <ZoruSelect
+          <Label htmlFor="delay-unit">Unit</Label>
+          <Select
             value={currentUnit}
             onValueChange={(val) => {
               onUpdate({
@@ -63,12 +63,12 @@ export function DelayEditor({ node, onUpdate }: EditorProps) {
               <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
               <ZoruSelectItem value="days">Days</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
       </div>
       <div className="flex items-center space-x-2">
-        <ZoruSwitch id="typing-indicator" checked={node.data.showTyping} onCheckedChange={(checked) => onUpdate({ showTyping: checked })} />
-        <ZoruLabel htmlFor="typing-indicator">Show typing indicator</ZoruLabel>
+        <Switch id="typing-indicator" checked={node.data.showTyping} onCheckedChange={(checked) => onUpdate({ showTyping: checked })} />
+        <Label htmlFor="typing-indicator">Show typing indicator</Label>
       </div>
     </div>
   );

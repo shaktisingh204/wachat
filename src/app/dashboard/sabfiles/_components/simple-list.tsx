@@ -140,18 +140,18 @@ export function SimpleList({
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold text-zoru-ink">{title}</h1>
                 {mode === 'trash' && nodes.length > 0 && (
-                    <ZoruButton variant="destructive" onClick={onEmptyTrash}>
+                    <Button variant="destructive" onClick={onEmptyTrash}>
                         <Trash2 /> Empty trash
-                    </ZoruButton>
+                    </Button>
                 )}
             </div>
 
             {nodes.length === 0 ? (
-                <ZoruCard className="p-12 text-center text-sm text-zoru-ink-muted">
+                <Card className="p-12 text-center text-sm text-zoru-ink-muted">
                     {emptyHint}
-                </ZoruCard>
+                </Card>
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
                         <ul className="divide-y divide-zoru-line">
                             {nodes.map((n) => {
@@ -188,26 +188,26 @@ export function SimpleList({
                                         </span>
                                         {mode === 'trash' ? (
                                             <>
-                                                <ZoruButton
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => onRestore(n)}
                                                     disabled={busyId === n.id}
                                                 >
                                                     <RotateCcw /> Restore
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => onPermanent(n)}
                                                     disabled={busyId === n.id}
                                                 >
                                                     <Trash2 /> Delete
-                                                </ZoruButton>
+                                                </Button>
                                             </>
                                         ) : (
                                             <>
-                                                <ZoruButton
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => onStar(n)}
@@ -219,8 +219,8 @@ export function SimpleList({
                                                             n.starred && 'fill-amber-400 text-amber-400',
                                                         )}
                                                     />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => onTrash(n)}
@@ -228,7 +228,7 @@ export function SimpleList({
                                                     aria-label="Move to trash"
                                                 >
                                                     <Trash2 />
-                                                </ZoruButton>
+                                                </Button>
                                             </>
                                         )}
                                     </li>
@@ -236,7 +236,7 @@ export function SimpleList({
                             })}
                         </ul>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

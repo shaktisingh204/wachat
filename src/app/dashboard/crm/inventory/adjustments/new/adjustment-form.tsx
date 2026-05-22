@@ -179,8 +179,8 @@ export function AdjustmentForm() {
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-1">
-                                <ZoruLabel htmlFor="date">Date *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="date">Date *</Label>
+                                <Input
                                     type="date"
                                     id="date"
                                     name="date"
@@ -189,7 +189,7 @@ export function AdjustmentForm() {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <ZoruLabel>Warehouse *</ZoruLabel>
+                                <Label>Warehouse *</Label>
                                 <EntityFormField
                                     entity="warehouse"
                                     name="warehousePicker"
@@ -199,7 +199,7 @@ export function AdjustmentForm() {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <ZoruLabel htmlFor="reason">Reason *</ZoruLabel>
+                                <Label htmlFor="reason">Reason *</Label>
                                 <EnumFormField
                                     enumName="stockAdjustmentReason"
                                     name="reason"
@@ -208,10 +208,10 @@ export function AdjustmentForm() {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <ZoruLabel htmlFor="referenceNumber">
+                                <Label htmlFor="referenceNumber">
                                     Reference doc
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="referenceNumber"
                                     name="referenceNumber"
                                     placeholder="e.g. internal memo #42"
@@ -278,7 +278,7 @@ export function AdjustmentForm() {
                                                         />
                                                     </td>
                                                     <td className="px-2 py-1.5">
-                                                        <ZoruInput
+                                                        <Input
                                                             type="number"
                                                             value={l.qtyBefore}
                                                             onChange={(e) =>
@@ -290,7 +290,7 @@ export function AdjustmentForm() {
                                                         />
                                                     </td>
                                                     <td className="px-2 py-1.5">
-                                                        <ZoruInput
+                                                        <Input
                                                             type="number"
                                                             value={l.qtyAfter}
                                                             onChange={(e) =>
@@ -315,7 +315,7 @@ export function AdjustmentForm() {
                                                         {delta}
                                                     </td>
                                                     <td className="px-2 py-1.5">
-                                                        <ZoruInput
+                                                        <Input
                                                             value={l.batch}
                                                             onChange={(e) =>
                                                                 updateLine(idx, {
@@ -326,7 +326,7 @@ export function AdjustmentForm() {
                                                         />
                                                     </td>
                                                     <td className="px-2 py-1.5">
-                                                        <ZoruInput
+                                                        <Input
                                                             value={l.serial}
                                                             onChange={(e) =>
                                                                 updateLine(idx, {
@@ -337,7 +337,7 @@ export function AdjustmentForm() {
                                                         />
                                                     </td>
                                                     <td className="px-2 py-1.5">
-                                                        <ZoruInput
+                                                        <Input
                                                             type="number"
                                                             value={l.costPerUnit}
                                                             onChange={(e) =>
@@ -367,14 +367,14 @@ export function AdjustmentForm() {
                                 </table>
                             </div>
                             <div className="flex items-center justify-between">
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={addLine}
                                 >
                                     <Plus className="h-3.5 w-3.5" /> Add line
-                                </ZoruButton>
+                                </Button>
                                 <div className="text-[12.5px] text-zoru-ink-muted">
                                     Total impact:{' '}
                                     <span className="font-mono text-zoru-ink">
@@ -395,7 +395,7 @@ export function AdjustmentForm() {
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-1">
-                                <ZoruLabel>Approver</ZoruLabel>
+                                <Label>Approver</Label>
                                 <EntityFormField
                                     entity="user"
                                     name="approverPicker"
@@ -404,10 +404,10 @@ export function AdjustmentForm() {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <ZoruLabel htmlFor="approvalNotes">
+                                <Label htmlFor="approvalNotes">
                                     Approval notes
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="approvalNotes"
                                     name="approvalNotes"
                                     placeholder="Optional context for the approver"
@@ -420,7 +420,7 @@ export function AdjustmentForm() {
                     id: 'notes',
                     title: 'Notes',
                     children: (
-                        <ZoruTextarea
+                        <Textarea
                             id="notes"
                             name="notes"
                             placeholder="Optional notes…"

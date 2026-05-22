@@ -133,11 +133,11 @@ export default async function InvoiceDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this invoice — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/invoices">
               <ArrowLeft className="h-4 w-4" /> Back to Invoices
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -258,7 +258,7 @@ export default async function InvoiceDetailPage({
           />
 
           {/* Customer chip + outstanding */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Customer</ZoruCardTitle>
             </ZoruCardHeader>
@@ -283,10 +283,10 @@ export default async function InvoiceDetailPage({
                 </span>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* At a glance + quick edits */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>At a glance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -334,10 +334,10 @@ export default async function InvoiceDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Related entities (live counts from getCrmInvoiceRelatedCounts) */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -352,22 +352,22 @@ export default async function InvoiceDetailPage({
                     {item.icon}
                     {item.label}
                   </span>
-                  <ZoruBadge variant="secondary">{item.count}</ZoruBadge>
+                  <Badge variant="secondary">{item.count}</Badge>
                 </Link>
               ))}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Live-poll wrapper kept around for backwards-compatible refresh
               of the related counts when a downstream doc lands. */}
           <InvoiceRelatedRail invoiceId={invoiceId} initial={related} />
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link href={`/dashboard/crm/sales/invoices/${invoiceId}/activity`}>
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={<EntityAuditTimeline entityKind="invoice" entityId={invoiceId} />}
@@ -385,7 +385,7 @@ export default async function InvoiceDetailPage({
       />
 
       {/* Payment history */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Payment history</ZoruCardTitle>
         </ZoruCardHeader>
@@ -410,11 +410,11 @@ export default async function InvoiceDetailPage({
             </Link>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* E-invoice */}
       {invoice.eInvoice ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>E-invoice</ZoruCardTitle>
           </ZoruCardHeader>
@@ -440,12 +440,12 @@ export default async function InvoiceDetailPage({
               </p>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Notes */}
       {invoice.customerNotes || invoice.termsAndConditions ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -473,30 +473,30 @@ export default async function InvoiceDetailPage({
               ) : null}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Tags */}
       {Array.isArray(invoice.tags) && invoice.tags.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Tags</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
             <div className="flex flex-wrap gap-2">
               {invoice.tags.map((t) => (
-                <ZoruBadge key={t} variant="outline">
+                <Badge key={t} variant="outline">
                   {t}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Custom fields */}
       {customFields.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Custom fields</ZoruCardTitle>
           </ZoruCardHeader>
@@ -521,7 +521,7 @@ export default async function InvoiceDetailPage({
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* TODO 1D.2: <CrmNotes recordType="invoice"> composer — needs the

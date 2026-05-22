@@ -27,14 +27,14 @@ function ShareBar({ pct }: { pct: number }) {
 export function ReferrerTable({ data, total, isLoading }: ReferrerTableProps) {
   if (isLoading) {
     return (
-      <ZoruCard className="p-5">
-        <ZoruSkeleton className="h-5 w-28 mb-4" />
+      <Card className="p-5">
+        <Skeleton className="h-5 w-28 mb-4" />
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-8 w-full rounded" />
+            <Skeleton key={i} className="h-8 w-full rounded" />
           ))}
         </div>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -54,7 +54,7 @@ export function ReferrerTable({ data, total, isLoading }: ReferrerTableProps) {
   const effectiveTotal = total > 0 ? total : rows.reduce((s, r) => s + r.count, 0);
 
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-2 mb-4">
         <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
         <span className="text-[13px] text-zoru-ink">Referrer Sources</span>
@@ -118,6 +118,6 @@ export function ReferrerTable({ data, total, isLoading }: ReferrerTableProps) {
           </table>
         </div>
       )}
-    </ZoruCard>
+    </Card>
   );
 }

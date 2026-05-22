@@ -244,12 +244,12 @@ export function PosHoldRecallClient({ holds }: Props) {
         <div className="flex flex-col gap-4">
             {/* KPI strip */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Total held"
                     value={kpis.total.toLocaleString()}
                     icon={<ShoppingCart className="h-4 w-4" />}
                 />
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -261,8 +261,8 @@ export function PosHoldRecallClient({ holds }: Props) {
                         </div>
                         <ListChecks className="h-4 w-4 text-zoru-ink-muted" />
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -274,8 +274,8 @@ export function PosHoldRecallClient({ holds }: Props) {
                         </div>
                         <ListChecks className="h-4 w-4 text-zoru-ink-muted" />
                     </ZoruCardContent>
-                </ZoruCard>
-                <ZoruCard>
+                </Card>
+                <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -287,21 +287,21 @@ export function PosHoldRecallClient({ holds }: Props) {
                         </div>
                         <Clock className="h-4 w-4 text-zoru-ink-muted" />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-sm flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                    <ZoruInput
+                    <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search customer, cashier, reason…"
                         className="h-9 pl-9 text-[13px]"
                     />
                 </div>
-                <ZoruSelect
+                <Select
                     value={cashierFilter}
                     onValueChange={setCashierFilter}
                 >
@@ -316,15 +316,15 @@ export function PosHoldRecallClient({ holds }: Props) {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruInput
+                </Select>
+                <Input
                     type="date"
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
                     className="h-9 w-[150px] text-[13px]"
                     aria-label="From date"
                 />
-                <ZoruInput
+                <Input
                     type="date"
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
@@ -332,9 +332,9 @@ export function PosHoldRecallClient({ holds }: Props) {
                     aria-label="To date"
                 />
                 {hasActiveFilters ? (
-                    <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                    <Button variant="ghost" size="sm" onClick={clearFilters}>
                         <X className="h-3.5 w-3.5" /> Clear
-                    </ZoruButton>
+                    </Button>
                 ) : null}
             </div>
 
@@ -346,37 +346,37 @@ export function PosHoldRecallClient({ holds }: Props) {
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
-                        <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+                        <Button size="sm" variant="outline" onClick={exportCsv}>
                             <Download className="h-3.5 w-3.5" /> Export CSV
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="destructive"
                             onClick={voidBulk}
                             disabled={bulkVoiding}
                         >
                             <Trash2 className="h-3.5 w-3.5" /> Void
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setSelected(new Set())}
                             aria-label="Clear selection"
                         >
                             <X className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             ) : null}
 
             {/* Table */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <div className="overflow-x-auto">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-8">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={headChecked}
                                         onCheckedChange={(c) =>
                                             toggleAll(Boolean(c))
@@ -418,7 +418,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                                     return (
                                         <ZoruTableRow key={h._id}>
                                             <ZoruTableCell>
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     checked={selected.has(h._id)}
                                                     onCheckedChange={() =>
                                                         toggleOne(h._id)
@@ -451,7 +451,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
                                                 <div className="flex justify-end gap-1">
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="outline"
                                                         asChild
@@ -461,8 +461,8 @@ export function PosHoldRecallClient({ holds }: Props) {
                                                         >
                                                             Recall
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         onClick={() =>
@@ -473,7 +473,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                                                         aria-label="Void hold"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
@@ -481,9 +481,9 @@ export function PosHoldRecallClient({ holds }: Props) {
                                 })
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

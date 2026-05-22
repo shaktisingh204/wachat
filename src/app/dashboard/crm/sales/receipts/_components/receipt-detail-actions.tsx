@@ -69,7 +69,7 @@ export function ReceiptDetailActions({ id, currentStatus }: ReceiptDetailActions
 
     return (
         <>
-            <ZoruButton
+            <Button
                 variant="outline"
                 onClick={() => run('cleared')}
                 disabled={pending || currentStatus === 'cleared'}
@@ -80,8 +80,8 @@ export function ReceiptDetailActions({ id, currentStatus }: ReceiptDetailActions
                     <CheckCircle2 className="h-4 w-4" />
                 )}
                 Mark cleared
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 onClick={() => run('bounced')}
                 disabled={pending || currentStatus === 'bounced'}
@@ -92,8 +92,8 @@ export function ReceiptDetailActions({ id, currentStatus }: ReceiptDetailActions
                     <XCircle className="h-4 w-4" />
                 )}
                 Mark bounced
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 onClick={() => run('archive')}
                 disabled={pending}
@@ -104,7 +104,7 @@ export function ReceiptDetailActions({ id, currentStatus }: ReceiptDetailActions
                     <Archive className="h-4 w-4" />
                 )}
                 Archive
-            </ZoruButton>
+            </Button>
         </>
     );
 }

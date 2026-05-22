@@ -118,22 +118,22 @@ export default function SettingsOverviewPage() {
   const { t } = useT();
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbPage>{t('settings.overview.title')}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>{t('settings.overview.title')}</ZoruPageTitle>
           <ZoruPageDescription>
             {t('settings.overview.subtitle')}
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {SECTIONS.map((section) => (
         <div key={section.titleKey}>
@@ -145,7 +145,7 @@ export default function SettingsOverviewPage() {
               const Icon = tile.icon;
               return (
                 <Link key={tile.href} href={tile.href} className="group">
-                  <ZoruCard className="h-full p-4 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
+                  <Card className="h-full p-4 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
                     <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
                       <Icon className="h-[18px] w-[18px]" />
                     </div>
@@ -156,7 +156,7 @@ export default function SettingsOverviewPage() {
                     <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                       {t(tile.descriptionKey)}
                     </p>
-                  </ZoruCard>
+                  </Card>
                 </Link>
               );
             })}

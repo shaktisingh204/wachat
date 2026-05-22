@@ -319,7 +319,7 @@ export default function CrmTasksPage() {
                 active ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : '',
             ].join(' ')}
         >
-            <ZoruStatCard label={label} value={value} icon={icon} />
+            <StatCard label={label} value={value} icon={icon} />
         </button>
     );
 
@@ -379,11 +379,11 @@ export default function CrmTasksPage() {
                     placeholder: 'Search title or description…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/sales-crm/tasks/new">
                             <Plus className="h-4 w-4" /> New Task
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <TasksFiltersRow
@@ -446,11 +446,11 @@ export default function CrmTasksPage() {
                                 Track calls, meetings, follow-ups, and to-dos linked to leads,
                                 deals, clients, tickets, and invoices.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/sales-crm/tasks/new">
                                     <Plus className="h-4 w-4" /> Add your first task
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

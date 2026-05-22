@@ -123,7 +123,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -137,7 +137,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Connected Pages</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -147,22 +147,22 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
             the page tied to the active project.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+        <Button variant="ghost" onClick={refresh} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load Pages</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {projectId && (
-        <ZoruCard className="flex flex-col gap-4 p-5">
+        <Card className="flex flex-col gap-4 p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
@@ -172,31 +172,31 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                 {activePage?.name ?? (loading ? 'Loading…' : 'Not connected')}
               </h2>
               {activePage?.category ? (
-                <ZoruBadge variant="secondary" className="mt-1">
+                <Badge variant="secondary" className="mt-1">
                   {activePage.category}
-                </ZoruBadge>
+                </Badge>
               ) : null}
             </div>
             {activePage ? (
               <div className="flex items-center gap-2">
                 {editing ? (
                   <>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setEditing(false)}
                       disabled={saving}
                     >
                       Cancel
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                    </Button>
+                    <Button size="sm" onClick={onSave} disabled={saving}>
                       {saving ? 'Saving…' : 'Save'}
-                    </ZoruButton>
+                    </Button>
                   </>
                 ) : (
-                  <ZoruButton variant="ghost" size="sm" onClick={() => setEditing(true)}>
+                  <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
                     Edit details
-                  </ZoruButton>
+                  </Button>
                 )}
               </div>
             ) : null}
@@ -204,9 +204,9 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
 
           {loading && !activePage ? (
             <div className="grid gap-3 md:grid-cols-3">
-              <ZoruSkeleton className="h-20 w-full" />
-              <ZoruSkeleton className="h-20 w-full" />
-              <ZoruSkeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
             </div>
           ) : activePage ? (
             <div className="grid gap-4 md:grid-cols-3">
@@ -247,8 +247,8 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
           {editing && activePage ? (
             <div className="grid gap-3 md:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <ZoruLabel htmlFor="about">About</ZoruLabel>
-                <ZoruTextarea
+                <Label htmlFor="about">About</Label>
+                <Textarea
                   id="about"
                   rows={3}
                   value={form.about}
@@ -256,16 +256,16 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="phone">Phone</Label>
+                <Input
                   id="phone"
                   value={form.phone}
                   onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <ZoruLabel htmlFor="website">Website</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="website">Website</Label>
+                <Input
                   id="website"
                   value={form.website}
                   onChange={(e) =>
@@ -279,7 +279,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
               The active project does not have a Facebook Page connected yet.
             </p>
           ) : null}
-        </ZoruCard>
+        </Card>
       )}
 
       <section className="flex flex-col gap-3">
@@ -288,12 +288,12 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
         </h2>
         {loading && pages.length === 0 ? (
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            <ZoruSkeleton className="h-28 w-full" />
-            <ZoruSkeleton className="h-28 w-full" />
-            <ZoruSkeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
           </div>
         ) : pages.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Newspaper />}
             title="No Pages connected"
             description="Connect a Facebook Page to start managing posts, comments, and Messenger."
@@ -302,7 +302,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
           <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {pages.map((p) => (
               <li key={p.id}>
-                <ZoruCard className="flex h-full flex-col justify-between gap-3 p-4">
+                <Card className="flex h-full flex-col justify-between gap-3 p-4">
                   <div>
                     <p className="line-clamp-1 text-base text-zoru-ink">{p.name}</p>
                     <p className="line-clamp-1 text-xs text-zoru-ink-muted">
@@ -310,9 +310,9 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {(p.tasks ?? []).slice(0, 4).map((t) => (
-                        <ZoruBadge key={t} variant="ghost">
+                        <Badge key={t} variant="ghost">
                           {t}
-                        </ZoruBadge>
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -322,7 +322,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                   >
                     Open <ExternalLink className="h-3 w-3" />
                   </Link>
-                </ZoruCard>
+                </Card>
               </li>
             ))}
           </ul>

@@ -112,12 +112,12 @@ export default function ShiftRotationDetailPage() {
         <div className="text-[13px] text-zoru-ink-muted">Loading…</div>
       ) : (
         <>
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h2 className="mb-3 text-[16px] text-zoru-ink">Rotation Details</h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Name</ZoruLabel>
-                <ZoruInput
+                <Label className="text-[12px] text-zoru-ink-muted">Name</Label>
+                <Input
                   defaultValue={rotation.name}
                   onBlur={(e) =>
                     e.target.value !== rotation.name &&
@@ -126,8 +126,8 @@ export default function ShiftRotationDetailPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Description</ZoruLabel>
-                <ZoruInput
+                <Label className="text-[12px] text-zoru-ink-muted">Description</Label>
+                <Input
                   defaultValue={rotation.description}
                   onBlur={(e) =>
                     e.target.value !== rotation.description &&
@@ -136,16 +136,16 @@ export default function ShiftRotationDetailPage() {
                 />
               </div>
               <label className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink">
-                <ZoruCheckbox
+                <Checkbox
                   checked={rotation.is_active}
                   onCheckedChange={(v) => saveRotation({ is_active: Boolean(v) })}
                 />
                 <span>Active</span>
               </label>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-[16px] text-zoru-ink">Sequence</h2>
@@ -179,17 +179,17 @@ export default function ShiftRotationDetailPage() {
                       <span className="flex-1 text-[13px] font-medium text-zoru-ink">
                         {sh?.name ?? 'Unknown shift'}
                       </span>
-                      <ZoruBadge variant="info">
+                      <Badge variant="info">
                         {seq.duration_days} day{seq.duration_days === 1 ? '' : 's'}
-                      </ZoruBadge>
-                      <ZoruButton
+                      </Badge>
+                      <Button
                         variant="outline"
                         size="icon"
                         aria-label="Remove sequence step"
                         onClick={() => removeSeq(seq._id)}
                       >
                         <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   );
                 })
@@ -201,8 +201,8 @@ export default function ShiftRotationDetailPage() {
               className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-[2fr_1fr_auto]"
             >
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Shift</ZoruLabel>
-                <ZoruSelect value={newShiftId} onValueChange={setNewShiftId}>
+                <Label className="text-[12px] text-zoru-ink-muted">Shift</Label>
+                <Select value={newShiftId} onValueChange={setNewShiftId}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue placeholder="Choose shift" />
                   </ZoruSelectTrigger>
@@ -213,11 +213,11 @@ export default function ShiftRotationDetailPage() {
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Duration (days)</ZoruLabel>
-                <ZoruInput
+                <Label className="text-[12px] text-zoru-ink-muted">Duration (days)</Label>
+                <Input
                   type="number"
                   min={1}
                   value={newDuration}
@@ -225,16 +225,16 @@ export default function ShiftRotationDetailPage() {
                 />
               </div>
               <div className="flex items-end">
-                <ZoruButton
+                <Button
                   type="submit"
                   disabled={pending || !newShiftId}
                 >
                   <Plus className="h-4 w-4" strokeWidth={1.75} />
                   Add to Sequence
-                </ZoruButton>
+                </Button>
               </div>
             </form>
-          </ZoruCard>
+          </Card>
         </>
       )}
     </EntityListShell>

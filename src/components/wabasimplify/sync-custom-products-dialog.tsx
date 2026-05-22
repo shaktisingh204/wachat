@@ -77,12 +77,12 @@ export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProduc
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline">
+        <Button variant="outline">
           <Facebook className="mr-2 h-4 w-4" />
           Sync to Facebook Catalog
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <ZoruDialogHeader className="px-6 pt-6 pb-2">
@@ -94,9 +94,9 @@ export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProduc
         <div className="flex-1 overflow-y-auto px-6 py-2">
           <div className="space-y-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="catalog-select">Target Catalog</ZoruLabel>
+              <Label htmlFor="catalog-select">Target Catalog</Label>
               <div className="flex items-center gap-2">
-                <ZoruSelect value={selectedCatalogId} onValueChange={setSelectedCatalogId} disabled={isLoading}>
+                <Select value={selectedCatalogId} onValueChange={setSelectedCatalogId} disabled={isLoading}>
                   <ZoruSelectTrigger id="catalog-select">
                     <ZoruSelectValue placeholder="Select a catalog..." />
                   </ZoruSelectTrigger>
@@ -107,22 +107,22 @@ export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProduc
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruButton variant="ghost" size="icon" onClick={() => fetchAndSetCatalogs(true)} disabled={isLoading}>
+                </Select>
+                <Button variant="ghost" size="icon" onClick={() => fetchAndSetCatalogs(true)} disabled={isLoading}>
                   {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           </div>
         </div>
         <ZoruDialogFooter className="px-6 pb-6 pt-2">
-          <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-          <ZoruButton type="button" onClick={handleSync} disabled={isSyncing || !selectedCatalogId}>
+          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button type="button" onClick={handleSync} disabled={isSyncing || !selectedCatalogId}>
             {isSyncing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
             Sync Now
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

@@ -37,13 +37,13 @@ void _zoruCn;
 function EditFormSkeleton() {
     return (
         <div className="flex flex-col h-full">
-            <ZoruSkeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-[1fr_420px] gap-0 min-h-0">
                 <div className="lg:col-span-2 xl:col-span-1 p-4">
-                    <ZoruSkeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full" />
                 </div>
                 <div className="hidden lg:block p-4">
-                    <ZoruSkeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full" />
                 </div>
             </div>
         </div>
@@ -52,9 +52,9 @@ function EditFormSkeleton() {
 
 function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     return (
-        <ZoruDialog>
+        <Dialog>
             <ZoruDialogTrigger asChild>
-                <ZoruButton variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</ZoruButton>
+                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-2xl overflow-hidden">
                  <ZoruDialogHeader>
@@ -67,7 +67,7 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
                     <CodeBlock code={embedScript} language="html" />
                 </div>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -128,22 +128,22 @@ function EditFormPageContent() {
          <div className="h-full flex flex-col">
             <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="ghost" size="icon" asChild>
+                    <Button variant="ghost" size="icon" asChild>
                         <Link href="/dashboard/crm/sales-crm/forms">
                             <ArrowLeft className="h-4 w-4" />
                         </Link>
-                    </ZoruButton>
-                    <ZoruInput value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                    </Button>
+                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
-                    </ZoruButton>
+                    </Button>
                     <CodeEmbedDialog embedScript={embedScript} />
-                    <ZoruButton onClick={() => (window as any).triggerFormSave()} disabled={isSaving}>
+                    <Button onClick={() => (window as any).triggerFormSave()} disabled={isSaving}>
                         {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Form
-                    </ZoruButton>
+                    </Button>
                 </div>
             </header>
              <CrmFormBuilder {...({ initialForm, onSave: handleSave } as any)} />

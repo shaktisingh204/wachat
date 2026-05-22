@@ -184,8 +184,8 @@ export default function GoogleCalendarIntegrationPage() {
         >
           {!doc && !id ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -195,22 +195,22 @@ export default function GoogleCalendarIntegrationPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="client_id">Client ID</ZoruLabel>
+                <Label htmlFor="client_id">Client ID</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="client_id" name="client_id" defaultValue={v('client_id')} />
+                  <Input id="client_id" name="client_id" defaultValue={v('client_id')} />
                 </div>
               </div>
               <div>
-                <ZoruLabel htmlFor="client_secret">Client Secret</ZoruLabel>
+                <Label htmlFor="client_secret">Client Secret</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="client_secret" name="client_secret" type="password" defaultValue={v('client_secret')} />
+                  <Input id="client_secret" name="client_secret" type="password" defaultValue={v('client_secret')} />
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <ZoruLabel htmlFor="redirect_uri">Redirect URI</ZoruLabel>
+                <Label htmlFor="redirect_uri">Redirect URI</Label>
                 <div className="mt-1.5">
-                  <ZoruInput id="redirect_uri" name="redirect_uri" defaultValue={v('redirect_uri')} />
+                  <Input id="redirect_uri" name="redirect_uri" defaultValue={v('redirect_uri')} />
                 </div>
               </div>
 
@@ -221,21 +221,21 @@ export default function GoogleCalendarIntegrationPage() {
                     Allow members to connect their Google Calendar.
                   </div>
                 </div>
-                <ZoruSwitch checked={enabled} onCheckedChange={setEnabled} aria-label="Google Calendar enabled" />
+                <Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Google Calendar enabled" />
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -245,7 +245,7 @@ export default function GoogleCalendarIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

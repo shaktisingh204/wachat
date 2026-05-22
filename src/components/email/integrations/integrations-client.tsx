@@ -60,7 +60,7 @@ export function IntegrationsClient() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -73,21 +73,21 @@ export function IntegrationsClient() {
         </ZoruPageHeading>
         <ZoruPageActions>
           {pane === 'keys' ? (
-            <ZoruButton onClick={() => setKeyDialogOpen(true)}>
+            <Button onClick={() => setKeyDialogOpen(true)}>
               <Plus className="h-4 w-4" /> New API key
-            </ZoruButton>
+            </Button>
           ) : (
-            <ZoruButton
+            <Button
               onClick={() => {
                 setEditingHook(null);
                 setHookFormOpen(true);
               }}
             >
               <Plus className="h-4 w-4" /> New webhook
-            </ZoruButton>
+            </Button>
           )}
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* Segmented control — not tabs, per zoruui directive. */}
       <div
@@ -132,9 +132,9 @@ export function IntegrationsClient() {
 
       {loading ? (
         <div className="space-y-2">
-          <ZoruSkeleton className="h-12 w-full" />
-          <ZoruSkeleton className="h-12 w-full" />
-          <ZoruSkeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
       ) : pane === 'keys' ? (
         <ApiKeyTable keys={keys} onChanged={fetchKeys} />

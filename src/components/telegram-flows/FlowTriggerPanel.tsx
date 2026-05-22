@@ -41,8 +41,8 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <ZoruLabel htmlFor="trigger-kind">Trigger</ZoruLabel>
-        <ZoruSelect
+        <Label htmlFor="trigger-kind">Trigger</Label>
+        <Select
           value={kind}
           onValueChange={(v) => patch({ kind: v as TriggerKind })}
           disabled={disabled}
@@ -57,7 +57,7 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         <p className="text-xs text-muted-foreground">
           {TRIGGER_KINDS.find((t) => t.value === kind)?.hint ?? ''}
         </p>
@@ -66,8 +66,8 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
       {kind === 'incoming_message' ? (
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Filter</ZoruLabel>
-            <ZoruSelect
+            <Label>Filter</Label>
+            <Select
               value={trigger.filter?.type ?? 'contains'}
               onValueChange={(v) =>
                 patch({
@@ -89,12 +89,12 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           {trigger.filter?.type !== 'hasMedia' ? (
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="trigger-filter-value">Value</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="trigger-filter-value">Value</Label>
+              <Input
                 id="trigger-filter-value"
                 placeholder="hello"
                 value={trigger.filter?.value ?? ''}
@@ -115,8 +115,8 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
 
       {kind === 'command' ? (
         <div className="flex flex-col gap-1.5">
-          <ZoruLabel htmlFor="trigger-command">Command (without the leading /)</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="trigger-command">Command (without the leading /)</Label>
+          <Input
             id="trigger-command"
             placeholder="start"
             value={trigger.command ?? ''}
@@ -128,8 +128,8 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
 
       {kind === 'callback_query' ? (
         <div className="flex flex-col gap-1.5">
-          <ZoruLabel htmlFor="trigger-prefix">Callback data prefix</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="trigger-prefix">Callback data prefix</Label>
+          <Input
             id="trigger-prefix"
             placeholder="opt_"
             value={trigger.dataPrefix ?? ''}
@@ -141,8 +141,8 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
 
       {kind === 'schedule' ? (
         <div className="flex flex-col gap-1.5">
-          <ZoruLabel htmlFor="trigger-cron">Cron expression</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="trigger-cron">Cron expression</Label>
+          <Input
             id="trigger-cron"
             placeholder="0 9 * * 1-5"
             value={trigger.cron ?? ''}

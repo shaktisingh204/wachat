@@ -44,7 +44,7 @@ export function TelegramPlaceholder({
                             <h1 className="text-[22px] leading-tight text-zoru-ink">
                                 {title}
                             </h1>
-                            {badge ? <ZoruBadge variant="ghost">{badge}</ZoruBadge> : null}
+                            {badge ? <Badge variant="ghost">{badge}</Badge> : null}
                         </div>
                         <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
                             {description}
@@ -53,29 +53,29 @@ export function TelegramPlaceholder({
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                     {docsHref ? (
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => window.open(docsHref, '_blank', 'noopener,noreferrer')}
                         >
                             Docs
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     {ctaLabel && ctaHref ? (
-                        <ZoruButton
+                        <Button
                             size="sm"
                             onClick={() => {
                                 window.location.href = ctaHref;
                             }}
                         >
                             {ctaLabel}
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                 </div>
             </div>
 
             {bullets && bullets.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
                         What this will do
                     </p>
@@ -90,7 +90,7 @@ export function TelegramPlaceholder({
                             </li>
                         ))}
                     </ul>
-                </ZoruCard>
+                </Card>
             ) : null}
         </div>
     );

@@ -137,11 +137,11 @@ export default function AutomatedRulesPage() {
     if (!activeAccount) {
         return (
             <div>
-                <ZoruAlert>
+                <Alert>
                     <CircleAlert className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to manage automated rules.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -158,20 +158,20 @@ export default function AutomatedRulesPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="icon" onClick={fetchRules} disabled={loading}>
+                    <Button variant="outline" size="icon" onClick={fetchRules} disabled={loading}>
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </ZoruButton>
-                    <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
+                    </Button>
+                    <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
                         <Plus className="h-4 w-4 mr-1" /> Create rule
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
-                            {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-10" />)}
+                            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
                         </div>
                     ) : rules.length === 0 ? (
                         <div className="py-16 text-center">
@@ -183,7 +183,7 @@ export default function AutomatedRulesPage() {
                             </p>
                         </div>
                     ) : (
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Name</ZoruTableHead>
@@ -199,33 +199,33 @@ export default function AutomatedRulesPage() {
                                         <ZoruTableCell className="font-medium">{r.name}</ZoruTableCell>
                                         <ZoruTableCell className="text-sm text-muted-foreground">{formatCondition(r)}</ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge variant="outline">{formatAction(r)}</ZoruBadge>
+                                            <Badge variant="outline">{formatAction(r)}</Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruBadge variant={r.status === 'ENABLED' ? 'default' : 'secondary'}>
+                                            <Badge variant={r.status === 'ENABLED' ? 'default' : 'secondary'}>
                                                 {r.status || 'UNKNOWN'}
-                                            </ZoruBadge>
+                                            </Badge>
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <ZoruButton
+                                            <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8 text-destructive hover:text-destructive"
                                                 onClick={() => setDeleteId(r.id)}
                                             >
                                                 <Trash2 className="h-4 w-4" />
-                                            </ZoruButton>
+                                            </Button>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {/* Create dialog */}
-            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm(); } else setDialogOpen(true); }}>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm(); } else setDialogOpen(true); }}>
                 <ZoruDialogContent className="max-w-lg">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Create automated rule</ZoruDialogTitle>
@@ -233,76 +233,76 @@ export default function AutomatedRulesPage() {
                     </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Rule name *</ZoruLabel>
-                            <ZoruInput placeholder="e.g. Pause low CTR campaigns" value={name} onChange={e => setName(e.target.value)} />
+                            <Label>Rule name *</Label>
+                            <Input placeholder="e.g. Pause low CTR campaigns" value={name} onChange={e => setName(e.target.value)} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Entity type</ZoruLabel>
-                                <ZoruSelect value={entityType} onValueChange={setEntityType}>
+                                <Label>Entity type</Label>
+                                <Select value={entityType} onValueChange={setEntityType}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {ENTITY_TYPES.map(t => <ZoruSelectItem key={t} value={t}>{t}</ZoruSelectItem>)}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Action</ZoruLabel>
-                                <ZoruSelect value={actionType} onValueChange={setActionType}>
+                                <Label>Action</Label>
+                                <Select value={actionType} onValueChange={setActionType}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {ACTION_TYPES.map(t => <ZoruSelectItem key={t} value={t}>{t.replace(/_/g, ' ')}</ZoruSelectItem>)}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Metric</ZoruLabel>
-                                <ZoruSelect value={metricField} onValueChange={setMetricField}>
+                                <Label>Metric</Label>
+                                <Select value={metricField} onValueChange={setMetricField}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {METRIC_FIELDS.map(m => <ZoruSelectItem key={m} value={m}>{m.toUpperCase()}</ZoruSelectItem>)}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Operator</ZoruLabel>
-                                <ZoruSelect value={operator} onValueChange={setOperator}>
+                                <Label>Operator</Label>
+                                <Select value={operator} onValueChange={setOperator}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {OPERATORS.map(o => <ZoruSelectItem key={o} value={o}>{o.replace(/_/g, ' ')}</ZoruSelectItem>)}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Value *</ZoruLabel>
-                                <ZoruInput type="number" placeholder="0" value={value} onChange={e => setValue(e.target.value)} />
+                                <Label>Value *</Label>
+                                <Input type="number" placeholder="0" value={value} onChange={e => setValue(e.target.value)} />
                             </div>
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</ZoruButton>
-                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting}>
+                        <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting}>
                             {submitting ? 'Creating…' : 'Create rule'}
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Delete confirmation */}
-            <ZoruDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+            <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Delete rule?</ZoruDialogTitle>
                         <ZoruDialogDescription>This action cannot be undone.</ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => setDeleteId(null)}>Cancel</ZoruButton>
-                        <ZoruButton variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</ZoruButton>
+                        <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
+                        <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

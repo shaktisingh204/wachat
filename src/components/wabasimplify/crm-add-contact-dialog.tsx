@@ -37,10 +37,10 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
       Add Contact
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -68,12 +68,12 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
   }, [state, toast, onAdded]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton>
+        <Button>
           <UserPlus className="h-4 w-4" />
           Add Contact
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
@@ -88,19 +88,19 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="name">Full Name</ZoruLabel>
-                  <ZoruInput id="name" name="name" required />
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input id="name" name="name" required />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="email">Email</ZoruLabel>
-                  <ZoruInput id="email" name="email" type="email" required />
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" type="email" required />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
                     id="phone"
                     name="phone"
                     type="tel"
@@ -112,21 +112,21 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="company">Company</ZoruLabel>
-                  <ZoruInput id="company" name="company" />
+                  <Label htmlFor="company">Company</Label>
+                  <Input id="company" name="company" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="jobTitle">Job Title</ZoruLabel>
+                <Label htmlFor="jobTitle">Job Title</Label>
                 <EntityFormField entity="jobTitle" name="jobTitle" />
               </div>
 
-              <ZoruSeparator />
+              <Separator />
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="accountId">Account (Company)</ZoruLabel>
+                  <Label htmlFor="accountId">Account (Company)</Label>
                   <EntityFormField
                     entity="client"
                     name="accountId"
@@ -135,8 +135,8 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                  <ZoruSelect name="status" defaultValue="new_lead">
+                  <Label htmlFor="status">Status</Label>
+                  <Select name="status" defaultValue="new_lead">
                     <ZoruSelectTrigger id="status">
                       <ZoruSelectValue />
                     </ZoruSelectTrigger>
@@ -148,21 +148,21 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                       <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
                       <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="leadScore">Lead Score</ZoruLabel>
-                <ZoruInput id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" />
+                <Label htmlFor="leadScore">Lead Score</Label>
+                <Input id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" />
               </div>
 
-              <ZoruSeparator />
+              <Separator />
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="lifecycleStage">Lifecycle Stage</ZoruLabel>
-                  <ZoruSelect name="lifecycleStage" defaultValue="lead">
+                  <Label htmlFor="lifecycleStage">Lifecycle Stage</Label>
+                  <Select name="lifecycleStage" defaultValue="lead">
                     <ZoruSelectTrigger id="lifecycleStage">
                       <ZoruSelectValue />
                     </ZoruSelectTrigger>
@@ -174,29 +174,29 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                       <ZoruSelectItem value="evangelist">Evangelist</ZoruSelectItem>
                       <ZoruSelectItem value="other">Other</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="source">Source</ZoruLabel>
+                  <Label htmlFor="source">Source</Label>
                   <EntityFormField entity="leadSource" name="source" initialId="Other" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="owner">Owner</ZoruLabel>
+                  <Label htmlFor="owner">Owner</Label>
                   <EntityFormField entity="user" name="owner" placeholder="Assigned to…" />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                  <ZoruInput id="tags" name="tags" placeholder="vip, enterprise, priority" />
+                  <Label htmlFor="tags">Tags</Label>
+                  <Input id="tags" name="tags" placeholder="vip, enterprise, priority" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="linkedinUrl">LinkedIn URL</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
+                  <Input
                     id="linkedinUrl"
                     name="linkedinUrl"
                     type="url"
@@ -204,18 +204,18 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="twitterHandle">Twitter / X Handle</ZoruLabel>
-                  <ZoruInput id="twitterHandle" name="twitterHandle" placeholder="@handle" />
+                  <Label htmlFor="twitterHandle">Twitter / X Handle</Label>
+                  <Input id="twitterHandle" name="twitterHandle" placeholder="@handle" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="dateOfBirth">Date of Birth</ZoruLabel>
-                  <ZoruInput id="dateOfBirth" name="dateOfBirth" type="date" />
+                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                  <Input id="dateOfBirth" name="dateOfBirth" type="date" />
                 </div>
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor="timezone">Timezone</ZoruLabel>
+                  <Label htmlFor="timezone">Timezone</Label>
                   <EntityFormField entity="timezone" name="timezone" placeholder="Asia/Kolkata" />
                 </div>
               </div>
@@ -223,13 +223,13 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
           </div>
 
           <ZoruDialogFooter className="shrink-0 border-t border-zoru-line bg-zoru-bg px-6 pb-5 pt-4 gap-2">
-            <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

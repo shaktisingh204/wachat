@@ -96,16 +96,16 @@ export default async function PayrollRunDetailPage({
             status={{ label: status.replace(/_/g, ' '), tone }}
             back={{ href: BASE, label: 'Payroll runs' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${runId}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit / finalize
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Summary</div>
                 </div>
@@ -157,15 +157,15 @@ export default async function PayrollRunDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Payslips */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                     Payslips · {payslips.length}
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="text-zoru-ink-muted">Employee ID</ZoruTableHead>
@@ -203,9 +203,9 @@ export default async function PayrollRunDetailPage({
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

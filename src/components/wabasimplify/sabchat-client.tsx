@@ -19,7 +19,7 @@ import { AlertCircle, MessageSquare } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 
 function ChatPageSkeleton() {
-    return <ZoruSkeleton className="h-full w-full rounded-xl" />;
+    return <Skeleton className="h-full w-full rounded-xl" />;
 }
 
 export function SabChatClient() {
@@ -75,17 +75,17 @@ export function SabChatClient() {
     if (!sessionUser) {
         return (
             <div className="h-full flex items-center justify-center p-4">
-                <ZoruAlert variant="destructive" className="max-w-md">
+                <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
                     <ZoruAlertDescription>Please log in to use the live chat inbox.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
 
     return (
-        <ZoruCard className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
+        <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
             <div className="flex flex-1 overflow-hidden">
                 <div className="w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0 flex">
                     <SabChatConversationList
@@ -113,6 +113,6 @@ export function SabChatClient() {
                     )}
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -63,7 +63,7 @@ export default async function EditBudgetPage({ params }: PageProps) {
             }
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Plan vs actual</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -100,8 +100,8 @@ export default async function EditBudgetPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
-                    <ZoruCard>
+                    </Card>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Owner</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -115,7 +115,7 @@ export default async function EditBudgetPage({ params }: PageProps) {
                                 </div>
                             ) : null}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
             audit={<EntityAuditTimeline entityKind="budget" entityId={id} />}

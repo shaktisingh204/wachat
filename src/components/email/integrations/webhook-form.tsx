@@ -109,7 +109,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
   }, [webhook?.signingSecret]);
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -122,8 +122,8 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="hook-name">Name (optional)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="hook-name">Name (optional)</Label>
+            <Input
               id="hook-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -131,8 +131,8 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="hook-url">Endpoint URL</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="hook-url">Endpoint URL</Label>
+            <Input
               id="hook-url"
               type="url"
               inputMode="url"
@@ -143,7 +143,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
           </div>
 
           <div className="space-y-2">
-            <ZoruLabel>Events</ZoruLabel>
+            <Label>Events</Label>
             <div className="grid grid-cols-2 gap-2">
               {AVAILABLE_EVENTS.map((ev) => {
                 const checked = events.includes(ev.value);
@@ -154,7 +154,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
                     htmlFor={inputId}
                     className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-2 py-1.5 text-xs hover:bg-zoru-surface-2"
                   >
-                    <ZoruCheckbox
+                    <Checkbox
                       id={inputId}
                       checked={checked}
                       onCheckedChange={() => toggleEvent(ev.value)}
@@ -168,12 +168,12 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
 
           <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2">
             <div>
-              <ZoruLabel htmlFor="hook-active">Active</ZoruLabel>
+              <Label htmlFor="hook-active">Active</Label>
               <p className="text-xs text-zoru-ink-muted">
                 Inactive webhooks receive no deliveries.
               </p>
             </div>
-            <ZoruSwitch
+            <Switch
               id="hook-active"
               checked={active}
               onCheckedChange={setActive}
@@ -182,12 +182,12 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
 
           {webhook?.signingSecret ? (
             <div className="space-y-1.5">
-              <ZoruLabel>Signing secret</ZoruLabel>
+              <Label>Signing secret</Label>
               <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 p-2">
                 <code className="flex-1 truncate text-xs text-zoru-ink">
                   {webhook.signingSecret}
                 </code>
-                <ZoruButton
+                <Button
                   type="button"
                   size="sm"
                   variant="outline"
@@ -195,7 +195,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
                 >
                   {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                   {copied ? 'Copied' : 'Copy'}
-                </ZoruButton>
+                </Button>
               </div>
               <p className="text-xs text-zoru-ink-muted">
                 Use this secret to verify the <code>X-SabNode-Signature</code> header.
@@ -205,14 +205,14 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleSave} disabled={pending}>
+          </Button>
+          <Button onClick={handleSave} disabled={pending}>
             {webhook ? 'Save changes' : 'Create webhook'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

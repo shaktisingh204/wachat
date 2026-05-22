@@ -224,12 +224,12 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-900 dark:text-amber-300">
           <span>You have an unsaved draft from a previous session.</span>
           <div className="flex items-center gap-2">
-            <ZoruButton size="sm" variant="outline" type="button" onClick={restoreDraft}>
+            <Button size="sm" variant="outline" type="button" onClick={restoreDraft}>
               Restore draft
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" type="button" onClick={discardDraft}>
+            </Button>
+            <Button size="sm" variant="ghost" type="button" onClick={discardDraft}>
               Discard
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
@@ -254,7 +254,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
       <input type="hidden" name="competitors" value={JSON.stringify(competitors)} />
 
       {/* ─── Section 1: Overview ──────────────────────────────────────── */}
-      <ZoruCard className="space-y-4 p-6">
+      <Card className="space-y-4 p-6">
         <div>
           <h2 className="text-[15px] font-semibold text-zoru-ink">Overview</h2>
           <p className="text-[12.5px] text-zoru-ink-muted">
@@ -263,10 +263,10 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2 space-y-1.5">
-            <ZoruLabel htmlFor="name">
+            <Label htmlFor="name">
               Title <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="name"
               name="name"
               required
@@ -276,9 +276,9 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="ownerId">
+            <Label htmlFor="ownerId">
               Owner <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="user"
               name="ownerId"
@@ -288,9 +288,9 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="pipelineId">
+            <Label htmlFor="pipelineId">
               Pipeline <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="pipeline"
               name="pipelineId"
@@ -304,9 +304,9 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="stage">
+            <Label htmlFor="stage">
               Stage <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="stage"
               name="stage"
@@ -318,9 +318,9 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
 
           {/* Counter-party discriminator — `client` ↔ `lead` */}
           <div className="space-y-1.5">
-            <ZoruLabel>
+            <Label>
               Counter-party type <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <EnumFormField
               enumName="partyKind"
               name="partyKindPicker"
@@ -336,9 +336,9 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel>
+            <Label>
               {partyKind === 'client' ? 'Client' : 'Lead / contact'}
-            </ZoruLabel>
+            </Label>
             <EntityPicker
               entity={partyKind === 'client' ? 'client' : 'lead'}
               value={partyKind === 'client' ? accountId : contactId}
@@ -351,10 +351,10 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Section 2: Money ─────────────────────────────────────────── */}
-      <ZoruCard className="space-y-4 p-6">
+      <Card className="space-y-4 p-6">
         <div>
           <h2 className="text-[15px] font-semibold text-zoru-ink">Money</h2>
           <p className="text-[12.5px] text-zoru-ink-muted">
@@ -363,10 +363,10 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="value">
+            <Label htmlFor="value">
               Amount <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="value"
               name="value"
               type="number"
@@ -379,7 +379,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+            <Label htmlFor="currency">Currency</Label>
             <EntityFormField
               entity="currency"
               name="currency"
@@ -388,8 +388,8 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="probability">Probability (%)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="probability">Probability (%)</Label>
+            <Input
               id="probability"
               name="probability"
               type="number"
@@ -401,8 +401,8 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="closeDate">Expected close date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="closeDate">Expected close date</Label>
+            <Input
               id="closeDate"
               name="closeDate"
               type="date"
@@ -410,20 +410,20 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* ─── Section 3: Products ──────────────────────────────────────── */}
-      <ZoruCard className="space-y-4 p-6">
+      <Card className="space-y-4 p-6">
         <DealProductsEditor
           products={products}
           onAdd={addProduct}
           onRemove={removeProduct}
           onPatch={patchProduct}
         />
-      </ZoruCard>
+      </Card>
 
       {/* ─── Section 4: Competitors ───────────────────────────────────── */}
-      <ZoruCard className="space-y-4 p-6">
+      <Card className="space-y-4 p-6">
         <DealCompetitorsEditor
           competitors={competitors}
           onAdd={(name) => {
@@ -432,10 +432,10 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           }}
           onRemove={removeCompetitor}
         />
-      </ZoruCard>
+      </Card>
 
       {/* ─── Section 5: Profile (source/priority/tags) + Notes ────────── */}
-      <ZoruCard className="space-y-4 p-6">
+      <Card className="space-y-4 p-6">
         <div>
           <h2 className="text-[15px] font-semibold text-zoru-ink">Profile & notes</h2>
           <p className="text-[12.5px] text-zoru-ink-muted">
@@ -444,7 +444,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="leadSource">Lead source</ZoruLabel>
+            <Label htmlFor="leadSource">Lead source</Label>
             <EntityFormField
               entity="leadSource"
               name="leadSource"
@@ -454,7 +454,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel>Priority</ZoruLabel>
+            <Label>Priority</Label>
             <EnumFormField
               enumName="ticketPriority"
               name="priority"
@@ -464,8 +464,8 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="nextStep">Next step</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="nextStep">Next step</Label>
+            <Input
               id="nextStep"
               name="nextStep"
               defaultValue={initial?.nextStep ?? ''}
@@ -474,8 +474,8 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="campaign">Campaign</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="campaign">Campaign</Label>
+            <Input
               id="campaign"
               name="campaign"
               defaultValue={initial?.campaign ?? ''}
@@ -484,8 +484,8 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="md:col-span-2 space-y-1.5">
-            <ZoruLabel htmlFor="lossReason">Loss reason</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lossReason">Loss reason</Label>
+            <Input
               id="lossReason"
               name="lossReason"
               defaultValue={initial?.lossReason ?? ''}
@@ -494,8 +494,8 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="md:col-span-2 space-y-1.5">
-            <ZoruLabel htmlFor="description">Notes</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Notes</Label>
+            <Textarea
               id="description"
               name="description"
               defaultValue={initial?.description ?? ''}
@@ -506,7 +506,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
 
           {/* Tags — multi-pick */}
           <div className="md:col-span-2 space-y-1.5">
-            <ZoruLabel>Tags</ZoruLabel>
+            <Label>Tags</Label>
             <EntityMultiFormField
               entity="tag"
               name="tagIds"
@@ -517,7 +517,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Inline error (action returns { error }) */}
       {state?.error ? (
@@ -529,14 +529,14 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
       {/* Sticky action bar */}
       <div className="sticky bottom-0 z-10 border-t border-zoru-line bg-zoru-bg py-3">
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             onClick={() => router.push(redirectTo ?? '/dashboard/crm/sales-crm/deals')}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="outline"
             onClick={setMode('saveNew')}
@@ -544,9 +544,9 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
             value="save_new"
           >
             Save &amp; new
-          </ZoruButton>
+          </Button>
           {editing ? (
-            <ZoruButton
+            <Button
               type="submit"
               variant="outline"
               onClick={setMode('convert')}
@@ -554,11 +554,11 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
               value="save_convert"
             >
               Save &amp; convert to quotation
-            </ZoruButton>
+            </Button>
           ) : null}
-          <ZoruButton type="submit" onClick={setMode('save')}>
+          <Button type="submit" onClick={setMode('save')}>
             {editing ? 'Save changes' : 'Create deal'}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     </form>

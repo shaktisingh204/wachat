@@ -99,14 +99,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       {isEditing ? 'Save changes' : 'Create field'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -125,7 +125,7 @@ function FlagRow({
   }, [defaultChecked]);
   return (
     <label className="flex cursor-pointer items-center gap-2 text-[13px] text-zoru-ink">
-      <ZoruCheckbox
+      <Checkbox
         checked={checked}
         onCheckedChange={(v) => setChecked(v === true)}
       />
@@ -185,7 +185,7 @@ export function CustomFieldForm({
   };
 
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <form action={formAction} className="flex flex-col gap-6">
         {isEditing ? (
           <input
@@ -203,8 +203,8 @@ export function CustomFieldForm({
         {/* Row 1: entityKind + fieldType */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="entityKind">Entity *</ZoruLabel>
-            <ZoruSelect
+            <Label htmlFor="entityKind">Entity *</Label>
+            <Select
               name="entityKind"
               value={entityKind}
               onValueChange={setEntityKind}
@@ -220,10 +220,10 @@ export function CustomFieldForm({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="fieldType">Field type *</ZoruLabel>
+            <Label htmlFor="fieldType">Field type *</Label>
             <EnumFormField
               name="fieldType"
               enumName="customFieldType"
@@ -238,8 +238,8 @@ export function CustomFieldForm({
         {/* Row 2: label + name */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="label">Display label *</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="label">Display label *</Label>
+            <Input
               id="label"
               name="label"
               required
@@ -248,8 +248,8 @@ export function CustomFieldForm({
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="name">Internal name *</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="name">Internal name *</Label>
+            <Input
               id="name"
               name="name"
               required
@@ -270,8 +270,8 @@ export function CustomFieldForm({
         {/* Row 3: placeholder + section */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="placeholder">Placeholder</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="placeholder">Placeholder</Label>
+            <Input
               id="placeholder"
               name="placeholder"
               placeholder="Shown inside empty inputs"
@@ -279,8 +279,8 @@ export function CustomFieldForm({
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="section">Section</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="section">Section</Label>
+            <Input
               id="section"
               name="section"
               placeholder="e.g. Identification"
@@ -291,8 +291,8 @@ export function CustomFieldForm({
 
         {/* Row 4: helpText */}
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="helpText">Help text</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="helpText">Help text</Label>
+          <Textarea
             id="helpText"
             name="helpText"
             rows={2}
@@ -303,8 +303,8 @@ export function CustomFieldForm({
 
         {/* Row 5: displayOrder */}
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="displayOrder">Display order</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="displayOrder">Display order</Label>
+          <Input
             id="displayOrder"
             name="displayOrder"
             type="number"
@@ -361,7 +361,7 @@ export function CustomFieldForm({
               <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
                 Options
               </p>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -373,7 +373,7 @@ export function CustomFieldForm({
                 }
               >
                 <Plus className="mr-1 h-3.5 w-3.5" /> Add option
-              </ZoruButton>
+              </Button>
             </div>
             {options.length === 0 ? (
               <p className="rounded-md border border-dashed border-zoru-line px-3 py-4 text-center text-[12px] text-zoru-ink-muted">
@@ -386,14 +386,14 @@ export function CustomFieldForm({
                     key={idx}
                     className="grid grid-cols-[1fr_1fr_120px_auto] items-center gap-2"
                   >
-                    <ZoruInput
+                    <Input
                       placeholder="Label"
                       value={opt.label}
                       onChange={(e) =>
                         updateOption(idx, { label: e.target.value })
                       }
                     />
-                    <ZoruInput
+                    <Input
                       placeholder="value (slug)"
                       value={opt.value}
                       onChange={(e) =>
@@ -404,7 +404,7 @@ export function CustomFieldForm({
                       value={opt.color || '#999999'}
                       onChange={(c) => updateOption(idx, { color: c })}
                     />
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon"
@@ -414,7 +414,7 @@ export function CustomFieldForm({
                       aria-label="Remove option"
                     >
                       <X className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -430,8 +430,8 @@ export function CustomFieldForm({
             </p>
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="validation.min">Min</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="validation.min">Min</Label>
+                <Input
                   id="validation.min"
                   name="validation.min"
                   type="number"
@@ -445,8 +445,8 @@ export function CustomFieldForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="validation.max">Max</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="validation.max">Max</Label>
+                <Input
                   id="validation.max"
                   name="validation.max"
                   type="number"
@@ -460,8 +460,8 @@ export function CustomFieldForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="validation.pattern">Regex pattern</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="validation.pattern">Regex pattern</Label>
+                <Input
                   id="validation.pattern"
                   name="validation.pattern"
                   placeholder="^[A-Z0-9]+$"
@@ -478,15 +478,15 @@ export function CustomFieldForm({
         ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-          <ZoruButton variant="ghost" asChild>
+          <Button variant="ghost" asChild>
             <Link href={isEditing ? `${BASE}/${initialData!._id}` : BASE}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Link>
-          </ZoruButton>
+          </Button>
           <SubmitButton isEditing={isEditing} />
         </div>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

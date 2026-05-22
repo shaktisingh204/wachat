@@ -26,14 +26,14 @@ export default async function FacebookCallbackPage({
     <Suspense
       fallback={
         <div className="flex h-screen w-screen items-center justify-center bg-muted">
-          <ZoruCard className="max-w-sm text-center">
+          <Card className="max-w-sm text-center">
             <ZoruCardHeader>
               <div className="flex justify-center mb-4">
                 <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
               </div>
               <ZoruCardTitle>Loading...</ZoruCardTitle>
             </ZoruCardHeader>
-          </ZoruCard>
+          </Card>
         </div>
       }
     >

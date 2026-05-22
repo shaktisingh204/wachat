@@ -59,23 +59,23 @@ export function InvoicesBulkBar({
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+        <Button size="sm" variant="outline" onClick={onArchive}>
           Archive
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onMarkPaid}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onMarkPaid}>
           <Banknote className="h-3.5 w-3.5" /> Mark paid
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onSend}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onSend}>
           <Mail className="h-3.5 w-3.5" /> Send
-        </ZoruButton>
-        <ZoruDropdownMenu>
+        </Button>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton size="sm" variant="outline">
+            <Button size="sm" variant="outline">
               Change status
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent>
             {STATUS_OPTIONS.map((s) => (
@@ -87,18 +87,18 @@ export function InvoicesBulkBar({
               </ZoruDropdownMenuItem>
             ))}
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
-        <ZoruButton size="sm" variant="destructive" onClick={onDelete}>
+        </DropdownMenu>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={onClear}
           aria-label="Clear selection"
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

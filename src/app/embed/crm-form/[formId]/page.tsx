@@ -27,7 +27,7 @@ export default function EmbeddedFormPage(props: { params: Promise<{ formId: stri
     }, [params.formId]);
 
     if (isLoading) {
-        return <div className="p-4"><ZoruSkeleton className="h-96 w-full max-w-lg mx-auto" /></div>;
+        return <div className="p-4"><Skeleton className="h-96 w-full max-w-lg mx-auto" /></div>;
     }
 
     if (!form) {

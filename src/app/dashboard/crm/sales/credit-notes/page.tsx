@@ -262,11 +262,11 @@ export default function CreditNotesPage() {
                     placeholder: 'Search by CN #, notes, txn id…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/sales/credit-notes/new">
                             <Plus className="h-4 w-4" /> New credit note
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <CreditNoteFiltersRow
@@ -321,11 +321,11 @@ export default function CreditNotesPage() {
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
                                 Issue a refund or credit against a prior invoice.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/sales/credit-notes/new">
                                     <Plus className="h-4 w-4" /> Add credit note
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

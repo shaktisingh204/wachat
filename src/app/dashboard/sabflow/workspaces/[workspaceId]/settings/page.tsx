@@ -52,7 +52,7 @@ export default async function Page({
   if (!role) {
     return (
       <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -68,9 +68,9 @@ export default async function Page({
               <ZoruBreadcrumbPage>Workspace</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
 
-        <ZoruEmptyState
+        <EmptyState
           icon={<ShieldOff />}
           title="Access denied"
           description="You are not a member of this workspace."

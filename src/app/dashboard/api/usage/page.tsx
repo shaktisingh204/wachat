@@ -50,7 +50,7 @@ export default async function UsagePage(): Promise<JSX.Element> {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
@@ -60,9 +60,9 @@ export default async function UsagePage(): Promise<JSX.Element> {
             <ZoruBreadcrumbPage>Usage analytics</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Usage analytics</ZoruPageTitle>
           <ZoruPageDescription>
@@ -72,31 +72,31 @@ export default async function UsagePage(): Promise<JSX.Element> {
             </Link>.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {errors.length ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>{errors.join(' · ')}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {summaryRes.success ? (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <ZoruStatCard label="Total requests" value={summaryRes.totalRequests.toLocaleString()} />
-          <ZoruStatCard
+          <StatCard label="Total requests" value={summaryRes.totalRequests.toLocaleString()} />
+          <StatCard
             label="Errors"
             value={`${summaryRes.errorRequests.toLocaleString()} (${pct(summaryRes.errorRequests, summaryRes.totalRequests)})`}
           />
-          <ZoruStatCard label="Avg latency" value={`${Math.round(summaryRes.avgLatencyMs)} ms`} />
-          <ZoruStatCard label="p95 latency" value={`${Math.round(summaryRes.p95LatencyMs)} ms`} />
+          <StatCard label="Avg latency" value={`${Math.round(summaryRes.avgLatencyMs)} ms`} />
+          <StatCard label="p95 latency" value={`${Math.round(summaryRes.p95LatencyMs)} ms`} />
         </div>
       ) : null}
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-zoru-ink">Top endpoints</h2>
-        <ZoruCard>
-          <ZoruTable>
+        <Card>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Endpoint</ZoruTableHead>
@@ -127,14 +127,14 @@ export default async function UsagePage(): Promise<JSX.Element> {
                 </ZoruTableRow>
               )}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       </section>
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-zoru-ink">By key</h2>
-        <ZoruCard>
-          <ZoruTable>
+        <Card>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Key id</ZoruTableHead>
@@ -167,8 +167,8 @@ export default async function UsagePage(): Promise<JSX.Element> {
                 </ZoruTableRow>
               )}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       </section>
     </div>
   );

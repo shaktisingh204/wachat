@@ -153,7 +153,7 @@ export function EventForm({ initialData }: EventFormProps) {
     }, [state, toast, router, isEditing]);
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="p-6">
                 <form action={formAction} className="flex flex-col gap-6">
                     {isEditing ? (
@@ -169,8 +169,8 @@ export function EventForm({ initialData }: EventFormProps) {
                     {/* Identity */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5 sm:col-span-2">
-                            <ZoruLabel htmlFor="name">Event name *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="name">Event name *</Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 required
@@ -179,8 +179,8 @@ export function EventForm({ initialData }: EventFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5 sm:col-span-2">
-                            <ZoruLabel htmlFor="description">Description / agenda</ZoruLabel>
-                            <ZoruTextarea
+                            <Label htmlFor="description">Description / agenda</Label>
+                            <Textarea
                                 id="description"
                                 name="description"
                                 rows={4}
@@ -190,8 +190,8 @@ export function EventForm({ initialData }: EventFormProps) {
                         </div>
 
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="event_type">Event type</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="event_type">Event type</Label>
+                            <Select
                                 name="event_type"
                                 defaultValue={
                                     (initialData?.eventType as string | undefined) ?? 'meeting'
@@ -207,12 +207,12 @@ export function EventForm({ initialData }: EventFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
 
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="status">Status</Label>
+                            <Select
                                 name="status"
                                 defaultValue={initialData?.status ?? 'draft'}
                             >
@@ -226,15 +226,15 @@ export function EventForm({ initialData }: EventFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
 
                     {/* Timing */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="starts_at">Starts at *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="starts_at">Starts at *</Label>
+                            <Input
                                 id="starts_at"
                                 name="starts_at"
                                 type="datetime-local"
@@ -244,8 +244,8 @@ export function EventForm({ initialData }: EventFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="ends_at">Ends at</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="ends_at">Ends at</Label>
+                            <Input
                                 id="ends_at"
                                 name="ends_at"
                                 type="datetime-local"
@@ -261,7 +261,7 @@ export function EventForm({ initialData }: EventFormProps) {
                         </div>
 
                         <label className="flex items-center gap-2 text-sm text-zoru-ink">
-                            <ZoruCheckbox
+                            <Checkbox
                                 name="is_all_day"
                                 checked={isAllDay}
                                 onCheckedChange={(v) => setIsAllDay(v === true)}
@@ -269,10 +269,10 @@ export function EventForm({ initialData }: EventFormProps) {
                             All-day event
                         </label>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="reminder_minutes">
+                            <Label htmlFor="reminder_minutes">
                                 Reminder (minutes before)
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="reminder_minutes"
                                 name="reminder_minutes"
                                 type="number"
@@ -291,8 +291,8 @@ export function EventForm({ initialData }: EventFormProps) {
                     {/* Location */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5 sm:col-span-2">
-                            <ZoruLabel htmlFor="location">Location</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="location">Location</Label>
+                            <Input
                                 id="location"
                                 name="location"
                                 placeholder="e.g. HQ, Boardroom 4 — or city / venue"
@@ -300,7 +300,7 @@ export function EventForm({ initialData }: EventFormProps) {
                             />
                         </div>
                         <label className="flex items-center gap-2 text-sm text-zoru-ink">
-                            <ZoruCheckbox
+                            <Checkbox
                                 name="is_online"
                                 checked={isOnline}
                                 onCheckedChange={(v) => setIsOnline(v === true)}
@@ -309,8 +309,8 @@ export function EventForm({ initialData }: EventFormProps) {
                         </label>
                         {isOnline ? (
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="meeting_url">Meeting URL</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="meeting_url">Meeting URL</Label>
+                                <Input
                                     id="meeting_url"
                                     name="meeting_url"
                                     type="url"
@@ -324,8 +324,8 @@ export function EventForm({ initialData }: EventFormProps) {
                     {/* Organizer + attendees */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="organizer_name">Organizer</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="organizer_name">Organizer</Label>
+                            <Input
                                 id="organizer_name"
                                 name="organizer_name"
                                 placeholder="Who is hosting?"
@@ -333,8 +333,8 @@ export function EventForm({ initialData }: EventFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="max_attendees">Max attendees</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="max_attendees">Max attendees</Label>
+                            <Input
                                 id="max_attendees"
                                 name="max_attendees"
                                 type="number"
@@ -353,7 +353,7 @@ export function EventForm({ initialData }: EventFormProps) {
                     {/* Recurrence */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <label className="flex items-center gap-2 text-sm text-zoru-ink">
-                            <ZoruCheckbox
+                            <Checkbox
                                 name="is_recurring"
                                 checked={isRecurring}
                                 onCheckedChange={(v) => setIsRecurring(v === true)}
@@ -362,10 +362,10 @@ export function EventForm({ initialData }: EventFormProps) {
                         </label>
                         {isRecurring ? (
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="recurrence_rule">
+                                <Label htmlFor="recurrence_rule">
                                     Recurrence rule (RRULE)
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="recurrence_rule"
                                     name="recurrence_rule"
                                     placeholder="e.g. FREQ=WEEKLY;BYDAY=MO"
@@ -377,7 +377,7 @@ export function EventForm({ initialData }: EventFormProps) {
 
                     {/* Banner — SabFiles-only, never free-text URL */}
                     <div className="space-y-2">
-                        <ZoruLabel>Banner image</ZoruLabel>
+                        <Label>Banner image</Label>
                         <div className="flex flex-wrap items-center gap-3">
                             {bannerUrl ? (
                                 <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface/40 p-2">
@@ -390,7 +390,7 @@ export function EventForm({ initialData }: EventFormProps) {
                                     <span className="max-w-[180px] truncate text-xs text-zoru-ink">
                                         {bannerName || 'Banner image'}
                                     </span>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon-sm"
@@ -401,7 +401,7 @@ export function EventForm({ initialData }: EventFormProps) {
                                         }}
                                     >
                                         <X className="h-4 w-4" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             ) : (
                                 <div className="flex h-12 w-20 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line text-zoru-ink-muted">
@@ -427,7 +427,7 @@ export function EventForm({ initialData }: EventFormProps) {
 
                     {/* Actions */}
                     <div className="flex flex-wrap items-center justify-end gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             asChild
@@ -443,12 +443,12 @@ export function EventForm({ initialData }: EventFormProps) {
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Cancel
                             </Link>
-                        </ZoruButton>
+                        </Button>
                         <SubmitButtonGuarded isEditing={isEditing} disabled={endBeforeStartError} />
                     </div>
                 </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -466,14 +466,14 @@ function SubmitButtonGuarded({
 }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending || disabled}>
+        <Button type="submit" disabled={pending || disabled}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create event'}
-        </ZoruButton>
+        </Button>
     );
 }
 

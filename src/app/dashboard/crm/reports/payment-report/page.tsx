@@ -183,7 +183,7 @@ export default async function PaymentReportPage(props: {
 
       {/* Charts row: MTD trend + method bar */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-zoru-ink">MTD vs target</h2>
             <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -195,9 +195,9 @@ export default async function PaymentReportPage(props: {
           ) : (
             <PaymentMtdLine data={mtdByDay} />
           )}
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-zoru-ink">By payment method</h2>
             <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Cash / card / UPI / bank breakdown.</p>
@@ -207,11 +207,11 @@ export default async function PaymentReportPage(props: {
           ) : (
             <PaymentMethodBar data={byMethod} />
           )}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Monthly trend line chart */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly receipt trend</h2>
           <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -223,12 +223,12 @@ export default async function PaymentReportPage(props: {
         ) : (
           <MonthlyTrendLine data={monthlyTrend} label="Received" color="#7ec77d" />
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Receipt table */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Receipt #</ZoruTableHead>
@@ -271,7 +271,7 @@ export default async function PaymentReportPage(props: {
                       )}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant="secondary">{r.method}</ZoruBadge>
+                      <Badge variant="secondary">{r.method}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-success-ink">
                       {fmtMoney(r.amount)}
@@ -280,9 +280,9 @@ export default async function PaymentReportPage(props: {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

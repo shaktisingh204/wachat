@@ -94,7 +94,7 @@ function SegmentSheet({
   );
 
   return (
-    <ZoruSheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <ZoruSheetTrigger asChild>{trigger}</ZoruSheetTrigger>
       <ZoruSheetContent side="right" className="sm:max-w-md">
         <ZoruSheetHeader>
@@ -111,8 +111,8 @@ function SegmentSheet({
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="filterLastActive" value={lastActive} />
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="seg-name">Segment name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="seg-name">Segment name</Label>
+            <Input
               id="seg-name"
               name="name"
               defaultValue={initial?.name}
@@ -121,8 +121,8 @@ function SegmentSheet({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="seg-tags">Filter tags</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="seg-tags">Filter tags</Label>
+            <Input
               id="seg-tags"
               name="filterTags"
               defaultValue={initial?.filterTags}
@@ -130,8 +130,8 @@ function SegmentSheet({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Last active</ZoruLabel>
-            <ZoruSelect value={lastActive} onValueChange={setLastActive}>
+            <Label>Last active</Label>
+            <Select value={lastActive} onValueChange={setLastActive}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue placeholder="Last active" />
               </ZoruSelectTrigger>
@@ -141,11 +141,11 @@ function SegmentSheet({
                 <ZoruSelectItem value="90d">Last 90 days</ZoruSelectItem>
                 <ZoruSelectItem value="all">All time</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="seg-city">City</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="seg-city">City</Label>
+            <Input
               id="seg-city"
               name="filterCity"
               defaultValue={initial?.filterCity}
@@ -153,20 +153,20 @@ function SegmentSheet({
             />
           </div>
           <ZoruSheetFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isPending || !projectId}>
+            </Button>
+            <Button type="submit" disabled={isPending || !projectId}>
               {isPending ? 'Saving…' : 'Save Segment'}
-            </ZoruButton>
+            </Button>
           </ZoruSheetFooter>
         </form>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }
 
@@ -240,7 +240,7 @@ export default function BroadcastSegmentsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -254,7 +254,7 @@ export default function BroadcastSegmentsPage() {
             <ZoruBreadcrumbPage>Broadcast Segments</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
@@ -268,9 +268,9 @@ export default function BroadcastSegmentsPage() {
         </div>
         <SegmentSheet
           trigger={
-            <ZoruButton size="sm">
+            <Button size="sm">
               <Plus className="h-3.5 w-3.5" /> Create segment
-            </ZoruButton>
+            </Button>
           }
           title="Create a segment"
           description="Define audience criteria for future broadcasts."
@@ -295,16 +295,16 @@ export default function BroadcastSegmentsPage() {
           <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
         </div>
       ) : segments.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Users />}
           title="No segments yet"
           description="Create your first segment to target subsets of your contacts."
           action={
             <SegmentSheet
               trigger={
-                <ZoruButton size="sm">
+                <Button size="sm">
                   <Plus className="h-3.5 w-3.5" /> Create segment
-                </ZoruButton>
+                </Button>
               }
               title="Create a segment"
               description="Define audience criteria for future broadcasts."
@@ -319,19 +319,19 @@ export default function BroadcastSegmentsPage() {
           {segments.map((seg) => {
             const filters = seg.filters || {};
             return (
-              <ZoruCard key={seg._id} className="p-5">
+              <Card key={seg._id} className="p-5">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-sm text-zoru-ink">{seg.name}</h3>
                   <div className="flex items-center gap-1">
                     <SegmentSheet
                       trigger={
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon-sm"
                           aria-label={`Edit ${seg.name}`}
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       }
                       title="Edit segment"
                       description="Update audience criteria."
@@ -347,7 +347,7 @@ export default function BroadcastSegmentsPage() {
                     />
                     <ZoruAlertDialog>
                       <ZoruAlertDialogTrigger asChild>
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="icon-sm"
                           aria-label={`Delete ${seg.name}`}
@@ -355,7 +355,7 @@ export default function BroadcastSegmentsPage() {
                           className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </ZoruAlertDialogTrigger>
                       <ZoruAlertDialogContent>
                         <ZoruAlertDialogHeader>
@@ -381,17 +381,17 @@ export default function BroadcastSegmentsPage() {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {(filters.tags || []).map((tag: string) => (
-                    <ZoruBadge key={tag} variant="secondary">
+                    <Badge key={tag} variant="secondary">
                       {tag}
-                    </ZoruBadge>
+                    </Badge>
                   ))}
                   {filters.lastActive && (
-                    <ZoruBadge variant="outline">
+                    <Badge variant="outline">
                       Active: {filters.lastActive}
-                    </ZoruBadge>
+                    </Badge>
                   )}
                   {filters.city && (
-                    <ZoruBadge variant="outline">City: {filters.city}</ZoruBadge>
+                    <Badge variant="outline">City: {filters.city}</Badge>
                   )}
                   {!filters.tags?.length &&
                     !filters.lastActive &&
@@ -404,7 +404,7 @@ export default function BroadcastSegmentsPage() {
                 <p className="mt-3 text-[11px] text-zoru-ink-muted">
                   Created {new Date(seg.createdAt).toLocaleDateString()}
                 </p>
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>

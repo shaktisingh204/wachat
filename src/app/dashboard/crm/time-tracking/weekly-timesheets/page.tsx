@@ -379,20 +379,20 @@ export default function WeeklyTimesheetsPage() {
         }}
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}>
+            <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> CSV
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={handleExportXlsx} disabled={filtered.length === 0}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportXlsx} disabled={filtered.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> XLSX
-            </ZoruButton>
-            <ZoruButton onClick={() => setCreateOpen(true)}>
+            </Button>
+            <Button onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" /> New timesheet
-            </ZoruButton>
+            </Button>
           </div>
         }
         filters={
           <>
-            <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -403,15 +403,15 @@ export default function WeeklyTimesheetsPage() {
                 <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
                 <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruInput
+            </Select>
+            <Input
               value={employeeFilter}
               onChange={(e) => setEmployeeFilter(e.target.value)}
               placeholder="Employee id"
               className="h-9 w-[200px] text-[13px]"
             />
             {hasActiveFilters ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -420,7 +420,7 @@ export default function WeeklyTimesheetsPage() {
                 }}
               >
                 Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </>
         }
@@ -435,9 +435,9 @@ export default function WeeklyTimesheetsPage() {
                 Create weekly timesheets to collect hours from your team and
                 approve them in one place.
               </p>
-              <ZoruButton onClick={() => setCreateOpen(true)}>
+              <Button onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4" /> New timesheet
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -445,22 +445,22 @@ export default function WeeklyTimesheetsPage() {
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Submitted"
               value={kpis.submitted.toLocaleString()}
               icon={<Send className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Pending approval"
               value={kpis.pending.toLocaleString()}
               icon={<Clock className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Approved"
               value={kpis.approved.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Avg hrs / employee"
               value={`${kpis.avg}h`}
               icon={<TrendingUp className="h-4 w-4" />}
@@ -471,7 +471,7 @@ export default function WeeklyTimesheetsPage() {
           {filtered.length > 0 && (
             <div className="flex items-center gap-2">
               <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
-                <ZoruCheckbox
+                <Checkbox
                   checked={allChecked}
                   aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
                   onCheckedChange={toggleAll}
@@ -488,7 +488,7 @@ export default function WeeklyTimesheetsPage() {
               <span className="font-medium text-foreground">
                 {selectedIds.length} selected
               </span>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 disabled={bulkPending}
@@ -500,8 +500,8 @@ export default function WeeklyTimesheetsPage() {
                   <Send className="mr-1.5 h-3.5 w-3.5" />
                 )}
                 Submit
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 disabled={bulkPending}
@@ -509,8 +509,8 @@ export default function WeeklyTimesheetsPage() {
               >
                 <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
                 Approve
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 disabled={bulkPending}
@@ -518,9 +518,9 @@ export default function WeeklyTimesheetsPage() {
               >
                 <XCircle className="mr-1.5 h-3.5 w-3.5" />
                 Reject
-              </ZoruButton>
+              </Button>
               <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                <ZoruButton
+                <Button
                   variant="destructive"
                   size="sm"
                   disabled={bulkPending}
@@ -528,7 +528,7 @@ export default function WeeklyTimesheetsPage() {
                 >
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                   Delete selected
-                </ZoruButton>
+                </Button>
                 <ZoruAlertDialogContent>
                   <ZoruAlertDialogHeader>
                     <ZoruAlertDialogTitle>
@@ -553,23 +553,23 @@ export default function WeeklyTimesheetsPage() {
                   </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
               </ZoruAlertDialog>
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear selection
-              </ZoruButton>
+              </Button>
             </div>
           )}
 
           {filtered.length === 0 && !loading ? null : (
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="w-10">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allChecked}
                         aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
                         onCheckedChange={toggleAll}
@@ -594,7 +594,7 @@ export default function WeeklyTimesheetsPage() {
                       className="border-zoru-line transition-colors"
                     >
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(r._id)}
                           onCheckedChange={() => toggleOne(r._id)}
                           aria-label={`Select timesheet for ${r.user_id}`}
@@ -643,7 +643,7 @@ export default function WeeklyTimesheetsPage() {
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                           <ZoruDropdownMenuTrigger asChild>
                             <button
                               type="button"
@@ -692,12 +692,12 @@ export default function WeeklyTimesheetsPage() {
                               <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                             </ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
           )}
         </div>
@@ -763,7 +763,7 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
   );
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -779,9 +779,9 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
             <input type="hidden" name="_id" defaultValue={initial._id} />
           ) : null}
           <div>
-            <ZoruLabel>
+            <Label>
               Employee <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <EntityFormField
               entity="employee"
               name="user_id"
@@ -792,10 +792,10 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <ZoruLabel htmlFor="week_start_date">
+              <Label htmlFor="week_start_date">
                 Week start <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="week_start_date"
                 name="week_start_date"
                 type="date"
@@ -804,10 +804,10 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="week_end_date">
+              <Label htmlFor="week_end_date">
                 Week end <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="week_end_date"
                 name="week_end_date"
                 type="date"
@@ -818,8 +818,8 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <ZoruLabel htmlFor="total_hours">Total hours</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="total_hours">Total hours</Label>
+              <Input
                 id="total_hours"
                 name="total_hours"
                 type="number"
@@ -827,8 +827,8 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="total_minutes">Total minutes</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="total_minutes">Total minutes</Label>
+              <Input
                 id="total_minutes"
                 name="total_minutes"
                 type="number"
@@ -837,8 +837,8 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruSelect name="status" defaultValue={initial?.status ?? 'draft'}>
+            <Label htmlFor="status">Status</Label>
+            <Select name="status" defaultValue={initial?.status ?? 'draft'}>
               <ZoruSelectTrigger id="status">
                 <ZoruSelectValue placeholder="Status" />
               </ZoruSelectTrigger>
@@ -848,11 +848,11 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
                 <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
                 <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div>
-            <ZoruLabel htmlFor="reason">Reason (if rejected)</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="reason">Reason (if rejected)</Label>
+            <Textarea
               id="reason"
               name="reason"
               rows={2}
@@ -863,19 +863,19 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
             <p className="text-sm text-zoru-danger-ink">{state.error}</p>
           ) : null}
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit">
+            </Button>
+            <Button type="submit">
               {initial?._id ? 'Save changes' : 'Create timesheet'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

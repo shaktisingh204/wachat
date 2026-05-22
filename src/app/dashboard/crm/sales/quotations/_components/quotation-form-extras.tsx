@@ -64,7 +64,7 @@ export function QuotationSummarySection({
   | 'onTemplateChange'
 >) {
   return (
-    <ZoruCard className="space-y-4 p-6">
+    <Card className="space-y-4 p-6">
       <div>
         <h2 className="text-[15px] font-semibold text-zoru-ink">Summary</h2>
       </div>
@@ -81,7 +81,7 @@ export function QuotationSummarySection({
           <NumberRow label="Round-off" value={roundOff} onChange={onRoundOffChange} />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -102,7 +102,7 @@ export function QuotationAttachmentsSection({
   | 'onSetSignature'
 >) {
   return (
-    <ZoruCard className="space-y-4 p-6">
+    <Card className="space-y-4 p-6">
       <div>
         <h2 className="text-[15px] font-semibold text-zoru-ink">
           Attachments &amp; signature
@@ -113,7 +113,7 @@ export function QuotationAttachmentsSection({
       </div>
       <div className="space-y-3">
         <div className="space-y-1.5">
-          <ZoruLabel>Attachments</ZoruLabel>
+          <Label>Attachments</Label>
           <div className="flex flex-wrap items-center gap-2">
             {attachments.map((url) => (
               <span
@@ -142,7 +142,7 @@ export function QuotationAttachmentsSection({
         </div>
 
         <div className="space-y-1.5">
-          <ZoruLabel>Signature image</ZoruLabel>
+          <Label>Signature image</Label>
           <div className="flex flex-wrap items-center gap-2">
             {signatureImage ? (
               <span className="inline-flex items-center gap-1.5 rounded border border-zoru-line bg-zoru-surface-2 px-2 py-1 text-[12px] text-zoru-ink">
@@ -169,7 +169,7 @@ export function QuotationAttachmentsSection({
           </div>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -179,12 +179,12 @@ export function QuotationTemplateSection({
   onTemplateChange,
 }: Pick<QuotationFormExtrasProps, 'onTemplateChange'>) {
   return (
-    <ZoruCard className="space-y-4 p-6">
+    <Card className="space-y-4 p-6">
       <div>
         <h2 className="text-[15px] font-semibold text-zoru-ink">Template</h2>
       </div>
       <div className="space-y-1.5">
-        <ZoruLabel>Template</ZoruLabel>
+        <Label>Template</Label>
         <EntityFormField
           entity="quotation"
           name="templateId"
@@ -193,7 +193,7 @@ export function QuotationTemplateSection({
           onChange={onTemplateChange}
         />
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -235,8 +235,8 @@ function NumberRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">{label}</ZoruLabel>
-      <ZoruInput
+      <Label className="text-[12.5px] text-zoru-ink-muted">{label}</Label>
+      <Input
         type="number"
         step="0.01"
         value={value}

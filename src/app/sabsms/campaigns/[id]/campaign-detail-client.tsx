@@ -138,7 +138,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
 
   if (!detail) {
     return (
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Campaign not found</ZoruCardTitle>
           <ZoruCardDescription>
@@ -146,11 +146,11 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/sabsms/campaigns">Back to campaigns</Link>
-          </ZoruButton>
+          </Button>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -185,7 +185,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       id: "status",
       header: "Status",
       render: (r) => (
-        <ZoruBadge variant={statusVariant(r.status)}>{r.status}</ZoruBadge>
+        <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
       ),
     },
     {
@@ -275,18 +275,18 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
   return (
     <div className="space-y-4">
       {/* Header card with live status bar + primary actions */}
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <ZoruBadge variant={statusVariant(detail.status)}>
+              <Badge variant={statusVariant(detail.status)}>
                 {detail.status}
-              </ZoruBadge>
+              </Badge>
               <span className="text-sm text-zoru-ink-muted">
                 {detail.scheduleKind} · {detail.senderStrategy}
               </span>
               {detail.abVariant && (
-                <ZoruBadge variant="outline">A/B {detail.abVariant}</ZoruBadge>
+                <Badge variant="outline">A/B {detail.abVariant}</Badge>
               )}
             </div>
             <div className="flex flex-wrap items-center gap-3">
@@ -295,9 +295,9 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   key={b.label}
                   className="flex items-center gap-1 text-sm"
                 >
-                  <ZoruBadge variant={statusVariant(b.label)}>
+                  <Badge variant={statusVariant(b.label)}>
                     {b.label}
-                  </ZoruBadge>
+                  </Badge>
                   <span className="font-medium text-zoru-ink">
                     {b.count.toLocaleString()}
                   </span>
@@ -305,7 +305,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <ZoruProgress value={progress} className="h-1.5 w-48" />
+              <Progress value={progress} className="h-1.5 w-48" />
               <span className="text-xs text-zoru-ink-muted">
                 {progress}% of {detail.audienceSize.toLocaleString()}
               </span>
@@ -314,7 +314,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
 
           <div className="flex flex-wrap items-center gap-2">
             <SabsmsRefreshButton onRefresh={refresh} defaultInterval={30} />
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               disabled={busy === "pause"}
@@ -326,8 +326,8 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             >
               <PauseCircle className="mr-1.5 h-3.5 w-3.5" />
               Pause
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               disabled={busy === "resume"}
@@ -339,8 +339,8 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             >
               <PlayCircle className="mr-1.5 h-3.5 w-3.5" />
               Resume
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="destructive"
               size="sm"
               disabled={busy === "cancel"}
@@ -352,16 +352,16 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             >
               <StopCircle className="mr-1.5 h-3.5 w-3.5" />
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               disabled={!canEditSchedule}
               onClick={() => setScheduleDialog("")}
             >
               Edit schedule
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               disabled={busy === "clone"}
@@ -372,8 +372,8 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               }
             >
               Clone
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               disabled={busy === "convert-drip"}
@@ -385,8 +385,8 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             >
               <Layers className="mr-1.5 h-3.5 w-3.5" />
               Convert to drip
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               disabled={busy === "share"}
@@ -402,7 +402,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             >
               <Link2 className="mr-1.5 h-3.5 w-3.5" />
               Share link
-            </ZoruButton>
+            </Button>
             <SabsmsExportMenu
               filename={`sabsms-campaign-${detail.id}`}
               toCsv={async () => {
@@ -416,7 +416,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 return res.ok ? res.jsonl : "";
               }}
             />
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               disabled={busy === "resend-failures"}
@@ -428,10 +428,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             >
               <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
               Re-send failures CSV
-            </ZoruButton>
+            </Button>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {shareUrl && (
         <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm">
@@ -442,7 +442,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       )}
 
       {/* Timeline chart — per-minute send velocity */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Send velocity</ZoruCardTitle>
           <ZoruCardDescription>
@@ -503,11 +503,11 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             </ZoruChartContainer>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Two-up: funnel + provider breakdown */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Funnel</ZoruCardTitle>
             <ZoruCardDescription>
@@ -543,9 +543,9 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </ZoruChart.BarChart>
             </ZoruChartContainer>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Providers</ZoruCardTitle>
             <ZoruCardDescription>
@@ -588,12 +588,12 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </ZoruChartContainer>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Three-up: countries + sender rotation pie + cost/margin */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>By country</ZoruCardTitle>
             <ZoruCardDescription>Top destinations.</ZoruCardDescription>
@@ -634,9 +634,9 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </ZoruChartContainer>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Sender rotation</ZoruCardTitle>
             <ZoruCardDescription>
@@ -672,9 +672,9 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </ZoruChartContainer>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Cost & margin</ZoruCardTitle>
             <ZoruCardDescription>
@@ -701,12 +701,12 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </div>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Reply + opt-out timelines */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Reply timeline</ZoruCardTitle>
             <ZoruCardDescription>
@@ -750,9 +750,9 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </ZoruChartContainer>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Opt-out timeline</ZoruCardTitle>
             <ZoruCardDescription>
@@ -797,12 +797,12 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </ZoruChartContainer>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Click heatmap + A/B comparison */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Click heatmap</ZoruCardTitle>
             <ZoruCardDescription>
@@ -816,7 +816,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 shortener to populate this card.
               </p>
             ) : (
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead>Short link</ZoruTableHead>
@@ -839,12 +839,12 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     </ZoruTableRow>
                   ))}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>A/B variant comparison</ZoruCardTitle>
             <ZoruCardDescription>
@@ -857,7 +857,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 Single-variant campaign — no A/B split.
               </p>
             ) : (
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
                     <ZoruTableHead>Variant</ZoruTableHead>
@@ -890,14 +890,14 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     </ZoruTableRow>
                   ))}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Per-recipient drill-down table */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Recipients</ZoruCardTitle>
           <ZoruCardDescription>
@@ -916,10 +916,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             emptyDescription="The first send will populate this table within a few seconds."
           />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Webhook fire log */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Webhook fires</ZoruCardTitle>
           <ZoruCardDescription>
@@ -932,7 +932,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               No webhook deliveries yet for this campaign.
             </p>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Event</ZoruTableHead>
@@ -947,9 +947,9 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   <ZoruTableRow key={w.id}>
                     <ZoruTableCell className="text-xs">{w.event}</ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={statusVariant(w.status)}>
+                      <Badge variant={statusVariant(w.status)}>
                         {w.status}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-xs">
                       {w.attempts}
@@ -967,13 +967,13 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Schedule edit dialog */}
-      <ZoruDialog
+      <Dialog
         open={scheduleDialog !== null}
         onOpenChange={(open) => !open && setScheduleDialog(null)}
       >
@@ -985,8 +985,8 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-2">
-            <ZoruLabel htmlFor="sabsms-sched">Send at (ISO-8601)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sabsms-sched">Send at (ISO-8601)</Label>
+            <Input
               id="sabsms-sched"
               type="datetime-local"
               value={scheduleDialog ?? ""}
@@ -995,10 +995,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setScheduleDialog(null)}>
+            <Button variant="outline" onClick={() => setScheduleDialog(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               disabled={!scheduleDialog || busy === "schedule"}
               onClick={() =>
                 scheduleDialog &&
@@ -1014,10 +1014,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               }
             >
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Per-recipient detail drawer */}
       <SabsmsDetailDrawer
@@ -1029,9 +1029,9 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
         {drawerRow && (
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
-              <ZoruBadge variant={statusVariant(drawerRow.status)}>
+              <Badge variant={statusVariant(drawerRow.status)}>
                 {drawerRow.status}
-              </ZoruBadge>
+              </Badge>
               <span className="text-zoru-ink-muted">{drawerRow.provider}</span>
             </div>
             <dl className="grid grid-cols-2 gap-2">
@@ -1059,14 +1059,14 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 {drawerRow.errorMessage}
               </div>
             )}
-            <ZoruButton variant="outline" asChild>
+            <Button variant="outline" asChild>
               <Link
                 href={`/sabsms/logs?campaignId=${detail.id}&to=${encodeURIComponent(drawerRow.to)}`}
               >
                 <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
                 Open in logs
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
         )}
       </SabsmsDetailDrawer>

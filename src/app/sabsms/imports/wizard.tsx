@@ -282,14 +282,14 @@ export function ImportsWizard({
   const progressPct = ((stepIndex + 1) / STEPS.length) * 100;
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="flex max-h-[90vh] w-full max-w-3xl flex-col gap-0 p-0">
         <ZoruDialogHeader className="border-b border-slate-200 px-6 py-4">
           <ZoruDialogTitle>New import</ZoruDialogTitle>
           <ZoruDialogDescription>
             Step {stepIndex + 1} of {STEPS.length} — {step}
           </ZoruDialogDescription>
-          <ZoruProgress value={progressPct} className="mt-3 h-1" />
+          <Progress value={progressPct} className="mt-3 h-1" />
         </ZoruDialogHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
@@ -363,24 +363,24 @@ export function ImportsWizard({
 
         <ZoruDialogFooter className="border-t border-slate-200 px-6 py-3">
           <div className="flex w-full items-center justify-between gap-2">
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
               disabled={stepIndex === 0 || submitting}
             >
               <ChevronLeft className="mr-1.5 h-4 w-4" />
               Back
-            </ZoruButton>
+            </Button>
             {step !== "Confirm" ? (
-              <ZoruButton
+              <Button
                 onClick={() => setStepIndex((i) => Math.min(STEPS.length - 1, i + 1))}
                 disabled={!canAdvance()}
               >
                 Next
                 <ChevronRight className="ml-1.5 h-4 w-4" />
-              </ZoruButton>
+              </Button>
             ) : (
-              <ZoruButton
+              <Button
                 onClick={handleSubmit}
                 disabled={!canAdvance() || submitting}
               >
@@ -395,12 +395,12 @@ export function ImportsWizard({
                     Start import
                   </>
                 )}
-              </ZoruButton>
+              </Button>
             )}
           </div>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -442,7 +442,7 @@ function UploadStep({
       </div>
 
       {picked && (
-        <ZoruAlert variant={parseError ? "default" : "default"}>
+        <Alert variant={parseError ? "default" : "default"}>
           {parsing ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
@@ -455,7 +455,7 @@ function UploadStep({
               : `${rowsCount.toLocaleString()} data row${rowsCount === 1 ? "" : "s"}.`}
             {parseError && <span className="block text-amber-700">{parseError}</span>}
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
 
       {lastImport && (
@@ -502,8 +502,8 @@ function MappingStep({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {fields.map((f) => (
           <div key={f.key} className="space-y-1.5">
-            <ZoruLabel>{f.label}</ZoruLabel>
-            <ZoruSelect
+            <Label>{f.label}</Label>
+            <Select
               value={mapping[f.key] ?? "__none__"}
               onValueChange={(v) =>
                 onMappingChange({
@@ -523,35 +523,35 @@ function MappingStep({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         ))}
       </div>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div className="space-y-2">
-        <ZoruLabel>Saved mapping templates</ZoruLabel>
+        <Label>Saved mapping templates</Label>
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruInput
+          <Input
             value={templateName}
             onChange={(e) => onTemplateNameChange(e.target.value)}
             placeholder="Template name"
             className="max-w-xs"
           />
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={onSaveTemplate}
             disabled={!templateName.trim()}
           >
             Save current mapping
-          </ZoruButton>
+          </Button>
         </div>
         {templates.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {templates.map((t) => (
-              <ZoruButton
+              <Button
                 key={t.id}
                 variant="ghost"
                 size="sm"
@@ -559,7 +559,7 @@ function MappingStep({
               >
                 <Tag className="mr-1.5 h-3.5 w-3.5" />
                 {t.name}
-              </ZoruButton>
+              </Button>
             ))}
           </div>
         )}
@@ -586,23 +586,23 @@ function PreviewStep({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <ZoruBadge variant="secondary">
+        <Badge variant="secondary">
           {totalRows.toLocaleString()} total
-        </ZoruBadge>
-        <ZoruBadge variant="secondary">
+        </Badge>
+        <Badge variant="secondary">
           Showing first {rows.length.toLocaleString()}
-        </ZoruBadge>
+        </Badge>
         {duplicates.length > 0 && (
-          <ZoruBadge variant="destructive">
+          <Badge variant="destructive">
             {duplicates.length.toLocaleString()} duplicate phone
             {duplicates.length === 1 ? "" : "s"}
-          </ZoruBadge>
+          </Badge>
         )}
         {invalidCount > 0 && (
-          <ZoruBadge variant="destructive">
+          <Badge variant="destructive">
             {invalidCount.toLocaleString()} invalid phone
             {invalidCount === 1 ? "" : "s"}
-          </ZoruBadge>
+          </Badge>
         )}
       </div>
 
@@ -707,7 +707,7 @@ function OptionsStep({
     <div className="space-y-5">
       <div className="space-y-3">
         <label className="flex items-start gap-2">
-          <ZoruCheckbox
+          <Checkbox
             checked={skipSuppressed}
             onCheckedChange={(v) => onSkipSuppressed(v === true)}
           />
@@ -716,7 +716,7 @@ function OptionsStep({
           </span>
         </label>
         <label className="flex items-start gap-2">
-          <ZoruCheckbox
+          <Checkbox
             checked={skipDuplicates}
             onCheckedChange={(v) => onSkipDuplicates(v === true)}
           />
@@ -725,7 +725,7 @@ function OptionsStep({
           </span>
         </label>
         <label className="flex items-start gap-2 rounded-md bg-amber-50 p-3">
-          <ZoruCheckbox
+          <Checkbox
             checked={consentAttested}
             onCheckedChange={(v) => onConsentAttested(v === true)}
           />
@@ -737,47 +737,47 @@ function OptionsStep({
         </label>
       </div>
 
-      <ZoruSeparator />
+      <Separator />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <ZoruLabel>Bulk tags (comma-separated)</ZoruLabel>
-          <ZoruInput
+          <Label>Bulk tags (comma-separated)</Label>
+          <Input
             value={bulkTagsRaw}
             onChange={(e) => onBulkTagsRaw(e.target.value)}
             placeholder="e.g. webinar-2026, hot-lead"
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel>Assign to segment (id)</ZoruLabel>
-          <ZoruInput
+          <Label>Assign to segment (id)</Label>
+          <Input
             value={segmentId}
             onChange={(e) => onSegmentId(e.target.value)}
             placeholder="seg_…"
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel>Add to list (id)</ZoruLabel>
-          <ZoruInput
+          <Label>Add to list (id)</Label>
+          <Input
             value={listId}
             onChange={(e) => onListId(e.target.value)}
             placeholder="lst_…"
           />
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel>Schedule (cron expression)</ZoruLabel>
-          <ZoruInput
+          <Label>Schedule (cron expression)</Label>
+          <Input
             value={cronExpression}
             onChange={(e) => onCron(e.target.value)}
             placeholder="0 9 * * 1 (Mondays 9am)"
           />
         </div>
         <div className="space-y-1.5 sm:col-span-2">
-          <ZoruLabel>
+          <Label>
             <Webhook className="mr-1 inline h-3.5 w-3.5" />
             On-complete webhook URL
-          </ZoruLabel>
-          <ZoruInput
+          </Label>
+          <Input
             value={webhookUrl}
             onChange={(e) => onWebhook(e.target.value)}
             placeholder="https://example.com/hooks/import"
@@ -808,8 +808,8 @@ function ConfirmStep({
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <ZoruLabel>Import name</ZoruLabel>
-        <ZoruInput
+        <Label>Import name</Label>
+        <Input
           value={name}
           onChange={(e) => onName(e.target.value)}
           placeholder="Q1 webinar attendees"
@@ -828,11 +828,11 @@ function ConfirmStep({
         />
       </div>
       {submitError && (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertTitle>Failed to queue import</ZoruAlertTitle>
           <ZoruAlertDescription>{submitError}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
     </div>
   );

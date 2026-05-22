@@ -83,16 +83,16 @@ export function AdminPlanPermissionsDialog({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon"
                     title="Manage plan permissions"
                     className="rounded-lg hover:bg-primary/10"
                 >
                     <ShieldCheck className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="max-w-5xl w-[95vw] max-h-[92vh] flex flex-col rounded-2xl border-white/10 bg-background/95 backdrop-blur-xl p-0 overflow-hidden">
                 <ZoruDialogHeader className="px-6 pt-6 pb-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
@@ -121,23 +121,23 @@ export function AdminPlanPermissionsDialog({
                 </div>
 
                 <ZoruDialogFooter className="px-6 py-4 border-t border-white/10 bg-white/[0.02]">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         onClick={() => setOpen(false)}
                         className="rounded-xl border-white/10 bg-white/5"
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         onClick={handleSave}
                         disabled={isLoading}
                         className="rounded-xl gap-2"
                     >
                         {isLoading && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Save Permissions
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

@@ -38,7 +38,7 @@ export function CostVsRevenueTile({
       : "Daily wholesale cost vs customer-facing revenue (USD cents).";
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>{title}</ZoruCardTitle>
@@ -144,6 +144,6 @@ export function CostVsRevenueTile({
           </ZoruChartContainer>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

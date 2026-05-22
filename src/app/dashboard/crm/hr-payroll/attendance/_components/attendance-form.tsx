@@ -24,7 +24,7 @@ import { LoaderCircle } from 'lucide-react';
  *
  * Server-action driven via `saveAttendanceAction`. Employee, shift, and
  * approver references go through `<EntityFormField>` so the value
- * stored is an id; status / source use `<ZoruSelect>` with a fixed
+ * stored is an id; status / source use `<Select>` with a fixed
  * vocabulary (Rust enum). Times are stamped via two `<input type="time">`
  * controls — the action layer recombines them with `date` into ISO-8601
  * `punchIn` / `punchOut` instants and auto-computes `totalHours` when
@@ -51,10 +51,10 @@ interface AttendanceFormProps {
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create record'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -118,15 +118,15 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
         <input type="hidden" name="_id" value={String(initial!._id)} />
       ) : null}
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>
+            <Label>
               Employee <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="employee"
@@ -137,10 +137,10 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="date">
+            <Label htmlFor="date">
               Date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="date"
               name="date"
               type="date"
@@ -150,9 +150,9 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="status">
+            <Label htmlFor="status">
               Status <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="attendanceFormStatus"
@@ -162,7 +162,7 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="source">Source</ZoruLabel>
+            <Label htmlFor="source">Source</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="attendanceSource"
@@ -172,7 +172,7 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel>Approver</ZoruLabel>
+            <Label>Approver</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="user"
@@ -182,9 +182,9 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Times
         </h3>
@@ -194,8 +194,8 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
         </p>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="checkInTime">Check-in time</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="checkInTime">Check-in time</Label>
+            <Input
               id="checkInTime"
               name="checkInTime"
               type="time"
@@ -204,8 +204,8 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="checkOutTime">Check-out time</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="checkOutTime">Check-out time</Label>
+            <Input
               id="checkOutTime"
               name="checkOutTime"
               type="time"
@@ -214,8 +214,8 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="totalHours">Total hours (worked)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="totalHours">Total hours (worked)</Label>
+            <Input
               id="totalHours"
               name="totalHours"
               type="number"
@@ -228,8 +228,8 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="overtimeHours">Overtime hours</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="overtimeHours">Overtime hours</Label>
+            <Input
               id="overtimeHours"
               name="overtimeHours"
               type="number"
@@ -240,8 +240,8 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="lateByMinutes">Late by (minutes)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lateByMinutes">Late by (minutes)</Label>
+            <Input
               id="lateByMinutes"
               name="lateByMinutes"
               type="number"
@@ -251,10 +251,10 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="earlyOutByMinutes">
+            <Label htmlFor="earlyOutByMinutes">
               Early-out by (minutes)
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="earlyOutByMinutes"
               name="earlyOutByMinutes"
               type="number"
@@ -264,15 +264,15 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Notes
         </h3>
         <div>
-          <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="notes">Notes</Label>
+          <Textarea
             id="notes"
             name="notes"
             defaultValue={initial?.notes ?? ''}
@@ -281,10 +281,10 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             rows={3}
           />
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -294,7 +294,7 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

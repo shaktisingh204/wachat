@@ -59,7 +59,7 @@ export function DiscussionsRepliesPanel({
     };
 
     return (
-        <ZoruCard>
+        <Card>
             <h3 className="mb-3 text-[14px] font-semibold text-zoru-ink">
                 Replies ({replies.length})
             </h3>
@@ -86,32 +86,32 @@ export function DiscussionsRepliesPanel({
                                         {r.body}
                                     </p>
                                 </div>
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDelete(r._id)}
                                 >
                                     Delete
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ))
                 )}
             </div>
             <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2">
-                <ZoruTextarea
+                <Textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     placeholder="Write a reply…"
                     rows={3}
                 />
                 <div className="flex justify-end">
-                    <ZoruButton type="submit" disabled={submitting || !body.trim()}>
+                    <Button type="submit" disabled={submitting || !body.trim()}>
                         Post reply
-                    </ZoruButton>
+                    </Button>
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }
 

@@ -22,7 +22,7 @@ export default async function SabsmsAdminDebugPage() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>SabSMS · Debug send</ZoruPageTitle>
           <ZoruPageDescription>
@@ -31,9 +31,9 @@ export default async function SabsmsAdminDebugPage() {
             (<code className="rounded bg-slate-100 px-1 py-0.5 text-xs">SABSMS_TWILIO_*</code>).
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>One-off send</ZoruCardTitle>
           <ZoruCardDescription>
@@ -44,7 +44,7 @@ export default async function SabsmsAdminDebugPage() {
         <ZoruCardContent>
           <SabsmsDebugSendForm />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

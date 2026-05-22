@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
                 &larr; Back to Home
             </Link>
         </div>
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-3xl font-bold font-headline">Privacy Policy for SabNode</ZoruCardTitle>
           </ZoruCardHeader>
@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-xl font-semibold">Contact Us</h2>
             <p>If you have questions or comments about this Privacy Policy, please contact us at: [Your Contact Email]</p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

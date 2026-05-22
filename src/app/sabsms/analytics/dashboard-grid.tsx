@@ -110,7 +110,7 @@ export function DashboardGrid({ items, workspaceId }: DashboardGridProps) {
           <div key={id} className={`relative ${colSpan}`}>
             <div className="absolute -top-1 right-2 z-10 flex items-center gap-0.5 rounded border border-zoru-line bg-zoru-bg/90 px-1 py-0.5 opacity-0 shadow-sm transition-opacity hover:opacity-100 focus-within:opacity-100">
               <GripVertical className="h-3 w-3 text-zoru-ink-muted" />
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="icon"
                 className="h-5 w-5"
@@ -119,8 +119,8 @@ export function DashboardGrid({ items, workspaceId }: DashboardGridProps) {
                 onClick={() => move(id, -1)}
               >
                 <ChevronUp className="h-3 w-3" />
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="ghost"
                 size="icon"
                 className="h-5 w-5"
@@ -129,7 +129,7 @@ export function DashboardGrid({ items, workspaceId }: DashboardGridProps) {
                 onClick={() => move(id, 1)}
               >
                 <ChevronDown className="h-3 w-3" />
-              </ZoruButton>
+              </Button>
             </div>
             {item.node}
           </div>

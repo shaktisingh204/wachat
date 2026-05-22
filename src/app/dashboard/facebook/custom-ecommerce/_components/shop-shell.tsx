@@ -48,7 +48,7 @@ export function ShopBreadcrumb({
   leaf,
 }: ShopBreadcrumbProps) {
   return (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -86,7 +86,7 @@ export function ShopBreadcrumb({
           </ZoruBreadcrumbItem>
         )}
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 }
 
@@ -106,7 +106,7 @@ export function ShopHeader({
   className,
 }: ShopHeaderProps) {
   return (
-    <ZoruPageHeader className={className}>
+    <PageHeader className={className}>
       <ZoruPageHeading>
         {eyebrow ? <ZoruPageEyebrow>{eyebrow}</ZoruPageEyebrow> : null}
         <ZoruPageTitle>{title}</ZoruPageTitle>
@@ -115,7 +115,7 @@ export function ShopHeader({
         ) : null}
       </ZoruPageHeading>
       {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
-    </ZoruPageHeader>
+    </PageHeader>
   );
 }
 
@@ -145,7 +145,7 @@ export function ShopSubNav({ items, pathname, basePath }: ShopSubNavProps) {
           pathname === href || pathname.startsWith(`${href}/`);
         const Icon = item.icon;
         return (
-          <ZoruButton
+          <Button
             key={item.href}
             asChild
             size="sm"
@@ -155,7 +155,7 @@ export function ShopSubNav({ items, pathname, basePath }: ShopSubNavProps) {
               <Icon className="h-4 w-4" />
               {item.label}
             </Link>
-          </ZoruButton>
+          </Button>
         );
       })}
     </nav>

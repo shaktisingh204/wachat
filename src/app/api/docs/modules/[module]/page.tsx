@@ -70,7 +70,7 @@ export default async function Page({ params }: { params: Promise<{ module: strin
     <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
       <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex flex-col gap-6">
-          <ZoruBreadcrumb>
+          <Breadcrumb>
             <ZoruBreadcrumbList>
               <ZoruBreadcrumbItem>
                 <ZoruBreadcrumbLink href="/api/docs/modules">All modules</ZoruBreadcrumbLink>
@@ -80,9 +80,9 @@ export default async function Page({ params }: { params: Promise<{ module: strin
                 <ZoruBreadcrumbPage className="capitalize">{module}</ZoruBreadcrumbPage>
               </ZoruBreadcrumbItem>
             </ZoruBreadcrumbList>
-          </ZoruBreadcrumb>
+          </Breadcrumb>
 
-          <ZoruPageHeader>
+          <PageHeader>
             <ZoruPageHeading>
               <ZoruPageTitle className="capitalize">{module}</ZoruPageTitle>
               <ZoruPageDescription>
@@ -90,10 +90,10 @@ export default async function Page({ params }: { params: Promise<{ module: strin
                 the deep page with code samples in 15+ languages and a live test runner.
               </ZoruPageDescription>
             </ZoruPageHeading>
-          </ZoruPageHeader>
+          </PageHeader>
 
           <div className="rounded-[var(--zoru-radius)] border border-zoru-line overflow-hidden">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-20">Method</ZoruTableHead>
@@ -130,7 +130,7 @@ export default async function Page({ params }: { params: Promise<{ module: strin
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         </div>
       </div>

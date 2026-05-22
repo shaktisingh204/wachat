@@ -44,10 +44,10 @@ const initialState: { success: boolean; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="animate-spin" /> : <Save />}
       Save menu
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -118,7 +118,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
         value={JSON.stringify(menuItems)}
       />
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <List className="h-5 w-5" />
@@ -137,7 +137,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
               key={index}
               className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4"
             >
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="icon-sm"
                 type="button"
@@ -146,13 +146,13 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                 aria-label="Remove menu item"
               >
                 <Trash2 />
-              </ZoruButton>
+              </Button>
               <h4 className="text-sm tracking-tight text-zoru-ink">
                 Menu item {index + 1}
               </h4>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor={`title-${index}`}>Title</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor={`title-${index}`}>Title</Label>
+                <Input
                   id={`title-${index}`}
                   value={item.title}
                   onChange={(e) =>
@@ -162,7 +162,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                   required
                 />
               </div>
-              <ZoruRadioGroup
+              <RadioGroup
                 value={item.type}
                 onValueChange={(val: string) =>
                   handleItemChange(index, "type", val)
@@ -174,32 +174,32 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                     value="postback"
                     id={`type-postback-${index}`}
                   />
-                  <ZoruLabel
+                  <Label
                     htmlFor={`type-postback-${index}`}
                     className="font-normal"
                   >
                     Trigger flow
-                  </ZoruLabel>
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <ZoruRadioGroupItem
                     value="web_url"
                     id={`type-url-${index}`}
                   />
-                  <ZoruLabel
+                  <Label
                     htmlFor={`type-url-${index}`}
                     className="font-normal"
                   >
                     Open web URL
-                  </ZoruLabel>
+                  </Label>
                 </div>
-              </ZoruRadioGroup>
+              </RadioGroup>
               {item.type === "postback" ? (
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor={`payload-${index}`}>
+                  <Label htmlFor={`payload-${index}`}>
                     Payload (trigger keyword)
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     id={`payload-${index}`}
                     value={item.payload || ""}
                     onChange={(e) =>
@@ -214,8 +214,8 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <ZoruLabel htmlFor={`url-${index}`}>Website URL</ZoruLabel>
-                  <ZoruInput
+                  <Label htmlFor={`url-${index}`}>Website URL</Label>
+                  <Input
                     id={`url-${index}`}
                     type="url"
                     value={item.url || ""}
@@ -230,7 +230,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
             </div>
           ))}
           {menuItems.length < 3 && (
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               block
@@ -238,13 +238,13 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
             >
               <Plus />
               Add menu item
-            </ZoruButton>
+            </Button>
           )}
         </ZoruCardContent>
         <ZoruCardFooter>
           <SubmitButton />
         </ZoruCardFooter>
-      </ZoruCard>
+      </Card>
     </form>
   );
 }

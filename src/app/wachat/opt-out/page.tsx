@@ -174,7 +174,7 @@ export default function OptOutPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -188,7 +188,7 @@ export default function OptOutPage() {
             <ZoruBreadcrumbPage>Opt-out / DND</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5">
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -200,12 +200,12 @@ export default function OptOutPage() {
       </div>
 
       {/* Add form */}
-      <ZoruCard className="mt-6 p-5">
+      <Card className="mt-6 p-5">
         <h2 className="mb-4 text-[15px] text-zoru-ink">Add to opt-out list</h2>
         <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="opt-phone">Phone number</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="opt-phone">Phone number</Label>
+            <Input
               id="opt-phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -215,33 +215,33 @@ export default function OptOutPage() {
             />
           </div>
           <div className="flex flex-1 flex-col gap-1.5">
-            <ZoruLabel htmlFor="opt-reason">Reason</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="opt-reason">Reason</Label>
+            <Input
               id="opt-reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="e.g. User requested"
             />
           </div>
-          <ZoruButton type="submit" size="sm">
+          <Button type="submit" size="sm">
             <Plus /> Add
-          </ZoruButton>
+          </Button>
         </form>
-      </ZoruCard>
+      </Card>
 
       {/* Bulk paste */}
-      <ZoruCard className="mt-4 p-5">
+      <Card className="mt-4 p-5">
         <h2 className="mb-3 text-[15px] text-zoru-ink">Bulk add</h2>
         <p className="mb-2 text-[12px] text-zoru-ink-muted">
           Paste multiple phone numbers separated by newlines or commas.
         </p>
-        <ZoruTextarea
+        <Textarea
           rows={4}
           placeholder={'+919876543210\n+919876543211\n+919876543212'}
           value={bulkText}
           onChange={(e) => setBulkText(e.target.value)}
         />
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           className="mt-3"
@@ -249,12 +249,12 @@ export default function OptOutPage() {
           disabled={!bulkText.trim()}
         >
           <Upload /> Bulk add
-        </ZoruButton>
-      </ZoruCard>
+        </Button>
+      </Card>
 
       {/* Per-keyword stats */}
       {keywordStats.length > 0 && (
-        <ZoruCard className="mt-4 p-5">
+        <Card className="mt-4 p-5">
           <h2 className="mb-3 text-[15px] text-zoru-ink">Per-reason stats</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {keywordStats.slice(0, 8).map(([k, n]) => (
@@ -271,30 +271,30 @@ export default function OptOutPage() {
               </div>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       )}
 
       {/* List */}
-      <ZoruCard className="mt-4 p-5">
+      <Card className="mt-4 p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-[15px] text-zoru-ink">Opt-out numbers</h2>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={handleExport}
             disabled={list.length === 0}
           >
             <Download /> Export CSV
-          </ZoruButton>
+          </Button>
         </div>
         {isPending && list.length === 0 ? (
           <div className="flex flex-col gap-2">
-            <ZoruSkeleton className="h-8 w-full" />
-            <ZoruSkeleton className="h-8 w-full" />
-            <ZoruSkeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
           </div>
         ) : !isPending && list.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             compact
             icon={<ShieldOff />}
             title="No opt-out numbers recorded"
@@ -322,7 +322,7 @@ export default function OptOutPage() {
                     ? new Date(item.optedOutAt).toLocaleDateString()
                     : '--'}
                 </span>
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="icon-sm"
                   className="text-zoru-ink-muted hover:text-zoru-danger"
@@ -335,12 +335,12 @@ export default function OptOutPage() {
                   ) : (
                     <Trash2 />
                   )}
-                </ZoruButton>
+                </Button>
               </div>
             ))}
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       <div className="h-6" />
     </div>

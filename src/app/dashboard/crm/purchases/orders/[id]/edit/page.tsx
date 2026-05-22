@@ -87,7 +87,7 @@ export default async function EditPurchaseOrderPage({
       }}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Summary</ZoruCardTitle>
             </ZoruCardHeader>
@@ -113,7 +113,7 @@ export default async function EditPurchaseOrderPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
       audit={<EntityAuditTimeline entityKind="purchaseOrder" entityId={id} />}

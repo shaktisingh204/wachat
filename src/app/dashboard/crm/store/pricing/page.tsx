@@ -209,20 +209,20 @@ export default function PricingRulesPage(): React.JSX.Element {
                 title="Pricing rules"
                 subtitle="Discount engine — percent off, fixed off, BXGY and bundles."
                 primaryAction={
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={newHref}>
                             <Plus className="h-4 w-4" /> New rule
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Storefront
-                                </ZoruLabel>
-                                <ZoruSelect value={storefrontFilter} onValueChange={setStorefrontFilter}>
+                                </Label>
+                                <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
                                     <ZoruSelectTrigger>
                                         <ZoruSelectValue placeholder="All storefronts" />
                                     </ZoruSelectTrigger>
@@ -234,13 +234,13 @@ export default function PricingRulesPage(): React.JSX.Element {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="min-w-[160px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Status
-                                </ZoruLabel>
-                                <ZoruSelect
+                                </Label>
+                                <Select
                                     value={statusFilter}
                                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                                 >
@@ -253,14 +253,14 @@ export default function PricingRulesPage(): React.JSX.Element {
                                         <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                                         <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             {kinds.length > 0 ? (
                                 <div className="min-w-[160px] space-y-1">
-                                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                         Type
-                                    </ZoruLabel>
-                                    <ZoruSelect value={kindFilter} onValueChange={setKindFilter}>
+                                    </Label>
+                                    <Select value={kindFilter} onValueChange={setKindFilter}>
                                         <ZoruSelectTrigger>
                                             <ZoruSelectValue placeholder="All types" />
                                         </ZoruSelectTrigger>
@@ -272,11 +272,11 @@ export default function PricingRulesPage(): React.JSX.Element {
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </div>
                             ) : null}
                             {hasActiveFilters ? (
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
@@ -285,35 +285,35 @@ export default function PricingRulesPage(): React.JSX.Element {
                                     }}
                                 >
                                     Clear filters
-                                </ZoruButton>
+                                </Button>
                             ) : null}
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 }
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
                             <span className="flex-1" />
-                            <ZoruButton size="sm" variant="outline" onClick={handleBulkActivate}>
+                            <Button size="sm" variant="outline" onClick={handleBulkActivate}>
                                 Activate
-                            </ZoruButton>
-                            <ZoruDropdownMenu>
+                            </Button>
+                            <DropdownMenu>
                                 <ZoruDropdownMenuTrigger asChild>
-                                    <ZoruButton size="sm" variant="outline">
+                                    <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruDropdownMenuTrigger>
                                 <ZoruDropdownMenuContent align="end">
                                     <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
                                 </ZoruDropdownMenuContent>
-                            </ZoruDropdownMenu>
-                            <ZoruButton size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                            </DropdownMenu>
+                            <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
-                            </ZoruButton>
-                            <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -323,11 +323,11 @@ export default function PricingRulesPage(): React.JSX.Element {
                         <div className="flex flex-col items-center gap-3 p-8">
                             <Tag className="h-8 w-8 text-zoru-ink-muted" />
                             <h3 className="text-base font-medium text-zoru-ink">No pricing rules found</h3>
-                            <ZoruButton variant="outline" asChild>
+                            <Button variant="outline" asChild>
                                 <Link href={newHref}>
                                     <Plus className="h-4 w-4" /> New rule
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -335,19 +335,19 @@ export default function PricingRulesPage(): React.JSX.Element {
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard label="Total rules" value={kpis.total.toLocaleString()} icon={<Tag />} />
-                        <ZoruStatCard label="Active" value={kpis.active.toLocaleString()} icon={<Tag />} period="live discounts" />
-                        <ZoruStatCard label="Draft" value={kpis.draft.toLocaleString()} icon={<Tag />} period="not scheduled" />
-                        <ZoruStatCard label="Archived" value={kpis.archived.toLocaleString()} icon={<Tag />} period="expired / removed" />
+                        <StatCard label="Total rules" value={kpis.total.toLocaleString()} icon={<Tag />} />
+                        <StatCard label="Active" value={kpis.active.toLocaleString()} icon={<Tag />} period="live discounts" />
+                        <StatCard label="Draft" value={kpis.draft.toLocaleString()} icon={<Tag />} period="not scheduled" />
+                        <StatCard label="Archived" value={kpis.archived.toLocaleString()} icon={<Tag />} period="expired / removed" />
                     </div>
 
                     {filtered.length > 0 ? (
-                        <ZoruCard className="overflow-hidden p-0">
-                            <ZoruTable>
+                        <Card className="overflow-hidden p-0">
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
@@ -370,7 +370,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         aria-label={`Select ${String(r.name ?? '')}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
@@ -400,14 +400,14 @@ export default function PricingRulesPage(): React.JSX.Element {
                                                     {String(r.priority ?? 0)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+                                                    <Badge variant={statusVariant(status)}>{status}</Badge>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })}
                                 </ZoruTableBody>
-                            </ZoruTable>
-                        </ZoruCard>
+                            </Table>
+                        </Card>
                     ) : null}
                 </div>
             </EntityListShell>

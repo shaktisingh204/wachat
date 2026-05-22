@@ -75,22 +75,22 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
     const isCurrentMonth = today.getFullYear() === year && today.getMonth() === monthIdx;
 
     return (
-        <ZoruCard>
+        <Card>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h3 className="flex items-center gap-2 text-[14px] font-semibold text-zoru-ink">
                     <CalendarDays className="h-4 w-4" />
                     {month.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
                 </h3>
                 <div className="flex items-center gap-1">
-                    <ZoruButton variant="outline" size="sm" onClick={goToday}>
+                    <Button variant="outline" size="sm" onClick={goToday}>
                         Today
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="icon" onClick={prev} aria-label="Previous month">
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={prev} aria-label="Previous month">
                         <ChevronLeft className="h-4 w-4" />
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="icon" onClick={next} aria-label="Next month">
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={next} aria-label="Next month">
                         <ChevronRight className="h-4 w-4" />
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
             <div className="grid grid-cols-7 gap-1">
@@ -140,9 +140,9 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
                                                 href={`/dashboard/crm/workspace/events/${e._id}`}
                                                 className="truncate"
                                             >
-                                                <ZoruBadge variant="ghost" className="w-full justify-start truncate">
+                                                <Badge variant="ghost" className="w-full justify-start truncate">
                                                     {e.event_name}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </Link>
                                         ))}
                                         {dayEvents.length > 3 ? (
@@ -157,7 +157,7 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
                     );
                 })}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 

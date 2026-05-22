@@ -62,12 +62,12 @@ export function AdminAssignUserPlanDialog({ userId, userName, currentPlanId, all
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <Edit className="mr-2 h-4 w-4" />
           Plan
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
@@ -78,8 +78,8 @@ export function AdminAssignUserPlanDialog({ userId, userName, currentPlanId, all
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="py-6">
-            <ZoruLabel htmlFor="plan-select">Subscription Plan</ZoruLabel>
-            <ZoruSelect name="planId" value={selectedPlan} onValueChange={setSelectedPlan}>
+            <Label htmlFor="plan-select">Subscription Plan</Label>
+            <Select name="planId" value={selectedPlan} onValueChange={setSelectedPlan}>
               <ZoruSelectTrigger id="plan-select">
                 <ZoruSelectValue placeholder="Select a plan..." />
               </ZoruSelectTrigger>
@@ -90,17 +90,17 @@ export function AdminAssignUserPlanDialog({ userId, userName, currentPlanId, all
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-             <ZoruButton type="submit" disabled={isPending}>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+             <Button type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Assign Plan
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

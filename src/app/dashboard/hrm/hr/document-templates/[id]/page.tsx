@@ -62,19 +62,19 @@ export default async function DocumentTemplateDetailPage({ params }: PageProps) 
             actions={
                 <>
                     <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <ArrowLeft className="h-4 w-4" /> Back
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
+                        <Button size="sm">
                             <Pencil className="h-4 w-4" /> Edit
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`/dashboard/hrm/hr/documents/new?templateId=${id}`}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <FilePlus className="h-4 w-4" /> Use template
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <HrActionButtons
                         actions={[
@@ -116,29 +116,29 @@ export default async function DocumentTemplateDetailPage({ params }: PageProps) 
             </HrDetailGrid>
 
             {placeholders.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Merge tokens
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                         {placeholders.map((p, i) => (
-                            <ZoruBadge key={i} variant="ghost">{`{{${p}}}`}</ZoruBadge>
+                            <Badge key={i} variant="ghost">{`{{${p}}}`}</Badge>
                         ))}
                     </div>
                     <p className="mt-3 text-[11.5px] text-zoru-ink-muted">
                         Use {`{{token}}`} syntax inside the template body. Tokens are replaced when the template is used.
                     </p>
-                </ZoruCard>
+                </Card>
             ) : null}
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-zoru-ink">Body</div>
                 <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 text-[13px] text-zoru-ink font-sans">
                     {body || (
                         <span className="text-zoru-ink-muted">No body content.</span>
                     )}
                 </pre>
-            </ZoruCard>
+            </Card>
 
             <ClipboardList className="hidden" />
         </EntityDetailShell>

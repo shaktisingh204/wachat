@@ -91,15 +91,15 @@ export default async function HireDetailPage({ params }: PageProps) {
         label: 'Back to hire requests',
       }}
       actions={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href={`/dashboard/crm/purchases/hire/${id}/edit`}>
             <Pencil className="h-4 w-4" /> Edit
           </Link>
-        </ZoruButton>
+        </Button>
       }
       audit={<EntityAuditTimeline entityKind="hire" entityId={id} />}
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Request details
         </h3>
@@ -129,7 +129,7 @@ export default async function HireDetailPage({ params }: PageProps) {
             </p>
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
       <div className="text-[11px] text-zoru-ink-muted">
         Created {formatDate(hire.createdAt)} · Updated{' '}

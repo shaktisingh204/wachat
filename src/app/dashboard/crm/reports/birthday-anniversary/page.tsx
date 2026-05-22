@@ -121,13 +121,13 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
       </div>
 
       {today.length > 0 ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center gap-2">
             <Cake className="h-4 w-4 text-primary" />
             <h2 className="text-[16px] font-semibold text-foreground">
               Today
             </h2>
-            <ZoruBadge variant="info">{today.length}</ZoruBadge>
+            <Badge variant="info">{today.length}</Badge>
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {today.map((r) => (
@@ -140,23 +140,23 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                   label={r.employeeName}
                   subtitle={r.department}
                 />
-                <ZoruBadge variant={r.kind === 'birthday' ? 'info' : 'success'}>
+                <Badge variant={r.kind === 'birthday' ? 'info' : 'success'}>
                   {r.kind === 'birthday' ? 'Birthday' : `${r.years ?? ''}y`}
-                </ZoruBadge>
+                </Badge>
               </div>
             ))}
           </div>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center gap-2">
             <Cake className="h-4 w-4 text-primary" />
             <h2 className="text-[16px] font-semibold text-foreground">
               Upcoming birthdays
             </h2>
-            <ZoruBadge variant="outline">{birthdays.length}</ZoruBadge>
+            <Badge variant="outline">{birthdays.length}</Badge>
           </div>
           {birthdays.length === 0 ? (
             <div className="py-8 text-center text-[13px] text-muted-foreground">
@@ -174,22 +174,22 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                     label={r.employeeName}
                     subtitle={r.department}
                   />
-                  <ZoruBadge variant="info">
+                  <Badge variant="info">
                     {format(new Date(r.date), 'PP')}
-                  </ZoruBadge>
+                  </Badge>
                 </li>
               ))}
             </ul>
           )}
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center gap-2">
             <Gift className="h-4 w-4 text-primary" />
             <h2 className="text-[16px] font-semibold text-foreground">
               Upcoming anniversaries
             </h2>
-            <ZoruBadge variant="outline">{anniversaries.length}</ZoruBadge>
+            <Badge variant="outline">{anniversaries.length}</Badge>
           </div>
           {anniversaries.length === 0 ? (
             <div className="py-8 text-center text-[13px] text-muted-foreground">
@@ -207,19 +207,19 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                     label={r.employeeName}
                     subtitle={`${r.department} · ${r.years ?? '—'} ${r.years === 1 ? 'year' : 'years'}`}
                   />
-                  <ZoruBadge variant="success">
+                  <Badge variant="success">
                     {format(new Date(r.date), 'PP')}
-                  </ZoruBadge>
+                  </Badge>
                 </li>
               ))}
             </ul>
           )}
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
@@ -252,12 +252,12 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-foreground">
-                      <ZoruBadge variant="outline">{r.department}</ZoruBadge>
+                      <Badge variant="outline">{r.department}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={r.kind === 'birthday' ? 'info' : 'success'}>
+                      <Badge variant={r.kind === 'birthday' ? 'info' : 'success'}>
                         {r.kind}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] text-foreground">
                       {format(new Date(r.date), 'PP')}
@@ -269,9 +269,9 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

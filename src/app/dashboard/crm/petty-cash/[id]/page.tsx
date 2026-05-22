@@ -131,7 +131,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="petty_cash" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Balance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -163,9 +163,9 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Custodian</ZoruCardTitle>
             </ZoruCardHeader>
@@ -174,9 +174,9 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                 {float.custodianName || '—'}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Branch</ZoruCardTitle>
             </ZoruCardHeader>
@@ -185,9 +185,9 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                 {float.branchName || '—'}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Reconcile</ZoruCardTitle>
             </ZoruCardHeader>
@@ -209,9 +209,9 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                 ) : null}
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -225,11 +225,11 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -249,13 +249,13 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
             />
             <Field
               label="Status"
-              value={<ZoruBadge variant="outline">{status}</ZoruBadge>}
+              value={<Badge variant="outline">{status}</Badge>}
             />
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Recent vouchers</ZoruCardTitle>
         </ZoruCardHeader>
@@ -286,9 +286,9 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                     >
                       <td className="py-2">{fmtDate(v.date)}</td>
                       <td className="py-2">
-                        <ZoruBadge variant="outline">
+                        <Badge variant="outline">
                           {(v.category || 'misc').replace(/_/g, ' ')}
-                        </ZoruBadge>
+                        </Badge>
                       </td>
                       <td className="py-2">{v.payee || '—'}</td>
                       <td className="py-2 text-right font-mono tabular-nums">
@@ -300,9 +300,9 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
             </table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Top-up history</ZoruCardTitle>
         </ZoruCardHeader>
@@ -343,10 +343,10 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
             </table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {float.notes ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -355,7 +355,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
               {float.notes}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

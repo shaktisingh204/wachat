@@ -24,11 +24,11 @@ export function KanbanColumn({ title, children, columnId, count = 0 }: KanbanCol
                     <span className="text-sm font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">{count}</span>
                 </ZoruCardTitle>
             </ZoruCardHeader>
-            <ZoruScrollArea className="flex-1 p-2">
+            <ScrollArea className="flex-1 p-2">
                 <div className="space-y-3">
                     {children}
                 </div>
-            </ZoruScrollArea>
+            </ScrollArea>
         </div>
     );
 }

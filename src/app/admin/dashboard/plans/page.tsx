@@ -24,12 +24,12 @@ export default async function PlansManagementPage() {
                     <h1 className="text-2xl font-bold text-slate-900">Subscription Plans</h1>
                     <p className="text-sm text-slate-500 mt-1">Create and manage platform subscription tiers.</p>
                 </div>
-                <ZoruButton asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25">
+                <Button asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25">
                     <Link href="/admin/dashboard/plans/new">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Plan
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
 
             {/* Plan cards grid */}
@@ -90,13 +90,13 @@ export default async function PlansManagementPage() {
 
                             {/* Actions */}
                             <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
-                                <ZoruButton asChild variant="ghost" size="sm"
+                                <Button asChild variant="ghost" size="sm"
                                     className="flex-1 border border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-xl">
                                     <Link href={`/admin/dashboard/plans/${plan._id.toString()}`}>
                                         <Edit className="mr-1.5 h-3.5 w-3.5" />
                                         Edit
                                     </Link>
-                                </ZoruButton>
+                                </Button>
                                 <AdminPlanPermissionsDialog
                                     planId={plan._id.toString()}
                                     planName={plan.name}
@@ -113,12 +113,12 @@ export default async function PlansManagementPage() {
                     <CreditCard className="mx-auto h-10 w-10 text-slate-400 mb-4" />
                     <h3 className="text-slate-700 font-medium">No plans yet</h3>
                     <p className="text-slate-500 text-sm mt-1">Create your first subscription plan to get started.</p>
-                    <ZoruButton asChild className="mt-4 bg-amber-500 hover:bg-amber-400 text-zinc-950">
+                    <Button asChild className="mt-4 bg-amber-500 hover:bg-amber-400 text-zinc-950">
                         <Link href="/admin/dashboard/plans/new">
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Create Plan
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             )}
         </div>

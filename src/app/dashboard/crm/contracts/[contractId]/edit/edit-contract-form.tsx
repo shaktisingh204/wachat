@@ -64,14 +64,14 @@ const initialState: ActionResult = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
       ) : (
         <Save className="h-4 w-4" strokeWidth={1.75} />
       )}
       Save Changes
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -189,7 +189,7 @@ export function EditContractForm({ initial }: Props) {
         />
 
         <div className="space-y-6">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Overview</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -198,13 +198,13 @@ export function EditContractForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
-                <ZoruLabel
+                <Label
                   htmlFor="title"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Title <span className="text-zoru-danger">*</span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="title"
                   name="title"
                   required
@@ -213,13 +213,13 @@ export function EditContractForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="status"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Status
-                </ZoruLabel>
-                <ZoruSelect name="status" defaultValue={initial.status}>
+                </Label>
+                <Select name="status" defaultValue={initial.status}>
                   <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
@@ -235,12 +235,12 @@ export function EditContractForm({ initial }: Props) {
                     <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
                     <ZoruSelectItem value="voided">Voided</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="space-y-2">
-                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-zoru-ink-muted">
                   Currency
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                   entity="currency"
                   name="currency"
@@ -249,9 +249,9 @@ export function EditContractForm({ initial }: Props) {
                 />
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Parties</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -261,9 +261,9 @@ export function EditContractForm({ initial }: Props) {
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                  <Label className="text-[12.5px] text-zoru-ink-muted">
                     Counter-party account
-                  </ZoruLabel>
+                  </Label>
                   <EntityFormField
                     entity="account"
                     name="clientId"
@@ -277,10 +277,10 @@ export function EditContractForm({ initial }: Props) {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                  <Label className="text-[12.5px] text-zoru-ink-muted">
                     Signers
-                  </ZoruLabel>
-                  <ZoruButton
+                  </Label>
+                  <Button
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -288,7 +288,7 @@ export function EditContractForm({ initial }: Props) {
                   >
                     <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
                     Add signer
-                  </ZoruButton>
+                  </Button>
                 </div>
                 <div className="space-y-2">
                   {signers.map((row, idx) => (
@@ -296,26 +296,26 @@ export function EditContractForm({ initial }: Props) {
                       key={`signer-${idx}`}
                       className="grid grid-cols-1 gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 md:grid-cols-[1fr_1.4fr_1fr_auto]"
                     >
-                      <ZoruInput
+                      <Input
                         value={row.name}
                         placeholder="Name"
                         onChange={(e) => updateSigner(idx, { name: e.target.value })}
                         className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                       />
-                      <ZoruInput
+                      <Input
                         type="email"
                         value={row.email}
                         placeholder="Email"
                         onChange={(e) => updateSigner(idx, { email: e.target.value })}
                         className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                       />
-                      <ZoruInput
+                      <Input
                         value={row.role}
                         placeholder="Role (e.g. CFO)"
                         onChange={(e) => updateSigner(idx, { role: e.target.value })}
                         className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                       />
-                      <ZoruButton
+                      <Button
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -323,15 +323,15 @@ export function EditContractForm({ initial }: Props) {
                         disabled={signers.length === 1}
                       >
                         <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Terms</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -340,13 +340,13 @@ export function EditContractForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="startDate"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Start date
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="startDate"
                   name="startDate"
                   type="date"
@@ -355,13 +355,13 @@ export function EditContractForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="endDate"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   End date
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="endDate"
                   name="endDate"
                   type="date"
@@ -371,13 +371,13 @@ export function EditContractForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="value"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Value
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="value"
                   name="value"
                   type="number"
@@ -387,13 +387,13 @@ export function EditContractForm({ initial }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="esignProvider"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   E-sign provider
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                   name="esignProvider"
                   defaultValue={initial.esignProvider || 'internal'}
                 >
@@ -407,16 +407,16 @@ export function EditContractForm({ initial }: Props) {
                     <ZoruSelectItem value="aadhaar">Aadhaar</ZoruSelectItem>
                     <ZoruSelectItem value="none">None</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <ZoruLabel
+                <Label
                   htmlFor="body"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Contract body
-                </ZoruLabel>
-                <ZoruTextarea
+                </Label>
+                <Textarea
                   id="body"
                   name="body"
                   rows={8}
@@ -425,9 +425,9 @@ export function EditContractForm({ initial }: Props) {
                 />
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-[14px] font-semibold text-zoru-ink">Documents</h2>
@@ -454,21 +454,21 @@ export function EditContractForm({ initial }: Props) {
                     <span className="truncate text-[13px] text-zoru-ink">
                       {a.name}
                     </span>
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeAttachment(a.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                    </ZoruButton>
+                    </Button>
                   </li>
                 ))}
               </ul>
             )}
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Renewal</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
@@ -477,27 +477,27 @@ export function EditContractForm({ initial }: Props) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="flex items-center gap-3">
-                <ZoruSwitch
+                <Switch
                   id="autoRenew"
                   name="autoRenew"
                   checked={autoRenew}
                   onCheckedChange={setAutoRenew}
                 />
-                <ZoruLabel
+                <Label
                   htmlFor="autoRenew"
                   className="cursor-pointer text-[13px] text-zoru-ink"
                 >
                   Auto-renew this contract
-                </ZoruLabel>
+                </Label>
               </div>
               <div className="space-y-2">
-                <ZoruLabel
+                <Label
                   htmlFor="renewalNoticeDays"
                   className="text-[12.5px] text-zoru-ink-muted"
                 >
                   Notice days
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="renewalNoticeDays"
                   name="renewalNoticeDays"
                   type="number"
@@ -513,26 +513,26 @@ export function EditContractForm({ initial }: Props) {
                 {renewalBanner}
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4">
               <h2 className="text-[14px] font-semibold text-zoru-ink">Notes</h2>
               <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                 Internal notes — not shown to signers.
               </p>
             </div>
-            <ZoruTextarea
+            <Textarea
               id="notes"
               name="notes"
               rows={4}
               defaultValue={initial.notes}
               className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             />
-          </ZoruCard>
+          </Card>
 
           <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => {
@@ -540,7 +540,7 @@ export function EditContractForm({ initial }: Props) {
               }}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </div>
         </div>

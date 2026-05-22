@@ -131,16 +131,16 @@ export default async function SabsmsApprovalsPage({ searchParams }: PageProps) {
       }
     >
       <section className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        <ZoruStatCard label="Pending" value={stats.pending.toLocaleString()} />
-        <ZoruStatCard
+        <StatCard label="Pending" value={stats.pending.toLocaleString()} />
+        <StatCard
           label="Approved today"
           value={stats.approvedToday.toLocaleString()}
         />
-        <ZoruStatCard
+        <StatCard
           label="Rejected today"
           value={stats.rejectedToday.toLocaleString()}
         />
-        <ZoruStatCard
+        <StatCard
           label="Avg time-to-approval"
           value={avgMinutesOverall > 0 ? `${avgMinutesOverall} min` : "—"}
           period={

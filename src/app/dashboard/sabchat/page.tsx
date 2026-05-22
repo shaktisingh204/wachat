@@ -12,7 +12,7 @@ export default function SabChatRedirectPage() {
     router.replace('/dashboard/sabchat/inbox');
   }, [router]);
   return (
-    <ZoruEmptyState
+    <EmptyState
       icon={<Loader2 className="h-6 w-6 animate-spin" />}
       title="Redirecting…"
       description="Taking you to your SabChat inbox."

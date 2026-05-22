@@ -30,7 +30,7 @@ export default function LogsPage({ params }: { params: Promise<{ projectId: stri
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Upload Access Logs</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -41,9 +41,9 @@ export default function LogsPage({ params }: { params: Promise<{ projectId: stri
                             <p className="text-xs text-zoru-ink-muted">Supports Apache/Nginx formats</p>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Bot Traffic Distribution</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -75,10 +75,10 @@ export default function LogsPage({ params }: { params: Promise<{ projectId: stri
                             ))}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
                         <Activity className="h-5 w-5 text-zoru-danger-ink" />
@@ -94,9 +94,9 @@ export default function LogsPage({ params }: { params: Promise<{ projectId: stri
                                     Bots are wasting 15% of budget hitting dead links.
                                 </p>
                             </div>
-                            <ZoruButton variant="outline" size="sm">
+                            <Button variant="outline" size="sm">
                                 Fix Issues
-                            </ZoruButton>
+                            </Button>
                         </div>
                         <div className="flex items-center justify-between border-b border-zoru-line pb-4">
                             <div>
@@ -105,13 +105,13 @@ export default function LogsPage({ params }: { params: Promise<{ projectId: stri
                                     328 URLs took &gt;2s to respond to crawlers.
                                 </p>
                             </div>
-                            <ZoruButton variant="outline" size="sm">
+                            <Button variant="outline" size="sm">
                                 View URLs
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

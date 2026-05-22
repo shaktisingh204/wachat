@@ -252,7 +252,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search head, period, owner…"
@@ -260,7 +260,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
           />
         </div>
         {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
-        <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Status" />
           </ZoruSelectTrigger>
@@ -272,9 +272,9 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
-        <ZoruSelect value={headTypeFilter} onValueChange={setHeadTypeFilter}>
+        <Select value={headTypeFilter} onValueChange={setHeadTypeFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Head type" />
           </ZoruSelectTrigger>
@@ -286,9 +286,9 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
-        <ZoruSelect value={periodFilter} onValueChange={setPeriodFilter}>
+        <Select value={periodFilter} onValueChange={setPeriodFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Period" />
           </ZoruSelectTrigger>
@@ -300,9 +300,9 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
-        <ZoruSelect value={ownerFilter} onValueChange={setOwnerFilter}>
+        <Select value={ownerFilter} onValueChange={setOwnerFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Owner" />
           </ZoruSelectTrigger>
@@ -314,9 +314,9 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
-        <ZoruSelect value={scenarioFilter} onValueChange={setScenarioFilter}>
+        <Select value={scenarioFilter} onValueChange={setScenarioFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Scenario" />
           </ZoruSelectTrigger>
@@ -328,11 +328,11 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         {hasActiveFilters ? (
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
@@ -343,28 +343,28 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
-            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               size="sm"
               variant="ghost"
               onClick={() => setSelected(new Set())}
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-8">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
@@ -405,7 +405,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
                   return (
                     <ZoruTableRow key={r._id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(r._id)}
                           onCheckedChange={() => toggleOne(r._id)}
                           aria-label="Select"
@@ -434,20 +434,20 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
                         />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <ZoruButton size="sm" variant="ghost" asChild>
+                        <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/budgets/${r._id}/edit`}>
                             Edit
                           </Link>
-                        </ZoruButton>
+                        </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

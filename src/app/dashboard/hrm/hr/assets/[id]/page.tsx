@@ -71,30 +71,30 @@ export default async function AssetDetailPage({
             subtitle={`Tag · ${asset.assetTag}`}
             primaryAction={
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={`/dashboard/hrm/hr/asset-assignments/new?assetId=${assetId}&assetName=${encodeURIComponent(asset.name)}`}>
                             <UserPlus className="mr-2 h-4 w-4" />
                             Assign
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton asChild>
+                    </Button>
+                    <Button asChild>
                         <Link href={`${BASE}/${assetId}/edit`}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {tags.map((t) => (
-                        <ZoruBadge key={t} variant="ghost">
+                        <Badge key={t} variant="ghost">
                             {t}
-                        </ZoruBadge>
+                        </Badge>
                     ))}
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -155,7 +155,7 @@ export default async function AssetDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

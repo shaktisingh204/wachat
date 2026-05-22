@@ -170,15 +170,15 @@ export function InvoicePaymentPanel({
 
   if (!isUnpaid) {
     return (
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Payment</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
           {banner ? (
-            <ZoruAlert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+            <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
               <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
           <p className="text-sm text-zinc-600">
             {status === 'Paid'
@@ -189,29 +189,29 @@ export function InvoicePaymentPanel({
           </p>
           <DownloadPdfButton hash={hash} />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     );
   }
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between">
         <ZoruCardTitle>Pay this invoice</ZoruCardTitle>
         <DownloadPdfButton hash={hash} />
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-3">
         {banner ? (
-          <ZoruAlert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+          <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
             <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : null}
         <p className="text-sm text-zinc-600">
           Choose a payment method below to settle this invoice.
         </p>
         <ZoruDrawer open={open} onOpenChange={setOpen}>
-          <ZoruButton onClick={() => setOpen(true)} disabled={pending}>
+          <Button onClick={() => setOpen(true)} disabled={pending}>
             Pay Now
-          </ZoruButton>
+          </Button>
           <ZoruDrawerContent>
             <ZoruDrawerHeader>
               <ZoruDrawerTitle>Pay invoice</ZoruDrawerTitle>
@@ -221,41 +221,41 @@ export function InvoicePaymentPanel({
             </ZoruDrawerHeader>
             <div className="space-y-4 px-6 pb-6">
               {banner ? (
-                <ZoruAlert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+                <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
                   <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
               ) : null}
 
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                <ZoruButton
+                <Button
                   variant="outline"
                   onClick={() => handleGateway('stripe')}
                   disabled={pending}
                 >
                   Stripe
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   onClick={() => handleGateway('razorpay')}
                   disabled={pending}
                 >
                   Razorpay
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   onClick={() => handleGateway('paypal')}
                   disabled={pending}
                 >
                   PayPal
-                </ZoruButton>
+                </Button>
               </div>
 
               <div className="rounded-md border border-zinc-200 p-3">
                 <h4 className="mb-2 text-sm font-semibold">Pay offline</h4>
                 <div className="space-y-3">
                   <div>
-                    <ZoruLabel htmlFor="offline-amount">Amount paid</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="offline-amount">Amount paid</Label>
+                    <Input
                       id="offline-amount"
                       type="number"
                       inputMode="decimal"
@@ -266,8 +266,8 @@ export function InvoicePaymentPanel({
                     />
                   </div>
                   <div>
-                    <ZoruLabel htmlFor="offline-notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="offline-notes">Notes</Label>
+                    <Textarea
                       id="offline-notes"
                       placeholder="Reference number, transfer date, etc."
                       value={notes}
@@ -276,7 +276,7 @@ export function InvoicePaymentPanel({
                     />
                   </div>
                   <div>
-                    <ZoruLabel>Bill proof (optional)</ZoruLabel>
+                    <Label>Bill proof (optional)</Label>
                     <SabFilePickerButton
                       onPick={(pick) => setBillUrl(pick?.url)}
                     >
@@ -286,22 +286,22 @@ export function InvoicePaymentPanel({
                       <p className="mt-1 text-xs text-zinc-500">Attached.</p>
                     ) : null}
                   </div>
-                  <ZoruButton onClick={handleOfflineSubmit} disabled={pending} block>
+                  <Button onClick={handleOfflineSubmit} disabled={pending} block>
                     {pending ? 'Submitting…' : 'Submit offline payment'}
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
 
               <ZoruDrawerClose asChild>
-                <ZoruButton variant="ghost" block>
+                <Button variant="ghost" block>
                   Cancel
-                </ZoruButton>
+                </Button>
               </ZoruDrawerClose>
             </div>
           </ZoruDrawerContent>
         </ZoruDrawer>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 

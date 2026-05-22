@@ -33,14 +33,14 @@ function getFlag(code: string): string {
 export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
   if (isLoading) {
     return (
-      <ZoruCard className="p-5">
-        <ZoruSkeleton className="h-5 w-32 mb-4" />
+      <Card className="p-5">
+        <Skeleton className="h-5 w-32 mb-4" />
         <div className="space-y-2.5">
           {Array.from({ length: 6 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-7 w-full rounded" />
+            <Skeleton key={i} className="h-7 w-full rounded" />
           ))}
         </div>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -49,7 +49,7 @@ export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
   const total = sorted.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-2 mb-4">
         <Globe2 className="h-4 w-4 text-zoru-ink-muted" />
         <span className="text-[13px] text-zoru-ink">Top Countries</span>
@@ -89,6 +89,6 @@ export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
           })}
         </div>
       )}
-    </ZoruCard>
+    </Card>
   );
 }

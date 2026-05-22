@@ -156,11 +156,11 @@ export function Gstr2bClient({
     return (
         <>
             <div className="flex justify-end">
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <Download className="mr-1.5 h-3.5 w-3.5" /> Export
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="end">
                         <ZoruDropdownMenuItem onClick={handleCsv}>
@@ -176,11 +176,11 @@ export function Gstr2bClient({
                             <FileJson className="mr-2 h-4 w-4" /> GSTN JSON
                         </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <ZoruCard className="lg:col-span-2">
+                <Card className="lg:col-span-2">
                     <div className="mb-3">
                         <h2 className="text-[16px] font-semibold text-foreground">
                             Inward supplies by vendor
@@ -224,9 +224,9 @@ export function Gstr2bClient({
                             </ResponsiveContainer>
                         )}
                     </div>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <div className="mb-3">
                         <h2 className="text-[16px] font-semibold text-foreground">
                             Monthly ITC trend
@@ -271,10 +271,10 @@ export function Gstr2bClient({
                             </ResponsiveContainer>
                         )}
                     </div>
-                </ZoruCard>
+                </Card>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">
                         Purchase Documents
@@ -284,7 +284,7 @@ export function Gstr2bClient({
                     </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">
@@ -348,7 +348,7 @@ export function Gstr2bClient({
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
                 <PaginationBar
                     page={page}
@@ -356,7 +356,7 @@ export function Gstr2bClient({
                     total={total}
                     hasMore={hasMore}
                 />
-            </ZoruCard>
+            </Card>
         </>
     );
 }

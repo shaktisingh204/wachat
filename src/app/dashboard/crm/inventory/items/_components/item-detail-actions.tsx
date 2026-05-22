@@ -79,7 +79,7 @@ export function ItemDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruDropdownMenu>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
@@ -102,52 +102,52 @@ export function ItemDetailActions({
             </ZoruDropdownMenuItem>
           ))}
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/inventory/items/${productId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/inventory/adjustments/new?productId=${productId}`}>
           <Warehouse className="h-3.5 w-3.5" /> Adjust stock
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/inventory/stock-transfers/new?productId=${productId}`}>
           <ArrowLeftRight className="h-3.5 w-3.5" /> Transfer
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => moveTo(currentStatus === 'inactive' ? 'active' : 'inactive')}
       >
         <Power className="h-3.5 w-3.5" />
         {currentStatus === 'inactive' ? 'Mark active' : 'Mark inactive'}
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/inventory/items/new?fromKind=product&fromId=${productId}`}
         >
           <Copy className="h-3.5 w-3.5" /> Duplicate
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/purchases/orders/new?fromKind=product&fromId=${productId}`}
         >
           <ShoppingCart className="h-3.5 w-3.5" /> Add to PO
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/inventory/items/${productId}?print=1`}
           target="_blank"
@@ -155,9 +155,9 @@ export function ItemDetailActions({
         >
           <Printer className="h-3.5 w-3.5" /> Print barcode
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <a
           href={`/dashboard/crm/inventory/items/${productId}?qr=1`}
           target="_blank"
@@ -165,9 +165,9 @@ export function ItemDetailActions({
         >
           <QrCode className="h-3.5 w-3.5" /> QR
         </a>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() =>
@@ -178,21 +178,21 @@ export function ItemDetailActions({
         }
       >
         <Mail className="h-3.5 w-3.5" /> Email
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+      <Button size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}>
+      <Button size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}>
         <Trash2 className="h-3.5 w-3.5" /> Delete
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/inventory/items/${productId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
       <ConfirmDialog
         open={archiveOpen}

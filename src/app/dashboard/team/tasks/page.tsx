@@ -169,7 +169,7 @@ export default function TeamTasksPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -183,9 +183,9 @@ export default function TeamTasksPage() {
                         <ZoruBreadcrumbPage>Tasks</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Team tasks</ZoruPageTitle>
                     <ZoruPageDescription>
@@ -205,7 +205,7 @@ export default function TeamTasksPage() {
                         toast={toast}
                     />
                 ) : null}
-            </ZoruPageHeader>
+            </PageHeader>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <StatTile label="Total" value={tasks.length} />
@@ -214,9 +214,9 @@ export default function TeamTasksPage() {
                 <StatTile label="Overdue" value={overdueCount} tone={overdueCount > 0 ? 'red' : 'neutral'} />
             </div>
 
-            <ZoruCard className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 items-center gap-3">
-                    <ZoruInput
+                    <Input
                         className="max-w-[300px] flex-1"
                         leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
                         placeholder="Search tasks"
@@ -224,7 +224,7 @@ export default function TeamTasksPage() {
                         onChange={(e) => setQuery(e.target.value)}
                     />
                     <div className="w-[180px]">
-                        <ZoruSelect value={assigneeFilter} onValueChange={setAssigneeFilter}>
+                        <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue />
                             </ZoruSelectTrigger>
@@ -237,10 +237,10 @@ export default function TeamTasksPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="w-[140px]">
-                        <ZoruSelect
+                        <Select
                             value={priorityFilter}
                             onValueChange={(v) => setPriorityFilter(v as 'all' | Priority)}
                         >
@@ -253,10 +253,10 @@ export default function TeamTasksPage() {
                                 <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
                                 <ZoruSelectItem value="Low">Low</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {loading ? (
                 <KanbanSkeleton />
@@ -294,15 +294,15 @@ function StatTile({
     tone?: 'red' | 'neutral';
 }) {
     return (
-        <ZoruCard className="flex items-center gap-3 p-4">
+        <Card className="flex items-center gap-3 p-4">
             <div>
                 <div className="text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted">{label}</div>
                 <div className="flex items-center gap-2">
                     <div className="text-[22px] tracking-[-0.01em] text-zoru-ink">{value}</div>
-                    {tone === 'red' && value > 0 ? <ZoruBadge variant="danger">Attention</ZoruBadge> : null}
+                    {tone === 'red' && value > 0 ? <Badge variant="danger">Attention</Badge> : null}
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -357,7 +357,7 @@ function Column({
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <ZoruBadge variant={variant[status]}>{status}</ZoruBadge>
+                    <Badge variant={variant[status]}>{status}</Badge>
                     <span className="text-[12px] text-zoru-ink-muted">{tasks.length}</span>
                 </div>
             </div>
@@ -446,17 +446,17 @@ function TaskCard({
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
-                <ZoruBadge variant={priorityVariant[task.priority]}>
+                <Badge variant={priorityVariant[task.priority]}>
                     <Flag className="h-3 w-3" strokeWidth={2} />
                     {task.priority}
-                </ZoruBadge>
+                </Badge>
                 {due ? (
-                    <ZoruBadge variant={overdue ? 'danger' : 'ghost'}>
+                    <Badge variant={overdue ? 'danger' : 'ghost'}>
                         <Calendar className="h-3 w-3" strokeWidth={2} />
                         {due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </ZoruBadge>
+                    </Badge>
                 ) : null}
-                {isMine ? <ZoruBadge variant="secondary">You</ZoruBadge> : null}
+                {isMine ? <Badge variant="secondary">You</Badge> : null}
             </div>
 
             <div className="flex items-center justify-between gap-2">
@@ -503,7 +503,7 @@ function AssigneeChip({
     );
     if (!canEdit) return chip;
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
                 <button type="button" className="outline-none hover:opacity-90">
                     {chip}
@@ -555,14 +555,14 @@ function AssigneeChip({
                     })}
                 </div>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
 function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) => void }) {
     const [open, setOpen] = React.useState(false);
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
                 <button
                     type="button"
@@ -595,7 +595,7 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
                     ))}
                 </div>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -644,12 +644,12 @@ function CreateTaskDialog({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton size="md">
+                <Button size="md">
                     <Plus className="h-3.5 w-3.5" />
                     New task
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="max-w-md">
                 <ZoruDialogHeader>
@@ -657,10 +657,10 @@ function CreateTaskDialog({
                 </ZoruDialogHeader>
                 <form onSubmit={onSubmit} className="mt-2 flex flex-col gap-4">
                     <Field label="Title">
-                        <ZoruInput name="title" required placeholder="Follow up with onboarding leads" />
+                        <Input name="title" required placeholder="Follow up with onboarding leads" />
                     </Field>
                     <Field label="Description (optional)">
-                        <ZoruTextarea
+                        <Textarea
                             name="description"
                             rows={3}
                             placeholder="Details, links, acceptance criteria…"
@@ -668,7 +668,7 @@ function CreateTaskDialog({
                     </Field>
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Priority">
-                            <ZoruSelect value={priority} onValueChange={(v) => setPriority(v as Priority)}>
+                            <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
                                 <ZoruSelectTrigger>
                                     <ZoruSelectValue />
                                 </ZoruSelectTrigger>
@@ -677,14 +677,14 @@ function CreateTaskDialog({
                                     <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
                                     <ZoruSelectItem value="Low">Low</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Due date">
-                            <ZoruInput name="dueDate" type="date" />
+                            <Input name="dueDate" type="date" />
                         </Field>
                     </div>
                     <Field label="Assign to">
-                        <ZoruSelect value={assignedTo || '__none'} onValueChange={(v) => setAssignedTo(v === '__none' ? '' : v)}>
+                        <Select value={assignedTo || '__none'} onValueChange={(v) => setAssignedTo(v === '__none' ? '' : v)}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="Unassigned" />
                             </ZoruSelectTrigger>
@@ -696,10 +696,10 @@ function CreateTaskDialog({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </Field>
                     <div className="mt-2 flex justify-end gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             size="md"
@@ -707,15 +707,15 @@ function CreateTaskDialog({
                             disabled={pending}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton type="submit" size="md" disabled={pending}>
+                        </Button>
+                        <Button type="submit" size="md" disabled={pending}>
                             {pending ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
                             Create task
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 

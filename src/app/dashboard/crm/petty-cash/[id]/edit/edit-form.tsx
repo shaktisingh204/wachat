@@ -71,14 +71,14 @@ const STATUS_OPTIONS: ReadonlyArray<{ value: FloatStatus; label: string }> = [
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} className="gap-1">
+        <Button type="submit" disabled={pending} className="gap-1">
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             Save changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -121,17 +121,17 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
             <input type="hidden" name="policyFileUrl" value={policy?.url ?? ''} />
             <input type="hidden" name="policyFileName" value={policy?.name ?? ''} />
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Identification</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="name">
+                            <Label htmlFor="name">
                                 Float name <span className="text-zoru-danger-ink">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 defaultValue={float.name ?? ''}
@@ -140,7 +140,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Branch</ZoruLabel>
+                            <Label>Branch</Label>
                             <EntityFormField
                                 entity="branch"
                                 name="branchId"
@@ -151,8 +151,8 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="currency">Currency</Label>
+                            <Input
                                 id="currency"
                                 name="currency"
                                 defaultValue={float.currency ?? 'INR'}
@@ -160,7 +160,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Status</ZoruLabel>
+                            <Label>Status</Label>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as FloatStatus)}
@@ -175,16 +175,16 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Custody & approvals</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <ZoruLabel>Custodian</ZoruLabel>
+                            <Label>Custodian</Label>
                             <EntityFormField
                                 entity="employee"
                                 name="custodianId"
@@ -195,7 +195,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Approver</ZoruLabel>
+                            <Label>Approver</Label>
                             <EntityFormField
                                 entity="user"
                                 name="approverId"
@@ -207,17 +207,17 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Balances</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-3">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="openingBalance">Opening balance</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="openingBalance">Opening balance</Label>
+                            <Input
                                 id="openingBalance"
                                 name="openingBalance"
                                 type="number"
@@ -227,8 +227,8 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Current balance</ZoruLabel>
-                            <ZoruInput
+                            <Label>Current balance</Label>
+                            <Input
                                 value={currentBalance}
                                 readOnly
                                 aria-readonly
@@ -239,8 +239,8 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             </p>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Last reconciled</ZoruLabel>
-                            <ZoruInput
+                            <Label>Last reconciled</Label>
+                            <Input
                                 value={
                                     float.lastReconciledAt
                                         ? new Date(float.lastReconciledAt).toLocaleDateString()
@@ -253,9 +253,9 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                         </div>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Policy document</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -287,14 +287,14 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                         )}
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Notes</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <ZoruTextarea
+                    <Textarea
                         id="notes"
                         name="notes"
                         defaultValue={float.notes ?? ''}
@@ -302,7 +302,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                         placeholder="Operating context, withdrawal rules, escalation contacts."
                     />
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
                 <div className="text-sm">
@@ -313,9 +313,9 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                     ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={`/dashboard/crm/petty-cash/${floatId}`}>Cancel</Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton />
                 </div>
             </div>

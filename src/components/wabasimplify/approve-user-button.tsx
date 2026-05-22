@@ -27,9 +27,9 @@ export function ApproveUserButton({ userId }: ApproveUserButtonProps) {
     };
 
     return (
-        <ZoruButton onClick={handleApprove} disabled={isPending} size="sm">
+        <Button onClick={handleApprove} disabled={isPending} size="sm">
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
             Approve
-        </ZoruButton>
+        </Button>
     );
 }

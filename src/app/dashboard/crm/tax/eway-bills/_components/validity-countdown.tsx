@@ -39,12 +39,12 @@ export function ValidityCountdown({ validUpto, status }: ValidityCountdownProps)
   }
 
   if (status === 'cancelled') {
-    return <ZoruBadge variant="danger">Cancelled</ZoruBadge>;
+    return <Badge variant="danger">Cancelled</Badge>;
   }
 
   const delta = target - now;
   if (delta <= 0 || status === 'expired') {
-    return <ZoruBadge variant="warning">Expired</ZoruBadge>;
+    return <Badge variant="warning">Expired</Badge>;
   }
 
   const hours = delta / (60 * 60 * 1000);
@@ -52,7 +52,7 @@ export function ValidityCountdown({ validUpto, status }: ValidityCountdownProps)
 
   return (
     <div className="flex flex-col gap-0.5">
-      <ZoruBadge variant={tone}>{`Expires in ${formatDelta(delta)}`}</ZoruBadge>
+      <Badge variant={tone}>{`Expires in ${formatDelta(delta)}`}</Badge>
       <span className="text-[11px] text-zoru-ink-muted">
         {new Date(target).toLocaleString()}
       </span>

@@ -29,10 +29,10 @@ const saveAttributesInitialState: any = { message: null, error: null };
 function SaveAttributesButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Attributes
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -77,7 +77,7 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="attributes" value={JSON.stringify(attributes)} />
 
-            <ZoruCard className="card-gradient card-gradient-purple">
+            <Card className="card-gradient card-gradient-purple">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Custom User Attributes</ZoruCardTitle>
                     <ZoruCardDescription>Define custom data fields to store information about your contacts.</ZoruCardDescription>
@@ -86,26 +86,26 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
                     <div className="space-y-3">
                         {attributes.map((attr, index) => (
                             <div key={attr.id} className="flex items-center gap-2">
-                                <ZoruInput
+                                <Input
                                     value={attr.name}
                                     onChange={(e) => handleAttributeChange(index, e.target.value)}
                                     placeholder="e.g., membership_level, last_purchase_date"
                                 />
-                                <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveAttribute(index)}>
+                                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveAttribute(index)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ))}
                     </div>
-                    <ZoruButton type="button" variant="outline" onClick={handleAddAttribute}>
+                    <Button type="button" variant="outline" onClick={handleAddAttribute}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add Attribute
-                    </ZoruButton>
+                    </Button>
                 </ZoruCardContent>
                 <ZoruCardFooter>
                     <SaveAttributesButton />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

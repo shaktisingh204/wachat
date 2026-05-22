@@ -27,7 +27,7 @@ export function TriggerMetaFlowEditor({ node, onUpdate }: EditorProps) {
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <ZoruLabel>Meta Flow to Trigger</ZoruLabel>
+                <Label>Meta Flow to Trigger</Label>
                 <SmartCombobox
                     value={node.data.metaFlowId || ''}
                     onSelect={(val: string) => onUpdate({ metaFlowId: val })}
@@ -36,9 +36,9 @@ export function TriggerMetaFlowEditor({ node, onUpdate }: EditorProps) {
                     searchPlaceholder="Search meta flows..."
                 />
             </div>
-            <div className="space-y-2"><ZoruLabel>Header</ZoruLabel><ZoruInput value={node.data.header || ''} onChange={e => onUpdate({ header: e.target.value })} /></div>
-            <div className="space-y-2"><ZoruLabel>Body</ZoruLabel><ZoruTextarea value={node.data.body || ''} onChange={e => onUpdate({ body: e.target.value })} /></div>
-            <div className="space-y-2"><ZoruLabel>Footer</ZoruLabel><ZoruInput value={node.data.footer || ''} onChange={e => onUpdate({ footer: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Header</Label><Input value={node.data.header || ''} onChange={e => onUpdate({ header: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Body</Label><Textarea value={node.data.body || ''} onChange={e => onUpdate({ body: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Footer</Label><Input value={node.data.footer || ''} onChange={e => onUpdate({ footer: e.target.value })} /></div>
         </div>
     );
 }

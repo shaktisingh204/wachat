@@ -230,7 +230,7 @@ export default function ModulesPage(): React.JSX.Element {
         placeholder: 'Search modules…',
       }}
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -238,7 +238,7 @@ export default function ModulesPage(): React.JSX.Element {
         >
           <Plus className="h-4 w-4" />
           Add Module
-        </ZoruButton>
+        </Button>
       }
       filters={
         <div className="flex flex-wrap items-center gap-2">
@@ -260,7 +260,7 @@ export default function ModulesPage(): React.JSX.Element {
             ))}
           </div>
           {(search !== '' || statusFilter !== 'all') ? (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => {
@@ -269,7 +269,7 @@ export default function ModulesPage(): React.JSX.Element {
               }}
             >
               <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
           ) : null}
         </div>
       }
@@ -278,26 +278,26 @@ export default function ModulesPage(): React.JSX.Element {
           <div className="flex items-center justify-between gap-3">
             <span className="text-[13px] text-zoru-ink">{selected.size} selected</span>
             <div className="flex gap-2">
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 size="sm"
                 onClick={() => setBulkAction('enable')}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" /> Enable
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setBulkAction('disable')}
               >
                 <XCircle className="h-3.5 w-3.5" /> Disable
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null
@@ -305,30 +305,30 @@ export default function ModulesPage(): React.JSX.Element {
     >
       {/* KPI strip */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <ZoruStatCard
+        <StatCard
           label="Total modules"
           value={rows.length}
           icon={<Layers className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Enabled"
           value={totalEnabled}
           icon={<CheckCircle2 className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Disabled"
           value={totalDisabled}
           icon={<XCircle className="h-4 w-4" />}
         />
       </div>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="hover:bg-transparent">
                 <ZoruTableHead className="w-8">
-                  <ZoruCheckbox
+                  <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={toggleAll}
                     aria-label="Select all"
@@ -368,7 +368,7 @@ export default function ModulesPage(): React.JSX.Element {
                 visible.map((row) => (
                   <ZoruTableRow key={row._id}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={selected.has(row._id)}
                         onCheckedChange={() => toggleOne(row._id)}
                         aria-label={`Select ${row.display_name ?? row.module_name}`}
@@ -404,20 +404,20 @@ export default function ModulesPage(): React.JSX.Element {
                               <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                                 Active
                               </div>
-                              <ZoruBadge variant={row.is_active ? 'success' : 'ghost'}>
+                              <Badge variant={row.is_active ? 'success' : 'ghost'}>
                                 {row.is_active ? 'Yes' : 'No'}
-                              </ZoruBadge>
+                              </Badge>
                             </div>
                             <div>
                               <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
                                 In Menu
                               </div>
-                              <ZoruBadge variant={row.in_menu ? 'success' : 'ghost'}>
+                              <Badge variant={row.in_menu ? 'success' : 'ghost'}>
                                 {row.in_menu ? 'Yes' : 'No'}
-                              </ZoruBadge>
+                              </Badge>
                             </div>
                           </div>
-                          <ZoruButton
+                          <Button
                             size="sm"
                             className="w-full"
                             onClick={() => {
@@ -426,17 +426,17 @@ export default function ModulesPage(): React.JSX.Element {
                             }}
                           >
                             <Pencil className="h-3.5 w-3.5" /> Edit module
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </RowDrawer>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant="ghost">
+                      <Badge variant="ghost">
                         <code>{row.module_name}</code>
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruSwitch
+                      <Switch
                         checked={!!row.is_active}
                         disabled={isBusy}
                         onCheckedChange={() => flip(row._id, 'active')}
@@ -444,7 +444,7 @@ export default function ModulesPage(): React.JSX.Element {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruSwitch
+                      <Switch
                         checked={!!row.in_menu}
                         disabled={isBusy}
                         onCheckedChange={() => flip(row._id, 'menu')}
@@ -453,7 +453,7 @@ export default function ModulesPage(): React.JSX.Element {
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
@@ -463,27 +463,27 @@ export default function ModulesPage(): React.JSX.Element {
                           aria-label="Edit"
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
                           <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Add / Edit dialog */}
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
             <ZoruDialogTitle>
@@ -499,10 +499,10 @@ export default function ModulesPage(): React.JSX.Element {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <ZoruLabel htmlFor="display_name">
+              <Label htmlFor="display_name">
                 Display name <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="display_name"
                 name="display_name"
                 required
@@ -510,8 +510,8 @@ export default function ModulesPage(): React.JSX.Element {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="module_name">Slug</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="module_name">Slug</Label>
+              <Input
                 id="module_name"
                 name="module_name"
                 defaultValue={editing?.module_name || ''}
@@ -519,13 +519,13 @@ export default function ModulesPage(): React.JSX.Element {
               />
             </div>
             <div>
-              <ZoruLabel>Icon</ZoruLabel>
+              <Label>Icon</Label>
               <input type="hidden" name="icon" value={icon} />
               <ZoruIconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
-              <ZoruLabel htmlFor="description">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="description">Description</Label>
+              <Textarea
                 id="description"
                 name="description"
                 rows={2}
@@ -534,9 +534,9 @@ export default function ModulesPage(): React.JSX.Element {
             </div>
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
-                <ZoruLabel htmlFor="is_active_toggle" className="text-[13px] text-zoru-ink">
+                <Label htmlFor="is_active_toggle" className="text-[13px] text-zoru-ink">
                   Active
-                </ZoruLabel>
+                </Label>
                 <ActiveToggle
                   name="is_active"
                   id="is_active_toggle"
@@ -544,9 +544,9 @@ export default function ModulesPage(): React.JSX.Element {
                 />
               </div>
               <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
-                <ZoruLabel htmlFor="in_menu_toggle" className="text-[13px] text-zoru-ink">
+                <Label htmlFor="in_menu_toggle" className="text-[13px] text-zoru-ink">
                   Show in menu
-                </ZoruLabel>
+                </Label>
                 <ActiveToggle
                   name="in_menu"
                   id="in_menu_toggle"
@@ -556,21 +556,21 @@ export default function ModulesPage(): React.JSX.Element {
             </div>
 
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isSaving}>
+              </Button>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Delete confirm */}
       <ZoruAlertDialog
@@ -636,7 +636,7 @@ function ActiveToggle({
   const [checked, setChecked] = React.useState(defaultChecked);
   return (
     <>
-      <ZoruSwitch id={id} checked={checked} onCheckedChange={setChecked} />
+      <Switch id={id} checked={checked} onCheckedChange={setChecked} />
       <input type="hidden" name={name} value={checked ? 'true' : ''} />
     </>
   );

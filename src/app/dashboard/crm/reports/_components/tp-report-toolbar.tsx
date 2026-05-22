@@ -100,11 +100,11 @@ export function TpReportToolbar({
         </label>
       ) : null}
 
-      <ZoruButton type="submit" size="sm">Apply</ZoruButton>
-      <ZoruButton type="button" size="sm" variant="outline" onClick={onRefresh}>
+      <Button type="submit" size="sm">Apply</Button>
+      <Button type="button" size="sm" variant="outline" onClick={onRefresh}>
         <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
         Refresh
-      </ZoruButton>
+      </Button>
       {exportProps ? <ReportExportButton {...exportProps} /> : null}
     </form>
   );

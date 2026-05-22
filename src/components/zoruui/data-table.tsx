@@ -101,7 +101,7 @@ export function DataTable<TData, TValue>({
     <div className={cn("flex flex-col gap-3", className)}>
       <div className="flex flex-wrap items-center gap-2">
         {filterColumnApi && (
-          <ZoruInput
+          <Input
             placeholder={filterPlaceholder}
             value={(filterColumnApi.getFilterValue() as string) ?? ""}
             onChange={(e) => filterColumnApi.setFilterValue(e.target.value)}
@@ -111,11 +111,11 @@ export function DataTable<TData, TValue>({
         <div className="ml-auto flex items-center gap-2">
           {toolbar}
           {showColumnMenu && (
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   <Settings2 /> Columns
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end" className="w-48">
                 <ZoruDropdownMenuLabel>Toggle columns</ZoruDropdownMenuLabel>
@@ -134,13 +134,13 @@ export function DataTable<TData, TValue>({
                     </ZoruDropdownMenuCheckboxItem>
                   ))}
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           )}
         </div>
       </div>
 
       <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <ZoruTableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -208,7 +208,7 @@ export function DataTable<TData, TValue>({
               </ZoruTableRow>
             )}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
       </div>
 
       <div className="flex items-center justify-between gap-3 px-1">
@@ -221,7 +221,7 @@ export function DataTable<TData, TValue>({
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {Math.max(table.getPageCount(), 1)}
           </p>
-          <ZoruButton
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Previous"
@@ -229,8 +229,8 @@ export function DataTable<TData, TValue>({
             disabled={!table.getCanPreviousPage()}
           >
             <ChevronLeft />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="icon-sm"
             aria-label="Next"
@@ -238,7 +238,7 @@ export function DataTable<TData, TValue>({
             disabled={!table.getCanNextPage()}
           >
             <ChevronRight />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     </div>

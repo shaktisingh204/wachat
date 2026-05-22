@@ -25,7 +25,7 @@ import { ArrowLeft,
  * <KpiForm /> — create + edit form for KPIs.
  *
  * Binds to the `saveKpi` server action via `useActionState`. Frequency
- * and status are controlled `<ZoruSelect>`s mirrored into hidden inputs
+ * and status are controlled `<Select>`s mirrored into hidden inputs
  * so the server action reads them as plain FormData fields.
  */
 
@@ -48,14 +48,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create KPI'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -93,7 +93,7 @@ export function KpiForm({ initialData }: KpiFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="kpiId" value={initialData!._id} />
@@ -101,8 +101,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -113,8 +113,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
 
                 {/* Row 2: Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={3}
@@ -126,8 +126,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
                 {/* Row 3: Owner + Department */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="owner">Owner</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="owner">Owner</Label>
+                        <Input
                             id="owner"
                             name="owner"
                             placeholder="Owner id or name"
@@ -135,8 +135,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="department">Department</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="department">Department</Label>
+                        <Input
                             id="department"
                             name="department"
                             placeholder="Department"
@@ -148,8 +148,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
                 {/* Row 4: Target + Unit + Frequency */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="target">Target</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="target">Target</Label>
+                        <Input
                             id="target"
                             name="target"
                             placeholder="e.g. 100, 95%"
@@ -157,8 +157,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="unit">Unit</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="unit">Unit</Label>
+                        <Input
                             id="unit"
                             name="unit"
                             placeholder="%, $, count, …"
@@ -166,7 +166,7 @@ export function KpiForm({ initialData }: KpiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Frequency</ZoruLabel>
+                        <Label>Frequency</Label>
                         <EnumFormField
                             name="frequency"
                             enumName="kpiFrequency"
@@ -181,8 +181,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
                 {/* Row 5: Weight + Category + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="weight">Weight %</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="weight">Weight %</Label>
+                        <Input
                             id="weight"
                             name="weight"
                             type="number"
@@ -198,8 +198,8 @@ export function KpiForm({ initialData }: KpiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category">Category</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="category">Category</Label>
+                        <Input
                             id="category"
                             name="category"
                             placeholder="e.g. Revenue, Quality"
@@ -207,7 +207,7 @@ export function KpiForm({ initialData }: KpiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status"
                             enumName="kpiFormStatus"
@@ -221,15 +221,15 @@ export function KpiForm({ initialData }: KpiFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to KPIs
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

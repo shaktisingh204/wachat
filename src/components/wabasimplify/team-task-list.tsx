@@ -67,10 +67,10 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
     }
 
     return (
-        <ZoruCard className="h-full border-none shadow-none">
+        <Card className="h-full border-none shadow-none">
             <ZoruCardContent className="p-0">
                 <div className="border rounded-md">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow>
                                 <ZoruTableHead className="w-40">Status</ZoruTableHead>
@@ -90,7 +90,7 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                     return (
                                         <ZoruTableRow key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
                                             <ZoruTableCell>
-                                                <ZoruSelect value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
+                                                <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
                                                     <ZoruSelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
                                                         task.status === 'Completed' && 'border-green-500 text-green-600',
@@ -103,7 +103,7 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                                         <ZoruSelectItem value="In Progress">In Progress</ZoruSelectItem>
                                                         <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
                                                     </ZoruSelectContent>
-                                                </ZoruSelect>
+                                                </Select>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 <p className={cn("font-medium", task.status === 'Completed' && 'line-through text-muted-foreground')}>
@@ -114,10 +114,10 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                             <ZoruTableCell>
                                                 {task.assignedTo ? (
                                                     <div className="flex items-center gap-2">
-                                                        <ZoruAvatar className="h-6 w-6">
+                                                        <Avatar className="h-6 w-6">
                                                             <ZoruAvatarImage src={task.assigneeAvatar || ''} />
                                                             <ZoruAvatarFallback>{task.assigneeName?.charAt(0) || 'U'}</ZoruAvatarFallback>
-                                                        </ZoruAvatar>
+                                                        </Avatar>
                                                         <span className="text-sm text-muted-foreground">{task.assigneeName || 'Unknown'}</span>
                                                     </div>
                                                 ) : <span className="text-xs text-muted-foreground">Unassigned</span>}
@@ -128,12 +128,12 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                                 </span>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge className={`${color} text-white border-0`}>{label}</ZoruBadge>
+                                                <Badge className={`${color} text-white border-0`}>{label}</Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
+                                                <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
                                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     )
@@ -144,9 +144,9 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -95,7 +95,7 @@ export default function FlagsPage() {
           key: 'resource_type',
           label: 'Module',
           render: (row) => (
-            <ZoruBadge variant="ghost">{String(row.resource_type || '')}</ZoruBadge>
+            <Badge variant="ghost">{String(row.resource_type || '')}</Badge>
           ),
         },
         {

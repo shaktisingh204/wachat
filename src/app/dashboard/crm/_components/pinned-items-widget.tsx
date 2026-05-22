@@ -175,27 +175,27 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
   const totalCount = groups.reduce((acc, g) => acc + g.items.length, 0);
 
   return (
-    <ZoruCard className={className ?? 'p-6'}>
+    <Card className={className ?? 'p-6'}>
       <div className="flex items-center justify-between pb-3">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
             <Pin className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
           </div>
           <h2 className="text-[15px] text-zoru-ink">Pinned items</h2>
-          <ZoruBadge variant="ghost">{totalCount}</ZoruBadge>
+          <Badge variant="ghost">{totalCount}</Badge>
         </div>
         <Link href="/dashboard/crm/pinned">
-          <ZoruButton variant="outline" size="sm">
+          <Button variant="outline" size="sm">
             Manage
-          </ZoruButton>
+          </Button>
         </Link>
       </div>
 
       {loading ? (
         <div className="grid gap-2">
-          <ZoruSkeleton className="h-10 w-full" />
-          <ZoruSkeleton className="h-10 w-full" />
-          <ZoruSkeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
         </div>
       ) : groups.length === 0 ? (
         <div className="rounded-lg border border-dashed border-zoru-line p-8 text-center">
@@ -212,7 +212,7 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
                 <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                   {ENTITY_LABELS[g.entityType] ?? g.entityType}
                 </p>
-                <ZoruBadge variant="ghost">{g.items.length}</ZoruBadge>
+                <Badge variant="ghost">{g.items.length}</Badge>
               </div>
               <ul className="space-y-2">
                 {g.items.map((it) => (
@@ -235,7 +235,7 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
                     >
                       {it.title || `${g.entityType} ${String(it.entityId).slice(-6)}`}
                     </Link>
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -245,7 +245,7 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
                       title="Unpin"
                     >
                       <X className="h-3 w-3" strokeWidth={1.75} />
-                    </ZoruButton>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -253,6 +253,6 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
           ))}
         </div>
       )}
-    </ZoruCard>
+    </Card>
   );
 }

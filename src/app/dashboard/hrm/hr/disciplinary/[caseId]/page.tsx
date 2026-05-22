@@ -113,10 +113,10 @@ export default async function DisciplinaryCaseDetailPage({
             back={{ href: '/dashboard/hrm/hr/disciplinary', label: 'Disciplinary cases' }}
             actions={
                 <>
-                    <ZoruButton variant="outline" disabled>
+                    <Button variant="outline" disabled>
                         <PlusCircle className="h-4 w-4" />
                         Add Hearing
-                    </ZoruButton>
+                    </Button>
                     <HrActionButtons
                             actions={[
                                 {
@@ -173,7 +173,7 @@ export default async function DisciplinaryCaseDetailPage({
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">Case Details</div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -205,9 +205,9 @@ export default async function DisciplinaryCaseDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Severity</div>
                         {severity ? (
-                            <ZoruBadge variant={severityVariant} className="mt-0.5">
+                            <Badge variant={severityVariant} className="mt-0.5">
                                 {severity}
-                            </ZoruBadge>
+                            </Badge>
                         ) : (
                             <div className="text-zoru-ink">—</div>
                         )}
@@ -217,9 +217,9 @@ export default async function DisciplinaryCaseDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Status</div>
                         {status ? (
-                            <ZoruBadge variant={statusVariant} className="mt-0.5">
+                            <Badge variant={statusVariant} className="mt-0.5">
                                 {status.replace('_', ' ')}
-                            </ZoruBadge>
+                            </Badge>
                         ) : (
                             <div className="text-zoru-ink">—</div>
                         )}
@@ -259,10 +259,10 @@ export default async function DisciplinaryCaseDetailPage({
                         </div>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Hearings timeline */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-[15px] font-medium text-zoru-ink">Hearings</h2>
                     <span className="text-[12px] text-zoru-ink-muted">
@@ -291,7 +291,7 @@ export default async function DisciplinaryCaseDetailPage({
                                 </div>
                                 {h.outcome ? (
                                     <div className="mt-1.5">
-                                        <ZoruBadge variant="ghost">{String(h.outcome)}</ZoruBadge>
+                                        <Badge variant="ghost">{String(h.outcome)}</Badge>
                                     </div>
                                 ) : null}
                                 {h.notes ? (
@@ -308,10 +308,10 @@ export default async function DisciplinaryCaseDetailPage({
                         ))}
                     </ol>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Evidence */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-[15px] font-medium text-zoru-ink">Evidence</h2>
                     <span className="text-[12px] text-zoru-ink-muted">
@@ -342,12 +342,12 @@ export default async function DisciplinaryCaseDetailPage({
                                     {label}
                                 </a>
                             ) : (
-                                <ZoruBadge key={i} variant="ghost">{label}</ZoruBadge>
+                                <Badge key={i} variant="ghost">{label}</Badge>
                             );
                         })}
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

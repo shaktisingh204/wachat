@@ -31,12 +31,12 @@ export function SabsmsColumnPicker({
   onChange,
 }: SabsmsColumnPickerProps) {
   return (
-    <ZoruDropdownMenu>
+    <DropdownMenu>
       <ZoruDropdownMenuTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <Columns className="mr-1.5 h-3.5 w-3.5" />
           Columns
-        </ZoruButton>
+        </Button>
       </ZoruDropdownMenuTrigger>
       <ZoruDropdownMenuContent align="end" className="w-56">
         <ZoruDropdownMenuLabel>Visible columns</ZoruDropdownMenuLabel>
@@ -62,6 +62,6 @@ export function SabsmsColumnPicker({
           );
         })}
       </ZoruDropdownMenuContent>
-    </ZoruDropdownMenu>
+    </DropdownMenu>
   );
 }

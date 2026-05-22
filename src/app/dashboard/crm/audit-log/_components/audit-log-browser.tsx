@@ -376,12 +376,12 @@ export function AuditLogBrowser({
         subtitle="Immutable record of every create, update, delete and status change across the CRM. Sorted newest first."
         primaryAction={
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruButton variant="ghost" onClick={exportJson}>
+            <Button variant="ghost" onClick={exportJson}>
               <FileJson className="h-4 w-4" /> Export JSON
-            </ZoruButton>
-            <ZoruButton variant="ghost" onClick={() => void exportCsv()} disabled={isExporting}>
+            </Button>
+            <Button variant="ghost" onClick={() => void exportCsv()} disabled={isExporting}>
               <FileText className="h-4 w-4" /> {isExporting ? 'Exporting…' : 'Export CSV'}
-            </ZoruButton>
+            </Button>
           </div>
         }
         search={{
@@ -417,9 +417,9 @@ export function AuditLogBrowser({
                   : 'No mutations have been recorded yet. Audit rows are written on every create/update/delete.'}
               </p>
               {hasActiveFilters ? (
-                <ZoruButton variant="outline" onClick={clearFilters}>
+                <Button variant="outline" onClick={clearFilters}>
                   Clear filters
-                </ZoruButton>
+                </Button>
               ) : null}
             </div>
           ) : null
@@ -427,9 +427,9 @@ export function AuditLogBrowser({
       >
         <div className="flex flex-col gap-4">
           <KpiStrip kpis={kpis} />
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             <div className="overflow-x-auto">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="text-zoru-ink-muted">When</ZoruTableHead>
@@ -461,7 +461,7 @@ export function AuditLogBrowser({
                           <StatusPill label={String(row.action || '—')} tone={tone} />
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <ZoruBadge variant="secondary">{row.entityKind || '—'}</ZoruBadge>
+                          <Badge variant="secondary">{row.entityKind || '—'}</Badge>
                         </ZoruTableCell>
                         <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                           {href ? (
@@ -477,14 +477,14 @@ export function AuditLogBrowser({
                         </ZoruTableCell>
                         <ZoruTableCell>
                           {row.diff ? (
-                            <ZoruButton
+                            <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => setDrawerRow(row)}
                             >
                               <Eye className="h-3.5 w-3.5" />
                               View
-                            </ZoruButton>
+                            </Button>
                           ) : (
                             <span className="text-[12px] text-zoru-ink-muted">—</span>
                           )}
@@ -496,9 +496,9 @@ export function AuditLogBrowser({
                     );
                   })}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
 
           {/* Pagination bar */}
           {totalPages > 1 && (
@@ -507,14 +507,14 @@ export function AuditLogBrowser({
                 Page {initialPage} of {totalPages} &middot; {total.toLocaleString()} events
               </span>
               <div className="flex items-center gap-1">
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={initialPage <= 1}
                   onClick={() => goToPage(initialPage - 1)}
                 >
                   Prev
-                </ZoruButton>
+                </Button>
                 {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
                   // Show pages around current page.
                   const half = 3;
@@ -525,30 +525,30 @@ export function AuditLogBrowser({
                 })
                   .filter((p) => p >= 1 && p <= totalPages)
                   .map((p) => (
-                    <ZoruButton
+                    <Button
                       key={p}
                       size="sm"
                       variant={p === initialPage ? 'default' : 'outline'}
                       onClick={() => goToPage(p)}
                     >
                       {p}
-                    </ZoruButton>
+                    </Button>
                   ))}
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="outline"
                   disabled={initialPage >= totalPages}
                   onClick={() => goToPage(initialPage + 1)}
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           )}
         </div>
       </EntityListShell>
 
-      <ZoruSheet open={!!drawerRow} onOpenChange={(o) => !o && setDrawerRow(null)}>
+      <Sheet open={!!drawerRow} onOpenChange={(o) => !o && setDrawerRow(null)}>
         <ZoruSheetContent className="w-full max-w-2xl overflow-y-auto">
           <ZoruSheetHeader>
             <ZoruSheetTitle>Audit diff</ZoruSheetTitle>
@@ -563,7 +563,7 @@ export function AuditLogBrowser({
           </ZoruSheetHeader>
           {drawerRow?.diff ? <DiffView diff={drawerRow.diff} /> : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
     </>
   );
 }
@@ -575,10 +575,10 @@ function KpiStrip({
 }): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-      <ZoruStatCard label="Events today" value={kpis.today.toLocaleString()} />
-      <ZoruStatCard label="Events this week" value={kpis.week.toLocaleString()} />
-      <ZoruStatCard label="Unique actors today" value={kpis.topActor} />
-      <ZoruStatCard label="Error / denied events" value={kpis.topEntity} />
+      <StatCard label="Events today" value={kpis.today.toLocaleString()} />
+      <StatCard label="Events this week" value={kpis.week.toLocaleString()} />
+      <StatCard label="Unique actors today" value={kpis.topActor} />
+      <StatCard label="Error / denied events" value={kpis.topEntity} />
     </div>
   );
 }
@@ -615,7 +615,7 @@ function AuditFilters({
   return (
     <div className="flex flex-wrap items-end gap-2">
       <div className="min-w-[220px]">
-        <ZoruLabel className="text-[11px]">Actor</ZoruLabel>
+        <Label className="text-[11px]">Actor</Label>
         <EntityFormField
           entity="employee"
           name="actorId"
@@ -625,8 +625,8 @@ function AuditFilters({
         />
       </div>
       <div className="w-44">
-        <ZoruLabel className="text-[11px]">Entity kind</ZoruLabel>
-        <ZoruSelect value={entityKindFilter} onValueChange={onEntityKindChange}>
+        <Label className="text-[11px]">Entity kind</Label>
+        <Select value={entityKindFilter} onValueChange={onEntityKindChange}>
           <ZoruSelectTrigger>
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -638,11 +638,11 @@ function AuditFilters({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
       <div className="w-40">
-        <ZoruLabel className="text-[11px]">Action</ZoruLabel>
-        <ZoruSelect value={actionFilter} onValueChange={onActionChange}>
+        <Label className="text-[11px]">Action</Label>
+        <Select value={actionFilter} onValueChange={onActionChange}>
           <ZoruSelectTrigger>
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -654,13 +654,13 @@ function AuditFilters({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
       <div className="w-36">
-        <ZoruLabel className="text-[11px]" htmlFor="date-from">
+        <Label className="text-[11px]" htmlFor="date-from">
           From
-        </ZoruLabel>
-        <ZoruInput
+        </Label>
+        <Input
           id="date-from"
           type="date"
           value={dateFrom}
@@ -668,23 +668,23 @@ function AuditFilters({
         />
       </div>
       <div className="w-36">
-        <ZoruLabel className="text-[11px]" htmlFor="date-to">
+        <Label className="text-[11px]" htmlFor="date-to">
           To
-        </ZoruLabel>
-        <ZoruInput
+        </Label>
+        <Input
           id="date-to"
           type="date"
           value={dateTo}
           onChange={(e) => onDateToChange(e.target.value)}
         />
       </div>
-      <ZoruButton size="sm" onClick={onApply} className="mb-1">
+      <Button size="sm" onClick={onApply} className="mb-1">
         Apply
-      </ZoruButton>
+      </Button>
       {hasActiveFilters ? (
-        <ZoruButton variant="ghost" size="sm" onClick={onClear} className="mb-1">
+        <Button variant="ghost" size="sm" onClick={onClear} className="mb-1">
           <X className="h-3.5 w-3.5" /> Clear
-        </ZoruButton>
+        </Button>
       ) : null}
     </div>
   );

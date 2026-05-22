@@ -76,16 +76,16 @@ function SectionHeader({ title, description }: { title: string; description: str
 function PageSkeleton() {
     return (
         <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
-            <ZoruSkeleton className="h-3 w-56" />
+            <Skeleton className="h-3 w-56" />
             <div className="mt-5 flex flex-col gap-2">
-                <ZoruSkeleton className="h-3 w-24" />
-                <ZoruSkeleton className="h-7 w-72" />
-                <ZoruSkeleton className="h-3 w-96" />
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-7 w-72" />
+                <Skeleton className="h-3 w-96" />
             </div>
             <div className="mt-6 grid gap-4">
-                <ZoruSkeleton className="h-60 w-full" />
-                <ZoruSkeleton className="h-60 w-full" />
-                <ZoruSkeleton className="h-60 w-full" />
+                <Skeleton className="h-60 w-full" />
+                <Skeleton className="h-60 w-full" />
+                <Skeleton className="h-60 w-full" />
             </div>
         </div>
     );
@@ -138,11 +138,11 @@ export default function SabflowSettingsPage() {
     if (loadError) {
         return (
             <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle />
                     <ZoruAlertTitle>Could not load SabFlow settings</ZoruAlertTitle>
                     <ZoruAlertDescription>{loadError}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -151,7 +151,7 @@ export default function SabflowSettingsPage() {
 
     return (
         <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -165,9 +165,9 @@ export default function SabflowSettingsPage() {
                         <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader className="mt-5" bordered={false}>
+            <PageHeader className="mt-5" bordered={false}>
                 <ZoruPageHeading>
                     {activeProject?.name ? (
                         <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
@@ -181,12 +181,12 @@ export default function SabflowSettingsPage() {
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <div className="flex items-center gap-2">
-                    <ZoruBadge variant="outline" className="gap-1.5">
+                    <Badge variant="outline" className="gap-1.5">
                         <span className="text-zoru-ink-subtle">Last saved:</span>
                         <span className="text-zoru-ink">{formatTimestamp(settings.updatedAt)}</span>
-                    </ZoruBadge>
+                    </Badge>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <div className="mt-6 flex flex-col gap-5">
                 <DefaultsSection
@@ -198,7 +198,7 @@ export default function SabflowSettingsPage() {
                     saving={savingSection === 'defaults'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <RetentionSection
                     value={settings.retention}
@@ -209,7 +209,7 @@ export default function SabflowSettingsPage() {
                     saving={savingSection === 'retention'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <RunLimitsSection
                     value={settings.runLimits}
@@ -220,7 +220,7 @@ export default function SabflowSettingsPage() {
                     saving={savingSection === 'runLimits'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <WebhooksSection
                     value={settings.webhooks}
@@ -231,7 +231,7 @@ export default function SabflowSettingsPage() {
                     saving={savingSection === 'webhooks'}
                 />
 
-                <ZoruSeparator />
+                <Separator />
 
                 <VariablesSection
                     value={settings.variables}
@@ -270,20 +270,20 @@ function DefaultsSection({
     saving: boolean;
 }) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Defaults"
                     description="Default workspace and execution timeout for new flow runs."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="df-workspace">Default workspace</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="df-workspace">Default workspace</Label>
+                    <Input
                         id="df-workspace"
                         placeholder="e.g. Production"
                         value={value.defaultWorkspace}
@@ -291,8 +291,8 @@ function DefaultsSection({
                     />
                 </div>
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="df-timeout">Execution timeout (seconds)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="df-timeout">Execution timeout (seconds)</Label>
+                    <Input
                         id="df-timeout"
                         type="number"
                         min={1}
@@ -306,7 +306,7 @@ function DefaultsSection({
                     />
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -322,20 +322,20 @@ function RetentionSection({
     saving: boolean;
 }) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Retention"
                     description="How long flow run history is kept before it is purged."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="rt-keep">Keep run history (days)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="rt-keep">Keep run history (days)</Label>
+                    <Input
                         id="rt-keep"
                         type="number"
                         min={1}
@@ -353,14 +353,14 @@ function RetentionSection({
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
                     <div>
-                        <ZoruLabel htmlFor="rt-purge" className="text-[13px]">
+                        <Label htmlFor="rt-purge" className="text-[13px]">
                             Purge failed runs
-                        </ZoruLabel>
+                        </Label>
                         <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
                             Remove failed runs from history immediately.
                         </p>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         id="rt-purge"
                         checked={value.purgeFailedRuns}
                         onCheckedChange={(checked) =>
@@ -369,7 +369,7 @@ function RetentionSection({
                     />
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -385,20 +385,20 @@ function RunLimitsSection({
     saving: boolean;
 }) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Run limits"
                     description="Guardrails for concurrent runs and per-run step count."
                 />
-                <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="rl-concurrent">Max concurrent runs</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="rl-concurrent">Max concurrent runs</Label>
+                    <Input
                         id="rl-concurrent"
                         type="number"
                         min={1}
@@ -415,8 +415,8 @@ function RunLimitsSection({
                     />
                 </div>
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="rl-steps">Max steps per run</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="rl-steps">Max steps per run</Label>
+                    <Input
                         id="rl-steps"
                         type="number"
                         min={1}
@@ -430,7 +430,7 @@ function RunLimitsSection({
                     />
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -454,25 +454,25 @@ function WebhooksSection({
     }
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Webhooks"
                     description="Notify your endpoint when flow runs complete or fail."
                 />
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={sendTest}>
+                    <Button variant="outline" size="sm" onClick={sendTest}>
                         <Send /> Send test
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                    </Button>
+                    <Button size="sm" onClick={onSave} disabled={saving}>
                         <Save /> {saving ? 'Saving…' : 'Save'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
                 <div className="grid gap-1.5 sm:col-span-2">
-                    <ZoruLabel htmlFor="wh-url">Webhook URL</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-url">Webhook URL</Label>
+                    <Input
                         id="wh-url"
                         type="url"
                         placeholder="https://example.com/webhooks/sabflow"
@@ -481,8 +481,8 @@ function WebhooksSection({
                     />
                 </div>
                 <div className="grid gap-1.5">
-                    <ZoruLabel htmlFor="wh-retry">Retry attempts</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-retry">Retry attempts</Label>
+                    <Input
                         id="wh-retry"
                         type="number"
                         min={0}
@@ -497,8 +497,8 @@ function WebhooksSection({
                     />
                 </div>
                 <div className="grid gap-1.5 sm:col-span-3">
-                    <ZoruLabel htmlFor="wh-secret">Signing secret</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="wh-secret">Signing secret</Label>
+                    <Input
                         id="wh-secret"
                         type="password"
                         placeholder="••••••••"
@@ -507,7 +507,7 @@ function WebhooksSection({
                     />
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -536,19 +536,19 @@ function VariablesSection({
     }
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
                 <SectionHeader
                     title="Variables"
                     description="Global key→value pairs available in every flow run."
                 />
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" size="sm" onClick={addRow}>
+                    <Button variant="outline" size="sm" onClick={addRow}>
                         <Plus /> Add variable
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={onSave} disabled={saving}>
+                    </Button>
+                    <Button size="sm" onClick={onSave} disabled={saving}>
                         <Save /> {saving ? 'Saving…' : 'Save'}
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
             <div className="mt-5 flex flex-col gap-2">
@@ -563,13 +563,13 @@ function VariablesSection({
                             className="grid gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
                         >
                             <div className="grid gap-1.5">
-                                <ZoruLabel
+                                <Label
                                     htmlFor={`var-key-${idx}`}
                                     className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle"
                                 >
                                     Key
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id={`var-key-${idx}`}
                                     placeholder="API_BASE_URL"
                                     value={row.key}
@@ -577,31 +577,31 @@ function VariablesSection({
                                 />
                             </div>
                             <div className="grid gap-1.5">
-                                <ZoruLabel
+                                <Label
                                     htmlFor={`var-val-${idx}`}
                                     className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle"
                                 >
                                     Value
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id={`var-val-${idx}`}
                                     placeholder="https://api.example.com"
                                     value={row.value}
                                     onChange={(e) => updateRow(idx, { value: e.target.value })}
                                 />
                             </div>
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="icon-sm"
                                 onClick={() => removeRow(idx)}
                                 aria-label="Remove variable"
                             >
                                 <Trash2 />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ))
                 )}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }

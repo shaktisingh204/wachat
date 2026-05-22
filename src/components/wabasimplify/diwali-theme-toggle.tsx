@@ -37,20 +37,20 @@ export function DiwaliThemeToggle() {
     };
     
     if(isLoading) {
-        return <ZoruSkeleton className="h-10 w-full" />
+        return <Skeleton className="h-10 w-full" />
     }
 
     return (
         <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
             <div className="space-y-0.5">
-                <ZoruLabel htmlFor="diwali-switch" className="text-base font-semibold">Diwali Theme</ZoruLabel>
+                <Label htmlFor="diwali-switch" className="text-base font-semibold">Diwali Theme</Label>
                 <p className="text-sm text-muted-foreground">
                     Globally enable or disable the festive Diwali theme for all users.
                 </p>
             </div>
             <div className="flex items-center gap-2">
                  {(isLoading || isUpdating) && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
-                <ZoruSwitch
+                <Switch
                     id="diwali-switch"
                     checked={isEnabled}
                     onCheckedChange={onCheckedChange}

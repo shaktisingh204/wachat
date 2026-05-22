@@ -57,7 +57,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
     };
 
     return (
-        <ZoruCard
+        <Card
             className={cn(
                 "group relative flex flex-col transition-all duration-300",
                 "border-border/50 bg-background/50 backdrop-blur-sm",
@@ -85,12 +85,12 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                 </div>
 
                 <div className="flex items-center gap-1 -mr-2">
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                         <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full">
                                 <MoreVertical className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
-                            </ZoruButton>
+                            </Button>
                         </ZoruDropdownMenuTrigger>
                         <ZoruDropdownMenuContent align="end">
                             <ZoruDropdownMenuItem
@@ -109,7 +109,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete Project
                             </ZoruDropdownMenuItem>
                         </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                 </div>
             </ZoruCardHeader>
 
@@ -145,9 +145,9 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                     <div className="flex flex-wrap gap-2 min-h-[1.5rem]">
                         {project.competitors && project.competitors.length > 0 ? (
                             project.competitors.slice(0, 3).map((comp: string) => (
-                                <ZoruBadge key={comp} variant="outline" className="text-[10px] font-normal px-1.5 h-5 bg-background/50">
+                                <Badge key={comp} variant="outline" className="text-[10px] font-normal px-1.5 h-5 bg-background/50">
                                     {comp}
-                                </ZoruBadge>
+                                </Badge>
                             ))
                         ) : (
                             <span className="text-xs text-muted-foreground italic">None added</span>
@@ -157,15 +157,15 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
 
                 <div className="pt-2">
                     <Link href={`/dashboard/seo/${project._id}`} className="block">
-                        <ZoruButton
+                        <Button
                             className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md shadow-orange-500/10 border-0"
                             size="sm"
                         >
                             View Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                     </Link>
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 });

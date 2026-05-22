@@ -417,14 +417,14 @@ export default function CreateAdPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Create" parent={{ label: 'Campaigns', href: '/dashboard/ad-manager/campaigns' }} />
-                <ZoruAlert variant="destructive" className="max-w-md">
+                <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account before creating a campaign.</ZoruAlertDescription>
-                </ZoruAlert>
-                <ZoruButton asChild>
+                </Alert>
+                <Button asChild>
                     <Link href="/dashboard/ad-manager/ad-accounts">Go to Ad accounts</Link>
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -441,11 +441,11 @@ export default function CreateAdPage() {
                 {/* Form card — always full width except at 2xl+ where preview joins in */}
                 <div className="flex flex-col min-w-0 flex-1 border rounded-xl bg-background overflow-hidden">
                     <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3">
-                        <ZoruButton variant="ghost" size="icon-sm" asChild>
+                        <Button variant="ghost" size="icon-sm" asChild>
                             <Link href="/dashboard/ad-manager/campaigns">
                                 <ArrowLeft className="h-4 w-4" />
                             </Link>
-                        </ZoruButton>
+                        </Button>
                         <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium truncate">Create new campaign</div>
                             <div className="text-xs text-muted-foreground truncate">
@@ -458,7 +458,7 @@ export default function CreateAdPage() {
                     <div className="flex-1 overflow-visible">
                         <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
                             {issues.length > 0 && (
-                                <ZoruAlert variant="destructive">
+                                <Alert variant="destructive">
                                     <AlertCircle className="h-4 w-4" />
                                     <ZoruAlertTitle>{issues.length} issue{issues.length > 1 ? 's' : ''} to fix</ZoruAlertTitle>
                                     <ZoruAlertDescription>
@@ -468,7 +468,7 @@ export default function CreateAdPage() {
                                             ))}
                                         </ul>
                                     </ZoruAlertDescription>
-                                </ZoruAlert>
+                                </Alert>
                             )}
 
                             {step === 1 && <Step1Campaign state={state} setField={setField} issues={stepIssues} />}
@@ -500,20 +500,20 @@ export default function CreateAdPage() {
                     </div>
 
                     <div className="border-t px-4 py-3 flex flex-wrap items-center justify-between gap-2 bg-background">
-                        <ZoruButton variant="ghost" size="sm" onClick={goPrev} disabled={step === 1}>
+                        <Button variant="ghost" size="sm" onClick={goPrev} disabled={step === 1}>
                             Previous
-                        </ZoruButton>
+                        </Button>
                         <div className="flex items-center gap-2 order-last sm:order-none w-full sm:w-auto justify-center">
                             <span className="text-xs text-muted-foreground">Step {step} of 3</span>
-                            <ZoruSheet>
+                            <Sheet>
                                 <ZoruSheetTrigger asChild>
-                                    <ZoruButton
+                                    <Button
                                         variant="outline"
                                         size="sm"
                                         className="2xl:hidden bg-[#1877F2]/5 border-[#1877F2]/30 text-[#1877F2] hover:bg-[#1877F2]/10"
                                     >
                                         <Eye className="h-4 w-4 mr-1" /> Preview
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruSheetTrigger>
                                 <ZoruSheetContent side="right" className="w-full sm:max-w-[500px] overflow-auto">
                                     <ZoruSheetHeader>
@@ -524,7 +524,7 @@ export default function CreateAdPage() {
                                     <div className="py-4 space-y-4">
                                         <AdPreviewSwitcher state={state} pages={pages} igAccounts={igAccounts} />
                                         {reach && (
-                                            <ZoruCard>
+                                            <Card>
                                                 <ZoruCardContent className="p-4 space-y-2">
                                                     <div className="text-xs text-muted-foreground">Estimated audience</div>
                                                     <div className="text-lg font-semibold tabular-nums">
@@ -537,18 +537,18 @@ export default function CreateAdPage() {
                                                         <span>Specific</span><span>Broad</span>
                                                     </div>
                                                 </ZoruCardContent>
-                                            </ZoruCard>
+                                            </Card>
                                         )}
                                     </div>
                                 </ZoruSheetContent>
-                            </ZoruSheet>
+                            </Sheet>
                         </div>
                         {step < 3 ? (
-                            <ZoruButton size="sm" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={goNext}>
+                            <Button size="sm" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={goNext}>
                                 Next
-                            </ZoruButton>
+                            </Button>
                         ) : (
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                                 onClick={submit}
@@ -556,7 +556,7 @@ export default function CreateAdPage() {
                             >
                                 {submitting && <LoaderCircle className="h-4 w-4 mr-2 animate-spin" />}
                                 <Send className="h-4 w-4 mr-2" /> Publish
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                 </div>
@@ -569,7 +569,7 @@ export default function CreateAdPage() {
                     <div className="flex-1 overflow-auto p-3 space-y-3">
                         <AdPreviewSwitcher state={state} pages={pages} igAccounts={igAccounts} />
                         {reach && (
-                            <ZoruCard>
+                            <Card>
                                 <ZoruCardContent className="p-3 space-y-1.5">
                                     <div className="text-[10px] text-muted-foreground">Estimated audience</div>
                                     <div className="text-base font-semibold tabular-nums">
@@ -582,7 +582,7 @@ export default function CreateAdPage() {
                                         <span>Specific</span><span>Broad</span>
                                     </div>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         )}
                     </div>
                 </aside>
@@ -616,7 +616,7 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                                 s.id > max && 'opacity-50 cursor-not-allowed',
                             )}
                         >
-                            <ZoruBadge
+                            <Badge
                                 variant="secondary"
                                 className={cn(
                                     'h-5 w-5 p-0 rounded-full flex items-center justify-center text-[11px] font-semibold',
@@ -626,11 +626,11 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                                 )}
                             >
                                 {done ? <Check className="h-3 w-3" /> : s.id}
-                            </ZoruBadge>
+                            </Badge>
                             <Icon className="h-4 w-4" />
                             <span className="hidden sm:inline">{s.label}</span>
                         </button>
-                        {i < STEPS.length - 1 && <ZoruSeparator orientation="vertical" className="h-4 w-px" />}
+                        {i < STEPS.length - 1 && <Separator orientation="vertical" className="h-4 w-px" />}
                     </React.Fragment>
                 );
             })}
@@ -724,8 +724,8 @@ function Step1Campaign({
 
             <Section title="Campaign details" icon={Settings2}>
                 <div className="space-y-2">
-                    <ZoruLabel>Campaign name</ZoruLabel>
-                    <ZoruInput
+                    <Label>Campaign name</Label>
+                    <Input
                         value={state.campaignName}
                         onChange={(e) => setField('campaignName', e.target.value)}
                     />
@@ -734,25 +734,25 @@ function Step1Campaign({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <ZoruLabel>Special ad category</ZoruLabel>
-                        <ZoruSelect value={state.specialAdCategory} onValueChange={(v) => setField('specialAdCategory', v)}>
+                        <Label>Special ad category</Label>
+                        <Select value={state.specialAdCategory} onValueChange={(v) => setField('specialAdCategory', v)}>
                             <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 {SPECIAL_AD_CATEGORIES.map((c) => (
                                     <ZoruSelectItem key={c.id} value={c.id}>{c.label}</ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Buying type</ZoruLabel>
-                        <ZoruSelect value={state.buyingType} onValueChange={(v) => setField('buyingType', v as any)}>
+                        <Label>Buying type</Label>
+                        <Select value={state.buyingType} onValueChange={(v) => setField('buyingType', v as any)}>
                             <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="AUCTION">Auction</ZoruSelectItem>
                                 <ZoruSelectItem value="RESERVED">Reach and frequency</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
             </Section>
@@ -765,7 +765,7 @@ function Step1Campaign({
                             Distribute your budget across ad sets for best results.
                         </div>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         checked={state.cbo}
                         onCheckedChange={(v) => setField('cbo', v)}
                         className="data-[state=checked]:bg-[#1877F2]"
@@ -776,8 +776,8 @@ function Step1Campaign({
                     <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Budget type</ZoruLabel>
-                                <ZoruSelect
+                                <Label>Budget type</Label>
+                                <Select
                                     value={state.campaignBudgetType}
                                     onValueChange={(v) => setField('campaignBudgetType', v as any)}
                                 >
@@ -786,11 +786,11 @@ function Step1Campaign({
                                         <ZoruSelectItem value="DAILY">Daily budget</ZoruSelectItem>
                                         <ZoruSelectItem value="LIFETIME">Lifetime budget</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Budget amount</ZoruLabel>
-                                <ZoruInput
+                                <Label>Budget amount</Label>
+                                <Input
                                     type="number"
                                     value={state.campaignBudget}
                                     onChange={(e) => setField('campaignBudget', e.target.value)}
@@ -800,19 +800,19 @@ function Step1Campaign({
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Bid strategy</ZoruLabel>
-                                <ZoruSelect value={state.bidStrategy} onValueChange={(v) => setField('bidStrategy', v)}>
+                                <Label>Bid strategy</Label>
+                                <Select value={state.bidStrategy} onValueChange={(v) => setField('bidStrategy', v)}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {BID_STRATEGIES.map((b) => (
                                             <ZoruSelectItem key={b.id} value={b.id}>{b.label}</ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Account spending limit (optional)</ZoruLabel>
-                                <ZoruInput
+                                <Label>Account spending limit (optional)</Label>
+                                <Input
                                     type="number"
                                     value={state.campaignSpendCap}
                                     onChange={(e) => setField('campaignSpendCap', e.target.value)}
@@ -827,16 +827,16 @@ function Step1Campaign({
             <Section title="Schedule (optional)" icon={Calendar} defaultOpen={false}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <ZoruLabel>Start date</ZoruLabel>
-                        <ZoruInput
+                        <Label>Start date</Label>
+                        <Input
                             type="datetime-local"
                             value={state.campaignStartDate}
                             onChange={(e) => setField('campaignStartDate', e.target.value)}
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>End date</ZoruLabel>
-                        <ZoruInput
+                        <Label>End date</Label>
+                        <Input
                             type="datetime-local"
                             value={state.campaignEndDate}
                             onChange={(e) => setField('campaignEndDate', e.target.value)}
@@ -878,15 +878,15 @@ function Step2AdSet({
     return (
         <>
             <div className="space-y-2">
-                <ZoruLabel>Ad set name</ZoruLabel>
-                <ZoruInput value={state.adSetName} onChange={(e) => setField('adSetName', e.target.value)} />
+                <Label>Ad set name</Label>
+                <Input value={state.adSetName} onChange={(e) => setField('adSetName', e.target.value)} />
                 <FieldError issue={err('adSetName')} />
             </div>
 
             <Section title="Conversion" icon={Target}>
                 <div className="space-y-2">
-                    <ZoruLabel>Conversion location</ZoruLabel>
-                    <ZoruRadioGroup
+                    <Label>Conversion location</Label>
+                    <RadioGroup
                         value={state.conversionLocation}
                         onValueChange={(v) => setField('conversionLocation', v as any)}
                         className="grid grid-cols-2 gap-2"
@@ -910,13 +910,13 @@ function Step2AdSet({
                                 <span className="text-sm">{c.label}</span>
                             </label>
                         ))}
-                    </ZoruRadioGroup>
+                    </RadioGroup>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <ZoruLabel>Performance goal</ZoruLabel>
-                        <ZoruSelect value={state.performanceGoal} onValueChange={(v) => setField('performanceGoal', v)}>
+                        <Label>Performance goal</Label>
+                        <Select value={state.performanceGoal} onValueChange={(v) => setField('performanceGoal', v)}>
                             <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 {[
@@ -927,11 +927,11 @@ function Step2AdSet({
                                     <ZoruSelectItem key={g} value={g}>{g.replace(/_/g, ' ')}</ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Pixel (optional)</ZoruLabel>
-                        <ZoruSelect value={state.pixelId || '__none__'} onValueChange={(v) => setField('pixelId', v === '__none__' ? '' : v)}>
+                        <Label>Pixel (optional)</Label>
+                        <Select value={state.pixelId || '__none__'} onValueChange={(v) => setField('pixelId', v === '__none__' ? '' : v)}>
                             <ZoruSelectTrigger><ZoruSelectValue placeholder="Pick a pixel" /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="__none__">None</ZoruSelectItem>
@@ -939,14 +939,14 @@ function Step2AdSet({
                                     <ZoruSelectItem key={p.id} value={p.id}>{p.name}</ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {state.pixelId && (
                     <div className="space-y-2">
-                        <ZoruLabel>Conversion event</ZoruLabel>
-                        <ZoruSelect value={state.conversionEvent} onValueChange={(v) => setField('conversionEvent', v)}>
+                        <Label>Conversion event</Label>
+                        <Select value={state.conversionEvent} onValueChange={(v) => setField('conversionEvent', v)}>
                             <ZoruSelectTrigger><ZoruSelectValue placeholder="Pick an event" /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 {[
@@ -957,7 +957,7 @@ function Step2AdSet({
                                     <ZoruSelectItem key={e} value={e}>{e.replace(/_/g, ' ')}</ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 )}
             </Section>
@@ -965,8 +965,8 @@ function Step2AdSet({
             <Section title="Budget & schedule" icon={DollarSign}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <ZoruLabel>Budget type</ZoruLabel>
-                        <ZoruSelect
+                        <Label>Budget type</Label>
+                        <Select
                             value={state.adSetBudgetType}
                             onValueChange={(v) => setField('adSetBudgetType', v as any)}
                             disabled={state.cbo}
@@ -976,11 +976,11 @@ function Step2AdSet({
                                 <ZoruSelectItem value="DAILY">Daily budget</ZoruSelectItem>
                                 <ZoruSelectItem value="LIFETIME">Lifetime budget</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Budget</ZoruLabel>
-                        <ZoruInput
+                        <Label>Budget</Label>
+                        <Input
                             type="number"
                             value={state.adSetBudget}
                             onChange={(e) => setField('adSetBudget', e.target.value)}
@@ -989,16 +989,16 @@ function Step2AdSet({
                         <FieldError issue={err('adSetBudget')} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Start date</ZoruLabel>
-                        <ZoruInput
+                        <Label>Start date</Label>
+                        <Input
                             type="datetime-local"
                             value={state.startDate}
                             onChange={(e) => setField('startDate', e.target.value)}
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>End date</ZoruLabel>
-                        <ZoruInput
+                        <Label>End date</Label>
+                        <Input
                             type="datetime-local"
                             value={state.endDate}
                             onChange={(e) => setField('endDate', e.target.value)}
@@ -1006,8 +1006,8 @@ function Step2AdSet({
                         <FieldError issue={err('endDate')} />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Attribution window</ZoruLabel>
-                        <ZoruSelect
+                        <Label>Attribution window</Label>
+                        <Select
                             value={state.attributionClickWindow}
                             onValueChange={(v) => setField('attributionClickWindow', v as any)}
                         >
@@ -1016,21 +1016,21 @@ function Step2AdSet({
                                 <ZoruSelectItem value="7_day_click">7-day click</ZoruSelectItem>
                                 <ZoruSelectItem value="1_day_click">1-day click</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Pacing</ZoruLabel>
-                        <ZoruSelect value={state.pacing} onValueChange={(v) => setField('pacing', v as any)}>
+                        <Label>Pacing</Label>
+                        <Select value={state.pacing} onValueChange={(v) => setField('pacing', v as any)}>
                             <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="standard">Standard (even)</ZoruSelectItem>
                                 <ZoruSelectItem value="accelerated">Accelerated</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Frequency cap (impressions)</ZoruLabel>
-                        <ZoruInput
+                        <Label>Frequency cap (impressions)</Label>
+                        <Input
                             type="number"
                             value={state.frequencyCapImpressions}
                             onChange={(e) => setField('frequencyCapImpressions', e.target.value)}
@@ -1038,8 +1038,8 @@ function Step2AdSet({
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel>Per (days)</ZoruLabel>
-                        <ZoruInput
+                        <Label>Per (days)</Label>
+                        <Input
                             type="number"
                             value={state.frequencyCapDays}
                             onChange={(e) => setField('frequencyCapDays', e.target.value)}
@@ -1057,7 +1057,7 @@ function Step2AdSet({
                             Let Meta find your audience automatically. Recommended for most campaigns.
                         </div>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         checked={state.advantageAudience}
                         onCheckedChange={(v) => setField('advantageAudience', v)}
                         className="data-[state=checked]:bg-[#1877F2]"
@@ -1067,14 +1067,14 @@ function Step2AdSet({
                 {!state.advantageAudience && (
                     <>
                         <div className="space-y-2">
-                            <ZoruLabel>Custom audiences</ZoruLabel>
-                            <ZoruPopover>
+                            <Label>Custom audiences</Label>
+                            <Popover>
                                 <ZoruPopoverTrigger asChild>
-                                    <ZoruButton variant="outline" className="w-full justify-start">
+                                    <Button variant="outline" className="w-full justify-start">
                                         {state.customAudiences.length > 0
                                             ? `${state.customAudiences.length} selected`
                                             : 'Pick custom audiences…'}
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruPopoverTrigger>
                                 <ZoruPopoverContent className="p-0 w-[380px]">
                                     <ZoruCommand>
@@ -1105,10 +1105,10 @@ function Step2AdSet({
                                         </ZoruCommandList>
                                     </ZoruCommand>
                                 </ZoruPopoverContent>
-                            </ZoruPopover>
+                            </Popover>
                             <div className="flex flex-wrap gap-1 mt-1">
                                 {state.customAudiences.map((a) => (
-                                    <ZoruBadge key={a.id} variant="secondary" className="text-xs">
+                                    <Badge key={a.id} variant="secondary" className="text-xs">
                                         {a.name}
                                         <button
                                             type="button"
@@ -1122,15 +1122,15 @@ function Step2AdSet({
                                         >
                                             ×
                                         </button>
-                                    </ZoruBadge>
+                                    </Badge>
                                 ))}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel className="flex items-center gap-1">
+                            <Label className="flex items-center gap-1">
                                 <Globe className="h-3 w-3" /> Locations
-                            </ZoruLabel>
+                            </Label>
                             <div className="flex flex-wrap gap-1.5">
                                 {COUNTRIES.map((c) => {
                                     const selected = state.countries.includes(c.code);
@@ -1156,7 +1156,7 @@ function Step2AdSet({
                                 Include:
                                 {['home', 'recent', 'travel_in'].map((lt) => (
                                     <label key={lt} className="flex items-center gap-1">
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={state.locationTypes.includes(lt)}
                                             onCheckedChange={(v) =>
                                                 setField(
@@ -1173,9 +1173,9 @@ function Step2AdSet({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Age range</ZoruLabel>
+                                <Label>Age range</Label>
                                 <div className="flex items-center gap-2">
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         value={state.minAge}
                                         min={13}
@@ -1184,7 +1184,7 @@ function Step2AdSet({
                                         className="w-20"
                                     />
                                     <span className="text-muted-foreground">to</span>
-                                    <ZoruInput
+                                    <Input
                                         type="number"
                                         value={state.maxAge}
                                         min={13}
@@ -1196,15 +1196,15 @@ function Step2AdSet({
                                 <FieldError issue={err('minAge')} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Gender</ZoruLabel>
-                                <ZoruSelect value={state.gender} onValueChange={(v) => setField('gender', v as any)}>
+                                <Label>Gender</Label>
+                                <Select value={state.gender} onValueChange={(v) => setField('gender', v as any)}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         <ZoruSelectItem value="all">All</ZoruSelectItem>
                                         <ZoruSelectItem value="male">Men</ZoruSelectItem>
                                         <ZoruSelectItem value="female">Women</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
 
@@ -1222,7 +1222,7 @@ function Step2AdSet({
                         />
 
                         <div className="space-y-2">
-                            <ZoruLabel>Languages</ZoruLabel>
+                            <Label>Languages</Label>
                             <div className="flex flex-wrap gap-1.5">
                                 {LANGUAGES.map((l) => {
                                     const sel = state.languages.includes(l.id);
@@ -1259,7 +1259,7 @@ function Step2AdSet({
                             Show your ads where they're likely to perform best. Recommended.
                         </div>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         checked={state.advantagePlacements}
                         onCheckedChange={(v) => setField('advantagePlacements', v)}
                         className="data-[state=checked]:bg-[#1877F2]"
@@ -1269,14 +1269,14 @@ function Step2AdSet({
                 {!state.advantagePlacements && (
                     <>
                         <div className="space-y-2">
-                            <ZoruLabel>Devices</ZoruLabel>
+                            <Label>Devices</Label>
                             <div className="flex gap-2">
                                 {['mobile', 'desktop'].map((d) => (
                                     <label key={d} className={cn(
                                         'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer flex-1',
                                         state.devices.includes(d) ? 'border-[#1877F2]' : 'border-border',
                                     )}>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={state.devices.includes(d)}
                                             onCheckedChange={() => toggleDevice(d)}
                                         />
@@ -1287,7 +1287,7 @@ function Step2AdSet({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel>Platforms</ZoruLabel>
+                            <Label>Platforms</Label>
                             <div className="grid grid-cols-2 gap-2">
                                 {[
                                     { id: 'facebook', label: 'Facebook', icon: Facebook },
@@ -1304,7 +1304,7 @@ function Step2AdSet({
                                                 state.platforms.includes(p.id) ? 'border-[#1877F2]' : 'border-border',
                                             )}
                                         >
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={state.platforms.includes(p.id)}
                                                 onCheckedChange={() => togglePlacement(p.id)}
                                             />
@@ -1319,7 +1319,7 @@ function Step2AdSet({
 
                         {state.platforms.includes('facebook') && (
                             <div className="space-y-2">
-                                <ZoruLabel>Facebook positions</ZoruLabel>
+                                <Label>Facebook positions</Label>
                                 <div className="flex flex-wrap gap-1.5">
                                     {FACEBOOK_POSITIONS.map((p) => {
                                         const sel = state.facebookPositions.includes(p);
@@ -1350,7 +1350,7 @@ function Step2AdSet({
 
                         {state.platforms.includes('instagram') && (
                             <div className="space-y-2">
-                                <ZoruLabel>Instagram positions</ZoruLabel>
+                                <Label>Instagram positions</Label>
                                 <div className="flex flex-wrap gap-1.5">
                                     {INSTAGRAM_POSITIONS.map((p) => {
                                         const sel = state.instagramPositions.includes(p);
@@ -1381,19 +1381,19 @@ function Step2AdSet({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Mobile OS</ZoruLabel>
-                                <ZoruSelect value={state.mobileOS} onValueChange={(v) => setField('mobileOS', v as any)}>
+                                <Label>Mobile OS</Label>
+                                <Select value={state.mobileOS} onValueChange={(v) => setField('mobileOS', v as any)}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         <ZoruSelectItem value="all">All</ZoruSelectItem>
                                         <ZoruSelectItem value="ios">iOS only</ZoruSelectItem>
                                         <ZoruSelectItem value="android">Android only</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>Brand safety</ZoruLabel>
-                                <ZoruSelect
+                                <Label>Brand safety</Label>
+                                <Select
                                     value={state.brandSafetyInventoryFilter}
                                     onValueChange={(v) => setField('brandSafetyInventoryFilter', v as any)}
                                 >
@@ -1403,12 +1403,12 @@ function Step2AdSet({
                                         <ZoruSelectItem value="STANDARD_INVENTORY">Standard inventory</ZoruSelectItem>
                                         <ZoruSelectItem value="LIMITED_INVENTORY">Limited inventory</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
 
                         <label className="flex items-center gap-2 text-sm">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={state.onlyWifi}
                                 onCheckedChange={(v) => setField('onlyWifi', !!v)}
                             />
@@ -1444,12 +1444,12 @@ function DetailedTargetingPicker({
 
     return (
         <div className="space-y-2">
-            <ZoruLabel>{label}</ZoruLabel>
-            <ZoruPopover open={open} onOpenChange={setOpen}>
+            <Label>{label}</Label>
+            <Popover open={open} onOpenChange={setOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <ZoruButton variant="outline" className="w-full justify-start text-muted-foreground font-normal">
+                    <Button variant="outline" className="w-full justify-start text-muted-foreground font-normal">
                         Search interests, behaviors, demographics…
-                    </ZoruButton>
+                    </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent className="p-0 w-[400px]">
                     <ZoruCommand shouldFilter={false}>
@@ -1482,10 +1482,10 @@ function DetailedTargetingPicker({
                         </ZoruCommandList>
                     </ZoruCommand>
                 </ZoruPopoverContent>
-            </ZoruPopover>
+            </Popover>
             <div className="flex flex-wrap gap-1">
                 {selected.map((s) => (
-                    <ZoruBadge key={s.id} variant="secondary" className="text-xs">
+                    <Badge key={s.id} variant="secondary" className="text-xs">
                         {s.name}
                         <button
                             type="button"
@@ -1494,7 +1494,7 @@ function DetailedTargetingPicker({
                         >
                             ×
                         </button>
-                    </ZoruBadge>
+                    </Badge>
                 ))}
             </div>
         </div>
@@ -1528,42 +1528,42 @@ function Step3Ad({
     return (
         <>
             <div className="space-y-2">
-                <ZoruLabel>Ad name</ZoruLabel>
-                <ZoruInput value={state.adName} onChange={(e) => setField('adName', e.target.value)} />
+                <Label>Ad name</Label>
+                <Input value={state.adName} onChange={(e) => setField('adName', e.target.value)} />
                 <FieldError issue={err('adName')} />
             </div>
 
             <Section title="Identity" icon={Facebook}>
                 <div className="space-y-2">
-                    <ZoruLabel>Facebook page</ZoruLabel>
-                    <ZoruSelect value={state.facebookPageId} onValueChange={(v) => setField('facebookPageId', v)}>
+                    <Label>Facebook page</Label>
+                    <Select value={state.facebookPageId} onValueChange={(v) => setField('facebookPageId', v)}>
                         <ZoruSelectTrigger><ZoruSelectValue placeholder="Pick a page" /></ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {pages.map((p) => (
                                 <ZoruSelectItem key={p.id} value={p.id}>{p.name}</ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                     <FieldError issue={err('facebookPageId')} />
                 </div>
 
                 {igAccounts.length > 0 && (
                     <div className="space-y-2">
-                        <ZoruLabel>Instagram account</ZoruLabel>
-                        <ZoruSelect value={state.instagramActorId} onValueChange={(v) => setField('instagramActorId', v)}>
+                        <Label>Instagram account</Label>
+                        <Select value={state.instagramActorId} onValueChange={(v) => setField('instagramActorId', v)}>
                             <ZoruSelectTrigger><ZoruSelectValue placeholder="Pick IG account" /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 {igAccounts.map((ig) => (
                                     <ZoruSelectItem key={ig.id} value={ig.id}>@{ig.username || ig.id}</ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 )}
 
                 <div className="space-y-2">
-                    <ZoruLabel>Branded content sponsor (optional)</ZoruLabel>
-                    <ZoruInput
+                    <Label>Branded content sponsor (optional)</Label>
+                    <Input
                         value={state.brandedContentSponsorId}
                         onChange={(e) => setField('brandedContentSponsorId', e.target.value)}
                         placeholder="Sponsor page ID"
@@ -1577,7 +1577,7 @@ function Step3Ad({
                         <div className="text-sm font-medium">Use an existing post</div>
                         <div className="text-xs text-muted-foreground">Promote a post you already published.</div>
                     </div>
-                    <ZoruSwitch
+                    <Switch
                         checked={state.useExistingPost}
                         onCheckedChange={(v) => setField('useExistingPost', v)}
                         className="data-[state=checked]:bg-[#1877F2]"
@@ -1586,8 +1586,8 @@ function Step3Ad({
 
                 {state.useExistingPost ? (
                     <div className="space-y-2">
-                        <ZoruLabel>Post ID</ZoruLabel>
-                        <ZoruInput
+                        <Label>Post ID</Label>
+                        <Input
                             value={state.existingPostId}
                             onChange={(e) => setField('existingPostId', e.target.value)}
                             placeholder="e.g. 123456789012345_987654321"
@@ -1597,8 +1597,8 @@ function Step3Ad({
                 ) : (
                     <>
                         <div className="space-y-2">
-                            <ZoruLabel>Ad format</ZoruLabel>
-                            <ZoruRadioGroup
+                            <Label>Ad format</Label>
+                            <RadioGroup
                                 value={state.adFormat}
                                 onValueChange={(v) => setField('adFormat', v as any)}
                                 className="grid grid-cols-2 sm:grid-cols-3 gap-2"
@@ -1619,7 +1619,7 @@ function Step3Ad({
                                         <span className="text-xs">{f.label}</span>
                                     </label>
                                 ))}
-                            </ZoruRadioGroup>
+                            </RadioGroup>
                         </div>
                     </>
                 )}
@@ -1632,22 +1632,22 @@ function Step3Ad({
                             <div>
                                 {/* Zoru has no tab primitive — use a segmented Button group */}
                                 <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-lg">
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         size="sm"
                                         variant={mediaTab === 'upload' ? 'default' : 'ghost'}
                                         onClick={() => setMediaTab('upload')}
                                     >
                                         Upload new
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         type="button"
                                         size="sm"
                                         variant={mediaTab === 'library' ? 'default' : 'ghost'}
                                         onClick={() => setMediaTab('library')}
                                     >
                                         From library
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
 
                                 {mediaTab === 'upload' && (
@@ -1660,9 +1660,9 @@ function Step3Ad({
                                                         alt=""
                                                         className="max-h-48 mx-auto rounded-lg border"
                                                     />
-                                                    <ZoruButton variant="outline" size="sm" onClick={() => { setField('imageUrl', ''); setField('imageHash', ''); }}>
+                                                    <Button variant="outline" size="sm" onClick={() => { setField('imageUrl', ''); setField('imageHash', ''); }}>
                                                         Replace image
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </div>
                                             ) : (
                                                 <div className="relative">
@@ -1715,13 +1715,13 @@ function Step3Ad({
 
                         {state.adFormat === 'CAROUSEL' && (
                             <div className="space-y-2">
-                                <ZoruLabel>Carousel cards (min 2, max 10)</ZoruLabel>
+                                <Label>Carousel cards (min 2, max 10)</Label>
                                 {state.carouselCards.map((card, idx) => (
-                                    <ZoruCard key={idx}>
+                                    <Card key={idx}>
                                         <ZoruCardContent className="p-3 space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-xs font-medium">Card {idx + 1}</span>
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="icon-sm"
                                                     onClick={() =>
@@ -1732,9 +1732,9 @@ function Step3Ad({
                                                     }
                                                 >
                                                     <Trash2 className="h-3 w-3" />
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
-                                            <ZoruInput
+                                            <Input
                                                 placeholder="Headline"
                                                 value={card.name}
                                                 onChange={(e) => {
@@ -1743,7 +1743,7 @@ function Step3Ad({
                                                     setField('carouselCards', next);
                                                 }}
                                             />
-                                            <ZoruInput
+                                            <Input
                                                 placeholder="Description"
                                                 value={card.description || ''}
                                                 onChange={(e) => {
@@ -1752,7 +1752,7 @@ function Step3Ad({
                                                     setField('carouselCards', next);
                                                 }}
                                             />
-                                            <ZoruInput
+                                            <Input
                                                 placeholder="Destination URL"
                                                 value={card.link || ''}
                                                 onChange={(e) => {
@@ -1762,9 +1762,9 @@ function Step3Ad({
                                                 }}
                                             />
                                         </ZoruCardContent>
-                                    </ZoruCard>
+                                    </Card>
                                 ))}
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() =>
@@ -1773,7 +1773,7 @@ function Step3Ad({
                                     disabled={state.carouselCards.length >= 10}
                                 >
                                     <Plus className="h-3 w-3 mr-1" /> Add card
-                                </ZoruButton>
+                                </Button>
                                 <FieldError issue={err('carouselCards')} />
                             </div>
                         )}
@@ -1781,14 +1781,14 @@ function Step3Ad({
 
                     <Section title="Primary text, headline & description" icon={Sparkles}>
                         <div className="space-y-2">
-                            <ZoruLabel className="flex items-center justify-between">
+                            <Label className="flex items-center justify-between">
                                 Primary text
-                                <ZoruButton variant="ghost" size="sm" onClick={addPrimaryText}>
+                                <Button variant="ghost" size="sm" onClick={addPrimaryText}>
                                     <Plus className="h-3 w-3 mr-1" /> Add variant
-                                </ZoruButton>
-                            </ZoruLabel>
+                                </Button>
+                            </Label>
                             {state.primaryTexts.map((t, i) => (
-                                <ZoruTextarea
+                                <Textarea
                                     key={i}
                                     value={t}
                                     onChange={(e) => {
@@ -1805,14 +1805,14 @@ function Step3Ad({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel className="flex items-center justify-between">
+                            <Label className="flex items-center justify-between">
                                 Headline
-                                <ZoruButton variant="ghost" size="sm" onClick={addHeadline}>
+                                <Button variant="ghost" size="sm" onClick={addHeadline}>
                                     <Plus className="h-3 w-3 mr-1" /> Add variant
-                                </ZoruButton>
-                            </ZoruLabel>
+                                </Button>
+                            </Label>
                             {state.headlines.map((h, i) => (
-                                <ZoruInput
+                                <Input
                                     key={i}
                                     value={h}
                                     maxLength={40}
@@ -1828,14 +1828,14 @@ function Step3Ad({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel className="flex items-center justify-between">
+                            <Label className="flex items-center justify-between">
                                 Description
-                                <ZoruButton variant="ghost" size="sm" onClick={addDescription}>
+                                <Button variant="ghost" size="sm" onClick={addDescription}>
                                     <Plus className="h-3 w-3 mr-1" /> Add variant
-                                </ZoruButton>
-                            </ZoruLabel>
+                                </Button>
+                            </Label>
                             {state.descriptions.map((d, i) => (
-                                <ZoruInput
+                                <Input
                                     key={i}
                                     value={d}
                                     maxLength={30}
@@ -1853,8 +1853,8 @@ function Step3Ad({
 
                     <Section title="Destination" icon={Target}>
                         <div className="space-y-2">
-                            <ZoruLabel>Destination URL</ZoruLabel>
-                            <ZoruInput
+                            <Label>Destination URL</Label>
+                            <Input
                                 type="url"
                                 value={state.destinationUrl}
                                 onChange={(e) => setField('destinationUrl', e.target.value)}
@@ -1863,8 +1863,8 @@ function Step3Ad({
                             <FieldError issue={err('destinationUrl')} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Display link (optional)</ZoruLabel>
-                            <ZoruInput
+                            <Label>Display link (optional)</Label>
+                            <Input
                                 value={state.displayLink}
                                 onChange={(e) => setField('displayLink', e.target.value)}
                                 placeholder="example.com/offer"
@@ -1872,19 +1872,19 @@ function Step3Ad({
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel>Call to action</ZoruLabel>
-                                <ZoruSelect value={state.callToAction} onValueChange={(v) => setField('callToAction', v)}>
+                                <Label>Call to action</Label>
+                                <Select value={state.callToAction} onValueChange={(v) => setField('callToAction', v)}>
                                     <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {CALL_TO_ACTIONS.map((c) => (
                                             <ZoruSelectItem key={c} value={c}>{c.replace(/_/g, ' ')}</ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>URL parameters (UTM)</ZoruLabel>
-                                <ZoruInput
+                                <Label>URL parameters (UTM)</Label>
+                                <Input
                                     value={state.urlParameters}
                                     onChange={(e) => setField('urlParameters', e.target.value)}
                                     placeholder="utm_source=facebook&utm_medium=paid"

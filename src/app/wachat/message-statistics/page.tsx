@@ -97,7 +97,7 @@ export default function MessageStatisticsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -111,7 +111,7 @@ export default function MessageStatisticsPage() {
             <ZoruBreadcrumbPage>Message Statistics</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -122,12 +122,12 @@ export default function MessageStatisticsPage() {
             Monitor your message volume and engagement metrics.
           </p>
         </div>
-        <ZoruDropdownMenu>
+        <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>
-            <ZoruButton variant="outline" size="sm">
+            <Button variant="outline" size="sm">
               {PERIOD_LABELS[period]}
               <ChevronDown className="opacity-60" />
-            </ZoruButton>
+            </Button>
           </ZoruDropdownMenuTrigger>
           <ZoruDropdownMenuContent align="end">
             <ZoruDropdownMenuLabel>Segment</ZoruDropdownMenuLabel>
@@ -140,37 +140,37 @@ export default function MessageStatisticsPage() {
               <ZoruDropdownMenuRadioItem value="monthly">Monthly</ZoruDropdownMenuRadioItem>
             </ZoruDropdownMenuRadioGroup>
           </ZoruDropdownMenuContent>
-        </ZoruDropdownMenu>
+        </DropdownMenu>
       </div>
 
       {isLoading && stats.total === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[120px]" />
+            <Skeleton key={i} className="h-[120px]" />
           ))}
         </div>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Total Messages"
               value={stats.total.toLocaleString()}
               icon={<MessageSquare />}
               period={PERIOD_LABELS[period]}
             />
-            <ZoruStatCard
+            <StatCard
               label="Incoming"
               value={stats.incoming.toLocaleString()}
               icon={<ArrowDownLeft />}
               period={PERIOD_LABELS[period]}
             />
-            <ZoruStatCard
+            <StatCard
               label="Outgoing"
               value={stats.outgoing.toLocaleString()}
               icon={<ArrowUpRight />}
               period={PERIOD_LABELS[period]}
             />
-            <ZoruStatCard
+            <StatCard
               label="Media Messages"
               value={stats.media.toLocaleString()}
               icon={<ImageIcon />}
@@ -178,7 +178,7 @@ export default function MessageStatisticsPage() {
             />
           </div>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4 text-zoru-ink-muted" />
@@ -190,7 +190,7 @@ export default function MessageStatisticsPage() {
             </ZoruCardHeader>
             <ZoruCardContent>
               {isEmpty ? (
-                <ZoruEmptyState
+                <EmptyState
                   icon={<Inbox />}
                   title="No messages yet"
                   description="Statistics will appear here once your project starts exchanging messages."
@@ -227,7 +227,7 @@ export default function MessageStatisticsPage() {
                 </ZoruChartContainer>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       )}
       <div className="h-6" />

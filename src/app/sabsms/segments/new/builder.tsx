@@ -324,7 +324,7 @@ export function SegmentBuilder({
           </div>
         )}
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Details</ZoruCardTitle>
             <ZoruCardDescription>
@@ -335,8 +335,8 @@ export function SegmentBuilder({
           <ZoruCardContent className="space-y-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="seg-name">Name</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="seg-name">Name</Label>
+                <Input
                   id="seg-name"
                   value={draft.name}
                   onChange={(e) => patchDraft({ name: e.target.value })}
@@ -344,8 +344,8 @@ export function SegmentBuilder({
                 />
               </div>
               <div>
-                <ZoruLabel htmlFor="seg-category">Category</ZoruLabel>
-                <ZoruSelect
+                <Label htmlFor="seg-category">Category</Label>
+                <Select
                   value={draft.category}
                   onValueChange={(v) =>
                     patchDraft({
@@ -364,12 +364,12 @@ export function SegmentBuilder({
                     <ZoruSelectItem value="alert">Alert</ZoruSelectItem>
                     <ZoruSelectItem value="service">Service</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
             <div>
-              <ZoruLabel htmlFor="seg-desc">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="seg-desc">Description</Label>
+              <Textarea
                 id="seg-desc"
                 value={draft.description ?? ""}
                 onChange={(e) => patchDraft({ description: e.target.value })}
@@ -379,8 +379,8 @@ export function SegmentBuilder({
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <ZoruLabel>Mode</ZoruLabel>
-                <ZoruRadioGroup
+                <Label>Mode</Label>
+                <RadioGroup
                   value={draft.kind}
                   onValueChange={(v) =>
                     patchDraft({ kind: v as "static" | "dynamic" })
@@ -405,13 +405,13 @@ export function SegmentBuilder({
                       </div>
                     </div>
                   </label>
-                </ZoruRadioGroup>
+                </RadioGroup>
               </div>
               <div>
-                <ZoruLabel htmlFor="seg-cron">
+                <Label htmlFor="seg-cron">
                   Auto re-evaluation (seconds)
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="seg-cron"
                   type="number"
                   value={
@@ -431,8 +431,8 @@ export function SegmentBuilder({
               </div>
             </div>
             <div>
-              <ZoruLabel htmlFor="seg-tags">Tags</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="seg-tags">Tags</Label>
+              <Input
                 id="seg-tags"
                 value={(draft.tags ?? []).join(", ")}
                 onChange={(e) =>
@@ -447,25 +447,25 @@ export function SegmentBuilder({
               />
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Predicate</ZoruCardTitle>
             <ZoruCardDescription>
               Combine rules with AND / OR groups.
               {leafCount > 0 && (
-                <ZoruBadge variant="secondary" className="ml-2 text-[10px]">
+                <Badge variant="secondary" className="ml-2 text-[10px]">
                   {leafCount} rule{leafCount === 1 ? "" : "s"}
-                </ZoruBadge>
+                </Badge>
               )}
               {draft.category === "marketing" && (
-                <ZoruBadge
+                <Badge
                   variant={consentOk ? "default" : "destructive"}
                   className="ml-1 text-[10px]"
                 >
                   {consentOk ? "Consent gate OK" : "Consent gate missing"}
-                </ZoruBadge>
+                </Badge>
               )}
             </ZoruCardDescription>
           </ZoruCardHeader>
@@ -475,9 +475,9 @@ export function SegmentBuilder({
               onChange={(p) => patchDraft({ predicate: p })}
             />
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>SQL-style preview</ZoruCardTitle>
             <ZoruCardDescription>
@@ -489,10 +489,10 @@ export function SegmentBuilder({
               <code>{`SELECT * FROM contacts WHERE\n  ${sql}`}</code>
             </pre>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         {draft.category === "marketing" && (
-          <ZoruCard className="border-amber-200 bg-amber-50">
+          <Card className="border-amber-200 bg-amber-50">
             <ZoruCardHeader>
               <ZoruCardTitle className="text-amber-900">
                 Marketing attestation
@@ -505,7 +505,7 @@ export function SegmentBuilder({
             </ZoruCardHeader>
             <ZoruCardContent>
               <label className="flex items-start gap-2 text-sm">
-                <ZoruCheckbox
+                <Checkbox
                   checked={draft.attestation}
                   onCheckedChange={(c) =>
                     patchDraft({ attestation: c === true })
@@ -517,54 +517,54 @@ export function SegmentBuilder({
                 </span>
               </label>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
 
         <div className="flex flex-wrap items-center gap-2 sticky bottom-0 rounded-md border border-slate-200 bg-white p-3 shadow-sm">
-          <ZoruButton onClick={handleSave} disabled={busy === "save"}>
+          <Button onClick={handleSave} disabled={busy === "save"}>
             <Save className="mr-1.5 h-3.5 w-3.5" />
             {busy === "save" ? "Saving…" : "Save segment"}
-          </ZoruButton>
-          <ZoruButton variant="outline" onClick={handleCost} disabled={busy === "cost"}>
+          </Button>
+          <Button variant="outline" onClick={handleCost} disabled={busy === "cost"}>
             <Calculator className="mr-1.5 h-3.5 w-3.5" />
             Forecast cost
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             onClick={() => setAiOpen(true)}
             disabled={aiBusy}
           >
             <Sparkles className="mr-1.5 h-3.5 w-3.5" />
             Build from prompt
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             onClick={exportPredicateJson}
           >
             <Download className="mr-1.5 h-3.5 w-3.5" />
             Export JSON
-          </ZoruButton>
-          <ZoruButton variant="outline" onClick={handleShare} disabled={!savedId || busy === "share"}>
+          </Button>
+          <Button variant="outline" onClick={handleShare} disabled={!savedId || busy === "share"}>
             <Share2 className="mr-1.5 h-3.5 w-3.5" />
             Share
-          </ZoruButton>
-          <ZoruButton variant="outline" onClick={handleVersions} disabled={!savedId}>
+          </Button>
+          <Button variant="outline" onClick={handleVersions} disabled={!savedId}>
             <GitCompare className="mr-1.5 h-3.5 w-3.5" />
             Diff versions
-          </ZoruButton>
+          </Button>
           {savedId && (
-            <ZoruButton asChild variant="ghost">
+            <Button asChild variant="ghost">
               <Link href={`/sabsms/drips/new?segmentId=${savedId}`}>
                 Convert to drip trigger
               </Link>
-            </ZoruButton>
+            </Button>
           )}
         </div>
       </div>
 
       {/* ─── Right column: live preview, import, test ──────────────── */}
       <aside className="space-y-4">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Live preview</ZoruCardTitle>
             <ZoruCardDescription>
@@ -596,9 +596,9 @@ export function SegmentBuilder({
               </ul>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Import predicate</ZoruCardTitle>
             <ZoruCardDescription>
@@ -611,7 +611,7 @@ export function SegmentBuilder({
                 No saved segments to import from yet.
               </p>
             ) : (
-              <ZoruSelect onValueChange={(v) => handleImport(v)}>
+              <Select onValueChange={(v) => handleImport(v)}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Pick a segment…" />
                 </ZoruSelectTrigger>
@@ -622,16 +622,16 @@ export function SegmentBuilder({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             )}
             <p className="text-[11px] text-slate-500">
               <Import className="mr-1 inline h-3 w-3" />
               Imports replace the current predicate.
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Test against a phone</ZoruCardTitle>
             <ZoruCardDescription>
@@ -640,18 +640,18 @@ export function SegmentBuilder({
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-2">
             <div className="flex gap-2">
-              <ZoruInput
+              <Input
                 value={testPhone}
                 onChange={(e) => setTestPhone(e.target.value)}
                 placeholder="+1 415…"
               />
-              <ZoruButton
+              <Button
                 onClick={handleTestPhone}
                 disabled={busy === "test" || !testPhone.trim()}
               >
                 <Phone className="mr-1 h-3.5 w-3.5" />
                 Test
-              </ZoruButton>
+              </Button>
             </div>
             {testResult && (
               <div
@@ -672,10 +672,10 @@ export function SegmentBuilder({
               </div>
             )}
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         {forecast && (
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Forecast</ZoruCardTitle>
               <ZoruCardDescription>
@@ -693,7 +693,7 @@ export function SegmentBuilder({
                   {(forecast.pricePerMessageCents / 100).toFixed(3)} USD
                 </span>
               </div>
-              <ZoruSeparator />
+              <Separator />
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
                 <span className="tabular-nums">
@@ -704,11 +704,11 @@ export function SegmentBuilder({
                 </span>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
 
         {shareToken && (
-          <ZoruCard className="border-emerald-200 bg-emerald-50">
+          <Card className="border-emerald-200 bg-emerald-50">
             <ZoruCardHeader>
               <ZoruCardTitle className="text-emerald-900 text-sm">
                 Share link
@@ -719,7 +719,7 @@ export function SegmentBuilder({
                 /sabsms/segments/share/{shareToken}
               </code>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         )}
       </aside>
 
@@ -731,20 +731,20 @@ export function SegmentBuilder({
         description="Describe the audience in plain English — the AI returns a predicate you can edit."
       >
         <div className="space-y-3">
-          <ZoruTextarea
+          <Textarea
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
             placeholder="e.g. People in the US who clicked in the last 30 days and aren't unsubscribed"
             rows={4}
           />
           <div className="flex justify-end gap-2">
-            <ZoruButton variant="outline" onClick={() => setAiOpen(false)}>
+            <Button variant="outline" onClick={() => setAiOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleAi} disabled={aiBusy || !aiPrompt.trim()}>
+            </Button>
+            <Button onClick={handleAi} disabled={aiBusy || !aiPrompt.trim()}>
               <Bot className="mr-1 h-3.5 w-3.5" />
               {aiBusy ? "Thinking…" : "Generate"}
-            </ZoruButton>
+            </Button>
           </div>
           <p className="text-[11px] text-slate-500">
             Stub: returns a placeholder predicate until the SabSMS LLM

@@ -15,14 +15,14 @@ export default function KeywordDensityPage() {
 
   return (
     <ToolShell title="Keyword Density Checker" description="Analyze keyword frequency and density in your content.">
-      <ZoruTextarea
+      <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste or type your content…"
         className="min-h-[240px]"
       />
       <div className="text-sm text-muted-foreground">Total words: {total}</div>
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4">
           <table className="w-full text-sm">
             <thead>
@@ -52,7 +52,7 @@ export default function KeywordDensityPage() {
             </tbody>
           </table>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </ToolShell>
   );
 }

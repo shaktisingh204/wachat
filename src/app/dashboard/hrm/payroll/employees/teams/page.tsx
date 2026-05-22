@@ -111,14 +111,14 @@ export default function EmployeeTeamsPage() {
       title="Employee Teams"
       subtitle="Define employee teams with designated leaders."
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Add Team
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
@@ -147,12 +147,12 @@ export default function EmployeeTeamsPage() {
                       <td className="px-4 py-2.5 text-zoru-ink-muted">{empName(t.leader_user_id ?? '')}</td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(t)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(t)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(t._id)} disabled={isSaving}>
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(t._id)} disabled={isSaving}>
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -162,19 +162,19 @@ export default function EmployeeTeamsPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={setOpen}>
         <ZoruDialogContent className="sm:max-w-[440px]">
           <ZoruDialogHeader>
             <ZoruDialogTitle>{form._id ? 'Edit Team' : 'Add Team'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              <Label className="text-[12px] text-zoru-ink-muted">
                 Team Name <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 value={form.team_name ?? ''}
                 onChange={(e) => setForm((p) => ({ ...p, team_name: e.target.value }))}
                 placeholder="e.g. Engineering Squad"
@@ -182,8 +182,8 @@ export default function EmployeeTeamsPage() {
               />
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Team Leader</ZoruLabel>
-              <ZoruSelect
+              <Label className="text-[12px] text-zoru-ink-muted">Team Leader</Label>
+              <Select
                 value={form.leader_user_id || undefined}
                 onValueChange={(v) => setForm((p) => ({ ...p, leader_user_id: v }))}
               >
@@ -197,18 +197,18 @@ export default function EmployeeTeamsPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Save' : 'Create'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

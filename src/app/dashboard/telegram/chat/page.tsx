@@ -180,7 +180,7 @@ export default function Page() {
     if (!activeProjectId) {
         return (
             <div className="flex h-[calc(100vh-8rem)] items-center justify-center p-8">
-                <ZoruEmptyState
+                <EmptyState
                     icon={<MessageCircle />}
                     title="Pick a project to start chatting"
                     description="Telegram chat threads are scoped to the active project."
@@ -278,13 +278,13 @@ function ChatSidebar({
                         {projectName ?? 'Project'}
                     </div>
                 </div>
-                <ZoruBadge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-[10px]">
                     {chats.length}
-                </ZoruBadge>
+                </Badge>
             </div>
 
             <div className="flex flex-col gap-2 border-b border-zoru-line px-3 py-3">
-                <ZoruSelect
+                <Select
                     value={selectedBotId}
                     onValueChange={(v) => onSelectBot(v as string | 'all')}
                 >
@@ -299,9 +299,9 @@ function ChatSidebar({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
 
-                <ZoruSelect
+                <Select
                     value={typeFilter}
                     onValueChange={(v) =>
                         onTypeFilter(v as typeof TYPE_FILTERS[number]['value'])
@@ -317,9 +317,9 @@ function ChatSidebar({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
 
-                <ZoruInput
+                <Input
                     leadingSlot={<Search />}
                     placeholder="Search chats…"
                     value={searchTerm}
@@ -328,11 +328,11 @@ function ChatSidebar({
                 />
             </div>
 
-            <ZoruScrollArea className="flex-1">
+            <ScrollArea className="flex-1">
                 {chatsLoading && chats.length === 0 ? (
                     <div className="flex flex-col gap-2 p-3">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruSkeleton key={i} className="h-14 w-full" />
+                            <Skeleton key={i} className="h-14 w-full" />
                         ))}
                     </div>
                 ) : chatsError ? (
@@ -357,7 +357,7 @@ function ChatSidebar({
                         ))}
                     </ul>
                 )}
-            </ZoruScrollArea>
+            </ScrollArea>
         </aside>
     );
 }
@@ -414,11 +414,11 @@ function ChatListItem({
                     active && 'bg-zoru-surface-2',
                 )}
             >
-                <ZoruAvatar className="h-10 w-10 shrink-0">
+                <Avatar className="h-10 w-10 shrink-0">
                     <ZoruAvatarFallback className="bg-zoru-ink text-zoru-on-primary">
                         {chatInitial(chat)}
                     </ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                         <span className="truncate text-sm font-medium text-zoru-ink">
@@ -435,9 +435,9 @@ function ChatListItem({
                             )}
                         </span>
                         {chat.unreadCount > 0 && (
-                            <ZoruBadge className="h-5 min-w-[1.25rem] shrink-0 justify-center px-1 text-[10px]">
+                            <Badge className="h-5 min-w-[1.25rem] shrink-0 justify-center px-1 text-[10px]">
                                 {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
-                            </ZoruBadge>
+                            </Badge>
                         )}
                     </div>
                 </div>
@@ -875,7 +875,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                 {loadingHistory ? (
                     <div className="flex flex-col gap-2">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <ZoruSkeleton
+                            <Skeleton
                                 key={i}
                                 className={cn(
                                     'h-12',
@@ -982,25 +982,25 @@ function ChatHeader({
     return (
         <header className="flex items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface px-4 py-2.5">
             <div className="flex min-w-0 items-center gap-3">
-                <ZoruAvatar className="h-10 w-10 shrink-0">
+                <Avatar className="h-10 w-10 shrink-0">
                     <ZoruAvatarFallback className="bg-zoru-ink text-zoru-on-primary">
                         {chatInitial(chat)}
                     </ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
                 <div className="min-w-0">
                     <div className="truncate text-sm font-semibold text-zoru-ink">{name}</div>
                     <div className="truncate text-xs text-zoru-ink-muted">{subtitle}</div>
                 </div>
             </div>
             <div className="flex items-center gap-1">
-                <ZoruButton variant="ghost" size="icon-sm" onClick={onRefresh}>
+                <Button variant="ghost" size="icon-sm" onClick={onRefresh}>
                     <RefreshCw />
-                </ZoruButton>
-                <ZoruDropdownMenu>
+                </Button>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="ghost" size="icon-sm">
+                        <Button variant="ghost" size="icon-sm">
                             <MoreVertical />
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="end">
                         <ZoruDropdownMenuItem onClick={onRefresh}>
@@ -1017,7 +1017,7 @@ function ChatHeader({
                             Copy chat id
                         </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
             </div>
         </header>
     );
@@ -1285,16 +1285,16 @@ function Composer({
                 </div>
             )}
             <div className="flex items-end gap-2">
-                <ZoruDropdownMenu>
+                <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="icon-sm"
                             aria-label="Attach file"
                             disabled={sending}
                         >
                             <Paperclip />
-                        </ZoruButton>
+                        </Button>
                     </ZoruDropdownMenuTrigger>
                     <ZoruDropdownMenuContent align="start">
                         <ZoruDropdownMenuItem onClick={() => onAttach('photo')}>
@@ -1313,9 +1313,9 @@ function Composer({
                             Voice
                         </ZoruDropdownMenuItem>
                     </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
+                </DropdownMenu>
 
-                <ZoruButton
+                <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Emoji"
@@ -1323,7 +1323,7 @@ function Composer({
                     disabled={sending}
                 >
                     <Smile />
-                </ZoruButton>
+                </Button>
 
                 <textarea
                     ref={textareaRef}
@@ -1334,7 +1334,7 @@ function Composer({
                     rows={1}
                     className="flex-1 resize-none rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30"
                 />
-                <ZoruButton
+                <Button
                     type="button"
                     onClick={onSend}
                     disabled={disabled}
@@ -1342,12 +1342,12 @@ function Composer({
                     size="icon"
                 >
                     {sending ? <Loader2 className="animate-spin" /> : <Send />}
-                </ZoruButton>
+                </Button>
             </div>
             <div className="mt-1 text-[10px] text-zoru-ink-muted">
                 Enter to send · Shift+Enter for new line · drag a file anywhere on this pane to attach
             </div>
-            <ZoruSeparator className="mt-2 opacity-0" />
+            <Separator className="mt-2 opacity-0" />
             {/* Hidden tag — surface members icon on group chats but keep
                 non-essential UI lightweight. */}
             <span className="sr-only">

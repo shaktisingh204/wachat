@@ -42,10 +42,10 @@ const initialState: { success?: boolean; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="animate-spin" /> : null}
       {pending ? "Connecting…" : "Connect Page"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -93,11 +93,11 @@ export function ManualSetupDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" size="sm">
+        <Button variant="outline" size="sm">
           <Wrench /> {triggerLabel}
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-lg">
         <form
@@ -115,8 +115,8 @@ export function ManualSetupDialog({
 
           <div className="grid gap-4">
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="projectName">Project name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="projectName">Project name</Label>
+              <Input
                 id="projectName"
                 name="projectName"
                 placeholder="e.g. My Facebook Page"
@@ -127,8 +127,8 @@ export function ManualSetupDialog({
               </p>
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="facebookPageId">Facebook Page ID</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="facebookPageId">Facebook Page ID</Label>
+              <Input
                 id="facebookPageId"
                 name="facebookPageId"
                 placeholder="Your Facebook Page ID"
@@ -136,8 +136,8 @@ export function ManualSetupDialog({
               />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="adAccountId">Ad Account ID</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="adAccountId">Ad Account ID</Label>
+              <Input
                 id="adAccountId"
                 name="adAccountId"
                 placeholder="act_xxxxxxxxxxxx"
@@ -145,10 +145,10 @@ export function ManualSetupDialog({
               />
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="accessToken">
+              <Label htmlFor="accessToken">
                 Permanent access token
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="accessToken"
                 name="accessToken"
                 type="password"
@@ -159,17 +159,17 @@ export function ManualSetupDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => handleOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

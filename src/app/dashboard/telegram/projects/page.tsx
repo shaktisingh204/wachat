@@ -208,7 +208,7 @@ export default function TelegramProjectPickerPage() {
         return (
             <div className="flex flex-col gap-3">
                 {Array.from({ length: 4 }).map((_, i) => (
-                    <ZoruSkeleton key={i} className="h-20 w-full rounded-2xl" />
+                    <Skeleton key={i} className="h-20 w-full rounded-2xl" />
                 ))}
             </div>
         );
@@ -242,7 +242,7 @@ export default function TelegramProjectPickerPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative w-full sm:max-w-md">
                     <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-                    <ZoruInput
+                    <Input
                         value={q}
                         onChange={(e) => {
                             setQ(e.target.value);
@@ -252,7 +252,7 @@ export default function TelegramProjectPickerPage() {
                         className="pl-9"
                     />
                 </div>
-                <ZoruButton
+                <Button
                     size="sm"
                     variant="outline"
                     onClick={() => {
@@ -263,11 +263,11 @@ export default function TelegramProjectPickerPage() {
                 >
                     <Plus className="h-3 w-3" />
                     New Telegram project
-                </ZoruButton>
+                </Button>
             </div>
 
             {filtered.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title={
                         allProjects.length === 0
                             ? 'No projects yet'
@@ -280,7 +280,7 @@ export default function TelegramProjectPickerPage() {
                     }
                     action={
                         allProjects.length === 0 ? (
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 onClick={() => {
                                     setCreateErr(null);
@@ -290,7 +290,7 @@ export default function TelegramProjectPickerPage() {
                             >
                                 <Plus className="h-3 w-3" />
                                 Create Telegram project
-                            </ZoruButton>
+                            </Button>
                         ) : undefined
                     }
                 />
@@ -307,7 +307,7 @@ export default function TelegramProjectPickerPage() {
                                     onClick={() => selectProject(id, p.name)}
                                     className="w-full text-left"
                                 >
-                                    <ZoruCard className="flex items-center justify-between gap-3 p-4 transition-shadow hover:shadow-md">
+                                    <Card className="flex items-center justify-between gap-3 p-4 transition-shadow hover:shadow-md">
                                         <div className="flex min-w-0 items-center gap-3">
                                             <div
                                                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
@@ -328,9 +328,9 @@ export default function TelegramProjectPickerPage() {
                                                         {p.name}
                                                     </p>
                                                     {isActive ? (
-                                                        <ZoruBadge variant="info">
+                                                        <Badge variant="info">
                                                             Active
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     ) : null}
                                                 </div>
                                                 <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
@@ -344,18 +344,18 @@ export default function TelegramProjectPickerPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {botCount > 0 ? (
-                                                <ZoruBadge variant="success">
+                                                <Badge variant="success">
                                                     <CheckCircle2 className="h-3 w-3" />
                                                     Telegram
-                                                </ZoruBadge>
+                                                </Badge>
                                             ) : (
-                                                <ZoruBadge variant="ghost">
+                                                <Badge variant="ghost">
                                                     Not set up
-                                                </ZoruBadge>
+                                                </Badge>
                                             )}
                                             <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                         </div>
-                                    </ZoruCard>
+                                    </Card>
                                 </button>
                             </li>
                         );
@@ -370,27 +370,27 @@ export default function TelegramProjectPickerPage() {
                         {filtered.length === 1 ? '' : 's'}
                     </span>
                     <div className="flex items-center gap-2">
-                        <ZoruButton
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={() => setPage((n) => Math.max(1, n - 1))}
                             disabled={page === 1}
                         >
                             Previous
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={() => setPage((n) => Math.min(totalPages, n + 1))}
                             disabled={page === totalPages}
                         >
                             Next
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             ) : null}
 
-            <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                 <ZoruDialogContent className="max-w-md">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>New Telegram project</ZoruDialogTitle>
@@ -407,7 +407,7 @@ export default function TelegramProjectPickerPage() {
                             <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                                 Project name
                             </span>
-                            <ZoruInput
+                            <Input
                                 value={createName}
                                 onChange={(e) => setCreateName(e.target.value)}
                                 placeholder="e.g. Support bot — EU"
@@ -428,15 +428,15 @@ export default function TelegramProjectPickerPage() {
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setCreateOpen(false)}
                             disabled={createBusy}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             onClick={() => void handleCreate()}
                             disabled={createBusy || !createName.trim()}
@@ -447,10 +447,10 @@ export default function TelegramProjectPickerPage() {
                                 <Plus className="h-3 w-3" />
                             )}
                             Create project
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

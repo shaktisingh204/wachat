@@ -322,11 +322,11 @@ export default function ProductsPage() {
                 }}
                 primaryAction={
                     <div className="flex items-center gap-2">
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="outline" size="sm">
+                                <Button variant="outline" size="sm">
                                     <Download className="h-4 w-4" /> Export
-                                </ZoruButton>
+                                </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
                                 <ZoruDropdownMenuItem onSelect={() => exportRows('csv')}>
@@ -336,17 +336,17 @@ export default function ProductsPage() {
                                     Export as XLSX
                                 </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
-                        <ZoruButton asChild>
+                        </DropdownMenu>
+                        <Button asChild>
                             <Link href="/dashboard/crm/inventory/items/new">
                                 <Plus className="h-4 w-4" /> New product
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <Select
                             value={stockFilter}
                             onValueChange={(v) => {
                                 setStockFilter(v as StockFilter);
@@ -362,8 +362,8 @@ export default function ProductsPage() {
                                 <ZoruSelectItem value="lowStock">Low stock</ZoruSelectItem>
                                 <ZoruSelectItem value="outOfStock">Out of stock</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={typeFilter}
                             onValueChange={(v) => {
                                 setTypeFilter(v as TypeFilter);
@@ -378,8 +378,8 @@ export default function ProductsPage() {
                                 <ZoruSelectItem value="goods">Goods</ZoruSelectItem>
                                 <ZoruSelectItem value="service">Service</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={trackFilter}
                             onValueChange={(v) => {
                                 setTrackFilter(v as TrackFilter);
@@ -394,15 +394,15 @@ export default function ProductsPage() {
                                 <ZoruSelectItem value="tracked">Tracked</ZoruSelectItem>
                                 <ZoruSelectItem value="untracked">Untracked</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                         {hasActiveFilters ? (
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={clearFilters}
                             >
                                 <X className="h-4 w-4" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                     </div>
                 }
@@ -413,34 +413,34 @@ export default function ProductsPage() {
                                 <span className="font-medium">{selected.size}</span> selected
                             </div>
                             <div className="flex items-center gap-2">
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => exportRows('csv')}
                                 >
                                     <Download className="h-4 w-4" /> Export CSV
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => exportRows('xlsx')}
                                 >
                                     <Download className="h-4 w-4" /> Export XLSX
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="destructive"
                                     size="sm"
                                     onClick={() => setBulkConfirm('delete')}
                                 >
                                     <Trash2 className="h-4 w-4" /> Delete
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setSelected(new Set())}
                                 >
                                     <X className="h-4 w-4" /> Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -457,11 +457,11 @@ export default function ProductsPage() {
                                     ? 'No products match the current filters.'
                                     : 'Start your catalog by adding the first product.'}
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/inventory/items/new">
                                     <Plus className="h-4 w-4" /> Add product
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -481,34 +481,34 @@ export default function ProductsPage() {
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total products"
                             value={kpis.total.toLocaleString()}
                             icon={<Package />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="In stock"
                             value={kpis.inStock.toLocaleString()}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Low stock"
                             value={kpis.lowStock.toLocaleString()}
                             invertDelta
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Inventory value"
                             value={formatCurrency(kpis.totalValue)}
                         />
                     </div>
 
                     {/* Table */}
-                    <ZoruCard className="p-0">
+                    <Card className="p-0">
                         <div className="overflow-x-auto rounded-lg">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={allSelectedOnPage}
                                                 onCheckedChange={(c) =>
                                                     handleToggleAll(Boolean(c))
@@ -556,7 +556,7 @@ export default function ProductsPage() {
                                                 }
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() =>
                                                             handleToggleOne(id)
@@ -598,33 +598,33 @@ export default function ProductsPage() {
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     {out ? (
-                                                        <ZoruBadge variant="destructive">
+                                                        <Badge variant="destructive">
                                                             Out of stock
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     ) : low ? (
-                                                        <ZoruBadge variant="warning">
+                                                        <Badge variant="warning">
                                                             Low stock
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     ) : p.isTrackInventory ? (
-                                                        <ZoruBadge variant="success">
+                                                        <Badge variant="success">
                                                             In stock
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     ) : (
-                                                        <ZoruBadge variant="ghost">
+                                                        <Badge variant="ghost">
                                                             Untracked
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     )}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruDropdownMenu>
+                                                    <DropdownMenu>
                                                         <ZoruDropdownMenuTrigger asChild>
-                                                            <ZoruButton
+                                                            <Button
                                                                 variant="ghost"
                                                                 size="icon"
                                                                 aria-label="Row actions"
                                                             >
                                                                 <MoreHorizontal className="h-4 w-4" />
-                                                            </ZoruButton>
+                                                            </Button>
                                                         </ZoruDropdownMenuTrigger>
                                                         <ZoruDropdownMenuContent align="end">
                                                             <ZoruDropdownMenuItem asChild>
@@ -651,15 +651,15 @@ export default function ProductsPage() {
                                                                 Delete
                                                             </ZoruDropdownMenuItem>
                                                         </ZoruDropdownMenuContent>
-                                                    </ZoruDropdownMenu>
+                                                    </DropdownMenu>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
             </EntityListShell>
 

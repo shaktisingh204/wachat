@@ -16,7 +16,7 @@ export default async function PublicLeadFormPage({ params }: { params: Params })
   if (!form) notFound();
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>{form.title}</ZoruCardTitle>
         {form.description ? (
@@ -32,6 +32,6 @@ export default async function PublicLeadFormPage({ params }: { params: Params })
           consentText={form.consentText}
         />
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

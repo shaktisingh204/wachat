@@ -103,7 +103,7 @@ export function ReportsHubClient({
             {/* Search + category filter */}
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <div className="md:max-w-md md:flex-1">
-                    <ZoruInput
+                    <Input
                         type="search"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -134,7 +134,7 @@ export function ReportsHubClient({
                 {categories.map((cat) => {
                     const Icon = cat.icon;
                     return (
-                        <ZoruCard key={cat.id} className="p-4">
+                        <Card key={cat.id} className="p-4">
                             <div className="flex items-start justify-between gap-2">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
                                     <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
@@ -149,7 +149,7 @@ export function ReportsHubClient({
                             <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
                                 Last run {fmtRel(cat.lastRefreshAt)}
                             </p>
-                        </ZoruCard>
+                        </Card>
                     );
                 })}
             </div>
@@ -158,11 +158,11 @@ export function ReportsHubClient({
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2 flex flex-col gap-4">
                     {filteredCategories.length === 0 ? (
-                        <ZoruCard className="flex min-h-[160px] items-center justify-center p-6">
+                        <Card className="flex min-h-[160px] items-center justify-center p-6">
                             <p className="text-[13px] text-zoru-ink-muted">
                                 No reports match your search.
                             </p>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
                     {filteredCategories.map((cat) => {
                         const Icon = cat.icon;
@@ -239,7 +239,7 @@ export function ReportsHubClient({
                 </div>
 
                 <aside className="flex flex-col gap-4">
-                    <ZoruCard className="p-5">
+                    <Card className="p-5">
                         <div className="mb-3 flex items-center justify-between gap-2">
                             <h2 className="text-[14px] font-medium text-zoru-ink">Recently viewed</h2>
                         </div>
@@ -264,12 +264,12 @@ export function ReportsHubClient({
                                                         {run.rowCount} rows · {fmtRel(run.startedAt)}
                                                     </div>
                                                 </div>
-                                                <ZoruBadge
+                                                <Badge
                                                     variant={statusTone[run.status] ?? 'outline'}
                                                     className="capitalize"
                                                 >
                                                     {run.status}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </div>
                                         </Link>
                                     </li>
@@ -284,7 +284,7 @@ export function ReportsHubClient({
                                 View saved reports
                             </Link>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </aside>
             </div>
         </div>
@@ -301,13 +301,13 @@ function CategoryChip({
     label: string;
 }) {
     return (
-        <ZoruButton
+        <Button
             type="button"
             variant={active ? 'default' : 'outline'}
             size="sm"
             onClick={onClick}
         >
             {label}
-        </ZoruButton>
+        </Button>
     );
 }

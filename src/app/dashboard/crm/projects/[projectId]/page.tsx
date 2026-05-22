@@ -373,26 +373,26 @@ export default function ProjectDetailPage(props: {
   if (isLoading && !project) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-32 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!project) {
     return (
-      <ZoruCard className="border-dashed p-6">
+      <Card className="border-dashed p-6">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <p className="text-[13px] text-zoru-ink-muted">Project not found.</p>
           <Link href="/dashboard/crm/projects">
-            <ZoruButton variant="outline" size="sm">
+            <Button variant="outline" size="sm">
               <ArrowLeft className="h-4 w-4" />
               Back to Projects
-            </ZoruButton>
+            </Button>
           </Link>
         </div>
-      </ZoruCard>
+      </Card>
     );
   }
 
@@ -425,7 +425,7 @@ export default function ProjectDetailPage(props: {
     >
 
       {/* Overview summary */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-4">
           <SummaryTile
             icon={User}
@@ -459,7 +459,7 @@ export default function ProjectDetailPage(props: {
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="flex flex-col">
             <p className="text-[11.5px] text-zoru-ink-muted">Status</p>
-            <ZoruBadge variant="success">{project.status}</ZoruBadge>
+            <Badge variant="success">{project.status}</Badge>
           </div>
           <div className="flex flex-col">
             <p className="text-[11.5px] text-zoru-ink-muted">Category</p>
@@ -481,7 +481,7 @@ export default function ProjectDetailPage(props: {
             <p className="text-[12.5px] font-medium text-zoru-ink">
               Progress ({doneCount}/{tasks.length} tasks done)
             </p>
-            <ZoruBadge variant="success">{computedProgress}%</ZoruBadge>
+            <Badge variant="success">{computedProgress}%</Badge>
           </div>
           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
             <div
@@ -492,7 +492,7 @@ export default function ProjectDetailPage(props: {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Related rail (chip strip) */}
       <RelatedRail
@@ -534,7 +534,7 @@ export default function ProjectDetailPage(props: {
       <ProjectPublicSharePanel projectId={projectId} />
 
       {/* Tabs */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
           {TABS.map((t) => (
             <button
@@ -595,7 +595,7 @@ export default function ProjectDetailPage(props: {
         {activeTab === 'tasks' && (
           <div>
             <div className="mb-4 flex justify-end">
-              <ZoruButton
+              <Button
                 onClick={() => {
                   setEditingTask(null);
                   setTaskDialogOpen(true);
@@ -603,10 +603,10 @@ export default function ProjectDetailPage(props: {
               >
                 <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add Task
-              </ZoruButton>
+              </Button>
             </div>
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
@@ -639,23 +639,23 @@ export default function ProjectDetailPage(props: {
                           {t.assigneeName || '—'}
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <ZoruBadge
+                          <Badge
                             variant={
                               TASK_STATUS_VARIANTS[t.status] || 'ghost'
                             }
                           >
                             {t.status}
-                          </ZoruBadge>
+                          </Badge>
                         </ZoruTableCell>
                         <ZoruTableCell>
                           {t.priority ? (
-                            <ZoruBadge
+                            <Badge
                               variant={
                                 PRIORITY_VARIANTS[t.priority] || 'ghost'
                               }
                             >
                               {t.priority}
-                            </ZoruBadge>
+                            </Badge>
                           ) : (
                             '—'
                           )}
@@ -670,7 +670,7 @@ export default function ProjectDetailPage(props: {
                               entityId={t._id}
                               title={t.heading}
                             />
-                            <ZoruButton
+                            <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => {
@@ -679,21 +679,21 @@ export default function ProjectDetailPage(props: {
                               }}
                             >
                               <Pencil className="h-3.5 w-3.5" />
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => setDeletingTaskId(t._id)}
                             >
                               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     ))
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
           </div>
         )}
@@ -702,10 +702,10 @@ export default function ProjectDetailPage(props: {
         {activeTab === 'milestones' && (
           <div>
             <div className="mb-4 flex justify-end">
-              <ZoruButton onClick={() => setMilestoneDialogOpen(true)}>
+              <Button onClick={() => setMilestoneDialogOpen(true)}>
                 <Flag className="h-4 w-4" strokeWidth={1.75} />
                 Add Milestone
-              </ZoruButton>
+              </Button>
             </div>
             {milestones.length === 0 ? (
               <EmptyRow text="No milestones yet." />
@@ -726,18 +726,18 @@ export default function ProjectDetailPage(props: {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <ZoruBadge
+                      <Badge
                         variant={m.status === 'complete' ? 'success' : 'warning'}
                       >
                         {m.status}
-                      </ZoruBadge>
-                      <ZoruButton
+                      </Badge>
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteMilestone(m._id)}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </li>
                 ))}
@@ -750,10 +750,10 @@ export default function ProjectDetailPage(props: {
         {activeTab === 'members' && (
           <div>
             <div className="mb-4 flex justify-end">
-              <ZoruButton onClick={() => setMemberDialogOpen(true)}>
+              <Button onClick={() => setMemberDialogOpen(true)}>
                 <Users className="h-4 w-4" strokeWidth={1.75} />
                 Add Member
-              </ZoruButton>
+              </Button>
             </div>
             {members.length === 0 ? (
               <EmptyRow text="No members yet." />
@@ -774,15 +774,15 @@ export default function ProjectDetailPage(props: {
                     </div>
                     <div className="flex items-center gap-2">
                       {m.hourlyRate ? (
-                        <ZoruBadge variant="success">₹{m.hourlyRate}/hr</ZoruBadge>
+                        <Badge variant="success">₹{m.hourlyRate}/hr</Badge>
                       ) : null}
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteMember(m._id)}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </li>
                 ))}
@@ -795,10 +795,10 @@ export default function ProjectDetailPage(props: {
         {activeTab === 'files' && (
           <div>
             <div className="mb-4 flex justify-end">
-              <ZoruButton onClick={() => setFileDialogOpen(true)}>
+              <Button onClick={() => setFileDialogOpen(true)}>
                 <FileText className="h-4 w-4" strokeWidth={1.75} />
                 Add File
-              </ZoruButton>
+              </Button>
             </div>
             {files.length === 0 ? (
               <EmptyRow text="No files yet." />
@@ -827,13 +827,13 @@ export default function ProjectDetailPage(props: {
                         </a>
                       ) : null}
                     </div>
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteFile(f._id)}
                     >
                       <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                    </ZoruButton>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -845,10 +845,10 @@ export default function ProjectDetailPage(props: {
         {activeTab === 'notes' && (
           <div>
             <div className="mb-4 flex justify-end">
-              <ZoruButton onClick={() => setNoteDialogOpen(true)}>
+              <Button onClick={() => setNoteDialogOpen(true)}>
                 <StickyNote className="h-4 w-4" strokeWidth={1.75} />
                 Add Note
-              </ZoruButton>
+              </Button>
             </div>
             {notes.length === 0 ? (
               <EmptyRow text="No notes yet." />
@@ -860,13 +860,13 @@ export default function ProjectDetailPage(props: {
                       <p className="text-[13px] font-medium text-zoru-ink">
                         {n.title}
                       </p>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteNote(n._id)}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                     <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-zoru-ink-muted">
                       {n.details || '—'}
@@ -925,7 +925,7 @@ export default function ProjectDetailPage(props: {
               <EmptyRow text="No tasks to chart." />
             ) : (
               <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line">
                       <ZoruTableHead className="text-zoru-ink-muted">Task</ZoruTableHead>
@@ -957,15 +957,15 @@ export default function ProjectDetailPage(props: {
                       );
                     })}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
             )}
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* ── Task dialog ── */}
-      <ZoruDialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
+      <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">
@@ -982,10 +982,10 @@ export default function ProjectDetailPage(props: {
             <input type="hidden" name="projectId" value={projectId} />
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <ZoruLabel className="text-zoru-ink">
+                <Label className="text-zoru-ink">
                   Title <span className="text-zoru-danger-ink">*</span>
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   name="heading"
                   required
                   defaultValue={editingTask?.heading || ''}
@@ -993,7 +993,7 @@ export default function ProjectDetailPage(props: {
                 />
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Assignee</ZoruLabel>
+                <Label className="text-zoru-ink">Assignee</Label>
                 <div className="mt-1.5">
                   <EntityFormField
                     entity="employee"
@@ -1005,8 +1005,8 @@ export default function ProjectDetailPage(props: {
                 </div>
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
-                <ZoruSelect
+                <Label className="text-zoru-ink">Status</Label>
+                <Select
                   name="status"
                   defaultValue={editingTask?.status || 'incomplete'}
                 >
@@ -1020,11 +1020,11 @@ export default function ProjectDetailPage(props: {
                     <ZoruSelectItem value="review">Review</ZoruSelectItem>
                     <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Priority</ZoruLabel>
-                <ZoruSelect
+                <Label className="text-zoru-ink">Priority</Label>
+                <Select
                   name="priority"
                   defaultValue={editingTask?.priority || 'medium'}
                 >
@@ -1037,11 +1037,11 @@ export default function ProjectDetailPage(props: {
                     <ZoruSelectItem value="high">High</ZoruSelectItem>
                     <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Start Date</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Start Date</Label>
+                <Input
                   type="date"
                   name="startDate"
                   defaultValue={
@@ -1055,8 +1055,8 @@ export default function ProjectDetailPage(props: {
                 />
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Due Date</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Due Date</Label>
+                <Input
                   type="date"
                   name="dueDate"
                   defaultValue={
@@ -1070,8 +1070,8 @@ export default function ProjectDetailPage(props: {
                 />
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Estimate Hours</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Estimate Hours</Label>
+                <Input
                   type="number"
                   name="estimatedHours"
                   defaultValue={editingTask?.estimatedHours ?? ''}
@@ -1079,8 +1079,8 @@ export default function ProjectDetailPage(props: {
                 />
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Actual Hours</ZoruLabel>
-                <ZoruInput
+                <Label className="text-zoru-ink">Actual Hours</Label>
+                <Input
                   type="number"
                   name="actualHours"
                   defaultValue={editingTask?.actualHours ?? ''}
@@ -1088,8 +1088,8 @@ export default function ProjectDetailPage(props: {
                 />
               </div>
               <div className="md:col-span-2">
-                <ZoruLabel className="text-zoru-ink">Description</ZoruLabel>
-                <ZoruTextarea
+                <Label className="text-zoru-ink">Description</Label>
+                <Textarea
                   name="description"
                   rows={3}
                   defaultValue={editingTask?.description || ''}
@@ -1098,14 +1098,14 @@ export default function ProjectDetailPage(props: {
               </div>
             </div>
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setTaskDialogOpen(false)}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={isTaskSaving}>
+              </Button>
+              <Button type="submit" disabled={isTaskSaving}>
                 {isTaskSaving ? (
                   <LoaderCircle
                     className="h-4 w-4 animate-spin"
@@ -1113,11 +1113,11 @@ export default function ProjectDetailPage(props: {
                   />
                 ) : null}
                 Save
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingTaskId !== null}
@@ -1155,9 +1155,9 @@ export default function ProjectDetailPage(props: {
         <FormInput label="Role" name="role" />
         <FormInput label="Hourly Rate" name="hourlyRate" type="number" />
         <div>
-          <ZoruLabel className="text-zoru-ink">
+          <Label className="text-zoru-ink">
             Linked User (optional)
-          </ZoruLabel>
+          </Label>
           <div className="mt-1.5">
             <EntityFormField
               entity="user"
@@ -1275,7 +1275,7 @@ function SimpleFormDialog({
   children: React.ReactNode;
 }) {
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="text-zoru-ink">{title}</ZoruDialogTitle>
@@ -1283,14 +1283,14 @@ function SimpleFormDialog({
         <form action={action} className="space-y-3">
           {children}
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isSaving}>
+            </Button>
+            <Button type="submit" disabled={isSaving}>
               {isSaving ? (
                 <LoaderCircle
                   className="h-4 w-4 animate-spin"
@@ -1298,11 +1298,11 @@ function SimpleFormDialog({
                 />
               ) : null}
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -1323,12 +1323,12 @@ function FormInput({
 }) {
   return (
     <div>
-      <ZoruLabel className="text-zoru-ink">
+      <Label className="text-zoru-ink">
         {label}
         {required ? <span className="text-zoru-danger-ink"> *</span> : null}
-      </ZoruLabel>
+      </Label>
       {type === 'textarea' ? (
-        <ZoruTextarea
+        <Textarea
           name={name}
           required={required}
           placeholder={placeholder}
@@ -1336,7 +1336,7 @@ function FormInput({
           className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
         />
       ) : (
-        <ZoruInput
+        <Input
           name={name}
           type={type}
           required={required}
@@ -1362,8 +1362,8 @@ function FormSelect({
 }) {
   return (
     <div>
-      <ZoruLabel className="text-zoru-ink">{label}</ZoruLabel>
-      <ZoruSelect name={name} defaultValue={defaultValue}>
+      <Label className="text-zoru-ink">{label}</Label>
+      <Select name={name} defaultValue={defaultValue}>
         <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
           <ZoruSelectValue />
         </ZoruSelectTrigger>
@@ -1374,7 +1374,7 @@ function FormSelect({
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
     </div>
   );
 }

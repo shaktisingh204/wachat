@@ -179,7 +179,7 @@ export default function OverviewPage() {
   };
 
   const breadcrumbs = (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -193,18 +193,18 @@ export default function OverviewPage() {
           <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 
   if (!projectId) {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruEmptyState
+        <EmptyState
           icon={<Inbox className="h-10 w-10" />}
           title="Select a project to continue"
           description="Overview stats are scoped to a single WhatsApp Business project. Pick one from the home screen."
-          action={<ZoruButton onClick={() => router.push('/dashboard')}>Go to projects</ZoruButton>}
+          action={<Button onClick={() => router.push('/dashboard')}>Go to projects</Button>}
         />
       </div>
     );
@@ -213,14 +213,14 @@ export default function OverviewPage() {
   if (loading && !stats) {
     return (
       <div className="flex flex-col gap-6">
-        <ZoruSkeleton className="h-3 w-52" />
-        <ZoruSkeleton className="h-9 w-64" />
+        <Skeleton className="h-3 w-52" />
+        <Skeleton className="h-9 w-64" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[118px]" />
+            <Skeleton key={i} className="h-[118px]" />
           ))}
         </div>
-        <ZoruSkeleton className="h-[260px]" />
+        <Skeleton className="h-[260px]" />
       </div>
     );
   }
@@ -230,7 +230,7 @@ export default function OverviewPage() {
       {breadcrumbs}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Project overview</ZoruPageTitle>
             <ZoruPageDescription>
@@ -239,14 +239,14 @@ export default function OverviewPage() {
                 : 'Last 30 days of messaging activity'}
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
+        </PageHeader>
         <div className="flex items-center gap-2">
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 Last 30 days
                 <ChevronDown className="h-3 w-3 opacity-60" />
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
@@ -256,19 +256,19 @@ export default function OverviewPage() {
                 Open analytics
               </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
-          <ZoruButton variant="outline" size="sm" onClick={handleRefresh}>
+          </DropdownMenu>
+          <Button variant="outline" size="sm" onClick={handleRefresh}>
             <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
             Refresh
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-3.5 w-3.5" />
             Export
-          </ZoruButton>
-          <ZoruButton onClick={() => router.push('/wachat/broadcasts')}>
+          </Button>
+          <Button onClick={() => router.push('/wachat/broadcasts')}>
             <Plus className="h-3.5 w-3.5" />
             New campaign
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -304,7 +304,7 @@ export default function OverviewPage() {
 
       {/* Funnel + quick actions */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-zoru-ink">Delivery funnel</div>
@@ -312,10 +312,10 @@ export default function OverviewPage() {
                 How your messages moved through WhatsApp
               </div>
             </div>
-            <ZoruButton size="sm" variant="outline" onClick={() => router.push('/wachat/broadcasts')}>
+            <Button size="sm" variant="outline" onClick={() => router.push('/wachat/broadcasts')}>
               <TrendingUp className="h-3 w-3" />
               Campaigns
-            </ZoruButton>
+            </Button>
           </div>
 
           <div className="mt-5 flex flex-col gap-3">
@@ -350,7 +350,7 @@ export default function OverviewPage() {
               tone="danger"
             />
           </div>
-        </ZoruCard>
+        </Card>
 
         <div className="flex flex-col gap-2">
           {[
@@ -364,7 +364,7 @@ export default function OverviewPage() {
               primary: true,
             },
           ].map((item) => (
-            <ZoruButton
+            <Button
               key={item.label}
               block
               variant={item.primary ? 'default' : 'outline'}
@@ -372,9 +372,9 @@ export default function OverviewPage() {
             >
               {item.icon}
               {item.label}
-            </ZoruButton>
+            </Button>
           ))}
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             block
@@ -382,7 +382,7 @@ export default function OverviewPage() {
           >
             Connect an integration
             <ArrowUpRight className="h-3 w-3" />
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -398,35 +398,35 @@ export default function OverviewPage() {
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <ZoruButton
+            <Button
               variant="outline"
               size="icon-sm"
               aria-label="New campaign"
               onClick={() => router.push('/wachat/broadcasts')}
             >
               <Plus className="h-4 w-4" />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="icon-sm"
               aria-label="More"
               onClick={() => router.push('/wachat/broadcasts')}
             >
               <MoreHorizontal className="h-4 w-4" />
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
-        <ZoruCard className="mt-5 p-6">
+        <Card className="mt-5 p-6">
           {broadcasts.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               icon={<MessagesSquare className="h-10 w-10" />}
               title="No campaigns yet"
               description="Launch your first WhatsApp broadcast to reach your audience."
               action={
-                <ZoruButton size="sm" onClick={() => router.push('/wachat/broadcasts')}>
+                <Button size="sm" onClick={() => router.push('/wachat/broadcasts')}>
                   Create broadcast
-                </ZoruButton>
+                </Button>
               }
             />
           ) : (
@@ -464,7 +464,7 @@ export default function OverviewPage() {
                             ? formatDistanceToNow(createdDate, { addSuffix: true })
                             : 'unknown time'}
                         </span>
-                        <ZoruBadge variant={variant}>{b.status || 'unknown'}</ZoruBadge>
+                        <Badge variant={variant}>{b.status || 'unknown'}</Badge>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -474,21 +474,21 @@ export default function OverviewPage() {
                           {compact(delivered)}/{compact(total)}
                         </div>
                       </div>
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         aria-label="View broadcast"
                         onClick={() => router.push(`/wachat/broadcasts/${b._id}/report`)}
                       >
                         <ArrowUpRight className="h-3.5 w-3.5" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
                 );
               })}
             </div>
           )}
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );
@@ -510,16 +510,16 @@ function Kpi({
   up?: boolean;
 }) {
   return (
-    <ZoruCard className="p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
+    <Card className="p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
       <div className="flex items-start justify-between">
         <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
           {icon}
         </span>
         {delta !== undefined && (
-          <ZoruBadge variant={up ? 'success' : 'danger'} className="gap-1">
+          <Badge variant={up ? 'success' : 'danger'} className="gap-1">
             {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
             {Math.abs(delta)}%
-          </ZoruBadge>
+          </Badge>
         )}
       </div>
       <div className="mt-3.5 text-[11.5px] leading-none text-zoru-ink-muted">{label}</div>
@@ -527,7 +527,7 @@ function Kpi({
       {hint && (
         <div className="mt-1 truncate text-[11px] leading-tight text-zoru-ink-muted">{hint}</div>
       )}
-    </ZoruCard>
+    </Card>
   );
 }
 

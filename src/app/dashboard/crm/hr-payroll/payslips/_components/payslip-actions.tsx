@@ -71,13 +71,13 @@ export function PayslipActions({ id, archived, acknowledged }: PayslipActionsPro
 
     return (
         <>
-            <ZoruButton variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/crm/hr-payroll/payslips/${id}/edit`}>
                     <Pencil className="mr-1.5 h-3.5 w-3.5" />
                     Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 disabled
@@ -85,8 +85,8 @@ export function PayslipActions({ id, archived, acknowledged }: PayslipActionsPro
             >
                 <FileText className="mr-1.5 h-3.5 w-3.5" />
                 Print
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 disabled
@@ -94,8 +94,8 @@ export function PayslipActions({ id, archived, acknowledged }: PayslipActionsPro
             >
                 <Mail className="mr-1.5 h-3.5 w-3.5" />
                 Email
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 disabled={acknowledged || pendingKey !== null}
@@ -107,8 +107,8 @@ export function PayslipActions({ id, archived, acknowledged }: PayslipActionsPro
             >
                 <Check className="mr-1.5 h-3.5 w-3.5" />
                 {acknowledged ? 'Acknowledged' : 'Acknowledge'}
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 disabled={archived || pendingKey !== null}
@@ -118,13 +118,13 @@ export function PayslipActions({ id, archived, acknowledged }: PayslipActionsPro
             >
                 <ArchiveIcon className="mr-1.5 h-3.5 w-3.5" />
                 {archived ? 'Archived' : 'Archive'}
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" asChild>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
                 <Link href={`/dashboard/crm/hr-payroll/payslips/${id}/edit`}>
                     <History className="mr-1.5 h-3.5 w-3.5" />
                     Activity
                 </Link>
-            </ZoruButton>
+            </Button>
         </>
     );
 }

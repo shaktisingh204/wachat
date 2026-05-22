@@ -115,7 +115,7 @@ export default function PayslipsListPage() {
                             }
                             placeholder="All statuses"
                         />
-                        <ZoruInput
+                        <Input
                             type="month"
                             className="h-9 w-[160px]"
                             value={payPeriod}
@@ -127,7 +127,7 @@ export default function PayslipsListPage() {
                 loading={isLoading && rows.length === 0}
             >
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
@@ -179,18 +179,18 @@ export default function PayslipsListPage() {
                                                 {fmtDate(p.issuedAt)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton variant="ghost" size="icon" asChild>
+                                                <Button variant="ghost" size="icon" asChild>
                                                     <Link href={`${BASE}/${p._id}`}>
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
         </EntityListShell>
     );

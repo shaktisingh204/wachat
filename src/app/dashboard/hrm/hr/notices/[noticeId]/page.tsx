@@ -106,19 +106,19 @@ export default async function NoticeDetailPage({
             title={notice.title}
             subtitle={`Notice ${notice.noticeNumber || notice._id.slice(-8)}`}
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link
                         href={`/dashboard/hrm/hr/notices/${notice._id}/edit`}
                     >
                         <Edit className="mr-1.5 h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {/* Header card: number / title / severity / status */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
                         <div className="font-mono text-[12px] uppercase tracking-wide text-zoru-ink-muted">
@@ -158,16 +158,16 @@ export default async function NoticeDetailPage({
                             tone={STATUS_TONE[statusKey] ?? 'neutral'}
                         />
                         {notice.requireAcknowledgement ? (
-                            <ZoruBadge variant="info">
+                            <Badge variant="info">
                                 Acknowledgement required
-                            </ZoruBadge>
+                            </Badge>
                         ) : null}
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Body */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 text-[14px] font-medium text-zoru-ink">
                     Notice body
                 </div>
@@ -178,10 +178,10 @@ export default async function NoticeDetailPage({
                         </span>
                     )}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Recipients */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
                     <Users className="h-4 w-4 text-zoru-ink-muted" />
                     <span className="text-[14px] font-medium text-zoru-ink">
@@ -203,15 +203,15 @@ export default async function NoticeDetailPage({
                     <ul className="flex flex-wrap gap-2">
                         {recipients.map((r, i) => (
                             <li key={`${r}-${i}`}>
-                                <ZoruBadge variant="secondary">{r}</ZoruBadge>
+                                <Badge variant="secondary">{r}</Badge>
                             </li>
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Effective dates + acknowledgement */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-zoru-ink-muted" />
                     <span className="text-[14px] font-medium text-zoru-ink">
@@ -247,10 +247,10 @@ export default async function NoticeDetailPage({
                         {ackCount} recipient{ackCount === 1 ? '' : 's'}
                     </span>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Attachments */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
                     <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                     <span className="text-[14px] font-medium text-zoru-ink">
@@ -286,17 +286,17 @@ export default async function NoticeDetailPage({
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
 
             {notice.notes ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-2 text-[14px] font-medium text-zoru-ink">
                         Internal notes
                     </div>
                     <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
                         {notice.notes}
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityListShell>
     );

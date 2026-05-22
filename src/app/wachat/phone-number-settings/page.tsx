@@ -141,7 +141,7 @@ export default function PhoneNumberSettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -155,7 +155,7 @@ export default function PhoneNumberSettingsPage() {
             <ZoruBreadcrumbPage>Phone number settings</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5">
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -168,12 +168,12 @@ export default function PhoneNumberSettingsPage() {
 
       {isLoading ? (
         <div className="mt-6 grid gap-4">
-          <ZoruSkeleton className="h-9 w-64" />
-          <ZoruSkeleton className="h-72 w-full" />
+          <Skeleton className="h-9 w-64" />
+          <Skeleton className="h-72 w-full" />
         </div>
       ) : phones.length === 0 ? (
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Phone />}
             title="No phone numbers connected"
             description="Connect a WhatsApp Business number to manage its profile here."
@@ -183,7 +183,7 @@ export default function PhoneNumberSettingsPage() {
         <>
           <div className="mt-6 flex flex-wrap gap-2">
             {phones.map((p, i) => (
-              <ZoruButton
+              <Button
                 key={p.id || i}
                 variant={selectedIdx === i ? 'default' : 'outline'}
                 size="sm"
@@ -191,11 +191,11 @@ export default function PhoneNumberSettingsPage() {
               >
                 <Phone />
                 {p.display_phone_number || p.number || `Phone ${i + 1}`}
-              </ZoruButton>
+              </Button>
             ))}
           </div>
 
-          <ZoruCard className="mt-4 p-6">
+          <Card className="mt-4 p-6">
             <div className="mb-6 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2">
@@ -210,7 +210,7 @@ export default function PhoneNumberSettingsPage() {
                   </div>
                 </div>
               </div>
-              <ZoruButton
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={() => {
@@ -221,15 +221,15 @@ export default function PhoneNumberSettingsPage() {
                 }}
               >
                 Edit display name
-              </ZoruButton>
+              </Button>
             </div>
 
             <div className="flex max-w-lg flex-col gap-4">
               {fields.map((f) => (
                 <div key={f.key} className="flex flex-col gap-1.5">
-                  <ZoruLabel htmlFor={`pn-${f.key}`}>{f.label}</ZoruLabel>
+                  <Label htmlFor={`pn-${f.key}`}>{f.label}</Label>
                   {f.multiline ? (
-                    <ZoruTextarea
+                    <Textarea
                       id={`pn-${f.key}`}
                       value={profile[f.key] || ''}
                       onChange={(e) =>
@@ -241,7 +241,7 @@ export default function PhoneNumberSettingsPage() {
                       rows={3}
                     />
                   ) : (
-                    <ZoruInput
+                    <Input
                       id={`pn-${f.key}`}
                       value={profile[f.key] || ''}
                       onChange={(e) =>
@@ -255,18 +255,18 @@ export default function PhoneNumberSettingsPage() {
                 </div>
               ))}
               <div>
-                <ZoruButton onClick={handleSave} disabled={isSaving}>
+                <Button onClick={handleSave} disabled={isSaving}>
                   {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
                   {isSaving ? 'Saving…' : 'Save profile'}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         </>
       )}
 
       {/* ── Edit display name dialog ── */}
-      <ZoruDialog open={displayNameOpen} onOpenChange={setDisplayNameOpen}>
+      <Dialog open={displayNameOpen} onOpenChange={setDisplayNameOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Edit display name</ZoruDialogTitle>
@@ -275,8 +275,8 @@ export default function PhoneNumberSettingsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-2">
-            <ZoruLabel htmlFor="display-name">Display name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="display-name">Display name</Label>
+            <Input
               id="display-name"
               value={draftDisplayName}
               onChange={(e) => setDraftDisplayName(e.target.value)}
@@ -284,10 +284,10 @@ export default function PhoneNumberSettingsPage() {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setDisplayNameOpen(false)}>
+            <Button variant="ghost" onClick={() => setDisplayNameOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Display name updated',
@@ -298,10 +298,10 @@ export default function PhoneNumberSettingsPage() {
               disabled={!draftDisplayName.trim()}
             >
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

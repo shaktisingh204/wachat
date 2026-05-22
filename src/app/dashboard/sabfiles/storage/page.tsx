@@ -30,7 +30,7 @@ export default async function SabFilesStoragePage() {
                 <h1 className="text-xl font-semibold text-zoru-ink">Storage usage</h1>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Cloud storage</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -53,9 +53,9 @@ export default async function SabFilesStoragePage() {
                             </div>
                         )}
                     </div>
-                    {pct !== null && <ZoruProgress value={pct} />}
+                    {pct !== null && <Progress value={pct} />}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

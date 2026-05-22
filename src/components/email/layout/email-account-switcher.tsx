@@ -23,7 +23,7 @@ export function EmailAccountSwitcher({
 }: EmailAccountSwitcherProps) {
   return (
     <div className="px-2">
-      <ZoruSelect value={activeAccount._id.toString()} onValueChange={onChange}>
+      <Select value={activeAccount._id.toString()} onValueChange={onChange}>
         <ZoruSelectTrigger className="w-full">
           <ZoruSelectValue placeholder="Select account" />
         </ZoruSelectTrigger>
@@ -54,7 +54,7 @@ export function EmailAccountSwitcher({
             </div>
           </ZoruSelectItem>
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
     </div>
   );
 }

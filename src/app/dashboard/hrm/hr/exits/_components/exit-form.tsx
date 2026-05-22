@@ -47,14 +47,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create exit'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -104,7 +104,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="exitId" value={initialData!._id} />
@@ -113,7 +113,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
                 {/* Employee picker (dual-writes employeeName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Employee *</ZoruLabel>
+                        <Label>Employee *</Label>
                         <EntityFormField
                             entity="employee"
                             name="employeeId"
@@ -130,7 +130,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
                 {/* Type + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Type</ZoruLabel>
+                        <Label>Type</Label>
                         <EnumFormField
                             enumName="exitType"
                             name="type"
@@ -142,7 +142,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="exitStatus"
                             name="status"
@@ -158,8 +158,8 @@ export function ExitForm({ initialData }: ExitFormProps) {
                 {/* Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="noticeStart">Notice start</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="noticeStart">Notice start</Label>
+                        <Input
                             id="noticeStart"
                             name="noticeStart"
                             type="date"
@@ -167,8 +167,8 @@ export function ExitForm({ initialData }: ExitFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="lastDay">Last working day</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="lastDay">Last working day</Label>
+                        <Input
                             id="lastDay"
                             name="lastDay"
                             type="date"
@@ -180,7 +180,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
                 {/* Clearance status grid */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>F&amp;F status</ZoruLabel>
+                        <Label>F&amp;F status</Label>
                         <EnumFormField
                             enumName="exitClearanceStatus"
                             name="fnfStatus"
@@ -190,7 +190,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>NOC status</ZoruLabel>
+                        <Label>NOC status</Label>
                         <EnumFormField
                             enumName="nocStatus"
                             name="nocStatus"
@@ -200,7 +200,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Asset return</ZoruLabel>
+                        <Label>Asset return</Label>
                         <EnumFormField
                             enumName="assetReturnStatus"
                             name="assetReturnStatus"
@@ -212,7 +212,7 @@ export function ExitForm({ initialData }: ExitFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Knowledge transfer</ZoruLabel>
+                        <Label>Knowledge transfer</Label>
                         <EnumFormField
                             enumName="exitClearanceStatus"
                             name="knowledgeTransferStatus"
@@ -227,8 +227,8 @@ export function ExitForm({ initialData }: ExitFormProps) {
 
                 {/* Reason */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="reason">Reason</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="reason">Reason</Label>
+                    <Input
                         id="reason"
                         name="reason"
                         placeholder="Short summary"
@@ -238,10 +238,10 @@ export function ExitForm({ initialData }: ExitFormProps) {
 
                 {/* Exit interview notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="exitInterviewNotes">
+                    <Label htmlFor="exitInterviewNotes">
                         Exit interview notes
-                    </ZoruLabel>
-                    <ZoruTextarea
+                    </Label>
+                    <Textarea
                         id="exitInterviewNotes"
                         name="exitInterviewNotes"
                         rows={4}
@@ -251,8 +251,8 @@ export function ExitForm({ initialData }: ExitFormProps) {
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -262,15 +262,15 @@ export function ExitForm({ initialData }: ExitFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to exits
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

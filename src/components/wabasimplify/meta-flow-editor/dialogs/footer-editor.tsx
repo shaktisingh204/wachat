@@ -16,20 +16,20 @@ export function FooterEditor({ component, updateField, updateAction, allScreens 
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">Button Label</ZoruLabel>
-                <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={35} />
+                <Label htmlFor="label">Button Label</Label>
+                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={35} />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="left-caption">Left Caption</ZoruLabel>
-                <ZoruInput id="left-caption" value={component['left-caption'] || ''} onChange={(e) => updateField('left-caption', e.target.value)} maxLength={15} />
+                <Label htmlFor="left-caption">Left Caption</Label>
+                <Input id="left-caption" value={component['left-caption'] || ''} onChange={(e) => updateField('left-caption', e.target.value)} maxLength={15} />
             </div>
              <div className="space-y-2">
-                <ZoruLabel htmlFor="center-caption">Center Caption</ZoruLabel>
-                <ZoruInput id="center-caption" value={component['center-caption'] || ''} onChange={(e) => updateField('center-caption', e.target.value)} maxLength={15} />
+                <Label htmlFor="center-caption">Center Caption</Label>
+                <Input id="center-caption" value={component['center-caption'] || ''} onChange={(e) => updateField('center-caption', e.target.value)} maxLength={15} />
             </div>
              <div className="space-y-2">
-                <ZoruLabel htmlFor="right-caption">Right Caption</ZoruLabel>
-                <ZoruInput id="right-caption" value={component['right-caption'] || ''} onChange={(e) => updateField('right-caption', e.target.value)} maxLength={15} />
+                <Label htmlFor="right-caption">Right Caption</Label>
+                <Input id="right-caption" value={component['right-caption'] || ''} onChange={(e) => updateField('right-caption', e.target.value)} maxLength={15} />
             </div>
             
             <ActionEditor

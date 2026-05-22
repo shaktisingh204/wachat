@@ -175,17 +175,17 @@ export default function TaskboardPreferencesPage() {
         >
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <ZoruStatCard
+                <StatCard
                     label="Total presets"
                     value={rows.length}
                     icon={<KanbanSquare className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Project-scoped"
                     value={scopedProjects}
                     icon={<Layers3 className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Hide-done enabled"
                     value={hideDoneCount}
                     icon={<EyeOff className="h-4 w-4" />}
@@ -193,7 +193,7 @@ export default function TaskboardPreferencesPage() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <ZoruCard className="p-6 lg:col-span-2">
+                <Card className="p-6 lg:col-span-2">
                     <div className="pb-3">
                         <h2 className="text-[16px] text-zoru-ink">Edit preferences</h2>
                         <p className="text-[12.5px] text-zoru-ink-muted">
@@ -203,10 +203,10 @@ export default function TaskboardPreferencesPage() {
                     </div>
                     <div className="grid gap-3">
                         <div className="grid gap-1.5">
-                            <ZoruLabel htmlFor="project-id">
+                            <Label htmlFor="project-id">
                                 Project ID (optional)
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="project-id"
                                 value={form.project_id}
                                 onChange={(e) =>
@@ -219,19 +219,19 @@ export default function TaskboardPreferencesPage() {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <ZoruCheckbox
+                            <Checkbox
                                 id="hide-done"
                                 checked={form.hide_done}
                                 onCheckedChange={(v) =>
                                     setForm((f) => ({ ...f, hide_done: !!v }))
                                 }
                             />
-                            <ZoruLabel htmlFor="hide-done">Hide completed tasks</ZoruLabel>
+                            <Label htmlFor="hide-done">Hide completed tasks</Label>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="grid gap-1.5">
-                                <ZoruLabel>Group by</ZoruLabel>
-                                <ZoruSelect
+                                <Label>Group by</Label>
+                                <Select
                                     value={form.group_by}
                                     onValueChange={(v) =>
                                         setForm((f) => ({
@@ -250,11 +250,11 @@ export default function TaskboardPreferencesPage() {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="grid gap-1.5">
-                                <ZoruLabel>Sort by</ZoruLabel>
-                                <ZoruSelect
+                                <Label>Sort by</Label>
+                                <Select
                                     value={form.sort_by}
                                     onValueChange={(v) =>
                                         setForm((f) => ({
@@ -273,14 +273,14 @@ export default function TaskboardPreferencesPage() {
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
                         <div className="grid gap-1.5">
-                            <ZoruLabel htmlFor="cols">
+                            <Label htmlFor="cols">
                                 Visible columns (comma separated)
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="cols"
                                 rows={3}
                                 value={form.visible_columns}
@@ -293,15 +293,15 @@ export default function TaskboardPreferencesPage() {
                             />
                         </div>
                         <div>
-                            <ZoruButton onClick={handleSave} disabled={saving}>
+                            <Button onClick={handleSave} disabled={saving}>
                                 <Save className="h-4 w-4" />
                                 {saving ? 'Saving…' : 'Save preferences'}
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </div>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="pb-3">
                         <h2 className="text-[16px] text-zoru-ink">Saved presets</h2>
                         <p className="text-[12.5px] text-zoru-ink-muted">
@@ -309,23 +309,23 @@ export default function TaskboardPreferencesPage() {
                         </p>
                     </div>
                     <div className="mb-3 flex flex-col gap-2">
-                        <ZoruInput
+                        <Input
                             type="search"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search presets…"
                         />
                         <div className="flex flex-wrap gap-1">
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 size="sm"
                                 variant={groupFilter === 'all' ? 'default' : 'outline'}
                                 onClick={() => setGroupFilter('all')}
                             >
                                 All
-                            </ZoruButton>
+                            </Button>
                             {GROUPS.map((g) => (
-                                <ZoruButton
+                                <Button
                                     key={g}
                                     type="button"
                                     size="sm"
@@ -335,7 +335,7 @@ export default function TaskboardPreferencesPage() {
                                     onClick={() => setGroupFilter(g)}
                                 >
                                     {g}
-                                </ZoruButton>
+                                </Button>
                             ))}
                         </div>
                     </div>
@@ -365,32 +365,32 @@ export default function TaskboardPreferencesPage() {
                                                 : 'Global default'}
                                         </p>
                                         <div className="mt-1 flex flex-wrap gap-1">
-                                            <ZoruBadge variant="ghost">
+                                            <Badge variant="ghost">
                                                 {r.group_by}
-                                            </ZoruBadge>
-                                            <ZoruBadge variant="ghost">
+                                            </Badge>
+                                            <Badge variant="ghost">
                                                 {r.sort_by}
-                                            </ZoruBadge>
+                                            </Badge>
                                             {r.hide_done ? (
-                                                <ZoruBadge variant="warning">
+                                                <Badge variant="warning">
                                                     hide done
-                                                </ZoruBadge>
+                                                </Badge>
                                             ) : null}
                                         </div>
                                     </button>
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => setDeletingId(r._id)}
                                         aria-label="Delete preset"
                                     >
                                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
                     )}
-                </ZoruCard>
+                </Card>
             </div>
 
             <ZoruAlertDialog

@@ -411,54 +411,54 @@ export default function TimeLogsPage() {
         }}
         primaryAction={
           <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}>
+            <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> CSV
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={handleExportXlsx} disabled={filtered.length === 0}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportXlsx} disabled={filtered.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> XLSX
-            </ZoruButton>
+            </Button>
             {runningLog ? (
-              <ZoruButton
+              <Button
                 variant="destructive"
                 disabled={busy}
                 onClick={() => runningLog._id && handleStop(runningLog._id)}
               >
                 <Square className="h-4 w-4" /> Stop timer
-              </ZoruButton>
+              </Button>
             ) : (
-              <ZoruButton onClick={() => setStartDialog(true)}>
+              <Button onClick={() => setStartDialog(true)}>
                 <Plus className="h-4 w-4" /> Start timer
-              </ZoruButton>
+              </Button>
             )}
           </div>
         }
         filters={
           <>
-            <ZoruInput
+            <Input
               value={employeeFilter}
               onChange={(e) => setEmployeeFilter(e.target.value)}
               placeholder="Employee id"
               className="h-9 w-[160px] text-[13px]"
             />
-            <ZoruInput
+            <Input
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
               placeholder="Project id"
               className="h-9 w-[160px] text-[13px]"
             />
-            <ZoruInput
+            <Input
               value={taskFilter}
               onChange={(e) => setTaskFilter(e.target.value)}
               placeholder="Task id"
               className="h-9 w-[140px] text-[13px]"
             />
-            <ZoruInput
+            <Input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
               className="h-9 w-[140px] text-[13px]"
             />
-            <ZoruInput
+            <Input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
@@ -470,11 +470,11 @@ export default function TimeLogsPage() {
               onChange={setBillableFilter}
               allLabel="All"
             />
-            <ZoruButton variant="outline" size="sm" onClick={refresh}>
+            <Button variant="outline" size="sm" onClick={refresh}>
               <Filter className="h-4 w-4" /> Apply
-            </ZoruButton>
+            </Button>
             {hasActiveFilters ? (
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -487,7 +487,7 @@ export default function TimeLogsPage() {
                 }}
               >
                 Clear
-              </ZoruButton>
+              </Button>
             ) : null}
           </>
         }
@@ -500,9 +500,9 @@ export default function TimeLogsPage() {
                 Start a timer or import logs from your project pages to see them
                 here.
               </p>
-              <ZoruButton onClick={() => setStartDialog(true)}>
+              <Button onClick={() => setStartDialog(true)}>
                 <Play className="h-4 w-4" /> Start timer
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -511,22 +511,22 @@ export default function TimeLogsPage() {
         <div className="flex flex-col gap-4">
           {/* KPI strip */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="This week"
               value={`${kpis.thisWeek}h`}
               icon={<Calendar className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="This month"
               value={`${kpis.thisMonth}h`}
               icon={<TrendingUp className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Billable hours"
               value={`${kpis.billable}h`}
               icon={<DollarSign className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Top project"
               value={
                 kpis.topProject ? (
@@ -545,7 +545,7 @@ export default function TimeLogsPage() {
 
           {/* Running timer banner */}
           {runningLog ? (
-            <ZoruCard className="p-4">
+            <Card className="p-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
@@ -564,14 +564,14 @@ export default function TimeLogsPage() {
                   </p>
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
           ) : null}
 
           {/* Bulk selection header */}
           {filtered.length > 0 && (
             <div className="flex items-center gap-2">
               <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
-                <ZoruCheckbox
+                <Checkbox
                   checked={allChecked}
                   aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
                   onCheckedChange={toggleAll}
@@ -588,7 +588,7 @@ export default function TimeLogsPage() {
               <span className="font-medium text-foreground">
                 {selectedIds.length} selected
               </span>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 disabled={bulkPending}
@@ -596,17 +596,17 @@ export default function TimeLogsPage() {
               >
                 {bulkPending ? <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
                 Mark billable
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 disabled={bulkPending}
                 onClick={() => handleBulkMarkBillable(false)}
               >
                 Mark non-billable
-              </ZoruButton>
+              </Button>
               <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                <ZoruButton
+                <Button
                   variant="destructive"
                   size="sm"
                   disabled={bulkPending}
@@ -614,7 +614,7 @@ export default function TimeLogsPage() {
                 >
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                   Delete selected
-                </ZoruButton>
+                </Button>
                 <ZoruAlertDialogContent>
                   <ZoruAlertDialogHeader>
                     <ZoruAlertDialogTitle>
@@ -639,13 +639,13 @@ export default function TimeLogsPage() {
                   </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
               </ZoruAlertDialog>
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear selection
-              </ZoruButton>
+              </Button>
             </div>
           )}
 

@@ -52,14 +52,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create asset'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -96,7 +96,7 @@ export function AssetForm({ initialData }: AssetFormProps) {
         : '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="assetId" value={initialData!._id} />
@@ -108,8 +108,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                 {/* Row 1: Asset tag + Name */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="assetTag">Asset tag *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="assetTag">Asset tag *</Label>
+                        <Input
                             id="assetTag"
                             name="assetTag"
                             required
@@ -118,8 +118,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -132,7 +132,7 @@ export function AssetForm({ initialData }: AssetFormProps) {
                 {/* Row 2: Category + Brand + Model */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Category</ZoruLabel>
+                        <Label>Category</Label>
                         <EnumFormField
                             name="category-picker"
                             enumName="assetCategory"
@@ -142,36 +142,36 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="brand">Brand</ZoruLabel>
-                        <ZoruInput id="brand" name="brand" defaultValue={initialData?.brand ?? ''} />
+                        <Label htmlFor="brand">Brand</Label>
+                        <Input id="brand" name="brand" defaultValue={initialData?.brand ?? ''} />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="model">Model</ZoruLabel>
-                        <ZoruInput id="model" name="model" defaultValue={initialData?.model ?? ''} />
+                        <Label htmlFor="model">Model</Label>
+                        <Input id="model" name="model" defaultValue={initialData?.model ?? ''} />
                     </div>
                 </div>
 
                 {/* Row 3: Serial + Location + Branch */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="serialNumber">Serial number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="serialNumber">Serial number</Label>
+                        <Input
                             id="serialNumber"
                             name="serialNumber"
                             defaultValue={initialData?.serialNumber ?? ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="location">Location</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="location">Location</Label>
+                        <Input
                             id="location"
                             name="location"
                             defaultValue={initialData?.location ?? ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="branchId">Branch id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="branchId">Branch id</Label>
+                        <Input
                             id="branchId"
                             name="branchId"
                             defaultValue={initialData?.branchId ?? ''}
@@ -182,8 +182,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                 {/* Row 4: Purchase date + price + currency */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="purchaseDate">Purchase date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="purchaseDate">Purchase date</Label>
+                        <Input
                             id="purchaseDate"
                             name="purchaseDate"
                             type="date"
@@ -191,8 +191,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="purchasePrice">Purchase price</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="purchasePrice">Purchase price</Label>
+                        <Input
                             id="purchasePrice"
                             name="purchasePrice"
                             type="number"
@@ -201,8 +201,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -214,8 +214,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                 {/* Row 5: Warranty + Condition + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="warrantyExpiry">Warranty expiry</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="warrantyExpiry">Warranty expiry</Label>
+                        <Input
                             id="warrantyExpiry"
                             name="warrantyExpiry"
                             type="date"
@@ -223,7 +223,7 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Condition</ZoruLabel>
+                        <Label>Condition</Label>
                         <EnumFormField
                             name="condition-picker"
                             enumName="assetCondition"
@@ -234,7 +234,7 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             name="status-picker"
                             enumName="assetStatus"
@@ -251,8 +251,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                 {/* Row 6: Assignee */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currentAssigneeId">Current assignee id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currentAssigneeId">Current assignee id</Label>
+                        <Input
                             id="currentAssigneeId"
                             name="currentAssigneeId"
                             placeholder="Optional employee id"
@@ -260,8 +260,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currentAssigneeName">Current assignee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currentAssigneeName">Current assignee name</Label>
+                        <Input
                             id="currentAssigneeName"
                             name="currentAssigneeName"
                             defaultValue={initialData?.currentAssigneeName ?? ''}
@@ -271,8 +271,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
 
                 {/* Row 7: Tags + Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="tags">Tags</Label>
+                    <Input
                         id="tags"
                         name="tags"
                         placeholder="comma, separated, tags"
@@ -281,8 +281,8 @@ export function AssetForm({ initialData }: AssetFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -292,15 +292,15 @@ export function AssetForm({ initialData }: AssetFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to assets
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

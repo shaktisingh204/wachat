@@ -80,7 +80,7 @@ function KpiCard({ label, value, icon, active, onClick }: KpiCardProps) {
                     : '',
             ].join(' ')}
         >
-            <ZoruStatCard label={label} value={value} icon={icon} />
+            <StatCard label={label} value={value} icon={icon} />
         </button>
     );
 }
@@ -168,10 +168,10 @@ export function AdjustmentsFiltersRow({
     return (
         <div className="grid grid-cols-1 gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 md:grid-cols-3 lg:grid-cols-5">
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Status
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                     value={filters.status || '__any'}
                     onValueChange={(v) =>
                         onChange({
@@ -191,13 +191,13 @@ export function AdjustmentsFiltersRow({
                         <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
                         <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Warehouse
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                     entity="warehouse"
                     name="warehouseFilter"
@@ -208,10 +208,10 @@ export function AdjustmentsFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Reason
-                </ZoruLabel>
-                <ZoruSelect
+                </Label>
+                <Select
                     value={filters.reason || '__any'}
                     onValueChange={(v) =>
                         onChange({ reason: v === '__any' ? '' : v })
@@ -230,13 +230,13 @@ export function AdjustmentsFiltersRow({
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Approver
-                </ZoruLabel>
+                </Label>
                 <EntityFormField
                     entity="user"
                     name="approverFilter"
@@ -247,11 +247,11 @@ export function AdjustmentsFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                     Date range
-                </ZoruLabel>
+                </Label>
                 <div className="flex items-center gap-1">
-                    <ZoruInput
+                    <Input
                         type="date"
                         value={filters.dateFrom || ''}
                         onChange={(e) =>
@@ -259,7 +259,7 @@ export function AdjustmentsFiltersRow({
                         }
                         className="h-9 text-[12.5px]"
                     />
-                    <ZoruInput
+                    <Input
                         type="date"
                         value={filters.dateTo || ''}
                         onChange={(e) =>
@@ -272,9 +272,9 @@ export function AdjustmentsFiltersRow({
 
             {hasActiveFilters ? (
                 <div className="md:col-span-3 lg:col-span-5">
-                    <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                    <Button variant="ghost" size="sm" onClick={onClear}>
                         <X className="h-3.5 w-3.5" /> Clear filters
-                    </ZoruButton>
+                    </Button>
                 </div>
             ) : null}
         </div>
@@ -306,27 +306,27 @@ export function AdjustmentsBulkBar({
             <span className="font-medium text-zoru-ink">
                 {count} selected
             </span>
-            <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+            <Button variant="ghost" size="sm" onClick={onClear}>
                 <X className="h-3.5 w-3.5" /> Clear
-            </ZoruButton>
+            </Button>
             <span className="mx-1 h-4 w-px bg-zoru-line" />
-            <ZoruButton variant="outline" size="sm" onClick={onApprove}>
+            <Button variant="outline" size="sm" onClick={onApprove}>
                 <BadgeCheck className="h-3.5 w-3.5" /> Approve
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={onReject}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onReject}>
                 <CircleX className="h-3.5 w-3.5" /> Reject
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={onExport}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
                 variant="outline"
                 size="sm"
                 onClick={onDelete}
                 className="text-zoru-danger-ink"
             >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
         </div>
     );
 }

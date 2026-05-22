@@ -419,11 +419,11 @@ export default function AllLeadsPage() {
                     placeholder: 'Search title, name, email, company…',
                 }}
                 primaryAction={
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/sales-crm/all-leads/new">
                             <Plus className="h-4 w-4" /> New Lead
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <LeadsFiltersRow
@@ -499,11 +499,11 @@ export default function AllLeadsPage() {
                                 Start capturing prospects in your sales pipeline. New leads can
                                 later be converted into accounts and deals.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/sales-crm/all-leads/new">
                                     <Plus className="h-4 w-4" /> Add your first lead
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }

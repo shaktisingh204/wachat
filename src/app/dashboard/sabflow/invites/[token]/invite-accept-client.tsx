@@ -86,16 +86,16 @@ export function InviteAcceptClient({
   }, [router]);
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardContent className="flex flex-col items-center gap-5 p-8 text-center">
-        <ZoruAvatar className="h-16 w-16 rounded-[var(--zoru-radius-lg)]">
+        <Avatar className="h-16 w-16 rounded-[var(--zoru-radius-lg)]">
           {workspaceIconUrl ? (
             <ZoruAvatarImage src={workspaceIconUrl} alt={workspaceName} />
           ) : null}
           <ZoruAvatarFallback className="rounded-[var(--zoru-radius-lg)]">
             <Building2 className="h-7 w-7" aria-hidden="true" />
           </ZoruAvatarFallback>
-        </ZoruAvatar>
+        </Avatar>
 
         <div className="flex flex-col gap-1">
           <h1 className="text-[22px] font-semibold text-zoru-ink-strong">
@@ -112,24 +112,24 @@ export function InviteAcceptClient({
         </div>
 
         {emailMismatch && (
-          <ZoruAlert variant="warning" className="w-full text-left">
+          <Alert variant="warning" className="w-full text-left">
             <ZoruAlertTitle>Wrong account</ZoruAlertTitle>
             <ZoruAlertDescription>
               You&apos;re signed in as <strong>{sessionEmail}</strong>, but this
               invite was sent to <strong>{inviteEmail}</strong>. Sign in with
               the invited account before accepting.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         )}
 
         {error && (
-          <ZoruAlert variant="destructive" className="w-full text-left">
+          <Alert variant="destructive" className="w-full text-left">
             <ZoruAlertDescription>{error}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         )}
 
         <div className="flex w-full items-center gap-3">
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             block
@@ -138,8 +138,8 @@ export function InviteAcceptClient({
           >
             <X aria-hidden="true" />
             Decline
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             block
             onClick={handleAccept}
@@ -156,10 +156,10 @@ export function InviteAcceptClient({
                 Accept invite
               </>
             )}
-          </ZoruButton>
+          </Button>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 

@@ -76,10 +76,10 @@ const formInitialState: { message: string | null; error?: string } = {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending && <LoaderCircle className="animate-spin" />}
       {isEditing ? "Save changes" : "Add FAQ"}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -114,7 +114,7 @@ function FaqFormDialog({
   }, [state, toast, onSave, onOpenChange]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <form action={formAction}>
           {faqItem?._id && (
@@ -134,8 +134,8 @@ function FaqFormDialog({
           </ZoruDialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="question">Question</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="question">Question</Label>
+              <Input
                 id="question"
                 name="question"
                 defaultValue={faqItem?.question}
@@ -143,8 +143,8 @@ function FaqFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <ZoruLabel htmlFor="answer">Answer</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="answer">Answer</Label>
+              <Textarea
                 id="answer"
                 name="answer"
                 defaultValue={faqItem?.answer}
@@ -154,18 +154,18 @@ function FaqFormDialog({
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton isEditing={!!faqItem} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -210,7 +210,7 @@ export default function SabChatFaqPage() {
         onSave={reloadProject}
       />
 
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -226,9 +226,9 @@ export default function SabChatFaqPage() {
             <ZoruBreadcrumbPage>FAQ</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>FAQ</ZoruPageTitle>
           <ZoruPageDescription>
@@ -236,28 +236,28 @@ export default function SabChatFaqPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={() => handleOpenDialog()}>
+          <Button onClick={() => handleOpenDialog()}>
             <Plus />
             Add FAQ
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {faqs.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<HelpCircle />}
           title="No FAQs yet"
           description="Train your AI assistant with frequently asked questions and their answers."
           action={
-            <ZoruButton onClick={() => handleOpenDialog()}>
+            <Button onClick={() => handleOpenDialog()}>
               <Plus />
               Add your first FAQ
-            </ZoruButton>
+            </Button>
           }
         />
       ) : (
-        <ZoruCard className="overflow-hidden p-0">
-          <ZoruTable>
+        <Card className="overflow-hidden p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Question</ZoruTableHead>
@@ -276,23 +276,23 @@ export default function SabChatFaqPage() {
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => handleOpenDialog(faq)}
                         aria-label="Edit FAQ"
                       >
                         <Pencil />
-                      </ZoruButton>
+                      </Button>
                       <ZoruAlertDialog>
                         <ZoruAlertDialogTrigger asChild>
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="icon-sm"
                             aria-label="Delete FAQ"
                           >
                             <Trash2 />
-                          </ZoruButton>
+                          </Button>
                         </ZoruAlertDialogTrigger>
                         <ZoruAlertDialogContent>
                           <ZoruAlertDialogHeader>
@@ -322,8 +322,8 @@ export default function SabChatFaqPage() {
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       )}
     </div>
   );

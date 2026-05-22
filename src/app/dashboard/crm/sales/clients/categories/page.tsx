@@ -320,24 +320,24 @@ export default function ClientCategoriesPage() {
       }}
       primaryAction={
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={onExportCsv}>
+          <Button variant="outline" size="sm" onClick={onExportCsv}>
             <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
             CSV
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={onExportXlsx}>
             <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />
             XLSX
-          </ZoruButton>
-          <ZoruButton onClick={openNew}>
+          </Button>
+          <Button onClick={openNew}>
             <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Category
-          </ZoruButton>
+          </Button>
         </div>
       }
       filters={
         <>
           <div className="w-40">
-            <ZoruSelect
+            <Select
               value={statusFilter}
               onValueChange={(v) =>
                 setStatusFilter(v as typeof statusFilter)
@@ -351,22 +351,22 @@ export default function ClientCategoriesPage() {
                 <ZoruSelectItem value="active">Active</ZoruSelectItem>
                 <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               className="h-9 w-[160px]"
             />
-            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-zoru-ink-muted">
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
@@ -382,14 +382,14 @@ export default function ClientCategoriesPage() {
               {selected.size} selected
             </span>
             <div className="flex items-center gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSelected(new Set())}
               >
                 Clear
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={onExportCsv}
@@ -399,8 +399,8 @@ export default function ClientCategoriesPage() {
                   strokeWidth={1.75}
                 />
                 Export CSV
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkArchive' })}
@@ -411,8 +411,8 @@ export default function ClientCategoriesPage() {
                   strokeWidth={1.75}
                 />
                 Archive
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setConfirmState({ kind: 'bulkDelete' })}
@@ -423,7 +423,7 @@ export default function ClientCategoriesPage() {
                   strokeWidth={1.75}
                 />
                 Delete
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null
@@ -468,7 +468,7 @@ export default function ClientCategoriesPage() {
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           {isLoading && rows.length === 0 ? (
             <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
               Loading…
@@ -485,7 +485,7 @@ export default function ClientCategoriesPage() {
                 <thead>
                   <tr className="border-b border-zoru-line bg-zoru-surface-2">
                     <th className="w-10 px-3 py-3">
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={allOnPageSelected}
                         onCheckedChange={(c) =>
                           toggleAllOnPage(Boolean(c))
@@ -521,7 +521,7 @@ export default function ClientCategoriesPage() {
                         className="border-b border-zoru-line last:border-0"
                       >
                         <td className="px-3 py-3">
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={isSel}
                             onCheckedChange={(c) => {
                               setSelected((s) => {
@@ -557,11 +557,11 @@ export default function ClientCategoriesPage() {
                         </td>
                         <td className="px-4 py-3 text-zoru-ink">{subCount}</td>
                         <td className="px-4 py-3">
-                          <ZoruBadge
+                          <Badge
                             variant={archived ? 'warning' : 'success'}
                           >
                             {archived ? 'archived' : 'active'}
-                          </ZoruBadge>
+                          </Badge>
                         </td>
                         <td className="px-4 py-3 text-zoru-ink-muted">
                           {r.createdAt
@@ -572,7 +572,7 @@ export default function ClientCategoriesPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-1">
-                            <ZoruButton
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openEdit(r)}
@@ -582,8 +582,8 @@ export default function ClientCategoriesPage() {
                                 strokeWidth={1.75}
                               />
                               Edit
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() =>
@@ -600,7 +600,7 @@ export default function ClientCategoriesPage() {
                                 strokeWidth={1.75}
                               />
                               Delete
-                            </ZoruButton>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -617,15 +617,15 @@ export default function ClientCategoriesPage() {
                 Page {pageSafe} of {totalPages} · {filtered.length} categories
               </span>
               <div className="flex items-center gap-1">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Prev
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   disabled={pageSafe >= totalPages}
@@ -634,34 +634,34 @@ export default function ClientCategoriesPage() {
                   }
                 >
                   Next
-                </ZoruButton>
+                </Button>
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
       </div>
 
       {/* Add/Edit modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <ZoruCard className="w-full max-w-md p-6">
+          <Card className="w-full max-w-md p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[16px] text-zoru-ink">
                 {editing ? 'Edit Category' : 'Add Category'}
               </h2>
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setOpen(false)}
               >
                 <X className="h-4 w-4" strokeWidth={1.75} />
                 Close
-              </ZoruButton>
+              </Button>
             </div>
             <div className="grid gap-3">
               <div>
-                <ZoruLabel>Category Name *</ZoruLabel>
-                <ZoruInput
+                <Label>Category Name *</Label>
+                <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Enterprise"
@@ -670,13 +670,13 @@ export default function ClientCategoriesPage() {
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   onClick={handleSave}
                   disabled={isMutating || !name.trim()}
                 >
@@ -687,10 +687,10 @@ export default function ClientCategoriesPage() {
                     />
                   ) : null}
                   {editing ? 'Update' : 'Create'}
-                </ZoruButton>
+                </Button>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
       )}
 
@@ -750,7 +750,7 @@ function KpiCard({
   hint?: string;
 }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-2 text-zoru-ink-muted">
         {icon}
         <p className="text-[12.5px] font-medium">{label}</p>
@@ -766,7 +766,7 @@ function KpiCard({
           {hint}
         </p>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -836,10 +836,10 @@ function SubCategoryDrawerPanel({
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-lg border border-zoru-line p-3">
-        <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+        <Label className="text-[12px] text-zoru-ink-muted">
           Parent category
-        </ZoruLabel>
-        <ZoruSelect value={parentId} onValueChange={setParentId}>
+        </Label>
+        <Select value={parentId} onValueChange={setParentId}>
           <ZoruSelectTrigger className="mt-1.5">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
@@ -850,12 +850,12 @@ function SubCategoryDrawerPanel({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruLabel className="mt-3 text-[12px] text-zoru-ink-muted">
+        <Label className="mt-3 text-[12px] text-zoru-ink-muted">
           Sub-category name
-        </ZoruLabel>
-        <ZoruInput
+        </Label>
+        <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. SaaS"
@@ -863,11 +863,11 @@ function SubCategoryDrawerPanel({
         />
         <div className="mt-3 flex justify-end gap-2">
           {editingSub ? (
-            <ZoruButton variant="outline" size="sm" onClick={reset}>
+            <Button variant="outline" size="sm" onClick={reset}>
               Cancel
-            </ZoruButton>
+            </Button>
           ) : null}
-          <ZoruButton
+          <Button
             size="sm"
             onClick={handleSubmit}
             disabled={isPending || !name.trim()}
@@ -881,7 +881,7 @@ function SubCategoryDrawerPanel({
               <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
             )}
             {editingSub ? 'Update' : 'Add'}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -903,7 +903,7 @@ function SubCategoryDrawerPanel({
               >
                 <span className="truncate">{s.name}</span>
                 <div className="flex gap-1">
-                  <ZoruButton
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
@@ -916,8 +916,8 @@ function SubCategoryDrawerPanel({
                       className="h-3 w-3"
                       strokeWidth={1.75}
                     />
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleDeleteSub(s._id)}
@@ -927,7 +927,7 @@ function SubCategoryDrawerPanel({
                       className="h-3 w-3 text-red-500"
                       strokeWidth={1.75}
                     />
-                  </ZoruButton>
+                  </Button>
                 </div>
               </li>
             ))}

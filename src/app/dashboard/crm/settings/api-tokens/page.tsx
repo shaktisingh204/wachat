@@ -251,7 +251,7 @@ export default function CrmApiTokensPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/crm/settings">
@@ -263,9 +263,9 @@ export default function CrmApiTokensPage() {
                         <ZoruBreadcrumbPage>API Tokens</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
-            <ZoruPageHeader>
+            <PageHeader>
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <ZoruPageHeading>
@@ -277,37 +277,37 @@ export default function CrmApiTokensPage() {
                         </ZoruPageDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" onClick={handleExport} disabled={filtered.length === 0}>
+                        <Button variant="outline" onClick={handleExport} disabled={filtered.length === 0}>
                             <Download className="mr-2 size-4" />
                             Export CSV
-                        </ZoruButton>
+                        </Button>
                         <Link href="/dashboard/crm/settings/api-tokens/new">
-                            <ZoruButton>
+                            <Button>
                                 <Plus className="mr-2 size-4" />
                                 New token
-                            </ZoruButton>
+                            </Button>
                         </Link>
                     </div>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             {/* KPI strip */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruStatCard label="Total tokens" value={rows.length.toLocaleString()} />
-                <ZoruStatCard label="Active" value={activeCount.toLocaleString()} />
-                <ZoruStatCard label="Expiring soon" value={expiringSoonCount.toLocaleString()} />
-                <ZoruStatCard label="Revoked" value={revokedCount.toLocaleString()} />
+                <StatCard label="Total tokens" value={rows.length.toLocaleString()} />
+                <StatCard label="Active" value={activeCount.toLocaleString()} />
+                <StatCard label="Expiring soon" value={expiringSoonCount.toLocaleString()} />
+                <StatCard label="Revoked" value={revokedCount.toLocaleString()} />
             </div>
 
             {/* Filter row */}
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruInput
+                <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search token name…"
                     className="h-9 w-[220px] text-[13px]"
                 />
-                <ZoruSelect
+                <Select
                     value={statusFilter}
                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                 >
@@ -319,9 +319,9 @@ export default function CrmApiTokensPage() {
                         <ZoruSelectItem value="active">Active</ZoruSelectItem>
                         <ZoruSelectItem value="revoked">Revoked</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 {(search || statusFilter !== 'all') && (
-                    <ZoruButton
+                    <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
@@ -330,7 +330,7 @@ export default function CrmApiTokensPage() {
                         }}
                     >
                         Clear
-                    </ZoruButton>
+                    </Button>
                 )}
             </div>
 
@@ -343,13 +343,13 @@ export default function CrmApiTokensPage() {
                     <div className="flex items-center gap-2">
                         <ZoruAlertDialog open={bulkRevokeOpen} onOpenChange={setBulkRevokeOpen}>
                             <ZoruAlertDialogTrigger asChild>
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     disabled={pending}
                                 >
                                     Revoke selected
-                                </ZoruButton>
+                                </Button>
                             </ZoruAlertDialogTrigger>
                             <ZoruAlertDialogContent>
                                 <ZoruAlertDialogHeader>
@@ -370,14 +370,14 @@ export default function CrmApiTokensPage() {
 
                         <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                             <ZoruAlertDialogTrigger asChild>
-                                <ZoruButton
+                                <Button
                                     variant="destructive"
                                     size="sm"
                                     disabled={pending}
                                 >
                                     <Trash2 className="mr-1.5 size-3.5" />
                                     Delete selected
-                                </ZoruButton>
+                                </Button>
                             </ZoruAlertDialogTrigger>
                             <ZoruAlertDialogContent>
                                 <ZoruAlertDialogHeader>
@@ -396,23 +396,23 @@ export default function CrmApiTokensPage() {
                             </ZoruAlertDialogContent>
                         </ZoruAlertDialog>
 
-                        <ZoruButton
+                        <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelected(new Set())}
                         >
                             Clear selection
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             )}
 
-            <ZoruCard className="p-0">
-                <ZoruTable>
+            <Card className="p-0">
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             <ZoruTableHead className="w-10">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={allChecked}
                                     aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
                                     onCheckedChange={toggleAll}
@@ -434,7 +434,7 @@ export default function CrmApiTokensPage() {
                             Array.from({ length: 3 }).map((_, i) => (
                                 <ZoruTableRow key={i}>
                                     <ZoruTableCell colSpan={8}>
-                                        <ZoruSkeleton className="h-6 w-full" />
+                                        <Skeleton className="h-6 w-full" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ))
@@ -453,7 +453,7 @@ export default function CrmApiTokensPage() {
                             filtered.map((row) => (
                                 <ZoruTableRow key={row._id}>
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={selected.has(row._id)}
                                             onCheckedChange={() => toggleOne(row._id)}
                                             aria-label={`Select ${row.name}`}
@@ -483,9 +483,9 @@ export default function CrmApiTokensPage() {
                                                 </div>
                                             </RowDrawer>
                                             {row.revoked && (
-                                                <ZoruBadge variant="danger">
+                                                <Badge variant="danger">
                                                     revoked
-                                                </ZoruBadge>
+                                                </Badge>
                                             )}
                                         </div>
                                     </ZoruTableCell>
@@ -493,10 +493,10 @@ export default function CrmApiTokensPage() {
                                         {row.prefix}…
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <ZoruBadge variant="outline">
+                                        <Badge variant="outline">
                                             {row.scopes.length} scope
                                             {row.scopes.length === 1 ? '' : 's'}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell>{formatDate(row.createdAt)}</ZoruTableCell>
                                     <ZoruTableCell>{formatDate(row.lastUsedAt)}</ZoruTableCell>
@@ -505,7 +505,7 @@ export default function CrmApiTokensPage() {
                                         {!row.revoked && (
                                             <ZoruAlertDialog>
                                                 <ZoruAlertDialogTrigger asChild>
-                                                    <ZoruButton
+                                                    <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         disabled={pending}
@@ -515,7 +515,7 @@ export default function CrmApiTokensPage() {
                                                         ) : (
                                                             <Trash2 className="size-4" />
                                                         )}
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruAlertDialogTrigger>
                                                 <ZoruAlertDialogContent>
                                                     <ZoruAlertDialogHeader>
@@ -543,8 +543,8 @@ export default function CrmApiTokensPage() {
                             ))
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
-            </ZoruCard>
+                </Table>
+            </Card>
         </div>
     );
 }

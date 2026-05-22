@@ -70,17 +70,17 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
     }, [formState, toast, onVendorAdded]);
 
     return (
-        <ZoruDialog open={open} onOpenChange={(val) => {
+        <Dialog open={open} onOpenChange={(val) => {
             setOpen(val);
             if (!val) {
                 // Optional: reset form or state on close
             }
         }}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton variant="outline" className={defaultName ? "hidden" : ""}>
+                <Button variant="outline" className={defaultName ? "hidden" : ""}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Vendor
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <ZoruDialogHeader>
@@ -92,30 +92,30 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="name" className="text-zoru-ink">Business/Vendor Name *</ZoruLabel>
-                            <ZoruInput id="name" name="name" required maxLength={100} defaultValue={defaultName} />
+                            <Label htmlFor="name" className="text-zoru-ink">Business/Vendor Name *</Label>
+                            <Input id="name" name="name" required maxLength={100} defaultValue={defaultName} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="displayName" className="text-zoru-ink">Display Name</ZoruLabel>
-                            <ZoruInput id="displayName" name="displayName" maxLength={100} placeholder="Nickname (Optional)" />
+                            <Label htmlFor="displayName" className="text-zoru-ink">Display Name</Label>
+                            <Input id="displayName" name="displayName" maxLength={100} placeholder="Nickname (Optional)" />
                         </div>
                     </div>
 
-                    <ZoruAccordion type="single" collapsible defaultValue="basic" className="w-full">
+                    <Accordion type="single" collapsible defaultValue="basic" className="w-full">
                         <ZoruAccordionItem value="basic">
                             <ZoruAccordionTrigger>Basic Information</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="space-y-4 pt-2">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2"><ZoruLabel htmlFor="email">Email</ZoruLabel><ZoruInput id="email" name="email" type="email" maxLength={100} /></div>
-                                    <div className="space-y-2"><ZoruLabel htmlFor="phone">Phone</ZoruLabel><ZoruInput id="phone" name="phone" maxLength={20} /></div>
+                                    <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" maxLength={100} /></div>
+                                    <div className="space-y-2"><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" maxLength={20} /></div>
                                     <div className="space-y-2 col-span-2">
-                                        <ZoruLabel>Industry</ZoruLabel>
+                                        <Label>Industry</Label>
                                         <EntityFormField entity="industry" name="industryId" />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <ZoruLabel htmlFor="country" className="text-zoru-ink">Country</ZoruLabel>
+                                        <Label htmlFor="country" className="text-zoru-ink">Country</Label>
                                         <EntityFormField
                                             entity="country"
                                             name="country"
@@ -126,7 +126,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <ZoruLabel htmlFor="state" className="text-zoru-ink">State</ZoruLabel>
+                                        <Label htmlFor="state" className="text-zoru-ink">State</Label>
                                         <EntityFormField
                                             entity="state"
                                             name="state"
@@ -135,7 +135,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <ZoruLabel htmlFor="city" className="text-zoru-ink">City/Town</ZoruLabel>
+                                        <Label htmlFor="city" className="text-zoru-ink">City/Town</Label>
                                         <EntityFormField
                                             entity="city"
                                             name="city"
@@ -144,8 +144,8 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2"><ZoruLabel htmlFor="pincode">Pincode</ZoruLabel><ZoruInput id="pincode" name="pincode" maxLength={20} /></div>
-                                    <div className="space-y-2"><ZoruLabel htmlFor="street">Street Address</ZoruLabel><ZoruInput id="street" name="street" maxLength={200} /></div>
+                                    <div className="space-y-2"><Label htmlFor="pincode">Pincode</Label><Input id="pincode" name="pincode" maxLength={20} /></div>
+                                    <div className="space-y-2"><Label htmlFor="street">Street Address</Label><Input id="street" name="street" maxLength={200} /></div>
                                 </div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
@@ -154,26 +154,26 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                             <ZoruAccordionTrigger>Financial & Tax</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="space-y-4 pt-2">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2"><ZoruLabel htmlFor="gstin">GSTIN</ZoruLabel><ZoruInput id="gstin" name="gstin" maxLength={15} /></div>
-                                    <div className="space-y-2"><ZoruLabel htmlFor="pan">PAN</ZoruLabel><ZoruInput id="pan" name="pan" maxLength={10} /></div>
+                                    <div className="space-y-2"><Label htmlFor="gstin">GSTIN</Label><Input id="gstin" name="gstin" maxLength={15} /></div>
+                                    <div className="space-y-2"><Label htmlFor="pan">PAN</Label><Input id="pan" name="pan" maxLength={10} /></div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <ZoruLabel htmlFor="vendorType">Vendor Type</ZoruLabel>
+                                        <Label htmlFor="vendorType">Vendor Type</Label>
                                         <EntityFormField entity="vendorType" name="vendorType" />
                                     </div>
-                                    <div className="space-y-2"><ZoruLabel>Tax Treatment</ZoruLabel><ZoruSelect name="taxTreatment"><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="registered">Registered</ZoruSelectItem><ZoruSelectItem value="unregistered">Unregistered</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                    <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="registered">Registered</ZoruSelectItem><ZoruSelectItem value="unregistered">Unregistered</ZoruSelectItem></ZoruSelectContent></Select></div>
                                 </div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
-                    </ZoruAccordion>
+                    </Accordion>
 
                     <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
-                        <ZoruButton type="submit">Save Vendor</ZoruButton>
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button type="submit">Save Vendor</Button>
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

@@ -61,15 +61,15 @@ import { FacebookGlyph, InstagramGlyph, WhatsAppGlyph } from "../_components/ico
 function SettingsSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-48" />
+      <Skeleton className="h-3 w-48" />
       <div className="mt-5 flex flex-col gap-2">
-        <ZoruSkeleton className="h-3 w-24" />
-        <ZoruSkeleton className="h-7 w-72" />
-        <ZoruSkeleton className="h-3 w-96" />
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-7 w-72" />
+        <Skeleton className="h-3 w-96" />
       </div>
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
-        <ZoruSkeleton className="h-72 w-full lg:col-span-2" />
-        <ZoruSkeleton className="h-72 w-full" />
+        <Skeleton className="h-72 w-full lg:col-span-2" />
+        <Skeleton className="h-72 w-full" />
       </div>
     </div>
   );
@@ -107,18 +107,18 @@ function ReadonlyField({
 
   return (
     <div className="grid gap-1.5">
-      <ZoruLabel htmlFor={id} className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+      <Label htmlFor={id} className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
         {label}
-      </ZoruLabel>
+      </Label>
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           id={id}
           value={safe}
           readOnly
           className={monospace ? "font-mono text-[12.5px]" : ""}
         />
         {copyable && value ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="icon"
@@ -126,7 +126,7 @@ function ReadonlyField({
             onClick={copy}
           >
             <Copy />
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
       {hint ? (
@@ -169,7 +169,7 @@ export default function FacebookSettingsPage() {
   if (!activeProjectId) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -185,7 +185,7 @@ export default function FacebookSettingsPage() {
               <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
+        </Breadcrumb>
         <div className="mt-6">
           <NoProjectState />
         </div>
@@ -196,14 +196,14 @@ export default function FacebookSettingsPage() {
   if (!project) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Project not found</ZoruAlertTitle>
           <ZoruAlertDescription>
             The selected project could not be loaded. Try refreshing or pick
             another project.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       </div>
     );
   }
@@ -212,7 +212,7 @@ export default function FacebookSettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -228,9 +228,9 @@ export default function FacebookSettingsPage() {
             <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5" bordered={false}>
+      <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
             Project · {project.name}
@@ -242,21 +242,21 @@ export default function FacebookSettingsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <div className="flex items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={refresh}>
+          <Button variant="outline" size="sm" onClick={refresh}>
             <RefreshCw /> Refresh
-          </ZoruButton>
-          <ZoruButton asChild size="sm">
+          </Button>
+          <Button asChild size="sm">
             <Link href="/dashboard/facebook/all-projects">
               {hasMarketingSetup ? "Reconnect" : "Connect"}
               <ArrowRight />
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         {/* ── Connection fields ── */}
-        <ZoruCard className="p-6 lg:col-span-2">
+        <Card className="p-6 lg:col-span-2">
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
@@ -267,28 +267,28 @@ export default function FacebookSettingsPage() {
               </h3>
             </div>
             {hasMarketingSetup ? (
-              <ZoruBadge variant="outline" className="gap-1">
+              <Badge variant="outline" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-zoru-success" />
                 Connected
-              </ZoruBadge>
+              </Badge>
             ) : (
-              <ZoruBadge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1">
                 <XCircle className="h-3 w-3 text-zoru-ink-subtle" />
                 Not connected
-              </ZoruBadge>
+              </Badge>
             )}
           </div>
 
           {!hasMarketingSetup ? (
             <div className="mt-5">
-              <ZoruAlert variant="warning">
+              <Alert variant="warning">
                 <AlertCircle />
                 <ZoruAlertTitle>No Facebook account connected</ZoruAlertTitle>
                 <ZoruAlertDescription>
                   No Facebook Page or Ad Account is connected to this project.
                   Use the connect button above to authorize Meta.
                 </ZoruAlertDescription>
-              </ZoruAlert>
+              </Alert>
             </div>
           ) : (
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -338,7 +338,7 @@ export default function FacebookSettingsPage() {
             </div>
           )}
 
-          <ZoruSeparator className="my-6" />
+          <Separator className="my-6" />
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -350,16 +350,16 @@ export default function FacebookSettingsPage() {
                 fresh connect.
               </p>
             </div>
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
               <Link href="/dashboard/facebook/all-projects">
                 {hasMarketingSetup ? "Reconnect / change account" : "Connect account"}
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* ── Linked assets ── */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
             Linked assets
           </p>
@@ -390,13 +390,13 @@ export default function FacebookSettingsPage() {
             />
           </div>
 
-          <ZoruSeparator className="my-5" />
+          <Separator className="my-5" />
 
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
             Quick links
           </p>
           <div className="mt-3 flex flex-col gap-2">
-            <ZoruButton
+            <Button
               asChild
               variant="outline"
               size="sm"
@@ -405,8 +405,8 @@ export default function FacebookSettingsPage() {
               <Link href="/dashboard/facebook/page-roles">
                 <ShieldCheck /> Page roles
               </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               asChild
               variant="outline"
               size="sm"
@@ -415,8 +415,8 @@ export default function FacebookSettingsPage() {
               <Link href="/dashboard/facebook/agents">
                 <SettingsIcon /> AI agents
               </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               asChild
               variant="outline"
               size="sm"
@@ -425,9 +425,9 @@ export default function FacebookSettingsPage() {
               <Link href="/dashboard/facebook/webhooks">
                 <SettingsIcon /> Webhooks
               </Link>
-            </ZoruButton>
+            </Button>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );
@@ -456,14 +456,14 @@ function LinkedAsset({
         </p>
       </div>
       {status === "connected" ? (
-        <ZoruBadge variant="outline" className="gap-1">
+        <Badge variant="outline" className="gap-1">
           <CheckCircle2 className="h-3 w-3 text-zoru-success" />
           OK
-        </ZoruBadge>
+        </Badge>
       ) : status === "missing" ? (
-        <ZoruBadge variant="secondary">Missing</ZoruBadge>
+        <Badge variant="secondary">Missing</Badge>
       ) : (
-        <ZoruBadge variant="secondary">Verify</ZoruBadge>
+        <Badge variant="secondary">Verify</Badge>
       )}
     </div>
   );

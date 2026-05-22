@@ -55,14 +55,14 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 function ContactDetailPageSkeleton() {
   return (
     <div className="flex w-full flex-col gap-6">
-      <ZoruSkeleton className="h-8 w-48" />
+      <Skeleton className="h-8 w-48" />
       <div className="grid gap-6 md:grid-cols-3">
         <div className="space-y-4 md:col-span-1">
-          <ZoruSkeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
         <div className="space-y-4 md:col-span-2">
-          <ZoruSkeleton className="h-48 w-full rounded-xl" />
-          <ZoruSkeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-48 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       </div>
     </div>
@@ -154,10 +154,10 @@ export default function CrmContactDetailPage() {
         back={{ href: '/dashboard/crm/contacts', label: 'Contacts' }}
         actions={
           <Link href={`/dashboard/crm/contacts/${contactId}/edit`}>
-            <ZoruButton variant="outline" size="sm">
+            <Button variant="outline" size="sm">
               <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
               Edit
-            </ZoruButton>
+            </Button>
           </Link>
         }
       >
@@ -165,14 +165,14 @@ export default function CrmContactDetailPage() {
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-1">
-            <ZoruCard className="p-6">
+            <Card className="p-6">
               <div className="flex flex-col items-center text-center">
-                <ZoruAvatar className="mb-3 h-24 w-24 border border-zoru-line">
+                <Avatar className="mb-3 h-24 w-24 border border-zoru-line">
                   <ZoruAvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
                   <ZoruAvatarFallback className="bg-accent text-[26px] text-accent-foreground">
                     {contact.name.charAt(0)}
                   </ZoruAvatarFallback>
-                </ZoruAvatar>
+                </Avatar>
                 <h2 className="text-[16px] font-semibold text-zoru-ink">{contact.name}</h2>
                 <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                   {contact.jobTitle || 'N/A'}
@@ -180,7 +180,7 @@ export default function CrmContactDetailPage() {
               </div>
 
               <div className="mt-5 flex gap-2">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   className="flex-1"
@@ -188,8 +188,8 @@ export default function CrmContactDetailPage() {
                 >
                   <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
                   Email
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   className="flex-1"
@@ -198,8 +198,8 @@ export default function CrmContactDetailPage() {
                 >
                   <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.75} />
                   WhatsApp
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   variant="outline"
                   size="sm"
                   className="flex-1"
@@ -210,10 +210,10 @@ export default function CrmContactDetailPage() {
                 >
                   <Phone className="h-3.5 w-3.5" strokeWidth={1.75} />
                   Call
-                </ZoruButton>
+                </Button>
               </div>
 
-              <ZoruSeparator className="my-4 bg-zoru-line" />
+              <Separator className="my-4 bg-zoru-line" />
 
               <div className="space-y-2.5 text-[13px] text-zoru-ink">
                 <div className="flex items-center gap-3">
@@ -242,7 +242,7 @@ export default function CrmContactDetailPage() {
                 )}
               </div>
 
-              <ZoruSeparator className="my-4 bg-zoru-line" />
+              <Separator className="my-4 bg-zoru-line" />
 
               <div className="space-y-3">
                 <div>
@@ -250,9 +250,9 @@ export default function CrmContactDetailPage() {
                     Lead Score
                   </p>
                   <div className="mt-1.5 flex items-center gap-2">
-                    <ZoruBadge variant={leadScoreVariant(contact.leadScore || 0)}>
+                    <Badge variant={leadScoreVariant(contact.leadScore || 0)}>
                       {contact.leadScore || 0}
-                    </ZoruBadge>
+                    </Badge>
                     <span className="text-[12.5px] text-zoru-ink-muted">Hot Lead</span>
                   </div>
                 </div>
@@ -261,11 +261,11 @@ export default function CrmContactDetailPage() {
                     Status
                   </p>
                   <div className="mt-1.5">
-                    <ZoruBadge variant="danger">{contact.status}</ZoruBadge>
+                    <Badge variant="danger">{contact.status}</Badge>
                   </div>
                 </div>
               </div>
-            </ZoruCard>
+            </Card>
 
             <CrmNotes
               recordId={contact._id.toString()}
@@ -316,7 +316,7 @@ export default function CrmContactDetailPage() {
           </div>
 
           <div className="lg:col-span-2">
-            <ZoruCard className="p-6">
+            <Card className="p-6">
               <div className="mb-4">
                 <h2 className="text-[16px] font-semibold text-zoru-ink">Associated Deals</h2>
                 <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
@@ -324,7 +324,7 @@ export default function CrmContactDetailPage() {
                 </p>
               </div>
               <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                <ZoruTable>
+                <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                       <ZoruTableHead className="text-zoru-ink-muted">Deal Name</ZoruTableHead>
@@ -346,7 +346,7 @@ export default function CrmContactDetailPage() {
                             {deal.name}
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruBadge variant={dealStageVariant(deal.stage)}>{deal.stage ?? '—'}</ZoruBadge>
+                            <Badge variant={dealStageVariant(deal.stage)}>{deal.stage ?? '—'}</Badge>
                           </ZoruTableCell>
                           <ZoruTableCell className="text-right font-medium text-zoru-ink">
                             {new Intl.NumberFormat('en-US', {
@@ -367,9 +367,9 @@ export default function CrmContactDetailPage() {
                       </ZoruTableRow>
                     )}
                   </ZoruTableBody>
-                </ZoruTable>
+                </Table>
               </div>
-            </ZoruCard>
+            </Card>
           </div>
         </div>
       </div>

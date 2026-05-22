@@ -41,14 +41,14 @@ const initialState: SaveReplyTemplateState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       {isEditing ? 'Save changes' : 'Create template'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -109,7 +109,7 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
   }, [state, toast, router, initialData?._id]);
 
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <form action={formAction} className="flex flex-col gap-6">
         {isEditing ? (
           <input type="hidden" name="templateId" value={initialData!._id} />
@@ -128,8 +128,8 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
         {/* Row 1: Name + Shortcut */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="name">Name *</Label>
+            <Input
               id="name"
               name="name"
               required
@@ -138,8 +138,8 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="shortcut">Shortcut</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="shortcut">Shortcut</Label>
+            <Input
               id="shortcut"
               name="shortcut"
               placeholder="e.g. /refund"
@@ -152,7 +152,7 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
         {/* Row 2: Category + Language */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel>Category</ZoruLabel>
+            <Label>Category</Label>
             <EnumFormField
               enumName="replyTemplateCategory"
               name="categoryPicker"
@@ -162,7 +162,7 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Language</ZoruLabel>
+            <Label>Language</Label>
             <EnumFormField
               enumName="languageShort"
               name="languagePicker"
@@ -175,13 +175,13 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
 
         {/* Row 3: Body (multi-line, the main field) */}
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="body">
+          <Label htmlFor="body">
             Template body *{' '}
             <span className="text-xs text-muted-foreground">
               Use {'{{variable}}'} placeholders
             </span>
-          </ZoruLabel>
-          <ZoruTextarea
+          </Label>
+          <Textarea
             id="body"
             name="body"
             rows={12}
@@ -198,12 +198,12 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
         {/* Detected variables chip strip */}
         {detectedVars.length > 0 ? (
           <div className="space-y-1.5">
-            <ZoruLabel>Detected variables</ZoruLabel>
+            <Label>Detected variables</Label>
             <div className="flex flex-wrap gap-1.5">
               {detectedVars.map((v) => (
-                <ZoruBadge key={v} variant="ghost">
+                <Badge key={v} variant="ghost">
                   <code className="font-mono text-xs">{`{{${v}}}`}</code>
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -217,12 +217,12 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
             <div className="flex flex-col">
-              <ZoruLabel htmlFor="isActiveToggle">Active</ZoruLabel>
+              <Label htmlFor="isActiveToggle">Active</Label>
               <span className="text-xs text-muted-foreground">
                 Inactive templates won&apos;t show in agent picker.
               </span>
             </div>
-            <ZoruSwitch
+            <Switch
               id="isActiveToggle"
               checked={isActive}
               onCheckedChange={setIsActive}
@@ -230,7 +230,7 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
           </div>
           {isEditing ? (
             <div className="space-y-1.5">
-              <ZoruLabel>Status</ZoruLabel>
+              <Label>Status</Label>
               <EnumFormField
                 enumName="replyTemplateStatus"
                 name="statusPicker"
@@ -246,7 +246,7 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
 
         {/* Footer */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-          <ZoruButton variant="ghost" asChild>
+          <Button variant="ghost" asChild>
             <Link
               href={
                 isEditing && initialData?._id ? `${BASE}/${initialData._id}` : BASE
@@ -255,10 +255,10 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Cancel
             </Link>
-          </ZoruButton>
+          </Button>
           <SubmitButton isEditing={isEditing} />
         </div>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export default function SabsmsSendPage() {
   return (
     <div className="space-y-6 p-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Send a message</ZoruPageTitle>
           <ZoruPageDescription>
@@ -27,9 +27,9 @@ export default function SabsmsSendPage() {
             DLR back to this page.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Composer</ZoruCardTitle>
           <ZoruCardDescription>
@@ -41,7 +41,7 @@ export default function SabsmsSendPage() {
         <ZoruCardContent>
           <SabsmsSendComposer />
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

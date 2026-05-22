@@ -19,25 +19,25 @@ export function CrmAutomationBlockEditor({ settings, onUpdate, availableAutomati
 
     return (
         <div className="space-y-4">
-            <ZoruAccordion type="multiple" className="w-full" defaultValue={['content']}>
+            <Accordion type="multiple" className="w-full" defaultValue={['content']}>
                 <ZoruAccordionItem value="content">
                     <ZoruAccordionTrigger>Settings</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
-                            <ZoruLabel>Automation Trigger</ZoruLabel>
-                            <ZoruSelect value={settings.triggerId || ''} onValueChange={(val) => handleUpdate('triggerId', val)}>
+                            <Label>Automation Trigger</Label>
+                            <Select value={settings.triggerId || ''} onValueChange={(val) => handleUpdate('triggerId', val)}>
                                 <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a trigger..." /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     {(availableAutomations || []).map(automation => (
                                         <ZoruSelectItem key={automation.id} value={automation.id}>{automation.name}</ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             <p className="text-xs text-muted-foreground">Select which automation campaign to start when this block is activated.</p>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
         </div>
     );
 }

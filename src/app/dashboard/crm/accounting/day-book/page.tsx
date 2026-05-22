@@ -178,7 +178,7 @@ export default function DayBookPage(): React.JSX.Element {
 
     const filters = (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect value={fyChoice} onValueChange={handleFyChange}>
+            <Select value={fyChoice} onValueChange={handleFyChange}>
                 <ZoruSelectTrigger className="w-[180px]">
                     <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -187,8 +187,8 @@ export default function DayBookPage(): React.JSX.Element {
                     <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
                     <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={voucherType} onValueChange={setVoucherType}>
+            </Select>
+            <Select value={voucherType} onValueChange={setVoucherType}>
                 <ZoruSelectTrigger className="w-[160px]">
                     <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -200,7 +200,7 @@ export default function DayBookPage(): React.JSX.Element {
                     <ZoruSelectItem value="Payout">Payouts</ZoruSelectItem>
                     <ZoruSelectItem value="Expense">Expenses</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
         </div>
     );
 
@@ -231,7 +231,7 @@ export default function DayBookPage(): React.JSX.Element {
     );
 
     const table = (
-        <ZoruTable>
+        <Table>
             <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
                     <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
@@ -267,13 +267,13 @@ export default function DayBookPage(): React.JSX.Element {
                                 {fmtMoney(t.amount)}
                             </ZoruTableCell>
                             <ZoruTableCell>
-                                <ZoruBadge variant="ghost">{t.status}</ZoruBadge>
+                                <Badge variant="ghost">{t.status}</Badge>
                             </ZoruTableCell>
                         </ZoruTableRow>
                     ))
                 )}
             </ZoruTableBody>
-        </ZoruTable>
+        </Table>
     );
 
     return (

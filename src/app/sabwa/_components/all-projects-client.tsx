@@ -107,7 +107,7 @@ function CreateSabwaProjectDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>New SabWa project</ZoruDialogTitle>
@@ -118,8 +118,8 @@ function CreateSabwaProjectDialog({
         </ZoruDialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="sabwa-new-project-name">Name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sabwa-new-project-name">Name</Label>
+            <Input
               id="sabwa-new-project-name"
               autoFocus
               maxLength={120}
@@ -129,22 +129,22 @@ function CreateSabwaProjectDialog({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={pending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={pending || !name.trim()}>
+            </Button>
+            <Button type="submit" disabled={pending || !name.trim()}>
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus />}
               Create
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -213,7 +213,7 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -223,7 +223,7 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
             <ZoruBreadcrumbPage>SabWa</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
@@ -234,15 +234,15 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
             Open a project to link WhatsApp accounts and start chatting.
           </p>
         </div>
-        <ZoruButton size="md" onClick={() => setCreateOpen(true)}>
+        <Button size="md" onClick={() => setCreateOpen(true)}>
           <Plus />
           New SabWa project
-        </ZoruButton>
+        </Button>
       </div>
 
       {sabwaProjects.length > 0 && (
         <div className="mt-5 max-w-md">
-          <ZoruInput
+          <Input
             leadingSlot={<Search />}
             placeholder="Search projects..."
             value={search}
@@ -253,19 +253,19 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
 
       <div className="mt-6">
         {sabwaProjects.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Sparkles />}
             title="No SabWa projects yet"
             description="Create one to link your first personal WhatsApp number."
             action={
-              <ZoruButton size="md" onClick={() => setCreateOpen(true)}>
+              <Button size="md" onClick={() => setCreateOpen(true)}>
                 <Plus />
                 New SabWa project
-              </ZoruButton>
+              </Button>
             }
           />
         ) : filtered.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Search />}
             title="No projects matched"
             description="Try a different search term."

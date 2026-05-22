@@ -88,7 +88,7 @@ export function LeaveFiltersRow({
   return (
     <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <ZoruSelect
+        <Select
           value={preset}
           onValueChange={(v) => onPresetChange(v as LeavePreset)}
         >
@@ -105,9 +105,9 @@ export function LeaveFiltersRow({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruSelect
+        <Select
           value={statusFilter}
           onValueChange={(v) => onStatusChange(v as LeaveStatusFilter)}
         >
@@ -121,9 +121,9 @@ export function LeaveFiltersRow({
             <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
             <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruSelect
+        <Select
           value={leaveTypeFilter ?? '__all__'}
           onValueChange={(v) => onLeaveTypeChange(v === '__all__' ? null : v)}
         >
@@ -143,10 +143,10 @@ export function LeaveFiltersRow({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         {hasActiveFilters ? (
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -154,15 +154,15 @@ export function LeaveFiltersRow({
             className="ml-auto"
           >
             <XCircle className="h-3.5 w-3.5" /> Clear
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <div>
-          <ZoruLabel className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-zoru-ink-muted">
             Employee
-          </ZoruLabel>
+          </Label>
           <div className="mt-1">
             <EntityFormField
               entity="employee"
@@ -174,9 +174,9 @@ export function LeaveFiltersRow({
           </div>
         </div>
         <div>
-          <ZoruLabel className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-zoru-ink-muted">
             Department
-          </ZoruLabel>
+          </Label>
           <div className="mt-1">
             <EntityFormField
               entity="department"
@@ -188,9 +188,9 @@ export function LeaveFiltersRow({
           </div>
         </div>
         <div>
-          <ZoruLabel className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-zoru-ink-muted">
             Approver
-          </ZoruLabel>
+          </Label>
           <div className="mt-1">
             <EntityFormField
               entity="user"
@@ -203,13 +203,13 @@ export function LeaveFiltersRow({
         </div>
         <div className="flex gap-2">
           <div className="flex-1">
-            <ZoruLabel
+            <Label
               htmlFor="leave-from"
               className="text-[11px] uppercase text-zoru-ink-muted"
             >
               From
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="leave-from"
               type="date"
               value={fromDate}
@@ -218,13 +218,13 @@ export function LeaveFiltersRow({
             />
           </div>
           <div className="flex-1">
-            <ZoruLabel
+            <Label
               htmlFor="leave-to"
               className="text-[11px] uppercase text-zoru-ink-muted"
             >
               To
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="leave-to"
               type="date"
               value={toDate}

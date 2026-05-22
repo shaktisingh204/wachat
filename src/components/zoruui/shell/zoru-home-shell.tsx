@@ -228,9 +228,9 @@ function ZoruHomeShellContent({
           </span>
         )}
       </div>
-      <ZoruButton size="sm" variant="outline" className="w-full" asChild>
+      <Button size="sm" variant="outline" className="w-full" asChild>
         <a href="/dashboard/billing">Manage plan</a>
-      </ZoruButton>
+      </Button>
     </div>
   ) : null;
 

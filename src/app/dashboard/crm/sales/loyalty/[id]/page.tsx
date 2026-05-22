@@ -64,16 +64,16 @@ export default async function LoyaltyDetailPage({
             status={{ label: status, tone }}
             back={{ href: '/dashboard/crm/sales/loyalty', label: 'Back to loyalty' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`/dashboard/crm/sales/loyalty/${id}/edit`}>
                         <Pencil className="h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
             audit={<EntityAuditTimeline entityKind="loyaltyProgram" entityId={id} />}
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Program details
                 </h2>
@@ -119,7 +119,7 @@ export default async function LoyaltyDetailPage({
                         </Field>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

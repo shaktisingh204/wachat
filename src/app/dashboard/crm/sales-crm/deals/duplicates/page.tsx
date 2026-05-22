@@ -70,11 +70,11 @@ function fmtDate(v?: string | null): string {
 
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
-        <ZoruCard>
+        <Card>
             <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
             <p className="mt-1 text-[28px] font-semibold text-foreground">{value.toLocaleString()}</p>
             {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -122,7 +122,7 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
     return (
         <div className="space-y-3 border-t border-border p-3">
             <p className="text-[12px] font-medium text-foreground">Pick the survivor</p>
-            <ZoruRadioGroup value={survivor} onValueChange={setSurvivor} className="space-y-2">
+            <RadioGroup value={survivor} onValueChange={setSurvivor} className="space-y-2">
                 {group.members.map((m) => (
                     <label
                         key={m._id}
@@ -141,16 +141,16 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
                         </div>
                     </label>
                 ))}
-            </ZoruRadioGroup>
+            </RadioGroup>
             <div className="flex items-center justify-end gap-2">
-                <ZoruButton
+                <Button
                     size="sm"
                     onClick={() => setConfirmOpen(true)}
                     disabled={pending || !survivor || mergedIds.length === 0}
                 >
                     <GitMerge className="h-3.5 w-3.5" />
                     Merge {mergedIds.length} into survivor
-                </ZoruButton>
+                </Button>
             </div>
             <ConfirmDialog
                 open={confirmOpen}
@@ -255,15 +255,15 @@ export default function DealDuplicatesPage() {
             title="Find duplicates"
             subtitle="Possible duplicate deals — same client, similar amount, close-by expected-close dates."
             viewSwitcher={
-                <ZoruButton variant="outline" size="sm" onClick={refresh} disabled={isPending}>
+                <Button variant="outline" size="sm" onClick={refresh} disabled={isPending}>
                     <RefreshCcw className={`h-3.5 w-3.5 ${isPending ? 'animate-spin' : ''}`} />
                     Rescan
-                </ZoruButton>
+                </Button>
             }
             primaryAction={
-                <ZoruButton asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm">
                     <Link href="/dashboard/crm/sales-crm/deals">Back to deals</Link>
-                </ZoruButton>
+                </Button>
             }
             empty={
                 !isPending && loaded && annotated.length === 0 ? (
@@ -286,11 +286,11 @@ export default function DealDuplicatesPage() {
                 <StatCard title="Ignored" value={kpis.ignored} accent="Hidden from future scans" />
             </div>
 
-            <ZoruCard>
+            <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[200px]">
                         <p className="mb-1 text-[12px] font-medium text-foreground">Status</p>
-                        <ZoruSelect
+                        <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
@@ -303,41 +303,41 @@ export default function DealDuplicatesPage() {
                                 <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
                                 <ZoruSelectItem value="ignored">Ignored</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <p className="text-[12px] text-muted-foreground">
                         Showing {visibleGroups.length} of {annotated.length}
                     </p>
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div className="space-y-4">
                 {visibleGroups.map((group) => {
                     const isMerged = group.status === 'resolved';
                     const isIgnored = group.status === 'ignored';
                     return (
-                        <ZoruCard key={group.signature} className="overflow-hidden p-0">
+                        <Card key={group.signature} className="overflow-hidden p-0">
                             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border p-3">
                                 <h3 className="text-[13px] font-medium text-foreground">
                                     {group.members[0]?.clientLabel || 'Cluster'}
                                 </h3>
                                 <div className="flex items-center gap-2">
-                                    <ZoruBadge variant="info">{group.members.length} deals</ZoruBadge>
+                                    <Badge variant="info">{group.members.length} deals</Badge>
                                     {isMerged ? (
-                                        <ZoruBadge variant="success">Resolved</ZoruBadge>
+                                        <Badge variant="success">Resolved</Badge>
                                     ) : isIgnored ? (
-                                        <ZoruBadge variant="ghost">Ignored</ZoruBadge>
+                                        <Badge variant="ghost">Ignored</Badge>
                                     ) : (
-                                        <ZoruBadge variant="warning">Pending</ZoruBadge>
+                                        <Badge variant="warning">Pending</Badge>
                                     )}
                                     {!isMerged && !isIgnored ? (
-                                        <ZoruButton
+                                        <Button
                                             size="sm"
                                             variant="ghost"
                                             onClick={() => handleIgnore(group.signature)}
                                         >
                                             <X className="h-3.5 w-3.5" /> Ignore
-                                        </ZoruButton>
+                                        </Button>
                                     ) : null}
                                 </div>
                             </div>
@@ -377,14 +377,14 @@ export default function DealDuplicatesPage() {
                                                 Created: {fmtDate(m.createdAt)}
                                             </p>
                                             {isSurvivor ? (
-                                                <ZoruBadge variant="success" className="mt-1 self-start">
+                                                <Badge variant="success" className="mt-1 self-start">
                                                     Survivor
-                                                </ZoruBadge>
+                                                </Badge>
                                             ) : null}
                                             {wasMerged ? (
-                                                <ZoruBadge variant="ghost" className="mt-1 self-start">
+                                                <Badge variant="ghost" className="mt-1 self-start">
                                                     Merged
-                                                </ZoruBadge>
+                                                </Badge>
                                             ) : null}
                                         </div>
                                     );
@@ -394,12 +394,12 @@ export default function DealDuplicatesPage() {
                             {!isMerged && !isIgnored ? (
                                 <MergePanel group={group} onMerged={refresh} />
                             ) : null}
-                        </ZoruCard>
+                        </Card>
                     );
                 })}
 
                 {isPending && groups.length === 0 ? (
-                    <ZoruSkeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
                 ) : null}
             </div>
         </EntityListShell>

@@ -118,7 +118,7 @@ export function BillQuickEdits({
         <div className="flex items-center justify-between gap-2">
           <dt className="text-zoru-ink-muted">Status</dt>
           <dd>
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
                 <button
                   type="button"
@@ -141,7 +141,7 @@ export function BillQuickEdits({
                   </ZoruDropdownMenuItem>
                 ))}
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
@@ -168,13 +168,13 @@ export function BillQuickEdits({
         </div>
       </dl>
 
-      <ZoruDialog open={vendorOpen} onOpenChange={setVendorOpen}>
+      <Dialog open={vendorOpen} onOpenChange={setVendorOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Change vendor</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="space-y-2 py-2">
-            <ZoruLabel>Vendor</ZoruLabel>
+            <Label>Vendor</Label>
             <EntityFormField
               entity="vendor"
               name="_vendor"
@@ -183,13 +183,13 @@ export function BillQuickEdits({
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setVendorOpen(false)}>
+            <Button variant="ghost" onClick={() => setVendorOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={commitVendor}>Save</ZoruButton>
+            </Button>
+            <Button onClick={commitVendor}>Save</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }

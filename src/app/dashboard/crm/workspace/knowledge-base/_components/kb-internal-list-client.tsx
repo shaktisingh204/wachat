@@ -321,21 +321,21 @@ export function KbInternalListClient(): React.JSX.Element {
                 }}
                 primaryAction={
                     <div className="flex gap-2">
-                        <ZoruButton asChild variant="outline">
+                        <Button asChild variant="outline">
                             <Link href="/dashboard/crm/workspace/knowledge-base/categories">
                                 Categories
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
+                        </Button>
+                        <Button asChild>
                             <Link href="/dashboard/crm/workspace/knowledge-base/new">
                                 <Plus className="h-4 w-4" /> New article
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <Select
                             value={filters.kpiKey}
                             onValueChange={(v) => updateFilter('kpiKey', v as KbInternalKpiKey)}
                         >
@@ -349,14 +349,14 @@ export function KbInternalListClient(): React.JSX.Element {
                                 <ZoruSelectItem value="pinned">Pinned</ZoruSelectItem>
                                 <ZoruSelectItem value="todo">To-do</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                         <EnumFilterField
                             enumName="kbArticleType"
                             value={filters.typeFilter}
                             onChange={(v) => updateFilter('typeFilter', v as KbInternalTypeFilter)}
                             allLabel="Any type"
                         />
-                        <ZoruSelect
+                        <Select
                             value={filters.category || 'any'}
                             onValueChange={(v) => updateFilter('category', v === 'any' ? '' : v)}
                         >
@@ -371,15 +371,15 @@ export function KbInternalListClient(): React.JSX.Element {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruInput
+                        </Select>
+                        <Input
                             type="date"
                             value={filters.fromIso}
                             onChange={(e) => updateFilter('fromIso', e.target.value)}
                             className="h-9 w-[150px]"
                             aria-label="From"
                         />
-                        <ZoruInput
+                        <Input
                             type="date"
                             value={filters.toIso}
                             onChange={(e) => updateFilter('toIso', e.target.value)}
@@ -387,16 +387,16 @@ export function KbInternalListClient(): React.JSX.Element {
                             aria-label="To"
                         />
                         {hasActiveFilters ? (
-                            <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                            <Button variant="ghost" size="sm" onClick={clearFilters}>
                                 <X className="h-3.5 w-3.5" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
-                        <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                        <Button variant="ghost" size="sm" onClick={exportCsv}>
                             <Download className="h-3.5 w-3.5" /> CSV
-                        </ZoruButton>
-                        <ZoruButton variant="ghost" size="sm" onClick={exportXlsx}>
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={exportXlsx}>
                             <Download className="h-3.5 w-3.5" /> XLSX
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 bulkBar={
@@ -406,34 +406,34 @@ export function KbInternalListClient(): React.JSX.Element {
                                 {selected.size} selected
                             </span>
                             <div className="flex gap-2">
-                                <ZoruButton
+                                <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => setSelected(new Set())}
                                 >
                                     Clear
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => setBulkAction('publish')}
                                 >
                                     <Pin className="h-3.5 w-3.5" /> Publish
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => setBulkAction('archive')}
                                 >
                                     <Archive className="h-3.5 w-3.5" /> Archive
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     size="sm"
                                     variant="destructive"
                                     onClick={() => setBulkAction('delete')}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -449,11 +449,11 @@ export function KbInternalListClient(): React.JSX.Element {
                                 Author your first internal article — process docs, runbooks, or
                                 quick references for the team.
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/workspace/knowledge-base/new">
                                     <Plus className="h-4 w-4" /> Add article
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -461,13 +461,13 @@ export function KbInternalListClient(): React.JSX.Element {
             >
                 <div className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                        <ZoruStatCard label="Total" value={kpis.total} icon={<BookOpen className="h-4 w-4" />} />
-                        <ZoruStatCard label="Published" value={kpis.published} icon={<Pin className="h-4 w-4" />} />
-                        <ZoruStatCard label="Drafts" value={kpis.drafts} />
-                        <ZoruStatCard label="To-do" value={kpis.todo} icon={<CheckSquare className="h-4 w-4" />} />
+                        <StatCard label="Total" value={kpis.total} icon={<BookOpen className="h-4 w-4" />} />
+                        <StatCard label="Published" value={kpis.published} icon={<Pin className="h-4 w-4" />} />
+                        <StatCard label="Drafts" value={kpis.drafts} />
+                        <StatCard label="To-do" value={kpis.todo} icon={<CheckSquare className="h-4 w-4" />} />
                         {/* TODO 1D.1: Most-viewed / Helpful % — internal schema lacks
                             viewCount and helpfulYes/No. Add when schema extends. */}
-                        <ZoruStatCard label="Most viewed" value="—" />
+                        <StatCard label="Most viewed" value="—" />
                     </div>
 
                     {view === 'table' ? (
@@ -537,7 +537,7 @@ function KbInternalTable({
                 <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                     <tr>
                         <th className="px-3 py-2 text-left font-medium w-10">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all"
                                 checked={allSelected}
                                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
@@ -578,7 +578,7 @@ function KbInternalTable({
                                 ].join(' ')}
                             >
                                 <td className="px-3 py-2">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         aria-label={`Select ${a.title}`}
                                         checked={isSelected}
                                         onCheckedChange={() => onToggleOne(a._id)}
@@ -591,7 +591,7 @@ function KbInternalTable({
                                     />
                                 </td>
                                 <td className="px-3 py-2">
-                                    <ZoruBadge variant="ghost">{cat?.name ?? 'Uncategorized'}</ZoruBadge>
+                                    <Badge variant="ghost">{cat?.name ?? 'Uncategorized'}</Badge>
                                 </td>
                                 <td className="px-3 py-2 capitalize text-zoru-ink-muted">{a.type}</td>
                                 <td className="px-3 py-2">
@@ -605,21 +605,21 @@ function KbInternalTable({
                                     {fmtDate(a.updatedAt ?? a.createdAt)}
                                 </td>
                                 <td className="px-3 py-2 text-right">
-                                    <ZoruButton
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => onTogglePin(a._id)}
                                     >
                                         <Pin className="h-3.5 w-3.5" />
                                         {a.pinned ? 'Unpin' : 'Pin'}
-                                    </ZoruButton>
-                                    <ZoruButton
+                                    </Button>
+                                    <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => onDelete(a._id)}
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
-                                    </ZoruButton>
+                                    </Button>
                                 </td>
                             </tr>
                         );
@@ -638,12 +638,12 @@ function KbInternalTree({
     return (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {grouped.map((g) => (
-                <ZoruCard key={g.id}>
+                <Card key={g.id}>
                     <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">
                         {g.name}{' '}
-                        <ZoruBadge variant="ghost" className="ml-1">
+                        <Badge variant="ghost" className="ml-1">
                             {g.articles.length}
-                        </ZoruBadge>
+                        </Badge>
                     </h3>
                     {g.articles.length === 0 ? (
                         <p className="text-[12.5px] text-zoru-ink-muted">No articles.</p>
@@ -668,7 +668,7 @@ function KbInternalTree({
                             ))}
                         </ul>
                     )}
-                </ZoruCard>
+                </Card>
             ))}
         </div>
     );

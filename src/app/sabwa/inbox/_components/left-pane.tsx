@@ -100,7 +100,7 @@ export function LeftPane({
             className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted"
             aria-hidden
           />
-          <ZoruInput
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search chats"
@@ -108,7 +108,7 @@ export function LeftPane({
             aria-label="Search chats"
           />
         </div>
-        <ZoruSelect
+        <Select
           value={filter}
           onValueChange={(v) => setFilter(v as ChatFilter)}
         >
@@ -122,10 +122,10 @@ export function LeftPane({
             <ZoruSelectItem value="groups">Groups</ZoruSelectItem>
             <ZoruSelectItem value="broadcasts">Broadcasts</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
       </div>
 
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         {loading ? (
           <div className="space-y-2 p-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -174,7 +174,7 @@ export function LeftPane({
             ))}
           </ul>
         )}
-      </ZoruScrollArea>
+      </ScrollArea>
     </aside>
   );
 }

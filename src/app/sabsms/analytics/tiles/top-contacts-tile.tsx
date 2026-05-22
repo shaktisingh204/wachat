@@ -29,7 +29,7 @@ export function TopContactsTile({
   queryString,
 }: TopContactsTileProps) {
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <ZoruCardTitle>Top contacts by engagement</ZoruCardTitle>
@@ -57,7 +57,7 @@ export function TopContactsTile({
             No inbound traffic yet.
           </p>
         ) : (
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Contact</ZoruTableHead>
@@ -91,9 +91,9 @@ export function TopContactsTile({
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

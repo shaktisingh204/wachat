@@ -38,14 +38,14 @@ const variantExtra: Record<Variant, string> = {
 
 export const ClayCard = React.forwardRef<HTMLDivElement, ClayCardProps>(
   ({ className, variant = 'default', padded = true, children, ...props }, ref) => (
-    <ZoruCard
+    <Card
       ref={ref}
       variant={variantToCard[variant]}
       className={cn(variantExtra[variant], padded && 'p-5', className)}
       {...props}
     >
       {children}
-    </ZoruCard>
+    </Card>
   ),
 );
 ClayCard.displayName = 'ClayCard';

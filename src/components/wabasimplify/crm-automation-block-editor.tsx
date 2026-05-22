@@ -31,9 +31,9 @@ interface CrmAutomationBlockEditorProps {
 
 const TriggerEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => (
     <div className="space-y-2">
-        <ZoruLabel>Trigger Tag</ZoruLabel>
+        <Label>Trigger Tag</Label>
         <p className="text-xs text-muted-foreground">The exact name of the tag that should start this workflow.</p>
-        <ZoruInput 
+        <Input 
             placeholder="e.g., new_lead" 
             value={data.tagName || ''}
             onChange={(e) => onUpdate({ ...data, tagName: e.target.value })}
@@ -44,23 +44,23 @@ const TriggerEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) =>
 const DelayEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => (
     <div className="space-y-4">
         <div className="space-y-2">
-            <ZoruLabel>Delay Duration</ZoruLabel>
-            <ZoruInput 
+            <Label>Delay Duration</Label>
+            <Input 
                 type="number"
                 value={data.delayValue || '1'}
                 onChange={(e) => onUpdate({ ...data, delayValue: Number(e.target.value) })}
             />
         </div>
          <div className="space-y-2">
-            <ZoruLabel>Unit</ZoruLabel>
-            <ZoruSelect value={data.delayUnit || 'days'} onValueChange={(val) => onUpdate({ ...data, delayUnit: val })}>
+            <Label>Unit</Label>
+            <Select value={data.delayUnit || 'days'} onValueChange={(val) => onUpdate({ ...data, delayUnit: val })}>
                 <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                 <ZoruSelectContent>
                     <ZoruSelectItem value="minutes">Minutes</ZoruSelectItem>
                     <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
                     <ZoruSelectItem value="days">Days</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
         </div>
     </div>
 );
@@ -74,24 +74,24 @@ const SendEmailEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
     
     return (
         <div className="space-y-2">
-            <ZoruLabel>Email Template</ZoruLabel>
-            <ZoruSelect value={data.templateId || ''} onValueChange={(val) => onUpdate({ ...data, templateId: val })}>
+            <Label>Email Template</Label>
+            <Select value={data.templateId || ''} onValueChange={(val) => onUpdate({ ...data, templateId: val })}>
                 <ZoruSelectTrigger><ZoruSelectValue placeholder="Select an email template..." /></ZoruSelectTrigger>
                 <ZoruSelectContent {...({ searchable: true } as any)}>
                     {templates.map(template => (
                         <ZoruSelectItem key={template._id.toString()} value={template._id.toString()}>{template.name}</ZoruSelectItem>
                     ))}
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
         </div>
     )
 };
 
 const AddTagEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => (
      <div className="space-y-2">
-        <ZoruLabel>Tag Name</ZoruLabel>
+        <Label>Tag Name</Label>
         <p className="text-xs text-muted-foreground">The tag to add to the contact.</p>
-        <ZoruInput 
+        <Input 
             placeholder="e.g., contacted, follow_up" 
             value={data.tagName || ''}
             onChange={(e) => onUpdate({ ...data, tagName: e.target.value })}
@@ -101,8 +101,8 @@ const AddTagEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => 
 
 const CreateTaskEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => (
      <div className="space-y-2">
-        <ZoruLabel>Task Title</ZoruLabel>
-        <ZoruInput 
+        <Label>Task Title</Label>
+        <Input 
             placeholder="e.g. Follow up with {{contact.name}}" 
             value={data.taskTitle || ''}
             onChange={(e) => onUpdate({ ...data, taskTitle: e.target.value })}
@@ -129,30 +129,30 @@ const ConditionEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
 
     return (
         <div className="space-y-4">
-            <ZoruRadioGroup value={data.logicType || 'AND'} onValueChange={(val) => onUpdate({ ...data, logicType: val })} className="flex gap-4">
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="AND" id="logic-and"/><ZoruLabel htmlFor="logic-and">Match ALL conditions (AND)</ZoruLabel></div>
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="OR" id="logic-or"/><ZoruLabel htmlFor="logic-or">Match ANY condition (OR)</ZoruLabel></div>
-            </ZoruRadioGroup>
+            <RadioGroup value={data.logicType || 'AND'} onValueChange={(val) => onUpdate({ ...data, logicType: val })} className="flex gap-4">
+                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div>
+                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div>
+            </RadioGroup>
             
             <div className="space-y-3">
                 {rules.map((rule: any, index: number) => (
                     <div key={index} className="p-3 border rounded-md space-y-2 relative">
-                        <ZoruButton variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}>
+                        <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}>
                             <Trash2 className="h-4 w-4 text-destructive"/>
-                        </ZoruButton>
-                        <ZoruSelect value={rule.field} onValueChange={(val) => handleRuleChange(index, 'field', val)}>
+                        </Button>
+                        <Select value={rule.field} onValueChange={(val) => handleRuleChange(index, 'field', val)}>
                             <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a field..."/></ZoruSelectTrigger>
                             <ZoruSelectContent><ZoruSelectItem value="contact.status">Contact Status</ZoruSelectItem><ZoruSelectItem value="contact.tag">Contact Tag</ZoruSelectItem></ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect value={rule.operator} onValueChange={(val) => handleRuleChange(index, 'operator', val)}>
+                        </Select>
+                        <Select value={rule.operator} onValueChange={(val) => handleRuleChange(index, 'operator', val)}>
                             <ZoruSelectTrigger><ZoruSelectValue placeholder="Select operator..."/></ZoruSelectTrigger>
                             <ZoruSelectContent><ZoruSelectItem value="equals">Equals</ZoruSelectItem><ZoruSelectItem value="not_equals">Does not equal</ZoruSelectItem><ZoruSelectItem value="contains">Contains</ZoruSelectItem></ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruInput placeholder="Value" value={rule.value} onChange={(e) => handleRuleChange(index, 'value', e.target.value)} />
+                        </Select>
+                        <Input placeholder="Value" value={rule.value} onChange={(e) => handleRuleChange(index, 'value', e.target.value)} />
                     </div>
                 ))}
             </div>
-            <ZoruButton variant="outline" size="sm" onClick={addRule}><Plus className="mr-2 h-4 w-4" />Add Condition</ZoruButton>
+            <Button variant="outline" size="sm" onClick={addRule}><Plus className="mr-2 h-4 w-4" />Add Condition</Button>
         </div>
     );
 };
@@ -184,15 +184,15 @@ export function CrmAutomationBlockEditor({ node, onUpdate }: { node: any, onUpda
         <div className="space-y-4 h-full flex flex-col">
             <h3 className="text-lg font-semibold">Properties</h3>
              <div className="space-y-2">
-                <ZoruLabel>Block Label</ZoruLabel>
-                <ZoruInput value={node.data.label} onChange={handleLabelChange} />
+                <Label>Block Label</Label>
+                <Input value={node.data.label} onChange={handleLabelChange} />
             </div>
-            <ZoruSeparator />
-            <ZoruScrollArea className="flex-1">
+            <Separator />
+            <ScrollArea className="flex-1">
                 <div className="pr-2 space-y-4">
                      {renderEditorContent()}
                 </div>
-            </ZoruScrollArea>
+            </ScrollArea>
         </div>
     );
 }

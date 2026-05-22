@@ -168,10 +168,10 @@ export default function KanbanPage() {
   if (isLoading && tasks.length === 0) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-64" />
         <div className="grid gap-4 md:grid-cols-4">
           {DEFAULT_COLUMNS.map((c) => (
-            <ZoruSkeleton key={c._id} className="h-[60vh] rounded-xl" />
+            <Skeleton key={c._id} className="h-[60vh] rounded-xl" />
           ))}
         </div>
       </div>
@@ -185,7 +185,7 @@ export default function KanbanPage() {
       primaryAction={
         <>
           <div className="w-[220px]">
-            <ZoruSelect value={projectFilter} onValueChange={setProjectFilter}>
+            <Select value={projectFilter} onValueChange={setProjectFilter}>
               <ZoruSelectTrigger className="h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                 <ZoruSelectValue placeholder="All projects" />
               </ZoruSelectTrigger>
@@ -197,13 +197,13 @@ export default function KanbanPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <Link href="/dashboard/crm/projects/taskboard-columns">
-            <ZoruButton variant="outline" size="sm">
+            <Button variant="outline" size="sm">
               <Columns3 className="h-4 w-4" />
               Columns
-            </ZoruButton>
+            </Button>
           </Link>
         </>
       }
@@ -223,7 +223,7 @@ export default function KanbanPage() {
               ? effectiveColumns[idx + 1]
               : null;
           return (
-            <ZoruCard key={col._id} className="flex flex-col p-4">
+            <Card key={col._id} className="flex flex-col p-4">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
@@ -246,7 +246,7 @@ export default function KanbanPage() {
                   </div>
                 ) : (
                   colTasks.map((task) => (
-                    <ZoruCard key={task._id} className="p-3">
+                    <Card key={task._id} className="p-3">
                       <p className="text-[13px] font-medium text-zoru-ink">
                         {task.heading}
                       </p>
@@ -255,13 +255,13 @@ export default function KanbanPage() {
                           <span>{task.assigneeName}</span>
                         ) : null}
                         {task.priority ? (
-                          <ZoruBadge
+                          <Badge
                             variant={
                               PRIORITY_VARIANTS[task.priority] || 'ghost'
                             }
                           >
                             {task.priority}
-                          </ZoruBadge>
+                          </Badge>
                         ) : null}
                         {projectFilter === 'all' ? (
                           <span className="truncate">
@@ -295,11 +295,11 @@ export default function KanbanPage() {
                           <span className="h-7 w-7" />
                         )}
                       </div>
-                    </ZoruCard>
+                    </Card>
                   ))
                 )}
               </div>
-            </ZoruCard>
+            </Card>
           );
         })}
       </div>

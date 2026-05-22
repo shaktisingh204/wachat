@@ -55,7 +55,7 @@ export function DealCompetitorsEditor({
         ))}
       </div>
       <div className="flex items-center gap-2">
-        <ZoruInput
+        <Input
           placeholder="Add competitor name…"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -67,9 +67,9 @@ export function DealCompetitorsEditor({
           }}
           className="max-w-xs"
         />
-        <ZoruButton type="button" variant="outline" size="sm" onClick={commit}>
+        <Button type="button" variant="outline" size="sm" onClick={commit}>
           Add
-        </ZoruButton>
+        </Button>
       </div>
     </>
   );

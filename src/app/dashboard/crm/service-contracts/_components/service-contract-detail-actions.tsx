@@ -76,70 +76,70 @@ export function ServiceContractDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/service-contracts/${contractId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setScheduleOpen(true)}
       >
         <Send className="h-3.5 w-3.5" /> Schedule visit
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setRenewOpen(true)}
       >
         <RefreshCcw className="h-3.5 w-3.5" /> Renew
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runMarkClosed}
         disabled={status === 'closed'}
       >
         <CheckCheck className="h-3.5 w-3.5" /> Mark closed
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setSendOpen(true)}
       >
         <Mail className="h-3.5 w-3.5" /> Send
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => window.print()}>
+      <Button size="sm" variant="outline" onClick={() => window.print()}>
         <Printer className="h-3.5 w-3.5" /> Print
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setArchiveOpen(true)}
       >
         <Archive className="h-3.5 w-3.5" /> Archive
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/service-contracts/${contractId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="destructive"
         onClick={() => setDeleteOpen(true)}
       >
         <Trash2 className="h-3.5 w-3.5" /> Delete
-      </ZoruButton>
+      </Button>
 
       <ServiceContractScheduleDialog
         open={scheduleOpen}

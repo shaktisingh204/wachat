@@ -398,7 +398,7 @@ export default function Page() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
-        <ZoruBreadcrumb>
+        <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
               <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -412,14 +412,14 @@ export default function Page() {
               <ZoruBreadcrumbPage>Auto-reply</ZoruBreadcrumbPage>
             </ZoruBreadcrumbItem>
           </ZoruBreadcrumbList>
-        </ZoruBreadcrumb>
-        <ZoruEmptyState
+        </Breadcrumb>
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -430,7 +430,7 @@ export default function Page() {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -444,7 +444,7 @@ export default function Page() {
             <ZoruBreadcrumbPage>Auto-reply</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -462,12 +462,12 @@ export default function Page() {
             </p>
           </div>
         </div>
-        <ZoruButton onClick={openNew}>
+        <Button onClick={openNew}>
           <Plus className="mr-2 h-4 w-4" /> New rule
-        </ZoruButton>
+        </Button>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-[14px]">Rules</ZoruCardTitle>
         </ZoruCardHeader>
@@ -479,15 +479,15 @@ export default function Page() {
           )}
           {!loading && rules.length === 0 && (
             <div className="p-6">
-              <ZoruEmptyState
+              <EmptyState
                 icon={<MessageSquareDashed />}
                 title="No auto-reply rules yet"
                 description="Match inbound messages on keywords, regex, or sender — then reply, label, or forward automatically. First matching rule wins, so order matters."
                 action={
-                  <ZoruButton onClick={openNew}>
+                  <Button onClick={openNew}>
                     <Plus className="mr-1.5 h-4 w-4" />
                     Create first rule
-                  </ZoruButton>
+                  </Button>
                 }
               />
             </div>
@@ -512,10 +512,10 @@ export default function Page() {
                 >
                   <GripVertical className="h-4 w-4" />
                 </button>
-                <ZoruBadge variant="outline" className="font-mono text-[10px]">
+                <Badge variant="outline" className="font-mono text-[10px]">
                   #{i + 1}
-                </ZoruBadge>
-                <ZoruSwitch
+                </Badge>
+                <Switch
                   checked={r.enabled}
                   onCheckedChange={(v) => void onToggle(r, v)}
                   aria-label={`Toggle ${r.name}`}
@@ -534,23 +534,23 @@ export default function Page() {
                 <span className="hidden text-[11.5px] text-zoru-ink-muted sm:inline">
                   {r.lastFiredAt ? 'Fired' : 'Never fired'}
                 </span>
-                <ZoruButton
+                <Button
                   size="icon-sm"
                   variant="ghost"
                   aria-label={`Duplicate ${r.name}`}
                   onClick={() => void onDuplicate(r)}
                 >
                   <Copy className="h-4 w-4" />
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="icon-sm"
                   variant="ghost"
                   aria-label={`Edit ${r.name}`}
                   onClick={() => openEdit(r)}
                 >
                   <Edit3 className="h-4 w-4" />
-                </ZoruButton>
-                <ZoruButton
+                </Button>
+                <Button
                   size="icon-sm"
                   variant="ghost"
                   className="text-zoru-danger"
@@ -558,12 +558,12 @@ export default function Page() {
                   onClick={() => void onDelete(r.id)}
                 >
                   <Trash2 className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
               </li>
             ))}
           </ul>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Test sandbox */}
       <TestSandbox rules={rules} />
@@ -611,7 +611,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="flex items-center gap-2 text-[14px]">
           <Beaker className="h-4 w-4" /> Test sandbox
@@ -624,8 +624,8 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
       <ZoruCardContent className="space-y-3">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="sb-sender">From (sender)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sb-sender">From (sender)</Label>
+            <Input
               id="sb-sender"
               value={sender}
               onChange={(e) => setSender(e.target.value)}
@@ -633,8 +633,8 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="sb-tags">Sender labels (comma-separated)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="sb-tags">Sender labels (comma-separated)</Label>
+            <Input
               id="sb-tags"
               value={senderTags}
               onChange={(e) => setSenderTags(e.target.value)}
@@ -644,27 +644,27 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line p-2">
-            <ZoruSwitch
+            <Switch
               checked={isNewContact}
               onCheckedChange={setIsNewContact}
               id="sb-new"
               aria-label="New contact toggle"
             />
-            <ZoruLabel htmlFor="sb-new" className="text-[11.5px]">
+            <Label htmlFor="sb-new" className="text-[11.5px]">
               First message from new contact
-            </ZoruLabel>
+            </Label>
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-[11.5px]">Business hours start</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11.5px]">Business hours start</Label>
+            <Input
               type="time"
               value={bizStart}
               onChange={(e) => setBizStart(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-[11.5px]">Business hours end</ZoruLabel>
-            <ZoruInput
+            <Label className="text-[11.5px]">Business hours end</Label>
+            <Input
               type="time"
               value={bizEnd}
               onChange={(e) => setBizEnd(e.target.value)}
@@ -672,17 +672,17 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
           </div>
         </div>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="sb-msg">Inbound message</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="sb-msg">Inbound message</Label>
+          <Textarea
             id="sb-msg"
             rows={3}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
         </div>
-        <ZoruButton onClick={runTest}>
+        <Button onClick={runTest}>
           <Beaker className="mr-2 h-4 w-4" /> Run test
-        </ZoruButton>
+        </Button>
 
         {results && (
           <div className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3">
@@ -696,11 +696,11 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
                 <p className="flex items-center gap-2 text-[13px] font-medium text-zoru-ink">
                   <CheckCircle2 className="h-4 w-4 text-zoru-success" />
                   First match wins:{' '}
-                  <ZoruBadge variant="success" className="text-[10px]">
+                  <Badge variant="success" className="text-[10px]">
                     {results.firstMatch?.name}
-                  </ZoruBadge>
+                  </Badge>
                 </p>
-                <ZoruSeparator />
+                <Separator />
                 <p className="text-[11.5px] font-medium text-zoru-ink-muted">
                   Actions that would run:
                 </p>
@@ -716,16 +716,16 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
                 </ul>
                 {results.matches.length > 1 && (
                   <>
-                    <ZoruSeparator />
+                    <Separator />
                     <p className="text-[11.5px] text-zoru-ink-muted">
                       Other rules that also matched (but won&apos;t run):
                     </p>
                     <ul className="space-y-1 text-[11.5px]">
                       {results.matches.slice(1).map((m) => (
                         <li key={m.id}>
-                          <ZoruBadge variant="outline" className="text-[10px]">
+                          <Badge variant="outline" className="text-[10px]">
                             {m.name}
-                          </ZoruBadge>
+                          </Badge>
                         </li>
                       ))}
                     </ul>
@@ -736,7 +736,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
           </div>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -818,7 +818,7 @@ function RuleEditorDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-3xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -833,8 +833,8 @@ function RuleEditorDialog({
         <div className="space-y-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto]">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="rule-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="rule-name">Name</Label>
+              <Input
                 id="rule-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -842,14 +842,14 @@ function RuleEditorDialog({
               />
             </div>
             <div className="flex items-end gap-2">
-              <ZoruSwitch
+              <Switch
                 id="rule-enabled"
                 checked={enabled}
                 onCheckedChange={setEnabled}
               />
-              <ZoruLabel htmlFor="rule-enabled" className="text-[13px]">
+              <Label htmlFor="rule-enabled" className="text-[13px]">
                 Enabled
-              </ZoruLabel>
+              </Label>
             </div>
           </div>
 
@@ -860,11 +860,11 @@ function RuleEditorDialog({
                 <h3 className="text-[13px] font-semibold text-zoru-ink">
                   Triggers (AND)
                 </h3>
-                <ZoruButton size="sm" variant="ghost" onClick={addTrigger}>
+                <Button size="sm" variant="ghost" onClick={addTrigger}>
                   <Plus className="mr-1 h-3.5 w-3.5" /> Add
-                </ZoruButton>
+                </Button>
               </div>
-              <ZoruSeparator />
+              <Separator />
               <div className="space-y-2">
                 {triggers.map((t, i) => (
                   <TriggerEditor
@@ -888,11 +888,11 @@ function RuleEditorDialog({
                 <h3 className="text-[13px] font-semibold text-zoru-ink">
                   Actions
                 </h3>
-                <ZoruButton size="sm" variant="ghost" onClick={addAction}>
+                <Button size="sm" variant="ghost" onClick={addAction}>
                   <Plus className="mr-1 h-3.5 w-3.5" /> Add
-                </ZoruButton>
+                </Button>
               </div>
-              <ZoruSeparator />
+              <Separator />
               <div className="space-y-2">
                 {actions.map((a, i) => (
                   <ActionEditor
@@ -913,15 +913,15 @@ function RuleEditorDialog({
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={() => void onSubmit()} disabled={!valid || saving}>
+          </Button>
+          <Button onClick={() => void onSubmit()} disabled={!valid || saving}>
             {saving ? 'Saving…' : initial ? 'Save changes' : 'Create rule'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -944,7 +944,7 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
   return (
     <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2">
       <div className="flex items-center gap-2">
-        <ZoruSelect
+        <Select
           value={trigger.kind}
           onValueChange={(v) => onChange({ kind: v as TriggerKind })}
         >
@@ -958,18 +958,18 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruButton
+        </Select>
+        <Button
           size="icon-sm"
           variant="ghost"
           aria-label="Remove trigger"
           onClick={onRemove}
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
       {needsValue && (
-        <ZoruInput
+        <Input
           value={trigger.value ?? ''}
           onChange={(e) => onChange({ value: e.target.value })}
           placeholder={
@@ -984,7 +984,7 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
       )}
       {trigger.kind === 'regex' && (
         <label className="flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
-          <ZoruSwitch
+          <Switch
             checked={trigger.caseSensitive ?? false}
             onCheckedChange={(v) => onChange({ caseSensitive: v })}
           />
@@ -993,13 +993,13 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
       )}
       {needsTimeRange && (
         <div className="grid grid-cols-2 gap-2">
-          <ZoruInput
+          <Input
             type="time"
             value={trigger.start ?? '09:00'}
             onChange={(e) => onChange({ start: e.target.value })}
             className="h-8 text-[13px]"
           />
-          <ZoruInput
+          <Input
             type="time"
             value={trigger.end ?? '18:00'}
             onChange={(e) => onChange({ end: e.target.value })}
@@ -1026,7 +1026,7 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
   return (
     <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2">
       <div className="flex items-center gap-2">
-        <ZoruSelect
+        <Select
           value={action.kind}
           onValueChange={(v) => onChange({ kind: v as ActionKind })}
         >
@@ -1040,19 +1040,19 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruButton
+        </Select>
+        <Button
           size="icon-sm"
           variant="ghost"
           aria-label="Remove action"
           onClick={onRemove}
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
 
       {action.kind === 'send_template' && (
-        <ZoruInput
+        <Input
           value={action.templateId ?? ''}
           onChange={(e) => onChange({ templateId: e.target.value })}
           placeholder="Template ID — TODO: template picker"
@@ -1061,7 +1061,7 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
       )}
       {(action.kind === 'send_message' ||
         action.kind === 'set_away_message') && (
-        <ZoruTextarea
+        <Textarea
           rows={2}
           value={action.message ?? ''}
           onChange={(e) => onChange({ message: e.target.value })}
@@ -1075,7 +1075,7 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
       )}
       {action.kind === 'forward_to_flow' && (
         <div className="space-y-1.5">
-          <ZoruInput
+          <Input
             value={action.flowId ?? ''}
             onChange={(e) => onChange({ flowId: e.target.value })}
             placeholder="SabFlow ID"
@@ -1088,7 +1088,7 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
       )}
       {action.kind === 'set_label' && (
         <div className="space-y-1.5">
-          <ZoruInput
+          <Input
             value={action.labelId ?? ''}
             onChange={(e) => onChange({ labelId: e.target.value })}
             placeholder="Label ID"

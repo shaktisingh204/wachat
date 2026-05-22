@@ -27,13 +27,13 @@ export default function WhoisLookupPage() {
   return (
     <ToolShell title="WHOIS Lookup" description="Query WHOIS registration data for any domain.">
       <div className="flex gap-2">
-        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</ZoruButton>
+        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {data && (
         <>
-          <ZoruCard><ZoruCardContent className="p-4">
+          <Card><ZoruCardContent className="p-4">
             <div className="text-xs text-muted-foreground mb-2">Server: {data.server}</div>
             <table className="w-full text-xs">
               <tbody>
@@ -42,8 +42,8 @@ export default function WhoisLookupPage() {
                 ))}
               </tbody>
             </table>
-          </ZoruCardContent></ZoruCard>
-          <ZoruButton variant="outline" onClick={() => setShowRaw((s) => !s)}>{showRaw ? 'Hide' : 'Show'} raw WHOIS</ZoruButton>
+          </ZoruCardContent></Card>
+          <Button variant="outline" onClick={() => setShowRaw((s) => !s)}>{showRaw ? 'Hide' : 'Show'} raw WHOIS</Button>
           {showRaw && <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-96 whitespace-pre-wrap">{data.raw}</pre>}
         </>
       )}

@@ -67,7 +67,7 @@ export function TaskChecklist({ taskId, items: initialItems }: TaskChecklistProp
                     key={`${item.label}-${i}`}
                     className="flex items-start gap-2 rounded-md border border-zoru-line bg-zoru-bg p-2"
                 >
-                    <ZoruCheckbox
+                    <Checkbox
                         aria-label={`Toggle ${item.label}`}
                         checked={!!item.done}
                         onCheckedChange={(c) => void toggle(i, c === true)}

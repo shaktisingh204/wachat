@@ -31,26 +31,26 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
         <div className="flex flex-col h-full bg-transparent">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <ZoruButton variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
+                    <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
                         <ArrowLeft className="h-4 w-4" />
-                    </ZoruButton>
-                    <ZoruAvatar>
+                    </Button>
+                    <Avatar>
                         <ZoruAvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar"/>
                         <ZoruAvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <div>
                         <p className="font-semibold">{participant?.name}</p>
                         <p className="text-sm text-muted-foreground">online</p>
                     </div>
                 </div>
                  <div className="flex items-center gap-1">
-                    <ZoruButton variant="ghost" size="icon" disabled><Phone className="h-5 w-5" /></ZoruButton>
-                    <ZoruButton variant="ghost" size="icon" disabled><Video className="h-5 w-5" /></ZoruButton>
-                    <ZoruButton variant="ghost" size="icon"><Info className="h-5 w-5" /></ZoruButton>
+                    <Button variant="ghost" size="icon" disabled><Phone className="h-5 w-5" /></Button>
+                    <Button variant="ghost" size="icon" disabled><Video className="h-5 w-5" /></Button>
+                    <Button variant="ghost" size="icon"><Info className="h-5 w-5" /></Button>
                 </div>
             </div>
             
-            <ZoruScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
+            <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 <div className="p-4 space-y-4">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full">
@@ -63,7 +63,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                     )}
                     <div ref={messagesEndRef} />
                 </div>
-            </ZoruScrollArea>
+            </ScrollArea>
             
             <div className="flex items-center p-3 border-t bg-background flex-shrink-0">
                 {participant && project.facebookPageId && (

@@ -79,7 +79,7 @@ export default function WebhooksPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -89,22 +89,22 @@ export default function WebhooksPage() {
                         <ZoruBreadcrumbPage>{t('settings.webhooks.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <ZoruPageTitle>{t('settings.webhooks.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
                             {t('settings.webhooks.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
+                </PageHeader>
                 <AddWebhookDialog onAdd={addRow} />
             </div>
 
             {rows.length === 0 ? (
-                <ZoruCard className="p-6 py-10 text-center">
+                <Card className="p-6 py-10 text-center">
                     <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                         <Webhook className="h-5 w-5" />
                     </div>
@@ -112,9 +112,9 @@ export default function WebhooksPage() {
                     <p className="mt-1 text-xs text-zoru-ink-muted">
                         {t('settings.webhooks.empty.description')}
                     </p>
-                </ZoruCard>
+                </Card>
             ) : (
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     <ul className="divide-y divide-zoru-line">
                         {rows.map((w) => (
                             <WebhookRowItem
@@ -125,10 +125,10 @@ export default function WebhooksPage() {
                             />
                         ))}
                     </ul>
-                </ZoruCard>
+                </Card>
             )}
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <CircleAlert className="h-4 w-4" />
@@ -142,7 +142,7 @@ export default function WebhooksPage() {
                         </p>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
@@ -177,12 +177,12 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <ZoruDialogTrigger asChild>
-                <ZoruButton size="sm">
+                <Button size="sm">
                     <Plus className="h-4 w-4" />
                     {t('settings.webhooks.addWebhook')}
-                </ZoruButton>
+                </Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
@@ -193,17 +193,17 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                 </ZoruDialogHeader>
                 <div className="space-y-4 py-2">
                     <div>
-                        <ZoruLabel className="mb-1.5 block text-xs">
+                        <Label className="mb-1.5 block text-xs">
                             {t('settings.webhooks.dialog.endpointUrl')}
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             placeholder={t('settings.webhooks.dialog.endpointPlaceholder')}
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                         />
                     </div>
                     <div>
-                        <ZoruLabel className="mb-1.5 block text-xs">{t('settings.webhooks.dialog.events')}</ZoruLabel>
+                        <Label className="mb-1.5 block text-xs">{t('settings.webhooks.dialog.events')}</Label>
                         <div className="flex flex-wrap gap-2">
                             {ALL_EVENTS.map((ev) => {
                                 const on = selected.has(ev);
@@ -231,15 +231,15 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                     </div>
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                    <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
                         {t('action.cancel')}
-                    </ZoruButton>
-                    <ZoruButton size="sm" onClick={handleSave}>
+                    </Button>
+                    <Button size="sm" onClick={handleSave}>
                         {t('action.create')}
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -268,9 +268,9 @@ function WebhookRowItem({
                 <div className="flex items-center gap-2">
                     <p className="truncate text-sm text-zoru-ink">{row.url}</p>
                     {row.active ? (
-                        <ZoruBadge variant="success">{t('settings.webhooks.status.active')}</ZoruBadge>
+                        <Badge variant="success">{t('settings.webhooks.status.active')}</Badge>
                     ) : (
-                        <ZoruBadge variant="ghost">{t('settings.webhooks.status.paused')}</ZoruBadge>
+                        <Badge variant="ghost">{t('settings.webhooks.status.paused')}</Badge>
                     )}
                 </div>
                 <p className="mt-1 truncate text-xs text-zoru-ink-muted">
@@ -279,17 +279,17 @@ function WebhookRowItem({
                 </p>
             </div>
             <div className="flex gap-2">
-                <ZoruButton variant="ghost" size="sm" onClick={copySecret}>
+                <Button variant="ghost" size="sm" onClick={copySecret}>
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? t('settings.webhooks.row.copied') : t('settings.webhooks.row.copySecret')}
-                </ZoruButton>
-                <ZoruButton variant="ghost" size="sm" onClick={onToggle}>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onToggle}>
                     {row.active ? t('settings.webhooks.row.pause') : t('settings.webhooks.row.resume')}
-                </ZoruButton>
-                <ZoruButton variant="ghost" size="sm" onClick={onRemove}>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onRemove}>
                     <Trash2 className="h-4 w-4" />
                     {t('settings.webhooks.row.remove')}
-                </ZoruButton>
+                </Button>
             </div>
         </li>
     );

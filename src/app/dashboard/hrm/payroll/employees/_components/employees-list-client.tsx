@@ -402,7 +402,7 @@ export function EmployeesListClient({
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <EmployeesToolbar
           query={query}
           onQueryChange={setQuery}
@@ -466,7 +466,7 @@ export function EmployeesListClient({
             <PaginationBar page={page} limit={limit} hasMore={hasMore} />
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={archivePending}

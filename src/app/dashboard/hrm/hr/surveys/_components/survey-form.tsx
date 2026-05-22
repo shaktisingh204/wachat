@@ -90,14 +90,14 @@ function toLocalInput(v?: string | null): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create survey'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -171,14 +171,14 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
             <input type="hidden" name="status" value={status} />
 
             {/* Basics */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Survey
                 </div>
                 <div className="flex flex-col gap-4">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="title">Title *</Label>
+                        <Input
                             id="title"
                             name="title"
                             required
@@ -187,8 +187,8 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
                             id="description"
                             name="description"
                             rows={4}
@@ -198,8 +198,8 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="type-trigger">Type</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="type-trigger">Type</Label>
+                            <Select
                                 value={type}
                                 onValueChange={(v) =>
                                     setType(v as CrmSurveyType)
@@ -218,11 +218,11 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                            <ZoruSelect
+                            <Label htmlFor="status-trigger">Status</Label>
+                            <Select
                                 value={status}
                                 onValueChange={(v) =>
                                     setStatus(v as CrmSurveyStatus)
@@ -241,23 +241,23 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Audience */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Audience
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="audience-trigger">
+                        <Label htmlFor="audience-trigger">
                             Target audience
-                        </ZoruLabel>
-                        <ZoruSelect
+                        </Label>
+                        <Select
                             value={audience}
                             onValueChange={(v) =>
                                 setAudience(v as CrmSurveyAudience)
@@ -276,18 +276,18 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     {audienceNeedsIds ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="audienceIds">
+                            <Label htmlFor="audienceIds">
                                 {audience === 'department'
                                     ? 'Department IDs'
                                     : audience === 'team'
                                       ? 'Team IDs'
                                       : 'Role IDs'}
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="audienceIds"
                                 name="audienceIds"
                                 placeholder="comma, separated, ids"
@@ -297,24 +297,24 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                     ) : null}
                 </div>
                 <label className="mt-4 flex items-center gap-2 text-[13px] text-zoru-ink">
-                    <ZoruCheckbox
+                    <Checkbox
                         id="anonymous"
                         name="anonymous"
                         defaultChecked={!!initialData?.anonymous}
                     />
                     Collect responses anonymously
                 </label>
-            </ZoruCard>
+            </Card>
 
             {/* Schedule */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">
                     Schedule
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startsAt">Starts at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startsAt">Starts at</Label>
+                        <Input
                             id="startsAt"
                             name="startsAt"
                             type="datetime-local"
@@ -322,8 +322,8 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="endsAt">Ends at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endsAt">Ends at</Label>
+                        <Input
                             id="endsAt"
                             name="endsAt"
                             type="datetime-local"
@@ -331,10 +331,10 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Questions */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-1 text-[14px] font-medium text-zoru-ink">
                     Questions
                 </div>
@@ -343,11 +343,11 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                     arrows; choice questions show an inline option editor.
                 </p>
                 <QuestionRepeater initial={initialQuestions} />
-            </ZoruCard>
+            </Card>
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-2">
-                <ZoruButton variant="ghost" asChild>
+                <Button variant="ghost" asChild>
                     <Link
                         href={
                             isEditing && initialData?._id
@@ -358,7 +358,7 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                         <ArrowLeft className="mr-1.5 h-4 w-4" />
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton isEditing={isEditing} />
             </div>
         </form>

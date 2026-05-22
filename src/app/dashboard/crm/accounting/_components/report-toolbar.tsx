@@ -116,28 +116,28 @@ export function ReportToolbar({
     <div className="flex flex-wrap items-end gap-3">
       {mode === 'asOf' ? (
         <div className="flex flex-col gap-1.5">
-          <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">As of</ZoruLabel>
-          <ZoruDatePicker value={asOf} onChange={setAsOf} className="w-[180px]" />
+          <Label className="text-[11.5px] text-zoru-ink-muted">As of</Label>
+          <DatePicker value={asOf} onChange={setAsOf} className="w-[180px]" />
         </div>
       ) : (
         <>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">From</ZoruLabel>
-            <ZoruDatePicker value={from} onChange={setFrom} className="w-[180px]" />
+            <Label className="text-[11.5px] text-zoru-ink-muted">From</Label>
+            <DatePicker value={from} onChange={setFrom} className="w-[180px]" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">To</ZoruLabel>
-            <ZoruDatePicker value={to} onChange={setTo} className="w-[180px]" />
+            <Label className="text-[11.5px] text-zoru-ink-muted">To</Label>
+            <DatePicker value={to} onChange={setTo} className="w-[180px]" />
           </div>
         </>
       )}
-      <ZoruButton variant="outline" onClick={apply}>
+      <Button variant="outline" onClick={apply}>
         Apply
-      </ZoruButton>
-      <ZoruButton variant="outline" onClick={handleExport}>
+      </Button>
+      <Button variant="outline" onClick={handleExport}>
         <Download className="mr-1.5 h-3.5 w-3.5" />
         Export CSV
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

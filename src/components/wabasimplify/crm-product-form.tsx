@@ -43,10 +43,10 @@ const initialState = { message: null, error: undefined };
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} size="lg">
+        <Button type="submit" disabled={pending} size="lg">
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {isEditing ? 'Save Changes' : 'Create Product'}
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -100,64 +100,64 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
              <input type="hidden" name="variants" value={JSON.stringify(variants)} />
              <input type="hidden" name="batches" value={JSON.stringify(batches)} />
 
-            <ZoruCard>
+            <Card>
                 <div className="p-6">
-                     <ZoruAccordion type="multiple" defaultValue={['basic', 'pricing', 'stock', 'shipping']} className="w-full">
+                     <Accordion type="multiple" defaultValue={['basic', 'pricing', 'stock', 'shipping']} className="w-full">
                         <ZoruAccordionItem value="basic"><ZoruAccordionTrigger>Basic Information</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-4">
-                                <div className="space-y-2"><ZoruLabel htmlFor="name">Item Name *</ZoruLabel><ZoruInput id="name" name="name" defaultValue={product?.name} required /></div>
-                                <div className="space-y-2"><ZoruLabel htmlFor="sku">SKU</ZoruLabel><ZoruInput id="sku" name="sku" defaultValue={product?.sku} /></div>
-                                <div className="space-y-2"><ZoruLabel htmlFor="unit">Unit</ZoruLabel><EntityFormField entity="unit" name="unit" initialId={(product as any)?.unitId || null} initialLabel={product?.unit || ''} dualWriteName="unitName" /></div>
-                                <div className="space-y-2"><ZoruLabel htmlFor="hsnSac">HSN/SAC Code</ZoruLabel><ZoruInput id="hsnSac" name="hsnSac" defaultValue={product?.hsnSac} /></div>
+                                <div className="space-y-2"><Label htmlFor="name">Item Name *</Label><Input id="name" name="name" defaultValue={product?.name} required /></div>
+                                <div className="space-y-2"><Label htmlFor="sku">SKU</Label><Input id="sku" name="sku" defaultValue={product?.sku} /></div>
+                                <div className="space-y-2"><Label htmlFor="unit">Unit</Label><EntityFormField entity="unit" name="unit" initialId={(product as any)?.unitId || null} initialLabel={product?.unit || ''} dualWriteName="unitName" /></div>
+                                <div className="space-y-2"><Label htmlFor="hsnSac">HSN/SAC Code</Label><Input id="hsnSac" name="hsnSac" defaultValue={product?.hsnSac} /></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="classification"><ZoruAccordionTrigger>Classification</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-4">
-                                <div className="space-y-2"><ZoruLabel>Item Type</ZoruLabel><ZoruRadioGroup name="itemType" defaultValue={product?.itemType || 'goods'} className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="goods" id="type-goods" /><ZoruLabel htmlFor="type-goods" className="font-normal">Goods</ZoruLabel></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="service" id="type-service" /><ZoruLabel htmlFor="type-service" className="font-normal">Service</ZoruLabel></div></ZoruRadioGroup></div>
-                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel htmlFor="category">Category</ZoruLabel><EntityFormField entity="category" name="category" initialId={(product as any)?.categoryId || null} initialLabel={product?.category || ''} dualWriteName="categoryName" /></div><div className="space-y-2"><ZoruLabel htmlFor="subcategory">Subcategory</ZoruLabel><ZoruInput id="subcategory" name="subcategory" defaultValue={product?.subcategory} placeholder="e.g., T-Shirts"/></div></div>
-                                <div className="space-y-2"><ZoruLabel htmlFor="tags">Tags (comma-separated)</ZoruLabel><ZoruInput id="tags" name="tags" defaultValue={product?.tags?.join(', ')} /></div>
+                                <div className="space-y-2"><Label>Item Type</Label><RadioGroup name="itemType" defaultValue={product?.itemType || 'goods'} className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="goods" id="type-goods" /><Label htmlFor="type-goods" className="font-normal">Goods</Label></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="service" id="type-service" /><Label htmlFor="type-service" className="font-normal">Service</Label></div></RadioGroup></div>
+                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="category">Category</Label><EntityFormField entity="category" name="category" initialId={(product as any)?.categoryId || null} initialLabel={product?.category || ''} dualWriteName="categoryName" /></div><div className="space-y-2"><Label htmlFor="subcategory">Subcategory</Label><Input id="subcategory" name="subcategory" defaultValue={product?.subcategory} placeholder="e.g., T-Shirts"/></div></div>
+                                <div className="space-y-2"><Label htmlFor="tags">Tags (comma-separated)</Label><Input id="tags" name="tags" defaultValue={product?.tags?.join(', ')} /></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="pricing"><ZoruAccordionTrigger>Pricing</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-4">
-                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel htmlFor="price">Selling Price ({currency}) *</ZoruLabel><ZoruInput id="price" name="price" type="number" step="0.01" defaultValue={product?.price} required /></div><div className="space-y-2"><ZoruLabel htmlFor="buyingPrice">Buying Price ({currency})</ZoruLabel><ZoruInput id="buyingPrice" name="buyingPrice" type="number" step="0.01" defaultValue={product?.buyingPrice} /></div></div>
-                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel htmlFor="landedCost">Landed Cost</ZoruLabel><ZoruInput id="landedCost" name="landedCost" type="number" step="0.01" defaultValue={product?.landedCost} /></div><div className="space-y-2"><ZoruLabel htmlFor="taxRate">Tax Rate (%)</ZoruLabel><ZoruInput id="taxRate" name="taxRate" type="number" step="0.01" defaultValue={product?.taxRate} /></div></div>
+                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="price">Selling Price ({currency}) *</Label><Input id="price" name="price" type="number" step="0.01" defaultValue={product?.price} required /></div><div className="space-y-2"><Label htmlFor="buyingPrice">Buying Price ({currency})</Label><Input id="buyingPrice" name="buyingPrice" type="number" step="0.01" defaultValue={product?.buyingPrice} /></div></div>
+                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="landedCost">Landed Cost</Label><Input id="landedCost" name="landedCost" type="number" step="0.01" defaultValue={product?.landedCost} /></div><div className="space-y-2"><Label htmlFor="taxRate">Tax Rate (%)</Label><Input id="taxRate" name="taxRate" type="number" step="0.01" defaultValue={product?.taxRate} /></div></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="stock"><ZoruAccordionTrigger>Stock Management</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-4">
-                                <div className="flex items-center space-x-2"><ZoruSwitch id="manageStock" name="manageStock" defaultChecked={product?.manageStock !== false} /><ZoruLabel htmlFor="manageStock">Manage Stock for this item</ZoruLabel></div>
-                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel htmlFor="stockInHand">Stock In Hand</ZoruLabel><ZoruInput id="stockInHand" name="stockInHand" type="number" defaultValue={product?.stockInHand} /></div><div className="space-y-2"><ZoruLabel htmlFor="committedStock">Committed Stock</ZoruLabel><ZoruInput id="committedStock" name="committedStock" type="number" defaultValue={product?.committedStock} /></div></div>
-                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel htmlFor="reorderPoint">Reorder Point</ZoruLabel><ZoruInput id="reorderPoint" name="reorderPoint" type="number" defaultValue={product?.reorderPoint} /></div><div className="space-y-2"><ZoruLabel htmlFor="overstockPoint">Overstock Point</ZoruLabel><ZoruInput id="overstockPoint" name="overstockPoint" type="number" defaultValue={product?.overstockPoint} /></div></div>
+                                <div className="flex items-center space-x-2"><Switch id="manageStock" name="manageStock" defaultChecked={product?.manageStock !== false} /><Label htmlFor="manageStock">Manage Stock for this item</Label></div>
+                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="stockInHand">Stock In Hand</Label><Input id="stockInHand" name="stockInHand" type="number" defaultValue={product?.stockInHand} /></div><div className="space-y-2"><Label htmlFor="committedStock">Committed Stock</Label><Input id="committedStock" name="committedStock" type="number" defaultValue={product?.committedStock} /></div></div>
+                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="reorderPoint">Reorder Point</Label><Input id="reorderPoint" name="reorderPoint" type="number" defaultValue={product?.reorderPoint} /></div><div className="space-y-2"><Label htmlFor="overstockPoint">Overstock Point</Label><Input id="overstockPoint" name="overstockPoint" type="number" defaultValue={product?.overstockPoint} /></div></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="batches"><ZoruAccordionTrigger>Batch Tracking</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-4">
-                                <div className="flex items-center space-x-2"><ZoruSwitch id="batchTracking" name="batchTracking" defaultChecked={product?.batchTracking || false}/><ZoruLabel htmlFor="batchTracking">Track inventory in batches</ZoruLabel></div>
+                                <div className="flex items-center space-x-2"><Switch id="batchTracking" name="batchTracking" defaultChecked={product?.batchTracking || false}/><Label htmlFor="batchTracking">Track inventory in batches</Label></div>
                                 <div className="space-y-3">
                                     {batches.map((batch, index) => (
                                         <div key={batch.id} className="grid grid-cols-[1fr,1fr,auto,auto,auto] items-end gap-2 p-2 border border-zoru-line rounded-md">
-                                            <div className="space-y-1"><ZoruLabel className="text-xs">Batch No.</ZoruLabel><ZoruInput value={batch.batchNumber} onChange={e => handleBatchChange(batch.id, 'batchNumber', e.target.value)} /></div>
-                                            <div className="space-y-1"><ZoruLabel className="text-xs">Quantity</ZoruLabel><ZoruInput type="number" value={batch.stock} onChange={e => handleBatchChange(batch.id, 'stock', Number(e.target.value))} /></div>
-                                            <div className="space-y-1"><ZoruLabel className="text-xs">Mfg. Date</ZoruLabel><ZoruDatePicker value={batch.mfgDate ? new Date(batch.mfgDate) : undefined} onChange={(d: any) => handleBatchChange(batch.id, 'mfgDate', d)} /></div>
-                                            <div className="space-y-1"><ZoruLabel className="text-xs">Expiry Date</ZoruLabel><ZoruDatePicker value={batch.expiryDate ? new Date(batch.expiryDate) : undefined} onChange={(d: any) => handleBatchChange(batch.id, 'expiryDate', d)} /></div>
-                                            <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveBatch(batch.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></ZoruButton>
+                                            <div className="space-y-1"><Label className="text-xs">Batch No.</Label><Input value={batch.batchNumber} onChange={e => handleBatchChange(batch.id, 'batchNumber', e.target.value)} /></div>
+                                            <div className="space-y-1"><Label className="text-xs">Quantity</Label><Input type="number" value={batch.stock} onChange={e => handleBatchChange(batch.id, 'stock', Number(e.target.value))} /></div>
+                                            <div className="space-y-1"><Label className="text-xs">Mfg. Date</Label><DatePicker value={batch.mfgDate ? new Date(batch.mfgDate) : undefined} onChange={(d: any) => handleBatchChange(batch.id, 'mfgDate', d)} /></div>
+                                            <div className="space-y-1"><Label className="text-xs">Expiry Date</Label><DatePicker value={batch.expiryDate ? new Date(batch.expiryDate) : undefined} onChange={(d: any) => handleBatchChange(batch.id, 'expiryDate', d)} /></div>
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveBatch(batch.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></Button>
                                         </div>
                                     ))}
                                 </div>
-                                <ZoruButton type="button" variant="outline" size="sm" onClick={handleAddBatch}><Plus className="mr-2 h-4 w-4"/>Add Batch</ZoruButton>
+                                <Button type="button" variant="outline" size="sm" onClick={handleAddBatch}><Plus className="mr-2 h-4 w-4"/>Add Batch</Button>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="dimensions"><ZoruAccordionTrigger>Dimensions & Weight</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-4">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4"><div className="space-y-2"><ZoruLabel>Length</ZoruLabel><ZoruInput name="length" type="number" step="0.01" defaultValue={product?.dimensions?.length} /></div><div className="space-y-2"><ZoruLabel>Breadth</ZoruLabel><ZoruInput name="breadth" type="number" step="0.01" defaultValue={product?.dimensions?.breadth} /></div><div className="space-y-2"><ZoruLabel>Height</ZoruLabel><ZoruInput name="height" type="number" step="0.01" defaultValue={product?.dimensions?.height} /></div><div className="space-y-2"><ZoruLabel>Volume (m³)</ZoruLabel><ZoruInput name="volume" type="number" step="0.01" defaultValue={product?.dimensions?.volume} /></div></div>
-                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel>Gross Weight (kg)</ZoruLabel><ZoruInput name="grossWeight" type="number" step="0.01" defaultValue={product?.weight?.gross} /></div><div className="space-y-2"><ZoruLabel>Net Weight (kg)</ZoruLabel><ZoruInput name="netWeight" type="number" step="0.01" defaultValue={product?.weight?.net} /></div></div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4"><div className="space-y-2"><Label>Length</Label><Input name="length" type="number" step="0.01" defaultValue={product?.dimensions?.length} /></div><div className="space-y-2"><Label>Breadth</Label><Input name="breadth" type="number" step="0.01" defaultValue={product?.dimensions?.breadth} /></div><div className="space-y-2"><Label>Height</Label><Input name="height" type="number" step="0.01" defaultValue={product?.dimensions?.height} /></div><div className="space-y-2"><Label>Volume (m³)</Label><Input name="volume" type="number" step="0.01" defaultValue={product?.dimensions?.volume} /></div></div>
+                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Gross Weight (kg)</Label><Input name="grossWeight" type="number" step="0.01" defaultValue={product?.weight?.gross} /></div><div className="space-y-2"><Label>Net Weight (kg)</Label><Input name="netWeight" type="number" step="0.01" defaultValue={product?.weight?.net} /></div></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="image"><ZoruAccordionTrigger>Image & Variants</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-6">
                                 <div className="space-y-2">
-                                    <ZoruLabel>Product Image</ZoruLabel>
+                                    <Label>Product Image</Label>
                                     <div className="flex items-center gap-2">
                                         <SabFilePickerButton
                                             accept="image"
@@ -170,7 +170,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                             <Upload className="h-4 w-4" /> {imageUrl ? 'Replace image' : 'Choose image'}
                                         </SabFilePickerButton>
                                         {imageUrl && (
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
@@ -181,7 +181,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                                 }}
                                             >
                                                 <X className="h-4 w-4" />
-                                            </ZoruButton>
+                                            </Button>
                                         )}
                                     </div>
                                     {imageUrl && (
@@ -190,19 +190,19 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                         </p>
                                     )}
                                 </div>
-                                <ZoruSeparator />
+                                <Separator />
                                 <div className="space-y-4">
-                                    <div className="flex justify-between items-center"><ZoruLabel>Variants (e.g., Size, Color)</ZoruLabel><ZoruButton type="button" size="sm" variant="outline" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant</ZoruButton></div>
-                                    <div className="space-y-3">{variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border border-zoru-line rounded-md"><ZoruInput placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><ZoruInput placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></ZoruButton></div>))}</div>
+                                    <div className="flex justify-between items-center"><Label>Variants (e.g., Size, Color)</Label><Button type="button" size="sm" variant="outline" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant</Button></div>
+                                    <div className="space-y-3">{variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border border-zoru-line rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></Button></div>))}</div>
                                 </div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
-                    </ZoruAccordion>
+                    </Accordion>
                     <div className="flex justify-end pt-6">
                         <SubmitButton isEditing={isEditing} />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

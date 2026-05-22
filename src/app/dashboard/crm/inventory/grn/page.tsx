@@ -105,12 +105,12 @@ export default async function GrnPage({
             title="Goods Receipt (GRN)"
             subtitle="Record incoming stock against purchase orders and reconcile quantities."
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href="/dashboard/crm/inventory/grn/new">
                         <Plus className="h-4 w-4" />
                         New GRN
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
             <GrnListClient

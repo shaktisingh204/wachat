@@ -65,10 +65,10 @@ function SortableBlock({ block, onBlockClick, onRemoveBlock, selectedBlockId, pr
                 <div {...listeners} className="p-1 cursor-grab rounded-full hover:bg-white/20 active:cursor-grabbing">
                     <GripVertical className="h-3.5 w-3.5" />
                 </div>
-                <ZoruSeparator orientation="vertical" className="h-3 bg-white/20" />
-                <ZoruButton size="icon" variant="ghost" className="h-6 w-6 hover:bg-red-500/20 hover:text-red-400 text-red-300" onClick={() => onRemoveBlock(block.id)}>
+                <Separator orientation="vertical" className="h-3 bg-white/20" />
+                <Button size="icon" variant="ghost" className="h-6 w-6 hover:bg-red-500/20 hover:text-red-400 text-red-300" onClick={() => onRemoveBlock(block.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
             </div>
             <div className={cn("outline-dashed outline-2 outline-transparent group-hover/block:outline-primary/50 transition-all rounded-lg p-0.5", selectedBlockId === block.id && "outline-solid outline-2 outline-primary shadow-sm")}>
                 <BlockRenderer block={block} products={products} shopSlug={shopSlug} isEditable={true} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} selectedBlockId={selectedBlockId} contextData={contextData} />

@@ -168,13 +168,13 @@ export default function ProfileSettingsPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -184,7 +184,7 @@ export default function ProfileSettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -198,7 +198,7 @@ export default function ProfileSettingsPage() {
             <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex items-start gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
@@ -217,7 +217,7 @@ export default function ProfileSettingsPage() {
 
       <SettingsTabs />
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
           <div>
             <ZoruCardTitle>Connection</ZoruCardTitle>
@@ -229,18 +229,18 @@ export default function ProfileSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
-            <ZoruLabel className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+            <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
               Phone number
-            </ZoruLabel>
+            </Label>
             <div className="flex items-center gap-2 text-sm text-zoru-ink">
               <Phone className="h-4 w-4 text-zoru-ink-muted" />
               <span className="font-mono">{phoneE164 ?? '—'}</span>
             </div>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+            <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
               Last connected
-            </ZoruLabel>
+            </Label>
             <div className="flex items-center gap-2 text-sm text-zoru-ink">
               <Clock className="h-4 w-4 text-zoru-ink-muted" />
               <span>
@@ -251,9 +251,9 @@ export default function ProfileSettingsPage() {
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Profile</ZoruCardTitle>
           <ZoruCardDescription>
@@ -263,8 +263,8 @@ export default function ProfileSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-6">
           <div className="space-y-2">
-            <ZoruLabel htmlFor="push-name">Push name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="push-name">Push name</Label>
+            <Input
               id="push-name"
               value={pushName}
               onChange={(e) => setPushName(e.target.value)}
@@ -278,8 +278,8 @@ export default function ProfileSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <ZoruLabel htmlFor="about">About</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="about">About</Label>
+            <Textarea
               id="about"
               value={about}
               onChange={(e) => setAbout(e.target.value)}
@@ -293,10 +293,10 @@ export default function ProfileSettingsPage() {
             </p>
           </div>
 
-          <ZoruSeparator />
+          <Separator />
 
           <div className="space-y-2">
-            <ZoruLabel>Profile picture</ZoruLabel>
+            <Label>Profile picture</Label>
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
                 {profilePicUrl ? (
@@ -323,7 +323,7 @@ export default function ProfileSettingsPage() {
                 </SabFilePickerButton>
                 {profilePicSabFileId &&
                   profilePicSabFileId !== initialPicId && (
-                    <ZoruButton
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => {
@@ -334,7 +334,7 @@ export default function ProfileSettingsPage() {
                       }}
                     >
                       Revert
-                    </ZoruButton>
+                    </Button>
                   )}
               </div>
             </div>
@@ -344,11 +344,11 @@ export default function ProfileSettingsPage() {
             </p>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="flex flex-wrap items-center justify-end gap-2 pt-6">
-          <ZoruButton
+          <Button
             variant="outline"
             onClick={onSync}
             disabled={pending || loading}
@@ -357,12 +357,12 @@ export default function ProfileSettingsPage() {
               className={`mr-2 h-4 w-4 ${pending ? 'animate-spin' : ''}`}
             />
             Sync from WhatsApp
-          </ZoruButton>
-          <ZoruButton onClick={onPush} disabled={pending || loading}>
+          </Button>
+          <Button onClick={onPush} disabled={pending || loading}>
             Push to WhatsApp
-          </ZoruButton>
+          </Button>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <ZoruAlertDialog
         open={confirmPicOpen}

@@ -142,12 +142,12 @@ export default function ApiDocsPage() {
     return (
         <div className="space-y-8">
              <div>
-                <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
+                <Button variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/api">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to API Keys
                     </Link>
-                </ZoruButton>
+                </Button>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                     <BookOpen className="h-8 w-8" />
                     API Documentation
@@ -157,7 +157,7 @@ export default function ApiDocsPage() {
                 </p>
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Authentication</ZoruCardTitle>
                     <ZoruCardDescription>
@@ -168,7 +168,7 @@ export default function ApiDocsPage() {
                     <CodeBlock code={'Authorization: Bearer YOUR_API_KEY'} language="bash" />
                     <p className="text-sm text-muted-foreground mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-primary hover:underline">API settings page</Link>.</p>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             <div className="space-y-4">
                  <h2 className="text-2xl font-bold font-headline">CRM Suite APIs</h2>
@@ -176,10 +176,10 @@ export default function ApiDocsPage() {
                     {crmApiDocs.map((endpoint, i) => {
                         const [method, path] = endpoint.endpoint.split(' ');
                         return (
-                            <ZoruCard key={i} className="card-gradient card-gradient-green">
+                            <Card key={i} className="card-gradient card-gradient-green">
                                 <ZoruCardHeader>
                                     <div className="flex items-center gap-4">
-                                        <ZoruBadge className={method === 'GET' ? 'bg-blue-600' : (method === 'POST' ? 'bg-green-600' : (method === 'PUT' ? 'bg-yellow-500' : 'bg-red-600'))}>{method}</ZoruBadge>
+                                        <Badge className={method === 'GET' ? 'bg-blue-600' : (method === 'POST' ? 'bg-green-600' : (method === 'PUT' ? 'bg-yellow-500' : 'bg-red-600'))}>{method}</Badge>
                                         <ZoruCardTitle className="font-mono text-lg">{path}</ZoruCardTitle>
                                     </div>
                                     <ZoruCardDescription>{endpoint.description}</ZoruCardDescription>
@@ -189,7 +189,7 @@ export default function ApiDocsPage() {
                                         <>
                                             <h4 className="font-semibold">Query Parameters</h4>
                                             <div className="border rounded-md overflow-hidden">
-                                                <ZoruTable>
+                                                <Table>
                                                     <ZoruTableHeader>
                                                         <ZoruTableRow>
                                                             <ZoruTableHead>Parameter</ZoruTableHead>
@@ -206,7 +206,7 @@ export default function ApiDocsPage() {
                                                             </ZoruTableRow>
                                                         ))}
                                                     </ZoruTableBody>
-                                                </ZoruTable>
+                                                </Table>
                                             </div>
                                         </>
                                     )}
@@ -214,7 +214,7 @@ export default function ApiDocsPage() {
                                         <>
                                             <h4 className="font-semibold">Request Body Parameters</h4>
                                             <div className="border rounded-md overflow-hidden">
-                                                <ZoruTable>
+                                                <Table>
                                                     <ZoruTableHeader>
                                                         <ZoruTableRow>
                                                             <ZoruTableHead>Parameter</ZoruTableHead>
@@ -231,7 +231,7 @@ export default function ApiDocsPage() {
                                                             </ZoruTableRow>
                                                         ))}
                                                     </ZoruTableBody>
-                                                </ZoruTable>
+                                                </Table>
                                             </div>
                                         </>
                                     )}
@@ -244,7 +244,7 @@ export default function ApiDocsPage() {
                                         <CodeBlock code={endpoint.response} language="json" />
                                     </div>
                                 </ZoruCardContent>
-                            </ZoruCard>
+                            </Card>
                         )
                     })}
                  </div>

@@ -193,11 +193,11 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
             {/* 1. Filmstrip / Sorter */}
             <div className="bg-muted/30 p-4 rounded-xl border">
                 <div className="flex items-center justify-between mb-4">
-                    <ZoruLabel className="text-sm font-semibold">Carousel Cards ({cards.length}/10)</ZoruLabel>
-                    <ZoruButton type="button" size="sm" variant="outline" onClick={addCard} disabled={cards.length >= 10}>
+                    <Label className="text-sm font-semibold">Carousel Cards ({cards.length}/10)</Label>
+                    <Button type="button" size="sm" variant="outline" onClick={addCard} disabled={cards.length >= 10}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Card
-                    </ZoruButton>
+                    </Button>
                 </div>
 
                 <div className="flex gap-4 overflow-x-auto pb-4 pt-2 px-2 scrollbar-thin">
@@ -237,7 +237,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
                         {/* Header Config */}
                         <div className="space-y-4">
-                            <ZoruLabel>Header Media (Applies to all cards)</ZoruLabel>
+                            <Label>Header Media (Applies to all cards)</Label>
                             <div className="flex gap-4">
                                 <div className={`
                                     flex cursor-pointer items-center justify-center p-4 border rounded-lg hover:bg-accent w-24 h-24 flex-col gap-2 transition-all
@@ -265,9 +265,9 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
                             {(activeCard.headerFormat === 'IMAGE' || activeCard.headerFormat === 'VIDEO') && (
                                 <div className="space-y-2 max-w-lg">
-                                    <ZoruLabel>Upload Sample {activeCard.headerFormat === 'IMAGE' ? 'Image' : 'Video'}</ZoruLabel>
+                                    <Label>Upload Sample {activeCard.headerFormat === 'IMAGE' ? 'Image' : 'Video'}</Label>
                                     <div className="flex flex-col gap-2">
-                                        <ZoruInput
+                                        <Input
                                             key={`${activeCard.id}-${activeCard.headerFormat}`} // Force re-mount on card switch to clear browser's internal file state
                                             type="file"
                                             accept={activeCard.headerFormat === 'IMAGE' ? "image/jpeg,image/png" : "video/mp4"}
@@ -289,7 +289,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                             <div className="text-xs text-muted-foreground flex items-center gap-2 bg-muted/50 p-2 rounded">
                                                 <span className="font-semibold text-primary">Selected:</span>
                                                 <span className="truncate">{activeCard.headerFile.name}</span>
-                                                <ZoruButton
+                                                <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="icon"
@@ -300,7 +300,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                                     }}
                                                 >
                                                     <Trash2 className="h-3 w-3" />
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                         )}
                                         <p className="text-xs text-muted-foreground">This file is for approval only. Dynamic media will be sent in broadcasts.</p>
@@ -311,8 +311,8 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
                         {/* Body Config */}
                         <div className="space-y-2">
-                            <ZoruLabel>Body Text</ZoruLabel>
-                            <ZoruTextarea
+                            <Label>Body Text</Label>
+                            <Textarea
                                 placeholder="Enter text here. Use {{1}} for variables..."
                                 value={activeCard.body}
                                 onChange={(e) => updateActiveCard('body', e.target.value)}
@@ -332,15 +332,15 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                     if (vars.length > 0) {
                                         return (
                                             <div className="space-y-2 p-3 bg-muted/30 rounded border mt-4">
-                                                <ZoruLabel className="text-xs font-semibold flex items-center gap-2">
+                                                <Label className="text-xs font-semibold flex items-center gap-2">
                                                     <AlertCircle className="h-3 w-3 text-amber-500" />
                                                     Variable Values (Required)
-                                                </ZoruLabel>
+                                                </Label>
                                                 <div className="grid gap-2">
                                                     {vars.map(v => (
                                                         <div key={v} className="flex items-center gap-2">
                                                             <span className="text-xs text-muted-foreground w-8 font-mono">{`{{${v}}}`}</span>
-                                                            <ZoruInput
+                                                            <Input
                                                                 placeholder={`e.g. John`}
                                                                 className="h-8 text-sm"
                                                                 value={activeCard.exampleValues?.[String(v)] || ''}
@@ -362,7 +362,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
                         {/* Buttons Config */}
                         <div className="space-y-3">
-                            <ZoruLabel>Buttons ({activeCard.buttons.length}/2)</ZoruLabel>
+                            <Label>Buttons ({activeCard.buttons.length}/2)</Label>
                             <div className="space-y-3">
                                 {activeCard.buttons.map((btn, index) => (
                                     <div key={index} className="flex gap-2 items-start p-3 border rounded-md bg-muted/20">
@@ -397,14 +397,14 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                                 </div>
                                             </div>
 
-                                            <ZoruInput
+                                            <Input
                                                 placeholder="Button Label"
                                                 value={btn.text}
                                                 onChange={(e) => updateActiveCardButton(index, { ...btn, text: e.target.value })}
                                             />
 
                                             {btn.type === 'URL' && (
-                                                <ZoruInput
+                                                <Input
                                                     placeholder="https://website.com"
                                                     value={btn.url || ''}
                                                     onChange={(e) => updateActiveCardButton(index, { ...btn, url: e.target.value })}
@@ -412,23 +412,23 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                             )}
 
                                             {btn.type === 'PHONE_NUMBER' && (
-                                                <ZoruInput
+                                                <Input
                                                     placeholder="+1234567890"
                                                     value={btn.phone_number || ''}
                                                     onChange={(e) => updateActiveCardButton(index, { ...btn, phone_number: e.target.value })}
                                                 />
                                             )}
                                         </div>
-                                        <ZoruButton variant="ghost" size="icon" onClick={() => removeActiveCardButton(index)}>
+                                        <Button variant="ghost" size="icon" onClick={() => removeActiveCardButton(index)}>
                                             <Trash2 className="h-4 w-4 text-destructive" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 ))}
                             </div>
 
                             {activeCard.buttons.length < 2 && (
                                 <div className="flex gap-2">
-                                    <ZoruButton type="button" variant="outline" size="sm" onClick={() => addActiveCardButton('QUICK_REPLY')}>+ Add Button</ZoruButton>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => addActiveCardButton('QUICK_REPLY')}>+ Add Button</Button>
                                 </div>
                             )}
                         </div>

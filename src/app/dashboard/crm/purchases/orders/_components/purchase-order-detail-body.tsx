@@ -48,7 +48,7 @@ export function PurchaseOrderDetailBody({
   return (
     <>
       {/* Overview */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Overview
         </h2>
@@ -86,10 +86,10 @@ export function PurchaseOrderDetailBody({
             )}
           </DetailField>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Approval workflow */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Approval workflow
         </h2>
@@ -130,10 +130,10 @@ export function PurchaseOrderDetailBody({
         </div>
         {/* TODO 1D.x: Approval workflow chain UI — show full audit log
             of approval transitions with timestamps + actor chips. */}
-      </ZoruCard>
+      </Card>
 
       {/* Vendor */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Vendor
         </h2>
@@ -152,10 +152,10 @@ export function PurchaseOrderDetailBody({
             <DetailField label="Primary phone">{vendor.phone}</DetailField>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Line items
         </h2>
@@ -243,10 +243,10 @@ export function PurchaseOrderDetailBody({
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Money summary */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Money summary
         </h2>
@@ -286,7 +286,7 @@ export function PurchaseOrderDetailBody({
             </span>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
     </>
   );
 }

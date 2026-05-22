@@ -57,9 +57,9 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
 
     if (tickets.length === 0) {
         return (
-            <ZoruCard className="p-6 text-center text-[13px] text-zoru-ink-muted">
+            <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
                 No tickets match the current filters.
-            </ZoruCard>
+            </Card>
         );
     }
 
@@ -70,7 +70,7 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
                 const overdue = items.filter(isOverdue).length;
                 const unassigned = assigneeId === '__unassigned__';
                 return (
-                    <ZoruCard key={assigneeId} className="p-4">
+                    <Card key={assigneeId} className="p-4">
                         <div className="mb-3 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 {unassigned ? (
@@ -84,9 +84,9 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
                                         fallback={`Agent ${assigneeId.slice(-6)}`}
                                     />
                                 )}
-                                <ZoruBadge variant="info">{wip} WIP</ZoruBadge>
+                                <Badge variant="info">{wip} WIP</Badge>
                                 {overdue > 0 ? (
-                                    <ZoruBadge variant="danger">{overdue} overdue</ZoruBadge>
+                                    <Badge variant="danger">{overdue} overdue</Badge>
                                 ) : null}
                             </div>
                             <p className="text-[11.5px] text-zoru-ink-muted">
@@ -132,7 +132,7 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
                                 );
                             })}
                         </ul>
-                    </ZoruCard>
+                    </Card>
                 );
             })}
         </div>

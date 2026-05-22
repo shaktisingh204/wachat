@@ -238,16 +238,16 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
       <input type="hidden" name="attachments" value={attachmentsJson} />
 
       {/* ── Overview ─────────────────────────────────────────────── */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent className="flex flex-col gap-4">
           <div>
-            <ZoruLabel htmlFor="title">
+            <Label htmlFor="title">
               Title <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="title"
               name="title"
               required
@@ -258,8 +258,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               rows={5}
@@ -270,7 +270,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel htmlFor="projectId">Project</ZoruLabel>
+              <Label htmlFor="projectId">Project</Label>
               <div className="mt-1.5">
                 <EntityFormField
                   entity="project"
@@ -281,8 +281,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               </div>
             </div>
             <div>
-              <ZoruLabel htmlFor="dueDate">Due date</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="dueDate">Due date</Label>
+              <Input
                 id="dueDate"
                 name="dueDate"
                 type="date"
@@ -292,17 +292,17 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* ── Classification ───────────────────────────────────────── */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <ZoruCardHeader>
           <ZoruCardTitle>Classification</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent className="flex flex-col gap-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel>Status</ZoruLabel>
+              <Label>Status</Label>
               <div className="mt-1.5">
                 <EnumFormField
                   enumName="issueStatus"
@@ -313,7 +313,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               </div>
             </div>
             <div>
-              <ZoruLabel>Priority</ZoruLabel>
+              <Label>Priority</Label>
               <div className="mt-1.5">
                 <EnumFormField
                   enumName="priorityMedium"
@@ -324,7 +324,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               </div>
             </div>
             <div>
-              <ZoruLabel htmlFor="severity">Severity</ZoruLabel>
+              <Label htmlFor="severity">Severity</Label>
               <select
                 id="severity"
                 name="severity"
@@ -339,7 +339,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               </select>
             </div>
             <div>
-              <ZoruLabel htmlFor="issueType">Type</ZoruLabel>
+              <Label htmlFor="issueType">Type</Label>
               <select
                 id="issueType"
                 name="issueType"
@@ -354,7 +354,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               </select>
             </div>
             <div>
-              <ZoruLabel htmlFor="assigneeId">Assignee</ZoruLabel>
+              <Label htmlFor="assigneeId">Assignee</Label>
               <div className="mt-1.5">
                 <EntityFormField
                   entity="employee"
@@ -367,7 +367,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               </div>
             </div>
             <div>
-              <ZoruLabel htmlFor="reporterId">Reporter</ZoruLabel>
+              <Label htmlFor="reporterId">Reporter</Label>
               <div className="mt-1.5">
                 <EntityFormField
                   entity="user"
@@ -380,8 +380,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               </div>
             </div>
             <div className="md:col-span-2">
-              <ZoruLabel htmlFor="estimatedHours">Estimated hours</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="estimatedHours">Estimated hours</Label>
+              <Input
                 id="estimatedHours"
                 name="estimatedHours"
                 type="number"
@@ -398,10 +398,10 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* ── Subtasks ─────────────────────────────────────────────── */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <ZoruCardTitle>Subtasks</ZoruCardTitle>
@@ -409,14 +409,14 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               Break this issue into smaller pieces. Use arrows to reorder.
             </p>
           </div>
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={addSubtask}
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add subtask
-          </ZoruButton>
+          </Button>
         </ZoruCardHeader>
         <ZoruCardContent>
           {subtasks.length === 0 ? (
@@ -431,7 +431,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                   className="rounded-md border border-zoru-line bg-zoru-surface-2 p-2.5"
                 >
                   <div className="grid items-end gap-2 sm:grid-cols-[1fr_180px_140px_120px_auto]">
-                    <ZoruInput
+                    <Input
                       placeholder={`Subtask ${idx + 1} title`}
                       value={row.title}
                       onChange={(e) =>
@@ -467,7 +467,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         </option>
                       ))}
                     </select>
-                    <ZoruInput
+                    <Input
                       type="date"
                       value={row.dueDate ?? ''}
                       onChange={(e) =>
@@ -476,7 +476,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                       className="h-9"
                     />
                     <div className="flex items-center justify-end gap-1">
-                      <ZoruButton
+                      <Button
                         type="button"
                         variant="ghost"
                         size="icon"
@@ -485,8 +485,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         onClick={() => moveSubtask(row.id, -1)}
                       >
                         <ArrowUp className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         type="button"
                         variant="ghost"
                         size="icon"
@@ -495,8 +495,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         onClick={() => moveSubtask(row.id, 1)}
                       >
                         <ArrowDown className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         type="button"
                         variant="ghost"
                         size="icon"
@@ -504,7 +504,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         onClick={() => removeSubtask(row.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
                 </li>
@@ -512,10 +512,10 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* ── Attachments ──────────────────────────────────────────── */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <ZoruCardTitle>Attachments</ZoruCardTitle>
@@ -557,7 +557,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                   className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-2.5 py-1.5 text-[12.5px]"
                 >
                   <span className="truncate text-zoru-ink">{a.name}</span>
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="ghost"
                     size="icon"
@@ -565,13 +565,13 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                     aria-label={`Remove ${a.name}`}
                   >
                     <X className="h-3.5 w-3.5" />
-                  </ZoruButton>
+                  </Button>
                 </li>
               ))}
             </ul>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {state?.error ? (
         <p
@@ -584,21 +584,21 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
 
       {/* ── Sticky footer ────────────────────────────────────────── */}
       <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
-        <ZoruButton variant="ghost" asChild>
+        <Button variant="ghost" asChild>
           <Link
             href={initial?._id ? `${BASE}/${initial._id}` : BASE}
           >
             <ChevronLeft className="mr-1.5 h-4 w-4" /> Cancel
           </Link>
-        </ZoruButton>
-        <ZoruButton type="submit" disabled={isPending}>
+        </Button>
+        <Button type="submit" disabled={isPending}>
           {isPending ? (
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Save className="mr-2 h-4 w-4" />
           )}
           {mode === 'edit' ? 'Save changes' : 'Create issue'}
-        </ZoruButton>
+        </Button>
       </div>
     </form>
   );

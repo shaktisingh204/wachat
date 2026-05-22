@@ -167,10 +167,10 @@ export function PlFilterToolbar({
         />
       </label>
 
-      <ZoruButton type="submit" size="sm" disabled={isPending}>
+      <Button type="submit" size="sm" disabled={isPending}>
         Apply
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         type="button"
         size="sm"
         variant="outline"
@@ -180,8 +180,8 @@ export function PlFilterToolbar({
       >
         <RefreshCcw className="h-3.5 w-3.5" />
         Refresh
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         type="button"
         size="sm"
         variant="outline"
@@ -196,8 +196,8 @@ export function PlFilterToolbar({
       >
         <FileDown className="h-3.5 w-3.5" />
         CSV
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         type="button"
         size="sm"
         variant="outline"
@@ -213,7 +213,7 @@ export function PlFilterToolbar({
       >
         <FileSpreadsheet className="h-3.5 w-3.5" />
         XLSX
-      </ZoruButton>
+      </Button>
     </form>
   );
 }

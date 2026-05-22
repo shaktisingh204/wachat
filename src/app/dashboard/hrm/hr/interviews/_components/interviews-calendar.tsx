@@ -46,7 +46,7 @@ export function InterviewsCalendar({
   );
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-[14px]">
           Upcoming interviews by date
@@ -101,6 +101,6 @@ export function InterviewsCalendar({
           </ul>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

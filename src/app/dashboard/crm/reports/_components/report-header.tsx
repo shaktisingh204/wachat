@@ -98,20 +98,20 @@ export function ReportHeader({
           className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
         />
       </label>
-      <ZoruButton variant="outline" size="sm" onClick={onFy} disabled={isPending}>
+      <Button variant="outline" size="sm" onClick={onFy} disabled={isPending}>
         Current FY
-      </ZoruButton>
-      <ZoruButton variant="outline" size="sm" onClick={refresh} disabled={isPending}>
+      </Button>
+      <Button variant="outline" size="sm" onClick={refresh} disabled={isPending}>
         <RefreshCw className={`mr-1 h-3.5 w-3.5 ${isPending ? 'animate-spin' : ''}`} />
         Refresh
-      </ZoruButton>
-      <ZoruDropdownMenu>
+      </Button>
+      <DropdownMenu>
         <ZoruDropdownMenuTrigger asChild>
-          <ZoruButton variant="outline" size="sm">
+          <Button variant="outline" size="sm">
             <Download className="mr-1 h-3.5 w-3.5" />
             Export
             <ChevronDown className="ml-1 h-3.5 w-3.5" />
-          </ZoruButton>
+          </Button>
         </ZoruDropdownMenuTrigger>
         <ZoruDropdownMenuContent align="end">
           <ZoruDropdownMenuItem onSelect={() => onExportCsv()}>
@@ -121,7 +121,7 @@ export function ReportHeader({
             Export as XLSX
           </ZoruDropdownMenuItem>
         </ZoruDropdownMenuContent>
-      </ZoruDropdownMenu>
+      </DropdownMenu>
     </div>
   );
 }

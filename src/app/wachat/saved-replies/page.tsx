@@ -181,7 +181,7 @@ export default function SavedRepliesPage() {
         accessorKey: 'category',
         header: 'Category',
         cell: ({ row }) => (
-          <ZoruBadge variant="outline">{row.original.category}</ZoruBadge>
+          <Badge variant="outline">{row.original.category}</Badge>
         ),
       },
       {
@@ -189,22 +189,22 @@ export default function SavedRepliesPage() {
         header: '',
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
-            <ZoruButton
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Edit"
               onClick={() => openEdit(row.original)}
             >
               <Pencil />
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Delete"
               onClick={() => handleDelete(row.original._id)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
           </div>
         ),
       },
@@ -215,7 +215,7 @@ export default function SavedRepliesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -229,9 +229,9 @@ export default function SavedRepliesPage() {
             <ZoruBreadcrumbPage>Saved Replies</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat</ZoruPageEyebrow>
           <ZoruPageTitle>Saved Replies</ZoruPageTitle>
@@ -240,44 +240,44 @@ export default function SavedRepliesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={openCreate}>
+          <Button onClick={openCreate}>
             <Plus /> New reply
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6">
         {isPending && replies.length === 0 ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-12" />
+              <Skeleton key={i} className="h-12" />
             ))}
           </div>
         ) : replies.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<MessageSquare />}
             title="No saved replies yet"
             description="Create shortcuts your team can drop into any conversation."
             action={
-              <ZoruButton onClick={openCreate}>
+              <Button onClick={openCreate}>
                 <Plus /> New reply
-              </ZoruButton>
+              </Button>
             }
           />
         ) : (
-          <ZoruCard className="p-4">
-            <ZoruDataTable
+          <Card className="p-4">
+            <DataTable
               columns={columns}
               data={replies}
               filterColumn="title"
               filterPlaceholder="Search replies…"
             />
-          </ZoruCard>
+          </Card>
         )}
       </div>
 
       {/* Create / edit dialog */}
-      <ZoruDialog
+      <Dialog
         open={dialogOpen}
         onOpenChange={(open) => {
           setDialogOpen(open);
@@ -301,8 +301,8 @@ export default function SavedRepliesPage() {
           >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="shortcut">Shortcut</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="shortcut">Shortcut</Label>
+                <Input
                   id="shortcut"
                   name="shortcut"
                   placeholder="/greeting"
@@ -311,8 +311,8 @@ export default function SavedRepliesPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="title">Title</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="title">Title</Label>
+                <Input
                   id="title"
                   name="title"
                   placeholder="Quick hello"
@@ -322,8 +322,8 @@ export default function SavedRepliesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="category">Category</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="category">Category</Label>
+              <Select
                 name="category"
                 defaultValue={editing?.category ?? 'General'}
               >
@@ -337,12 +337,12 @@ export default function SavedRepliesPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="body">Body</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="body">Body</Label>
+              <Textarea
                 id="body"
                 name="body"
                 rows={4}
@@ -353,7 +353,7 @@ export default function SavedRepliesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="mediaUrl">Media URL (optional)</ZoruLabel>
+              <Label htmlFor="mediaUrl">Media URL (optional)</Label>
               <SabFileUrlInput
                 id="mediaUrl"
                 name="mediaUrl"
@@ -366,7 +366,7 @@ export default function SavedRepliesPage() {
           </form>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => {
                 setDialogOpen(false);
@@ -374,13 +374,13 @@ export default function SavedRepliesPage() {
               }}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" form="saved-reply-form">
+            </Button>
+            <Button type="submit" form="saved-reply-form">
               {editing ? 'Save changes' : 'Create reply'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

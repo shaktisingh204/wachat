@@ -37,18 +37,18 @@ export function VoucherBooksBulkBar({
                 </button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton variant="outline" size="sm" onClick={onArchive} disabled={pending}>
+                <Button variant="outline" size="sm" onClick={onArchive} disabled={pending}>
                     <Archive className="mr-1.5 h-3.5 w-3.5" /> Archive
-                </ZoruButton>
-                <ZoruButton variant="outline" size="sm" onClick={onActivate} disabled={pending}>
+                </Button>
+                <Button variant="outline" size="sm" onClick={onActivate} disabled={pending}>
                     <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Activate
-                </ZoruButton>
-                <ZoruButton variant="outline" size="sm" onClick={onExport} disabled={pending}>
+                </Button>
+                <Button variant="outline" size="sm" onClick={onExport} disabled={pending}>
                     <Download className="mr-1.5 h-3.5 w-3.5" /> Export
-                </ZoruButton>
-                <ZoruButton variant="destructive" size="sm" onClick={onDelete} disabled={pending}>
+                </Button>
+                <Button variant="destructive" size="sm" onClick={onDelete} disabled={pending}>
                     <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
-                </ZoruButton>
+                </Button>
             </div>
         </div>
     );

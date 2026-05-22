@@ -26,15 +26,15 @@ export default function CanonicalTagPage() {
   return (
     <ToolShell title="Canonical Tag Checker" description="Check the canonical URL of a web page.">
       <div className="flex gap-2">
-        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</ZoruButton>
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
       </div>
-      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
+      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {canonical !== null && (
-        <ZoruCard><ZoruCardContent className="p-4">
+        <Card><ZoruCardContent className="p-4">
           <div className="text-xs font-semibold text-muted-foreground mb-1">Canonical URL</div>
           <div className="font-mono text-sm break-all">{canonical}</div>
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       )}
     </ToolShell>
   );

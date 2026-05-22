@@ -38,7 +38,7 @@ export default async function ClientKbArticlePage({
                 ← Back to articles
             </Link>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>{article.title}</ZoruCardTitle>
                     <p className="text-xs text-zoru-ink-muted">
@@ -60,7 +60,7 @@ export default async function ClientKbArticlePage({
                         <p className="text-sm text-zoru-ink-muted">No content available.</p>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

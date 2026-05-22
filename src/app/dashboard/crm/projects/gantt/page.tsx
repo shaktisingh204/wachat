@@ -437,8 +437,8 @@ export default function GanttPage() {
   if (loading && projects.length === 0) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-96 w-full" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
@@ -463,14 +463,14 @@ export default function GanttPage() {
       title="Project Timeline"
       subtitle="Drag bars to reschedule. Drag from a bar's right edge (+ icon) to another bar to create a dependency."
     >
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <GanttChart
               className="h-4 w-4 text-zoru-ink-muted"
               strokeWidth={1.75}
             />
-            <ZoruSelect
+            <Select
               value={selectedProjectId}
               onValueChange={(v) => setSelectedProjectId(v)}
             >
@@ -484,13 +484,13 @@ export default function GanttPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
 
           <span className="text-[11.5px] text-zoru-ink-muted">Legend:</span>
-          <ZoruBadge variant="warning">In progress</ZoruBadge>
-          <ZoruBadge variant="success">Done</ZoruBadge>
-          <ZoruBadge variant="ghost">To-do</ZoruBadge>
+          <Badge variant="warning">In progress</Badge>
+          <Badge variant="success">Done</Badge>
+          <Badge variant="ghost">To-do</Badge>
 
           <span className="ml-auto flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
             {saving ? (
@@ -647,7 +647,7 @@ export default function GanttPage() {
             </div>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       <ZoruAlertDialog
         open={deletingLink !== null}

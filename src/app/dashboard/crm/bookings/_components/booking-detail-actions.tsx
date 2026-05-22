@@ -95,67 +95,67 @@ export function BookingDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ZoruButton size="sm" variant="outline" asChild>
+      <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/bookings/${bookingId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runCheckIn}
         disabled={!canCheckIn}
       >
         <LogIn className="h-3.5 w-3.5" /> Check in
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={runCheckOut}
         disabled={!canCheckOut}
       >
         <LogOut className="h-3.5 w-3.5" /> Check out
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setCancelOpen(true)}
       >
         <XCircle className="h-3.5 w-3.5" /> Cancel
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setRescheduleOpen(true)}
       >
         <RefreshCcw className="h-3.5 w-3.5" /> Reschedule
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton
+      <Button
         size="sm"
         variant="outline"
         onClick={() => setConfirmOpen(true)}
       >
         <Mail className="h-3.5 w-3.5" /> Send confirmation
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="outline" onClick={() => window.print()}>
+      <Button size="sm" variant="outline" onClick={() => window.print()}>
         <Printer className="h-3.5 w-3.5" /> Print receipt
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" asChild>
+      <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/bookings/${bookingId}/activity`}>
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
-      </ZoruButton>
+      </Button>
 
-      <ZoruButton size="sm" variant="ghost" disabled aria-hidden="true">
+      <Button size="sm" variant="ghost" disabled aria-hidden="true">
         <CheckCircle2 className="hidden h-0 w-0" />
-      </ZoruButton>
+      </Button>
 
       <BookingCancelDialog
         open={cancelOpen}

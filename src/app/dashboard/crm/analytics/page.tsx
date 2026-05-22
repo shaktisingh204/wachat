@@ -102,7 +102,7 @@ export default async function AnalyticsHubPage(props: {
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <ZoruPageHeader>
+            <PageHeader>
                 <div className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
                         <BarChart className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
@@ -114,7 +114,7 @@ export default async function AnalyticsHubPage(props: {
                         </ZoruPageDescription>
                     </ZoruPageHeading>
                 </div>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <HubKpiGrid kpis={kpis} />
             <HubQuickLinkGrid links={QUICK_LINKS} />
@@ -122,11 +122,11 @@ export default async function AnalyticsHubPage(props: {
             {data ? (
                 <AnalyticsDashboard data={data} />
             ) : (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
                         {t('crm.analytics.errorLoad')}
                     </p>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

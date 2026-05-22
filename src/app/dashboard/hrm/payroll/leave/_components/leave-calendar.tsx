@@ -100,10 +100,10 @@ export function LeaveCalendarView({
   const today = isoDay(new Date());
 
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() =>
@@ -114,14 +114,14 @@ export function LeaveCalendarView({
             aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
           <div className="min-w-[160px] text-center text-[14px] text-zoru-ink">
             {cursor.toLocaleString('en-US', {
               month: 'long',
               year: 'numeric',
             })}
           </div>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() =>
@@ -132,15 +132,15 @@ export function LeaveCalendarView({
             aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
-          </ZoruButton>
+          </Button>
         </div>
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           onClick={() => setCursor(new Date())}
         >
           Today
-        </ZoruButton>
+        </Button>
       </div>
 
       <div className="grid grid-cols-7 gap-1">
@@ -206,6 +206,6 @@ export function LeaveCalendarView({
           );
         })}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

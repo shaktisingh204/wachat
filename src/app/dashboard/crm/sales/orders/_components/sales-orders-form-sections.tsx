@@ -39,14 +39,14 @@ export interface ShippingAddressCardProps {
 
 export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Shipping address
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <ZoruLabel htmlFor="ship-line1">Line 1</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="ship-line1">Line 1</Label>
+          <Input
             id="ship-line1"
             value={ship.line1 ?? ''}
             onChange={(e) => setShip((p) => ({ ...p, line1: e.target.value }))}
@@ -55,8 +55,8 @@ export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps)
           />
         </div>
         <div className="md:col-span-2">
-          <ZoruLabel htmlFor="ship-line2">Line 2</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="ship-line2">Line 2</Label>
+          <Input
             id="ship-line2"
             value={ship.line2 ?? ''}
             onChange={(e) => setShip((p) => ({ ...p, line2: e.target.value }))}
@@ -65,8 +65,8 @@ export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps)
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="ship-city">City</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="ship-city">City</Label>
+          <Input
             id="ship-city"
             value={ship.city ?? ''}
             onChange={(e) => setShip((p) => ({ ...p, city: e.target.value }))}
@@ -75,8 +75,8 @@ export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps)
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="ship-state">State</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="ship-state">State</Label>
+          <Input
             id="ship-state"
             value={ship.state ?? ''}
             onChange={(e) => setShip((p) => ({ ...p, state: e.target.value }))}
@@ -85,8 +85,8 @@ export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps)
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="ship-postal">Postal code</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="ship-postal">Postal code</Label>
+          <Input
             id="ship-postal"
             value={ship.postalCode ?? ''}
             onChange={(e) => setShip((p) => ({ ...p, postalCode: e.target.value }))}
@@ -95,8 +95,8 @@ export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps)
           />
         </div>
         <div>
-          <ZoruLabel htmlFor="ship-country">Country</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="ship-country">Country</Label>
+          <Input
             id="ship-country"
             value={ship.country ?? ''}
             onChange={(e) => setShip((p) => ({ ...p, country: e.target.value }))}
@@ -105,7 +105,7 @@ export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps)
           />
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -137,15 +137,15 @@ export function TotalsCard({
   setAdjustment,
 }: TotalsCardProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Totals
       </h3>
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-3">
           <div>
-            <ZoruLabel htmlFor="shippingCharge">Shipping charge</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="shippingCharge">Shipping charge</Label>
+            <Input
               id="shippingCharge"
               type="number"
               step="any"
@@ -157,8 +157,8 @@ export function TotalsCard({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="discountOverall">Overall discount</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="discountOverall">Overall discount</Label>
+            <Input
               id="discountOverall"
               type="number"
               step="any"
@@ -170,8 +170,8 @@ export function TotalsCard({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="adjustment">Adjustment</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="adjustment">Adjustment</Label>
+            <Input
               id="adjustment"
               type="number"
               step="any"
@@ -195,7 +195,7 @@ export function TotalsCard({
               {fmtMoney(lineTotals, currency)}
             </span>
           </div>
-          <ZoruSeparator />
+          <Separator />
           <div className="flex justify-between text-[14px] font-semibold text-zoru-ink">
             <span>Total ({currency})</span>
             <span className="tabular-nums">{fmtMoney(total, currency)}</span>
@@ -205,6 +205,6 @@ export function TotalsCard({
           </p>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

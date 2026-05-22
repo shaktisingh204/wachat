@@ -97,15 +97,15 @@ const EMPTY_KPIS: CrmContactKpis = {
 
 function ContactsPageSkeleton() {
   return (
-    <ZoruCard className="p-6">
-      <ZoruSkeleton className="h-6 w-48" />
-      <ZoruSkeleton className="mt-2 h-4 w-64" />
+    <Card className="p-6">
+      <Skeleton className="h-6 w-48" />
+      <Skeleton className="mt-2 h-4 w-64" />
       <div className="mt-6 flex items-center justify-between">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-10 w-48" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-48" />
       </div>
-      <ZoruSkeleton className="mt-4 h-96 w-full" />
-    </ZoruCard>
+      <Skeleton className="mt-4 h-96 w-full" />
+    </Card>
   );
 }
 
@@ -374,10 +374,10 @@ export default function CrmContactsPage() {
       filters={
         <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-5">
           <div className="space-y-1">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
               Status
-            </ZoruLabel>
-            <ZoruSelect
+            </Label>
+            <Select
               value={statusFilter}
               onValueChange={(v) => {
                 setStatusFilter(v as ContactStatus | 'all');
@@ -395,12 +395,12 @@ export default function CrmContactsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
               Owner
-            </ZoruLabel>
+            </Label>
             <input
               type="text"
               placeholder="Owner id / name"
@@ -413,10 +413,10 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
               Account
-            </ZoruLabel>
-            <ZoruSelect
+            </Label>
+            <Select
               value={accountFilter || 'all'}
               onValueChange={(v) => {
                 setAccountFilter(v === 'all' ? '' : v);
@@ -437,12 +437,12 @@ export default function CrmContactsPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
               Tag
-            </ZoruLabel>
+            </Label>
             <input
               type="text"
               placeholder="Filter by tag"
@@ -455,9 +455,9 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
               Created
-            </ZoruLabel>
+            </Label>
             <ZoruDateRangePicker
               value={dateRange}
               onChange={(r) => {
@@ -469,9 +469,9 @@ export default function CrmContactsPage() {
           </div>
           {hasActiveFilters ? (
             <div className="md:col-span-3 lg:col-span-5">
-              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-3.5 w-3.5" /> Clear filters
-              </ZoruButton>
+              </Button>
             </div>
           ) : null}
         </div>
@@ -480,7 +480,7 @@ export default function CrmContactsPage() {
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-              <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
+              <Badge variant="info">{selected.size} selected</Badge>
               <button
                 type="button"
                 onClick={() => setSelected(new Set())}
@@ -490,7 +490,7 @@ export default function CrmContactsPage() {
               </button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <ZoruSelect
+              <Select
                 onValueChange={(v) => void runBulk('status', v)}
               >
                 <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
@@ -504,8 +504,8 @@ export default function CrmContactsPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
-              <ZoruButton
+              </Select>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
@@ -514,20 +514,20 @@ export default function CrmContactsPage() {
                 }}
               >
                 <UserPlus className="h-3.5 w-3.5" /> Assign
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportCsv}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" onClick={exportXlsx}>
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportXlsx}>
                 <FileSpreadsheet className="h-3.5 w-3.5" /> Export XLSX
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => void runBulk('delete')}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         ) : null
@@ -550,31 +550,31 @@ export default function CrmContactsPage() {
       <div className="flex flex-col gap-4">
         {/* KPI strip */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Total contacts"
             value={kpis.total.toLocaleString()}
             icon={<Users className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="With deals"
             value={kpis.withDeals.toLocaleString()}
             icon={<Tag className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Newsletter"
             value={kpis.newsletterSubscribed.toLocaleString()}
             icon={<Mail className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Added (30d)"
             value={kpis.recentlyAdded.toLocaleString()}
             icon={<CalendarClock className="h-4 w-4" />}
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10">
@@ -616,7 +616,7 @@ export default function CrmContactsPage() {
                   [...Array(5)].map((_, i) => (
                     <ZoruTableRow key={i} className="border-zoru-line">
                       <ZoruTableCell colSpan={8}>
-                        <ZoruSkeleton className="h-16 w-full" />
+                        <Skeleton className="h-16 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
@@ -635,12 +635,12 @@ export default function CrmContactsPage() {
                         </ZoruTableCell>
                         <ZoruTableCell>
                           <div className="flex items-center gap-3">
-                            <ZoruAvatar className="h-9 w-9 border border-zoru-line">
+                            <Avatar className="h-9 w-9 border border-zoru-line">
                               <ZoruAvatarImage src={contact.avatarUrl || ''} />
                               <ZoruAvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                                 {contact.name?.charAt(0) ?? '?'}
                               </ZoruAvatarFallback>
-                            </ZoruAvatar>
+                            </Avatar>
                             <EntityRowLink
                               href={`/dashboard/crm/contacts/${id}`}
                               label={contact.name}
@@ -673,14 +673,14 @@ export default function CrmContactsPage() {
                             t('crm.contacts.list.notAvailable')}
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <ZoruBadge
+                          <Badge
                             variant={leadScoreVariant(contact.leadScore || 0)}
                           >
                             {contact.leadScore || 0}
-                          </ZoruBadge>
+                          </Badge>
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <ZoruBadge variant="danger">{contact.status}</ZoruBadge>
+                          <Badge variant="danger">{contact.status}</Badge>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {contact.lastActivity
@@ -690,14 +690,14 @@ export default function CrmContactsPage() {
                             : t('crm.contacts.list.never')}
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <ZoruDropdownMenu>
+                          <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                              <ZoruButton
+                              <Button
                                 variant="ghost"
                                 className="h-8 w-8 p-0"
                               >
                                 <MoreHorizontal className="h-4 w-4" />
-                              </ZoruButton>
+                              </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
                               <ZoruDropdownMenuItem asChild>
@@ -717,7 +717,7 @@ export default function CrmContactsPage() {
                                 {t('crm.contacts.list.action.delete')}
                               </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                          </ZoruDropdownMenu>
+                          </DropdownMenu>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );
@@ -733,9 +733,9 @@ export default function CrmContactsPage() {
                   </ZoruTableRow>
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
-        </ZoruCard>
+        </Card>
       </div>
 
       <ZoruAlertDialog

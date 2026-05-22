@@ -14,9 +14,9 @@ export default function TextToHtmlPage() {
 
   return (
     <ToolShell title="Text to HTML" description="Convert plain text into HTML paragraphs with line breaks.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste plain text…" className="min-h-[220px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste plain text…" className="min-h-[220px]" />
       <div className="text-sm font-semibold">Output HTML</div>
-      <ZoruTextarea readOnly value={html} className="min-h-[220px] font-mono text-xs" />
+      <Textarea readOnly value={html} className="min-h-[220px] font-mono text-xs" />
     </ToolShell>
   );
 }

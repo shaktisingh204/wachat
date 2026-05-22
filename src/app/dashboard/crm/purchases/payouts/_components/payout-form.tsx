@@ -23,7 +23,7 @@ import { LoaderCircle } from 'lucide-react';
  * Multi-bill apply rows: each row keys hidden inputs as
  * `applyTo[N].billId` and `applyTo[N].amount` AND also writes a
  * combined `applyTo` JSON blob — the server action accepts either
- * shape. The picker is a plain `<ZoruInput>` for the bill id because
+ * shape. The picker is a plain `<Input>` for the bill id because
  * `bill` is not yet a registered `EntityKey`. The bill catalogue is
  * loaded server-side for the selected vendor (via
  * `getUnpaidBillsByVendor`) and rendered as a `<datalist>` so users
@@ -83,10 +83,10 @@ function blankRow(): PayoutApplyRow {
 function SubmitButton({ editing }: { editing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {editing ? 'Save changes' : 'Create payout'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -278,16 +278,16 @@ export function PayoutForm({ initial }: PayoutFormProps) {
             ) : null}
 
             {/* ─── Header ─────────────────────────────────────────── */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Payout
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel htmlFor="paymentNo">
+                        <Label htmlFor="paymentNo">
                             Payment # <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="paymentNo"
                             name="paymentNo"
                             required
@@ -297,10 +297,10 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="date">
+                        <Label htmlFor="date">
                             Date <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="date"
                             name="date"
                             type="date"
@@ -310,9 +310,9 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel>
+                        <Label>
                             Vendor <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
+                        </Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="vendor"
@@ -331,7 +331,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         ) : null}
                     </div>
                     <div>
-                        <ZoruLabel>Mode</ZoruLabel>
+                        <Label>Mode</Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="paymentMode"
@@ -343,7 +343,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Bank account</ZoruLabel>
+                        <Label>Bank account</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="bankAccount"
@@ -354,7 +354,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <div className="mt-1.5">
                             <EntityFormField
                                 entity="currency"
@@ -365,17 +365,17 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Mode-specific reference fields ─────────────────── */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Reference
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel htmlFor="chequeNo">Cheque #</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="chequeNo">Cheque #</Label>
+                        <Input
                             id="chequeNo"
                             name="chequeNo"
                             defaultValue={initial?.chequeNo ?? ''}
@@ -385,8 +385,8 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="chequeDate">Cheque date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="chequeDate">Cheque date</Label>
+                        <Input
                             id="chequeDate"
                             name="chequeDate"
                             type="date"
@@ -400,8 +400,8 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="txnId">Transaction ID</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="txnId">Transaction ID</Label>
+                        <Input
                             id="txnId"
                             name="txnId"
                             defaultValue={initial?.txnId ?? ''}
@@ -410,8 +410,8 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="reference">Reference / note</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="reference">Reference / note</Label>
+                        <Input
                             id="reference"
                             name="reference"
                             defaultValue={initial?.reference ?? ''}
@@ -420,8 +420,8 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="exchangeRate">Exchange rate</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="exchangeRate">Exchange rate</Label>
+                        <Input
                             id="exchangeRate"
                             name="exchangeRate"
                             type="number"
@@ -435,7 +435,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="payoutStatus"
@@ -446,10 +446,10 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* ─── Apply to bills ─────────────────────────────────── */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <PayoutApplyRows
                     rows={applyRows}
                     onAdd={addRow}
@@ -467,10 +467,10 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                     fmtMoney={fmtMoney}
                     totalSettled={totalSettled}
                 />
-            </ZoruCard>
+            </Card>
 
             {/* ─── TDS / notes ────────────────────────────────────── */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Deductions & notes
                 </h3>
@@ -487,8 +487,8 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         </label>
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="tdsDeducted">TDS amount</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tdsDeducted">TDS amount</Label>
+                        <Input
                             id="tdsDeducted"
                             name="tdsDeducted"
                             type="number"
@@ -503,8 +503,8 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                     </div>
                 </div>
                 <div className="mt-4">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         defaultValue={initial?.notes ?? ''}
@@ -513,10 +513,10 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                         placeholder="Internal or vendor-facing notes"
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div className="flex justify-end gap-2">
-                <ZoruButton variant="outline" asChild>
+                <Button variant="outline" asChild>
                     <Link
                         href={
                             editing
@@ -526,7 +526,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                     >
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton editing={editing} />
             </div>
         </form>

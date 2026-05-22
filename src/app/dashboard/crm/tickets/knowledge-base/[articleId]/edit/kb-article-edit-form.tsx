@@ -20,14 +20,14 @@ const initialState: { message?: string; error?: string } = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Save changes
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -57,13 +57,13 @@ export default function KbArticleEditForm({
       <input type="hidden" name="articleId" value={articleId} />
 
       {/* Article Details Card */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Article Details</h2>
         <div className="flex flex-col gap-5">
           {/* Title */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="title">Title *</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="title">Title *</Label>
+            <Input
               id="title"
               name="title"
               defaultValue={article.title ?? ''}
@@ -74,8 +74,8 @@ export default function KbArticleEditForm({
 
           {/* Slug */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="slug">Slug</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="slug">Slug</Label>
+            <Input
               id="slug"
               name="slug"
               defaultValue={article.slug ?? ''}
@@ -86,7 +86,7 @@ export default function KbArticleEditForm({
           {/* Category + Visibility in 2 cols */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="category">Category</ZoruLabel>
+              <Label htmlFor="category">Category</Label>
               <EntityFormField
                 entity="category"
                 name="category"
@@ -95,7 +95,7 @@ export default function KbArticleEditForm({
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Visibility</ZoruLabel>
+              <Label>Visibility</Label>
               <EnumFormField
                 enumName="kbVisibility"
                 name="visibility"
@@ -108,8 +108,8 @@ export default function KbArticleEditForm({
           {/* Tags + Status in 2 cols */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="tags">Tags</Label>
+              <Input
                 id="tags"
                 name="tags"
                 defaultValue={
@@ -119,7 +119,7 @@ export default function KbArticleEditForm({
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Status</ZoruLabel>
+              <Label>Status</Label>
               <EnumFormField
                 enumName="kbStatus"
                 name="status"
@@ -129,14 +129,14 @@ export default function KbArticleEditForm({
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Content Card */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Content</h2>
         <div className="space-y-1.5">
-          <ZoruLabel htmlFor="body">Article Body *</ZoruLabel>
-          <ZoruTextarea
+          <Label htmlFor="body">Article Body *</Label>
+          <Textarea
             id="body"
             name="body"
             defaultValue={article.body ?? ''}
@@ -145,15 +145,15 @@ export default function KbArticleEditForm({
             required
           />
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex items-center justify-between">
-        <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
+        <Button variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
           <Link href={`/dashboard/crm/tickets/knowledge-base/${articleId}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton />
       </div>
     </form>

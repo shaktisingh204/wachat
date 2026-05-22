@@ -285,7 +285,7 @@ export function VendorBidListClient({
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <VendorBidListToolbar
           query={query}
           onQueryChange={setQuery}
@@ -334,7 +334,7 @@ export function VendorBidListClient({
         />
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={archivePending}

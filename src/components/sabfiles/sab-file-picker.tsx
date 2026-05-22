@@ -417,7 +417,7 @@ export function SabFilePicker({
     const doneCount = tasks.filter((t) => t.status === 'done').length;
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="flex max-h-[85vh] max-w-4xl flex-col gap-0 overflow-hidden p-0">
                 <div className="flex flex-col gap-3 border-b border-zoru-line p-5">
                     <ZoruDialogHeader>
@@ -451,14 +451,14 @@ export function SabFilePicker({
                         <>
                             <div className="flex items-center gap-2">
                                 <div className="flex-1">
-                                    <ZoruInput
+                                    <Input
                                         value={query}
                                         onChange={(e) => setQuery(e.target.value)}
                                         leadingSlot={<Search />}
                                         placeholder="Search your files…"
                                     />
                                 </div>
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="outline"
                                     size="icon"
@@ -467,7 +467,7 @@ export function SabFilePicker({
                                     onClick={() => setRefreshTick((n) => n + 1)}
                                 >
                                     <RefreshCw className={cn(loading && 'animate-spin')} />
-                                </ZoruButton>
+                                </Button>
                             </div>
 
                             <div className="-mx-0.5 flex flex-wrap items-center gap-1.5 px-0.5">
@@ -500,14 +500,14 @@ export function SabFilePicker({
                                         <div className="max-w-md text-xs text-zoru-ink-muted">
                                             {libraryError}
                                         </div>
-                                        <ZoruButton
+                                        <Button
                                             type="button"
                                             variant="outline"
                                             size="sm"
                                             onClick={() => setRefreshTick((n) => n + 1)}
                                         >
                                             <RefreshCw /> Try again
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 ) : items.length === 0 ? (
                                     <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-zoru-ink-muted">
@@ -523,14 +523,14 @@ export function SabFilePicker({
                                                 : 'Upload a file to add it to your SabFiles library.'}
                                         </div>
                                         {allowUpload && !debouncedQuery && (
-                                            <ZoruButton
+                                            <Button
                                                 type="button"
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => setMode('upload')}
                                             >
                                                 <Upload /> Upload now
-                                            </ZoruButton>
+                                            </Button>
                                         )}
                                     </div>
                                 ) : (
@@ -700,7 +700,7 @@ export function SabFilePicker({
                                                         {t.error}
                                                     </span>
                                                 ) : (
-                                                    <ZoruProgress
+                                                    <Progress
                                                         value={t.progress}
                                                         className="h-1"
                                                     />
@@ -724,15 +724,15 @@ export function SabFilePicker({
                                   : ''
                               : 'Upload to continue'}
                     </div>
-                    <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+                    <Button variant="ghost" onClick={() => onOpenChange(false)}>
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton onClick={onConfirmPick} disabled={!selectedId}>
+                    </Button>
+                    <Button onClick={onConfirmPick} disabled={!selectedId}>
                         Use this file
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -880,16 +880,16 @@ export function SabFileUrlInput({
             </div>
             {/* Hidden field so existing FormData-based submissions still work. */}
             {name && <input type="hidden" name={name} value={value} />}
-            <ZoruButton
+            <Button
                 type="button"
                 variant="outline"
                 disabled={disabled}
                 onClick={() => setOpen(true)}
             >
                 <Upload /> {value ? 'Change' : 'Choose file'}
-            </ZoruButton>
+            </Button>
             {value && (
-                <ZoruButton
+                <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
@@ -902,7 +902,7 @@ export function SabFileUrlInput({
                     }}
                 >
                     <X />
-                </ZoruButton>
+                </Button>
             )}
             <SabFilePicker
                 open={open}
@@ -971,7 +971,7 @@ export function SabFileToFileButton({
     const [busy, setBusy] = React.useState(false);
     return (
         <>
-            <ZoruButton
+            <Button
                 type="button"
                 variant={variant}
                 className={className}
@@ -980,7 +980,7 @@ export function SabFileToFileButton({
             >
                 {busy ? <Loader2 className="animate-spin" /> : null}
                 {children ?? 'Pick from SabFiles'}
-            </ZoruButton>
+            </Button>
             <SabFilePicker
                 {...rest}
                 open={open}
@@ -1026,7 +1026,7 @@ export function SabFilePickerButton({
     const [open, setOpen] = React.useState(false);
     return (
         <>
-            <ZoruButton
+            <Button
                 type="button"
                 variant={variant}
                 className={className}
@@ -1037,7 +1037,7 @@ export function SabFilePickerButton({
                         <Upload /> Choose file
                     </>
                 )}
-            </ZoruButton>
+            </Button>
             <SabFilePicker
                 {...rest}
                 open={open}

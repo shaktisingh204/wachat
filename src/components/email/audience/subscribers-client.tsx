@@ -88,7 +88,7 @@ export function EmailSubscribersClient() {
 
   return (
     <div className="space-y-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -98,21 +98,21 @@ export function EmailSubscribersClient() {
           <ZoruPageDescription>Manage every contact across your audience lists.</ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton variant="outline" disabled>
+          <Button variant="outline" disabled>
             <Upload className="h-4 w-4" /> Import CSV
-          </ZoruButton>
-          <ZoruButton onClick={() => setCreateOpen(true)} disabled={lists.length === 0}>
+          </Button>
+          <Button onClick={() => setCreateOpen(true)} disabled={lists.length === 0}>
             <Plus className="h-4 w-4" /> Add subscriber
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard className="p-4 flex flex-wrap gap-3 items-end">
+      <Card className="p-4 flex flex-wrap gap-3 items-end">
         <div className="flex-1 min-w-[220px] space-y-2">
-          <ZoruLabel>Search</ZoruLabel>
+          <Label>Search</Label>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
-            <ZoruInput
+            <Input
               className="pl-8"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -121,8 +121,8 @@ export function EmailSubscribersClient() {
           </div>
         </div>
         <div className="space-y-2 w-[200px]">
-          <ZoruLabel>List</ZoruLabel>
-          <ZoruSelect value={selectedListId || 'all'} onValueChange={(v) => { setSelectedListId(v === 'all' ? '' : v); setPage(1); }}>
+          <Label>List</Label>
+          <Select value={selectedListId || 'all'} onValueChange={(v) => { setSelectedListId(v === 'all' ? '' : v); setPage(1); }}>
             <ZoruSelectTrigger><ZoruSelectValue placeholder="All lists" /></ZoruSelectTrigger>
             <ZoruSelectContent>
               <ZoruSelectItem value="all">All lists</ZoruSelectItem>
@@ -130,11 +130,11 @@ export function EmailSubscribersClient() {
                 <ZoruSelectItem key={l._id} value={l._id}>{l.name}</ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
         <div className="space-y-2 w-[180px]">
-          <ZoruLabel>Status</ZoruLabel>
-          <ZoruSelect value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <Label>Status</Label>
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
             <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
             <ZoruSelectContent>
               <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
@@ -145,21 +145,21 @@ export function EmailSubscribersClient() {
               <ZoruSelectItem value="complained">Complained</ZoruSelectItem>
               <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
-      </ZoruCard>
+      </Card>
 
       {loading ? (
-        <ZoruSkeleton className="h-96 w-full" />
+        <Skeleton className="h-96 w-full" />
       ) : subscribers.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Users />}
           title="No subscribers"
           description="Add subscribers manually, import a CSV, or embed a signup form."
         />
       ) : (
-        <ZoruCard className="p-0 overflow-hidden">
-          <ZoruTable>
+        <Card className="p-0 overflow-hidden">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Email</ZoruTableHead>
@@ -177,12 +177,12 @@ export function EmailSubscribersClient() {
                     {[s.firstName, s.lastName].filter(Boolean).join(' ') || '—'}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge variant="outline">{s.status}</ZoruBadge>
+                    <Badge variant="outline">{s.status}</Badge>
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex gap-1 flex-wrap">
                       {(s.tags ?? []).slice(0, 3).map((t) => (
-                        <ZoruBadge key={t} variant="outline" className="text-xs">{t}</ZoruBadge>
+                        <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
                       ))}
                       {(s.tags?.length ?? 0) > 3 ? (
                         <span className="text-xs text-zoru-ink-muted">+{(s.tags!.length - 3)}</span>
@@ -195,8 +195,8 @@ export function EmailSubscribersClient() {
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       )}
 
       {totalPages > 1 ? (
@@ -205,12 +205,12 @@ export function EmailSubscribersClient() {
             Page {page} of {totalPages} · {total.toLocaleString()} subscribers
           </span>
           <div className="flex gap-2">
-            <ZoruButton variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
               Previous
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+            </Button>
+            <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
               Next
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       ) : null}
@@ -268,7 +268,7 @@ function CreateSubscriberDialog({ open, onOpenChange, lists, defaultListId, onCr
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Add subscriber</ZoruDialogTitle>
@@ -276,40 +276,40 @@ function CreateSubscriberDialog({ open, onOpenChange, lists, defaultListId, onCr
         </ZoruDialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
-            <ZoruLabel htmlFor="sub-email">Email</ZoruLabel>
-            <ZoruInput id="sub-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Label htmlFor="sub-email">Email</Label>
+            <Input id="sub-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="space-y-1">
-            <ZoruLabel>List</ZoruLabel>
-            <ZoruSelect value={listId} onValueChange={setListId}>
+            <Label>List</Label>
+            <Select value={listId} onValueChange={setListId}>
               <ZoruSelectTrigger><ZoruSelectValue placeholder="Pick a list" /></ZoruSelectTrigger>
               <ZoruSelectContent>
                 {lists.map((l) => <ZoruSelectItem key={l._id} value={l._id}>{l.name}</ZoruSelectItem>)}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <ZoruLabel htmlFor="sub-first">First name</ZoruLabel>
-              <ZoruInput id="sub-first" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+              <Label htmlFor="sub-first">First name</Label>
+              <Input id="sub-first" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <ZoruLabel htmlFor="sub-last">Last name</ZoruLabel>
-              <ZoruInput id="sub-last" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              <Label htmlFor="sub-last">Last name</Label>
+              <Input id="sub-last" value={lastName} onChange={(e) => setLastName(e.target.value)} />
             </div>
           </div>
           <div className="space-y-1">
-            <ZoruLabel htmlFor="sub-tags">Tags (comma-separated)</ZoruLabel>
-            <ZoruInput id="sub-tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="vip, customer" />
+            <Label htmlFor="sub-tags">Tags (comma-separated)</Label>
+            <Input id="sub-tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="vip, customer" />
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</ZoruButton>
-          <ZoruButton onClick={handleSubmit} disabled={pending}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Add subscriber'}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

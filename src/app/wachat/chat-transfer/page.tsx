@@ -130,7 +130,7 @@ export default function ChatTransferPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -144,7 +144,7 @@ export default function ChatTransferPage() {
             <ZoruBreadcrumbPage>Chat Transfer</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -155,12 +155,12 @@ export default function ChatTransferPage() {
         </p>
       </div>
 
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h2 className="mb-4 text-[15px] text-zoru-ink">Transfer a Conversation</h2>
         <div className="grid max-w-lg gap-3">
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="contact-id">Contact ID</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="contact-id">Contact ID</Label>
+            <Input
               id="contact-id"
               placeholder="e.g. 6612abc..."
               value={contactId}
@@ -168,8 +168,8 @@ export default function ChatTransferPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>From Agent</ZoruLabel>
-            <ZoruSelect value={fromAgent} onValueChange={setFromAgent}>
+            <Label>From Agent</Label>
+            <Select value={fromAgent} onValueChange={setFromAgent}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue placeholder="Select agent..." />
               </ZoruSelectTrigger>
@@ -180,11 +180,11 @@ export default function ChatTransferPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>To Agent</ZoruLabel>
-            <ZoruSelect value={toAgent} onValueChange={setToAgent}>
+            <Label>To Agent</Label>
+            <Select value={toAgent} onValueChange={setToAgent}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue placeholder="Select agent..." />
               </ZoruSelectTrigger>
@@ -195,11 +195,11 @@ export default function ChatTransferPage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="transfer-note">Note (optional)</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="transfer-note">Note (optional)</Label>
+            <Textarea
               id="transfer-note"
               rows={2}
               value={note}
@@ -209,7 +209,7 @@ export default function ChatTransferPage() {
           </div>
         </div>
         <div className="mt-4">
-          <ZoruButton
+          <Button
             onClick={requestTransfer}
             disabled={
               isSending || !contactId.trim() || !fromAgent || !toAgent
@@ -221,9 +221,9 @@ export default function ChatTransferPage() {
               <Send />
             )}
             {isSending ? 'Transferring...' : 'Transfer Conversation'}
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
 
       <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
         Transfer History
@@ -234,8 +234,8 @@ export default function ChatTransferPage() {
           <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
         </div>
       ) : history.length > 0 ? (
-        <ZoruCard className="overflow-x-auto p-0">
-          <ZoruTable>
+        <Card className="overflow-x-auto p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Contact</ZoruTableHead>
@@ -268,10 +268,10 @@ export default function ChatTransferPage() {
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<ArrowRightLeft />}
           title="No transfers yet"
           description="Once you transfer a conversation, it will appear here."
@@ -279,7 +279,7 @@ export default function ChatTransferPage() {
       )}
 
       {/* Confirm transfer dialog */}
-      <ZoruDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Confirm transfer</ZoruDialogTitle>
@@ -296,24 +296,24 @@ export default function ChatTransferPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setConfirmOpen(false)}
               disabled={isSending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={handleTransfer} disabled={isSending}>
+            </Button>
+            <Button onClick={handleTransfer} disabled={isSending}>
               {isSending ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 <Send />
               )}
               {isSending ? 'Transferring...' : 'Confirm transfer'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

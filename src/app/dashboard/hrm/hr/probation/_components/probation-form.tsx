@@ -53,14 +53,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create probation'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -141,7 +141,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="probationId" value={recordId} />
@@ -151,7 +151,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                 {/* Employee picker (dual-writes employeeName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Employee *</ZoruLabel>
+                        <Label>Employee *</Label>
                         <EntityFormField
                             entity="employee"
                             name="employeeId"
@@ -168,8 +168,8 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                 {/* Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startDate">Start date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startDate">Start date</Label>
+                        <Input
                             id="startDate"
                             name="startDate"
                             type="date"
@@ -177,8 +177,8 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="endDate">End date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endDate">End date</Label>
+                        <Input
                             id="endDate"
                             name="endDate"
                             type="date"
@@ -189,7 +189,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
 
                 {/* Evaluator picker (dual-writes evaluatorName for legacy callers) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Evaluator</ZoruLabel>
+                    <Label>Evaluator</Label>
                     <EntityFormField
                         entity="employee"
                         name="evaluatorId"
@@ -204,8 +204,8 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                 {/* Criteria repeater */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Evaluation criteria</ZoruLabel>
-                        <ZoruButton
+                        <Label>Evaluation criteria</Label>
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -213,7 +213,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" />
                             Add criterion
-                        </ZoruButton>
+                        </Button>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -222,28 +222,28 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                                 key={idx}
                                 className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[1.4fr_1fr_1fr_0.8fr_auto]"
                             >
-                                <ZoruInput
+                                <Input
                                     placeholder="Criterion name"
                                     value={c.name}
                                     onChange={(e) =>
                                         updateCriterion(idx, 'name', e.target.value)
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     placeholder="Target"
                                     value={c.target ?? ''}
                                     onChange={(e) =>
                                         updateCriterion(idx, 'target', e.target.value)
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     placeholder="Achieved"
                                     value={c.achieved ?? ''}
                                     onChange={(e) =>
                                         updateCriterion(idx, 'achieved', e.target.value)
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     type="number"
                                     step="0.1"
                                     placeholder="Score"
@@ -258,7 +258,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                                         );
                                     }}
                                 />
-                                <ZoruButton
+                                <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon"
@@ -267,7 +267,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                                     aria-label="Remove criterion"
                                 >
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         ))}
                     </div>
@@ -276,8 +276,8 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                 {/* Overall score + Recommendation */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="overallScore">Overall score</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="overallScore">Overall score</Label>
+                        <Input
                             id="overallScore"
                             name="overallScore"
                             type="number"
@@ -291,7 +291,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Recommendation</ZoruLabel>
+                        <Label>Recommendation</Label>
                         <EnumFormField
                             enumName="probationRecommendation"
                             name="recommendation"
@@ -309,7 +309,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                 {/* Status + Notes */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="probationStatus"
                             name="status"
@@ -323,8 +323,8 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5 sm:col-span-1">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
                             id="notes"
                             name="notes"
                             rows={3}
@@ -335,15 +335,15 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to probation
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

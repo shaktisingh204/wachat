@@ -11,7 +11,7 @@ export default async function EmailJourneyDetailPage({ params }: PageProps) {
   const { journeyId } = await params;
   return (
     <EmailSuiteLayout>
-      <Suspense fallback={<ZoruSkeleton className="h-96 w-full" />}>
+      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
         <JourneyDetailClient journeyId={journeyId} />
       </Suspense>
     </EmailSuiteLayout>

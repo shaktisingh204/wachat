@@ -149,9 +149,9 @@ export function LeadsKanban({ leads, onAfterMove }: LeadsKanbanProps) {
 
     if (groups.length === 0) {
         return (
-            <ZoruCard className="flex min-h-[240px] items-center justify-center text-sm text-zoru-ink-muted">
+            <Card className="flex min-h-[240px] items-center justify-center text-sm text-zoru-ink-muted">
                 No leads to plot on the board.
-            </ZoruCard>
+            </Card>
         );
     }
 

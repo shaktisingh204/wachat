@@ -53,14 +53,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create schedule'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -94,7 +94,7 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="recurringId" value={initialData!._id} />
@@ -110,8 +110,8 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
 
                 {/* Title */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="title">Title</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="title">Title</Label>
+                    <Input
                         id="title"
                         name="title"
                         placeholder="e.g. Monthly retainer — Acme"
@@ -122,7 +122,7 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                 {/* Customer + Invoice template */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Customer *</ZoruLabel>
+                        <Label>Customer *</Label>
                         <EntityFormField
                             entity="client"
                             name="customerIdPicker"
@@ -133,7 +133,7 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Invoice template</ZoruLabel>
+                        <Label>Invoice template</Label>
                         <EntityFormField
                             entity="invoice"
                             name="invoiceTemplatePicker"
@@ -147,7 +147,7 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                 {/* Frequency + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Frequency *</ZoruLabel>
+                        <Label>Frequency *</Label>
                         <EnumFormField
                             enumName="recurringFrequency"
                             name="__frequency_picker"
@@ -158,7 +158,7 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="recurringScheduleStatus"
                             name="__status_picker"
@@ -173,8 +173,8 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                 {/* Start + End dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startDate">Start date *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startDate">Start date *</Label>
+                        <Input
                             id="startDate"
                             name="startDate"
                             type="date"
@@ -186,8 +186,8 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="endDate">End date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endDate">End date</Label>
+                        <Input
                             id="endDate"
                             name="endDate"
                             type="date"
@@ -198,8 +198,8 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -210,15 +210,15 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to schedules
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -143,7 +143,7 @@ export default function InstagramMessagesPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<MessageCircle />}
           title="No project selected"
           description="Pick a project with a connected Instagram account to view its DMs."
@@ -154,7 +154,7 @@ export default function InstagramMessagesPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -168,7 +168,7 @@ export default function InstagramMessagesPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Messages</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -177,36 +177,36 @@ export default function InstagramMessagesPage(): React.JSX.Element {
             View DM conversations for the connected Instagram Business account.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={loadConversations} disabled={loading}>
+        <Button variant="ghost" onClick={loadConversations} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load conversations</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[320px_1fr]">
         {/* Conversations pane */}
-        <ZoruCard className="flex h-[640px] flex-col p-0">
+        <Card className="flex h-[640px] flex-col p-0">
           <div className="border-b border-zoru-line p-3 text-sm text-zoru-ink">
             Conversations
           </div>
           <div className="flex-1 overflow-y-auto">
             {loading && conversations.length === 0 ? (
               <div className="flex flex-col gap-2 p-3">
-                <ZoruSkeleton className="h-14 w-full" />
-                <ZoruSkeleton className="h-14 w-full" />
-                <ZoruSkeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
               </div>
             ) : conversations.length === 0 ? (
               <div className="p-4">
-                <ZoruEmptyState
+                <EmptyState
                   icon={<MessageCircle />}
                   title="No conversations"
                   description="Once people DM your IG account, threads will appear here."
@@ -229,18 +229,18 @@ export default function InstagramMessagesPage(): React.JSX.Element {
                             : 'hover:bg-zoru-surface',
                         )}
                       >
-                        <ZoruAvatar className="h-9 w-9 shrink-0">
+                        <Avatar className="h-9 w-9 shrink-0">
                           <ZoruAvatarFallback>
                             <User className="h-4 w-4" />
                           </ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <p className="truncate text-sm text-zoru-ink">
                               {cp?.username ?? cp?.name ?? cp?.id ?? '(unknown)'}
                             </p>
                             {typeof c.unread_count === 'number' && c.unread_count > 0 ? (
-                              <ZoruBadge variant="info">{c.unread_count}</ZoruBadge>
+                              <Badge variant="info">{c.unread_count}</Badge>
                             ) : null}
                           </div>
                           {c.snippet ? (
@@ -259,34 +259,34 @@ export default function InstagramMessagesPage(): React.JSX.Element {
               </ul>
             )}
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Thread pane */}
-        <ZoruCard className="flex h-[640px] flex-col p-0">
+        <Card className="flex h-[640px] flex-col p-0">
           <div className="border-b border-zoru-line p-3 text-sm text-zoru-ink">
             Thread
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             {!selectedId ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<MessageCircle />}
                 title="Select a conversation"
                 description="Pick a thread on the left to read its messages."
               />
             ) : threadError ? (
-              <ZoruAlert variant="destructive">
+              <Alert variant="destructive">
                 <AlertCircle />
                 <ZoruAlertTitle>Could not load messages</ZoruAlertTitle>
                 <ZoruAlertDescription>{threadError}</ZoruAlertDescription>
-              </ZoruAlert>
+              </Alert>
             ) : threadLoading && messages.length === 0 ? (
               <div className="flex flex-col gap-2">
-                <ZoruSkeleton className="h-12 w-2/3" />
-                <ZoruSkeleton className="ml-auto h-12 w-1/2" />
-                <ZoruSkeleton className="h-12 w-3/4" />
+                <Skeleton className="h-12 w-2/3" />
+                <Skeleton className="ml-auto h-12 w-1/2" />
+                <Skeleton className="h-12 w-3/4" />
               </div>
             ) : messages.length === 0 ? (
-              <ZoruEmptyState
+              <EmptyState
                 icon={<MessageCircle />}
                 title="No messages"
                 description="This thread has no readable messages."
@@ -308,7 +308,7 @@ export default function InstagramMessagesPage(): React.JSX.Element {
               </ul>
             )}
           </div>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

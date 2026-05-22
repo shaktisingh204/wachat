@@ -100,11 +100,11 @@ export function TicketsTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <ZoruTable>
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all tickets on this page"
                                 checked={
                                     allSelected
@@ -135,7 +135,7 @@ export function TicketsTable({
                         Array.from({ length: 6 }).map((_, i) => (
                             <ZoruTableRow key={i} className="border-zoru-line">
                                 <ZoruTableCell colSpan={13}>
-                                    <ZoruSkeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
@@ -165,7 +165,7 @@ export function TicketsTable({
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             aria-label={`Select ticket ${t.subject || id}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
@@ -199,7 +199,7 @@ export function TicketsTable({
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {t.channel ? (
-                                            <ZoruBadge variant="secondary">{t.channel}</ZoruBadge>
+                                            <Badge variant="secondary">{t.channel}</Badge>
                                         ) : (
                                             <span className="text-[12px] text-zoru-ink-muted">—</span>
                                         )}
@@ -213,11 +213,11 @@ export function TicketsTable({
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {priority ? (
-                                            <ZoruBadge
+                                            <Badge
                                                 variant={PRIORITY_VARIANTS[priority] ?? 'ghost'}
                                             >
                                                 {priority}
-                                            </ZoruBadge>
+                                            </Badge>
                                         ) : (
                                             <span className="text-[12px] text-zoru-ink-muted">—</span>
                                         )}
@@ -282,7 +282,7 @@ export function TicketsTable({
                                             : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        <ZoruDropdownMenu>
+                                        <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
@@ -318,14 +318,14 @@ export function TicketsTable({
                                                     Delete
                                                 </ZoruDropdownMenuItem>
                                             </ZoruDropdownMenuContent>
-                                        </ZoruDropdownMenu>
+                                        </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             );
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
+            </Table>
         </div>
     );
 }

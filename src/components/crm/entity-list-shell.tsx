@@ -17,7 +17,7 @@ import { Search } from 'lucide-react';
  *   ├───────────────────────────────────────────────────────────────┤
  *   │  bulkBar (sticky banner, shown when selection > 0)            │
  *   ├───────────────────────────────────────────────────────────────┤
- *   │  children   |   loading skeletons   |   empty <ZoruCard>      │
+ *   │  children   |   loading skeletons   |   empty <Card>      │
  *   ├───────────────────────────────────────────────────────────────┤
  *   │  pagination                                                   │
  *   └───────────────────────────────────────────────────────────────┘
@@ -27,7 +27,7 @@ import { Search } from 'lucide-react';
  * <EntityListShell
  *   title="Invoices"
  *   subtitle="All invoices for FY 2025"
- *   primaryAction={<ZoruButton onClick={openNew}>New invoice</ZoruButton>}
+ *   primaryAction={<Button onClick={openNew}>New invoice</Button>}
  *   search={{ value: q, onChange: setQ, placeholder: 'Search invoices…' }}
  *   filters={<StatusFilterChips value={status} onChange={setStatus} />}
  *   bulkBar={selected.length ? <BulkActions ids={selected} /> : null}
@@ -109,7 +109,7 @@ export function EntityListShell({
                     ) : null}
                     {search ? (
                         <div className="w-full sm:w-64">
-                            <ZoruInput
+                            <Input
                                 type="search"
                                 value={search.value}
                                 onChange={(e) => search.onChange(e.target.value)}
@@ -142,13 +142,13 @@ export function EntityListShell({
             {loading ? (
                 <div className="space-y-2" aria-live="polite" aria-busy="true">
                     {Array.from({ length: 6 }).map((_, i) => (
-                        <ZoruSkeleton key={i} className="h-12 w-full" />
+                        <Skeleton key={i} className="h-12 w-full" />
                     ))}
                 </div>
             ) : showEmpty ? (
-                <ZoruCard className="flex min-h-[240px] items-center justify-center">
+                <Card className="flex min-h-[240px] items-center justify-center">
                     <div className="w-full max-w-md text-center">{empty}</div>
-                </ZoruCard>
+                </Card>
             ) : (
                 <div>{children}</div>
             )}

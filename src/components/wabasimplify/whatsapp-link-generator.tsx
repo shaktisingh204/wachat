@@ -43,7 +43,7 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
   }, [selectedPhone, message]);
 
   return (
-    <ZoruCard className="card-gradient card-gradient-green">
+    <Card className="card-gradient card-gradient-green">
       <ZoruCardHeader>
         <div className="flex items-center gap-3">
             <WhatsAppIcon className="h-8 w-8" />
@@ -56,8 +56,8 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
       <ZoruCardContent className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="phone-number">Phone Number</ZoruLabel>
-                <ZoruSelect value={selectedPhone} onValueChange={setSelectedPhone}>
+                <Label htmlFor="phone-number">Phone Number</Label>
+                <Select value={selectedPhone} onValueChange={setSelectedPhone}>
                     <ZoruSelectTrigger id="phone-number">
                         <ZoruSelectValue placeholder="Select a number..." />
                     </ZoruSelectTrigger>
@@ -68,12 +68,12 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
                             </ZoruSelectItem>
                         ))}
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
             </div>
         </div>
         <div className="space-y-2">
-            <ZoruLabel htmlFor="prefilled-message">Pre-filled Message (Optional)</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="prefilled-message">Pre-filled Message (Optional)</Label>
+            <Textarea
                 id="prefilled-message"
                 placeholder="e.g., Hello, I'm interested in your services..."
                 value={message}
@@ -82,19 +82,19 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
             />
         </div>
         <div className="space-y-2">
-            <ZoruLabel>Generated Link</ZoruLabel>
+            <Label>Generated Link</Label>
             <div className="flex items-center gap-2">
-                <ZoruInput
+                <Input
                     readOnly
                     value={generatedLink}
                     className="font-mono text-xs"
                 />
-                <ZoruButton variant="outline" size="icon" onClick={() => copy(generatedLink)} disabled={!generatedLink}>
+                <Button variant="outline" size="icon" onClick={() => copy(generatedLink)} disabled={!generatedLink}>
                     {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </ZoruButton>
+                </Button>
             </div>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

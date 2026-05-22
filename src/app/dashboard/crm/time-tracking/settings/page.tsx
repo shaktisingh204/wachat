@@ -89,24 +89,24 @@ export default function TimeTrackingSettingsPage() {
       subtitle="Choose whether time is logged against projects, tasks, or both."
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <ZoruStatCard
+        <StatCard
           label="Total modules"
           value={ITEMS.length}
           icon={<Briefcase className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Enabled"
           value={enabledCount}
           icon={<CheckCircle2 className="h-4 w-4" />}
         />
-        <ZoruStatCard
+        <StatCard
           label="Disabled"
           value={disabledCount}
           icon={<XCircle className="h-4 w-4" />}
         />
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="divide-y divide-zoru-line">
           {ITEMS.map(({ module, label, description, icon: Icon }) => {
             const enabled = isEnabled(module);
@@ -127,9 +127,9 @@ export default function TimeTrackingSettingsPage() {
                       <p className="text-[14px] font-semibold text-zoru-ink">
                         {label}
                       </p>
-                      <ZoruBadge variant={enabled ? 'success' : 'ghost'}>
+                      <Badge variant={enabled ? 'success' : 'ghost'}>
                         {enabled ? 'Enabled' : 'Disabled'}
-                      </ZoruBadge>
+                      </Badge>
                     </div>
                     <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                       {description}
@@ -137,7 +137,7 @@ export default function TimeTrackingSettingsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <ZoruSwitch
+                  <Switch
                     checked={enabled}
                     disabled={busy === module}
                     onCheckedChange={(v) => toggle(module, Boolean(v))}
@@ -147,12 +147,12 @@ export default function TimeTrackingSettingsPage() {
             );
           })}
         </div>
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end">
-        <ZoruButton variant="outline" onClick={refresh}>
+        <Button variant="outline" onClick={refresh}>
           Refresh
-        </ZoruButton>
+        </Button>
       </div>
     </EntityListShell>
   );

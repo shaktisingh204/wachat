@@ -80,14 +80,14 @@ const INITIAL_STATE: { message?: string; error?: string } = {
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
       ) : (
         <Save className="h-4 w-4" />
       )}
       Save challan
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -194,16 +194,16 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
       {fromId ? <input type="hidden" name="fromId" value={fromId} /> : null}
 
       {/* Header */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="challanNumber">
+            <Label htmlFor="challanNumber">
               Challan # <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="challanNumber"
               name="challanNumber"
               defaultValue={seed?.challanNumber ?? 'DC-00001'}
@@ -213,10 +213,10 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="challanDate">
+            <Label htmlFor="challanDate">
               Challan date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="challanDate"
               type="date"
               required
@@ -226,9 +226,9 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Customer <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="client"
@@ -241,8 +241,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="soRef">Linked sales order</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="soRef">Linked sales order</Label>
+            <Input
               id="soRef"
               name="soRef"
               defaultValue={seed?.soRef ?? ''}
@@ -252,26 +252,26 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Line items */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <DcLineItemsTable
           rows={lineItems}
           onAdd={addRow}
           onRemove={removeRow}
           onPatch={patchRow}
         />
-      </ZoruCard>
+      </Card>
 
       {/* Dispatch + ship-to */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Dispatch & ship-to
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel>Dispatch warehouse</ZoruLabel>
+            <Label>Dispatch warehouse</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="warehouse"
@@ -283,8 +283,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="reason">Reason for transport</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="reason">Reason for transport</Label>
+            <Input
               id="reason"
               name="reason"
               placeholder="e.g. For job work, sale on approval"
@@ -293,8 +293,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="ship-line1">Ship-to address — line 1</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ship-line1">Ship-to address — line 1</Label>
+            <Input
               id="ship-line1"
               value={shipTo.line1}
               onChange={(e) => setShipTo((p) => ({ ...p, line1: e.target.value }))}
@@ -303,8 +303,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="ship-city">City</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ship-city">City</Label>
+            <Input
               id="ship-city"
               value={shipTo.city}
               onChange={(e) => setShipTo((p) => ({ ...p, city: e.target.value }))}
@@ -313,8 +313,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="ship-state">State</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ship-state">State</Label>
+            <Input
               id="ship-state"
               value={shipTo.state}
               onChange={(e) => setShipTo((p) => ({ ...p, state: e.target.value }))}
@@ -323,8 +323,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="ship-postal">Postal code</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ship-postal">Postal code</Label>
+            <Input
               id="ship-postal"
               value={shipTo.postalCode}
               onChange={(e) => setShipTo((p) => ({ ...p, postalCode: e.target.value }))}
@@ -333,8 +333,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="ship-country">Country</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ship-country">Country</Label>
+            <Input
               id="ship-country"
               value={shipTo.country}
               onChange={(e) => setShipTo((p) => ({ ...p, country: e.target.value }))}
@@ -343,17 +343,17 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Transport */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Transport
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="vehicleNumber">Vehicle number</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="vehicleNumber">Vehicle number</Label>
+            <Input
               id="vehicleNumber"
               name="vehicleNumber"
               placeholder="e.g. RJ14 AB 1234"
@@ -362,8 +362,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="driverName">Driver name</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="driverName">Driver name</Label>
+            <Input
               id="driverName"
               name="driverName"
               placeholder="e.g. John Doe"
@@ -372,7 +372,7 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel>Transporter</ZoruLabel>
+            <Label>Transporter</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="employee"
@@ -384,8 +384,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="lrNumber">LR / consignment no</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lrNumber">LR / consignment no</Label>
+            <Input
               id="lrNumber"
               name="lrNumber"
               placeholder="LR-12345"
@@ -394,8 +394,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="lrDate">LR date</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="lrDate">LR date</Label>
+            <Input
               id="lrDate"
               name="lrDate"
               type="date"
@@ -403,8 +403,8 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="ewayBillNumber">E-way bill no</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="ewayBillNumber">E-way bill no</Label>
+            <Input
               id="ewayBillNumber"
               name="ewayBillNumber"
               placeholder="123456789012"
@@ -413,7 +413,7 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             />
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel>Mode of transport</ZoruLabel>
+            <Label>Mode of transport</Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="transportMode"
@@ -424,26 +424,26 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
             </div>
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Notes */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Notes
         </h3>
-        <ZoruTextarea
+        <Textarea
           name="notes"
           placeholder="Any special instructions…"
           maxLength={500}
         />
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-between gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/dashboard/crm/sales/delivery">
             <ArrowLeft className="h-4 w-4" /> Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SaveButton />
       </div>
     </form>

@@ -22,7 +22,7 @@ export default function TimeTravelPage({ params }: { params: Promise<{ projectId
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-                <ZoruCard className="col-span-1">
+                <Card className="col-span-1">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Tracked Competitors</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -36,9 +36,9 @@ export default function TimeTravelPage({ params }: { params: Promise<{ projectId
                             <p className="text-xs text-zoru-ink-muted">Last changed: 5 days ago</p>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard className="col-span-2">
+                <Card className="col-span-2">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Visual Diff (Feb 1st vs Feb 5th)</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -57,12 +57,12 @@ export default function TimeTravelPage({ params }: { params: Promise<{ projectId
                         </div>
 
                         <div className="mt-8 flex justify-center">
-                            <ZoruButton variant="outline">
+                            <Button variant="outline">
                                 View Full HTML Side-by-Side <ArrowRight className="ml-2 h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

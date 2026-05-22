@@ -31,14 +31,14 @@ const initialState = { message: null, error: null, id: undefined } as any;
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
             ) : (
                 <Save className="h-4 w-4" strokeWidth={1.75} />
             )}
             Save Changes
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -77,13 +77,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
         >
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="id" value={loanId} />
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="grid gap-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="type" className="text-[12.5px] text-zoru-ink-muted">
+                            <Label htmlFor="type" className="text-[12.5px] text-zoru-ink-muted">
                                 Type
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="type"
                                 name="type"
                                 value={loanType}
@@ -92,9 +92,9 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                            <Label className="text-[12.5px] text-zoru-ink-muted">
                                 Borrower
-                            </ZoruLabel>
+                            </Label>
                             <EntityFormField
                                 entity={borrowerEntityForType(loanType)}
                                 name="borrowerId"
@@ -107,13 +107,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel
+                                <Label
                                     htmlFor="principal"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
                                     Principal
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="principal"
                                     name="principal"
                                     type="number"
@@ -124,13 +124,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel
+                                <Label
                                     htmlFor="interestRate"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
                                     Interest %
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="interestRate"
                                     name="interestRate"
                                     type="number"
@@ -142,13 +142,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <ZoruLabel
+                                <Label
                                     htmlFor="tenureMonths"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
                                     Tenure (months)
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="tenureMonths"
                                     name="tenureMonths"
                                     type="number"
@@ -157,13 +157,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel
+                                <Label
                                     htmlFor="startDate"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
                                     Start date
-                                </ZoruLabel>
-                                <ZoruInput
+                                </Label>
+                                <Input
                                     id="startDate"
                                     name="startDate"
                                     type="date"
@@ -173,13 +173,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel
+                            <Label
                                 htmlFor="status"
                                 className="text-[12.5px] text-zoru-ink-muted"
                             >
                                 Status
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="status"
                                 name="status"
                                 defaultValue={loan.status ?? 'active'}
@@ -187,13 +187,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel
+                            <Label
                                 htmlFor="notes"
                                 className="text-[12.5px] text-zoru-ink-muted"
                             >
                                 Notes
-                            </ZoruLabel>
-                            <ZoruTextarea
+                            </Label>
+                            <Textarea
                                 id="notes"
                                 name="notes"
                                 defaultValue={loan.notes ?? ''}
@@ -204,7 +204,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
                     <div className="mt-6 flex justify-end border-t border-zoru-line pt-4">
                         <SubmitButton />
                     </div>
-                </ZoruCard>
+                </Card>
             </form>
         </EntityDetailShell>
     );

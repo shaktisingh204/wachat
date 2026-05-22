@@ -101,18 +101,18 @@ const INITIAL_SCHEDULE_STATE: ScheduleState = {};
 function LiveStudioSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-8 w-56" />
-          <ZoruSkeleton className="h-4 w-80" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-56" />
+          <Skeleton className="h-4 w-80" />
         </div>
-        <ZoruSkeleton className="h-9 w-32 rounded-full" />
+        <Skeleton className="h-9 w-32 rounded-full" />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <ZoruSkeleton className="h-[360px] lg:col-span-2" />
-        <ZoruSkeleton className="h-[360px]" />
+        <Skeleton className="h-[360px] lg:col-span-2" />
+        <Skeleton className="h-[360px]" />
       </div>
     </div>
   );
@@ -123,14 +123,14 @@ function LiveStudioSkeleton() {
 function ScheduleSubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={disabled || pending} size="lg">
+    <Button type="submit" disabled={disabled || pending} size="lg">
       {pending ? (
         <LoaderCircle className="animate-spin" />
       ) : (
         <CalendarIcon />
       )}
       Schedule premiere
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -140,15 +140,15 @@ function StatusBadge({ status }: { status: FacebookLiveStream["status"] }) {
   const label = status.replace(/_/g, " ").toLowerCase();
   if (status === "LIVE") {
     return (
-      <ZoruBadge variant="success">
+      <Badge variant="success">
         <Radio /> {label}
-      </ZoruBadge>
+      </Badge>
     );
   }
   if (status === "VOD") {
-    return <ZoruBadge variant="ghost">{label}</ZoruBadge>;
+    return <Badge variant="ghost">{label}</Badge>;
   }
-  return <ZoruBadge variant="secondary">{label}</ZoruBadge>;
+  return <Badge variant="secondary">{label}</Badge>;
 }
 
 /* ── Page ─────────────────────────────────────────────────────────── */
@@ -239,7 +239,7 @@ export default function LiveStudioPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -255,9 +255,9 @@ export default function LiveStudioPage() {
             <ZoruBreadcrumbPage>Live Studio</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
           <ZoruPageTitle>Live Studio</ZoruPageTitle>
@@ -267,18 +267,18 @@ export default function LiveStudioPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruBadge variant="secondary">
+          <Badge variant="secondary">
             <Video />
             {streams.length} stream{streams.length === 1 ? "" : "s"}
-          </ZoruBadge>
-          <ZoruButton
+          </Badge>
+          <Button
             onClick={() => setStartConfirmOpen(true)}
             disabled={!allChecksOk}
           >
             <PlayCircle /> Start premiere
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6">
         {!activeProject ? (
@@ -289,7 +289,7 @@ export default function LiveStudioPage() {
             <div className="flex flex-col gap-6 lg:col-span-2">
               <PreflightChecklist items={checklist} allOk={allChecksOk} />
 
-              <ZoruCard variant="elevated">
+              <Card variant="elevated">
                 <div className="flex flex-col gap-1.5 p-6 pb-4">
                   <h2 className="text-base font-semibold tracking-tight text-zoru-ink">
                     Schedule a premiere
@@ -315,18 +315,18 @@ export default function LiveStudioPage() {
                   )}
 
                   {state?.error && (
-                    <ZoruAlert variant="destructive">
+                    <Alert variant="destructive">
                       <AlertTriangle />
                       <ZoruAlertTitle>Couldn’t schedule stream</ZoruAlertTitle>
                       <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
-                    </ZoruAlert>
+                    </Alert>
                   )}
 
                   {/* Video uploader */}
                   <div className="flex flex-col gap-2">
-                    <ZoruLabel htmlFor="videoFile" required>
+                    <Label htmlFor="videoFile" required>
                       Video file
-                    </ZoruLabel>
+                    </Label>
                     <label
                       htmlFor="videoFile"
                       className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface focus-within:border-zoru-ink"
@@ -355,10 +355,10 @@ export default function LiveStudioPage() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <ZoruLabel htmlFor="title" required>
+                    <Label htmlFor="title" required>
                       Title
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                       id="title"
                       name="title"
                       value={title}
@@ -369,8 +369,8 @@ export default function LiveStudioPage() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                       id="description"
                       name="description"
                       value={description}
@@ -382,18 +382,18 @@ export default function LiveStudioPage() {
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="flex flex-col gap-2">
-                      <ZoruLabel>Date</ZoruLabel>
-                      <ZoruDatePicker
+                      <Label>Date</Label>
+                      <DatePicker
                         value={scheduledDate}
                         onChange={setScheduledDate}
                         placeholder="Pick a date"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <ZoruLabel htmlFor="scheduledTime" required>
+                      <Label htmlFor="scheduledTime" required>
                         Time
-                      </ZoruLabel>
-                      <ZoruInput
+                      </Label>
+                      <Input
                         id="scheduledTime"
                         name="scheduledTime"
                         type="time"
@@ -408,7 +408,7 @@ export default function LiveStudioPage() {
                     <ScheduleSubmitButton disabled={!allChecksOk} />
                   </div>
                 </form>
-              </ZoruCard>
+              </Card>
             </div>
 
             {/* ─── Active streams panel (right, 1 col) ─── */}
@@ -519,7 +519,7 @@ function PreflightChecklist({
   allOk: boolean;
 }) {
   return (
-    <ZoruAlert variant={allOk ? "success" : "info"}>
+    <Alert variant={allOk ? "success" : "info"}>
       {allOk ? <CheckCircle2 /> : <AlertTriangle />}
       <ZoruAlertTitle>
         {allOk ? "Ready to go live" : "Pre-broadcast checklist"}
@@ -545,7 +545,7 @@ function PreflightChecklist({
           ))}
         </ul>
       </ZoruAlertDescription>
-    </ZoruAlert>
+    </Alert>
   );
 }
 
@@ -566,7 +566,7 @@ function ActiveStreamsPanel({
   return (
     <div className="flex flex-col gap-4">
       {live.length > 0 && (
-        <ZoruCard variant="elevated" className="p-5">
+        <Card variant="elevated" className="p-5">
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-success/15 text-zoru-success">
               <Radio className="h-4 w-4" />
@@ -594,20 +594,20 @@ function ActiveStreamsPanel({
                     Scheduled for {format(new Date(stream.scheduledTime), "PPp")}
                   </p>
                 </div>
-                <ZoruButton
+                <Button
                   size="sm"
                   variant="destructive"
                   onClick={() => onStop(stream)}
                 >
                   <StopCircle /> End
-                </ZoruButton>
+                </Button>
               </li>
             ))}
           </ul>
-        </ZoruCard>
+        </Card>
       )}
 
-      <ZoruCard variant="elevated">
+      <Card variant="elevated">
         <div className="flex items-center justify-between gap-2 p-5 pb-3">
           <div>
             <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
@@ -623,7 +623,7 @@ function ActiveStreamsPanel({
         </div>
         <div className="border-t border-zoru-line">
           {streams.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               compact
               icon={<Clock />}
               title="No streams scheduled"
@@ -631,7 +631,7 @@ function ActiveStreamsPanel({
               className="rounded-none border-0"
             />
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Title</ZoruTableHead>
@@ -662,13 +662,13 @@ function ActiveStreamsPanel({
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </div>
-      </ZoruCard>
+      </Card>
 
       {upcoming.length > 0 && live.length === 0 && (
-        <ZoruAlert variant="info">
+        <Alert variant="info">
           <Clock />
           <ZoruAlertTitle>
             {upcoming.length} upcoming premiere{upcoming.length === 1 ? "" : "s"}
@@ -677,7 +677,7 @@ function ActiveStreamsPanel({
             Your scheduled premieres will appear in the table above and go live
             automatically at their scheduled time.
           </ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       )}
     </div>
   );

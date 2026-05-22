@@ -84,7 +84,7 @@ export default function SystemHealthPage() {
                 >
                     <div className="space-y-4">
                         <WebhookProcessingToggle />
-                        <ZoruSeparator className="bg-zoru-line" />
+                        <Separator className="bg-zoru-line" />
                         <DiwaliThemeToggle />
                     </div>
                 </SectionCard>

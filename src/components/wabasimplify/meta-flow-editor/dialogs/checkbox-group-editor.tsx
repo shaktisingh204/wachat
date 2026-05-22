@@ -16,12 +16,12 @@ export function CheckboxGroupEditor({ component, updateField, updateAction }: Ch
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="name">Name (unique identifier)</ZoruLabel>
-                <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                <Label htmlFor="name">Name (unique identifier)</Label>
+                <Input id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">Label (shown to user)</ZoruLabel>
-                <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} />
+                <Label htmlFor="label">Label (shown to user)</Label>
+                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} />
             </div>
             
             <DataSourceEditor

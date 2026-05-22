@@ -385,9 +385,9 @@ export default function LeadAgentsPage(): React.JSX.Element {
                     placeholder: 'Search by lead or agent…',
                 }}
                 primaryAction={
-                    <ZoruButton onClick={handleOpenCreate}>
+                    <Button onClick={handleOpenCreate}>
                         <Plus className="h-4 w-4" /> Assign Agent
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
                     <AgentsFiltersRow
@@ -437,9 +437,9 @@ export default function LeadAgentsPage(): React.JSX.Element {
                                     ? 'Try clearing your filters or assigning a new agent.'
                                     : 'Assign an employee to a lead to give them ownership of the sales conversation.'}
                             </p>
-                            <ZoruButton onClick={handleOpenCreate}>
+                            <Button onClick={handleOpenCreate}>
                                 <Plus className="h-4 w-4" /> Assign your first agent
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -460,25 +460,25 @@ export default function LeadAgentsPage(): React.JSX.Element {
             >
                 <div className="flex flex-col gap-4">
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total agents"
                             value={kpis.total.toLocaleString()}
                             icon={<UserCog />}
                             period="all assignments"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Active"
                             value={kpis.active.toLocaleString()}
                             icon={<UserCheck />}
                             period="distinct employees"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Leads handled"
                             value={kpis.leadsHandled.toLocaleString()}
                             icon={<Users />}
                             period="distinct leads"
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Top performer"
                             value={
                                 topPerformerName ||
@@ -553,12 +553,12 @@ interface AgentsFiltersRowProps {
 
 function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Agent
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="employee"
                         name="agentFilter"
@@ -569,9 +569,9 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
                 </div>
 
                 <div className="space-y-1">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Lead
-                    </ZoruLabel>
+                    </Label>
                     <EntityFormField
                         entity="lead"
                         name="leadFilter"
@@ -582,9 +582,9 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
                 </div>
 
                 <div className="space-y-1 md:col-span-1 lg:col-span-2">
-                    <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Assigned
-                    </ZoruLabel>
+                    </Label>
                     <ZoruDateRangePicker
                         value={props.dateRange}
                         onChange={props.onDateRangeChange}
@@ -593,18 +593,18 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
 
                 {props.hasActiveFilters ? (
                     <div className="flex items-end md:col-span-3 lg:col-span-4">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             size="sm"
                             onClick={props.onClear}
                         >
                             <X className="h-3.5 w-3.5" /> Clear filters
-                        </ZoruButton>
+                        </Button>
                     </div>
                 ) : null}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -625,11 +625,11 @@ function AgentsBulkBar(props: AgentsBulkBarProps): React.JSX.Element {
                 {props.count} selected
             </span>
             <span className="flex-1" />
-            <ZoruDropdownMenu>
+            <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <ZoruButton size="sm" variant="outline">
+                    <Button size="sm" variant="outline">
                         <Download className="h-3.5 w-3.5" /> Export
-                    </ZoruButton>
+                    </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end">
                     <ZoruDropdownMenuItem onClick={props.onExportCsv}>
@@ -639,13 +639,13 @@ function AgentsBulkBar(props: AgentsBulkBarProps): React.JSX.Element {
                         Export as XLSX
                     </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
-            <ZoruButton size="sm" variant="destructive" onClick={props.onDelete}>
+            </DropdownMenu>
+            <Button size="sm" variant="destructive" onClick={props.onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
-            <ZoruButton size="sm" variant="ghost" onClick={props.onClear}>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={props.onClear}>
                 Clear
-            </ZoruButton>
+            </Button>
         </div>
     );
 }
@@ -665,12 +665,12 @@ interface AgentsTableProps {
 
 function AgentsTable(props: AgentsTableProps): React.JSX.Element {
     return (
-        <ZoruCard className="overflow-hidden">
-            <ZoruTable>
+        <Card className="overflow-hidden">
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow>
                         <ZoruTableHead className="w-10">
-                            <ZoruCheckbox
+                            <Checkbox
                                 aria-label="Select all on this page"
                                 checked={props.allSelected}
                                 onCheckedChange={(c) => props.onToggleAll(c === true)}
@@ -697,7 +697,7 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                 data-state={isSelected ? 'selected' : undefined}
                             >
                                 <ZoruTableCell>
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         aria-label={`Select assignment ${id}`}
                                         checked={isSelected}
                                         onCheckedChange={() => props.onToggleOne(id)}
@@ -720,7 +720,7 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                             {userLabel}
                                         </span>
                                         {userId && userId !== userLabel ? (
-                                            <ZoruBadge variant="ghost">{userId}</ZoruBadge>
+                                            <Badge variant="ghost">{userId}</Badge>
                                         ) : null}
                                     </div>
                                 </ZoruTableCell>
@@ -731,30 +731,30 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                 </ZoruTableCell>
                                 <ZoruTableCell className="text-right">
                                     <div className="inline-flex items-center gap-1">
-                                        <ZoruButton
+                                        <Button
                                             size="sm"
                                             variant="ghost"
                                             onClick={() => props.onEdit(r)}
                                             aria-label="Edit assignment"
                                         >
                                             <Pencil className="h-3.5 w-3.5" />
-                                        </ZoruButton>
-                                        <ZoruButton
+                                        </Button>
+                                        <Button
                                             size="sm"
                                             variant="ghost"
                                             onClick={() => props.onDelete(id)}
                                             aria-label="Delete assignment"
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         );
                     })}
                 </ZoruTableBody>
-            </ZoruTable>
-        </ZoruCard>
+            </Table>
+        </Card>
     );
 }
 
@@ -808,7 +808,7 @@ function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.El
     }, [editing, leadId, userId, onClose, toast]);
 
     return (
-        <ZoruDialog open={open} onOpenChange={(o) => !o && onClose(false)}>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose(false)}>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>
@@ -821,7 +821,7 @@ function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.El
                 </ZoruDialogHeader>
                 <div className="flex flex-col gap-3 py-2">
                     <div className="space-y-1">
-                        <ZoruLabel>Lead</ZoruLabel>
+                        <Label>Lead</Label>
                         <EntityFormField
                             entity="lead"
                             name="lead_id"
@@ -832,7 +832,7 @@ function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.El
                         />
                     </div>
                     <div className="space-y-1">
-                        <ZoruLabel>Agent</ZoruLabel>
+                        <Label>Agent</Label>
                         <EntityFormField
                             entity="employee"
                             name="user_id"
@@ -844,19 +844,19 @@ function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.El
                     </div>
                 </div>
                 <ZoruDialogFooter>
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={() => onClose(false)}
                         disabled={isSaving}
                     >
                         Cancel
-                    </ZoruButton>
-                    <ZoruButton type="button" onClick={handleSave} disabled={isSaving}>
+                    </Button>
+                    <Button type="button" onClick={handleSave} disabled={isSaving}>
                         {isSaving ? 'Saving…' : 'Save'}
-                    </ZoruButton>
+                    </Button>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

@@ -20,18 +20,18 @@ export interface SabsmsEmptyProps {
 export function SabsmsEmpty({ icon, title, description, action }: SabsmsEmptyProps) {
   return (
     <div className="rounded-md border border-dashed border-slate-200 bg-white p-10">
-      <ZoruEmptyState
+      <EmptyState
         icon={icon ?? <Inbox />}
         title={title}
         description={description}
         action={
           action ? (
             action.href ? (
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href={action.href}>{action.label}</Link>
-              </ZoruButton>
+              </Button>
             ) : (
-              <ZoruButton onClick={action.onClick}>{action.label}</ZoruButton>
+              <Button onClick={action.onClick}>{action.label}</Button>
             )
           ) : undefined
         }
@@ -54,14 +54,14 @@ export function SabsmsErrorState({ message, onRetry }: SabsmsErrorStateProps) {
           <div className="font-medium text-rose-900">Something went wrong</div>
           <div className="mt-1 text-sm text-rose-800">{message}</div>
           {onRetry && (
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               className="mt-3"
               onClick={onRetry}
             >
               Retry
-            </ZoruButton>
+            </Button>
           )}
         </div>
       </div>
@@ -79,7 +79,7 @@ export function SabsmsTableSkeleton({ columns, rows = 10 }: SabsmsTableSkeletonP
     <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
       <div className="grid bg-slate-50 p-3" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))` }}>
         {Array.from({ length: columns }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-4 w-3/4" />
+          <Skeleton key={i} className="h-4 w-3/4" />
         ))}
       </div>
       <div className="divide-y divide-slate-100">
@@ -90,7 +90,7 @@ export function SabsmsTableSkeleton({ columns, rows = 10 }: SabsmsTableSkeletonP
             style={{ gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))` }}
           >
             {Array.from({ length: columns }).map((_, c) => (
-              <ZoruSkeleton key={c} className="h-4 w-2/3" />
+              <Skeleton key={c} className="h-4 w-2/3" />
             ))}
           </div>
         ))}

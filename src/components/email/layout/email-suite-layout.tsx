@@ -104,10 +104,10 @@ export function EmailSuiteLayout({ children }: EmailSuiteLayoutProps) {
   if (isLoading) {
     return (
       <div className="flex gap-6 h-full">
-        <ZoruSkeleton className="w-64 h-full" />
+        <Skeleton className="w-64 h-full" />
         <div className="flex-1 space-y-4">
-          <ZoruSkeleton className="h-12 w-full" />
-          <ZoruSkeleton className="h-64 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-64 w-full" />
         </div>
       </div>
     );
@@ -124,7 +124,7 @@ export function EmailSuiteLayout({ children }: EmailSuiteLayoutProps) {
           icon={Mail}
           right={
             accounts.length > 0
-              ? <ZoruBadge variant="outline">{accounts.length} account{accounts.length === 1 ? '' : 's'}</ZoruBadge>
+              ? <Badge variant="outline">{accounts.length} account{accounts.length === 1 ? '' : 's'}</Badge>
               : null
           }
         />

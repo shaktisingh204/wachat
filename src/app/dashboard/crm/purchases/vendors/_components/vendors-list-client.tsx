@@ -238,22 +238,22 @@ export function VendorsListClient() {
     return (
         <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Total vendors"
                     value={kpi.total}
                     icon={<Truck className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Vendor types"
                     value={kpi.types}
                     icon={<Truck className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="With bank details"
                     value={kpi.withBank}
                     icon={<Banknote className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="With attachments"
                     value={kpi.withAttachments}
                     icon={<Paperclip className="h-4 w-4" />}
@@ -268,7 +268,7 @@ export function VendorsListClient() {
                     placeholder: 'Search vendors…',
                 }}
                 filters={
-                    <ZoruSelect value={typeFilter} onValueChange={setTypeFilter}>
+                    <Select value={typeFilter} onValueChange={setTypeFilter}>
                         <ZoruSelectTrigger className="h-9 w-[200px]">
                             <ZoruSelectValue placeholder="Vendor type" />
                         </ZoruSelectTrigger>
@@ -280,7 +280,7 @@ export function VendorsListClient() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 }
                 bulkBar={
                     selected.size > 0 ? (
@@ -289,7 +289,7 @@ export function VendorsListClient() {
                                 {selected.size} selected
                             </span>
                             <span className="text-zoru-ink-muted">·</span>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={bulkDeleting}
@@ -297,8 +297,8 @@ export function VendorsListClient() {
                             >
                                 <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
                                 Delete
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() =>
@@ -311,27 +311,27 @@ export function VendorsListClient() {
                             >
                                 <Download className="h-3.5 w-3.5" />
                                 Export CSV
-                            </ZoruButton>
+                            </Button>
                             <span className="ml-auto" />
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSelected(new Set())}
                             >
                                 <X className="h-3.5 w-3.5" />
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
                 loading={isLoading && vendors.length === 0}
             >
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={
                                             filtered.length > 0 &&
                                             selected.size === filtered.length
@@ -384,7 +384,7 @@ export function VendorsListClient() {
                                     return (
                                         <ZoruTableRow key={id} className="border-zoru-line">
                                             <ZoruTableCell>
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     checked={selected.has(id)}
                                                     onCheckedChange={() => toggleOne(id)}
                                                     aria-label={`Select ${v.name}`}
@@ -405,9 +405,9 @@ export function VendorsListClient() {
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 {v.vendorType ? (
-                                                    <ZoruBadge variant="ghost" className="capitalize">
+                                                    <Badge variant="ghost" className="capitalize">
                                                         {v.vendorType}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 ) : (
                                                     <span className="text-[13px] text-zoru-ink-muted">—</span>
                                                 )}
@@ -416,28 +416,28 @@ export function VendorsListClient() {
                                                 {v.gstin || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton variant="ghost" size="icon" asChild>
+                                                <Button variant="ghost" size="icon" asChild>
                                                     <Link
                                                         href={`/dashboard/crm/purchases/vendors/${id}/edit`}
                                                         aria-label={`Edit ${v.name}`}
                                                     >
                                                         <Edit className="h-4 w-4 text-zoru-ink-muted" />
                                                     </Link>
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => setPendingDelete(v)}
                                                 >
                                                     <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
             </EntityListShell>
 

@@ -377,10 +377,10 @@ export default function DashboardWidgetsPage() {
       title="Dashboard Widgets"
       subtitle="Compose your personal CRM dashboard. Add widgets, reorder, and control visibility."
       primaryAction={
-        <ZoruButton onClick={openCreate}>
+        <Button onClick={openCreate}>
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           Add Widget
-        </ZoruButton>
+        </Button>
       }
       search={{
         value: search,
@@ -390,7 +390,7 @@ export default function DashboardWidgetsPage() {
       filters={
         <>
           {TYPE_OPTIONS.map((t) => (
-            <ZoruButton
+            <Button
               key={t}
               variant={typeFilter === t ? 'default' : 'outline'}
               size="sm"
@@ -400,11 +400,11 @@ export default function DashboardWidgetsPage() {
               }}
             >
               {t === 'all' ? 'All types' : t}
-            </ZoruButton>
+            </Button>
           ))}
           <span className="mx-1 h-4 w-px bg-zoru-line" />
           {(['all', 'visible', 'hidden'] as VisibilityFilter[]).map((v) => (
-            <ZoruButton
+            <Button
               key={v}
               variant={visFilter === v ? 'default' : 'outline'}
               size="sm"
@@ -414,7 +414,7 @@ export default function DashboardWidgetsPage() {
               }}
             >
               {v === 'all' ? 'Any' : v.charAt(0).toUpperCase() + v.slice(1)}
-            </ZoruButton>
+            </Button>
           ))}
         </>
       }
@@ -425,7 +425,7 @@ export default function DashboardWidgetsPage() {
               {selected.size} selected
             </span>
             <span className="text-zoru-ink-muted">·</span>
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
@@ -433,32 +433,32 @@ export default function DashboardWidgetsPage() {
             >
               <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
               Delete
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('csv')}
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => doExport('xlsx')}
             >
               <FileSpreadsheet className="h-3.5 w-3.5" />
               Export XLSX
-            </ZoruButton>
+            </Button>
             <span className="ml-auto" />
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelected(new Set())}
             >
               <X className="h-3.5 w-3.5" />
               Clear
-            </ZoruButton>
+            </Button>
           </div>
         ) : null
       }
@@ -466,23 +466,23 @@ export default function DashboardWidgetsPage() {
     >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-          <ZoruStatCard
+          <StatCard
             label="Total widgets"
             value={kpis.total}
             icon={<LayoutDashboard className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Top type"
             value={topType}
             icon={<PieChart className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Visible"
             value={kpis.visible}
             period={`${kpis.total - kpis.visible} hidden`}
             icon={<Layers className="h-4 w-4" />}
           />
-          <ZoruStatCard
+          <StatCard
             label="Owner"
             value={kpis.by_owner[0]?.count ?? 0}
             period="this user"
@@ -490,13 +490,13 @@ export default function DashboardWidgetsPage() {
           />
         </div>
 
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <div className="overflow-x-auto">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
                   <ZoruTableHead className="w-[40px]">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
@@ -536,7 +536,7 @@ export default function DashboardWidgetsPage() {
                   pageRows.map((w, idx) => (
                     <ZoruTableRow key={w._id}>
                       <ZoruTableCell>
-                        <ZoruCheckbox
+                        <Checkbox
                           checked={selected.has(w._id)}
                           onCheckedChange={() => toggleOne(w._id)}
                           aria-label={`Select ${w.widget_name}`}
@@ -597,20 +597,20 @@ export default function DashboardWidgetsPage() {
                               </div>
                             ) : null}
                             <div className="pt-2">
-                              <ZoruButton
+                              <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => openEdit(w)}
                               >
                                 <Plus className="h-3.5 w-3.5" />
                                 Edit
-                              </ZoruButton>
+                              </Button>
                             </div>
                           </div>
                         </RowDrawer>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant="default">{w.type}</ZoruBadge>
+                        <Badge variant="default">{w.type}</Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                         {w.width}
@@ -619,17 +619,17 @@ export default function DashboardWidgetsPage() {
                         {w.position ?? 0}
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge
+                        <Badge
                           variant={
                             w.is_visible === false ? 'ghost' : 'success'
                           }
                         >
                           {w.is_visible === false ? 'Hidden' : 'Visible'}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="sm"
                             disabled={idx === 0 || isPending}
@@ -637,8 +637,8 @@ export default function DashboardWidgetsPage() {
                             aria-label="Move up"
                           >
                             <ArrowUp className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             disabled={
@@ -648,8 +648,8 @@ export default function DashboardWidgetsPage() {
                             aria-label="Move down"
                           >
                             <ArrowDown className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleToggle(w._id)}
@@ -660,22 +660,22 @@ export default function DashboardWidgetsPage() {
                             ) : (
                               <EyeOff className="h-3.5 w-3.5" />
                             )}
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setDeletingId(w._id)}
                             aria-label="Delete"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
           <PaginationBar
             page={page}
@@ -689,10 +689,10 @@ export default function DashboardWidgetsPage() {
               },
             }}
           />
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruDialog
+      <Dialog
         open={dialogOpen}
         onOpenChange={(o) => {
           setDialogOpen(o);
@@ -712,8 +712,8 @@ export default function DashboardWidgetsPage() {
           </ZoruDialogHeader>
           <div className="grid gap-3 py-2">
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="widget-name">Widget name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="widget-name">Widget name</Label>
+              <Input
                 id="widget-name"
                 value={form.widget_name}
                 onChange={(e) =>
@@ -724,7 +724,7 @@ export default function DashboardWidgetsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
-                <ZoruLabel>Type</ZoruLabel>
+                <Label>Type</Label>
                 <EnumFormField
                   name="__widgetType"
                   enumName="dashboardWidgetType"
@@ -738,8 +738,8 @@ export default function DashboardWidgetsPage() {
                 />
               </div>
               <div className="grid gap-1.5">
-                <ZoruLabel htmlFor="widget-width">Width (1–12)</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="widget-width">Width (1–12)</Label>
+                <Input
                   id="widget-width"
                   type="number"
                   min={1}
@@ -758,10 +758,10 @@ export default function DashboardWidgetsPage() {
               </div>
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="widget-config">
+              <Label htmlFor="widget-config">
                 Config (JSON, optional)
-              </ZoruLabel>
-              <ZoruTextarea
+              </Label>
+              <Textarea
                 id="widget-config"
                 rows={4}
                 placeholder='{"data_source":"deals.recent"}'
@@ -773,15 +773,15 @@ export default function DashboardWidgetsPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton disabled={saving} onClick={handleSave}>
+            </Button>
+            <Button disabled={saving} onClick={handleSave}>
               {saving ? 'Saving…' : editing ? 'Save' : 'Add Widget'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <ZoruAlertDialog
         open={deletingId !== null}

@@ -106,7 +106,7 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
             <div className="flex flex-wrap items-center gap-2">
                 <div className="w-36">
                     {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                    <ZoruSelect
+                    <Select
                         value={props.statusFilter}
                         onValueChange={(v) => props.onStatusChange(v as ReceiptKpiFilter)}
                     >
@@ -120,7 +120,7 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="w-56">
                     <EntityFormField
@@ -133,7 +133,7 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
                 </div>
                 <div className="w-36">
                     {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                    <ZoruSelect
+                    <Select
                         value={props.modeFilter || ''}
                         onValueChange={(v) => props.onModeChange(v === 'all' ? '' : v)}
                     >
@@ -148,7 +148,7 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </ZoruSelect>
+                    </Select>
                 </div>
                 <div className="w-56">
                     <EntityFormField
@@ -166,12 +166,12 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
                     />
                 </div>
                 {props.hasActiveFilters ? (
-                    <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
+                    <Button variant="ghost" size="sm" onClick={props.onClear}>
                         <X className="h-3.5 w-3.5" /> Clear
-                    </ZoruButton>
+                    </Button>
                 ) : null}
                 {props.hasActiveFilters ? (
-                    <ZoruBadge variant="secondary">Filters active</ZoruBadge>
+                    <Badge variant="secondary">Filters active</Badge>
                 ) : null}
             </div>
         </div>

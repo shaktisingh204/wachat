@@ -78,7 +78,7 @@ export function EditScheduleSheet({
   };
 
   return (
-    <ZoruSheet open={isOpen} onOpenChange={onOpenChange}>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <ZoruSheetContent
         side="right"
         className="flex w-full flex-col gap-0 sm:max-w-md"
@@ -113,8 +113,8 @@ export function EditScheduleSheet({
             </div>
 
             <div className="flex flex-col gap-2">
-              <ZoruLabel htmlFor="schedule-message">Message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="schedule-message">Message</Label>
+              <Textarea
                 id="schedule-message"
                 name="message"
                 rows={8}
@@ -129,21 +129,21 @@ export function EditScheduleSheet({
           </div>
 
           <ZoruSheetFooter className="border-t border-zoru-line p-4">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isPending}>
+            </Button>
+            <Button type="submit" disabled={isPending}>
               {isPending ? <Loader2 className="animate-spin" /> : <Save />}
               Save changes
-            </ZoruButton>
+            </Button>
           </ZoruSheetFooter>
         </form>
       </ZoruSheetContent>
-    </ZoruSheet>
+    </Sheet>
   );
 }

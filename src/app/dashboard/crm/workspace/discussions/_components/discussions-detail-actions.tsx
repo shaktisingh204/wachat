@@ -46,40 +46,40 @@ export function DiscussionsDetailActions({
 
     return (
         <>
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/workspace/discussions/${discussionId}/edit`}>
                     <Pencil className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
+            </Button>
             {/* TODO 1D.2: lock/pin/archive server actions */}
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/workspace/discussions/${discussionId}/edit`}>
                     <Lock className="h-3.5 w-3.5" /> Lock
                 </Link>
-            </ZoruButton>
-            <ZoruButton asChild variant="outline" size="sm">
+            </Button>
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/workspace/discussions/${discussionId}/edit`}>
                     <Pin className="h-3.5 w-3.5" /> Pin
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" asChild>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
                 <a href="#replies">
                     <Reply className="h-3.5 w-3.5" /> Reply
                 </a>
-            </ZoruButton>
-            <ZoruButton asChild variant="ghost" size="sm">
+            </Button>
+            <Button asChild variant="ghost" size="sm">
                 <Link href={`/dashboard/crm/workspace/discussions/${discussionId}/edit`}>
                     <Archive className="h-3.5 w-3.5" /> Archive
                 </Link>
-            </ZoruButton>
-            <ZoruButton asChild variant="ghost" size="sm">
+            </Button>
+            <Button asChild variant="ghost" size="sm">
                 <Link href={`/dashboard/crm/workspace/discussions/${discussionId}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={confirmDelete}

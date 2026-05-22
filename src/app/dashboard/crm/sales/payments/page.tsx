@@ -77,12 +77,12 @@ export default async function PaymentReceiptsPage({
       title="Payment Receipts"
       subtitle="Record incoming customer payments and reconcile them against invoices."
       primaryAction={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href="/dashboard/crm/sales/payments/new">
             <Plus className="h-4 w-4" />
             New receipt
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
       <PaymentReceiptListClient

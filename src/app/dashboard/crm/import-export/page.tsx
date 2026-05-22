@@ -184,7 +184,7 @@ export default async function ImportExportLandingPage(): Promise<React.ReactElem
                                 href={`/dashboard/crm/import-export/${t.entityKind}`}
                                 className="block"
                             >
-                                <ZoruCard className="flex flex-col gap-2 p-4 transition-colors hover:border-zoru-accent">
+                                <Card className="flex flex-col gap-2 p-4 transition-colors hover:border-zoru-accent">
                                     <div className="flex items-center gap-2">
                                         <Icon className="h-5 w-5 text-zoru-accent" />
                                         <h2 className="text-sm font-medium text-zoru-ink">
@@ -195,7 +195,7 @@ export default async function ImportExportLandingPage(): Promise<React.ReactElem
                                     <p className="text-[12.5px] text-zoru-ink-muted">
                                         {t.description}
                                     </p>
-                                </ZoruCard>
+                                </Card>
                             </Link>
                         </li>
                     );

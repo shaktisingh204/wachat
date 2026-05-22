@@ -67,12 +67,12 @@ export function SabsmsExportMenu({
   if (!toCsv && !toJson && !toXlsx) return null;
 
   return (
-    <ZoruDropdownMenu>
+    <DropdownMenu>
       <ZoruDropdownMenuTrigger asChild>
-        <ZoruButton variant="outline" size="sm" disabled={!!busy}>
+        <Button variant="outline" size="sm" disabled={!!busy}>
           <Download className="mr-1.5 h-3.5 w-3.5" />
           {busy ? `Exporting ${busy}…` : "Export"}
-        </ZoruButton>
+        </Button>
       </ZoruDropdownMenuTrigger>
       <ZoruDropdownMenuContent align="end">
         <ZoruDropdownMenuLabel>Download as</ZoruDropdownMenuLabel>
@@ -93,7 +93,7 @@ export function SabsmsExportMenu({
           </ZoruDropdownMenuItem>
         )}
       </ZoruDropdownMenuContent>
-    </ZoruDropdownMenu>
+    </DropdownMenu>
   );
 }
 

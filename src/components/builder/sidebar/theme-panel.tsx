@@ -57,47 +57,47 @@ export const ThemePanel = () => {
                 <h4 className="text-sm font-medium text-gray-500">Colors</h4>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <ZoruLabel className="text-xs">Primary</ZoruLabel>
+                        <Label className="text-xs">Primary</Label>
                         <div className="flex gap-2">
-                            <ZoruInput
+                            <Input
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.primary}
                                 onChange={(e) => updateTheme('colors.primary', e.target.value)}
                             />
-                            <ZoruInput className="h-8 text-xs" value={theme.colors.primary} onChange={(e) => updateTheme('colors.primary', e.target.value)} />
+                            <Input className="h-8 text-xs" value={theme.colors.primary} onChange={(e) => updateTheme('colors.primary', e.target.value)} />
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel className="text-xs">Secondary</ZoruLabel>
+                        <Label className="text-xs">Secondary</Label>
                         <div className="flex gap-2">
-                            <ZoruInput
+                            <Input
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.secondary}
                                 onChange={(e) => updateTheme('colors.secondary', e.target.value)}
                             />
-                            <ZoruInput className="h-8 text-xs" value={theme.colors.secondary} onChange={(e) => updateTheme('colors.secondary', e.target.value)} />
+                            <Input className="h-8 text-xs" value={theme.colors.secondary} onChange={(e) => updateTheme('colors.secondary', e.target.value)} />
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel className="text-xs">Body Text</ZoruLabel>
+                        <Label className="text-xs">Body Text</Label>
                         <div className="flex gap-2">
-                            <ZoruInput
+                            <Input
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.text}
                                 onChange={(e) => updateTheme('colors.text', e.target.value)}
                             />
-                            <ZoruInput className="h-8 text-xs" value={theme.colors.text} onChange={(e) => updateTheme('colors.text', e.target.value)} />
+                            <Input className="h-8 text-xs" value={theme.colors.text} onChange={(e) => updateTheme('colors.text', e.target.value)} />
                         </div>
                     </div>
                     <div>
-                        <ZoruLabel className="text-xs">Background</ZoruLabel>
+                        <Label className="text-xs">Background</Label>
                         <div className="flex gap-2">
-                            <ZoruInput
+                            <Input
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.background}
                                 onChange={(e) => updateTheme('colors.background', e.target.value)}
                             />
-                            <ZoruInput className="h-8 text-xs" value={theme.colors.background} onChange={(e) => updateTheme('colors.background', e.target.value)} />
+                            <Input className="h-8 text-xs" value={theme.colors.background} onChange={(e) => updateTheme('colors.background', e.target.value)} />
                         </div>
                     </div>
                 </div>
@@ -106,8 +106,8 @@ export const ThemePanel = () => {
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-gray-500">Typography</h4>
                 <div>
-                    <ZoruLabel className="text-xs">Heading Font</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-xs">Heading Font</Label>
+                    <Input
                         className="h-8 text-xs"
                         value={theme.fonts.heading}
                         onChange={(e) => updateTheme('fonts.heading', e.target.value)}
@@ -115,8 +115,8 @@ export const ThemePanel = () => {
                     />
                 </div>
                 <div>
-                    <ZoruLabel className="text-xs">Body Font</ZoruLabel>
-                    <ZoruInput
+                    <Label className="text-xs">Body Font</Label>
+                    <Input
                         className="h-8 text-xs"
                         value={theme.fonts.body}
                         onChange={(e) => updateTheme('fonts.body', e.target.value)}

@@ -120,15 +120,15 @@ export default function GridTrackingPage({ params }: { params: Promise<{ project
             </div>
 
             <div className="grid gap-6 md:grid-cols-[300px_1fr]">
-                <ZoruCard className="h-fit">
+                <Card className="h-fit">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Scan Configuration</ZoruCardTitle>
                         <ZoruCardDescription>Setup your grid parameters.</ZoruCardDescription>
                     </ZoruCardHeader>
                     <ZoruCardContent className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Target Keyword</ZoruLabel>
-                            <ZoruInput
+                            <Label>Target Keyword</Label>
+                            <Input
                                 placeholder="e.g. coffee shop near me"
                                 value={keyword}
                                 onChange={(e) => setKeyword(e.target.value)}
@@ -136,16 +136,16 @@ export default function GridTrackingPage({ params }: { params: Promise<{ project
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel>Grid Size</ZoruLabel>
-                            <ZoruInput disabled value="3x3 (10km radius)" />
+                            <Label>Grid Size</Label>
+                            <Input disabled value="3x3 (10km radius)" />
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel>Center Location</ZoruLabel>
-                            <ZoruInput disabled value="New York, NY (Demo)" />
+                            <Label>Center Location</Label>
+                            <Input disabled value="New York, NY (Demo)" />
                         </div>
 
-                        <ZoruButton className="w-full" onClick={handleScan} disabled={loading || !keyword}>
+                        <Button className="w-full" onClick={handleScan} disabled={loading || !keyword}>
                             {loading ? (
                                 'Scanning...'
                             ) : (
@@ -154,18 +154,18 @@ export default function GridTrackingPage({ params }: { params: Promise<{ project
                                     Start Scan
                                 </>
                             )}
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Ranking Map</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <GridMap points={points} />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

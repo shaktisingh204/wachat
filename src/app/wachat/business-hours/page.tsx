@@ -202,7 +202,7 @@ export default function BusinessHoursPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -216,7 +216,7 @@ export default function BusinessHoursPage() {
             <ZoruBreadcrumbPage>Business hours</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5">
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -229,9 +229,9 @@ export default function BusinessHoursPage() {
 
       <form onSubmit={handleSave} className="mt-6 flex flex-col gap-6">
         {/* Timezone */}
-        <ZoruCard className="p-5">
-          <ZoruLabel>Timezone</ZoruLabel>
-          <ZoruSelect value={timezone} onValueChange={setTimezone}>
+        <Card className="p-5">
+          <Label>Timezone</Label>
+          <Select value={timezone} onValueChange={setTimezone}>
             <ZoruSelectTrigger className="mt-2 w-72">
               <ZoruSelectValue placeholder="Select timezone" />
             </ZoruSelectTrigger>
@@ -242,11 +242,11 @@ export default function BusinessHoursPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
-        </ZoruCard>
+          </Select>
+        </Card>
 
         {/* Weekly schedule */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <h2 className="mb-4 text-[15px] text-zoru-ink">Weekly schedule</h2>
           <div className="space-y-3">
             {DAYS.map((day) => {
@@ -257,7 +257,7 @@ export default function BusinessHoursPage() {
                   className="flex flex-wrap items-center gap-4 rounded-[var(--zoru-radius)] border border-zoru-line p-3"
                 >
                   <span className="w-24 text-[13px] text-zoru-ink">{day}</span>
-                  <ZoruSwitch
+                  <Switch
                     checked={d.open}
                     onCheckedChange={(v) => updateDay(day, { open: v })}
                     aria-label={`${day} open`}
@@ -267,7 +267,7 @@ export default function BusinessHoursPage() {
                   </span>
                   {d.open && (
                     <>
-                      <ZoruSelect
+                      <Select
                         value={d.start}
                         onValueChange={(v) => updateDay(day, { start: v })}
                       >
@@ -281,9 +281,9 @@ export default function BusinessHoursPage() {
                             </ZoruSelectItem>
                           ))}
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                       <span className="text-[12px] text-zoru-ink-muted">to</span>
-                      <ZoruSelect
+                      <Select
                         value={d.end}
                         onValueChange={(v) => updateDay(day, { end: v })}
                       >
@@ -297,30 +297,30 @@ export default function BusinessHoursPage() {
                             </ZoruSelectItem>
                           ))}
                         </ZoruSelectContent>
-                      </ZoruSelect>
+                      </Select>
                     </>
                   )}
                 </div>
               );
             })}
           </div>
-        </ZoruCard>
+        </Card>
 
         {/* Holidays */}
-        <ZoruCard className="p-5">
+        <Card className="p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-[15px] text-zoru-ink">Holidays</h2>
-            <ZoruButton
+            <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => openHolidayDialog(null)}
             >
               <Plus /> Add holiday
-            </ZoruButton>
+            </Button>
           </div>
           {holidays.length === 0 ? (
-            <ZoruEmptyState
+            <EmptyState
               compact
               icon={<CalendarOff />}
               title="No holidays added"
@@ -340,15 +340,15 @@ export default function BusinessHoursPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <ZoruButton
+                    <Button
                       type="button"
                       size="sm"
                       variant="ghost"
                       onClick={() => openHolidayDialog(h)}
                     >
                       Edit
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon-sm"
@@ -356,18 +356,18 @@ export default function BusinessHoursPage() {
                       onClick={() => removeHoliday(h.id)}
                     >
                       <Trash2 />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 </li>
               ))}
             </ul>
           )}
-        </ZoruCard>
+        </Card>
 
         {/* Offline message */}
-        <ZoruCard className="p-5">
-          <ZoruLabel htmlFor="offline-msg">Offline message</ZoruLabel>
-          <ZoruTextarea
+        <Card className="p-5">
+          <Label htmlFor="offline-msg">Offline message</Label>
+          <Textarea
             id="offline-msg"
             value={offlineMsg}
             onChange={(e) => setOfflineMsg(e.target.value)}
@@ -375,18 +375,18 @@ export default function BusinessHoursPage() {
             placeholder="e.g. Thanks for reaching out! We are currently offline and will get back to you during business hours."
             className="mt-2"
           />
-        </ZoruCard>
+        </Card>
 
         <div className="flex items-center gap-3">
-          <ZoruButton type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="animate-spin" /> : <Save />}
             {isPending ? 'Saving…' : 'Save business hours'}
-          </ZoruButton>
+          </Button>
         </div>
       </form>
 
       {/* ── Edit holiday dialog ── */}
-      <ZoruDialog
+      <Dialog
         open={!!editingHoliday}
         onOpenChange={(o) => !o && setEditingHoliday(null)}
       >
@@ -401,8 +401,8 @@ export default function BusinessHoursPage() {
           </ZoruDialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="holiday-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="holiday-name">Name</Label>
+              <Input
                 id="holiday-name"
                 value={holidayDraft.name}
                 onChange={(e) =>
@@ -415,8 +415,8 @@ export default function BusinessHoursPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="holiday-date">Date</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="holiday-date">Date</Label>
+              <Input
                 id="holiday-date"
                 type="date"
                 value={holidayDraft.date}
@@ -430,18 +430,18 @@ export default function BusinessHoursPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setEditingHoliday(null)}>
+            <Button variant="ghost" onClick={() => setEditingHoliday(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={saveHoliday}
               disabled={!holidayDraft.name.trim() || !holidayDraft.date}
             >
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       <div className="h-6" />
     </div>

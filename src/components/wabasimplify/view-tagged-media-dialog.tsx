@@ -47,7 +47,7 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
   }, [isOpen, product.id, projectId]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-3xl">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Media Tagged with "{product.name}"</ZoruDialogTitle>
@@ -58,14 +58,14 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
         <div className="max-h-[60vh] overflow-y-auto p-1 -mx-2">
             {isLoading ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-                    {[...Array(4)].map((_, i) => <ZoruSkeleton key={i} className="aspect-square w-full" />)}
+                    {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
                 </div>
             ) : error ? (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Error</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             ) : media.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
                     {media.map(item => (
@@ -86,6 +86,6 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
             )}
         </div>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

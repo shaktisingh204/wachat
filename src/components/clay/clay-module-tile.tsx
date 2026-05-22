@@ -74,7 +74,7 @@ export function ClayModuleTile({
 }: ClayModuleTileProps) {
   return (
     <Link href={href} className={cn('group block', className)}>
-      <ZoruCard
+      <Card
         variant="default"
         className={cn(
           'flex flex-col p-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md',
@@ -120,7 +120,7 @@ export function ClayModuleTile({
             {secondary}
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
     </Link>
   );
 }

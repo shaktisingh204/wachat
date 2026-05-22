@@ -43,9 +43,9 @@ export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurch
 
     if (currentPlanId === plan._id.toString()) {
         return (
-            <ZoruButton className="w-full" disabled>
+            <Button className="w-full" disabled>
                 <CheckCircle className="mr-2 h-4 w-4" /> Current Plan
-            </ZoruButton>
+            </Button>
         );
     }
 
@@ -94,13 +94,13 @@ export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurch
     };
 
     return (
-        <ZoruButton onClick={handleClick} className="w-full" disabled={isPending}>
+        <Button onClick={handleClick} className="w-full" disabled={isPending}>
             {isPending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <ArrowUpRight className="mr-2 h-4 w-4" />
             )}
             {isFree ? `Switch to ${plan.name}` : `Upgrade to ${plan.name}`}
-        </ZoruButton>
+        </Button>
     );
 }

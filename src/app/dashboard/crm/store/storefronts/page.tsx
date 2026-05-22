@@ -194,20 +194,20 @@ export default function StorefrontListPage(): React.JSX.Element {
                 title="Storefronts"
                 subtitle="Manage online stores, custom domains and homepage layout."
                 primaryAction={
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href="/dashboard/crm/store/storefronts/new">
                             <Plus className="h-4 w-4" /> New storefront
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 filters={
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[160px] space-y-1">
-                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                                     Status
-                                </ZoruLabel>
-                                <ZoruSelect
+                                </Label>
+                                <Select
                                     value={statusFilter}
                                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                                 >
@@ -220,10 +220,10 @@ export default function StorefrontListPage(): React.JSX.Element {
                                         <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                                         <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 }
                 bulkBar={
                     selected.size > 0 ? (
@@ -232,30 +232,30 @@ export default function StorefrontListPage(): React.JSX.Element {
                                 {selected.size} selected
                             </span>
                             <span className="flex-1" />
-                            <ZoruButton size="sm" variant="outline" onClick={handleBulkPublish}>
+                            <Button size="sm" variant="outline" onClick={handleBulkPublish}>
                                 Publish
-                            </ZoruButton>
-                            <ZoruButton size="sm" variant="outline" onClick={handleBulkArchive}>
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={handleBulkArchive}>
                                 Archive
-                            </ZoruButton>
-                            <ZoruDropdownMenu>
+                            </Button>
+                            <DropdownMenu>
                                 <ZoruDropdownMenuTrigger asChild>
-                                    <ZoruButton size="sm" variant="outline">
+                                    <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
-                                    </ZoruButton>
+                                    </Button>
                                 </ZoruDropdownMenuTrigger>
                                 <ZoruDropdownMenuContent align="end">
                                     <ZoruDropdownMenuItem onClick={exportCsv}>
                                         Export as CSV
                                     </ZoruDropdownMenuItem>
                                 </ZoruDropdownMenuContent>
-                            </ZoruDropdownMenu>
-                            <ZoruButton size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                            </DropdownMenu>
+                            <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
-                            </ZoruButton>
-                            <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -267,11 +267,11 @@ export default function StorefrontListPage(): React.JSX.Element {
                             <h3 className="text-base font-medium text-zoru-ink">
                                 {statusFilter !== 'all' ? 'No storefronts match this filter' : 'No storefronts yet'}
                             </h3>
-                            <ZoruButton variant="outline" asChild>
+                            <Button variant="outline" asChild>
                                 <Link href="/dashboard/crm/store/storefronts/new">
                                     <Plus className="h-4 w-4" /> New storefront
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -279,20 +279,20 @@ export default function StorefrontListPage(): React.JSX.Element {
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard label="Total storefronts" value={kpis.total.toLocaleString()} icon={<Store />} />
-                        <ZoruStatCard label="Published" value={kpis.published.toLocaleString()} icon={<Globe />} period="live stores" />
-                        <ZoruStatCard label="Draft" value={kpis.draft.toLocaleString()} icon={<Store />} period="not published" />
-                        <ZoruStatCard label="Total products" value={kpis.products.toLocaleString()} icon={<Package />} period="across all stores" />
+                        <StatCard label="Total storefronts" value={kpis.total.toLocaleString()} icon={<Store />} />
+                        <StatCard label="Published" value={kpis.published.toLocaleString()} icon={<Globe />} period="live stores" />
+                        <StatCard label="Draft" value={kpis.draft.toLocaleString()} icon={<Store />} period="not published" />
+                        <StatCard label="Total products" value={kpis.products.toLocaleString()} icon={<Package />} period="across all stores" />
                     </div>
 
                     {/* Table */}
                     {filtered.length > 0 ? (
-                        <ZoruCard className="overflow-hidden p-0">
-                            <ZoruTable>
+                        <Card className="overflow-hidden p-0">
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
@@ -315,7 +315,7 @@ export default function StorefrontListPage(): React.JSX.Element {
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         aria-label={`Select ${String(sf.name ?? '')}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
@@ -338,16 +338,16 @@ export default function StorefrontListPage(): React.JSX.Element {
                                                     {String(sf.currency ?? 'INR')}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruBadge variant={statusVariant(status)}>
+                                                    <Badge variant={statusVariant(status)}>
                                                         {status}
-                                                    </ZoruBadge>
+                                                    </Badge>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })}
                                 </ZoruTableBody>
-                            </ZoruTable>
-                        </ZoruCard>
+                            </Table>
+                        </Card>
                     ) : null}
                 </div>
             </EntityListShell>

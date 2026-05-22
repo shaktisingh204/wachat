@@ -105,7 +105,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
   return (
     <div className="space-y-6">
       {secret ? (
-        <ZoruAlert variant="warning">
+        <Alert variant="warning">
           <TriangleAlert className="h-4 w-4" />
           <div className="space-y-2">
             <p className="font-semibold text-sm">Save this signing secret — shown once.</p>
@@ -114,33 +114,33 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
               <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
                 {secret}
               </code>
-              <ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
+              <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
                 <Copy className="h-3 w-3 mr-1" /> Copy
-              </ZoruButton>
-              <ZoruButton size="sm" variant="ghost" onClick={() => setSecret(null)}>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSecret(null)}>
                 Dismiss
-              </ZoruButton>
+              </Button>
             </div>
           </div>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       <section className="space-y-4">
         <h2 className="text-base font-semibold text-zoru-ink">Subscriptions</h2>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Create subscription</ZoruCardTitle>
             <ZoruCardDescription>Enter your endpoint URL and the events you want to receive.</ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-3">
-            <ZoruInput
+            <Input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://yourapp.com/webhooks/sabnode"
               disabled={busy}
             />
-            <ZoruTextarea
+            <Textarea
               value={events}
               onChange={(e) => setEvents(e.target.value)}
               rows={3}
@@ -149,22 +149,22 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
               disabled={busy}
             />
             <div className="flex justify-end">
-              <ZoruButton onClick={handleCreate} disabled={busy || !url.trim()}>
+              <Button onClick={handleCreate} disabled={busy || !url.trim()}>
                 {busy ? 'Working…' : 'Create'}
-              </ZoruButton>
+              </Button>
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
         {error ? (
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <ZoruAlertDescription>{error}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         ) : null}
 
         {subs.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Webhook className="h-8 w-8" />}
             title="No subscriptions yet"
             description="Create a subscription above to start receiving events."
@@ -172,7 +172,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
         ) : (
           <div className="space-y-2">
             {subs.map((s) => (
-              <ZoruCard
+              <Card
                 key={s._id}
                 className={selectedSubId === s._id ? 'border-zoru-line-strong ring-1 ring-zoru-line-strong' : ''}
               >
@@ -185,7 +185,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                       </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <ZoruBadge
+                      <Badge
                         className={
                           s.status === 'active'
                             ? 'bg-green-600 text-white'
@@ -195,23 +195,23 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                         }
                       >
                         {s.status}
-                      </ZoruBadge>
-                      <ZoruButton
+                      </Badge>
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setSelectedSubId((prev) => (prev === s._id ? null : s._id))}
                       >
                         {selectedSubId === s._id ? 'Hide' : 'Filter'}
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleTest(s._id)}
                         disabled={busy}
                       >
                         Test
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(s._id)}
@@ -219,11 +219,11 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                         className="text-zoru-danger hover:text-zoru-danger"
                       >
                         Delete
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </div>
                 </ZoruCardContent>
-              </ZoruCard>
+              </Card>
             ))}
           </div>
         )}
@@ -232,13 +232,13 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-zoru-ink">Recent deliveries</h2>
-          <ZoruButton variant="ghost" size="sm" onClick={reloadDeliveries} disabled={busy}>
+          <Button variant="ghost" size="sm" onClick={reloadDeliveries} disabled={busy}>
             <RefreshCw className="h-4 w-4 mr-1" /> Refresh
-          </ZoruButton>
+          </Button>
         </div>
 
-        <ZoruCard>
-          <ZoruTable>
+        <Card>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Event</ZoruTableHead>
@@ -278,21 +278,21 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                   <ZoruTableCell className="text-xs text-zoru-ink-muted">{new Date(d.createdAt).toLocaleString()}</ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     {d.status === 'failed' ? (
-                      <ZoruButton
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRetry(d._id)}
                         disabled={busy}
                       >
                         Retry
-                      </ZoruButton>
+                      </Button>
                     ) : null}
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       </section>
     </div>
   );

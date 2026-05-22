@@ -63,9 +63,9 @@ function RemoveAgentForm({ agent, project }: { agent: any, project: any }) {
          <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="agentUserId" value={agent.userId.toString()} />
-            <ZoruButton type="submit" variant="destructive" size="icon" disabled={pending}>
+            <Button type="submit" variant="destructive" size="icon" disabled={pending}>
                {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            </ZoruButton>
+            </Button>
         </form>
     );
 }
@@ -87,7 +87,7 @@ function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: bo
     }, [state, toast]);
     
     return (
-       <ZoruCard className="p-4 border-dashed">
+       <Card className="p-4 border-dashed">
             <ZoruCardHeader>
                 <ZoruCardTitle>Invite a New Team Member</ZoruCardTitle>
                 <ZoruCardDescription>Assign a role to the new user.</ZoruCardDescription>
@@ -97,27 +97,27 @@ function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: bo
                 <input type="hidden" name="projectId" value={project._id} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <div className="space-y-2">
-                        <ZoruLabel htmlFor="email">Email</ZoruLabel>
-                        <ZoruInput id="email" name="email" type="email" placeholder="Enter agent's email" required />
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
                     </div>
                      <div className="space-y-2">
-                        <ZoruLabel htmlFor="role">Role</ZoruLabel>
-                        <ZoruSelect name="role" defaultValue="agent">
+                        <Label htmlFor="role">Role</Label>
+                        <Select name="role" defaultValue="agent">
                             <ZoruSelectTrigger id="role"><ZoruSelectValue placeholder="Select role" /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
                                 <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
-                <ZoruButton type="submit" disabled={pending || isDisabled} className="mt-4">
+                <Button type="submit" disabled={pending || isDisabled} className="mt-4">
                   {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
                   Invite Agent
-                </ZoruButton>
+                </Button>
             </form>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -137,10 +137,10 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
         return (
             <div className="flex items-center justify-between gap-4 border rounded-md p-4">
                 <div className="flex items-center gap-4">
-                    <ZoruAvatar>
+                    <Avatar>
                         <ZoruAvatarImage src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${agent.email}`} alt={agent.name} />
                         <ZoruAvatarFallback>{agent.name.substring(0, 2).toUpperCase()} </ZoruAvatarFallback>
-                    </ZoruAvatar>
+                    </Avatar>
                     <div className="space-y-0.5">
                         <p className="text-sm font-medium leading-none">{agent.name}</p>
                         <p className="text-sm text-muted-foreground">{agent.email}</p>
@@ -154,7 +154,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     };
     
     return (
-        <ZoruCard className="card-gradient card-gradient-green">
+        <Card className="card-gradient card-gradient-green">
             <ZoruCardHeader>
                 <ZoruCardTitle>Agents &amp; Roles</ZoruCardTitle>
                 <ZoruCardDescription>Manage agents and their roles for this project.</ZoruCardDescription>
@@ -172,7 +172,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                 </div>
                 
                 <InviteAgentForm project={project} isDisabled={isAtLimit} />
-                <ZoruSeparator/>
+                <Separator/>
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Team Members</h3>
                     {project.agents && project.agents.length > 0 ? (
@@ -184,7 +184,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                     )}
                 </div>
              </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 

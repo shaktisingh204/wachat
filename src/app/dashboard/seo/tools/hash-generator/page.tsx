@@ -22,17 +22,17 @@ export default function HashGeneratorPage() {
 
   return (
     <ToolShell title="Hash Generator" description="Generate SHA-1/256/384/512 hashes via Web Crypto (MD5 not supported).">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Text to hash…" className="min-h-[140px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Text to hash…" className="min-h-[140px]" />
       <div className="flex items-end gap-3">
-        <div className="space-y-1"><ZoruLabel>Algorithm</ZoruLabel>
+        <div className="space-y-1"><Label>Algorithm</Label>
           <select className="border rounded h-9 px-2 bg-background" value={algo} onChange={(e) => setAlgo(e.target.value as any)}>
             {ALGOS.map((a) => <option key={a}>{a}</option>)}
           </select>
         </div>
-        <ZoruButton onClick={run}>Generate</ZoruButton>
-        {hash && <ZoruButton variant="outline" onClick={() => navigator.clipboard.writeText(hash)}>Copy</ZoruButton>}
+        <Button onClick={run}>Generate</Button>
+        {hash && <Button variant="outline" onClick={() => navigator.clipboard.writeText(hash)}>Copy</Button>}
       </div>
-      {hash && <ZoruCard><ZoruCardContent className="p-4"><div className="font-mono text-xs break-all">{hash}</div></ZoruCardContent></ZoruCard>}
+      {hash && <Card><ZoruCardContent className="p-4"><div className="font-mono text-xs break-all">{hash}</div></ZoruCardContent></Card>}
     </ToolShell>
   );
 }

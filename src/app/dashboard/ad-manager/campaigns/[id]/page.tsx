@@ -36,11 +36,11 @@ import { AmBreadcrumb, AmHeader } from '../../_components/am-page-shell';
 function PageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <ZoruSkeleton className="h-8 w-64" />
-            <ZoruCard>
-                <ZoruCardHeader><ZoruSkeleton className="h-6 w-1/3" /></ZoruCardHeader>
-                <ZoruCardContent><ZoruSkeleton className="h-48 w-full" /></ZoruCardContent>
-            </ZoruCard>
+            <Skeleton className="h-8 w-64" />
+            <Card>
+                <ZoruCardHeader><Skeleton className="h-6 w-1/3" /></ZoruCardHeader>
+                <ZoruCardContent><Skeleton className="h-48 w-full" /></ZoruCardContent>
+            </Card>
         </div>
     );
 }
@@ -93,27 +93,27 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                 description={`Campaign ID: ${campaignId}`}
                 actions={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="ghost" size="icon" asChild>
+                        <Button variant="ghost" size="icon" asChild>
                             <Link href="/dashboard/ad-manager/campaigns">
                                 <ArrowLeft className="h-4 w-4" />
                             </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" size="icon" onClick={() => setRefreshKey((k) => k + 1)}>
+                        </Button>
+                        <Button variant="outline" size="icon" onClick={() => setRefreshKey((k) => k + 1)}>
                             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
             />
 
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>Error fetching Ad Sets</ZoruAlertTitle>
                     <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             )}
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
                         <Layers className="h-5 w-5" /> Ad Sets
@@ -122,7 +122,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="border rounded-md">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Status</ZoruTableHead>
@@ -140,7 +140,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                         <ZoruTableRow key={adSet.id}>
                                             <ZoruTableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <ZoruSwitch
+                                                    <Switch
                                                         checked={adSet.status === 'ACTIVE'}
                                                         onCheckedChange={() => handleStatusToggle(adSet.id, adSet.status)}
                                                     />
@@ -155,7 +155,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                             <ZoruTableCell>
                                                 {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(Number(adSet.daily_budget) / 100)} Daily
                                             </ZoruTableCell>
-                                            <ZoruTableCell><ZoruBadge variant="outline">{adSet.optimization_goal}</ZoruBadge></ZoruTableCell>
+                                            <ZoruTableCell><Badge variant="outline">{adSet.optimization_goal}</Badge></ZoruTableCell>
                                             <ZoruTableCell>{adSet.insights?.clicks || 0} Clicks</ZoruTableCell>
                                             <ZoruTableCell>
                                                 {adSet.insights?.clicks > 0
@@ -163,11 +163,11 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                                     : '-'}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruButton variant="ghost" size="sm" asChild>
+                                                <Button variant="ghost" size="sm" asChild>
                                                     <Link href={`/dashboard/ad-manager/ad-sets/${adSet.id}`}>
                                                         Ads <ChevronRight className="ml-1 h-4 w-4" />
                                                     </Link>
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ))
@@ -177,10 +177,10 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                     </ZoruTableRow>
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

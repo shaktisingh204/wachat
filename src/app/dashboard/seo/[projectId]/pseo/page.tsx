@@ -22,7 +22,7 @@ export default function PseoPage({ params }: { params: Promise<{ projectId: stri
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Upload Keywords</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -33,18 +33,18 @@ export default function PseoPage({ params }: { params: Promise<{ projectId: stri
                             <p className="text-xs text-zoru-ink-muted">Up to 10,000 rows</p>
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
 
-                <ZoruCard className="bg-zoru-surface-2/50">
+                <Card className="bg-zoru-surface-2/50">
                     <ZoruCardHeader>
                         <ZoruCardTitle>Cluster Results</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent className="flex h-[200px] flex-col items-center justify-center text-center">
                         <Lock className="mb-4 h-8 w-8 text-zoru-ink-muted" />
                         <p className="mb-4 text-sm text-zoru-ink-muted">Vector processing required for clustering.</p>
-                        <ZoruButton disabled>Start Clustering Job</ZoruButton>
+                        <Button disabled>Start Clustering Job</Button>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             </div>
         </div>
     );

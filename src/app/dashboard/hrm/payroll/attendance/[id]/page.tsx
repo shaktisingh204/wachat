@@ -145,31 +145,31 @@ export default function AttendanceDetailPage({
             title="Attendance record"
             back={{ href: '/dashboard/hrm/payroll/attendance', label: 'Attendance' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link
                         href={`/dashboard/hrm/payroll/attendance/new?date=${searchDate}`}
                     >
                         <Pencil className="mr-2 h-4 w-4" />
                         Bulk edit for this date
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             {isLoading && !record ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="py-10 text-center text-[13px] text-zoru-ink-muted">
                         Loading…
                     </p>
-                </ZoruCard>
+                </Card>
             ) : !record ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <p className="py-10 text-center text-[13px] text-zoru-ink-muted">
                         Attendance record not found.
                     </p>
-                </ZoruCard>
+                </Card>
             ) : (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
                         <div>
                             <div className="text-[11px] uppercase text-zoru-ink-muted">
@@ -179,9 +179,9 @@ export default function AttendanceDetailPage({
                                 {record.employeeName}
                             </div>
                         </div>
-                        <ZoruBadge variant={statusVariant(record.status)}>
+                        <Badge variant={statusVariant(record.status)}>
                             {record.status}
-                        </ZoruBadge>
+                        </Badge>
                     </div>
                     <dl className="grid gap-4 md:grid-cols-3">
                         <FieldRow label="Date">{fmtDate(record.date)}</FieldRow>
@@ -191,7 +191,7 @@ export default function AttendanceDetailPage({
                             <span className="whitespace-pre-wrap">{record.notes || '—'}</span>
                         </FieldRow>
                     </dl>
-                </ZoruCard>
+                </Card>
             )}
         </EntityDetailShell>
     );

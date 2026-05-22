@@ -16,16 +16,16 @@ export function DropdownEditor({ component, updateField, updateAction }: Dropdow
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="name">Name (unique identifier)</ZoruLabel>
-                <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                <Label htmlFor="name">Name (unique identifier)</Label>
+                <Input id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">Label (shown to user)</ZoruLabel>
-                <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                <Label htmlFor="label">Label (shown to user)</Label>
+                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                <ZoruInput id="description" value={component.description || ''} onChange={(e) => updateField('description', e.target.value)} />
+                <Label htmlFor="description">Description</Label>
+                <Input id="description" value={component.description || ''} onChange={(e) => updateField('description', e.target.value)} />
             </div>
             
             <DataSourceEditor

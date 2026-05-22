@@ -60,7 +60,7 @@ function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellPro
           </span>
           {title}
         </ZoruCardTitle>
-        {hint ? <ZoruBadge variant="ghost">{hint}</ZoruBadge> : null}
+        {hint ? <Badge variant="ghost">{hint}</Badge> : null}
       </div>
     </ZoruCardHeader>
   );
@@ -77,7 +77,7 @@ function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellPro
   );
 
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       {header}
       {body}
       {href ? (
@@ -90,18 +90,18 @@ function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellPro
           </Link>
         </div>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
 function PlaceholderWidget({ label }: { label: string }) {
   return (
-    <ZoruCard className="p-5">
+    <Card className="p-5">
       <p className="text-[12.5px] text-zoru-ink-muted">
         Widget "<span className="text-zoru-ink">{label}</span>" — not yet
         implemented.
       </p>
-    </ZoruCard>
+    </Card>
   );
 }
 

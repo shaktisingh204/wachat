@@ -40,37 +40,37 @@ export function EmployeesBulkBar({
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+        <Button size="sm" variant="outline" onClick={onArchive}>
           <Archive className="h-3.5 w-3.5" /> Archive
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="outline"
           onClick={onChangeDepartment}
         >
           <Building2 className="h-3.5 w-3.5" /> Change department
-        </ZoruButton>
-        <ZoruButton size="sm" variant="outline" onClick={onChangeManager}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={onChangeManager}>
           <UserCog className="h-3.5 w-3.5" /> Change manager
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="outline"
           onClick={onSendOnboardingKit}
         >
           <Mail className="h-3.5 w-3.5" /> Send onboarding kit
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={onClear}
           aria-label="Clear selection"
         >
           <X className="h-3.5 w-3.5" />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

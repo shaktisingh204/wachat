@@ -97,11 +97,11 @@ export default async function EmployeeDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this employee — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/hrm/payroll/employees">
               <ArrowLeft className="h-4 w-4" /> Back to Employees
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -142,7 +142,7 @@ export default async function EmployeeDetailPage({
       audit={<EntityAuditTimeline entityKind="employee" entityId={employeeId} />}
       rightRail={
         <>
-          <ZoruCard className="p-4">
+          <Card className="p-4">
             <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Reporting tree
             </h3>
@@ -179,38 +179,38 @@ export default async function EmployeeDetailPage({
                 </div>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-4">
+          <Card className="p-4">
             <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Quick actions
             </h3>
             <div className="flex flex-col gap-1.5">
-              <ZoruButton variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild>
                 <Link
                   href={`/dashboard/crm/hr-payroll/leave/new?employeeId=${employeeId}`}
                 >
                   <PlaneTakeoff className="h-3.5 w-3.5" /> Add leave
                 </Link>
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" asChild>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
                 <Link
                   href={`/dashboard/hrm/payroll/attendance/new?employeeId=${employeeId}`}
                 >
                   <PenLine className="h-3.5 w-3.5" /> Punch in / out
                 </Link>
-              </ZoruButton>
-              <ZoruButton variant="outline" size="sm" asChild>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
                 <Link
                   href={`/dashboard/hrm/payroll/employees/${employeeId}/edit#notes`}
                 >
                   <StickyNote className="h-3.5 w-3.5" /> Add note
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-4">
+          <Card className="p-4">
             <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Assigned to
             </h3>
@@ -238,7 +238,7 @@ export default async function EmployeeDetailPage({
                 ))
               )}
             </div>
-          </ZoruCard>
+          </Card>
 
           <RelatedRail
             items={[

@@ -44,14 +44,14 @@ export default async function IssueDetailPage({
       back={{ href: '/dashboard/crm/projects/issues', label: 'Issues' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Status
             </p>
             <div className="mt-1">
-              <ZoruBadge variant={statusVariant}>{issue.status}</ZoruBadge>
+              <Badge variant={statusVariant}>{issue.status}</Badge>
             </div>
           </div>
           <div>
@@ -59,7 +59,7 @@ export default async function IssueDetailPage({
               Priority
             </p>
             <div className="mt-1">
-              <ZoruBadge variant="ghost">{issue.priority || 'medium'}</ZoruBadge>
+              <Badge variant="ghost">{issue.priority || 'medium'}</Badge>
             </div>
           </div>
           <div>
@@ -106,15 +106,15 @@ export default async function IssueDetailPage({
             </p>
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="text-[14px] font-semibold text-zoru-ink">Comments</h2>
         <p className="mt-2 text-[12.5px] text-zoru-ink-muted">
           Lightweight comments are not yet wired up — plug in the shared
           comments subsystem when available.
         </p>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

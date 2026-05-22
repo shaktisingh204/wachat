@@ -200,7 +200,7 @@ export function TemplatePreview({
   const spam = useMemo(() => spamScore(interpolated), [interpolated]);
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>Live preview</ZoruCardTitle>
         <ZoruCardDescription>
@@ -218,7 +218,7 @@ export function TemplatePreview({
         <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
           <span>{[...interpolated].length} chars</span>
           <span>·</span>
-          <ZoruBadge variant="secondary">{seg.encoding}</ZoruBadge>
+          <Badge variant="secondary">{seg.encoding}</Badge>
           <span>
             {seg.segments} segment{seg.segments === 1 ? "" : "s"}
           </span>
@@ -232,7 +232,7 @@ export function TemplatePreview({
           </span>
         </div>
 
-        <ZoruSeparator />
+        <Separator />
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
@@ -251,7 +251,7 @@ export function TemplatePreview({
               {spam} / 100
             </span>
           </div>
-          <ZoruProgress
+          <Progress
             value={spam}
             indicatorClassName={
               spam >= 70
@@ -267,6 +267,6 @@ export function TemplatePreview({
           </p>
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

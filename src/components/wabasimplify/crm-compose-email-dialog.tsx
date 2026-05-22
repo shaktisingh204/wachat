@@ -35,10 +35,10 @@ const initialState = { success: false, message: undefined, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
       Send Email
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -85,7 +85,7 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
   };
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
@@ -94,8 +94,8 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="template" className="text-zoru-ink">Use Template (Optional)</ZoruLabel>
-                <ZoruSelect onValueChange={handleTemplateSelect}>
+                <Label htmlFor="template" className="text-zoru-ink">Use Template (Optional)</Label>
+                <Select onValueChange={handleTemplateSelect}>
                   <ZoruSelectTrigger id="template">
                     <ZoruSelectValue placeholder="Select a template..." />
                   </ZoruSelectTrigger>
@@ -106,29 +106,29 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="to" className="text-zoru-ink">To</ZoruLabel>
-                <ZoruInput id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} key={initialTo} required />
+                <Label htmlFor="to" className="text-zoru-ink">To</Label>
+                <Input id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} key={initialTo} required />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="subject" className="text-zoru-ink">Subject</ZoruLabel>
-                <ZoruInput id="subject" name="subject" placeholder="Your subject line" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+                <Label htmlFor="subject" className="text-zoru-ink">Subject</Label>
+                <Input id="subject" name="subject" placeholder="Your subject line" value={subject} onChange={(e) => setSubject(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="body" className="text-zoru-ink">Message</ZoruLabel>
-                <ZoruTextarea id="body" name="body" className="min-h-[250px]" placeholder="Write your email here..." value={body} onChange={(e) => setBody(e.target.value)} />
+                <Label htmlFor="body" className="text-zoru-ink">Message</Label>
+                <Textarea id="body" name="body" className="min-h-[250px]" placeholder="Write your email here..." value={body} onChange={(e) => setBody(e.target.value)} />
                 <p className="text-xs text-zoru-ink-muted">You can use variables like {'{{contact.name}}'} or {'{{account.name}}'}.</p>
               </div>
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">
-            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

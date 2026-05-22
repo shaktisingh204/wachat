@@ -189,7 +189,7 @@ export default function QrCodesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -203,9 +203,9 @@ export default function QrCodesPage() {
             <ZoruBreadcrumbPage>QR Codes</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-2">
+      <PageHeader className="mt-2">
         <ZoruPageHeading>
           <ZoruPageEyebrow>WaChat · Tools</ZoruPageEyebrow>
           <ZoruPageTitle>WhatsApp QR Codes</ZoruPageTitle>
@@ -215,7 +215,7 @@ export default function QrCodesPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={fetchQrCodes}
@@ -223,31 +223,31 @@ export default function QrCodesPage() {
           >
             <RefreshCw className={isPending ? 'animate-spin' : ''} />
             Refresh
-          </ZoruButton>
-          <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+          </Button>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus />
             Create QR Code
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {/* QR Code grid */}
       {isPending && qrCodes.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-44" />
+            <Skeleton key={i} className="h-44" />
           ))}
         </div>
       ) : qrCodes.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {qrCodes.map((qr) => (
-            <ZoruCard key={qr.code} className="flex flex-col gap-3 p-5">
+            <Card key={qr.code} className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
                   <QrCode className="h-6 w-6" />
                 </div>
                 <div className="flex gap-1">
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Edit"
@@ -257,23 +257,23 @@ export default function QrCodesPage() {
                     }}
                   >
                     <Pencil />
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Download"
                     onClick={() => setDownloadTarget(qr)}
                   >
                     <Download />
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Delete"
                     onClick={() => setDeleteTarget(qr)}
                   >
                     <Trash2 />
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
 
@@ -297,25 +297,25 @@ export default function QrCodesPage() {
                   Copy link
                 </button>
               ) : null}
-            </ZoruCard>
+            </Card>
           ))}
         </div>
       ) : (
-        <ZoruEmptyState
+        <EmptyState
           icon={<QrCode />}
           title="No QR codes yet"
           description="Create one to let customers scan and open WhatsApp with a prefilled message."
           action={
-            <ZoruButton onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => setCreateOpen(true)}>
               <Plus />
               Create QR Code
-            </ZoruButton>
+            </Button>
           }
         />
       )}
 
       {/* Create dialog */}
-      <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Generate QR code</ZoruDialogTitle>
@@ -325,8 +325,8 @@ export default function QrCodesPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="qr-message">Prefilled message</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="qr-message">Prefilled message</Label>
+            <Textarea
               id="qr-message"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
@@ -335,7 +335,7 @@ export default function QrCodesPage() {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => {
                 setCreateOpen(false);
@@ -343,19 +343,19 @@ export default function QrCodesPage() {
               }}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={handleCreate}
               disabled={isPending || !newMessage.trim()}
             >
               Generate
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Edit / regenerate dialog */}
-      <ZoruDialog
+      <Dialog
         open={editing !== null}
         onOpenChange={(open) => {
           if (!open) setEditing(null);
@@ -370,32 +370,32 @@ export default function QrCodesPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="qr-edit-message">Prefilled message</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="qr-edit-message">Prefilled message</Label>
+            <Input
               id="qr-edit-message"
               value={editMessage}
               onChange={(e) => setEditMessage(e.target.value)}
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setEditing(null)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={handleUpdate}
               disabled={isPending || !editMessage.trim()}
             >
               Save
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Download dialog */}
-      <ZoruDialog
+      <Dialog
         open={downloadTarget !== null}
         onOpenChange={(open) => {
           if (!open) setDownloadTarget(null);
@@ -425,21 +425,21 @@ export default function QrCodesPage() {
             </p>
           )}
           {downloadTarget?.deep_link_url ? (
-            <ZoruInput
+            <Input
               readOnly
               value={downloadTarget.deep_link_url}
               className="font-mono text-[12px]"
             />
           ) : null}
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setDownloadTarget(null)}
             >
               Close
-            </ZoruButton>
+            </Button>
             {downloadTarget?.qr_image_url ? (
-              <ZoruButton
+              <Button
                 onClick={() => {
                   if (downloadTarget?.qr_image_url) {
                     window.open(downloadTarget.qr_image_url, '_blank');
@@ -448,11 +448,11 @@ export default function QrCodesPage() {
               >
                 <Download />
                 Download PNG
-              </ZoruButton>
+              </Button>
             ) : null}
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Delete (regenerate-qr-confirm) alert */}
       <ZoruAlertDialog

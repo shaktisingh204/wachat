@@ -28,10 +28,10 @@ function SubmitButton() {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <ZoruButton type="submit" disabled={isPending}>
+    <Button type="submit" disabled={isPending}>
       {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Changes
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -68,7 +68,7 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
   }, [state, toast, onOpenChange, onPostUpdated]);
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="sm:max-w-lg">
         <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
@@ -82,8 +82,8 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
 
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="message">Post Message</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="message">Post Message</Label>
+              <Textarea
                 id="message"
                 name="message"
                 className="min-h-40"
@@ -92,14 +92,14 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
-            <ZoruButton type="submit" disabled={isPending}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="submit" disabled={isPending}>
                 {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 Save Changes
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

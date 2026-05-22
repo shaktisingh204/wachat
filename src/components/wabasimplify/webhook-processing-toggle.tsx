@@ -37,20 +37,20 @@ export function WebhookProcessingToggle() {
     };
     
     if(isLoading) {
-        return <ZoruSkeleton className="h-10 w-full" />
+        return <Skeleton className="h-10 w-full" />
     }
 
     return (
         <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
             <div className="space-y-0.5">
-                <ZoruLabel htmlFor="webhook-switch" className="text-base font-semibold">Webhook Processing</ZoruLabel>
+                <Label htmlFor="webhook-switch" className="text-base font-semibold">Webhook Processing</Label>
                 <p className="text-sm text-muted-foreground">
                     Globally enable or disable processing of incoming webhooks from Meta.
                 </p>
             </div>
             <div className="flex items-center gap-2">
                  {(isLoading || isUpdating) && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
-                <ZoruSwitch
+                <Switch
                     id="webhook-switch"
                     checked={isEnabled}
                     onCheckedChange={onCheckedChange}

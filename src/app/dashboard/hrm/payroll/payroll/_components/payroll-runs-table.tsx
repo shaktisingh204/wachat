@@ -104,11 +104,11 @@ export function PayrollRunsTable({
 
   return (
     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">
             <ZoruTableHead className="w-10">
-              <ZoruCheckbox
+              <Checkbox
                 aria-label="Select all rows on this page"
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
@@ -146,7 +146,7 @@ export function PayrollRunsTable({
               return (
                 <ZoruTableRow key={r._id} className="border-zoru-line">
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       aria-label={`Select run for ${periodLabel(r)}`}
                       checked={selected.has(r._id)}
                       onCheckedChange={() => onToggleOne(r._id)}
@@ -181,7 +181,7 @@ export function PayrollRunsTable({
                   <ZoruTableCell>
                     <div className="flex justify-end gap-1">
                       {(status === 'draft' || status === 'processing') && (
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onCompute(r._id)}
@@ -189,10 +189,10 @@ export function PayrollRunsTable({
                           title="Compute payroll"
                         >
                           <RefreshCw className="h-3.5 w-3.5" /> Compute
-                        </ZoruButton>
+                        </Button>
                       )}
                       {status === 'processing' && (
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onApprove(r._id)}
@@ -201,10 +201,10 @@ export function PayrollRunsTable({
                         >
                           <Check className="h-3.5 w-3.5 text-emerald-600" />{' '}
                           Approve
-                        </ZoruButton>
+                        </Button>
                       )}
                       {status === 'approved' && (
-                        <ZoruButton
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onDisburse(r._id)}
@@ -212,17 +212,17 @@ export function PayrollRunsTable({
                           title="Disburse"
                         >
                           <Banknote className="h-3.5 w-3.5" /> Disburse
-                        </ZoruButton>
+                        </Button>
                       )}
-                      <ZoruButton variant="ghost" size="icon" asChild>
+                      <Button variant="ghost" size="icon" asChild>
                         <Link
                           href={`/dashboard/hrm/payroll/payroll/new?id=${r._id}`}
                           aria-label="Edit"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
-                      </ZoruButton>
-                      <ZoruButton
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onDelete(r._id)}
@@ -232,7 +232,7 @@ export function PayrollRunsTable({
                         }
                       >
                         <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -240,7 +240,7 @@ export function PayrollRunsTable({
             })
           )}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }

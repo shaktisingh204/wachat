@@ -795,15 +795,15 @@ export default function TelegramStoriesPage() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <ZoruButton
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setBcOpen(true)}
                     >
                         <BookOpen className="h-3.5 w-3.5" />
                         Business connections
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         variant="outline"
                         size="sm"
                         onClick={runExport}
@@ -811,27 +811,27 @@ export default function TelegramStoriesPage() {
                     >
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                         size="sm"
                         onClick={openCreate}
                         disabled={!projectId || bots.length === 0}
                     >
                         <Plus className="h-3.5 w-3.5" />
                         New story
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
             {!projectId ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="flex items-center gap-2 text-zoru-ink-muted">
                         <AlertCircle className="h-4 w-4" />
                         <span className="text-sm">
                             Select a project to manage Telegram stories.
                         </span>
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {/* KPI cards */}
@@ -867,11 +867,11 @@ export default function TelegramStoriesPage() {
             </div>
 
             {/* Filter bar */}
-            <ZoruCard className="p-3">
+            <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative min-w-[220px] flex-1">
                         <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
-                        <ZoruInput
+                        <Input
                             placeholder="Search captions or errors"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -879,7 +879,7 @@ export default function TelegramStoriesPage() {
                         />
                     </div>
                     <div className="min-w-[160px]">
-                        <ZoruSelect
+                        <Select
                             value={botFilter}
                             onValueChange={setBotFilter}
                         >
@@ -894,10 +894,10 @@ export default function TelegramStoriesPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="min-w-[150px]">
-                        <ZoruSelect
+                        <Select
                             value={statusFilter}
                             onValueChange={(v) =>
                                 setStatusFilter(v as StoryStatus | 'all')
@@ -916,10 +916,10 @@ export default function TelegramStoriesPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="min-w-[170px]">
-                        <ZoruSelect
+                        <Select
                             value={typeFilter}
                             onValueChange={(v) =>
                                 setTypeFilter(v as StoryType | 'all')
@@ -938,49 +938,49 @@ export default function TelegramStoriesPage() {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Story grid */}
             {loading ? (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {Array.from({ length: 8 }).map((_, i) => (
-                        <ZoruCard key={i}>
-                            <ZoruSkeleton className="h-44 w-full" />
+                        <Card key={i}>
+                            <Skeleton className="h-44 w-full" />
                             <div className="p-3">
-                                <ZoruSkeleton className="h-4 w-3/4" />
-                                <ZoruSkeleton className="mt-2 h-3 w-1/2" />
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="mt-2 h-3 w-1/2" />
                             </div>
-                        </ZoruCard>
+                        </Card>
                     ))}
                 </div>
             ) : error ? (
-                <ZoruCard className="p-6 text-sm text-zoru-danger-ink">
+                <Card className="p-6 text-sm text-zoru-danger-ink">
                     <div className="flex items-center gap-2">
                         <AlertCircle className="h-4 w-4" />
                         {error}
                     </div>
-                </ZoruCard>
+                </Card>
             ) : rows.length === 0 ? (
-                <ZoruCard className="overflow-hidden">
-                    <ZoruEmptyState
+                <Card className="overflow-hidden">
+                    <EmptyState
                         title="No stories yet"
                         description="Compose a story to post on a channel where your bot is an admin with can_post_stories, or via a registered business connection."
                         icon={<Clapperboard className="h-5 w-5" />}
                         action={
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 onClick={openCreate}
                                 disabled={!projectId || bots.length === 0}
                             >
                                 <Plus className="h-3.5 w-3.5" />
                                 New story
-                            </ZoruButton>
+                            </Button>
                         }
                     />
-                </ZoruCard>
+                </Card>
             ) : (
                 <>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -1006,7 +1006,7 @@ export default function TelegramStoriesPage() {
                                 {data.total}
                             </span>
                             <div className="flex items-center gap-1">
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     disabled={page <= 1}
@@ -1016,11 +1016,11 @@ export default function TelegramStoriesPage() {
                                 >
                                     <ChevronLeft className="h-3.5 w-3.5" />
                                     Prev
-                                </ZoruButton>
+                                </Button>
                                 <span className="px-2">
                                     Page {page} / {totalPages}
                                 </span>
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     disabled={!data.hasMore}
@@ -1028,7 +1028,7 @@ export default function TelegramStoriesPage() {
                                 >
                                     Next
                                     <ChevronRight className="h-3.5 w-3.5" />
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null}
@@ -1055,7 +1055,7 @@ export default function TelegramStoriesPage() {
                         >
                             <div className="grid gap-3 sm:grid-cols-2">
                                 <Field label="Bot">
-                                    <ZoruSelect
+                                    <Select
                                         value={editorForm.botId}
                                         onValueChange={(v) =>
                                             setEditorForm((f) => ({
@@ -1078,10 +1078,10 @@ export default function TelegramStoriesPage() {
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 <Field label="Story type">
-                                    <ZoruSelect
+                                    <Select
                                         value={editorForm.type}
                                         onValueChange={(v) =>
                                             setEditorForm((f) => ({
@@ -1102,12 +1102,12 @@ export default function TelegramStoriesPage() {
                                                 Business account
                                             </ZoruSelectItem>
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 {editorForm.type === 'channel' ? (
                                     <div className="sm:col-span-2">
                                         <Field label="Channel">
-                                            <ZoruSelect
+                                            <Select
                                                 value={editorForm.channelId}
                                                 onValueChange={(v) =>
                                                     setEditorForm((f) => ({
@@ -1146,13 +1146,13 @@ export default function TelegramStoriesPage() {
                                                             ))
                                                     )}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </Field>
                                     </div>
                                 ) : (
                                     <div className="sm:col-span-2">
                                         <Field label="Business connection">
-                                            <ZoruSelect
+                                            <Select
                                                 value={
                                                     editorForm.businessConnectionId
                                                 }
@@ -1189,14 +1189,14 @@ export default function TelegramStoriesPage() {
                                                             </ZoruSelectItem>
                                                         ))}
                                                 </ZoruSelectContent>
-                                            </ZoruSelect>
+                                            </Select>
                                         </Field>
                                     </div>
                                 )}
                             </div>
                         </Section>
 
-                        <ZoruSeparator />
+                        <Separator />
 
                         {/* 2. Content */}
                         <Section
@@ -1205,7 +1205,7 @@ export default function TelegramStoriesPage() {
                         >
                             <div className="grid gap-3">
                                 <Field label="Media kind">
-                                    <ZoruRadioGroup
+                                    <RadioGroup
                                         value={editorForm.mediaKind}
                                         onValueChange={(v) =>
                                             setEditorForm((f) => ({
@@ -1227,7 +1227,7 @@ export default function TelegramStoriesPage() {
                                             <VideoIcon className="h-3.5 w-3.5" />
                                             Video
                                         </label>
-                                    </ZoruRadioGroup>
+                                    </RadioGroup>
                                 </Field>
 
                                 <Field
@@ -1262,7 +1262,7 @@ export default function TelegramStoriesPage() {
                                 </Field>
 
                                 <Field label="Caption">
-                                    <ZoruTextarea
+                                    <Textarea
                                         rows={3}
                                         value={editorForm.caption}
                                         onChange={(e) =>
@@ -1276,7 +1276,7 @@ export default function TelegramStoriesPage() {
                                 </Field>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <Field label="Parse mode">
-                                        <ZoruSelect
+                                        <Select
                                             value={editorForm.parseMode || 'none'}
                                             onValueChange={(v) =>
                                                 setEditorForm((f) => ({
@@ -1303,17 +1303,17 @@ export default function TelegramStoriesPage() {
                                                     Markdown (legacy)
                                                 </ZoruSelectItem>
                                             </ZoruSelectContent>
-                                        </ZoruSelect>
+                                        </Select>
                                     </Field>
                                 </div>
 
                                 {/* Areas builder */}
                                 <div>
                                     <div className="mb-2 flex items-center justify-between">
-                                        <ZoruLabel className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                        <Label className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                                             Interactive areas
-                                        </ZoruLabel>
-                                        <ZoruButton
+                                        </Label>
+                                        <Button
                                             type="button"
                                             variant="ghost"
                                             size="sm"
@@ -1341,7 +1341,7 @@ export default function TelegramStoriesPage() {
                                         >
                                             <Plus className="h-3.5 w-3.5" />
                                             Add area
-                                        </ZoruButton>
+                                        </Button>
                                     </div>
                                     {editorForm.areas.length === 0 ? (
                                         <p className="text-[12px] text-zoru-ink-muted">
@@ -1384,7 +1384,7 @@ export default function TelegramStoriesPage() {
                             </div>
                         </Section>
 
-                        <ZoruSeparator />
+                        <Separator />
 
                         {/* 3. Privacy */}
                         <Section
@@ -1393,7 +1393,7 @@ export default function TelegramStoriesPage() {
                         >
                             <div className="grid gap-3">
                                 <Field label="Audience">
-                                    <ZoruSelect
+                                    <Select
                                         value={editorForm.privacyKind}
                                         onValueChange={(v) =>
                                             setEditorForm((f) => ({
@@ -1416,11 +1416,11 @@ export default function TelegramStoriesPage() {
                                                 </ZoruSelectItem>
                                             ))}
                                         </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    </Select>
                                 </Field>
                                 {editorForm.privacyKind === 'selected' ? (
                                     <Field label="User ids (max 200)">
-                                        <ZoruTextarea
+                                        <Textarea
                                             rows={3}
                                             value={editorForm.userIdsRaw}
                                             onChange={(e) =>
@@ -1440,7 +1440,7 @@ export default function TelegramStoriesPage() {
                             </div>
                         </Section>
 
-                        <ZoruSeparator />
+                        <Separator />
 
                         {/* 4. Options */}
                         <Section
@@ -1486,7 +1486,7 @@ export default function TelegramStoriesPage() {
                                             it expires from the story feed.
                                         </p>
                                     </div>
-                                    <ZoruSwitch
+                                    <Switch
                                         checked={editorForm.postToChatPage}
                                         onCheckedChange={(v) =>
                                             setEditorForm((f) => ({
@@ -1505,7 +1505,7 @@ export default function TelegramStoriesPage() {
                                             Disable forwarding and saving.
                                         </p>
                                     </div>
-                                    <ZoruSwitch
+                                    <Switch
                                         checked={editorForm.protectContent}
                                         onCheckedChange={(v) =>
                                             setEditorForm((f) => ({
@@ -1518,14 +1518,14 @@ export default function TelegramStoriesPage() {
                             </div>
                         </Section>
 
-                        <ZoruSeparator />
+                        <Separator />
 
                         {/* 5. Schedule */}
                         <Section
                             title="5. Schedule"
                             description="Post immediately on save, or pick a future time."
                         >
-                            <ZoruRadioGroup
+                            <RadioGroup
                                 value={editorForm.scheduleMode}
                                 onValueChange={(v) =>
                                     setEditorForm((f) => ({
@@ -1543,11 +1543,11 @@ export default function TelegramStoriesPage() {
                                     <ZoruRadioGroupItem value="later" />
                                     Schedule for later
                                 </label>
-                            </ZoruRadioGroup>
+                            </RadioGroup>
                             {editorForm.scheduleMode === 'later' ? (
                                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                                     <Field label="Date">
-                                        <ZoruDatePicker
+                                        <DatePicker
                                             value={editorForm.scheduledDate}
                                             onChange={(d) =>
                                                 setEditorForm((f) => ({
@@ -1558,7 +1558,7 @@ export default function TelegramStoriesPage() {
                                         />
                                     </Field>
                                     <Field label="Time (24h)">
-                                        <ZoruInput
+                                        <Input
                                             type="time"
                                             value={editorForm.scheduledTime}
                                             onChange={(e) =>
@@ -1580,14 +1580,14 @@ export default function TelegramStoriesPage() {
                         ) : null}
                     </div>
                     <div className="flex justify-end gap-2 px-6 pb-6 pt-2">
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setEditorOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             onClick={saveEditor}
                             disabled={savingEditor}
@@ -1596,7 +1596,7 @@ export default function TelegramStoriesPage() {
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             ) : null}
                             {editorForm.storyId ? 'Save changes' : 'Create'}
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </ZoruDrawerContent>
             </ZoruDrawer>
@@ -1638,16 +1638,16 @@ export default function TelegramStoriesPage() {
                     </ZoruDrawerHeader>
                     <div className="px-6 pb-6">
                         <div className="mb-3 flex justify-end">
-                            <ZoruButton
+                            <Button
                                 size="sm"
                                 onClick={() => setBcAddOpen(true)}
                             >
                                 <Plus className="h-3.5 w-3.5" />
                                 Add connection
-                            </ZoruButton>
+                            </Button>
                         </div>
                         {businessConnections.length === 0 ? (
-                            <ZoruEmptyState
+                            <EmptyState
                                 title="No connections yet"
                                 description="Paste the business_connection_id Telegram delivered to your webhook."
                                 icon={<BookOpen className="h-5 w-5" />}
@@ -1680,12 +1680,12 @@ export default function TelegramStoriesPage() {
                                         <div className="flex gap-2">
                                             {selectedBcId === c._id &&
                                             starBalance ? (
-                                                <ZoruBadge variant="info">
+                                                <Badge variant="info">
                                                     <Sparkles className="h-3 w-3" />
                                                     {starBalance.amount} stars
-                                                </ZoruBadge>
+                                                </Badge>
                                             ) : null}
-                                            <ZoruButton
+                                            <Button
                                                 variant="ghost"
                                                 size="icon-sm"
                                                 onClick={(e) => {
@@ -1697,7 +1697,7 @@ export default function TelegramStoriesPage() {
                                                 aria-label="Remove"
                                             >
                                                 <Trash2 className="h-3.5 w-3.5" />
-                                            </ZoruButton>
+                                            </Button>
                                         </div>
                                     </li>
                                 ))}
@@ -1708,7 +1708,7 @@ export default function TelegramStoriesPage() {
             </ZoruDrawer>
 
             {/* Add business connection dialog */}
-            <ZoruDialog open={bcAddOpen} onOpenChange={setBcAddOpen}>
+            <Dialog open={bcAddOpen} onOpenChange={setBcAddOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Add business connection</ZoruDialogTitle>
@@ -1719,7 +1719,7 @@ export default function TelegramStoriesPage() {
                     </ZoruDialogHeader>
                     <div className="grid gap-3">
                         <Field label="Bot">
-                            <ZoruSelect
+                            <Select
                                 value={bcAddBot}
                                 onValueChange={setBcAddBot}
                             >
@@ -1736,10 +1736,10 @@ export default function TelegramStoriesPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                         </Field>
                         <Field label="Connection id">
-                            <ZoruInput
+                            <Input
                                 value={bcAddConnectionId}
                                 onChange={(e) =>
                                     setBcAddConnectionId(e.target.value)
@@ -1749,14 +1749,14 @@ export default function TelegramStoriesPage() {
                         </Field>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setBcAddOpen(false)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             onClick={saveBusinessConnection}
                             disabled={
@@ -1769,13 +1769,13 @@ export default function TelegramStoriesPage() {
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             ) : null}
                             Save
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Confirm: post now */}
-            <ZoruDialog
+            <Dialog
                 open={!!postRow}
                 onOpenChange={(v) => !v && setPostRow(null)}
             >
@@ -1794,14 +1794,14 @@ export default function TelegramStoriesPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setPostRow(null)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             onClick={() =>
                                 postRow && void confirmPostNow(postRow)
@@ -1809,13 +1809,13 @@ export default function TelegramStoriesPage() {
                         >
                             <Send className="h-3.5 w-3.5" />
                             Post now
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Confirm: delete local */}
-            <ZoruDialog
+            <Dialog
                 open={!!deleteRow}
                 onOpenChange={(v) => !v && setDeleteRow(null)}
             >
@@ -1828,23 +1828,23 @@ export default function TelegramStoriesPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setDeleteRow(null)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton size="sm" onClick={confirmDeleteLocal}>
+                        </Button>
+                        <Button size="sm" onClick={confirmDeleteLocal}>
                             <Trash2 className="h-3.5 w-3.5" />
                             Delete record
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
 
             {/* Confirm: delete on Telegram */}
-            <ZoruDialog
+            <Dialog
                 open={!!tgDeleteRow}
                 onOpenChange={(v) => !v && setTgDeleteRow(null)}
             >
@@ -1857,23 +1857,23 @@ export default function TelegramStoriesPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setTgDeleteRow(null)}
                         >
                             Cancel
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             onClick={confirmDeleteOnTelegram}
                         >
                             <XCircle className="h-3.5 w-3.5" />
                             Delete on Telegram
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }
@@ -1935,20 +1935,20 @@ function KpiCard({
     loading: boolean;
 }) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
                     {label}
                 </p>
                 {loading ? (
-                    <ZoruSkeleton className="h-7 w-24" />
+                    <Skeleton className="h-7 w-24" />
                 ) : (
                     <p className="text-2xl font-semibold tracking-tight text-zoru-ink">
                         {value}
                     </p>
                 )}
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -1979,7 +1979,7 @@ function StoryCard({
             : `Created ${fmtRelative(row.createdAt)}`;
 
     return (
-        <ZoruCard className="overflow-hidden">
+        <Card className="overflow-hidden">
             <div
                 className="relative flex h-44 w-full cursor-pointer items-center justify-center bg-zoru-surface-2"
                 onClick={onOpen}
@@ -1990,22 +1990,22 @@ function StoryCard({
                     <VideoIcon className="h-8 w-8 text-zoru-ink-subtle" />
                 )}
                 <div className="absolute left-2 top-2 flex gap-1">
-                    <ZoruBadge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
+                    <Badge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
                         {row.status}
-                    </ZoruBadge>
-                    <ZoruBadge variant="ghost">{row.type}</ZoruBadge>
+                    </Badge>
+                    <Badge variant="ghost">{row.type}</Badge>
                 </div>
                 <div className="absolute right-2 top-2">
-                    <ZoruDropdownMenu>
+                    <DropdownMenu>
                         <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={(e) => e.stopPropagation()}
                                 aria-label="Actions"
                             >
                                 <MoreVertical className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </ZoruDropdownMenuTrigger>
                         <ZoruDropdownMenuContent align="end">
                             <ZoruDropdownMenuItem onClick={onOpen}>
@@ -2040,7 +2040,7 @@ function StoryCard({
                                 Delete local
                             </ZoruDropdownMenuItem>
                         </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
+                    </DropdownMenu>
                 </div>
             </div>
             <div className="flex flex-col gap-1.5 p-3">
@@ -2058,7 +2058,7 @@ function StoryCard({
                     </p>
                 ) : null}
             </div>
-        </ZoruCard>
+        </Card>
     );
 }
 
@@ -2085,9 +2085,9 @@ function StoryDetail({
             <ZoruDrawerHeader>
                 <ZoruDrawerTitle>Story · {row.type}</ZoruDrawerTitle>
                 <ZoruDrawerDescription>
-                    <ZoruBadge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
+                    <Badge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
                         {row.status}
-                    </ZoruBadge>{' '}
+                    </Badge>{' '}
                     {isPosted ? (
                         <>
                             posted {fmtRelative(row.postedAt)}, expires{' '}
@@ -2153,43 +2153,43 @@ function StoryDetail({
                     ) : null}
                 </div>
                 <div className="flex flex-wrap justify-end gap-2 pt-2">
-                    <ZoruButton variant="outline" size="sm" onClick={onClose}>
+                    <Button variant="outline" size="sm" onClick={onClose}>
                         Close
-                    </ZoruButton>
+                    </Button>
                     {!isPosted && row.status !== 'deleted' ? (
                         <>
-                            <ZoruButton size="sm" variant="outline" onClick={onEdit}>
+                            <Button size="sm" variant="outline" onClick={onEdit}>
                                 <Pencil className="h-3.5 w-3.5" />
                                 Edit
-                            </ZoruButton>
-                            <ZoruButton size="sm" onClick={onPost}>
+                            </Button>
+                            <Button size="sm" onClick={onPost}>
                                 <Send className="h-3.5 w-3.5" />
                                 Post now
-                            </ZoruButton>
+                            </Button>
                         </>
                     ) : null}
                     {row.status === 'scheduled' ? (
-                        <ZoruButton size="sm" variant="outline" onClick={onCancel}>
+                        <Button size="sm" variant="outline" onClick={onCancel}>
                             <X className="h-3.5 w-3.5" />
                             Cancel
-                        </ZoruButton>
+                        </Button>
                     ) : null}
                     {isPosted ? (
                         <>
-                            <ZoruButton size="sm" variant="outline" onClick={onEdit}>
+                            <Button size="sm" variant="outline" onClick={onEdit}>
                                 <Pencil className="h-3.5 w-3.5" />
                                 Edit on Telegram
-                            </ZoruButton>
-                            <ZoruButton size="sm" onClick={onDeleteOnTelegram}>
+                            </Button>
+                            <Button size="sm" onClick={onDeleteOnTelegram}>
                                 <XCircle className="h-3.5 w-3.5" />
                                 Delete on Telegram
-                            </ZoruButton>
+                            </Button>
                         </>
                     ) : null}
-                    <ZoruButton size="sm" variant="ghost" onClick={onDeleteLocal}>
+                    <Button size="sm" variant="ghost" onClick={onDeleteLocal}>
                         <Trash2 className="h-3.5 w-3.5" />
                         Delete record
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
         </>
@@ -2232,7 +2232,7 @@ function AreaEditor({
     return (
         <div className="rounded-md border border-zoru-line p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
-                <ZoruSelect
+                <Select
                     value={area.type || 'suggested_reaction'}
                     onValueChange={(v) => onChange({ ...area, type: v })}
                 >
@@ -2250,8 +2250,8 @@ function AreaEditor({
                             Unique gift
                         </ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
-                <ZoruButton
+                </Select>
+                <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
@@ -2259,7 +2259,7 @@ function AreaEditor({
                     aria-label="Remove area"
                 >
                     <Trash2 className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
             </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                 <NumField
@@ -2307,7 +2307,7 @@ function NumField({
             <span className="text-[10px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                 {label}
             </span>
-            <ZoruInput
+            <Input
                 type="number"
                 value={value ?? 0}
                 onChange={(e) => onChange(Number(e.target.value))}

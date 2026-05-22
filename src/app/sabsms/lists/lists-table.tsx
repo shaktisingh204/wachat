@@ -165,9 +165,9 @@ export function ListsTable({
         r.tags.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {r.tags.slice(0, 3).map((t) => (
-              <ZoruBadge key={t} variant="outline" className="text-[10px]">
+              <Badge key={t} variant="outline" className="text-[10px]">
                 {t}
-              </ZoruBadge>
+              </Badge>
             ))}
             {r.tags.length > 3 && (
               <span className="text-[10px] text-slate-500">
@@ -284,21 +284,21 @@ export function ListsTable({
       toolbar={
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Lists"
               value={analytics.totalLists.toLocaleString()}
               icon={<ListPlus className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Total members"
               value={analytics.totalMembers.toLocaleString()}
               icon={<Users className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Average size"
               value={analytics.averageSize.toLocaleString()}
             />
-            <ZoruStatCard
+            <StatCard
               label="Fresh / stale"
               value={`${analytics.freshLists} / ${analytics.staleLists}`}
               period="vs 30-day window"
@@ -481,7 +481,7 @@ function CreateListDialog({
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Create list</ZoruDialogTitle>
@@ -493,16 +493,16 @@ function CreateListDialog({
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <ZoruLabel>Name</ZoruLabel>
-            <ZoruInput
+            <Label>Name</Label>
+            <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="VIP customers"
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Description</ZoruLabel>
-            <ZoruTextarea
+            <Label>Description</Label>
+            <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What this list represents."
@@ -510,39 +510,39 @@ function CreateListDialog({
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Tags (comma-separated)</ZoruLabel>
-            <ZoruInput
+            <Label>Tags (comma-separated)</Label>
+            <Input
               value={tagsRaw}
               onChange={(e) => setTagsRaw(e.target.value)}
               placeholder="vip, q1-promo"
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>Auto-expire (optional)</ZoruLabel>
-            <ZoruInput
+            <Label>Auto-expire (optional)</Label>
+            <Input
               type="date"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
             />
           </div>
           {error && (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <ZoruAlertTitle>Could not create list</ZoruAlertTitle>
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           )}
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleSubmit} disabled={busy || !name.trim()}>
+          </Button>
+          <Button onClick={handleSubmit} disabled={busy || !name.trim()}>
             {busy ? "Creating…" : "Create list"}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -615,7 +615,7 @@ function AddContactsDialog({
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -628,8 +628,8 @@ function AddContactsDialog({
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <ZoruLabel>Search existing contacts</ZoruLabel>
-            <ZoruInput
+            <Label>Search existing contacts</Label>
+            <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="By name or phone…"
@@ -640,8 +640,8 @@ function AddContactsDialog({
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel>Paste phones</ZoruLabel>
-            <ZoruTextarea
+            <Label>Paste phones</Label>
+            <Textarea
               value={paste}
               onChange={(e) => setPaste(e.target.value)}
               placeholder={"+15550001111\n+15550002222"}
@@ -662,26 +662,26 @@ function AddContactsDialog({
           </div>
 
           {error && (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <ZoruAlertTitle>Could not add contacts</ZoruAlertTitle>
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           )}
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={handleAdd}
             disabled={busy || parsed.valid.length === 0}
           >
             {busy ? "Adding…" : `Add ${parsed.valid.length}`}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -718,24 +718,24 @@ function TagDialog({
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Tag {list?.name}</ZoruDialogTitle>
         </ZoruDialogHeader>
-        <ZoruInput
+        <Input
           value={tagsRaw}
           onChange={(e) => setTagsRaw(e.target.value)}
           placeholder="vip, q1-promo"
         />
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={handleSave}>Save</ZoruButton>
+          </Button>
+          <Button onClick={handleSave}>Save</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -770,7 +770,7 @@ function ShareDialog({
   const url = token ? `/sabsms/lists/share/${token}` : null;
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Share {list?.name}</ZoruDialogTitle>
@@ -780,27 +780,27 @@ function ShareDialog({
         </ZoruDialogHeader>
         {url ? (
           <div className="space-y-2">
-            <ZoruInput value={url} readOnly />
-            <ZoruButton
+            <Input value={url} readOnly />
+            <Button
               variant="outline"
               onClick={() => handleEnable(false)}
               className="w-full"
             >
               Revoke link
-            </ZoruButton>
+            </Button>
           </div>
         ) : (
-          <ZoruButton onClick={() => handleEnable(true)}>
+          <Button onClick={() => handleEnable(true)}>
             Generate share link
-          </ZoruButton>
+          </Button>
         )}
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -846,7 +846,7 @@ function CompareDialog({
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Compare two lists</ZoruDialogTitle>
@@ -857,7 +857,7 @@ function CompareDialog({
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <ZoruLabel>List A</ZoruLabel>
+            <Label>List A</Label>
             <select
               value={a}
               onChange={(e) => setA(e.target.value)}
@@ -872,7 +872,7 @@ function CompareDialog({
             </select>
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>List B</ZoruLabel>
+            <Label>List B</Label>
             <select
               value={b}
               onChange={(e) => setB(e.target.value)}
@@ -905,15 +905,15 @@ function CompareDialog({
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
-          </ZoruButton>
-          <ZoruButton onClick={handleRun} disabled={!a || !b || a === b || busy}>
+          </Button>
+          <Button onClick={handleRun} disabled={!a || !b || a === b || busy}>
             {busy ? "Comparing…" : "Compare"}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -969,12 +969,12 @@ function ListDetail({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <ZoruButton size="sm" asChild>
+        <Button size="sm" asChild>
           <Link href={`/sabsms/send?listId=${list.id}`}>
             <Send className="mr-1.5 h-3.5 w-3.5" />
             Send to list
           </Link>
-        </ZoruButton>
+        </Button>
         <SabsmsExportMenu
           filename={`sabsms-list-${list.id}`}
           toCsv={async () => exportListCsv(workspaceId, list.id)}
@@ -985,13 +985,13 @@ function ListDetail({
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-slate-700">Members</h3>
           {selected.size > 0 && (
-            <ZoruButton
+            <Button
               variant="destructive"
               size="sm"
               onClick={handleRemoveSelected}
             >
               Remove {selected.size} selected
-            </ZoruButton>
+            </Button>
           )}
         </div>
         <div className="max-h-[280px] overflow-y-auto rounded-md border border-slate-200">

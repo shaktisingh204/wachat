@@ -89,18 +89,18 @@ export default async function ProductDetailPage({
                 label: 'Back to products',
             }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`/dashboard/crm/store/products/${id}/edit`}>
                         <Pencil className="h-4 w-4" />
                         Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
             audit={
                 <EntityAuditTimeline entityKind="store_product" entityId={id} />
             }
         >
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Product details
                 </h2>
@@ -135,10 +135,10 @@ export default async function ProductDetailPage({
                         </Field>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {images.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                         Images
                     </h2>
@@ -153,11 +153,11 @@ export default async function ProductDetailPage({
                             />
                         ))}
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {categories.length > 0 || tags.length > 0 ? (
-                <ZoruCard className="p-6">
+                <Card className="p-6">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         {categories.length > 0 ? (
                             <div>
@@ -166,9 +166,9 @@ export default async function ProductDetailPage({
                                 </div>
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {categories.map((c) => (
-                                        <ZoruBadge key={c} variant="outline">
+                                        <Badge key={c} variant="outline">
                                             {c}
-                                        </ZoruBadge>
+                                        </Badge>
                                     ))}
                                 </div>
                             </div>
@@ -180,15 +180,15 @@ export default async function ProductDetailPage({
                                 </div>
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {tags.map((t) => (
-                                        <ZoruBadge key={t} variant="outline">
+                                        <Badge key={t} variant="outline">
                                             {t}
-                                        </ZoruBadge>
+                                        </Badge>
                                     ))}
                                 </div>
                             </div>
                         ) : null}
                     </div>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

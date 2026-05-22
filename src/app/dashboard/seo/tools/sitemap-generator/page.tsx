@@ -35,15 +35,15 @@ export default function SitemapGeneratorPage() {
 
   return (
     <ToolShell title="XML Sitemap Generator" description="Generate a sitemap.xml from a list of URLs.">
-      <ZoruTextarea value={urls} onChange={(e) => setUrls(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="One URL per line…" />
+      <Textarea value={urls} onChange={(e) => setUrls(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="One URL per line…" />
       <div className="flex gap-2">
-        <ZoruInput value={priority} onChange={(e) => setPriority(e.target.value)} className="w-32" placeholder="priority" />
+        <Input value={priority} onChange={(e) => setPriority(e.target.value)} className="w-32" placeholder="priority" />
         <select className="border rounded h-9 px-2 bg-background" value={changefreq} onChange={(e) => setChangefreq(e.target.value)}>
           <option>always</option><option>hourly</option><option>daily</option><option>weekly</option><option>monthly</option><option>yearly</option><option>never</option>
         </select>
-        <ZoruButton onClick={download}>Download XML</ZoruButton>
+        <Button onClick={download}>Download XML</Button>
       </div>
-      <ZoruTextarea readOnly value={xml} className="min-h-[240px] font-mono text-xs" />
+      <Textarea readOnly value={xml} className="min-h-[240px] font-mono text-xs" />
     </ToolShell>
   );
 }

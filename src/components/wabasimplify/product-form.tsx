@@ -41,10 +41,10 @@ const initialState = { message: null, error: null };
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending} size="lg">
+        <Button type="submit" disabled={pending} size="lg">
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             {isEditing ? 'Save Changes' : 'Create Product'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -98,83 +98,83 @@ export function ProductForm({ product }: ProductFormProps) {
             <input type="hidden" name="variants" value={JSON.stringify(variants)} />
             <input type="hidden" name="sale_price_effective_date" value={salePriceEffectiveDate?.toISOString() || ''} />
 
-            <ZoruAccordion type="multiple" defaultValue={['basic', 'pricing', 'identifiers']} className="w-full">
+            <Accordion type="multiple" defaultValue={['basic', 'pricing', 'identifiers']} className="w-full">
                 <ZoruAccordionItem value="basic">
                     <ZoruAccordionTrigger>Basic Information</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
-                        <div className="space-y-2"><ZoruLabel htmlFor="title">Product Name (title) *</ZoruLabel><ZoruInput id="title" name="title" defaultValue={product?.name} required /></div>
-                        <div className="space-y-2"><ZoruLabel htmlFor="description">Description *</ZoruLabel><ZoruTextarea id="description" name="description" defaultValue={product?.description} required /></div>
-                        <div className="space-y-2"><ZoruLabel htmlFor="link">Product Link *</ZoruLabel><ZoruInput id="link" name="link" type="url" defaultValue={product?.link} placeholder="https://your-store.com/product/item" required /></div>
+                        <div className="space-y-2"><Label htmlFor="title">Product Name (title) *</Label><Input id="title" name="title" defaultValue={product?.name} required /></div>
+                        <div className="space-y-2"><Label htmlFor="description">Description *</Label><Textarea id="description" name="description" defaultValue={product?.description} required /></div>
+                        <div className="space-y-2"><Label htmlFor="link">Product Link *</Label><Input id="link" name="link" type="url" defaultValue={product?.link} placeholder="https://your-store.com/product/item" required /></div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                 <ZoruAccordionItem value="images">
                     <ZoruAccordionTrigger>Images</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="image_link">Main Image URL *</ZoruLabel><ZoruInput id="image_link" name="image_link" type="url" defaultValue={product?.image_url} required /></div>
-                        <div className="space-y-2"><ZoruLabel htmlFor="additional_image_link">Additional Image URLs (one per line)</ZoruLabel><ZoruTextarea id="additional_image_link" name="additional_image_link" defaultValue={product?.additional_image_link?.join('\n')}/></div>
+                            <div className="space-y-2"><Label htmlFor="image_link">Main Image URL *</Label><Input id="image_link" name="image_link" type="url" defaultValue={product?.image_url} required /></div>
+                        <div className="space-y-2"><Label htmlFor="additional_image_link">Additional Image URLs (one per line)</Label><Textarea id="additional_image_link" name="additional_image_link" defaultValue={product?.additional_image_link?.join('\n')}/></div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                 <ZoruAccordionItem value="pricing">
                     <ZoruAccordionTrigger>Pricing & Availability</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="price">Price *</ZoruLabel><ZoruInput id="price" name="price" defaultValue={`${product?.price ? product.price / 100 : ''} ${product?.currency || 'INR'}`} placeholder="e.g. 999 INR" required /></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="availability">Availability *</ZoruLabel><ZoruSelect name="availability" defaultValue={product?.availability || 'in stock'} required><ZoruSelectTrigger id="availability"><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="in stock">In Stock</ZoruSelectItem><ZoruSelectItem value="out of stock">Out of Stock</ZoruSelectItem><ZoruSelectItem value="preorder">Preorder</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                            <div className="space-y-2"><Label htmlFor="price">Price *</Label><Input id="price" name="price" defaultValue={`${product?.price ? product.price / 100 : ''} ${product?.currency || 'INR'}`} placeholder="e.g. 999 INR" required /></div>
+                            <div className="space-y-2"><Label htmlFor="availability">Availability *</Label><Select name="availability" defaultValue={product?.availability || 'in stock'} required><ZoruSelectTrigger id="availability"><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="in stock">In Stock</ZoruSelectItem><ZoruSelectItem value="out of stock">Out of Stock</ZoruSelectItem><ZoruSelectItem value="preorder">Preorder</ZoruSelectItem></ZoruSelectContent></Select></div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="sale_price">Sale Price</ZoruLabel><ZoruInput id="sale_price" name="sale_price" defaultValue={product?.sale_price ? `${product.sale_price / 100} ${product.currency}` : ''} placeholder="e.g. 799 INR"/></div>
-                            <div className="space-y-2"><ZoruLabel>Sale Dates</ZoruLabel><DatePicker date={salePriceEffectiveDate} setDate={setSalePriceEffectiveDate} /></div>
+                            <div className="space-y-2"><Label htmlFor="sale_price">Sale Price</Label><Input id="sale_price" name="sale_price" defaultValue={product?.sale_price ? `${product.sale_price / 100} ${product.currency}` : ''} placeholder="e.g. 799 INR"/></div>
+                            <div className="space-y-2"><Label>Sale Dates</Label><DatePicker date={salePriceEffectiveDate} setDate={setSalePriceEffectiveDate} /></div>
                         </div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="tax">Tax %</ZoruLabel><ZoruInput id="tax" name="tax" type="number" step="0.01" defaultValue={product?.tax} /></div>
+                            <div className="space-y-2"><Label htmlFor="tax">Tax %</Label><Input id="tax" name="tax" type="number" step="0.01" defaultValue={product?.tax} /></div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                  <ZoruAccordionItem value="identifiers">
                     <ZoruAccordionTrigger>Identifiers & Categories</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="retailer_id">SKU / retailer_id *</ZoruLabel><ZoruInput id="retailer_id" name="retailer_id" defaultValue={product?.retailer_id} required /></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="condition">Condition *</ZoruLabel><ZoruSelect name="condition" defaultValue={product?.condition || 'new'}><ZoruSelectTrigger id="condition"><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="new">New</ZoruSelectItem><ZoruSelectItem value="used">Used</ZoruSelectItem><ZoruSelectItem value="refurbished">Refurbished</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                            <div className="space-y-2"><Label htmlFor="retailer_id">SKU / retailer_id *</Label><Input id="retailer_id" name="retailer_id" defaultValue={product?.retailer_id} required /></div>
+                            <div className="space-y-2"><Label htmlFor="condition">Condition *</Label><Select name="condition" defaultValue={product?.condition || 'new'}><ZoruSelectTrigger id="condition"><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="new">New</ZoruSelectItem><ZoruSelectItem value="used">Used</ZoruSelectItem><ZoruSelectItem value="refurbished">Refurbished</ZoruSelectItem></ZoruSelectContent></Select></div>
                         </div>
                             <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="brand">Brand</ZoruLabel><ZoruInput id="brand" name="brand" defaultValue={product?.brand}/></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="gtin">GTIN (Barcode)</ZoruLabel><ZoruInput id="gtin" name="gtin" defaultValue={product?.gtin}/></div>
+                            <div className="space-y-2"><Label htmlFor="brand">Brand</Label><Input id="brand" name="brand" defaultValue={product?.brand}/></div>
+                            <div className="space-y-2"><Label htmlFor="gtin">GTIN (Barcode)</Label><Input id="gtin" name="gtin" defaultValue={product?.gtin}/></div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="google_product_category">Google Product Category</ZoruLabel><ZoruInput id="google_product_category" name="google_product_category" defaultValue={product?.google_product_category}/></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="product_type">Your Product Type</ZoruLabel><ZoruInput id="product_type" name="product_type" defaultValue={product?.product_type}/></div>
+                            <div className="space-y-2"><Label htmlFor="google_product_category">Google Product Category</Label><Input id="google_product_category" name="google_product_category" defaultValue={product?.google_product_category}/></div>
+                            <div className="space-y-2"><Label htmlFor="product_type">Your Product Type</Label><Input id="product_type" name="product_type" defaultValue={product?.product_type}/></div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="mpn">MPN</ZoruLabel><ZoruInput id="mpn" name="mpn" defaultValue={product?.mpn}/></div>
+                            <div className="space-y-2"><Label htmlFor="mpn">MPN</Label><Input id="mpn" name="mpn" defaultValue={product?.mpn}/></div>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                 <ZoruAccordionItem value="variants">
                     <ZoruAccordionTrigger>Variants (e.g. Size, Color)</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="item_group_id">Item Group ID</ZoruLabel><ZoruInput id="item_group_id" name="item_group_id" defaultValue={product?.item_group_id} /><p className="text-xs text-muted-foreground">All variants of the same product must have the same group ID.</p></div>
-                        <ZoruSeparator />
-                        <div className="space-y-2"><ZoruLabel>Variant Attributes</ZoruLabel>
+                            <div className="space-y-2"><Label htmlFor="item_group_id">Item Group ID</Label><Input id="item_group_id" name="item_group_id" defaultValue={product?.item_group_id} /><p className="text-xs text-muted-foreground">All variants of the same product must have the same group ID.</p></div>
+                        <Separator />
+                        <div className="space-y-2"><Label>Variant Attributes</Label>
                             <div className="space-y-3">
-                                {variants.map((variant, index) => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border rounded-md"><ZoruInput placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><ZoruInput placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton></div>))}
+                                {variants.map((variant, index) => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>))}
                             </div>
-                            <ZoruButton type="button" variant="outline" size="sm" className="w-full mt-2" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant Attribute</ZoruButton>
+                            <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant Attribute</Button>
                         </div>
-                            <ZoruSeparator />
+                            <Separator />
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="gender">Gender</ZoruLabel><ZoruSelect name="gender" defaultValue={product?.gender}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="male">Male</ZoruSelectItem><ZoruSelectItem value="female">Female</ZoruSelectItem><ZoruSelectItem value="unisex">Unisex</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="age_group">Age Group</ZoruLabel><ZoruSelect name="age_group" defaultValue={product?.age_group}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="adult">Adult</ZoruSelectItem><ZoruSelectItem value="kids">Kids</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                            <div className="space-y-2"><Label htmlFor="gender">Gender</Label><Select name="gender" defaultValue={product?.gender}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="male">Male</ZoruSelectItem><ZoruSelectItem value="female">Female</ZoruSelectItem><ZoruSelectItem value="unisex">Unisex</ZoruSelectItem></ZoruSelectContent></Select></div>
+                            <div className="space-y-2"><Label htmlFor="age_group">Age Group</Label><Select name="age_group" defaultValue={product?.age_group}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="adult">Adult</ZoruSelectItem><ZoruSelectItem value="kids">Kids</ZoruSelectItem></ZoruSelectContent></Select></div>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                  <ZoruAccordionItem value="stock">
                     <ZoruAccordionTrigger>Stock & Shipping</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
-                        <div className="space-y-2"><ZoruLabel htmlFor="inventory">Stock Quantity</ZoruLabel><ZoruInput id="inventory" name="inventory" type="number" defaultValue={product?.inventory}/></div>
-                        <div className="space-y-2"><ZoruLabel htmlFor="shipping_weight">Shipping Weight (e.g. 2.5 kg)</ZoruLabel><ZoruInput id="shipping_weight" name="shipping_weight" defaultValue={product?.shipping_weight}/></div>
+                        <div className="space-y-2"><Label htmlFor="inventory">Stock Quantity</Label><Input id="inventory" name="inventory" type="number" defaultValue={product?.inventory}/></div>
+                        <div className="space-y-2"><Label htmlFor="shipping_weight">Shipping Weight (e.g. 2.5 kg)</Label><Input id="shipping_weight" name="shipping_weight" defaultValue={product?.shipping_weight}/></div>
                         <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2"><ZoruLabel>Length (cm)</ZoruLabel><ZoruInput name="shipping_length" type="number" step="0.01" defaultValue={product?.dimensions?.length}/></div>
-                            <div className="space-y-2"><ZoruLabel>Width (cm)</ZoruLabel><ZoruInput name="shipping_width" type="number" step="0.01" defaultValue={product?.dimensions?.width}/></div>
-                            <div className="space-y-2"><ZoruLabel>Height (cm)</ZoruLabel><ZoruInput name="shipping_height" type="number" step="0.01" defaultValue={product?.dimensions?.height}/></div>
+                            <div className="space-y-2"><Label>Length (cm)</Label><Input name="shipping_length" type="number" step="0.01" defaultValue={product?.dimensions?.length}/></div>
+                            <div className="space-y-2"><Label>Width (cm)</Label><Input name="shipping_width" type="number" step="0.01" defaultValue={product?.dimensions?.width}/></div>
+                            <div className="space-y-2"><Label>Height (cm)</Label><Input name="shipping_height" type="number" step="0.01" defaultValue={product?.dimensions?.height}/></div>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
@@ -182,13 +182,13 @@ export function ProductForm({ product }: ProductFormProps) {
                     <ZoruAccordionTrigger>Advanced / Optional</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="custom_label_0">Custom Label 0</ZoruLabel><ZoruInput id="custom_label_0" name="custom_label_0" defaultValue={product?.custom_label_0}/></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="custom_label_1">Custom Label 1</ZoruLabel><ZoruInput id="custom_label_1" name="custom_label_1" defaultValue={product?.custom_label_1}/></div>
+                            <div className="space-y-2"><Label htmlFor="custom_label_0">Custom Label 0</Label><Input id="custom_label_0" name="custom_label_0" defaultValue={product?.custom_label_0}/></div>
+                            <div className="space-y-2"><Label htmlFor="custom_label_1">Custom Label 1</Label><Input id="custom_label_1" name="custom_label_1" defaultValue={product?.custom_label_1}/></div>
                         </div>
-                        <div className="space-y-2"><ZoruLabel htmlFor="visibility">Visibility</ZoruLabel><ZoruSelect name="visibility" defaultValue={product?.visibility}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="published">Published</ZoruSelectItem><ZoruSelectItem value="hidden">Hidden</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                        <div className="space-y-2"><Label htmlFor="visibility">Visibility</Label><Select name="visibility" defaultValue={product?.visibility}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="published">Published</ZoruSelectItem><ZoruSelectItem value="hidden">Hidden</ZoruSelectItem></ZoruSelectContent></Select></div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
-            </ZoruAccordion>
+            </Accordion>
             <div className="flex justify-end pt-6">
                 <SubmitButton isEditing={isEditing}/>
             </div>

@@ -20,17 +20,17 @@ export default function HtaccessRedirectPage() {
       <div className="space-y-2">
         {rows.map((r, i) => (
           <div key={i} className="flex gap-2">
-            <ZoruInput value={r.from} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, from: e.target.value } : rr))} placeholder="/old" />
-            <ZoruInput value={r.to} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, to: e.target.value } : rr))} placeholder="/new" />
+            <Input value={r.from} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, from: e.target.value } : rr))} placeholder="/old" />
+            <Input value={r.to} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, to: e.target.value } : rr))} placeholder="/new" />
             <select className="border rounded h-9 px-2 bg-background" value={r.type} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, type: e.target.value } : rr))}>
               <option value="301">301</option><option value="302">302</option>
             </select>
-            <ZoruButton variant="ghost" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</ZoruButton>
+            <Button variant="ghost" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</Button>
           </div>
         ))}
-        <ZoruButton variant="outline" onClick={() => setRows((r) => [...r, { from: '', to: '', type: '301' }])}>+ Add rule</ZoruButton>
+        <Button variant="outline" onClick={() => setRows((r) => [...r, { from: '', to: '', type: '301' }])}>+ Add rule</Button>
       </div>
-      <ZoruTextarea readOnly value={out} className="min-h-[180px] font-mono text-xs" />
+      <Textarea readOnly value={out} className="min-h-[180px] font-mono text-xs" />
     </ToolShell>
   );
 }

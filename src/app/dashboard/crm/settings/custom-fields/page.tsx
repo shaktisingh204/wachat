@@ -143,12 +143,12 @@ const saveInitialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
             {isEditing ? 'Save changes' : 'Create field'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -180,15 +180,15 @@ function OptionsRepeater({
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between">
-                <ZoruLabel>Options</ZoruLabel>
-                <ZoruButton
+                <Label>Options</Label>
+                <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={add}
                 >
                     <Plus className="mr-1 h-3.5 w-3.5" /> Add option
-                </ZoruButton>
+                </Button>
             </div>
             {options.length === 0 ? (
                 <p className="rounded-md border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
@@ -201,14 +201,14 @@ function OptionsRepeater({
                             key={idx}
                             className="grid grid-cols-[1fr_1fr_120px_auto] items-center gap-2"
                         >
-                            <ZoruInput
+                            <Input
                                 placeholder="Label"
                                 value={opt.label}
                                 onChange={(e) =>
                                     update(idx, { label: e.target.value })
                                 }
                             />
-                            <ZoruInput
+                            <Input
                                 placeholder="value (slug)"
                                 value={opt.value}
                                 onChange={(e) =>
@@ -219,7 +219,7 @@ function OptionsRepeater({
                                 value={opt.color || '#999999'}
                                 onChange={(c) => update(idx, { color: c })}
                             />
-                            <ZoruButton
+                            <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
@@ -227,7 +227,7 @@ function OptionsRepeater({
                                 aria-label="Remove option"
                             >
                                 <X className="h-4 w-4" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ))}
                 </div>
@@ -300,7 +300,7 @@ function CustomFieldDialog({
     const showValidation = VALIDATABLE.has(fieldType);
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="max-w-2xl">
                 <form action={formAction}>
                     {isEditing ? (
@@ -326,8 +326,8 @@ function CustomFieldDialog({
                     <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-1">
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="entityKind">Entity *</ZoruLabel>
-                                <ZoruSelect
+                                <Label htmlFor="entityKind">Entity *</Label>
+                                <Select
                                     name="entityKind"
                                     required
                                     value={entityKind}
@@ -346,11 +346,11 @@ function CustomFieldDialog({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="fieldType">Field type *</ZoruLabel>
-                                <ZoruSelect
+                                <Label htmlFor="fieldType">Field type *</Label>
+                                <Select
                                     name="fieldType"
                                     required
                                     value={fieldType}
@@ -371,14 +371,14 @@ function CustomFieldDialog({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="label">Display label *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="label">Display label *</Label>
+                                <Input
                                     id="label"
                                     name="label"
                                     placeholder="e.g. Passport Number"
@@ -387,8 +387,8 @@ function CustomFieldDialog({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="name">Internal name *</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="name">Internal name *</Label>
+                                <Input
                                     id="name"
                                     name="name"
                                     placeholder="passport_number"
@@ -403,8 +403,8 @@ function CustomFieldDialog({
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="placeholder">Placeholder</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="placeholder">Placeholder</Label>
+                                <Input
                                     id="placeholder"
                                     name="placeholder"
                                     placeholder="Shown inside empty inputs"
@@ -412,8 +412,8 @@ function CustomFieldDialog({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="section">Section</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="section">Section</Label>
+                                <Input
                                     id="section"
                                     name="section"
                                     placeholder="e.g. Identification"
@@ -423,8 +423,8 @@ function CustomFieldDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="helpText">Help text</ZoruLabel>
-                            <ZoruTextarea
+                            <Label htmlFor="helpText">Help text</Label>
+                            <Textarea
                                 id="helpText"
                                 name="helpText"
                                 rows={2}
@@ -434,8 +434,8 @@ function CustomFieldDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="displayOrder">Display order</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="displayOrder">Display order</Label>
+                            <Input
                                 id="displayOrder"
                                 name="displayOrder"
                                 type="number"
@@ -508,10 +508,10 @@ function CustomFieldDialog({
                                 </p>
                                 <div className="grid grid-cols-3 gap-3">
                                     <div className="space-y-2">
-                                        <ZoruLabel htmlFor="validation.min">
+                                        <Label htmlFor="validation.min">
                                             Min
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             id="validation.min"
                                             name="validation.min"
                                             type="number"
@@ -525,10 +525,10 @@ function CustomFieldDialog({
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <ZoruLabel htmlFor="validation.max">
+                                        <Label htmlFor="validation.max">
                                             Max
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             id="validation.max"
                                             name="validation.max"
                                             type="number"
@@ -542,10 +542,10 @@ function CustomFieldDialog({
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <ZoruLabel htmlFor="validation.pattern">
+                                        <Label htmlFor="validation.pattern">
                                             Regex pattern
-                                        </ZoruLabel>
-                                        <ZoruInput
+                                        </Label>
+                                        <Input
                                             id="validation.pattern"
                                             name="validation.pattern"
                                             placeholder="^[A-Z0-9]+$"
@@ -564,18 +564,18 @@ function CustomFieldDialog({
                     </div>
 
                     <ZoruDialogFooter>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                         >
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -599,7 +599,7 @@ function FlagCheckbox({
     }, [defaultChecked]);
     return (
         <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <ZoruCheckbox
+            <Checkbox
                 checked={checked}
                 onCheckedChange={(v) => setChecked(v === true)}
             />
@@ -713,7 +713,7 @@ export default function CustomFieldsPage() {
             {/* Entity-kind pill row — acts as the tab switcher. */}
                 <div className="flex flex-wrap items-center gap-2">
                     {ENTITY_KINDS.map((e) => (
-                        <ZoruButton
+                        <Button
                             key={e.value}
                             type="button"
                             size="sm"
@@ -723,7 +723,7 @@ export default function CustomFieldsPage() {
                             onClick={() => setActiveEntity(e.value)}
                         >
                             {e.label}
-                        </ZoruButton>
+                        </Button>
                     ))}
                 </div>
 
@@ -732,16 +732,16 @@ export default function CustomFieldsPage() {
                     subtitle="Extend any CRM entity with user-defined fields, grouped by entity kind."
                     primaryAction={
                         <div className="flex items-center gap-2">
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 onClick={handleExport}
                                 disabled={filtered.length === 0}
                             >
                                 <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-                            </ZoruButton>
-                            <ZoruButton onClick={() => handleOpenDialog(null)}>
+                            </Button>
+                            <Button onClick={() => handleOpenDialog(null)}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New field
-                            </ZoruButton>
+                            </Button>
                         </div>
                     }
                     search={{
@@ -751,7 +751,7 @@ export default function CustomFieldsPage() {
                     }}
                     filters={
                         <div className="flex flex-wrap items-center gap-2">
-                            <ZoruSelect
+                            <Select
                                 value={fieldTypeFilter}
                                 onValueChange={setFieldTypeFilter}
                             >
@@ -766,15 +766,15 @@ export default function CustomFieldsPage() {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </ZoruSelect>
+                            </Select>
                             {(search || fieldTypeFilter !== 'all') && (
-                                <ZoruButton
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => { setSearch(''); setFieldTypeFilter('all'); }}
                                 >
                                     <X className="mr-1 h-3.5 w-3.5" /> Clear
-                                </ZoruButton>
+                                </Button>
                             )}
                         </div>
                     }
@@ -782,14 +782,14 @@ export default function CustomFieldsPage() {
                 >
                     {/* KPI strip */}
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
-                        <ZoruStatCard label="Total fields" value={totalFields.toLocaleString()} />
-                        <ZoruStatCard label="Active" value={activeFieldsCount.toLocaleString()} />
-                        <ZoruStatCard label="Required" value={requiredCount.toLocaleString()} />
-                        <ZoruStatCard label="Select / multi" value={selectTypeCount.toLocaleString()} />
+                        <StatCard label="Total fields" value={totalFields.toLocaleString()} />
+                        <StatCard label="Active" value={activeFieldsCount.toLocaleString()} />
+                        <StatCard label="Required" value={requiredCount.toLocaleString()} />
+                        <StatCard label="Select / multi" value={selectTypeCount.toLocaleString()} />
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-border">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-border hover:bg-transparent">
                                     <ZoruTableHead className="text-muted-foreground w-16 text-right">
@@ -911,7 +911,7 @@ export default function CustomFieldsPage() {
                                                 />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() =>
@@ -920,8 +920,8 @@ export default function CustomFieldsPage() {
                                                     aria-label="Edit field"
                                                 >
                                                     <Edit className="h-4 w-4" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() =>
@@ -930,13 +930,13 @@ export default function CustomFieldsPage() {
                                                     aria-label="Delete field"
                                                 >
                                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ))
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 </EntityListShell>
 

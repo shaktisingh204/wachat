@@ -139,7 +139,7 @@ export default async function ProjectStatusReportPage(props: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[16px] font-semibold text-foreground">
               Projects by RAG status
@@ -149,9 +149,9 @@ export default async function ProjectStatusReportPage(props: PageProps) {
             </span>
           </div>
           <RagBarChart data={ragDistribution} />
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[16px] font-semibold text-foreground">
               Delivery velocity
@@ -161,12 +161,12 @@ export default async function ProjectStatusReportPage(props: PageProps) {
             </span>
           </div>
           <VelocityLineChart data={velocity} />
-        </ZoruCard>
+        </Card>
       </div>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">Project</ZoruTableHead>
@@ -202,7 +202,7 @@ export default async function ProjectStatusReportPage(props: PageProps) {
                       {r.status}
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={ragVariant(r.rag)}>{r.rag}</ZoruBadge>
+                      <Badge variant={ragVariant(r.rag)}>{r.rag}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-foreground">
                       {r.ownerName}
@@ -230,9 +230,9 @@ export default async function ProjectStatusReportPage(props: PageProps) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

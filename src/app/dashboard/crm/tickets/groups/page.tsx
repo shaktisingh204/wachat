@@ -90,10 +90,10 @@ const STATUS_TONE: Record<CrmTicketGroupStatus, StatusTone> = {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       {isEditing ? 'Save changes' : 'Create group'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -168,7 +168,7 @@ function TicketGroupDialog({
   );
 
   return (
-    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <form action={formAction}>
           {isEditing ? (
@@ -197,8 +197,8 @@ function TicketGroupDialog({
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="name">Name *</Label>
+              <Input
                 id="name"
                 name="name"
                 placeholder="e.g. Billing Issues"
@@ -208,8 +208,8 @@ function TicketGroupDialog({
             </div>
 
             <div className="space-y-2">
-              <ZoruLabel htmlFor="description">Description</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="description">Description</Label>
+              <Textarea
                 id="description"
                 name="description"
                 placeholder="What kinds of tickets land in this group?"
@@ -219,8 +219,8 @@ function TicketGroupDialog({
             </div>
 
             <div className="space-y-2">
-              <ZoruLabel htmlFor="parentGroupId">Parent group</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="parentGroupId">Parent group</Label>
+              <Select
                 value={parentGroupId || '__none__'}
                 onValueChange={(v) =>
                   setParentGroupId(v === '__none__' ? '' : v)
@@ -237,12 +237,12 @@ function TicketGroupDialog({
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <ZoruLabel>Default assignee</ZoruLabel>
+                <Label>Default assignee</Label>
                 <EntityFormField
                   entity="user"
                   name="__defaultAssigneeId_picker"
@@ -252,7 +252,7 @@ function TicketGroupDialog({
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel>Default SLA</ZoruLabel>
+                <Label>Default SLA</Label>
                 <EntityFormField
                   entity="sla"
                   name="__defaultSlaId_picker"
@@ -265,23 +265,23 @@ function TicketGroupDialog({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <ZoruLabel>Color</ZoruLabel>
+                <Label>Color</Label>
                 <ZoruColorPicker value={color} onChange={setColor} />
               </div>
               <div className="space-y-2">
-                <ZoruLabel>Icon</ZoruLabel>
+                <Label>Icon</Label>
                 <ZoruIconPicker value={icon} onChange={setIcon} color={color} />
               </div>
             </div>
 
             <div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
               <div className="flex flex-col">
-                <ZoruLabel htmlFor="isActiveToggle">Active</ZoruLabel>
+                <Label htmlFor="isActiveToggle">Active</Label>
                 <span className="text-xs text-muted-foreground">
                   Inactive groups are hidden from ticket pickers.
                 </span>
               </div>
-              <ZoruSwitch
+              <Switch
                 id="isActiveToggle"
                 checked={isActive}
                 onCheckedChange={setIsActive}
@@ -290,8 +290,8 @@ function TicketGroupDialog({
 
             {isEditing ? (
               <div className="space-y-2">
-                <ZoruLabel htmlFor="statusSelect">Status</ZoruLabel>
-                <ZoruSelect
+                <Label htmlFor="statusSelect">Status</Label>
+                <Select
                   value={status}
                   onValueChange={(v) => setStatus(v as CrmTicketGroupStatus)}
                 >
@@ -302,24 +302,24 @@ function TicketGroupDialog({
                     <ZoruSelectItem value="active">Active</ZoruSelectItem>
                     <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             ) : null}
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton isEditing={isEditing} />
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -501,9 +501,9 @@ export default function TicketGroupsPage() {
           title="Ticket Groups"
           subtitle="Organize support tickets by team, product, or domain."
           primaryAction={
-            <ZoruButton onClick={() => handleOpenDialog(null)}>
+            <Button onClick={() => handleOpenDialog(null)}>
               <Plus className="mr-1.5 h-3.5 w-3.5" /> New Group
-            </ZoruButton>
+            </Button>
           }
           search={{
             value: search,
@@ -511,7 +511,7 @@ export default function TicketGroupsPage() {
             placeholder: 'Search groups…',
           }}
           filters={
-            <ZoruSelect
+            <Select
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
@@ -523,14 +523,14 @@ export default function TicketGroupsPage() {
                 <ZoruSelectItem value="active">Active</ZoruSelectItem>
                 <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           }
           bulkBar={
             selected.size > 0 ? (
               <div className="flex flex-wrap items-center gap-2 text-[13px]">
                 <span className="font-medium text-zoru-ink">{selected.size} selected</span>
                 <span className="text-zoru-ink-muted">·</span>
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   disabled={bulkDeleting}
@@ -538,20 +538,20 @@ export default function TicketGroupsPage() {
                 >
                   <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
                   Delete
-                </ZoruButton>
-                <ZoruButton variant="ghost" size="sm" onClick={handleExportCsv}>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleExportCsv}>
                   <Download className="h-3.5 w-3.5" />
                   Export CSV
-                </ZoruButton>
+                </Button>
                 <span className="ml-auto" />
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelected(new Set())}
                 >
                   <X className="h-3.5 w-3.5" />
                   Clear
-                </ZoruButton>
+                </Button>
               </div>
             ) : null
           }
@@ -565,7 +565,7 @@ export default function TicketGroupsPage() {
                 className="text-left"
                 onClick={() => setStatusFilter('all')}
               >
-                <ZoruStatCard
+                <StatCard
                   label="Total groups"
                   value={kpis.total.toLocaleString()}
                   className={cn(statusFilter === 'all' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
@@ -576,13 +576,13 @@ export default function TicketGroupsPage() {
                 className="text-left"
                 onClick={() => setStatusFilter('active')}
               >
-                <ZoruStatCard
+                <StatCard
                   label="Active"
                   value={kpis.active.toLocaleString()}
                   className={cn(statusFilter === 'active' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
                 />
               </button>
-              <ZoruStatCard
+              <StatCard
                 label="Avg tickets / group"
                 value={kpis.avgTickets.toLocaleString()}
               />
@@ -591,7 +591,7 @@ export default function TicketGroupsPage() {
             {/* Export toolbar when nothing selected */}
             {selected.size === 0 ? (
               <div className="flex justify-end">
-                <ZoruButton
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExportCsv}
@@ -599,16 +599,16 @@ export default function TicketGroupsPage() {
                 >
                   <Download className="mr-1 h-3.5 w-3.5" />
                   Export CSV
-                </ZoruButton>
+                </Button>
               </div>
             ) : null}
 
           <div className="overflow-x-auto rounded-lg border border-border">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
                   <ZoruTableHead className="w-10">
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={
                         filtered.length > 0 && filtered.every((g) => selected.has(String(g._id)))
                           ? true
@@ -677,7 +677,7 @@ export default function TicketGroupsPage() {
                         className={cn('border-border', selected.has(String(g._id)) && 'bg-zoru-surface')}
                       >
                         <ZoruTableCell>
-                          <ZoruCheckbox
+                          <Checkbox
                             checked={selected.has(String(g._id))}
                             onCheckedChange={() =>
                               setSelected((prev) => {
@@ -752,29 +752,29 @@ export default function TicketGroupsPage() {
                           />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
-                          <ZoruButton
+                          <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleOpenDialog(g)}
                             aria-label="Edit group"
                           >
                             <Edit className="h-4 w-4" />
-                          </ZoruButton>
-                          <ZoruButton
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => setPendingDelete(g)}
                             aria-label="Delete group"
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
-                          </ZoruButton>
+                          </Button>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );
                   })
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
           </div>
         </EntityListShell>

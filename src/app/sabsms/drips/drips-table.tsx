@@ -189,18 +189,18 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       render: (r) => (
         <div className="flex items-center gap-1.5">
           {r.enabled ? (
-            <ZoruBadge>
+            <Badge>
               <PlayCircle className="mr-1 h-3 w-3" /> Running
-            </ZoruBadge>
+            </Badge>
           ) : (
-            <ZoruBadge variant="secondary">
+            <Badge variant="secondary">
               <PauseCircle className="mr-1 h-3 w-3" /> Paused
-            </ZoruBadge>
+            </Badge>
           )}
           {r.errorCount > 0 && (
-            <ZoruBadge variant="destructive" className="text-[10px]">
+            <Badge variant="destructive" className="text-[10px]">
               <AlertCircle className="mr-0.5 h-3 w-3" /> {r.errorCount}
-            </ZoruBadge>
+            </Badge>
           )}
         </div>
       ),
@@ -210,9 +210,9 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       header: "Trigger",
       width: "120px",
       render: (r) => (
-        <ZoruBadge variant="secondary" className="text-[10px]">
+        <Badge variant="secondary" className="text-[10px]">
           {r.triggerLabel}
-        </ZoruBadge>
+        </Badge>
       ),
     },
     {
@@ -272,7 +272,7 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       width: "110px",
       hideByDefault: true,
       render: (r) => (
-        <ZoruSwitch
+        <Switch
           checked={r.autoPauseOnError}
           onCheckedChange={async (v) => {
             await setAutoPauseOnError(r.id, !!v);
@@ -427,7 +427,7 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
               <Detail label="Steps" value={String(drawerRow.stepCount)} />
               <Detail label="Cohort" value={drawerRow.cohort ?? "—"} />
             </div>
-            <ZoruCard>
+            <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle className="text-sm">Stage drop-off</ZoruCardTitle>
                 <ZoruCardDescription>
@@ -437,12 +437,12 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
               <ZoruCardContent>
                 <DropoffChart rows={drawerRow.stageDropoff} />
               </ZoruCardContent>
-            </ZoruCard>
+            </Card>
             <div className="flex items-center gap-2">
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href={`/sabsms/drips/${drawerRow.id}`}>Open builder</Link>
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 onClick={async () => {
                   await setDripEnabledFromList(drawerRow.id, !drawerRow.enabled);
@@ -451,13 +451,13 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
                 }}
               >
                 {drawerRow.enabled ? "Pause" : "Resume"}
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 onClick={() => setTestEnrolFor(drawerRow)}
               >
                 <Sparkles className="mr-1 h-3.5 w-3.5" /> Test enrol
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         )}
@@ -555,7 +555,7 @@ function SummaryCard({
   tone?: "default" | "warning";
 }) {
   return (
-    <ZoruCard
+    <Card
       className={
         tone === "warning" && value > 0
           ? "border-amber-200 bg-amber-50/60"
@@ -570,7 +570,7 @@ function SummaryCard({
           {value.toLocaleString()}
         </div>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -665,7 +665,7 @@ function TestEnrolDialog({
     }
   }, [open]);
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Test enrol a contact</ZoruDialogTitle>
@@ -675,34 +675,34 @@ function TestEnrolDialog({
         </ZoruDialogHeader>
         <div className="space-y-2">
           <div className="space-y-1.5">
-            <ZoruLabel>Phone (E.164)</ZoruLabel>
-            <ZoruInput
+            <Label>Phone (E.164)</Label>
+            <Input
               placeholder="+15555550100"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel>First name (optional)</ZoruLabel>
-            <ZoruInput
+            <Label>First name (optional)</Label>
+            <Input
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
           </div>
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             onClick={() => onSubmit({ phoneE164: phone, firstName: firstName || undefined })}
             disabled={!phone}
           >
             Enrol
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -721,7 +721,7 @@ function EditScheduleDialog({
     if (open && row) setSummary(row.scheduleSummary);
   }, [open, row]);
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Edit schedule</ZoruDialogTitle>
@@ -730,23 +730,23 @@ function EditScheduleDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <div className="space-y-1.5">
-          <ZoruLabel>Schedule summary</ZoruLabel>
-          <ZoruInput
+          <Label>Schedule summary</Label>
+          <Input
             placeholder="e.g. Daily 09:00 in contact TZ"
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
           />
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={() => onSubmit(summary)} disabled={!summary}>
+          </Button>
+          <Button onClick={() => onSubmit(summary)} disabled={!summary}>
             Save
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -765,7 +765,7 @@ function BulkEnrolDialog({
     if (!open) setSegmentId("");
   }, [open]);
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -777,22 +777,22 @@ function BulkEnrolDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <div className="space-y-1.5">
-          <ZoruLabel>Segment ID</ZoruLabel>
-          <ZoruInput
+          <Label>Segment ID</Label>
+          <Input
             placeholder="segment_…"
             value={segmentId}
             onChange={(e) => setSegmentId(e.target.value)}
           />
         </div>
         <ZoruDialogFooter>
-          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={() => onSubmit(segmentId)} disabled={!segmentId}>
+          </Button>
+          <Button onClick={() => onSubmit(segmentId)} disabled={!segmentId}>
             Enrol
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

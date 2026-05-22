@@ -78,14 +78,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create entry'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -122,7 +122,7 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="logId" value={initialData!._id} />
@@ -137,8 +137,8 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
                         id="description"
                         name="description"
                         rows={3}
@@ -150,8 +150,8 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                 {/* Started / Ended */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startedAt">Started at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startedAt">Started at</Label>
+                        <Input
                             id="startedAt"
                             name="startedAt"
                             type="datetime-local"
@@ -159,8 +159,8 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="endedAt">Ended at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endedAt">Ended at</Label>
+                        <Input
                             id="endedAt"
                             name="endedAt"
                             type="datetime-local"
@@ -172,8 +172,8 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                 {/* Duration override + rate */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="durationMinutes">Duration (min)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="durationMinutes">Duration (min)</Label>
+                        <Input
                             id="durationMinutes"
                             name="durationMinutes"
                             type="number"
@@ -186,8 +186,8 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                         </p>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="hourlyRate">Hourly rate</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="hourlyRate">Hourly rate</Label>
+                        <Input
                             id="hourlyRate"
                             name="hourlyRate"
                             type="number"
@@ -197,22 +197,22 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                         />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-2">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isBillable"
                             checked={isBillable}
                             onCheckedChange={(v) => setIsBillable(!!v)}
                         />
-                        <ZoruLabel htmlFor="isBillable" className="cursor-pointer">
+                        <Label htmlFor="isBillable" className="cursor-pointer">
                             Billable
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 {/* Entity link */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="entityKind-trigger">Entity kind</ZoruLabel>
-                        <ZoruSelect value={entityKind} onValueChange={setEntityKind}>
+                        <Label htmlFor="entityKind-trigger">Entity kind</Label>
+                        <Select value={entityKind} onValueChange={setEntityKind}>
                             <ZoruSelectTrigger id="entityKind-trigger">
                                 <ZoruSelectValue placeholder="Kind" />
                             </ZoruSelectTrigger>
@@ -223,10 +223,10 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Entity</ZoruLabel>
+                        <Label>Entity</Label>
                         {(() => {
                             const ENTITY_BY_KIND: Record<
                                 CrmTimeLogEntityKind,
@@ -250,7 +250,7 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                         })()}
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Project</ZoruLabel>
+                        <Label>Project</Label>
                         <EntityFormField
                             entity="project"
                             name="projectId"
@@ -263,8 +263,8 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                 {/* Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="status-trigger">Status</Label>
+                        <Select
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmTimeLogStatus)}
                         >
@@ -278,20 +278,20 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to time logs
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

@@ -64,7 +64,7 @@ export function ClayRoundCard({
   const tone = statusTone[status];
 
   return (
-    <ZoruCard
+    <Card
       variant="default"
       className={cn('rounded-[14px] p-4 min-w-[260px]', className)}
     >
@@ -106,15 +106,15 @@ export function ClayRoundCard({
           size="md"
           overflowTone="rose"
         />
-        <ZoruButton
+        <Button
           variant="obsidian"
           size="sm"
           onClick={onCtaClick}
           trailing={<span aria-hidden className="ml-0.5">→</span>}
         >
           {ctaLabel}
-        </ZoruButton>
+        </Button>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }

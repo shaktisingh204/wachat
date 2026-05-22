@@ -32,7 +32,7 @@ function formatDate(iso: string | null): string {
 
 export function ProfileCard({ profile }: ProfileCardProps) {
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                 {/* Avatar */}
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-zoru-primary/10 text-xl font-semibold text-zoru-primary">
@@ -45,9 +45,9 @@ export function ProfileCard({ profile }: ProfileCardProps) {
                         <h2 className="text-[18px] font-semibold text-zoru-ink">
                             {profile.firstName} {profile.lastName}
                         </h2>
-                        <ZoruBadge variant={statusVariant(profile.status)}>
+                        <Badge variant={statusVariant(profile.status)}>
                             {profile.status}
-                        </ZoruBadge>
+                        </Badge>
                     </div>
 
                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-zoru-ink-muted">
@@ -85,6 +85,6 @@ export function ProfileCard({ profile }: ProfileCardProps) {
                     )}
                 </div>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }

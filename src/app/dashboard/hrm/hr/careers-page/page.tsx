@@ -115,8 +115,8 @@ export default function CareersPageConfigPage() {
 
       {isLoading && !config ? (
         <div className="space-y-4">
-          <ZoruSkeleton className="h-32 w-full" />
-          <ZoruSkeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
         </div>
       ) : (
         <form action={saveFormAction} className="flex flex-col gap-4">
@@ -125,7 +125,7 @@ export default function CareersPageConfigPage() {
           ) : null}
 
           {/* ─── Slug + theme ──────────────────────────────────────── */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-[15px]">Slug & theme</ZoruCardTitle>
               <ZoruCardDescription>
@@ -134,8 +134,8 @@ export default function CareersPageConfigPage() {
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="slug">Slug</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="slug">Slug</Label>
+                <Input
                   id="slug"
                   name="slug"
                   defaultValue={value('slug')}
@@ -143,8 +143,8 @@ export default function CareersPageConfigPage() {
                 />
               </div>
               <div>
-                <ZoruLabel htmlFor="primaryColor">Primary colour</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="primaryColor">Primary colour</Label>
+                <Input
                   id="primaryColor"
                   name="primaryColor"
                   defaultValue={value('primaryColor')}
@@ -152,7 +152,7 @@ export default function CareersPageConfigPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <ZoruLabel htmlFor="logoUrl">Logo</ZoruLabel>
+                <Label htmlFor="logoUrl">Logo</Label>
                 <SabFileUrlInput
                   id="logoUrl"
                   name="logoUrl"
@@ -162,10 +162,10 @@ export default function CareersPageConfigPage() {
                 />
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* ─── Intro text ────────────────────────────────────────── */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-[15px]">
                 Headline & intro
@@ -176,8 +176,8 @@ export default function CareersPageConfigPage() {
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <ZoruLabel htmlFor="headline">Headline</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="headline">Headline</Label>
+                <Input
                   id="headline"
                   name="headline"
                   defaultValue={value('headline')}
@@ -185,8 +185,8 @@ export default function CareersPageConfigPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <ZoruLabel htmlFor="intro">Intro</ZoruLabel>
-                <ZoruTextarea
+                <Label htmlFor="intro">Intro</Label>
+                <Textarea
                   id="intro"
                   name="intro"
                   rows={4}
@@ -195,10 +195,10 @@ export default function CareersPageConfigPage() {
                 />
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* ─── Visibility + CTA ──────────────────────────────────── */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-[15px]">CTA & visibility</ZoruCardTitle>
               <ZoruCardDescription>
@@ -207,8 +207,8 @@ export default function CareersPageConfigPage() {
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel htmlFor="ctaLabel">CTA label</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="ctaLabel">CTA label</Label>
+                <Input
                   id="ctaLabel"
                   name="ctaLabel"
                   defaultValue={value('ctaLabel')}
@@ -216,7 +216,7 @@ export default function CareersPageConfigPage() {
                 />
               </div>
               <div>
-                <ZoruLabel>Published</ZoruLabel>
+                <Label>Published</Label>
                 <EnumFormField
                   name="isPublished"
                   enumName="yesNo"
@@ -226,14 +226,14 @@ export default function CareersPageConfigPage() {
                 />
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* ─── SEO meta ──────────────────────────────────────────── */}
           {/* TODO 1D.4: SEO fields (meta title/description/og-image) +
               "visible jobs" picker + custom application form builder
               once a `careers_page_seo` action lands. Keys are emitted
               as no-op until then so the save action sees nothing new. */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-[15px]">SEO meta</ZoruCardTitle>
               <ZoruCardDescription>
@@ -247,10 +247,10 @@ export default function CareersPageConfigPage() {
                 For now SEO inherits the headline + intro defined above.
               </p>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           <div className="sticky bottom-0 -mx-1 flex justify-end gap-2 bg-zoru-bg/95 px-1 py-3 backdrop-blur">
-            <ZoruButton type="submit" disabled={isSaving}>
+            <Button type="submit" disabled={isSaving}>
               {isSaving ? (
                 <LoaderCircle
                   className="h-4 w-4 animate-spin"
@@ -258,7 +258,7 @@ export default function CareersPageConfigPage() {
                 />
               ) : null}
               Save
-            </ZoruButton>
+            </Button>
           </div>
         </form>
       )}

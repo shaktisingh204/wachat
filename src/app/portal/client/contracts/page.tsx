@@ -48,14 +48,14 @@ export default async function ClientContractsPage() {
             </div>
 
             {contracts.length === 0 ? (
-                <ZoruEmptyState
+                <EmptyState
                     title="No contracts yet"
                     description="Contracts shared with you will appear here."
                 />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-0">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Name</ZoruTableHead>
@@ -78,15 +78,15 @@ export default async function ClientContractsPage() {
                                                 {fmtDate(c.startDate)} – {fmtDate(c.endDate)}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant={unsigned ? 'outline' : 'secondary'}>
+                                                <Badge variant={unsigned ? 'outline' : 'secondary'}>
                                                     {c.signedAt ? 'Signed' : c.status}
-                                                </ZoruBadge>
+                                                </Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
                                                 {unsigned && c.publicHash ? (
-                                                    <ZoruButton asChild size="sm">
+                                                    <Button asChild size="sm">
                                                         <a href={`/share/contract/${c.publicHash}`}>Review &amp; Sign</a>
-                                                    </ZoruButton>
+                                                    </Button>
                                                 ) : (
                                                     <span className="text-xs text-zoru-ink-muted">—</span>
                                                 )}
@@ -95,9 +95,9 @@ export default async function ClientContractsPage() {
                                     );
                                 })}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

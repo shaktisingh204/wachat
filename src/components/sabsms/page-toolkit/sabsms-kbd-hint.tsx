@@ -47,7 +47,7 @@ export function SabsmsKbdHint({ shortcuts, triggerLabel }: SabsmsKbdHintProps) {
 
   return (
     <>
-      <ZoruButton
+      <Button
         variant="ghost"
         size="sm"
         onClick={() => setOpen(true)}
@@ -55,8 +55,8 @@ export function SabsmsKbdHint({ shortcuts, triggerLabel }: SabsmsKbdHintProps) {
       >
         <Keyboard className="mr-1.5 h-3.5 w-3.5" />
         {triggerLabel ?? <ZoruKbd>?</ZoruKbd>}
-      </ZoruButton>
-      <ZoruDialog open={open} onOpenChange={setOpen}>
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
         <ZoruDialogContent className="max-w-md">
           <ZoruDialogHeader>
             <ZoruDialogTitle>Keyboard shortcuts</ZoruDialogTitle>
@@ -77,7 +77,7 @@ export function SabsmsKbdHint({ shortcuts, triggerLabel }: SabsmsKbdHintProps) {
             ))}
           </ul>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </>
   );
 }

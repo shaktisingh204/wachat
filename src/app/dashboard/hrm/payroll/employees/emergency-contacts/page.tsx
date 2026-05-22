@@ -128,14 +128,14 @@ export default function EmergencyContactsPage() {
       title="Emergency Contacts"
       subtitle="Emergency contact details for each employee."
       primaryAction={
-        <ZoruButton onClick={openAdd}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Add Contact
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
@@ -166,12 +166,12 @@ export default function EmergencyContactsPage() {
                       <td className="max-w-[180px] truncate px-4 py-2.5 text-zoru-ink-muted">{c.address || '—'}</td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(c)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(c)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(String(c._id))}>
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(String(c._id))}>
                             <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -181,17 +181,17 @@ export default function EmergencyContactsPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg border-zoru-line bg-zoru-bg">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">{form._id ? 'Edit Emergency Contact' : 'Add Emergency Contact'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-              <ZoruSelect value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
+              <Label className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></Label>
+              <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
                 <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                   <ZoruSelectValue placeholder="Select employee…" />
                 </ZoruSelectTrigger>
@@ -199,36 +199,36 @@ export default function EmergencyContactsPage() {
                   <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
                   {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Contact Name <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-                <ZoruInput value={form.name} onChange={(e) => set('name', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                <Label className="text-[12px] text-zoru-ink-muted">Contact Name <span className="text-zoru-danger-ink">*</span></Label>
+                <Input value={form.name} onChange={(e) => set('name', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
               </div>
               <div>
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Relation</ZoruLabel>
-                <ZoruInput value={form.relation} onChange={(e) => set('relation', e.target.value)} placeholder="e.g. Spouse, Parent" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                <Label className="text-[12px] text-zoru-ink-muted">Relation</Label>
+                <Input value={form.relation} onChange={(e) => set('relation', e.target.value)} placeholder="e.g. Spouse, Parent" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
               </div>
               <div>
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">Phone</ZoruLabel>
-                <ZoruInput type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                <Label className="text-[12px] text-zoru-ink-muted">Phone</Label>
+                <Input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
               </div>
             </div>
             <div>
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Address</ZoruLabel>
-              <ZoruTextarea rows={2} value={form.address} onChange={(e) => set('address', e.target.value)} className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-zoru-ink-muted">Address</Label>
+              <Textarea rows={2} value={form.address} onChange={(e) => set('address', e.target.value)} className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
           </div>
           <ZoruDialogFooter className="gap-2">
-            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>Cancel</ZoruButton>
-            <ZoruButton onClick={handleSave} disabled={isSaving}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

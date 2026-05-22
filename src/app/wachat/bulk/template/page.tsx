@@ -37,9 +37,9 @@ import * as React from 'react';
 function BulkTemplatePageSkeleton() {
   return (
     <div className="flex flex-col gap-6">
-      <ZoruSkeleton className="h-8 w-48" />
-      <ZoruSkeleton className="h-24 w-full" />
-      <ZoruSkeleton className="h-96 w-full" />
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-96 w-full" />
     </div>
   );
 }
@@ -74,26 +74,26 @@ function BulkTemplatePageContent() {
 
   if (projectIds.length === 0) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertTitle>No projects selected</ZoruAlertTitle>
         <ZoruAlertDescription>
           Go to the main dashboard to select projects for bulk template
           creation.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <ZoruButton variant="ghost" size="sm" asChild className="-ml-2 mb-2">
+        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-2">
           <Link href="/wachat/bulk">
             <ChevronLeft className="h-3.5 w-3.5" />
             Back to bulk actions
           </Link>
-        </ZoruButton>
+        </Button>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
           Create Bulk Template
         </h1>
@@ -121,7 +121,7 @@ function BulkTemplatePageContent() {
 export default function BulkTemplatePage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -141,7 +141,7 @@ export default function BulkTemplatePage() {
             <ZoruBreadcrumbPage>Template</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <Suspense fallback={<BulkTemplatePageSkeleton />}>
         <BulkTemplatePageContent />

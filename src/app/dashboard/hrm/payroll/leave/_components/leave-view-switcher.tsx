@@ -23,7 +23,7 @@ export function LeaveViewSwitcher({
 }: LeaveViewSwitcherProps): React.JSX.Element {
   return (
     <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-0.5">
-      <ZoruButton
+      <Button
         type="button"
         size="sm"
         variant={view === 'table' ? 'default' : 'ghost'}
@@ -32,8 +32,8 @@ export function LeaveViewSwitcher({
         aria-label="Table view"
       >
         <ListIcon className="h-3.5 w-3.5" />
-      </ZoruButton>
-      <ZoruButton
+      </Button>
+      <Button
         type="button"
         size="sm"
         variant={view === 'calendar' ? 'default' : 'ghost'}
@@ -42,7 +42,7 @@ export function LeaveViewSwitcher({
         aria-label="Calendar view"
       >
         <CalendarDays className="h-3.5 w-3.5" />
-      </ZoruButton>
+      </Button>
     </div>
   );
 }

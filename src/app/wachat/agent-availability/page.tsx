@@ -102,7 +102,7 @@ export default function AgentAvailabilityPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -116,7 +116,7 @@ export default function AgentAvailabilityPage() {
             <ZoruBreadcrumbPage>Agent Availability</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div>
         <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
@@ -129,10 +129,10 @@ export default function AgentAvailabilityPage() {
 
       <div className="flex gap-4">
         {(['online', 'away', 'offline'] as const).map((s) => (
-          <ZoruCard key={s} className="flex-1 p-4 text-center">
+          <Card key={s} className="flex-1 p-4 text-center">
             <p className="text-[22px] text-zoru-ink">{counts[s]}</p>
             <p className="text-[11px] capitalize text-zoru-ink-muted">{s}</p>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
 
@@ -141,14 +141,14 @@ export default function AgentAvailabilityPage() {
           <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
         </div>
       ) : agents.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Users />}
           title="No agents found"
           description="Once you add agents, their availability will appear here."
         />
       ) : (
-        <ZoruCard className="overflow-x-auto p-0">
-          <ZoruTable>
+        <Card className="overflow-x-auto p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Agent</ZoruTableHead>
@@ -164,19 +164,19 @@ export default function AgentAvailabilityPage() {
                     {agent.name || 'Agent'}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruBadge
+                    <Badge
                       variant={
                         STATUS_VARIANTS[agent.status] || 'secondary'
                       }
                     >
                       {agent.status || 'offline'}
-                    </ZoruBadge>
+                    </Badge>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                     {agent.email || '--'}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => cycleStatus(agent)}
@@ -185,13 +185,13 @@ export default function AgentAvailabilityPage() {
                       {togglingId === agent._id
                         ? 'Updating...'
                         : 'Toggle Status'}
-                    </ZoruButton>
+                    </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       )}
       <div className="h-6" />
     </div>

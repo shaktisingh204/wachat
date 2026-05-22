@@ -31,17 +31,17 @@ export default function LogAnalyzerPage() {
 
   return (
     <ToolShell title="Server Log Analyzer" description="Parse NCSA/Combined access logs and find top IPs, paths, and bots.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="Paste access log lines…" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="Paste access log lines…" />
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{total}</div><div className="text-xs text-muted-foreground">Lines parsed</div></ZoruCardContent></ZoruCard>
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{bots}</div><div className="text-xs text-muted-foreground">Bot hits</div></ZoruCardContent></ZoruCard>
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{topIps.length}</div><div className="text-xs text-muted-foreground">Unique IPs (top)</div></ZoruCardContent></ZoruCard>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{total}</div><div className="text-xs text-muted-foreground">Lines parsed</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{bots}</div><div className="text-xs text-muted-foreground">Bot hits</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{topIps.length}</div><div className="text-xs text-muted-foreground">Unique IPs (top)</div></ZoruCardContent></Card>
       </div>
       {[['Top IPs', topIps], ['Top paths', topPaths], ['Top user agents', topUAs]].map(([title, list]) => (
-        <ZoruCard key={title as string}><ZoruCardContent className="p-4">
+        <Card key={title as string}><ZoruCardContent className="p-4">
           <div className="font-semibold text-sm mb-2">{title as string}</div>
           {(list as any[]).map(([k, v]) => <div key={k} className="flex justify-between text-xs border-t py-1"><span className="font-mono truncate max-w-xl">{k}</span><span>{v}</span></div>)}
-        </ZoruCardContent></ZoruCard>
+        </ZoruCardContent></Card>
       ))}
     </ToolShell>
   );

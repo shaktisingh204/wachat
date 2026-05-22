@@ -82,42 +82,42 @@ export function KbInternalDetailActions({
 
     return (
         <>
-            <ZoruButton asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/workspace/knowledge-base/${id}/edit`}>
                     <Pencil className="h-3.5 w-3.5" /> Edit
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={handleTogglePin}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleTogglePin}>
                 <Pin className="h-3.5 w-3.5" /> {pinned ? 'Unpublish' : 'Publish'}
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={handleShare}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="h-3.5 w-3.5" /> Share
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={handleShare}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleShare}>
                 <Copy className="h-3.5 w-3.5" /> Copy link
-            </ZoruButton>
-            <ZoruButton variant="outline" size="sm" onClick={handleEmail}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleEmail}>
                 <Mail className="h-3.5 w-3.5" /> Email
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={() => handleHelpful('yes')}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => handleHelpful('yes')}>
                 <ThumbsUp className="h-3.5 w-3.5" /> Helpful
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={() => handleHelpful('no')}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => handleHelpful('no')}>
                 <ThumbsDown className="h-3.5 w-3.5" /> Not helpful
-            </ZoruButton>
-            <ZoruButton asChild variant="ghost" size="sm">
+            </Button>
+            <Button asChild variant="ghost" size="sm">
                 <Link href={`/dashboard/crm/workspace/knowledge-base/${id}/activity`}>
                     <Activity className="h-3.5 w-3.5" /> Activity
                 </Link>
-            </ZoruButton>
-            <ZoruButton asChild variant="ghost" size="sm">
+            </Button>
+            <Button asChild variant="ghost" size="sm">
                 <Link href={`/dashboard/crm/workspace/knowledge-base/${id}/edit`}>
                     <Archive className="h-3.5 w-3.5" /> Archive
                 </Link>
-            </ZoruButton>
-            <ZoruButton variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
-            </ZoruButton>
+            </Button>
 
             <ConfirmDialog
                 open={confirmDelete}

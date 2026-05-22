@@ -80,23 +80,23 @@ export default async function StoreOverviewPage() {
             title="Online store"
             subtitle="Storefronts, products, pricing rules, shipping zones and orders."
             primaryAction={
-                <ZoruButton asChild variant="outline">
+                <Button asChild variant="outline">
                     <Link href="/dashboard/crm/store/storefronts/new">
                         New storefront
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                <ZoruStatCard
+                <StatCard
                     label="Published storefronts"
                     value={kpi.publishedStorefronts}
                 />
-                <ZoruStatCard label="Total products" value={kpi.totalProducts} />
-                <ZoruStatCard label="Live pricing rules" value={kpi.liveRules} />
-                <ZoruStatCard label="Pending orders" value={kpi.pendingOrders} />
-                <ZoruStatCard
+                <StatCard label="Total products" value={kpi.totalProducts} />
+                <StatCard label="Live pricing rules" value={kpi.liveRules} />
+                <StatCard label="Pending orders" value={kpi.pendingOrders} />
+                <StatCard
                     label="Abandoned carts"
                     value={kpi.abandonedCarts}
                 />
@@ -106,7 +106,7 @@ export default async function StoreOverviewPage() {
                 {QUICK_LINKS.map((link) => {
                     const Icon = link.icon;
                     return (
-                        <ZoruCard key={link.href} className="p-5">
+                        <Card key={link.href} className="p-5">
                             <div className="flex items-start gap-3">
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                                     <Icon
@@ -129,7 +129,7 @@ export default async function StoreOverviewPage() {
                                     </Link>
                                 </div>
                             </div>
-                        </ZoruCard>
+                        </Card>
                     );
                 })}
             </div>

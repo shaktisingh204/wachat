@@ -37,10 +37,10 @@ interface RequestWhatsAppPaymentDialogProps {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-      <ZoruButton type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending}>
         {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
         Send Request
-      </ZoruButton>
+      </Button>
     );
 }
 
@@ -61,7 +61,7 @@ export function RequestWhatsAppPaymentDialog({ isOpen, onOpenChange, contact }: 
     }, [state, toast, onOpenChange]);
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-md">
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
@@ -73,24 +73,24 @@ export function RequestWhatsAppPaymentDialog({ isOpen, onOpenChange, contact }: 
                     </ZoruDialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="amount">Amount (INR)</ZoruLabel>
-                            <ZoruInput id="amount" name="amount" type="number" step="0.01" required />
+                            <Label htmlFor="amount">Amount (INR)</Label>
+                            <Input id="amount" name="amount" type="number" step="0.01" required />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-                            <ZoruTextarea id="description" name="description" placeholder="e.g., Payment for Order #1234" required />
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" name="description" placeholder="e.g., Payment for Order #1234" required />
                         </div>
                          <div className="space-y-2">
-                            <ZoruLabel htmlFor="externalReference">External Reference ID (Optional)</ZoruLabel>
-                            <ZoruInput id="externalReference" name="externalReference" placeholder="e.g., order_1234" />
+                            <Label htmlFor="externalReference">External Reference ID (Optional)</Label>
+                            <Input id="externalReference" name="externalReference" placeholder="e.g., order_1234" />
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

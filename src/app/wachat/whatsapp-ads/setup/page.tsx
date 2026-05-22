@@ -61,7 +61,7 @@ export default function DeprecatedWhatsappAdsSetupPage() {
         Redirecting you to the new project connections page…
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink">
           WhatsApp Ads Setup
         </h1>
@@ -88,7 +88,7 @@ export default function DeprecatedWhatsappAdsSetupPage() {
             </li>
           ))}
         </ol>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

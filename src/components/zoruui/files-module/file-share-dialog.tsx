@@ -50,7 +50,7 @@ export function ZoruFileShareDialog({
   }, [file]);
 
   return (
-    <ZoruDialog open={!!file} onOpenChange={onOpenChange}>
+    <Dialog open={!!file} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         {file && (
           <>
@@ -63,9 +63,9 @@ export function ZoruFileShareDialog({
 
             <div className="space-y-3">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel htmlFor="zoru-share-email">Invite by email</ZoruLabel>
+                <Label htmlFor="zoru-share-email">Invite by email</Label>
                 <div className="flex gap-2">
-                  <ZoruInput
+                  <Input
                     id="zoru-share-email"
                     type="email"
                     value={email}
@@ -74,7 +74,7 @@ export function ZoruFileShareDialog({
                     leadingSlot={<Mail />}
                     className="flex-1"
                   />
-                  <ZoruSelect value={access} onValueChange={(v) => setAccess(v as ZoruFileShareAccess)}>
+                  <Select value={access} onValueChange={(v) => setAccess(v as ZoruFileShareAccess)}>
                     <ZoruSelectTrigger className="w-32">
                       <ZoruSelectValue />
                     </ZoruSelectTrigger>
@@ -82,8 +82,8 @@ export function ZoruFileShareDialog({
                       <ZoruSelectItem value="viewer">Viewer</ZoruSelectItem>
                       <ZoruSelectItem value="editor">Editor</ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
-                  <ZoruButton
+                  </Select>
+                  <Button
                     onClick={() => {
                       if (!email.trim()) return;
                       onInvite?.(file, email.trim(), access);
@@ -91,39 +91,39 @@ export function ZoruFileShareDialog({
                     }}
                   >
                     Invite
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
 
               {shareUrl && (
                 <div className="flex flex-col gap-1.5">
-                  <ZoruLabel>Shareable link</ZoruLabel>
+                  <Label>Shareable link</Label>
                   <div className="flex gap-2">
-                    <ZoruInput
+                    <Input
                       readOnly
                       value={shareUrl}
                       leadingSlot={<LinkIcon />}
                       className="flex-1"
                     />
-                    <ZoruButton
+                    <Button
                       variant="outline"
                       onClick={() => onCopyLink?.(shareUrl)}
                     >
                       <Copy /> Copy
-                    </ZoruButton>
+                    </Button>
                   </div>
                 </div>
               )}
             </div>
 
             <ZoruDialogFooter>
-              <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
                 Done
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </>
         )}
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

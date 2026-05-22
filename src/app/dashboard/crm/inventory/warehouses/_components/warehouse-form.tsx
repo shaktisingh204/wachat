@@ -59,14 +59,14 @@ const TYPE_OPTIONS = [
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create warehouse'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -94,7 +94,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -107,8 +107,8 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                 {/* Row 1: Name + Code */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
                             id="name"
                             name="name"
                             required
@@ -117,8 +117,8 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="code">Code</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="code">Code</Label>
+                        <Input
                             id="code"
                             name="code"
                             placeholder="e.g. WH-MUM-01"
@@ -130,7 +130,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                 {/* Row 2: Type + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="type">Type</ZoruLabel>
+                        <Label htmlFor="type">Type</Label>
                         <EnumFormField
                             enumName="warehouseType"
                             name="type"
@@ -138,7 +138,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                        <Label htmlFor="status">Status</Label>
                         <EnumFormField
                             enumName="warehouseStatus"
                             name="status"
@@ -149,8 +149,8 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
 
                 {/* Row 3: Address (full) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="address">Address</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="address">Address</Label>
+                    <Textarea
                         id="address"
                         name="address"
                         rows={2}
@@ -162,32 +162,32 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                 {/* Row 4: City / State / Country / Pincode */}
                 <div className="grid gap-4 sm:grid-cols-4">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="city">City</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="city">City</Label>
+                        <Input
                             id="city"
                             name="city"
                             defaultValue={initialData?.city ?? ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="state">State</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="state">State</Label>
+                        <Input
                             id="state"
                             name="state"
                             defaultValue={initialData?.state ?? ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="country">Country</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="country">Country</Label>
+                        <Input
                             id="country"
                             name="country"
                             defaultValue={initialData?.country ?? ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="pincode">Pincode</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="pincode">Pincode</Label>
+                        <Input
                             id="pincode"
                             name="pincode"
                             defaultValue={initialData?.pincode ?? ''}
@@ -198,7 +198,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                 {/* Row 5: Manager picker + Manager name + Phone */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="managerId">Manager</ZoruLabel>
+                        <Label htmlFor="managerId">Manager</Label>
                         <EntityFormField
                             entity="employee"
                             name="managerId"
@@ -211,8 +211,8 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="phone">Contact phone</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="phone">Contact phone</Label>
+                        <Input
                             id="phone"
                             name="phone"
                             type="tel"
@@ -221,8 +221,8 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="gstin">GSTIN</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="gstin">GSTIN</Label>
+                        <Input
                             id="gstin"
                             name="gstin"
                             placeholder="22AAAAA0000A1Z5"
@@ -234,8 +234,8 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                 {/* Row 6: Capacity */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="capacityUnits">Capacity (units)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="capacityUnits">Capacity (units)</Label>
+                        <Input
                             id="capacityUnits"
                             name="capacityUnits"
                             type="number"
@@ -249,8 +249,8 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="capacitySqft">Capacity (sqft)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="capacitySqft">Capacity (sqft)</Label>
+                        <Input
                             id="capacitySqft"
                             name="capacitySqft"
                             type="number"
@@ -268,40 +268,40 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                 {/* Row 7: Flags */}
                 <div className="flex flex-wrap items-center gap-6">
                     <div className="flex items-center gap-2">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="climateControlled"
                             name="climateControlled"
                             defaultChecked={!!initialData?.climateControlled}
                         />
-                        <ZoruLabel
+                        <Label
                             htmlFor="climateControlled"
                             className="cursor-pointer"
                         >
                             Climate-controlled
-                        </ZoruLabel>
+                        </Label>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruCheckbox
+                        <Checkbox
                             id="isDefault"
                             name="isDefault"
                             defaultChecked={!!initialData?.isDefault}
                         />
-                        <ZoruLabel htmlFor="isDefault" className="cursor-pointer">
+                        <Label htmlFor="isDefault" className="cursor-pointer">
                             Default warehouse
-                        </ZoruLabel>
+                        </Label>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to warehouses
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

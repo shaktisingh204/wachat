@@ -30,24 +30,24 @@ export default function PasswordGeneratorPage() {
 
   return (
     <ToolShell title="Password Generator" description="Generate strong, cryptographically random passwords.">
-      <div className="space-y-1"><ZoruLabel>Length: {length}</ZoruLabel>
+      <div className="space-y-1"><Label>Length: {length}</Label>
         <input type="range" min={8} max={64} value={length} onChange={(e) => setLength(Number(e.target.value))} className="w-full" />
       </div>
       <div className="flex flex-wrap gap-4">
         {(['upper','lower','digits','symbols'] as const).map((k) => (
           <div key={k} className="flex items-center gap-2">
-            <ZoruSwitch checked={opts[k]} onCheckedChange={(v) => setOpts((s) => ({ ...s, [k]: v }))} />
-            <ZoruLabel className="capitalize">{k}</ZoruLabel>
+            <Switch checked={opts[k]} onCheckedChange={(v) => setOpts((s) => ({ ...s, [k]: v }))} />
+            <Label className="capitalize">{k}</Label>
           </div>
         ))}
       </div>
       <div className="flex gap-2">
-        <ZoruButton onClick={generate}>Generate</ZoruButton>
-        {password && <ZoruButton variant="outline" onClick={() => navigator.clipboard.writeText(password)}>Copy</ZoruButton>}
+        <Button onClick={generate}>Generate</Button>
+        {password && <Button variant="outline" onClick={() => navigator.clipboard.writeText(password)}>Copy</Button>}
       </div>
       {password && (
         <>
-          <ZoruInput readOnly value={password} className="font-mono" />
+          <Input readOnly value={password} className="font-mono" />
           <div className="h-1.5 bg-muted rounded"><div className="h-full rounded bg-green-500" style={{ width: `${strength}%` }} /></div>
         </>
       )}

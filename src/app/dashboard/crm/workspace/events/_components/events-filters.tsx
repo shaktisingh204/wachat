@@ -57,7 +57,7 @@ export function EventsFiltersRow({
 }: EventsFiltersRowProps): React.JSX.Element {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <Select
                 value={eventType}
                 onValueChange={(v) => onEventTypeChange(v as EventsTypeFilter)}
             >
@@ -73,8 +73,8 @@ export function EventsFiltersRow({
                     <ZoruSelectItem value="training">Training</ZoruSelectItem>
                     <ZoruSelectItem value="other">Other</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruSelect value={repeat} onValueChange={(v) => onRepeatChange(v as EventsRepeatFilter)}>
+            </Select>
+            <Select value={repeat} onValueChange={(v) => onRepeatChange(v as EventsRepeatFilter)}>
                 <ZoruSelectTrigger className="h-9 w-[140px]">
                     <ZoruSelectValue placeholder="Repeat" />
                 </ZoruSelectTrigger>
@@ -83,23 +83,23 @@ export function EventsFiltersRow({
                     <ZoruSelectItem value="repeating">Repeating</ZoruSelectItem>
                     <ZoruSelectItem value="one-off">One-off</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
-            <ZoruInput
+            <Input
                 value={location}
                 onChange={(e) => onLocationChange(e.target.value)}
                 placeholder="Location…"
                 className="h-9 w-[180px]"
             />
 
-            <ZoruInput
+            <Input
                 value={organizer}
                 onChange={(e) => onOrganizerChange(e.target.value)}
                 placeholder="Organizer id…"
                 className="h-9 w-[180px]"
             />
 
-            <ZoruSelect value={rsvp} onValueChange={(v) => onRsvpChange(v as EventsRsvpFilter)}>
+            <Select value={rsvp} onValueChange={(v) => onRsvpChange(v as EventsRsvpFilter)}>
                 <ZoruSelectTrigger className="h-9 w-[140px]">
                     <ZoruSelectValue placeholder="RSVP" />
                 </ZoruSelectTrigger>
@@ -110,16 +110,16 @@ export function EventsFiltersRow({
                     <ZoruSelectItem value="declined">Declined</ZoruSelectItem>
                     <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
                 </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
 
-            <ZoruInput
+            <Input
                 type="date"
                 value={fromIso}
                 onChange={(e) => onFromChange(e.target.value)}
                 className="h-9 w-[150px]"
                 aria-label="From"
             />
-            <ZoruInput
+            <Input
                 type="date"
                 value={toIso}
                 onChange={(e) => onToChange(e.target.value)}
@@ -128,9 +128,9 @@ export function EventsFiltersRow({
             />
 
             {hasActiveFilters ? (
-                <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                <Button variant="ghost" size="sm" onClick={onClear}>
                     <X className="h-3.5 w-3.5" /> Clear
-                </ZoruButton>
+                </Button>
             ) : null}
         </div>
     );

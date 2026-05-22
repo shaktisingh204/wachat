@@ -47,7 +47,7 @@ export function ZoruFileRenameDialog({
   };
 
   return (
-    <ZoruDialog open={!!file} onOpenChange={onOpenChange}>
+    <Dialog open={!!file} onOpenChange={onOpenChange}>
       <ZoruDialogContent>
         {file && (
           <form onSubmit={handleSubmit} className="contents">
@@ -58,8 +58,8 @@ export function ZoruFileRenameDialog({
               </ZoruDialogDescription>
             </ZoruDialogHeader>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="zoru-file-rename">File name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="zoru-file-rename">File name</Label>
+              <Input
                 id="zoru-file-rename"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -67,21 +67,21 @@ export function ZoruFileRenameDialog({
               />
             </div>
             <ZoruDialogFooter>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="ghost"
                 onClick={() => onOpenChange(false)}
                 disabled={submitting}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={!name.trim() || submitting}>
+              </Button>
+              <Button type="submit" disabled={!name.trim() || submitting}>
                 {submitting ? "Saving…" : "Save"}
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         )}
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

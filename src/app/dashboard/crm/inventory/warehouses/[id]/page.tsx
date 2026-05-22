@@ -107,22 +107,22 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
             }}
             actions={
                 <>
-                    <ZoruButton variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                         <Link
                             href={`/dashboard/crm/inventory/warehouses/${id}/activity`}
                         >
                             <History className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Activity
                         </Link>
-                    </ZoruButton>
-                    <ZoruButton size="sm" asChild>
+                    </Button>
+                    <Button size="sm" asChild>
                         <Link
                             href={`/dashboard/crm/inventory/warehouses/${id}/edit`}
                         >
                             <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <WarehouseDetailActions
                         id={id}
                         isDefault={!!warehouse.isDefault}
@@ -132,7 +132,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
             }
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Related</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -156,12 +156,12 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                                 Items with stock here
                             </Link>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
             audit={<EntityAuditTimeline entityKind="warehouse" entityId={id} />}
         >
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Basic</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -176,9 +176,9 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         <div>
                             <dt className="text-xs text-zinc-500">Type</dt>
                             <dd>
-                                <ZoruBadge variant="secondary">
+                                <Badge variant="secondary">
                                     {typeLabel(warehouse.type)}
-                                </ZoruBadge>
+                                </Badge>
                             </dd>
                         </div>
                         {warehouse.gstin ? (
@@ -200,9 +200,9 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         ) : null}
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Address</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -240,9 +240,9 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Contact</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -262,9 +262,9 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Capacity</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -305,9 +305,9 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Inventory summary</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -337,9 +337,9 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         </div>
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>
                         Stock by item ({stockRows.length})
@@ -443,7 +443,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         </div>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

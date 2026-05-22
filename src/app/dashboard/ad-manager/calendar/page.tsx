@@ -85,11 +85,11 @@ export default function CampaignCalendarPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Calendar" />
-                <ZoruAlert>
+                <Alert>
                     <CircleAlert className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
                     <ZoruAlertDescription>Pick an ad account to view the campaign calendar.</ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
             </div>
         );
     }
@@ -109,23 +109,23 @@ export default function CampaignCalendarPage() {
                 description="View campaign schedules across the month."
                 actions={
                     <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" size="icon" onClick={prevMonth} aria-label="Previous month">
+                        <Button variant="outline" size="icon" onClick={prevMonth} aria-label="Previous month">
                             <ChevronLeft className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                         <span className="text-lg font-semibold w-48 text-center inline-flex items-center justify-center gap-2">
                             <CalendarDays className="h-4 w-4" /> {monthLabel}
                         </span>
-                        <ZoruButton variant="outline" size="icon" onClick={nextMonth} aria-label="Next month">
+                        <Button variant="outline" size="icon" onClick={nextMonth} aria-label="Next month">
                             <ChevronRight className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
             />
 
             {loading ? (
-                <ZoruSkeleton className="h-96 w-full" />
+                <Skeleton className="h-96 w-full" />
             ) : (
-                <ZoruCard>
+                <Card>
                     <ZoruCardContent className="p-2">
                         <div className="grid grid-cols-7 gap-px">
                             {dayNames.map((d) => (
@@ -159,7 +159,7 @@ export default function CampaignCalendarPage() {
                             })}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             )}
         </div>
     );

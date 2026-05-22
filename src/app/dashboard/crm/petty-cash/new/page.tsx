@@ -17,14 +17,14 @@ export const dynamic = 'force-dynamic';
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" size="sm" disabled={pending}>
+    <Button type="submit" size="sm" disabled={pending}>
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
       ) : (
         <Save className="h-4 w-4" />
       )}
       {pending ? 'Saving…' : 'Save float'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -53,11 +53,11 @@ export default function NewPettyCashFloatPage() {
       back={{ href: '/dashboard/crm/petty-cash', label: 'Petty Cash' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="grid gap-5 md:grid-cols-2">
           {/* Branch */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Branch *</ZoruLabel>
+            <Label>Branch *</Label>
             <EntityFormField
               entity="branch"
               name="branchId"
@@ -69,7 +69,7 @@ export default function NewPettyCashFloatPage() {
 
           {/* Custodian */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel>Custodian</ZoruLabel>
+            <Label>Custodian</Label>
             <EntityFormField
               entity="employee"
               name="custodianId"
@@ -80,8 +80,8 @@ export default function NewPettyCashFloatPage() {
 
           {/* Opening Balance */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="openingBalance">Opening Balance (₹)</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="openingBalance">Opening Balance (₹)</Label>
+            <Input
               id="openingBalance"
               name="openingBalance"
               type="number"
@@ -94,8 +94,8 @@ export default function NewPettyCashFloatPage() {
 
           {/* Notes */}
           <div className="flex flex-col gap-1.5 md:col-span-2">
-            <ZoruLabel htmlFor="notes">Notes (optional)</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="notes">Notes (optional)</Label>
+            <Textarea
               id="notes"
               name="notes"
               placeholder="Any remarks about this float…"
@@ -105,18 +105,18 @@ export default function NewPettyCashFloatPage() {
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 md:col-span-2">
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => router.back()}
             >
               Cancel
-            </ZoruButton>
+            </Button>
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

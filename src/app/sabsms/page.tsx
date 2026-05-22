@@ -96,7 +96,7 @@ export default async function SabsmsOverviewPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>SabSMS</ZoruPageTitle>
           <ZoruPageDescription>
@@ -108,16 +108,16 @@ export default async function SabsmsOverviewPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/sabsms/send">Send a message</Link>
-          </ZoruButton>
-          <ZoruButton asChild variant="outline">
+          </Button>
+          <Button asChild variant="outline">
             <Link href="/sabsms/logs">Open logs</Link>
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Engine status</ZoruCardTitle>
           <ZoruCardDescription>
@@ -130,9 +130,9 @@ export default async function SabsmsOverviewPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="flex flex-wrap items-center gap-3 text-sm">
           {health.reachable ? (
-            <ZoruBadge variant="default">healthy</ZoruBadge>
+            <Badge variant="default">healthy</Badge>
           ) : (
-            <ZoruBadge variant="destructive">unreachable</ZoruBadge>
+            <Badge variant="destructive">unreachable</Badge>
           )}
           {health.version && (
             <span className="text-slate-600">version {health.version}</span>
@@ -141,26 +141,26 @@ export default async function SabsmsOverviewPage() {
             <span className="text-rose-600">{health.error}</span>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-        <ZoruStatCard label="Total" value={counts.total.toLocaleString()} />
-        <ZoruStatCard label="Queued" value={counts.queued.toLocaleString()} />
-        <ZoruStatCard label="Sent" value={counts.sent.toLocaleString()} />
-        <ZoruStatCard
+        <StatCard label="Total" value={counts.total.toLocaleString()} />
+        <StatCard label="Queued" value={counts.queued.toLocaleString()} />
+        <StatCard label="Sent" value={counts.sent.toLocaleString()} />
+        <StatCard
           label="Delivered"
           value={counts.delivered.toLocaleString()}
           period={`${deliveryRate}% rate`}
         />
-        <ZoruStatCard label="Failed" value={counts.failed.toLocaleString()} />
-        <ZoruStatCard
+        <StatCard label="Failed" value={counts.failed.toLocaleString()} />
+        <StatCard
           label="Inbound 24h"
           value={counts.inboundLast24h.toLocaleString()}
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Workflow shortcuts</ZoruCardTitle>
             <ZoruCardDescription>
@@ -204,9 +204,9 @@ export default async function SabsmsOverviewPage() {
               <span className="text-xs text-slate-500">→ inbox</span>
             </Link>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
 
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Rollout</ZoruCardTitle>
             <ZoruCardDescription>
@@ -234,14 +234,14 @@ export default async function SabsmsOverviewPage() {
                   className="flex items-center justify-between border-b border-slate-100 py-1 last:border-0"
                 >
                   <span className="text-slate-700">{p.label}</span>
-                  <ZoruBadge variant={p.live ? "default" : "secondary"}>
+                  <Badge variant={p.live ? "default" : "secondary"}>
                     {p.live ? "Live" : "Planned"}
-                  </ZoruBadge>
+                  </Badge>
                 </li>
               ))}
             </ul>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

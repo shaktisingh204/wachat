@@ -143,11 +143,11 @@ export default async function PurchaseOrderDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this purchase order — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/purchases/orders">
               <ArrowLeft className="h-4 w-4" /> Back to Purchase Orders
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -241,7 +241,7 @@ export default async function PurchaseOrderDetailPage({
           />
 
           {/* Vendor chip + outstanding */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Vendor</ZoruCardTitle>
             </ZoruCardHeader>
@@ -266,10 +266,10 @@ export default async function PurchaseOrderDetailPage({
                 </div>
               ) : null}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* At a glance + inline status / vendor / buyer / approver */}
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>At a glance</ZoruCardTitle>
             </ZoruCardHeader>
@@ -308,20 +308,20 @@ export default async function PurchaseOrderDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
           {/* Live-poll wrapper — refreshes related counts when a
               downstream doc (GRN, bill, payout) lands. */}
           <PurchaseOrderRelatedRail poId={poId} initial={related} />
 
-          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <Button size="sm" variant="ghost" asChild className="w-full">
             <Link
               href={`/dashboard/crm/purchases/orders/${poId}/activity`}
             >
               <ClipboardList className="h-3.5 w-3.5" />
               View full activity log
             </Link>
-          </ZoruButton>
+          </Button>
         </>
       }
       audit={
@@ -344,7 +344,7 @@ export default async function PurchaseOrderDetailPage({
 
       {/* Notes (internal + T&C) */}
       {order.notes || order.termsAndConditions ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -370,26 +370,26 @@ export default async function PurchaseOrderDetailPage({
               ) : null}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       {/* Tags */}
       {Array.isArray((order as { tags?: string[] }).tags) &&
       (order as { tags?: string[] }).tags!.length > 0 ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Tags</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
             <div className="flex flex-wrap gap-2">
               {(order as { tags?: string[] }).tags!.map((t) => (
-                <ZoruBadge key={t} variant="outline">
+                <Badge key={t} variant="outline">
                   {t}
-                </ZoruBadge>
+                </Badge>
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
     </EntityDetailShell>
   );

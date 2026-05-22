@@ -38,7 +38,7 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
 
   return (
     <div className="space-y-5">
-      <ZoruRadioGroup
+      <RadioGroup
         value={kind}
         onValueChange={(v) => setKind(v as Kind)}
         className="grid gap-3 md:grid-cols-2 lg:grid-cols-4"
@@ -63,12 +63,12 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
           label="Drip"
           description="Multi-step automation."
         />
-      </ZoruRadioGroup>
+      </RadioGroup>
 
       {kind === "scheduled" && (
         <div className="space-y-2">
-          <ZoruLabel htmlFor="schedule-sendAt">Send at</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="schedule-sendAt">Send at</Label>
+          <Input
             id="schedule-sendAt"
             type="datetime-local"
             value={
@@ -88,8 +88,8 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
 
       {kind === "recurring" && (
         <div className="space-y-2">
-          <ZoruLabel htmlFor="schedule-cron">Cron expression</ZoruLabel>
-          <ZoruInput
+          <Label htmlFor="schedule-cron">Cron expression</Label>
+          <Input
             id="schedule-cron"
             placeholder="0 9 * * 1"
             value={
@@ -110,13 +110,13 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
 
       {kind === "drip" && (
         <div className="space-y-2">
-          <ZoruLabel htmlFor="schedule-drip">Drip</ZoruLabel>
+          <Label htmlFor="schedule-drip">Drip</Label>
           {drips.length === 0 ? (
             <p className="rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
               No drips yet. Create one at <code>/sabsms/drips/new</code>. {"// TODO: full drip picker dialog ships with Phase 4"}
             </p>
           ) : (
-            <ZoruSelect
+            <Select
               value={
                 draft.schedule?.kind === "drip" ? draft.schedule.dripId : ""
               }
@@ -134,7 +134,7 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           )}
         </div>
       )}

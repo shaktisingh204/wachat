@@ -66,7 +66,7 @@ export default function CreditsSettingsPage() {
 
     return (
         <div className="flex min-h-full flex-col gap-6">
-            <ZoruBreadcrumb>
+            <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
                         <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
@@ -76,27 +76,27 @@ export default function CreditsSettingsPage() {
                         <ZoruBreadcrumbPage>{t('settings.credits.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
-            </ZoruBreadcrumb>
+            </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <ZoruPageHeader>
+                <PageHeader>
                     <ZoruPageHeading>
                         <ZoruPageTitle>{t('settings.credits.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
                             {t('settings.credits.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
-                </ZoruPageHeader>
-                <ZoruButton size="sm" asChild>
+                </PageHeader>
+                <Button size="sm" asChild>
                     <Link href="/dashboard/user/billing">
                         <Star className="h-4 w-4" />
                         {t('settings.credits.topUp')}
                     </Link>
-                </ZoruButton>
+                </Button>
             </div>
 
             {/* Wallet summary */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
@@ -107,7 +107,7 @@ export default function CreditsSettingsPage() {
                                 {t('settings.credits.walletBalance')}
                             </p>
                             {loading ? (
-                                <ZoruSkeleton className="mt-1 h-8 w-40" />
+                                <Skeleton className="mt-1 h-8 w-40" />
                             ) : (
                                 <p className="mt-0.5 text-[24px] text-zoru-ink">
                                     {formatCurrency((wallet?.balance ?? 0) / 100, wallet?.currency ?? 'INR', locale)}
@@ -116,47 +116,47 @@ export default function CreditsSettingsPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ZoruBadge variant="ghost">
+                        <Badge variant="ghost">
                             {t('settings.credits.creditsRemaining', { count: total.toLocaleString(locale) })}
-                        </ZoruBadge>
-                        <ZoruButton variant="outline" size="sm" asChild>
+                        </Badge>
+                        <Button variant="outline" size="sm" asChild>
                             <Link href="/dashboard/user/billing">
                                 {t('settings.credits.viewBilling')}
                                 <ArrowUpRight className="h-4 w-4" />
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Per-module credits */}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {CREDIT_ROWS.map((row) => {
                     const value = Number(credits[row.id] ?? 0);
                     return (
-                        <ZoruCard key={row.id} className="p-6">
+                        <Card key={row.id} className="p-6">
                             <div className="mb-3 flex items-start justify-between">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
                                     <row.icon className="h-5 w-5" />
                                 </div>
-                                {value === 0 && <ZoruBadge variant="danger">{t('settings.credits.badges.empty')}</ZoruBadge>}
-                                {value > 0 && value < 100 && <ZoruBadge variant="warning">{t('settings.credits.badges.low')}</ZoruBadge>}
+                                {value === 0 && <Badge variant="danger">{t('settings.credits.badges.empty')}</Badge>}
+                                {value > 0 && value < 100 && <Badge variant="warning">{t('settings.credits.badges.low')}</Badge>}
                             </div>
                             <p className="text-xs text-zoru-ink-muted">{t(row.labelKey)}</p>
                             {loading ? (
-                                <ZoruSkeleton className="mt-1 h-8 w-24" />
+                                <Skeleton className="mt-1 h-8 w-24" />
                             ) : (
                                 <p className="mt-0.5 text-[26px] leading-none text-zoru-ink">
                                     {value.toLocaleString(locale)}
                                 </p>
                             )}
                             <p className="mt-2 text-xs text-zoru-ink-muted">{t(row.descriptionKey)}</p>
-                        </ZoruCard>
+                        </Card>
                     );
                 })}
             </div>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                         <Zap className="h-4 w-4" />
@@ -168,7 +168,7 @@ export default function CreditsSettingsPage() {
                         </p>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

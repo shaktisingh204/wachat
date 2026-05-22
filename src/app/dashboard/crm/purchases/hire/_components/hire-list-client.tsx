@@ -194,22 +194,22 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
     return (
         <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruStatCard
+                <StatCard
                     label="Total requests"
                     value={kpi.total}
                     icon={<Handshake className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Open"
                     value={kpi.open}
                     icon={<Sparkles className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Awarded"
                     value={kpi.awarded}
                     icon={<CheckCircle2 className="h-4 w-4" />}
                 />
-                <ZoruStatCard
+                <StatCard
                     label="Total budget"
                     value={fmtMoney(kpi.totalBudget)}
                     icon={<PiggyBank className="h-4 w-4" />}
@@ -220,12 +220,12 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                 title="Vendor Hire & Services"
                 subtitle="Track vendor hiring requests, bids, approvals, and onboarding from sourcing to award."
                 primaryAction={
-                    <ZoruButton size="sm" asChild>
+                    <Button size="sm" asChild>
                         <Link href={newHref}>
                             <Plus className="h-4 w-4" />
                             New hire request
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 }
                 search={{
                     value: search,
@@ -247,7 +247,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                                 {selected.size} selected
                             </span>
                             <span className="text-zoru-ink-muted">·</span>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() =>
@@ -258,26 +258,26 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                             >
                                 <Download className="h-3.5 w-3.5" />
                                 Export CSV
-                            </ZoruButton>
+                            </Button>
                             <span className="ml-auto" />
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSelected(new Set())}
                             >
                                 <X className="h-3.5 w-3.5" />
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
             >
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={
                                             filtered.length > 0 &&
                                             selected.size === filtered.length
@@ -343,7 +343,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                                             className="border-zoru-line"
                                         >
                                             <ZoruTableCell>
-                                                <ZoruCheckbox
+                                                <Checkbox
                                                     checked={selected.has(h._id)}
                                                     onCheckedChange={() => toggleOne(h._id)}
                                                     aria-label={`Select ${h.title}`}
@@ -375,7 +375,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                                                 {h.owner || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     asChild
@@ -386,23 +386,23 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                                                     >
                                                         <Edit className="h-4 w-4 text-zoru-ink-muted" />
                                                     </Link>
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
             </EntityListShell>
 
             {/* TODO §1D.1: bulk-delete + inline mutation actions land once
                 `crm_purchase_leads` gets `getCrmHires` + `deleteCrmHire`
                 server actions (Rust DTO not shipped — see CRM_REBUILD §1D.5). */}
-            <ZoruBadge variant="ghost" className="text-[11px]">
+            <Badge variant="ghost" className="text-[11px]">
                 Hire DTO pending Rust BFF — bulk delete deferred
-            </ZoruBadge>
+            </Badge>
         </>
     );
 }

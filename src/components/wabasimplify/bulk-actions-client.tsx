@@ -53,7 +53,7 @@ export function BulkActionsClient({
 
   return (
     <div className="flex flex-col gap-8">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Bulk Actions</ZoruPageTitle>
           <ZoruPageDescription>
@@ -61,7 +61,7 @@ export function BulkActionsClient({
             {selectedProjects.length === 1 ? '' : 's'}.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <BulkTemplateForm
@@ -76,7 +76,7 @@ export function BulkActionsClient({
 
         {/* Create-new-template CTA — readable card with explicit
             ink/muted tokens (no shadcn-button-as-card hack). */}
-        <ZoruCard className="flex h-full flex-col">
+        <Card className="flex h-full flex-col">
           <ZoruCardHeader>
             <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
               <FileText className="h-5 w-5" />
@@ -87,12 +87,12 @@ export function BulkActionsClient({
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent className="mt-auto">
-            <ZoruButton block onClick={handleCreateTemplateClick}>
+            <Button block onClick={handleCreateTemplateClick}>
               <FileText className="h-4 w-4" />
               New template
-            </ZoruButton>
+            </Button>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       </div>
     </div>
   );

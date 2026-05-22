@@ -24,7 +24,7 @@ export function AnalyticsTabsShell({ overviewSlot, audienceSlot, settingsSlot }:
   return (
     <div className="flex flex-col md:flex-row gap-4">
       <aside className="md:w-52 flex-shrink-0">
-        <ZoruCard className="p-2 md:sticky md:top-4">
+        <Card className="p-2 md:sticky md:top-4">
           <div className="px-2 pt-1 pb-2 text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
             Analytics
           </div>
@@ -51,7 +51,7 @@ export function AnalyticsTabsShell({ overviewSlot, audienceSlot, settingsSlot }:
               );
             })}
           </nav>
-        </ZoruCard>
+        </Card>
       </aside>
       <div className="flex-1 min-w-0">
         {active === 'overview' && overviewSlot}

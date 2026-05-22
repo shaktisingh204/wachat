@@ -52,14 +52,14 @@ const initialState: { message: string | null; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="animate-spin" />
       ) : (
         <Save />
       )}
       Save widget settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -133,7 +133,7 @@ export function ZoruSabChatWidgetGenerator({
   };
 
   return (
-    <ZoruCard>
+    <Card>
       <form action={formAction}>
         <input
           type="hidden"
@@ -158,7 +158,7 @@ export function ZoruSabChatWidgetGenerator({
             {/* Customisation panel */}
             <div className="space-y-4">
               <div className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
-                <ZoruSwitch
+                <Switch
                   id="widget-enabled"
                   checked={settings.enabled}
                   onCheckedChange={(checked) =>
@@ -166,9 +166,9 @@ export function ZoruSabChatWidgetGenerator({
                   }
                 />
                 <div className="grid gap-1.5 leading-none">
-                  <ZoruLabel htmlFor="widget-enabled">
+                  <Label htmlFor="widget-enabled">
                     Enable chat widget
-                  </ZoruLabel>
+                  </Label>
                   <p className="text-sm text-zoru-ink-muted">
                     {settings.enabled
                       ? "Widget is active and visible on your site."
@@ -182,8 +182,8 @@ export function ZoruSabChatWidgetGenerator({
               </div>
 
               <div className="space-y-2">
-                <ZoruLabel htmlFor="widget-color">Widget colour</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="widget-color">Widget colour</Label>
+                <Input
                   id="widget-color"
                   type="color"
                   value={settings.widgetColor}
@@ -193,8 +193,8 @@ export function ZoruSabChatWidgetGenerator({
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="widget-team-name">Team name</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="widget-team-name">Team name</Label>
+                <Input
                   id="widget-team-name"
                   value={settings.teamName}
                   onChange={(e) =>
@@ -203,8 +203,8 @@ export function ZoruSabChatWidgetGenerator({
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="widget-welcome">Welcome message</ZoruLabel>
-                <ZoruTextarea
+                <Label htmlFor="widget-welcome">Welcome message</Label>
+                <Textarea
                   id="widget-welcome"
                   value={settings.welcomeMessage}
                   onChange={(e) =>
@@ -213,7 +213,7 @@ export function ZoruSabChatWidgetGenerator({
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="widget-avatar">Avatar URL</ZoruLabel>
+                <Label htmlFor="widget-avatar">Avatar URL</Label>
                 <SabFileUrlInput
                   id="widget-avatar"
                   accept="image"
@@ -227,7 +227,7 @@ export function ZoruSabChatWidgetGenerator({
 
             {/* Preview + code */}
             <div className="space-y-4">
-              <ZoruLabel>Live preview</ZoruLabel>
+              <Label>Live preview</Label>
               <div className="relative flex h-[400px] items-end justify-end overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
                 <div className="static">
                   <button
@@ -245,14 +245,14 @@ export function ZoruSabChatWidgetGenerator({
                         style={{ backgroundColor: settings.widgetColor }}
                         className="flex items-center gap-3 p-4 text-zoru-on-primary"
                       >
-                        <ZoruAvatar>
+                        <Avatar>
                           {settings.avatarUrl && (
                             <ZoruAvatarImage src={settings.avatarUrl} />
                           )}
                           <ZoruAvatarFallback>
                             {settings.teamName?.charAt(0) || "S"}
                           </ZoruAvatarFallback>
-                        </ZoruAvatar>
+                        </Avatar>
                         <div>
                           <h4>{settings.teamName}</h4>
                         </div>
@@ -267,7 +267,7 @@ export function ZoruSabChatWidgetGenerator({
                 </div>
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="widget-embed">Embed code</ZoruLabel>
+                <Label htmlFor="widget-embed">Embed code</Label>
                 <p className="text-xs text-zoru-ink-muted">
                   Copy and paste this code before the closing &lt;/body&gt; tag
                   on your website.
@@ -279,7 +279,7 @@ export function ZoruSabChatWidgetGenerator({
                   >
                     {embedCode}
                   </pre>
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="outline"
                     size="icon-sm"
@@ -287,7 +287,7 @@ export function ZoruSabChatWidgetGenerator({
                     aria-label="Copy embed code"
                   >
                     <Copy />
-                  </ZoruButton>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -297,6 +297,6 @@ export function ZoruSabChatWidgetGenerator({
           <SubmitButton />
         </ZoruCardFooter>
       </form>
-    </ZoruCard>
+    </Card>
   );
 }

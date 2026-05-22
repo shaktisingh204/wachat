@@ -190,7 +190,7 @@ export default function NumbersPage() {
         />
       )}
 
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -204,7 +204,7 @@ export default function NumbersPage() {
             <ZoruBreadcrumbPage>Numbers</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
@@ -218,22 +218,22 @@ export default function NumbersPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setAddOpen(true)}
             disabled={!project}
           >
             <Phone /> Add number
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             onClick={onSync}
             disabled={!project || isLoading || isSyncing}
           >
             <RefreshCw />
             {isSyncing ? 'Syncing…' : 'Sync with Meta'}
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -264,33 +264,33 @@ export default function NumbersPage() {
 
       {!activeProjectId ? (
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<AlertCircle />}
             title="No project selected"
             description="Please select a project from the main dashboard to see its phone numbers."
             action={
-              <ZoruButton onClick={() => router.push('/wachat')}>
+              <Button onClick={() => router.push('/wachat')}>
                 Choose a project
-              </ZoruButton>
+              </Button>
             }
           />
         </div>
       ) : isLoading && !project ? (
         <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[260px]" />
+            <Skeleton key={i} className="h-[260px]" />
           ))}
         </div>
       ) : phoneNumbers.length === 0 ? (
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Phone />}
             title="No phone numbers yet"
             description="Sync with Meta to pull the phone numbers from your WhatsApp Business Account."
             action={
-              <ZoruButton onClick={onSync} disabled={isSyncing}>
+              <Button onClick={onSync} disabled={isSyncing}>
                 <RefreshCw /> Sync now
-              </ZoruButton>
+              </Button>
             }
           />
         </div>
@@ -300,7 +300,7 @@ export default function NumbersPage() {
             const status = statusTone(phone.code_verification_status);
             const quality = qualityTone(phone.quality_rating);
             return (
-              <ZoruCard key={phone.id} className="flex flex-col p-5">
+              <Card key={phone.id} className="flex flex-col p-5">
                 <div className="flex items-center gap-3">
                   <div className="shrink-0">
                     {phone.profile?.profile_picture_url ? (
@@ -329,14 +329,14 @@ export default function NumbersPage() {
 
                 <div className="mt-5 flex flex-col gap-2.5">
                   <DetailRow label="Status">
-                    <ZoruBadge variant={toneToVariant[status.tone]}>
+                    <Badge variant={toneToVariant[status.tone]}>
                       {status.label}
-                    </ZoruBadge>
+                    </Badge>
                   </DetailRow>
                   <DetailRow label="Quality">
-                    <ZoruBadge variant={toneToVariant[quality.tone]}>
+                    <Badge variant={toneToVariant[quality.tone]}>
                       {quality.label}
-                    </ZoruBadge>
+                    </Badge>
                   </DetailRow>
                   <DetailRow label="About">
                     <span
@@ -349,16 +349,16 @@ export default function NumbersPage() {
                 </div>
 
                 <div className="mt-auto flex flex-col gap-2 pt-5">
-                  <ZoruButton
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setEditingPhone(phone)}
                     block
                   >
                     <Pencil /> Edit profile &amp; settings
-                  </ZoruButton>
+                  </Button>
                   {phone.code_verification_status !== 'VERIFIED' && (
-                    <ZoruButton
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={() => {
@@ -368,7 +368,7 @@ export default function NumbersPage() {
                       block
                     >
                       <CheckCircle2 /> Verify number
-                    </ZoruButton>
+                    </Button>
                   )}
                   {project ? (
                     <FlowsEncryptionDialog project={project} phone={phone} />
@@ -379,7 +379,7 @@ export default function NumbersPage() {
                       phoneNumberId={phone.id}
                     />
                   ) : null}
-                  <ZoruButton
+                  <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setRemoveTarget(phone)}
@@ -387,16 +387,16 @@ export default function NumbersPage() {
                     className="text-zoru-danger hover:bg-zoru-danger/10"
                   >
                     <Trash2 /> Remove number
-                  </ZoruButton>
+                  </Button>
                 </div>
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>
       )}
 
       {/* ── Add-number multi-step dialog ── */}
-      <ZoruDialog
+      <Dialog
         open={addOpen}
         onOpenChange={(o) => {
           setAddOpen(o);
@@ -421,8 +421,8 @@ export default function NumbersPage() {
           <div className="flex flex-col gap-3">
             {addStep === 1 ? (
               <>
-                <ZoruLabel htmlFor="add-phone">Phone number</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="add-phone">Phone number</Label>
+                <Input
                   id="add-phone"
                   type="tel"
                   placeholder="+1 234 567 8900"
@@ -432,8 +432,8 @@ export default function NumbersPage() {
               </>
             ) : (
               <>
-                <ZoruLabel htmlFor="add-name">Display name</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="add-name">Display name</Label>
+                <Input
                   id="add-name"
                   placeholder="Acme Inc."
                   value={addName}
@@ -444,11 +444,11 @@ export default function NumbersPage() {
           </div>
           <ZoruDialogFooter>
             {addStep === 2 && (
-              <ZoruButton variant="ghost" onClick={() => setAddStep(1)}>
+              <Button variant="ghost" onClick={() => setAddStep(1)}>
                 Back
-              </ZoruButton>
+              </Button>
             )}
-            <ZoruButton
+            <Button
               onClick={() => {
                 if (addStep === 1) {
                   if (!addPhone.trim()) return;
@@ -467,13 +467,13 @@ export default function NumbersPage() {
               }}
             >
               {addStep === 1 ? 'Continue' : 'Submit'}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Verify-number dialog ── */}
-      <ZoruDialog
+      <Dialog
         open={!!verifyPhone}
         onOpenChange={(o) => {
           if (!o) {
@@ -490,8 +490,8 @@ export default function NumbersPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-2">
-            <ZoruLabel htmlFor="verify-code">Verification code</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="verify-code">Verification code</Label>
+            <Input
               id="verify-code"
               inputMode="numeric"
               maxLength={6}
@@ -501,10 +501,10 @@ export default function NumbersPage() {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setVerifyPhone(null)}>
+            <Button variant="ghost" onClick={() => setVerifyPhone(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({ title: 'Verification submitted' });
                 setVerifyPhone(null);
@@ -513,10 +513,10 @@ export default function NumbersPage() {
               disabled={verifyCode.length < 4}
             >
               Verify
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Remove-number alert dialog ── */}
       <ZoruAlertDialog

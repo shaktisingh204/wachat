@@ -21,7 +21,7 @@ export default function BlogPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.map(post => (
-                <ZoruCard key={post.title} className="flex flex-col">
+                <Card key={post.title} className="flex flex-col">
                     <ZoruCardHeader className="p-0">
                         <div className="relative aspect-video">
                             <Image src={post.image} alt={post.title} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint={post.aiHint} />
@@ -35,11 +35,11 @@ export default function BlogPage() {
                         <p className="text-muted-foreground text-sm">{post.description}</p>
                     </ZoruCardContent>
                     <ZoruCardFooter className="p-4">
-                        <ZoruButton variant="outline" asChild>
+                        <Button variant="outline" asChild>
                             <Link href="#">Read More</Link>
-                        </ZoruButton>
+                        </Button>
                     </ZoruCardFooter>
-                </ZoruCard>
+                </Card>
             ))}
         </div>
       </div>

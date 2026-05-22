@@ -185,8 +185,8 @@ export function AnalyticsToolbar({
       />
 
       <div className="flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg p-2 text-sm">
-        <ZoruLabel className="text-xs text-zoru-ink-muted">Range</ZoruLabel>
-        <ZoruSelect
+        <Label className="text-xs text-zoru-ink-muted">Range</Label>
+        <Select
           value={preset}
           onValueChange={(v) => url.setOne("preset", v)}
         >
@@ -200,12 +200,12 @@ export function AnalyticsToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruLabel className="ml-2 text-xs text-zoru-ink-muted">
+        <Label className="ml-2 text-xs text-zoru-ink-muted">
           Compare
-        </ZoruLabel>
-        <ZoruSelect
+        </Label>
+        <Select
           value={compareTo}
           onValueChange={(v) => url.setOne("compareTo", v)}
         >
@@ -219,12 +219,12 @@ export function AnalyticsToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
-        <ZoruLabel className="ml-2 text-xs text-zoru-ink-muted">
+        <Label className="ml-2 text-xs text-zoru-ink-muted">
           Group by
-        </ZoruLabel>
-        <ZoruSelect
+        </Label>
+        <Select
           value={groupBy}
           onValueChange={(v) => url.setOne("groupBy", v)}
         >
@@ -238,23 +238,23 @@ export function AnalyticsToolbar({
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
 
         <div className="ml-auto flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setScheduleOpen(true)}
           >
             <Mail className="mr-1.5 h-3.5 w-3.5" /> Email report
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={onShare}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={onShare}>
             <Share2 className="mr-1.5 h-3.5 w-3.5" /> Share link
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
-      <ZoruDialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Schedule email report</ZoruDialogTitle>
@@ -265,8 +265,8 @@ export function AnalyticsToolbar({
           </ZoruDialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <ZoruLabel>Frequency</ZoruLabel>
-              <ZoruSelect
+              <Label>Frequency</Label>
+              <Select
                 value={frequency}
                 onValueChange={(v) =>
                   setFrequency(v as "daily" | "weekly" | "monthly")
@@ -280,11 +280,11 @@ export function AnalyticsToolbar({
                   <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
                   <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Recipients</ZoruLabel>
-              <ZoruInput
+              <Label>Recipients</Label>
+              <Input
                 value={recipients}
                 onChange={(e) => setRecipients(e.target.value)}
                 placeholder="alice@example.com, bob@example.com"
@@ -292,22 +292,22 @@ export function AnalyticsToolbar({
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="ghost"
               onClick={() => setScheduleOpen(false)}
               disabled={scheduleBusy}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={onSchedule} disabled={scheduleBusy}>
+            </Button>
+            <Button onClick={onSchedule} disabled={scheduleBusy}>
               <Calendar className="mr-1.5 h-3.5 w-3.5" />
               {scheduleBusy ? "Saving…" : "Schedule"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
-      <ZoruDialog open={shareOpen} onOpenChange={setShareOpen}>
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Public share link</ZoruDialogTitle>
@@ -316,12 +316,12 @@ export function AnalyticsToolbar({
               token is workspace-scoped.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruInput readOnly value={shareUrl ?? ""} />
+          <Input readOnly value={shareUrl ?? ""} />
           <ZoruDialogFooter>
-            <ZoruButton onClick={() => setShareOpen(false)}>Done</ZoruButton>
+            <Button onClick={() => setShareOpen(false)}>Done</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

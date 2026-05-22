@@ -105,11 +105,11 @@ export default async function SalesOrderDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this sales order — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/orders">
               <ArrowLeft className="h-4 w-4" /> Back to Sales Orders
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -137,61 +137,61 @@ export default async function SalesOrderDetailPage({
       title={order.soNo || 'Sales order'}
       back={{ href: '/dashboard/crm/sales/orders', label: 'Sales Orders' }}
       actions={
-        <ZoruButton asChild>
+        <Button asChild>
           <Link href={`/dashboard/crm/sales/orders/${id}/edit`}>
             <Pencil className="h-4 w-4" /> Edit
           </Link>
-        </ZoruButton>
+        </Button>
       }
     >
 
       {/* Action group ─────────────────────────────────────────────── */}
-      <ZoruCard className="flex flex-wrap items-center gap-2 p-3">
-        <ZoruButton variant="default" size="sm" asChild>
+      <Card className="flex flex-wrap items-center gap-2 p-3">
+        <Button variant="default" size="sm" asChild>
           <Link
             href={`/dashboard/crm/sales/delivery/new?fromKind=salesOrder&fromId=${id}`}
           >
             <Truck className="h-3.5 w-3.5" /> Convert to delivery challan
           </Link>
-        </ZoruButton>
-        <ZoruButton variant="default" size="sm" asChild>
+        </Button>
+        <Button variant="default" size="sm" asChild>
           <Link
             href={`/dashboard/crm/sales/invoices/new?fromKind=salesOrder&fromId=${id}`}
           >
             <Receipt className="h-3.5 w-3.5" /> Convert to invoice
           </Link>
-        </ZoruButton>
+        </Button>
         <span className="mx-1 h-4 w-px bg-zoru-line" />
-        <ZoruButton variant="outline" size="sm" disabled title="Email — coming soon">
+        <Button variant="outline" size="sm" disabled title="Email — coming soon">
           <Mail className="h-3.5 w-3.5" /> Email
-        </ZoruButton>
-        <ZoruButton variant="outline" size="sm" asChild>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
           <Link
             href={`/dashboard/crm/sales/orders/${id}?print=1`}
             target="_blank"
           >
             <Printer className="h-3.5 w-3.5" /> Print
           </Link>
-        </ZoruButton>
-        <ZoruButton variant="outline" size="sm" disabled title="Share link — coming soon">
+        </Button>
+        <Button variant="outline" size="sm" disabled title="Share link — coming soon">
           <Share2 className="h-3.5 w-3.5" /> Share
-        </ZoruButton>
-        <ZoruButton variant="outline" size="sm" asChild>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
           <Link
             href={`/dashboard/crm/sales/orders/new?fromKind=salesOrder&fromId=${id}`}
           >
             <Copy className="h-3.5 w-3.5" /> Duplicate
           </Link>
-        </ZoruButton>
-        <ZoruButton variant="outline" size="sm" disabled title="Archive — coming soon">
+        </Button>
+        <Button variant="outline" size="sm" disabled title="Archive — coming soon">
           <Archive className="h-3.5 w-3.5" /> Archive
-        </ZoruButton>
-        <ZoruButton variant="outline" size="sm" asChild>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/crm/sales/orders/${id}/activity`}>
             <Activity className="h-3.5 w-3.5" /> Activity
           </Link>
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           variant="outline"
           size="sm"
           disabled
@@ -199,13 +199,13 @@ export default async function SalesOrderDetailPage({
           title="Delete — use the list page's row action"
         >
           <Trash2 className="h-3.5 w-3.5" /> Delete
-        </ZoruButton>
-      </ZoruCard>
+        </Button>
+      </Card>
 
       {/* Header + totals + right rail ─────────────────────────────── */}
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-6">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Header
@@ -256,17 +256,17 @@ export default async function SalesOrderDetailPage({
                 )}
               </Field>
             </div>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Line items
             </h3>
             <SalesOrdersDetailFulfillment items={items} currency={currency} />
-          </ZoruCard>
+          </Card>
 
           {ship && (ship.line1 || ship.city) ? (
-            <ZoruCard className="p-6">
+            <Card className="p-6">
               <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Shipping address
               </h3>
@@ -277,11 +277,11 @@ export default async function SalesOrderDetailPage({
                 </div>
                 <div className="text-zoru-ink-muted">{ship.country}</div>
               </div>
-            </ZoruCard>
+            </Card>
           ) : null}
 
           {order.customerNotes || order.internalNotes ? (
-            <ZoruCard className="p-6">
+            <Card className="p-6">
               <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Notes
               </h3>
@@ -293,12 +293,12 @@ export default async function SalesOrderDetailPage({
                   <Field label="Internal notes">{order.internalNotes}</Field>
                 ) : null}
               </div>
-            </ZoruCard>
+            </Card>
           ) : null}
         </div>
 
         <div className="flex flex-col gap-6">
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Totals
             </h3>
@@ -340,7 +340,7 @@ export default async function SalesOrderDetailPage({
                 </span>
               </div>
             </div>
-          </ZoruCard>
+          </Card>
 
           <LineageRail
             current={{
@@ -369,11 +369,11 @@ export default async function SalesOrderDetailPage({
             ]}
           />
 
-          <ZoruCard className="p-4 text-[11.5px] text-zoru-ink-muted">
+          <Card className="p-4 text-[11.5px] text-zoru-ink-muted">
             Created {fmtDate(order.createdAt || order.audit?.createdAt)}
             <br />
             Updated {fmtDate(order.updatedAt || order.audit?.updatedAt)}
-          </ZoruCard>
+          </Card>
         </div>
       </div>
 

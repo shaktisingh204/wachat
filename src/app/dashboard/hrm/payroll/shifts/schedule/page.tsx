@@ -112,33 +112,33 @@ export default function ShiftSchedulePage() {
       subtitle="Click a cell to assign the selected shift. Click again to clear."
       primaryAction={
         <>
-          <ZoruButton
+          <Button
             variant="outline"
             size="icon"
             onClick={() => setWeekStart(addDays(weekStart, -7))}
             aria-label="Previous week"
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
           >
             Today
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="icon"
             onClick={() => setWeekStart(addDays(weekStart, 7))}
             aria-label="Next week"
           >
             <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
-          </ZoruButton>
+          </Button>
         </>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-[16px] text-zoru-ink">
@@ -150,7 +150,7 @@ export default function ShiftSchedulePage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[12px] text-zoru-ink-muted">Shift to assign:</span>
-            <ZoruSelect value={selectedShiftId} onValueChange={setSelectedShiftId}>
+            <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
               <ZoruSelectTrigger className="h-9 w-[200px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                 <ZoruSelectValue placeholder="Choose shift" />
               </ZoruSelectTrigger>
@@ -168,7 +168,7 @@ export default function ShiftSchedulePage() {
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
         </div>
 
@@ -217,7 +217,7 @@ export default function ShiftSchedulePage() {
             </div>
           </div>
         )}
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

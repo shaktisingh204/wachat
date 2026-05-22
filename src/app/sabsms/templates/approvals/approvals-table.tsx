@@ -397,9 +397,9 @@ export function ApprovalsTable({
             {formatRemaining(row.slaRemainingMs)}
           </span>
           {row.slaBreached && (
-            <ZoruBadge variant="destructive" className="w-fit text-[10px]">
+            <Badge variant="destructive" className="w-fit text-[10px]">
               Breached
-            </ZoruBadge>
+            </Badge>
           )}
         </div>
       ),
@@ -429,7 +429,7 @@ export function ApprovalsTable({
       id: "ai",
       header: "AI verdict",
       render: (row) => (
-        <ZoruBadge
+        <Badge
           variant={
             row.aiVerdict.recommendation === "approve"
               ? "default"
@@ -441,7 +441,7 @@ export function ApprovalsTable({
         >
           <Sparkles className="h-3 w-3" />
           {row.aiVerdict.recommendation}
-        </ZoruBadge>
+        </Badge>
       ),
       width: "120px",
     },
@@ -534,22 +534,22 @@ export function ApprovalsTable({
         trailing={
           <>
             <SabsmsSavedViews scope="templates.approvals" />
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setRotationOpen(true)}
             >
               <UserCheck className="mr-1.5 h-3.5 w-3.5" />
               Rotation
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setTaxonomyOpen(true)}
             >
               <ListChecks className="mr-1.5 h-3.5 w-3.5" />
               Reasons
-            </ZoruButton>
+            </Button>
             <SabsmsExportMenu
               filename="sabsms-approvals"
               toCsv={async () => {
@@ -583,7 +583,7 @@ export function ApprovalsTable({
               key={c.value}
               className="flex items-center gap-1.5 text-xs text-slate-600"
             >
-              <ZoruSwitch
+              <Switch
                 checked={
                   autoApprove.enabled[c.value as ApprovalRow["category"]] ?? false
                 }
@@ -664,7 +664,7 @@ export function ApprovalsTable({
       )}
 
       {/* Decision dialog */}
-      <ZoruDialog
+      <Dialog
         open={decisionFor !== null}
         onOpenChange={(open) => !open && setDecisionFor(null)}
       >
@@ -682,8 +682,8 @@ export function ApprovalsTable({
           <div className="space-y-3">
             {decisionFor?.kind === "rejected" && (
               <div className="space-y-2">
-                <ZoruLabel>Reason</ZoruLabel>
-                <ZoruSelect value={reasonCode} onValueChange={setReasonCode}>
+                <Label>Reason</Label>
+                <Select value={reasonCode} onValueChange={setReasonCode}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue placeholder="Pick a reason" />
                   </ZoruSelectTrigger>
@@ -694,12 +694,12 @@ export function ApprovalsTable({
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             )}
             <div className="space-y-2">
-              <ZoruLabel htmlFor="decision-notes">Notes</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="decision-notes">Notes</Label>
+              <Textarea
                 id="decision-notes"
                 value={decisionNotes}
                 onChange={(e) => setDecisionNotes(e.target.value)}
@@ -713,13 +713,13 @@ export function ApprovalsTable({
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setDecisionFor(null)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant={
                 decisionFor?.kind === "rejected" ? "destructive" : "default"
               }
@@ -727,10 +727,10 @@ export function ApprovalsTable({
               disabled={!decisionNotes.trim()}
             >
               {decisionFor?.kind === "approved" ? "Approve" : "Reject"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Diff drawer */}
       <SabsmsDetailDrawer
@@ -806,7 +806,7 @@ export function ApprovalsTable({
       </SabsmsDetailDrawer>
 
       {/* Bulk approve dialog */}
-      <ZoruDialog
+      <Dialog
         open={bulkCategory !== null}
         onOpenChange={(open) => !open && setBulkCategory(null)}
       >
@@ -820,25 +820,25 @@ export function ApprovalsTable({
               category.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <ZoruTextarea
+          <Textarea
             value={bulkNotes}
             onChange={(e) => setBulkNotes(e.target.value)}
             placeholder="Notes applied to every approval…"
             className="min-h-[100px]"
           />
           <ZoruDialogFooter>
-            <ZoruButton variant="outline" onClick={() => setBulkCategory(null)}>
+            <Button variant="outline" onClick={() => setBulkCategory(null)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={bulkApprove} disabled={!bulkNotes.trim()}>
+            </Button>
+            <Button onClick={bulkApprove} disabled={!bulkNotes.trim()}>
               Approve all
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Rotation config */}
-      <ZoruDialog open={rotationOpen} onOpenChange={setRotationOpen}>
+      <Dialog open={rotationOpen} onOpenChange={setRotationOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Reviewer rotation</ZoruDialogTitle>
@@ -854,32 +854,32 @@ export function ApprovalsTable({
                 className="flex items-center justify-between gap-2 rounded-md border border-slate-200 p-2 text-sm"
               >
                 <span className="font-mono text-xs">{r}</span>
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => removeReviewer(r)}
                 >
                   <RotateCcw className="mr-1 h-3 w-3" /> Remove
-                </ZoruButton>
+                </Button>
               </div>
             ))}
             <div className="flex items-center gap-2">
-              <ZoruInput
+              <Input
                 value={newReviewer}
                 onChange={(e) => setNewReviewer(e.target.value)}
                 placeholder="reviewer.dave"
               />
-              <ZoruButton onClick={addReviewer}>Add</ZoruButton>
+              <Button onClick={addReviewer}>Add</Button>
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton onClick={() => setRotationOpen(false)}>Done</ZoruButton>
+            <Button onClick={() => setRotationOpen(false)}>Done</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Taxonomy editor */}
-      <ZoruDialog open={taxonomyOpen} onOpenChange={setTaxonomyOpen}>
+      <Dialog open={taxonomyOpen} onOpenChange={setTaxonomyOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Reject reasons taxonomy</ZoruDialogTitle>
@@ -898,29 +898,29 @@ export function ApprovalsTable({
                   <p className="font-medium">{r.label}</p>
                   <p className="font-mono text-[10px] text-slate-500">{r.code}</p>
                 </div>
-                <ZoruButton
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => removeReason(r.code)}
                 >
                   <AlertTriangle className="mr-1 h-3 w-3" /> Remove
-                </ZoruButton>
+                </Button>
               </div>
             ))}
             <div className="flex items-center gap-2">
-              <ZoruInput
+              <Input
                 value={newReasonLabel}
                 onChange={(e) => setNewReasonLabel(e.target.value)}
                 placeholder="Length exceeds 1000 chars"
               />
-              <ZoruButton onClick={addReason}>Add</ZoruButton>
+              <Button onClick={addReason}>Add</Button>
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton onClick={() => setTaxonomyOpen(false)}>Done</ZoruButton>
+            <Button onClick={() => setTaxonomyOpen(false)}>Done</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }
@@ -937,7 +937,7 @@ function DecisionList({ decisions }: { decisions: ApprovalDecisionRecord[] }) {
           className="rounded-md border border-slate-200 p-2 text-sm"
         >
           <div className="flex items-center gap-2">
-            <ZoruBadge
+            <Badge
               variant={
                 d.kind === "approved"
                   ? "default"
@@ -947,7 +947,7 @@ function DecisionList({ decisions }: { decisions: ApprovalDecisionRecord[] }) {
               }
             >
               {d.kind}
-            </ZoruBadge>
+            </Badge>
             <span className="text-xs text-slate-500">
               {new Date(d.at).toLocaleString()} · {d.reviewerId}
             </span>

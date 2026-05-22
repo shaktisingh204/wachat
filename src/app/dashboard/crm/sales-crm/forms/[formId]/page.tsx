@@ -62,7 +62,7 @@ export default async function FormDetailPage({
             back={{ href: BASE, label: 'Forms' }}
             actions={
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <a
                             href={`/embed/crm-form/${formId}`}
                             target="_blank"
@@ -71,19 +71,19 @@ export default async function FormDetailPage({
                             <Eye className="mr-2 h-4 w-4" />
                             Preview
                         </a>
-                    </ZoruButton>
-                    <ZoruButton asChild>
+                    </Button>
+                    <Button asChild>
                         <Link href={`${BASE}/${formId}/edit`}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             }
         >
 
             {/* Summary card */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
                     <StatusPill label={status} tone={tone} />
@@ -129,10 +129,10 @@ export default async function FormDetailPage({
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Fields */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-3 flex items-center justify-between">
                     <div className="text-[15px] font-medium text-zoru-ink">Fields</div>
                     <div className="text-[12px] text-zoru-ink-muted">
@@ -159,13 +159,13 @@ export default async function FormDetailPage({
                                 <span className="text-[13px] text-zoru-ink self-center">
                                     {f.label ?? f.name}
                                 </span>
-                                <ZoruBadge variant="ghost" className="self-center">
+                                <Badge variant="ghost" className="self-center">
                                     {f.type ?? 'text'}
-                                </ZoruBadge>
+                                </Badge>
                                 {f.required ? (
-                                    <ZoruBadge variant="warning" className="self-center">
+                                    <Badge variant="warning" className="self-center">
                                         Required
-                                    </ZoruBadge>
+                                    </Badge>
                                 ) : (
                                     <span className="self-center text-[11.5px] text-zoru-ink-muted">
                                         Optional
@@ -175,7 +175,7 @@ export default async function FormDetailPage({
                         ))}
                     </ol>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityDetailShell>
     );
 }

@@ -132,7 +132,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
   if (!projectId) {
     return (
       <div className="p-6">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Clapperboard />}
           title="No project selected"
           description="Pick a project with a connected Instagram account to view its reels."
@@ -143,7 +143,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -157,7 +157,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
             <ZoruBreadcrumbPage>Reels</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -166,29 +166,29 @@ export default function InstagramReelsPage(): React.JSX.Element {
             Recent reels published from the connected Instagram Business account.
           </p>
         </div>
-        <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+        <Button variant="ghost" onClick={refresh} disabled={loading}>
           <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       {error ? (
-        <ZoruAlert variant="destructive">
+        <Alert variant="destructive">
           <AlertCircle />
           <ZoruAlertTitle>Could not load reels</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </ZoruAlert>
+        </Alert>
       ) : null}
 
       {loading && reels.length === 0 ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          <ZoruSkeleton className="aspect-[9/16] w-full" />
-          <ZoruSkeleton className="aspect-[9/16] w-full" />
-          <ZoruSkeleton className="aspect-[9/16] w-full" />
-          <ZoruSkeleton className="aspect-[9/16] w-full" />
+          <Skeleton className="aspect-[9/16] w-full" />
+          <Skeleton className="aspect-[9/16] w-full" />
+          <Skeleton className="aspect-[9/16] w-full" />
+          <Skeleton className="aspect-[9/16] w-full" />
         </div>
       ) : reels.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Clapperboard />}
           title="No reels yet"
           description="This account hasn't published any reels."
@@ -198,7 +198,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
           {reels.map((r) => {
             const src = r.thumbnail_url || r.media_url;
             return (
-              <ZoruCard
+              <Card
                 key={r.id}
                 className="flex cursor-pointer flex-col p-0"
                 onClick={() => openReel(r)}
@@ -229,13 +229,13 @@ export default function InstagramReelsPage(): React.JSX.Element {
                     </span>
                   </div>
                 </div>
-              </ZoruCard>
+              </Card>
             );
           })}
         </div>
       )}
 
-      <ZoruSheet open={!!activeReel} onOpenChange={(o) => !o && setActiveReel(null)}>
+      <Sheet open={!!activeReel} onOpenChange={(o) => !o && setActiveReel(null)}>
         <ZoruSheetContent side="right" className="flex w-full max-w-md flex-col gap-4 overflow-y-auto sm:max-w-lg">
           <ZoruSheetHeader>
             <ZoruSheetTitle>Reel details</ZoruSheetTitle>
@@ -262,14 +262,14 @@ export default function InstagramReelsPage(): React.JSX.Element {
                   {activeReel.caption ?? '(no caption)'}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <ZoruBadge variant="outline">♥ {activeReel.like_count ?? 0}</ZoruBadge>
-                  <ZoruBadge variant="outline">💬 {activeReel.comments_count ?? 0}</ZoruBadge>
+                  <Badge variant="outline">♥ {activeReel.like_count ?? 0}</Badge>
+                  <Badge variant="outline">💬 {activeReel.comments_count ?? 0}</Badge>
                   {activeReel.permalink ? (
-                    <ZoruButton asChild size="sm" variant="outline">
+                    <Button asChild size="sm" variant="outline">
                       <a href={activeReel.permalink} target="_blank" rel="noopener noreferrer">
                         <Eye className="mr-1 h-3 w-3" /> Open on Instagram
                       </a>
-                    </ZoruButton>
+                    </Button>
                   ) : null}
                 </div>
               </div>
@@ -277,17 +277,17 @@ export default function InstagramReelsPage(): React.JSX.Element {
               <div>
                 <p className="text-sm text-zoru-ink">Insights</p>
                 {insightsError ? (
-                  <ZoruAlert variant="warning" className="mt-2">
+                  <Alert variant="warning" className="mt-2">
                     <AlertCircle />
                     <ZoruAlertTitle>Insights unavailable</ZoruAlertTitle>
                     <ZoruAlertDescription>{insightsError}</ZoruAlertDescription>
-                  </ZoruAlert>
+                  </Alert>
                 ) : insightsLoading ? (
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    <ZoruSkeleton className="h-12 w-full" />
-                    <ZoruSkeleton className="h-12 w-full" />
-                    <ZoruSkeleton className="h-12 w-full" />
-                    <ZoruSkeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
                   </div>
                 ) : (
                   <div className="mt-2 grid grid-cols-2 gap-2">
@@ -310,7 +310,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
             </div>
           ) : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
     </div>
   );
 }

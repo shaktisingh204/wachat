@@ -32,10 +32,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Settings
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -59,15 +59,15 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
     return (
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
-            <ZoruCard className="card-gradient card-gradient-blue">
+            <Card className="card-gradient card-gradient-blue">
                 <ZoruCardHeader>
                     <ZoruCardTitle>General Settings</ZoruCardTitle>
                     <ZoruCardDescription>Manage general settings for your project.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="messagesPerSecond">Messages Per Second (Concurrency)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="messagesPerSecond">Messages Per Second (Concurrency)</Label>
+                        <Input
                             id="messagesPerSecond"
                             name="messagesPerSecond"
                             type="number"
@@ -80,7 +80,7 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
                 <ZoruCardFooter>
                     <SubmitButton />
                 </ZoruCardFooter>
-            </ZoruCard>
+            </Card>
         </form>
     );
 }

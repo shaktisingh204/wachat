@@ -591,7 +591,7 @@ export function ScheduleDialog({
         : "Search broadcast lists or paste an ID";
 
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <ZoruDialogHeader>
           <ZoruDialogTitle>
@@ -605,7 +605,7 @@ export function ScheduleDialog({
         <div className="grid gap-5">
           {/* ─── Target ─────────────────────────────────────────────── */}
           <section className="space-y-2">
-            <ZoruLabel className="text-sm font-medium">Recipients</ZoruLabel>
+            <Label className="text-sm font-medium">Recipients</Label>
             {/* Segmented picker — no tab UI per ZoruUI rules */}
             <div
               role="group"
@@ -613,7 +613,7 @@ export function ScheduleDialog({
               className="grid w-full grid-cols-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5"
             >
               {TARGET_KINDS.map(({ value, label, Icon }) => (
-                <ZoruButton
+                <Button
                   key={value}
                   type="button"
                   size="sm"
@@ -624,7 +624,7 @@ export function ScheduleDialog({
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {label}
-                </ZoruButton>
+                </Button>
               ))}
             </div>
 
@@ -718,7 +718,7 @@ export function ScheduleDialog({
             {/* Power-user fallback: paste a raw JID */}
             <div className="mt-3 space-y-2">
               <div className="flex gap-2">
-                <ZoruInput
+                <Input
                   placeholder={targetPlaceholder}
                   value={jidInput}
                   onChange={(e) => setJidInput(e.target.value)}
@@ -731,7 +731,7 @@ export function ScheduleDialog({
                     }
                   }}
                 />
-                <ZoruButton
+                <Button
                   type="button"
                   variant="secondary"
                   size="sm"
@@ -743,7 +743,7 @@ export function ScheduleDialog({
                   }}
                 >
                   Add
-                </ZoruButton>
+                </Button>
               </div>
               <p className="text-[11px] text-zoru-ink-muted">
                 Search and pick chats below, or paste a JID.
@@ -798,10 +798,10 @@ export function ScheduleDialog({
 
           {/* ─── Message ────────────────────────────────────────────── */}
           <section className="space-y-2">
-            <ZoruLabel htmlFor="schedule-body" className="text-sm font-medium">
+            <Label htmlFor="schedule-body" className="text-sm font-medium">
               Message
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="schedule-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -845,13 +845,13 @@ export function ScheduleDialog({
           {/* ─── Schedule ───────────────────────────────────────────── */}
           <section className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <ZoruLabel className="text-sm font-medium">Date</ZoruLabel>
-              <ZoruPopover
+              <Label className="text-sm font-medium">Date</Label>
+              <Popover
                 open={datePopoverOpen}
                 onOpenChange={setDatePopoverOpen}
               >
                 <ZoruPopoverTrigger asChild>
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="outline"
                     className={cn(
@@ -865,10 +865,10 @@ export function ScheduleDialog({
                     ) : (
                       <span>Pick a date</span>
                     )}
-                  </ZoruButton>
+                  </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent className="w-auto p-0" align="start">
-                  <ZoruCalendar
+                  <Calendar
                     mode="single"
                     selected={calendarSelected}
                     onSelect={(d) => {
@@ -878,15 +878,15 @@ export function ScheduleDialog({
                     initialFocus
                   />
                 </ZoruPopoverContent>
-              </ZoruPopover>
+              </Popover>
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="schedule-time" className="text-sm font-medium">
+              <Label htmlFor="schedule-time" className="text-sm font-medium">
                 Time
-              </ZoruLabel>
+              </Label>
               <div className="relative">
                 <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                <ZoruInput
+                <Input
                   id="schedule-time"
                   type="time"
                   value={timeStr}
@@ -896,10 +896,10 @@ export function ScheduleDialog({
               </div>
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="schedule-tz" className="text-sm font-medium">
+              <Label htmlFor="schedule-tz" className="text-sm font-medium">
                 Timezone
-              </ZoruLabel>
-              <ZoruSelect value={timezone} onValueChange={setTimezone}>
+              </Label>
+              <Select value={timezone} onValueChange={setTimezone}>
                 <ZoruSelectTrigger id="schedule-tz">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -915,14 +915,14 @@ export function ScheduleDialog({
                     </ZoruSelectItem>
                   )}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
           </section>
 
           {/* ─── Recurrence ─────────────────────────────────────────── */}
           <section className="space-y-2">
-            <ZoruLabel className="text-sm font-medium">Recurrence</ZoruLabel>
-            <ZoruRadioGroup
+            <Label className="text-sm font-medium">Recurrence</Label>
+            <RadioGroup
               value={recurrence}
               onValueChange={(v) =>
                 setRecurrence(v as SchedulerRecurrence)
@@ -932,7 +932,7 @@ export function ScheduleDialog({
               {(
                 ["none", "daily", "weekly", "monthly", "custom"] as const
               ).map((opt) => (
-                <ZoruLabel
+                <Label
                   key={opt}
                   htmlFor={`rec-${opt}`}
                   className={cn(
@@ -943,11 +943,11 @@ export function ScheduleDialog({
                 >
                   <ZoruRadioGroupItem id={`rec-${opt}`} value={opt} />
                   {opt === "none" ? "Once" : opt}
-                </ZoruLabel>
+                </Label>
               ))}
-            </ZoruRadioGroup>
+            </RadioGroup>
             {recurrence === "custom" && (
-              <ZoruInput
+              <Input
                 value={customCron}
                 onChange={(e) => setCustomCron(e.target.value)}
                 placeholder="Cron — e.g. 0 9 * * 1-5"
@@ -960,26 +960,26 @@ export function ScheduleDialog({
           {/* ─── End condition ──────────────────────────────────────── */}
           {recurrence !== "none" && (
             <section className="space-y-2">
-              <ZoruLabel className="text-sm font-medium">End condition</ZoruLabel>
-              <ZoruRadioGroup
+              <Label className="text-sm font-medium">End condition</Label>
+              <RadioGroup
                 value={endKind}
                 onValueChange={(v) => setEndKind(v as SchedulerEndKind)}
                 className="flex flex-col gap-2 sm:flex-row sm:items-center"
               >
-                <ZoruLabel
+                <Label
                   htmlFor="end-never"
                   className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
                 >
                   <ZoruRadioGroupItem id="end-never" value="never" />
                   Never
-                </ZoruLabel>
-                <ZoruLabel
+                </Label>
+                <Label
                   htmlFor="end-count"
                   className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
                 >
                   <ZoruRadioGroupItem id="end-count" value="count" />
                   After
-                  <ZoruInput
+                  <Input
                     type="number"
                     min={1}
                     value={endCount}
@@ -990,22 +990,22 @@ export function ScheduleDialog({
                     className="h-7 w-20"
                   />
                   occurrences
-                </ZoruLabel>
-                <ZoruLabel
+                </Label>
+                <Label
                   htmlFor="end-date"
                   className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
                 >
                   <ZoruRadioGroupItem id="end-date" value="date" />
                   On
-                  <ZoruInput
+                  <Input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     disabled={endKind !== "date"}
                     className="h-7"
                   />
-                </ZoruLabel>
-              </ZoruRadioGroup>
+                </Label>
+              </RadioGroup>
             </section>
           )}
 
@@ -1022,7 +1022,7 @@ export function ScheduleDialog({
         </div>
 
         <ZoruDialogFooter className="gap-2 sm:gap-2">
-          <ZoruButton
+          <Button
             type="button"
             variant="ghost"
             onClick={handleTestNow}
@@ -1035,21 +1035,21 @@ export function ScheduleDialog({
               <Send className="mr-1.5 h-4 w-4" />
             )}
             Test now
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton type="button" onClick={handleSubmit} disabled={!canSubmit}>
+          </Button>
+          <Button type="button" onClick={handleSubmit} disabled={!canSubmit}>
             {submitting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
             {mode === "edit" ? "Save changes" : "Schedule"}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

@@ -85,9 +85,9 @@ export function QuotationFilters(props: QuotationFiltersProps) {
       </summary>
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
-          <ZoruLabel>Status</ZoruLabel>
+          <Label>Status</Label>
           {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-          <ZoruSelect value={statusFilter} onValueChange={onStatusChange}>
+          <Select value={statusFilter} onValueChange={onStatusChange}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
             </ZoruSelectTrigger>
@@ -98,11 +98,11 @@ export function QuotationFilters(props: QuotationFiltersProps) {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
+          </Select>
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Customer</ZoruLabel>
+          <Label>Customer</Label>
           <EntityFormField
             entity="client"
             name="_filter_customer"
@@ -112,7 +112,7 @@ export function QuotationFilters(props: QuotationFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Sales agent</ZoruLabel>
+          <Label>Sales agent</Label>
           <EntityFormField
             entity="user"
             name="_filter_sales_agent"
@@ -122,7 +122,7 @@ export function QuotationFilters(props: QuotationFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Currency</ZoruLabel>
+          <Label>Currency</Label>
           <EntityFormField
             entity="currency"
             name="_filter_currency"
@@ -132,16 +132,16 @@ export function QuotationFilters(props: QuotationFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Date — from</ZoruLabel>
-          <ZoruInput
+          <Label>Date — from</Label>
+          <Input
             type="date"
             value={fromDate}
             onChange={(e) => onFromDateChange(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Date — to</ZoruLabel>
-          <ZoruInput
+          <Label>Date — to</Label>
+          <Input
             type="date"
             value={toDate}
             onChange={(e) => onToDateChange(e.target.value)}
@@ -149,16 +149,16 @@ export function QuotationFilters(props: QuotationFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel>Valid until — from</ZoruLabel>
-          <ZoruInput
+          <Label>Valid until — from</Label>
+          <Input
             type="date"
             value={validFrom}
             onChange={(e) => onValidFromChange(e.target.value)}
           />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>Valid until — to</ZoruLabel>
-          <ZoruInput
+          <Label>Valid until — to</Label>
+          <Input
             type="date"
             value={validTo}
             onChange={(e) => onValidToChange(e.target.value)}

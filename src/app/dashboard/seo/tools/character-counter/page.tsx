@@ -27,18 +27,18 @@ export default function CharacterCounterPage() {
 
   return (
     <ToolShell title="Character Counter" description="Character count with and without spaces, plus common SEO limits.">
-      <ZoruTextarea
+      <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste or type your content…"
         className="min-h-[240px]"
       />
       <div className="grid grid-cols-3 gap-3">
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-muted-foreground">With spaces</div></ZoruCardContent></ZoruCard>
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-muted-foreground">Without spaces</div></ZoruCardContent></ZoruCard>
-        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></ZoruCard>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-muted-foreground">With spaces</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-muted-foreground">Without spaces</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></Card>
       </div>
-      <ZoruCard>
+      <Card>
         <ZoruCardContent className="p-4 space-y-3">
           <div className="text-sm font-semibold">Common limits</div>
           {Object.entries(stats.limits).map(([label, limit]) => {
@@ -59,7 +59,7 @@ export default function CharacterCounterPage() {
             );
           })}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </ToolShell>
   );
 }

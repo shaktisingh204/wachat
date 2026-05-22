@@ -158,14 +158,14 @@ export async function EntityAuditTimeline({
     const session = await getSession();
     if (!session?.user?._id) {
         return (
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>{title}</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <p className="text-sm text-zinc-500">Login required to view activity.</p>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         );
     }
 
@@ -193,19 +193,19 @@ export async function EntityAuditTimeline({
 
     if (entries.length === 0) {
         return (
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>{title}</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <p className="text-sm text-zinc-500">No activity yet.</p>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         );
     }
 
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardHeader>
                 <ZoruCardTitle>{title}</ZoruCardTitle>
             </ZoruCardHeader>
@@ -224,9 +224,9 @@ export async function EntityAuditTimeline({
                                     <span className="font-medium">
                                         {actorLabel(String(entry.actorId ?? ''), userId)}
                                     </span>
-                                    <ZoruBadge variant={tone as any}>
+                                    <Badge variant={tone as any}>
                                         {actionLabel(entry.action)}
-                                    </ZoruBadge>
+                                    </Badge>
                                     <span className="text-zinc-500">{entry.entityKind}</span>
                                     <span
                                         className="ml-auto text-xs text-zinc-500"
@@ -244,6 +244,6 @@ export async function EntityAuditTimeline({
                     })}
                 </ol>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

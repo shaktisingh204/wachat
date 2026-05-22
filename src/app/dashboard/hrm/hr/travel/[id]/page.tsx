@@ -67,19 +67,19 @@ export default async function TravelDetailPage({ params }: PageProps) {
             actions={
                 <>
                     <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <ArrowLeft className="h-4 w-4" /> Back
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
+                        <Button size="sm">
                             <Pencil className="h-4 w-4" /> Edit
-                        </ZoruButton>
+                        </Button>
                     </Link>
                     <a href={`${BASE}/${id}?print=1`} target="_blank" rel="noopener noreferrer">
-                        <ZoruButton variant="outline" size="sm">
+                        <Button variant="outline" size="sm">
                             <Printer className="h-4 w-4" /> Print
-                        </ZoruButton>
+                        </Button>
                     </a>
                     <HrActionButtons
                         actions={[
@@ -137,9 +137,9 @@ export default async function TravelDetailPage({ params }: PageProps) {
                     {fmtCurrency(t.advanceAmount, currency)}
                 </HrDetailRow>
                 <HrDetailRow label="Status">
-                    <ZoruBadge variant={status === 'approved' ? 'success' : 'warning'}>
+                    <Badge variant={status === 'approved' ? 'success' : 'warning'}>
                         {status}
-                    </ZoruBadge>
+                    </Badge>
                 </HrDetailRow>
                 <HrDetailRow label="Approver">
                     {fmtText(t.approverName || t.approverId)}

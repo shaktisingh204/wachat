@@ -52,23 +52,23 @@ export default function CollectionsPage() {
 
     return (
         <div className="flex flex-col gap-6 p-6">
-            <ZoruPageHeader>
+            <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageTitle>Collections</ZoruPageTitle>
                 </ZoruPageHeading>
                 <ZoruPageDescription>
                     Organise your short links into named folders. Select a collection, then toggle links to add or remove them.
                 </ZoruPageDescription>
-            </ZoruPageHeader>
+            </PageHeader>
 
             <div className="flex gap-4 min-h-[400px]">
                 <div className="w-56 flex-shrink-0 space-y-1">
                     <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60 mb-2 px-1">Your Collections</p>
                     {collections.length === 0 ? (
-                        <ZoruCard className="p-4 text-center text-[12px] text-zoru-ink-muted">
+                        <Card className="p-4 text-center text-[12px] text-zoru-ink-muted">
                             No collections yet.<br />
                             <a href="/dashboard/url-shortener" className="text-amber-400 hover:underline">Create one on the Links page</a>
-                        </ZoruCard>
+                        </Card>
                     ) : (
                         collections.map((col) => (
                             <button
@@ -83,7 +83,7 @@ export default function CollectionsPage() {
                             >
                                 <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: col.color }} />
                                 <span className="truncate flex-1 text-left">{col.name}</span>
-                                <ZoruBadge variant="secondary" className="text-[10px]">{col.linkIds.length}</ZoruBadge>
+                                <Badge variant="secondary" className="text-[10px]">{col.linkIds.length}</Badge>
                             </button>
                         ))
                     )}
@@ -101,7 +101,7 @@ export default function CollectionsPage() {
                                 Links — click to toggle assignment to <span style={{ color: selectedCol?.color }}>{selectedCol?.name}</span>
                             </p>
                             {urls.length === 0 ? (
-                                <ZoruCard className="p-6 text-center text-[12px] text-zoru-ink-muted">No links yet.</ZoruCard>
+                                <Card className="p-6 text-center text-[12px] text-zoru-ink-muted">No links yet.</Card>
                             ) : (
                                 urls.map((url) => {
                                     const id = url._id.toString();
@@ -124,7 +124,7 @@ export default function CollectionsPage() {
                                                 <p className="text-[11px] text-zoru-ink-muted">/{url.shortCode}</p>
                                             </div>
                                             {inCollection && (
-                                                <ZoruBadge variant="warning" className="text-[10px] flex-shrink-0">In collection</ZoruBadge>
+                                                <Badge variant="warning" className="text-[10px] flex-shrink-0">In collection</Badge>
                                             )}
                                         </button>
                                     );

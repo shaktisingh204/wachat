@@ -126,11 +126,11 @@ export default function TimesheetsListPage(): React.JSX.Element {
                     title="Weekly Timesheets"
                     subtitle="Weekly time records per employee with submit / approve workflow."
                     primaryAction={
-                        <ZoruButton asChild>
+                        <Button asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New timesheet
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     }
                     search={{
                         value: search,
@@ -148,7 +148,7 @@ export default function TimesheetsListPage(): React.JSX.Element {
                     loading={isLoading && timesheets.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                     <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
@@ -197,25 +197,25 @@ export default function TimesheetsListPage(): React.JSX.Element {
                                                     <StatusPill label={t.status} tone={tone} />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
-                                                    <ZoruButton variant="ghost" size="icon" asChild>
+                                                    <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${t._id}`}>
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
+                                                    </Button>
+                                                    <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setPendingDelete(t)}
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })
                                 )}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
             </EntityListShell>
 

@@ -109,10 +109,10 @@ function StatusBadge({ status }: { status?: string }) {
     map[s] ?? { variant: 'ghost' as Variant, Icon: Clock, label: status || 'Unknown' };
   const { variant, Icon, label } = entry;
   return (
-    <ZoruBadge variant={variant} className="capitalize">
+    <Badge variant={variant} className="capitalize">
       <Icon className="h-3 w-3" />
       {label}
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -250,7 +250,7 @@ export default function CallLogsPage() {
 
   if (!activeProjectId) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Phone />}
         title="No project selected"
         description="Select a project from the home screen to view its call logs."
@@ -277,10 +277,10 @@ export default function CallLogsPage() {
       </div>
 
       {/* Filter bar */}
-      <ZoruCard className="p-4">
+      <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="min-w-[220px] flex-1">
-            <ZoruInput
+            <Input
               type="text"
               placeholder="Search by phone or Call SID..."
               value={search}
@@ -288,7 +288,7 @@ export default function CallLogsPage() {
               leadingSlot={<Search />}
             />
           </div>
-          <ZoruSelect
+          <Select
             value={direction}
             onValueChange={(v) => setDirection(v as typeof direction)}
           >
@@ -300,8 +300,8 @@ export default function CallLogsPage() {
               <ZoruSelectItem value="inbound">Inbound</ZoruSelectItem>
               <ZoruSelectItem value="outbound">Outbound</ZoruSelectItem>
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruSelect value={status} onValueChange={setStatus}>
+          </Select>
+          <Select value={status} onValueChange={setStatus}>
             <ZoruSelectTrigger className="h-9 w-[160px] capitalize">
               <ZoruSelectValue placeholder="All statuses" />
             </ZoruSelectTrigger>
@@ -312,15 +312,15 @@ export default function CallLogsPage() {
                 </ZoruSelectItem>
               ))}
             </ZoruSelectContent>
-          </ZoruSelect>
-          <ZoruInput
+          </Select>
+          <Input
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
             aria-label="From date"
             className="w-[150px]"
           />
-          <ZoruInput
+          <Input
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
@@ -328,7 +328,7 @@ export default function CallLogsPage() {
             className="w-[150px]"
           />
           {filtersActive ? (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => {
@@ -340,18 +340,18 @@ export default function CallLogsPage() {
               }}
             >
               Clear
-            </ZoruButton>
+            </Button>
           ) : null}
           <div className="ml-auto flex items-center gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={() => downloadCsv(filtered)}
               disabled={filtered.length === 0}
             >
               <Download /> Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => fetchData(false)}
@@ -363,7 +363,7 @@ export default function CallLogsPage() {
                 <RefreshCw />
               )}
               Refresh
-            </ZoruButton>
+            </Button>
           </div>
         </div>
         <div className="mt-3 flex items-center gap-2 border-t border-zoru-line pt-3 text-[11.5px] text-zoru-ink-muted">
@@ -371,18 +371,18 @@ export default function CallLogsPage() {
           <span>of</span>
           <span>{logs.length} calls</span>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Table */}
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         {isLoading && logs.length === 0 ? (
           <div className="flex flex-col gap-2 p-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-10" />
+              <Skeleton key={i} className="h-10" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Phone />}
             className="border-0"
             title={
@@ -448,10 +448,10 @@ export default function CallLogsPage() {
             </table>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Per-call detail sheet (transcript / recording metadata) */}
-      <ZoruSheet
+      <Sheet
         open={detailLog !== null}
         onOpenChange={(open) => {
           if (!open) setDetailLog(null);
@@ -502,7 +502,7 @@ export default function CallLogsPage() {
             </div>
           ) : null}
         </ZoruSheetContent>
-      </ZoruSheet>
+      </Sheet>
     </div>
   );
 }

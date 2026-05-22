@@ -55,12 +55,12 @@ const INITIAL_STATE: { message?: string; error?: string; id?: string } = {};
 function SubmitButton({ editing }: { editing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-1.5 h-4 w-4 animate-spin" />
             ) : null}
             {editing ? 'Save changes' : 'Create payslip'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -126,16 +126,16 @@ export function PayslipForm({ initial }: PayslipFormProps) {
             ) : null}
             <input type="hidden" name="status" value={status} />
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Employee &amp; period
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel htmlFor="employeeId">
+                        <Label htmlFor="employeeId">
                             Employee ID <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="employeeId"
                             name="employeeId"
                             required
@@ -145,8 +145,8 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="employeeName">Employee name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="employeeName">Employee name</Label>
+                        <Input
                             id="employeeName"
                             name="employeeName"
                             defaultValue={initial?.employeeName ?? ''}
@@ -155,10 +155,10 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="payPeriod">
+                        <Label htmlFor="payPeriod">
                             Pay period <span className="text-zoru-danger-ink">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="payPeriod"
                             name="payPeriod"
                             type="month"
@@ -168,8 +168,8 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="issuedAt">Issued on</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="issuedAt">Issued on</Label>
+                        <Input
                             id="issuedAt"
                             name="issuedAt"
                             type="date"
@@ -178,9 +178,9 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         />
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Earnings
                 </h3>
@@ -203,9 +203,9 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         defaultValue={initial?.allowances}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Deductions
                 </h3>
@@ -231,9 +231,9 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         defaultValue={initial?.deductions}
                     />
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     Totals
                 </h3>
@@ -253,7 +253,7 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                 </div>
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel htmlFor="statusSelect">Status</ZoruLabel>
+                        <Label htmlFor="statusSelect">Status</Label>
                         <div className="mt-1.5">
                             <EnumFormField
                                 enumName="payslipStatus"
@@ -265,9 +265,9 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         </div>
                     </div>
                 </div>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                     PDF attachment
                 </h3>
@@ -293,10 +293,10 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                         </span>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             <div className="flex justify-end gap-2">
-                <ZoruButton variant="outline" asChild>
+                <Button variant="outline" asChild>
                     <Link
                         href={
                             editing
@@ -308,7 +308,7 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                     >
                         Cancel
                     </Link>
-                </ZoruButton>
+                </Button>
                 <SubmitButton editing={editing} />
             </div>
         </form>
@@ -334,13 +334,13 @@ function NumberField({
 }: NumberFieldProps) {
     return (
         <div>
-            <ZoruLabel htmlFor={id}>
+            <Label htmlFor={id}>
                 {label}
                 {required ? (
                     <span className="text-zoru-danger-ink"> *</span>
                 ) : null}
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
                 id={id}
                 name={id}
                 type="number"

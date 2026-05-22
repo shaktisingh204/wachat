@@ -59,13 +59,13 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
     } = props;
 
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
-                <ZoruTable>
+                <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow className="hover:bg-transparent">
                             <ZoruTableHead className="w-[40px]">
-                                <ZoruCheckbox
+                                <Checkbox
                                     checked={
                                         rows.length > 0 &&
                                         selected.size === rows.length
@@ -111,7 +111,7 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                 return (
                                     <ZoruTableRow key={row._id}>
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={isChecked}
                                                 onCheckedChange={() =>
                                                     onToggleOne(row._id)
@@ -134,22 +134,22 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                         <ZoruTableCell className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 {extraRowActions?.(row)}
-                                                <ZoruButton
+                                                <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     aria-label="Edit"
                                                     onClick={() => onEdit(row)}
                                                 >
                                                     <Pencil className="h-3.5 w-3.5" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     aria-label="Delete"
                                                     onClick={() => onDelete(row._id)}
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                                </ZoruButton>
+                                                </Button>
                                             </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -157,8 +157,8 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                             })
                         )}
                     </ZoruTableBody>
-                </ZoruTable>
+                </Table>
             </div>
-        </ZoruCard>
+        </Card>
     );
 }

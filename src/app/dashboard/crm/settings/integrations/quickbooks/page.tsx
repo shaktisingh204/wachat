@@ -56,13 +56,13 @@ const CONNECT_URL = '/api/integrations/quickbooks/connect';
 
 function StatusPill({ connected }: { connected: boolean }) {
   return connected ? (
-    <ZoruBadge variant="success" className="gap-1">
+    <Badge variant="success" className="gap-1">
       <CheckCircle2 className="h-3 w-3" /> Connected
-    </ZoruBadge>
+    </Badge>
   ) : (
-    <ZoruBadge variant="outline" className="gap-1">
+    <Badge variant="outline" className="gap-1">
       <AlertCircle className="h-3 w-3" /> Not connected
-    </ZoruBadge>
+    </Badge>
   );
 }
 
@@ -253,12 +253,12 @@ function QuickBooksIntegrationInner() {
             <div className="flex flex-wrap gap-2">
               {connected ? (
                 <>
-                  <ZoruButton asChild variant="outline">
+                  <Button asChild variant="outline">
                     <a href={CONNECT_URL}>
                       <PlugZap className="h-4 w-4" /> Reconnect
                     </a>
-                  </ZoruButton>
-                  <ZoruButton
+                  </Button>
+                  <Button
                     variant="destructive"
                     onClick={onDisconnect}
                     disabled={isDisconnecting}
@@ -267,14 +267,14 @@ function QuickBooksIntegrationInner() {
                       <LoaderCircle className="h-4 w-4 animate-spin" />
                     ) : null}
                     Disconnect
-                  </ZoruButton>
+                  </Button>
                 </>
               ) : (
-                <ZoruButton asChild disabled={!hasCredentials}>
+                <Button asChild disabled={!hasCredentials}>
                   <a href={CONNECT_URL}>
                     <Plug className="h-4 w-4" /> Connect to QuickBooks
                   </a>
-                </ZoruButton>
+                </Button>
               )}
             </div>
           </div>
@@ -300,9 +300,9 @@ function QuickBooksIntegrationInner() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel htmlFor="qbo-client-id">Client ID</ZoruLabel>
+              <Label htmlFor="qbo-client-id">Client ID</Label>
               <div className="mt-1.5">
-                <ZoruInput
+                <Input
                   id="qbo-client-id"
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value)}
@@ -311,9 +311,9 @@ function QuickBooksIntegrationInner() {
               </div>
             </div>
             <div>
-              <ZoruLabel htmlFor="qbo-client-secret">Client Secret</ZoruLabel>
+              <Label htmlFor="qbo-client-secret">Client Secret</Label>
               <div className="mt-1.5">
-                <ZoruInput
+                <Input
                   id="qbo-client-secret"
                   type="password"
                   value={clientSecret}
@@ -324,9 +324,9 @@ function QuickBooksIntegrationInner() {
             </div>
 
             <div>
-              <ZoruLabel htmlFor="qbo-environment">Environment</ZoruLabel>
+              <Label htmlFor="qbo-environment">Environment</Label>
               <div className="mt-1.5">
-                <ZoruSelect
+                <Select
                   value={environment}
                   onValueChange={(v) => setEnvironment(v as QuickBooksEnvironment)}
                 >
@@ -337,31 +337,31 @@ function QuickBooksIntegrationInner() {
                     <ZoruSelectItem value="sandbox">Sandbox</ZoruSelectItem>
                     <ZoruSelectItem value="production">Production</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <ZoruLabel htmlFor="qbo-redirect">Redirect URI</ZoruLabel>
+              <Label htmlFor="qbo-redirect">Redirect URI</Label>
               <p className="mt-1 text-xs text-zinc-500">
                 Add this URL to your QuickBooks app&apos;s allowed Redirect URIs
                 in the Intuit developer dashboard.
               </p>
               <div className="mt-1.5 flex gap-2">
-                <ZoruInput
+                <Input
                   id="qbo-redirect"
                   value={status?.redirectUri ?? ''}
                   readOnly
                   className="font-mono text-xs"
                 />
-                <ZoruButton
+                <Button
                   type="button"
                   variant="outline"
                   onClick={onCopyRedirect}
                   disabled={!status?.redirectUri}
                 >
                   <Copy className="h-4 w-4" />
-                </ZoruButton>
+                </Button>
               </div>
             </div>
 
@@ -373,7 +373,7 @@ function QuickBooksIntegrationInner() {
                   QuickBooks automatically as they&apos;re saved.
                 </p>
               </div>
-              <ZoruSwitch
+              <Switch
                 checked={autoSync}
                 onCheckedChange={(v) => setAutoSync(Boolean(v))}
                 aria-label="Toggle auto-sync"
@@ -382,12 +382,12 @@ function QuickBooksIntegrationInner() {
           </div>
 
           <div className="mt-4 flex justify-end">
-            <ZoruButton onClick={onSaveCredentials} disabled={isSaving}>
+            <Button onClick={onSaveCredentials} disabled={isSaving}>
               {isSaving ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : null}
               Save changes
-            </ZoruButton>
+            </Button>
           </div>
         </section>
 
@@ -401,7 +401,7 @@ function QuickBooksIntegrationInner() {
             </p>
           </header>
           <div className="flex flex-wrap gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={onSyncClients}
               disabled={!connected || isSyncingClients}
@@ -412,8 +412,8 @@ function QuickBooksIntegrationInner() {
                 <Users className="h-4 w-4" />
               )}
               Sync All Clients
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               onClick={onSyncInvoices}
               disabled={!connected || isSyncingInvoices}
@@ -424,11 +424,11 @@ function QuickBooksIntegrationInner() {
                 <Receipt className="h-4 w-4" />
               )}
               Sync All Invoices
-            </ZoruButton>
-            <ZoruButton variant="ghost" onClick={refresh} disabled={isSaving}>
+            </Button>
+            <Button variant="ghost" onClick={refresh} disabled={isSaving}>
               <RefreshCw className="h-4 w-4" />
               Refresh
-            </ZoruButton>
+            </Button>
           </div>
         </section>
 
@@ -462,11 +462,11 @@ function QuickBooksIntegrationInner() {
                     ) : null}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <ZoruBadge
+                    <Badge
                       variant={row.status === 'success' ? 'success' : 'destructive'}
                     >
                       {row.status}
-                    </ZoruBadge>
+                    </Badge>
                     <time className="text-xs text-zinc-500">
                       {formatDate(row.timestamp)}
                     </time>

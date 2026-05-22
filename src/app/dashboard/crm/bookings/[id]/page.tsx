@@ -100,11 +100,11 @@ export default async function BookingDetailPage({
           <p className="text-[14px] text-zoru-ink">
             Couldn&apos;t load this booking — {error}
           </p>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/dashboard/crm/bookings">
               <ArrowLeft className="h-4 w-4" /> Back to Bookings
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       );
     }
@@ -131,7 +131,7 @@ export default async function BookingDetailPage({
       audit={<EntityAuditTimeline entityKind="booking" entityId={id} />}
       rightRail={
         <>
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Status</ZoruCardTitle>
             </ZoruCardHeader>
@@ -139,13 +139,13 @@ export default async function BookingDetailPage({
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Booking</span>
-                  <ZoruBadge variant="outline">{status}</ZoruBadge>
+                  <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Payment</span>
-                  <ZoruBadge variant="outline">
+                  <Badge variant="outline">
                     {booking.paymentStatus ?? 'unpaid'}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">No-show</span>
@@ -155,9 +155,9 @@ export default async function BookingDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Resource</ZoruCardTitle>
             </ZoruCardHeader>
@@ -170,9 +170,9 @@ export default async function BookingDetailPage({
                 </span>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Customer</ZoruCardTitle>
             </ZoruCardHeader>
@@ -185,9 +185,9 @@ export default async function BookingDetailPage({
                 </span>
               )}
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Slot</ZoruCardTitle>
             </ZoruCardHeader>
@@ -209,9 +209,9 @@ export default async function BookingDetailPage({
                 </div>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard>
+          <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Related</ZoruCardTitle>
             </ZoruCardHeader>
@@ -237,11 +237,11 @@ export default async function BookingDetailPage({
                 </Link>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         </>
       }
     >
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>
         </ZoruCardHeader>
@@ -262,9 +262,9 @@ export default async function BookingDetailPage({
             </Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Resource &amp; customer</ZoruCardTitle>
         </ZoruCardHeader>
@@ -286,26 +286,26 @@ export default async function BookingDetailPage({
             </Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Payment</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Payment status">
-              <ZoruBadge variant="outline">
+              <Badge variant="outline">
                 {booking.paymentStatus ?? 'unpaid'}
-              </ZoruBadge>
+              </Badge>
             </Field>
             <Field label="No-show">{booking.noShow ? 'Yes' : 'No'}</Field>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {booking.notes ? (
-        <ZoruCard>
+        <Card>
           <ZoruCardHeader>
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
@@ -314,7 +314,7 @@ export default async function BookingDetailPage({
               {booking.notes}
             </p>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       ) : null}
 
       <p className="text-[11px] text-zoru-ink-muted">

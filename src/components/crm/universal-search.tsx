@@ -86,10 +86,10 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
   const showDropdown = open && (query.trim().length >= 2 || query.length === 0);
 
   return (
-    <ZoruPopover open={showDropdown} onOpenChange={setOpen}>
+    <Popover open={showDropdown} onOpenChange={setOpen}>
       <ZoruPopoverAnchor asChild>
         <div className={cn('w-full max-w-md', className)}>
-          <ZoruInput
+          <Input
             ref={inputRef}
             placeholder="Search leads, deals, clients…"
             value={query}
@@ -167,6 +167,6 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
           </div>
         )}
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

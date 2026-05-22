@@ -84,9 +84,9 @@ SidebarHeader.displayName = 'SidebarHeader';
 export function SidebarContent({ className, children }: React.HTMLAttributes<HTMLDivElement>) {
   const { isOpen } = useSidebar();
   return (
-    <ZoruScrollArea className="flex-1" viewportClassName={cn(!isOpen && 'p-2')}>
+    <ScrollArea className="flex-1" viewportClassName={cn(!isOpen && 'p-2')}>
       {children}
-    </ZoruScrollArea>
+    </ScrollArea>
   );
 }
 
@@ -115,7 +115,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
     const { isOpen } = useSidebar();
 
     const buttonContent = (
-      <ZoruButton
+      <Button
         ref={ref}
         variant={isActive ? 'sidebar-active' : 'ghost'}
         className={cn('w-full transition-all duration-300', isOpen ? 'justify-start px-4' : 'h-12 w-full justify-center px-2 group-hover:justify-start group-hover:px-4')}
@@ -127,12 +127,12 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
     if (isOpen && !showTooltip) return buttonContent;
 
     return (
-      <ZoruTooltip>
+      <Tooltip>
         <ZoruTooltipTrigger asChild>{buttonContent}</ZoruTooltipTrigger>
         <ZoruTooltipContent side="right" sideOffset={10}>
           <p>{tooltip}</p>
         </ZoruTooltipContent>
-      </ZoruTooltip>
+      </Tooltip>
     );
   }
 );
@@ -155,9 +155,9 @@ export const SidebarTrigger = ({ children }: { children?: React.ReactNode }) => 
 
   if (!children) {
     return (
-      <ZoruButton variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+      <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
         <PanelLeft />
-      </ZoruButton>
+      </Button>
     );
   }
 

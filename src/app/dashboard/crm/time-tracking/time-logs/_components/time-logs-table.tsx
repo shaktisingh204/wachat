@@ -73,7 +73,7 @@ export function TimeLogsTable({
   }
   return (
     <div className="overflow-x-auto rounded-lg border border-zoru-line">
-      <ZoruTable>
+      <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="border-zoru-line hover:bg-transparent">
             {selected !== undefined ? <ZoruTableHead className="w-10" /> : null}
@@ -98,7 +98,7 @@ export function TimeLogsTable({
               >
                 {selected !== undefined && log._id ? (
                   <ZoruTableCell>
-                    <ZoruCheckbox
+                    <Checkbox
                       checked={selected.has(log._id)}
                       onCheckedChange={() => onToggleRow?.(log._id!)}
                       aria-label={`Select log ${log.memo || log._id}`}
@@ -154,22 +154,22 @@ export function TimeLogsTable({
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {(log as { billable?: boolean }).billable ? (
-                    <ZoruBadge variant="success">Billable</ZoruBadge>
+                    <Badge variant="success">Billable</Badge>
                   ) : (
                     <span className="text-[12px] text-zoru-ink-muted">—</span>
                   )}
                 </ZoruTableCell>
                 <ZoruTableCell>
-                  <ZoruBadge
+                  <Badge
                     variant={s.variant as 'success' | 'danger' | 'warning' | 'ghost'}
                   >
                     {s.label}
-                  </ZoruBadge>
+                  </Badge>
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <div className="flex justify-end gap-1.5">
                     {!log.end_time ? (
-                      <ZoruButton
+                      <Button
                         size="sm"
                         variant="destructive"
                         onClick={() => log._id && onStop(log._id)}
@@ -177,42 +177,42 @@ export function TimeLogsTable({
                         aria-label="Stop timer"
                       >
                         <Square className="h-3.5 w-3.5" />
-                      </ZoruButton>
+                      </Button>
                     ) : !log.approved && log.status !== 'approved' ? (
                       <>
-                        <ZoruButton
+                        <Button
                           size="sm"
                           variant="outline"
                           onClick={() => log._id && onApprove(log._id)}
                           aria-label="Approve"
                         >
                           <Check className="h-3.5 w-3.5 text-emerald-500" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           size="sm"
                           variant="outline"
                           onClick={() => onReject(log)}
                           aria-label="Reject"
                         >
                           <X className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                        </ZoruButton>
+                        </Button>
                       </>
                     ) : null}
-                    <ZoruButton
+                    <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => log._id && onDelete(log._id)}
                       aria-label="Delete"
                     >
                       <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 </ZoruTableCell>
               </ZoruTableRow>
             );
           })}
         </ZoruTableBody>
-      </ZoruTable>
+      </Table>
     </div>
   );
 }

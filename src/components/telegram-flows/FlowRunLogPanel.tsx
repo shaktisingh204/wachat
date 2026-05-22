@@ -84,7 +84,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
   }, [flowId, refreshKey]);
 
   return (
-    <ZoruCard className="flex flex-col">
+    <Card className="flex flex-col">
       <header className="flex items-center justify-between border-b p-3">
         <div>
           <h3 className="text-sm font-semibold">Run log</h3>
@@ -92,7 +92,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
             Includes simulated runs from the Test panel.
           </p>
         </div>
-        <ZoruButton
+        <Button
           variant="ghost"
           size="sm"
           onClick={() => reload(false)}
@@ -104,7 +104,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
             <RefreshCw className="h-3 w-3" />
           )}
           Refresh
-        </ZoruButton>
+        </Button>
       </header>
 
       <div className="max-h-64 overflow-y-auto">
@@ -130,7 +130,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
                     ) : (
                       <ChevronRight className="h-4 w-4" />
                     )}
-                    <ZoruBadge variant={statusVariant(r.status)}>{r.status}</ZoruBadge>
+                    <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
                     <span className="font-mono text-xs text-muted-foreground">
                       {r._id.slice(-6)}
                     </span>
@@ -143,9 +143,9 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
                     <ol className="space-y-1 px-10 pb-3 text-xs">
                       {r.steps.map((s, i) => (
                         <li key={`${r._id}-${i}`} className="flex items-start gap-2">
-                          <ZoruBadge variant={statusVariant(s.status)} className="shrink-0">
+                          <Badge variant={statusVariant(s.status)} className="shrink-0">
                             {s.status}
-                          </ZoruBadge>
+                          </Badge>
                           <span className="font-mono text-muted-foreground">{s.nodeType}</span>
                           <span>{s.message}</span>
                         </li>
@@ -164,7 +164,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
 
       {nextCursor ? (
         <footer className="border-t p-2 text-center">
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             disabled={isLoading}
@@ -174,9 +174,9 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
             }}
           >
             Load more
-          </ZoruButton>
+          </Button>
         </footer>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }

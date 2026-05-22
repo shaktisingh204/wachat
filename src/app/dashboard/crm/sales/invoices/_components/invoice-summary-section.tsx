@@ -53,8 +53,8 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <ZoruLabel className="text-zoru-ink-muted">{label}</ZoruLabel>
-      <ZoruInput
+      <Label className="text-zoru-ink-muted">{label}</Label>
+      <Input
         type="number"
         step="0.01"
         value={value}
@@ -85,7 +85,7 @@ export function SummarySection({
   balance,
 }: SummarySectionProps) {
   return (
-    <ZoruCard className="p-6">
+    <Card className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
         Summary
       </h3>
@@ -109,8 +109,8 @@ export function SummarySection({
           <SummaryRow label="Round off" value={roundOff} onChange={onRoundOff} />
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <ZoruLabel htmlFor="tcsPct">TCS %</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="tcsPct">TCS %</Label>
+              <Input
                 id="tcsPct"
                 name="tcsPct"
                 type="number"
@@ -121,8 +121,8 @@ export function SummarySection({
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="tdsPct">TDS %</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="tdsPct">TDS %</Label>
+              <Input
                 id="tdsPct"
                 name="tdsPct"
                 type="number"
@@ -160,7 +160,7 @@ export function SummarySection({
               value={fmtMoney(Number(roundOff) || 0, currency)}
             />
           ) : null}
-          <ZoruSeparator />
+          <Separator />
           <div className="flex justify-between">
             <span className="font-medium text-zoru-ink">Total</span>
             <span className="text-base font-semibold tabular-nums text-zoru-ink">
@@ -178,7 +178,7 @@ export function SummarySection({
           </p>
         </div>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 

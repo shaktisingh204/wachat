@@ -132,31 +132,31 @@ export default function TimeLogDetailPage({
       back={{ href: '/dashboard/crm/time-tracking/time-logs', label: 'Time Logs' }}
       actions={
         log && !log.end_time ? (
-          <ZoruButton
+          <Button
             className="bg-destructive text-white hover:bg-destructive/90"
             disabled={isBusy}
             onClick={handleStopTimer}
           >
             <Square className="h-4 w-4" strokeWidth={1.75} />
             Stop Timer
-          </ZoruButton>
+          </Button>
         ) : undefined
       }
     >
 
       {isLoading && !log ? (
-        <ZoruCard className="p-6">
-          <ZoruSkeleton className="h-24 w-full" />
-        </ZoruCard>
+        <Card className="p-6">
+          <Skeleton className="h-24 w-full" />
+        </Card>
       ) : !log ? (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
           <p className="text-center text-[13px] text-zoru-ink-muted">
             Log not found.
           </p>
-        </ZoruCard>
+        </Card>
       ) : (
         <>
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="grid gap-4 md:grid-cols-4">
               <Field label="Project" value={log.project_id ? String(log.project_id) : '—'} />
               <Field label="Task" value={log.task_id ? String(log.task_id) : '—'} />
@@ -178,7 +178,7 @@ export default function TimeLogDetailPage({
               <Field
                 label="Status"
                 value={
-                  <ZoruBadge
+                  <Badge
                     variant={
                       log.status === 'approved' || log.approved
                         ? 'success'
@@ -196,7 +196,7 @@ export default function TimeLogDetailPage({
                         : !log.end_time
                           ? 'Running'
                           : 'Pending'}
-                  </ZoruBadge>
+                  </Badge>
                 }
               />
             </div>
@@ -206,9 +206,9 @@ export default function TimeLogDetailPage({
                 {log.reason}
               </div>
             ) : null}
-          </ZoruCard>
+          </Card>
 
-          <ZoruCard className="p-6">
+          <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-[16px] font-semibold text-zoru-ink">
@@ -223,10 +223,10 @@ export default function TimeLogDetailPage({
             {!log.end_time ? (
               <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-3">
                 <div className="min-w-[220px] flex-1">
-                  <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+                  <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
                     Reason
-                  </ZoruLabel>
-                  <ZoruInput
+                  </Label>
+                  <Input
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Coffee, lunch…"
@@ -234,7 +234,7 @@ export default function TimeLogDetailPage({
                   />
                 </div>
                 {activeBreak ? (
-                  <ZoruButton
+                  <Button
                     className="bg-destructive text-white hover:bg-destructive/90"
                     disabled={isBusy}
                     onClick={() =>
@@ -243,9 +243,9 @@ export default function TimeLogDetailPage({
                   >
                     <Square className="h-4 w-4" strokeWidth={1.75} />
                     Stop Break
-                  </ZoruButton>
+                  </Button>
                 ) : (
-                  <ZoruButton disabled={isBusy} onClick={handleStartBreak}>
+                  <Button disabled={isBusy} onClick={handleStartBreak}>
                     {isBusy ? (
                       <LoaderCircle
                         className="h-4 w-4 animate-spin"
@@ -255,13 +255,13 @@ export default function TimeLogDetailPage({
                       <Coffee className="h-4 w-4" strokeWidth={1.75} />
                     )}
                     Start Break
-                  </ZoruButton>
+                  </Button>
                 )}
               </div>
             ) : null}
 
             <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
-              <ZoruTable>
+              <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                     <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
@@ -303,7 +303,7 @@ export default function TimeLogDetailPage({
                         <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1.5">
                             {!br.end_time ? (
-                              <ZoruButton
+                              <Button
                                 size="sm"
                                 className="bg-destructive text-white hover:bg-destructive/90"
                                 onClick={() =>
@@ -315,9 +315,9 @@ export default function TimeLogDetailPage({
                                   className="h-3.5 w-3.5"
                                   strokeWidth={1.75}
                                 />
-                              </ZoruButton>
+                              </Button>
                             ) : (
-                              <ZoruButton
+                              <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() =>
@@ -329,7 +329,7 @@ export default function TimeLogDetailPage({
                                   className="h-3.5 w-3.5 text-zoru-danger-ink"
                                   strokeWidth={1.75}
                                 />
-                              </ZoruButton>
+                              </Button>
                             )}
                           </div>
                         </ZoruTableCell>
@@ -337,9 +337,9 @@ export default function TimeLogDetailPage({
                     ))
                   )}
                 </ZoruTableBody>
-              </ZoruTable>
+              </Table>
             </div>
-          </ZoruCard>
+          </Card>
         </>
       )}
     </EntityDetailShell>

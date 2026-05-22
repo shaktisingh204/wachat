@@ -31,7 +31,7 @@ export function EmailActivityFeed({ campaigns, accountId }: EmailActivityFeedPro
   const qs = accountId ? `?accountId=${accountId}` : '';
 
   return (
-    <ZoruCard className="p-0">
+    <Card className="p-0">
       <ZoruCardHeader>
         <ZoruCardTitle>Recent campaigns</ZoruCardTitle>
         <ZoruCardDescription>Your most recent sends and drafts.</ZoruCardDescription>
@@ -54,7 +54,7 @@ export function EmailActivityFeed({ campaigns, accountId }: EmailActivityFeedPro
                   <p className="truncate text-xs text-zoru-ink-muted">{c.subject}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <ZoruBadge variant={STATUS_COLOR[c.status] ?? 'outline'}>{c.status}</ZoruBadge>
+                  <Badge variant={STATUS_COLOR[c.status] ?? 'outline'}>{c.status}</Badge>
                   <span className="text-xs text-zoru-ink-muted hidden md:inline">
                     {c.sentAt
                       ? formatDistanceToNow(new Date(c.sentAt), { addSuffix: true })
@@ -67,10 +67,10 @@ export function EmailActivityFeed({ campaigns, accountId }: EmailActivityFeedPro
         )}
       </ZoruCardContent>
       <ZoruCardFooter>
-        <ZoruButton asChild variant="outline" className="w-full">
+        <Button asChild variant="outline" className="w-full">
           <Link href={`/dashboard/email/campaigns${qs}`}>View all campaigns</Link>
-        </ZoruButton>
+        </Button>
       </ZoruCardFooter>
-    </ZoruCard>
+    </Card>
   );
 }

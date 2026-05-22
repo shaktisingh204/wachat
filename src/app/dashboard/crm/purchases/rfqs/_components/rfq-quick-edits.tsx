@@ -81,7 +81,7 @@ export function RfqQuickEdits({
       <div className="flex items-center justify-between gap-2">
         <dt className="text-zoru-ink-muted">Status</dt>
         <dd>
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
               <button
                 type="button"
@@ -98,7 +98,7 @@ export function RfqQuickEdits({
                 </ZoruDropdownMenuItem>
               ))}
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         </dd>
       </div>
     </dl>

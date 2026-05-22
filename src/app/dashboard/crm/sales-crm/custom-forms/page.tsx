@@ -302,11 +302,11 @@ export default function CustomFormsPage() {
                 }}
                 primaryAction={
                     <div className="flex items-center gap-2">
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="outline" size="sm">
+                                <Button variant="outline" size="sm">
                                     <Download className="h-4 w-4" /> Export
-                                </ZoruButton>
+                                </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
                                 <ZoruDropdownMenuItem onSelect={() => exportRows('csv')}>
@@ -316,17 +316,17 @@ export default function CustomFormsPage() {
                                     Export as XLSX
                                 </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
-                        <ZoruButton asChild>
+                        </DropdownMenu>
+                        <Button asChild>
                             <Link href="/dashboard/crm/sales-crm/custom-forms/new">
                                 <Plus className="h-4 w-4" /> New form
                             </Link>
-                        </ZoruButton>
+                        </Button>
                     </div>
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <Select
                             value={statusFilter}
                             onValueChange={(v) => {
                                 setStatusFilter(v as StatusFilter);
@@ -341,8 +341,8 @@ export default function CustomFormsPage() {
                                 <ZoruSelectItem value="published">Published</ZoruSelectItem>
                                 <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                        </Select>
+                        <Select
                             value={submissionsFilter}
                             onValueChange={(v) => {
                                 setSubmissionsFilter(v as SubmissionsFilter);
@@ -359,15 +359,15 @@ export default function CustomFormsPage() {
                                 </ZoruSelectItem>
                                 <ZoruSelectItem value="noSubs">No submissions</ZoruSelectItem>
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                         {hasActiveFilters ? (
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={clearFilters}
                             >
                                 <X className="h-4 w-4" /> Clear
-                            </ZoruButton>
+                            </Button>
                         ) : null}
                     </div>
                 }
@@ -378,48 +378,48 @@ export default function CustomFormsPage() {
                                 <span className="font-medium">{selected.size}</span> selected
                             </div>
                             <div className="flex items-center gap-2">
-                                <ZoruButton
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => runBulk('publish')}
                                 >
                                     <Send className="h-4 w-4" /> Publish
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => runBulk('draft')}
                                 >
                                     Move to draft
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => exportRows('csv')}
                                 >
                                     <Download className="h-4 w-4" /> Export CSV
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => exportRows('xlsx')}
                                 >
                                     <Download className="h-4 w-4" /> Export XLSX
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="destructive"
                                     size="sm"
                                     onClick={() => setBulkConfirm('delete')}
                                 >
                                     <Trash2 className="h-4 w-4" /> Delete
-                                </ZoruButton>
-                                <ZoruButton
+                                </Button>
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setSelected(new Set())}
                                 >
                                     <X className="h-4 w-4" /> Clear
-                                </ZoruButton>
+                                </Button>
                             </div>
                         </div>
                     ) : null
@@ -436,11 +436,11 @@ export default function CustomFormsPage() {
                                     ? 'No forms match the current filters.'
                                     : 'Capture leads and submissions by building your first public form.'}
                             </p>
-                            <ZoruButton asChild>
+                            <Button asChild>
                                 <Link href="/dashboard/crm/sales-crm/custom-forms/new">
                                     <Plus className="h-4 w-4" /> New form
                                 </Link>
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -460,33 +460,33 @@ export default function CustomFormsPage() {
                 <div className="flex flex-col gap-4">
                     {/* KPI strip */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        <ZoruStatCard
+                        <StatCard
                             label="Total forms"
                             value={kpis.total.toLocaleString()}
                             icon={<FileText />}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Published"
                             value={kpis.published.toLocaleString()}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Drafts"
                             value={kpis.drafts.toLocaleString()}
                         />
-                        <ZoruStatCard
+                        <StatCard
                             label="Total submissions"
                             value={kpis.totalSubmissions.toLocaleString()}
                         />
                     </div>
 
                     {/* Table */}
-                    <ZoruCard className="p-0">
+                    <Card className="p-0">
                         <div className="overflow-x-auto rounded-lg">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={allSelectedOnPage}
                                                 onCheckedChange={(c) =>
                                                     handleToggleAll(Boolean(c))
@@ -529,7 +529,7 @@ export default function CustomFormsPage() {
                                                 }
                                             >
                                                 <ZoruTableCell>
-                                                    <ZoruCheckbox
+                                                    <Checkbox
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() =>
                                                             handleToggleOne(id)
@@ -545,13 +545,13 @@ export default function CustomFormsPage() {
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     {status === 'published' ? (
-                                                        <ZoruBadge variant="success">
+                                                        <Badge variant="success">
                                                             Published
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     ) : (
-                                                        <ZoruBadge variant="ghost">
+                                                        <Badge variant="ghost">
                                                             Draft
-                                                        </ZoruBadge>
+                                                        </Badge>
                                                     )}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right text-zoru-ink">
@@ -569,15 +569,15 @@ export default function CustomFormsPage() {
                                                     {formatDate(f.updatedAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
-                                                    <ZoruDropdownMenu>
+                                                    <DropdownMenu>
                                                         <ZoruDropdownMenuTrigger asChild>
-                                                            <ZoruButton
+                                                            <Button
                                                                 variant="ghost"
                                                                 size="icon"
                                                                 aria-label="Row actions"
                                                             >
                                                                 <MoreHorizontal className="h-4 w-4" />
-                                                            </ZoruButton>
+                                                            </Button>
                                                         </ZoruDropdownMenuTrigger>
                                                         <ZoruDropdownMenuContent align="end">
                                                             <ZoruDropdownMenuItem asChild>
@@ -611,15 +611,15 @@ export default function CustomFormsPage() {
                                                                 Delete
                                                             </ZoruDropdownMenuItem>
                                                         </ZoruDropdownMenuContent>
-                                                    </ZoruDropdownMenu>
+                                                    </DropdownMenu>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );
                                     })}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 </div>
             </EntityListShell>
 

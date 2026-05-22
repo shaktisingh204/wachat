@@ -119,7 +119,7 @@ export default async function AttendanceReportPage(props: PageProps) {
         />
       </div>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[16px] font-semibold text-foreground">
             Daily attendance
@@ -129,11 +129,11 @@ export default async function AttendanceReportPage(props: PageProps) {
           </span>
         </div>
         <DailyAttendanceChart data={daily} />
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
@@ -165,7 +165,7 @@ export default async function AttendanceReportPage(props: PageProps) {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-foreground">
-                      <ZoruBadge variant="outline">{r.department}</ZoruBadge>
+                      <Badge variant="outline">{r.department}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] text-emerald-500">
                       {r.present}
@@ -188,9 +188,9 @@ export default async function AttendanceReportPage(props: PageProps) {
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </EntityListShell>
   );
 }

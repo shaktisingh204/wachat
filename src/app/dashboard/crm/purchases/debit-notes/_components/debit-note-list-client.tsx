@@ -128,12 +128,12 @@ export function DebitNoteListClient({
     };
 
     return (
-        <ZoruCard className="overflow-hidden p-0">
-            <ZoruTable>
+        <Card className="overflow-hidden p-0">
+            <Table>
                 <ZoruTableHeader>
                     <ZoruTableRow>
                         <ZoruTableHead className="w-[36px]">
-                            <ZoruCheckbox
+                            <Checkbox
                                 checked={allSelected}
                                 aria-checked={someSelected ? 'mixed' : allSelected}
                                 onCheckedChange={(v) => onToggleAll(v === true)}
@@ -169,7 +169,7 @@ export function DebitNoteListClient({
                             return (
                                 <ZoruTableRow key={id}>
                                     <ZoruTableCell>
-                                        <ZoruCheckbox
+                                        <Checkbox
                                             checked={isChecked}
                                             onCheckedChange={() => onToggleOne(id)}
                                             aria-label={`Select ${dn.dnNo}`}
@@ -205,9 +205,9 @@ export function DebitNoteListClient({
                                         {fmtDate(dn.date)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <ZoruBadge variant="outline">
+                                        <Badge variant="outline">
                                             {reasonLabel(dn.reason)}
-                                        </ZoruBadge>
+                                        </Badge>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right tabular-nums text-[12.5px] text-zoru-ink">
                                         {fmtMoney(dn.totals?.total, dn.currency)}
@@ -223,22 +223,22 @@ export function DebitNoteListClient({
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
-                                            <ZoruButton size="sm" variant="ghost" asChild>
+                                            <Button size="sm" variant="ghost" asChild>
                                                 <Link
                                                     href={`/dashboard/crm/purchases/debit-notes/${id}/edit`}
                                                 >
                                                     <Pencil className="h-3.5 w-3.5" />
                                                 </Link>
-                                            </ZoruButton>
-                                            <ZoruDropdownMenu>
+                                            </Button>
+                                            <DropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="ghost"
                                                         disabled={busyId === id || pendingId}
                                                     >
                                                         <MoreHorizontal className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </ZoruDropdownMenuTrigger>
                                                 <ZoruDropdownMenuContent align="end">
                                                     <ZoruDropdownMenuItem
@@ -256,7 +256,7 @@ export function DebitNoteListClient({
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </ZoruDropdownMenu>
+                                            </DropdownMenu>
                                         </div>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -264,7 +264,7 @@ export function DebitNoteListClient({
                         })
                     )}
                 </ZoruTableBody>
-            </ZoruTable>
-        </ZoruCard>
+            </Table>
+        </Card>
     );
 }

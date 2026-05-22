@@ -211,13 +211,13 @@ export default function PrivacySettingsPage() {
       'lastSeen' | 'groupAddPolicy' | 'profilePicVisibility' | 'statusVisibility'
     >,
   ) => (
-    <ZoruCard key={field}>
+    <Card key={field}>
       <ZoruCardHeader>
         <ZoruCardTitle className="text-base">{title}</ZoruCardTitle>
         <ZoruCardDescription>{description}</ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="flex flex-wrap items-center gap-3 justify-between">
-        <ZoruSelect
+        <Select
           value={settings[field]}
           onValueChange={(v) => setSettings((s) => ({ ...s, [field]: v as SabwaVisibility }))}
           disabled={loading || pending}
@@ -232,24 +232,24 @@ export default function PrivacySettingsPage() {
               </ZoruSelectItem>
             ))}
           </ZoruSelectContent>
-        </ZoruSelect>
-        <ZoruButton size="sm" onClick={() => save({ [field]: settings[field] } as Partial<SabwaPrivacySettings>, title)} disabled={pending}>
+        </Select>
+        <Button size="sm" onClick={() => save({ [field]: settings[field] } as Partial<SabwaPrivacySettings>, title)} disabled={pending}>
           Save
-        </ZoruButton>
+        </Button>
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <ZoruButton size="md">Open accounts</ZoruButton>
+              <Button size="md">Open accounts</Button>
             </Link>
           }
         />
@@ -273,7 +273,7 @@ export default function PrivacySettingsPage() {
       <SettingsTabs />
 
       {/* Two-factor authentication */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <Lock className="h-4 w-4" />
@@ -285,7 +285,7 @@ export default function PrivacySettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <ZoruSwitch
+            <Switch
               checked={settings.twoFactorEnabled}
               onCheckedChange={(checked) => {
                 if (checked) {
@@ -297,20 +297,20 @@ export default function PrivacySettingsPage() {
               disabled={loading || pending}
               aria-label="Toggle two-factor authentication"
             />
-            <ZoruLabel className="text-sm">
+            <Label className="text-sm">
               {settings.twoFactorEnabled ? 'Enabled — PIN required for re-registration.' : 'Disabled'}
-            </ZoruLabel>
+            </Label>
           </div>
           {settings.twoFactorEnabled && (
-            <ZoruButton variant="outline" size="sm" onClick={() => setTwoFAOpen(true)} disabled={pending}>
+            <Button variant="outline" size="sm" onClick={() => setTwoFAOpen(true)} disabled={pending}>
               Change PIN
-            </ZoruButton>
+            </Button>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Blocked contacts */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-row items-start justify-between gap-3 flex-wrap">
           <div>
             <ZoruCardTitle className="flex items-center gap-2">
@@ -321,16 +321,16 @@ export default function PrivacySettingsPage() {
               Numbers in this list cannot message or call you on WhatsApp.
             </ZoruCardDescription>
           </div>
-          <ZoruButton size="sm" onClick={() => setBlockOpen(true)} disabled={pending}>
+          <Button size="sm" onClick={() => setBlockOpen(true)} disabled={pending}>
             <Plus className="mr-2 h-4 w-4" />
             Block contact
-          </ZoruButton>
+          </Button>
         </ZoruCardHeader>
         <ZoruCardContent>
           {settings.blocked.length === 0 ? (
             <p className="text-sm text-muted-foreground">No blocked contacts.</p>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>Contact</ZoruTableHead>
@@ -346,25 +346,25 @@ export default function PrivacySettingsPage() {
                       {b.blockedAt ? new Date(b.blockedAt).toLocaleDateString() : '—'}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton
+                      <Button
                         variant="outline"
                         size="sm"
                         onClick={() => onUnblock(b.jid)}
                         disabled={pending}
                       >
                         Unblock
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Read receipts */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Read receipts</ZoruCardTitle>
           <ZoruCardDescription>
@@ -373,7 +373,7 @@ export default function PrivacySettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <ZoruSwitch
+            <Switch
               checked={settings.readReceipts}
               onCheckedChange={(checked) =>
                 setSettings((s) => ({ ...s, readReceipts: checked }))
@@ -381,13 +381,13 @@ export default function PrivacySettingsPage() {
               disabled={loading || pending}
               aria-label="Toggle read receipts"
             />
-            <ZoruLabel className="text-sm">Send read receipts</ZoruLabel>
+            <Label className="text-sm">Send read receipts</Label>
           </div>
-          <ZoruButton size="sm" onClick={() => save({ readReceipts: settings.readReceipts }, 'Read receipts')} disabled={pending}>
+          <Button size="sm" onClick={() => save({ readReceipts: settings.readReceipts }, 'Read receipts')} disabled={pending}>
             Save
-          </ZoruButton>
+          </Button>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {/* Visibility selectors */}
       {visibilityRow('Last seen visibility', 'Who can see when you were last online.', 'lastSeen')}
@@ -396,7 +396,7 @@ export default function PrivacySettingsPage() {
       {visibilityRow('Status visibility', 'Who can see your status updates.', 'statusVisibility')}
 
       {/* E2EE disclaimer */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-green-600" />
@@ -409,10 +409,10 @@ export default function PrivacySettingsPage() {
             your session key.
           </ZoruCardDescription>
         </ZoruCardHeader>
-      </ZoruCard>
+      </Card>
 
       {/* Session key rotation */}
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
             <KeyRound className="h-4 w-4" />
@@ -424,17 +424,17 @@ export default function PrivacySettingsPage() {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ZoruButton variant="outline" onClick={onRotate} disabled={pending}>
+          <Button variant="outline" onClick={onRotate} disabled={pending}>
             {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
             Rotate now
-          </ZoruButton>
+          </Button>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruSeparator />
+      <Separator />
 
       {/* 2FA setup dialog */}
-      <ZoruDialog open={twoFAOpen} onOpenChange={setTwoFAOpen}>
+      <Dialog open={twoFAOpen} onOpenChange={setTwoFAOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Set up two-factor PIN</ZoruDialogTitle>
@@ -444,8 +444,8 @@ export default function PrivacySettingsPage() {
           </ZoruDialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="pin">6-digit PIN</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="pin">6-digit PIN</Label>
+              <Input
                 id="pin"
                 inputMode="numeric"
                 maxLength={6}
@@ -456,8 +456,8 @@ export default function PrivacySettingsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="pin-confirm">Confirm PIN</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="pin-confirm">Confirm PIN</Label>
+              <Input
                 id="pin-confirm"
                 inputMode="numeric"
                 maxLength={6}
@@ -469,19 +469,19 @@ export default function PrivacySettingsPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setTwoFAOpen(false)}>
+            <Button variant="ghost" onClick={() => setTwoFAOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={onTwoFASubmit} disabled={pending}>
+            </Button>
+            <Button onClick={onTwoFASubmit} disabled={pending}>
               Save PIN
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* Block contact dialog (simple JID input — proper contact picker is a
           shared component slated for the broader Contacts work). */}
-      <ZoruDialog open={blockOpen} onOpenChange={setBlockOpen}>
+      <Dialog open={blockOpen} onOpenChange={setBlockOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Block a contact</ZoruDialogTitle>
@@ -490,8 +490,8 @@ export default function PrivacySettingsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="block-jid">Phone number</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="block-jid">Phone number</Label>
+            <Input
               id="block-jid"
               value={blockJid}
               onChange={(e) => setBlockJid(e.target.value)}
@@ -499,15 +499,15 @@ export default function PrivacySettingsPage() {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setBlockOpen(false)}>
+            <Button variant="ghost" onClick={() => setBlockOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton onClick={onBlockSubmit} disabled={pending}>
+            </Button>
+            <Button onClick={onBlockSubmit} disabled={pending}>
               Block
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </div>
   );
 }

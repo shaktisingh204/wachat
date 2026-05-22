@@ -34,14 +34,14 @@ interface QuickAddProductDialogProps {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton
+        <Button
             type="submit"
             variant="obsidian"
             disabled={pending}
             leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
         >
             Save Product
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -115,7 +115,7 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
                         </div>
                     </div>
                     <DialogFooter>
-                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

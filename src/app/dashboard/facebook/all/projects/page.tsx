@@ -59,21 +59,21 @@ import { FacebookGlyph } from "../../_components/icons";
 function ProjectsSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-48" />
+      <Skeleton className="h-3 w-48" />
       <div className="mt-5 flex items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <ZoruSkeleton className="h-3 w-24" />
-          <ZoruSkeleton className="h-7 w-72" />
-          <ZoruSkeleton className="h-3 w-96" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-7 w-72" />
+          <Skeleton className="h-3 w-96" />
         </div>
         <div className="flex gap-2">
-          <ZoruSkeleton className="h-9 w-28" />
-          <ZoruSkeleton className="h-9 w-32" />
+          <Skeleton className="h-9 w-28" />
+          <Skeleton className="h-9 w-32" />
         </div>
       </div>
       <div className="mt-6 flex flex-col gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-28 w-full" />
+          <Skeleton key={i} className="h-28 w-full" />
         ))}
       </div>
     </div>
@@ -91,7 +91,7 @@ function ProjectConnectionCard({
 }) {
   const isConnected = !!(project.adAccountId && project.facebookPageId);
   return (
-    <ZoruCard className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <Card className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
           <FacebookGlyph className="h-5 w-5" />
@@ -103,22 +103,22 @@ function ProjectConnectionCard({
           </p>
           <div className="mt-2 inline-flex items-center gap-1.5">
             {isConnected ? (
-              <ZoruBadge variant="outline" className="gap-1">
+              <Badge variant="outline" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-zoru-success" />
                 Connected
-              </ZoruBadge>
+              </Badge>
             ) : (
-              <ZoruBadge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1">
                 <XCircle className="h-3 w-3 text-zoru-ink-subtle" />
                 Not connected
-              </ZoruBadge>
+              </Badge>
             )}
           </div>
         </div>
       </div>
       <div className="flex items-center gap-2 self-end sm:self-auto">
         {appId ? (
-          <ZoruButton asChild size="sm">
+          <Button asChild size="sm">
             <a
               href={`/api/auth/meta-suite/login?projectId=${encodeURIComponent(
                 project._id.toString(),
@@ -127,14 +127,14 @@ function ProjectConnectionCard({
               <FacebookGlyph className="h-4 w-4" />
               {isConnected ? "Reconnect" : "Connect"}
             </a>
-          </ZoruButton>
+          </Button>
         ) : (
           <span className="text-[12px] text-zoru-danger">
             Facebook integration not configured.
           </span>
         )}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -175,7 +175,7 @@ export default function AllProjectsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -191,9 +191,9 @@ export default function AllProjectsPage() {
             <ZoruBreadcrumbPage>All connections</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5" bordered={false}>
+      <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
             Project connections
@@ -205,33 +205,33 @@ export default function AllProjectsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={fetchData}>
+          <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh
-          </ZoruButton>
+          </Button>
           <ManualSetupDialog onSuccess={fetchData} />
         </div>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!appId || !configId ? (
         <div className="mt-5">
-          <ZoruAlert variant="warning">
+          <Alert variant="warning">
             <AlertCircle />
             <ZoruAlertTitle>Facebook integration not configured</ZoruAlertTitle>
             <ZoruAlertDescription>
               An admin still needs to set the Facebook App ID and Config ID
               before projects can be connected.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         </div>
       ) : null}
 
       {error ? (
         <div className="mt-5">
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <AlertCircle />
             <ZoruAlertTitle>Could not load projects</ZoruAlertTitle>
             <ZoruAlertDescription>{error}</ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         </div>
       ) : null}
 
@@ -247,16 +247,16 @@ export default function AllProjectsPage() {
         </div>
       ) : (
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Wrench />}
             title="No projects yet"
             description="Create a project before connecting Facebook. Projects group together a WhatsApp number, a Facebook Page and an Ad account."
             action={
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard">
                   Open dashboard <ArrowRight />
                 </Link>
-              </ZoruButton>
+              </Button>
             }
           />
         </div>
@@ -264,7 +264,7 @@ export default function AllProjectsPage() {
 
       {/* ── footer hint ── */}
       <div className="mt-8">
-        <ZoruCard className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:justify-between">
+        <Card className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted">
               <Sparkles className="h-3.5 w-3.5" />
@@ -277,12 +277,12 @@ export default function AllProjectsPage() {
               </p>
             </div>
           </div>
-          <ZoruButton asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm">
             <Link href="/dashboard/facebook/all-projects">
               View connected pages
             </Link>
-          </ZoruButton>
-        </ZoruCard>
+          </Button>
+        </Card>
       </div>
     </div>
   );

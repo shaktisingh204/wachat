@@ -255,24 +255,24 @@ export function PlanStep({
     if (plans.length === 0) {
         return (
             <div className="space-y-6">
-                <ZoruAlert>
+                <Alert>
                     <Sparkles className="h-4 w-4" />
                     <ZoruAlertTitle>No plans configured yet</ZoruAlertTitle>
                     <ZoruAlertDescription>
                         Your workspace will start on the default account tier.
                         You can upgrade anytime from Settings → Billing.
                     </ZoruAlertDescription>
-                </ZoruAlert>
+                </Alert>
                 <div className="flex justify-between">
-                    <ZoruButton variant="ghost" onClick={onBack}>
+                    <Button variant="ghost" onClick={onBack}>
                         Back
-                    </ZoruButton>
-                    <ZoruButton onClick={skip} disabled={isPending}>
+                    </Button>
+                    <Button onClick={skip} disabled={isPending}>
                         {isPending ? (
                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         Continue to dashboard
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
         );
@@ -282,21 +282,21 @@ export function PlanStep({
         <>
             <div className="space-y-6">
                 {paymentStatus === 'success' && !error && (
-                    <ZoruAlert>
+                    <Alert>
                         <ShieldCheck className="h-4 w-4" />
                         <ZoruAlertTitle>Payment received</ZoruAlertTitle>
                         <ZoruAlertDescription>
                             Thanks — we verified your PayU payment. Finalizing
                             your workspace now.
                         </ZoruAlertDescription>
-                    </ZoruAlert>
+                    </Alert>
                 )}
                 {error && (
-                    <ZoruAlert variant="destructive">
+                    <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <ZoruAlertTitle>Payment issue</ZoruAlertTitle>
                         <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                    </ZoruAlert>
+                    </Alert>
                 )}
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -408,24 +408,24 @@ export function PlanStep({
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                    <ZoruButton
+                    <Button
                         type="button"
                         variant="ghost"
                         onClick={onBack}
                         disabled={isPending}
                     >
                         Back
-                    </ZoruButton>
+                    </Button>
                     <div className="flex gap-2">
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={skip}
                             disabled={isPending}
                         >
                             Skip for now
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             type="button"
                             onClick={submit}
                             disabled={isPending || !chosen}
@@ -435,7 +435,7 @@ export function PlanStep({
                                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             Activate plan
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             </div>

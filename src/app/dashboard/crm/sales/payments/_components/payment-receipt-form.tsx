@@ -68,10 +68,10 @@ const RECEIPT_STATUSES: { value: CrmReceiptStatus; label: string }[] = [
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       {editing ? 'Save changes' : 'Create receipt'}
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -129,16 +129,16 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
       <input type="hidden" name="mode" value={mode} />
       {editing ? <input type="hidden" name="status" value={status} /> : null}
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="receiptNo">
+            <Label htmlFor="receiptNo">
               Receipt # <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="receiptNo"
               name="receiptNo"
               required
@@ -148,10 +148,10 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="date">
+            <Label htmlFor="date">
               Date <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="date"
               name="date"
               type="date"
@@ -161,9 +161,9 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Customer <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="client"
@@ -180,9 +180,9 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             ) : null}
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Payment method <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EnumFormField
                 enumName="paymentMode"
@@ -199,9 +199,9 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             ) : null}
           </div>
           <div>
-            <ZoruLabel>
+            <Label>
               Bank account <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
+            </Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="bankAccount"
@@ -213,7 +213,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
           </div>
           {editing ? (
             <div>
-              <ZoruLabel>Status</ZoruLabel>
+              <Label>Status</Label>
               <div className="mt-1.5">
                 <EnumFormField
                   enumName="paymentReceiptStatus"
@@ -225,18 +225,18 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             </div>
           ) : null}
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Amount
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="amount">
+            <Label htmlFor="amount">
               Amount <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
+            </Label>
+            <Input
               id="amount"
               name="amount"
               type="number"
@@ -254,7 +254,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             ) : null}
           </div>
           <div>
-            <ZoruLabel>Currency</ZoruLabel>
+            <Label>Currency</Label>
             <div className="mt-1.5">
               <EntityFormField
                 entity="currency"
@@ -265,8 +265,8 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="tdsDeducted">TDS deducted</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="tdsDeducted">TDS deducted</Label>
+            <Input
               id="tdsDeducted"
               name="tdsDeducted"
               type="number"
@@ -277,8 +277,8 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="bankCharges">Bank charges</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="bankCharges">Bank charges</Label>
+            <Input
               id="bankCharges"
               name="bankCharges"
               type="number"
@@ -293,8 +293,8 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
         {mode === 'cheque' ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
-              <ZoruLabel htmlFor="chequeNo">Cheque #</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="chequeNo">Cheque #</Label>
+              <Input
                 id="chequeNo"
                 name="chequeNo"
                 defaultValue={initial?.chequeNo ?? ''}
@@ -302,8 +302,8 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="chequeDate">Cheque date</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="chequeDate">Cheque date</Label>
+              <Input
                 id="chequeDate"
                 name="chequeDate"
                 type="date"
@@ -316,8 +316,8 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
 
         {mode !== 'cash' && mode !== 'cheque' ? (
           <div className="mt-4">
-            <ZoruLabel htmlFor="txnId">Transaction ID</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="txnId">Transaction ID</Label>
+            <Input
               id="txnId"
               name="txnId"
               defaultValue={initial?.txnId ?? ''}
@@ -326,9 +326,9 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             />
           </div>
         ) : null}
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Allocation
         </h3>
@@ -339,8 +339,8 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
         </p>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <ZoruLabel htmlFor="reference">Reference</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="reference">Reference</Label>
+            <Input
               id="reference"
               name="reference"
               defaultValue={initial?.reference ?? initialInvoiceId}
@@ -349,23 +349,23 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Notes
         </h3>
-        <ZoruTextarea
+        <Textarea
           id="notes"
           name="notes"
           rows={4}
           defaultValue={initial?.notes ?? ''}
           placeholder="Internal note about this payment…"
         />
-      </ZoruCard>
+      </Card>
 
       <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link
             href={
               editing
@@ -375,7 +375,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
           >
             Cancel
           </Link>
-        </ZoruButton>
+        </Button>
         <SubmitButton editing={editing} />
       </div>
     </form>

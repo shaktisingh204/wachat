@@ -40,10 +40,10 @@ const saveInitialState = { message: undefined, error: undefined };
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {isEditing ? 'Save Changes' : 'Submit'}
-        </ZoruButton>
+        </Button>
     )
 }
 
@@ -75,7 +75,7 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
     }, [state, toast, onSave, onOpenChange]);
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {isEditing && <input type="hidden" name="accountId" value={initialData?._id.toString()} />}
@@ -85,11 +85,11 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="name" className="text-zoru-ink">Account Name *</ZoruLabel>
-                                <ZoruInput id="name" name="name" placeholder="Type Account Name" required defaultValue={initialData?.name} />
+                                <Label htmlFor="name" className="text-zoru-ink">Account Name *</Label>
+                                <Input id="name" name="name" placeholder="Type Account Name" required defaultValue={initialData?.name} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="accountGroupId" className="text-zoru-ink">Account Group *</ZoruLabel>
+                                <Label htmlFor="accountGroupId" className="text-zoru-ink">Account Group *</Label>
                                 <input type="hidden" name="accountGroupId" value={selectedGroupId} />
                                 <EntityPicker
                                     entity="account"
@@ -99,49 +99,49 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                             </div>
 
                             <div>
-                                <ZoruLabel className="font-semibold text-zoru-ink">Opening Balances</ZoruLabel>
+                                <Label className="font-semibold text-zoru-ink">Opening Balances</Label>
                                 <div className="grid grid-cols-[1fr,auto,1fr] items-end gap-2 mt-2">
                                     <div className="space-y-2">
-                                        <ZoruLabel className="text-xs text-zoru-ink">Currency</ZoruLabel>
-                                        <ZoruSelect name="currency" defaultValue={initialData?.currency || "INR"}>
+                                        <Label className="text-xs text-zoru-ink">Currency</Label>
+                                        <Select name="currency" defaultValue={initialData?.currency || "INR"}>
                                             <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                             <ZoruSelectContent>
                                                 <ZoruSelectItem value="INR">INR</ZoruSelectItem>
                                                 <ZoruSelectItem value="USD">USD</ZoruSelectItem>
                                             </ZoruSelectContent>
-                                        </ZoruSelect>
+                                        </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <ZoruLabel className="text-xs text-zoru-ink">Opening CR/DR *</ZoruLabel>
-                                        <ZoruRadioGroup name="balanceType" defaultValue={initialData?.balanceType || "Dr"} className="flex gap-4 pt-2">
-                                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="Cr" id="type-cr" /><ZoruLabel htmlFor="type-cr" className="font-normal text-zoru-ink">CR</ZoruLabel></div>
-                                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="Dr" id="type-dr" /><ZoruLabel htmlFor="type-dr" className="font-normal text-zoru-ink">DR</ZoruLabel></div>
-                                        </ZoruRadioGroup>
+                                        <Label className="text-xs text-zoru-ink">Opening CR/DR *</Label>
+                                        <RadioGroup name="balanceType" defaultValue={initialData?.balanceType || "Dr"} className="flex gap-4 pt-2">
+                                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="Cr" id="type-cr" /><Label htmlFor="type-cr" className="font-normal text-zoru-ink">CR</Label></div>
+                                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="Dr" id="type-dr" /><Label htmlFor="type-dr" className="font-normal text-zoru-ink">DR</Label></div>
+                                        </RadioGroup>
                                     </div>
                                     <div className="space-y-2">
-                                        <ZoruLabel className="text-xs text-zoru-ink">Opening Balance *</ZoruLabel>
-                                        <ZoruInput id="openingBalance" name="openingBalance" type="number" step="0.01" min="-100000000000" max="100000000000" required defaultValue={initialData?.openingBalance || 0} />
+                                        <Label className="text-xs text-zoru-ink">Opening Balance *</Label>
+                                        <Input id="openingBalance" name="openingBalance" type="number" step="0.01" min="-100000000000" max="100000000000" required defaultValue={initialData?.openingBalance || 0} />
                                     </div>
                                 </div>
-                                <ZoruButton variant="link" className="p-0 h-auto mt-2 text-xs" disabled>Add Opening Balance in Other Currency</ZoruButton>
+                                <Button variant="link" className="p-0 h-auto mt-2 text-xs" disabled>Add Opening Balance in Other Currency</Button>
                             </div>
 
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="description" className="text-zoru-ink">Description (Optional)</ZoruLabel>
-                                <ZoruTextarea id="description" name="description" defaultValue={initialData?.description} />
+                                <Label htmlFor="description" className="text-zoru-ink">Description (Optional)</Label>
+                                <Textarea id="description" name="description" defaultValue={initialData?.description} />
                             </div>
                             <div className="flex items-center space-x-2 pt-2">
-                                <ZoruSwitch id="status" name="status" defaultChecked={initialData?.status === 'Active' || !isEditing} />
-                                <ZoruLabel htmlFor="status" className="text-zoru-ink">Set as Active</ZoruLabel>
+                                <Switch id="status" name="status" defaultChecked={initialData?.status === 'Active' || !isEditing} />
+                                <Label htmlFor="status" className="text-zoru-ink">Set as Active</Label>
                             </div>
                         </div>
                     </div>
                     <ZoruDialogFooter className="shrink-0 border-t border-zoru-line bg-zoru-bg px-6 pb-6 pt-4">
-                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

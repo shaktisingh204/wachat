@@ -58,7 +58,7 @@ export default function AccountLayout(
               const fullPath = `${basePath}${item.href}`;
               const isActive = item.href === '' ? pathname === fullPath : pathname.startsWith(fullPath);
               return (
-                <ZoruButton
+                <Button
                   key={item.href}
                   asChild
                   variant={isActive ? 'default' : 'ghost'}
@@ -68,10 +68,10 @@ export default function AccountLayout(
                     <item.icon className="mr-2 h-4 w-4" />
                     {item.label}
                   </Link>
-                </ZoruButton>
+                </Button>
               );
             })}
-             <ZoruButton
+             <Button
               asChild
               variant="ghost"
               className="justify-start"
@@ -80,14 +80,14 @@ export default function AccountLayout(
                     <Key className="mr-2 h-4 w-4" />
                     Login / Register
                 </Link>
-            </ZoruButton>
-             <ZoruButton
+            </Button>
+             <Button
               variant="ghost"
               className="justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
             >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
-            </ZoruButton>
+            </Button>
           </nav>
         </aside>
         <main className="md:col-span-9">{children}</main>

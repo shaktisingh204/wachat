@@ -70,14 +70,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create loan'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -131,7 +131,7 @@ export function LoanForm({ initialData }: LoanFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="loanId" value={initialData!._id} />
@@ -142,8 +142,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                 {/* Row 1: Party + Direction */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="partyName">Party name *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="partyName">Party name *</Label>
+                        <Input
                             id="partyName"
                             name="partyName"
                             required
@@ -152,7 +152,7 @@ export function LoanForm({ initialData }: LoanFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Direction</ZoruLabel>
+                        <Label>Direction</Label>
                         <EnumFormField
                             enumName="loanDirection"
                             initialId={direction}
@@ -164,8 +164,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                 {/* Row 2: Principal + Currency */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="principal">Principal *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="principal">Principal *</Label>
+                        <Input
                             id="principal"
                             name="principal"
                             type="number"
@@ -177,8 +177,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -190,8 +190,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                 {/* Row 3: Interest + Tenure + Start date */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="interestRate">Interest rate (% p.a.)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="interestRate">Interest rate (% p.a.)</Label>
+                        <Input
                             id="interestRate"
                             name="interestRate"
                             type="number"
@@ -202,8 +202,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="tenureMonths">Tenure (months)</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="tenureMonths">Tenure (months)</Label>
+                        <Input
                             id="tenureMonths"
                             name="tenureMonths"
                             type="number"
@@ -214,8 +214,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="startDate">Start date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startDate">Start date</Label>
+                        <Input
                             id="startDate"
                             name="startDate"
                             type="date"
@@ -227,8 +227,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                 {/* EMI preview + override */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="emi">EMI</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="emi">EMI</Label>
+                        <Input
                             id="emi"
                             name="emi"
                             type="number"
@@ -243,7 +243,7 @@ export function LoanForm({ initialData }: LoanFormProps) {
                         </p>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         <EnumFormField
                             enumName="loanStatus"
                             initialId={status}
@@ -256,8 +256,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                 {isEditing ? (
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="outstanding">Outstanding</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="outstanding">Outstanding</Label>
+                            <Input
                                 id="outstanding"
                                 name="outstanding"
                                 type="number"
@@ -266,8 +266,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="paid">Paid</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="paid">Paid</Label>
+                            <Input
                                 id="paid"
                                 name="paid"
                                 type="number"
@@ -280,8 +280,8 @@ export function LoanForm({ initialData }: LoanFormProps) {
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -292,14 +292,14 @@ export function LoanForm({ initialData }: LoanFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to loans
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

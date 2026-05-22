@@ -91,7 +91,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
     const currency = user.wallet?.currency || 'INR';
 
     return (
-        <ZoruCard className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-zoru-primary to-zoru-primary-active text-zoru-on-primary">
+        <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-zoru-primary to-zoru-primary-active text-zoru-on-primary">
             {/* Glossy decorative background element */}
             <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-white opacity-5 blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-48 w-48 rounded-full bg-zoru-info opacity-10 blur-3xl pointer-events-none" />
@@ -130,7 +130,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                 <div className="rounded-xl bg-black/20 p-4 backdrop-blur-md border border-white/10 shadow-inner">
                     <form onSubmit={handleAddFunds} className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="amount" className="text-white/80 text-xs uppercase tracking-wider">Quick Top-Up</ZoruLabel>
+                            <Label htmlFor="amount" className="text-white/80 text-xs uppercase tracking-wider">Quick Top-Up</Label>
                             {/* Quick amount pills */}
                             <div className="flex flex-wrap gap-2">
                                 {QUICK_AMOUNTS.map((a) => (
@@ -184,6 +184,6 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                     <Lock className="h-3 w-3" /> Secure payment via PayU
                 </p>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }

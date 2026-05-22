@@ -57,15 +57,15 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
 
     if (grouped.length === 0) {
         return (
-            <ZoruCard className="p-6 text-center text-[13px] text-zoru-ink-muted">
+            <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
                 No articles match the current filters.
-            </ZoruCard>
+            </Card>
         );
     }
 
     return (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-[220px_1fr]">
-            <ZoruCard className="p-2">
+            <Card className="p-2">
                 <ul className="flex flex-col">
                     {grouped.map(([key, arr]) => {
                         const label =
@@ -87,24 +87,24 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
                                         <FolderOpen className="h-3.5 w-3.5 shrink-0" />
                                         <span className="truncate">{label}</span>
                                     </span>
-                                    <ZoruBadge variant="ghost">{arr.length}</ZoruBadge>
+                                    <Badge variant="ghost">{arr.length}</Badge>
                                 </button>
                             </li>
                         );
                     })}
                 </ul>
-            </ZoruCard>
+            </Card>
 
             <div className="flex flex-col gap-2">
                 {items.length === 0 ? (
-                    <ZoruCard className="p-4 text-center text-[13px] text-zoru-ink-muted">
+                    <Card className="p-4 text-center text-[13px] text-zoru-ink-muted">
                         No articles in this category.
-                    </ZoruCard>
+                    </Card>
                 ) : (
                     items.map((a) => {
                         const id = String(a._id);
                         return (
-                            <ZoruCard key={id} className="p-3">
+                            <Card key={id} className="p-3">
                                 <Link
                                     href={`/dashboard/crm/tickets/knowledge-base/${id}`}
                                     className="flex flex-col gap-1"
@@ -140,7 +140,7 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
                                         ) : null}
                                     </div>
                                 </Link>
-                            </ZoruCard>
+                            </Card>
                         );
                     })
                 )}

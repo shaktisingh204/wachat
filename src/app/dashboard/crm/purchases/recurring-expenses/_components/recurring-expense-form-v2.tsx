@@ -61,14 +61,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create schedule'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -103,7 +103,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="recurringId" value={initialData!._id} />
@@ -112,8 +112,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                 <input type="hidden" name="status" value={status} />
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
                         id="name"
                         name="name"
                         required
@@ -124,8 +124,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="vendor_id">Vendor id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="vendor_id">Vendor id</Label>
+                        <Input
                             id="vendor_id"
                             name="vendor_id"
                             placeholder="Vendor id"
@@ -133,8 +133,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="expense_category_id">Expense category id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="expense_category_id">Expense category id</Label>
+                        <Input
                             id="expense_category_id"
                             name="expense_category_id"
                             placeholder="Category id"
@@ -145,8 +145,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="amount">Amount *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="amount">Amount *</Label>
+                        <Input
                             id="amount"
                             name="amount"
                             type="number"
@@ -157,8 +157,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -166,7 +166,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="frequency-trigger">Frequency *</ZoruLabel>
+                        <Label htmlFor="frequency-trigger">Frequency *</Label>
                         <EnumFormField
                             enumName="recurringFrequency"
                             name="__frequency_picker"
@@ -179,8 +179,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="start_date">Start date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="start_date">Start date</Label>
+                        <Input
                             id="start_date"
                             name="start_date"
                             type="date"
@@ -188,8 +188,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="end_date">End date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="end_date">End date</Label>
+                        <Input
                             id="end_date"
                             name="end_date"
                             type="date"
@@ -197,8 +197,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="next_run_at">Next run</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="next_run_at">Next run</Label>
+                        <Input
                             id="next_run_at"
                             name="next_run_at"
                             type="date"
@@ -209,8 +209,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="account_id">Account id</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="account_id">Account id</Label>
+                        <Input
                             id="account_id"
                             name="account_id"
                             placeholder="Bank / cash account id"
@@ -218,7 +218,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <Label htmlFor="status-trigger">Status</Label>
                         <EnumFormField
                             enumName="recurringScheduleStatus"
                             name="__status_picker"
@@ -230,8 +230,8 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -241,15 +241,15 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to schedules
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

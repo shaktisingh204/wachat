@@ -236,9 +236,9 @@ function ProviderTile({
       </span>
       <span className="text-sm text-zoru-ink truncate flex-1">{CREDENTIAL_TYPE_LABEL[type]}</span>
       {hasOAuth && (
-        <ZoruBadge variant="success" className="text-[10px] py-0 px-1.5">
+        <Badge variant="success" className="text-[10px] py-0 px-1.5">
           OAuth
-        </ZoruBadge>
+        </Badge>
       )}
     </m.button>
   );
@@ -552,7 +552,7 @@ function AddCredentialModal({
   }
 
   return (
-    <ZoruDialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <ZoruDialogContent
         className={cn(
           step === 'pick' ? 'sm:max-w-3xl' : 'sm:max-w-md',
@@ -579,16 +579,16 @@ function AddCredentialModal({
                 <div className="space-y-1">
                   <p className="text-sm text-zoru-ink-muted">
                     Pick the app you want to connect. Apps marked{' '}
-                    <ZoruBadge variant="success" className="text-[10px] py-0 px-1.5">
+                    <Badge variant="success" className="text-[10px] py-0 px-1.5">
                       OAuth
-                    </ZoruBadge>{' '}
+                    </Badge>{' '}
                     use a one-click sign-in — no API keys to copy.
                   </p>
                 </div>
 
                 <div className="relative">
                   <LuSearch className="w-3.5 h-3.5 text-zoru-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 z-10" />
-                  <ZoruInput
+                  <Input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={t('sabflow.connections.modal.searchPlaceholder')}
@@ -617,7 +617,7 @@ function AddCredentialModal({
 
                 <div className="max-h-[55vh] overflow-y-auto pr-1 -mr-1 space-y-5">
                   {filteredTypes.length === 0 ? (
-                    <ZoruEmptyState
+                    <EmptyState
                       icon={<LuSearch />}
                       title="No apps match"
                       description={t('sabflow.connections.modal.searchEmpty', { query })}
@@ -656,7 +656,7 @@ function AddCredentialModal({
                   <label className="text-xs font-medium text-zoru-ink-muted uppercase tracking-wider">
                     {t('sabflow.connections.modal.credentialName')}
                   </label>
-                  <ZoruInput
+                  <Input
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                     placeholder={t('sabflow.connections.modal.namePlaceholder', {
@@ -780,16 +780,16 @@ function AddCredentialModal({
                 )}
 
                 <div className="flex items-center justify-between pt-2">
-                  <ZoruButton variant="ghost" size="sm" onClick={() => goStep('pick')}>
+                  <Button variant="ghost" size="sm" onClick={() => goStep('pick')}>
                     <LuArrowLeft className="w-3.5 h-3.5" />
                     Back
-                  </ZoruButton>
+                  </Button>
                   {!oauthProviderId && (
-                    <ZoruButton onClick={handleSaveManual} disabled={saving || !form.name.trim()}>
+                    <Button onClick={handleSaveManual} disabled={saving || !form.name.trim()}>
                       {saving && <LuLoader className="w-3.5 h-3.5 animate-spin" />}
                       {saving ? t('common.saving') : t('sabflow.connections.modal.save')}
                       {!saving && <LuArrowRight className="w-3.5 h-3.5" />}
-                    </ZoruButton>
+                    </Button>
                   )}
                 </div>
               </StepShell>
@@ -822,22 +822,22 @@ function AddCredentialModal({
                 <div className="flex items-center justify-between pt-2">
                   {oauthPhase === 'error' ? (
                     <>
-                      <ZoruButton variant="ghost" size="sm" onClick={() => goStep('authenticate')}>
+                      <Button variant="ghost" size="sm" onClick={() => goStep('authenticate')}>
                         <LuArrowLeft className="w-3.5 h-3.5" />
                         Try again
-                      </ZoruButton>
-                      <ZoruButton variant="ghost" size="sm" onClick={onClose}>
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={onClose}>
                         Close
-                      </ZoruButton>
+                      </Button>
                     </>
                   ) : oauthPhase === 'success' ? (
-                    <ZoruButton className="ml-auto" onClick={onClose}>
+                    <Button className="ml-auto" onClick={onClose}>
                       Done
-                    </ZoruButton>
+                    </Button>
                   ) : (
-                    <ZoruButton variant="ghost" size="sm" onClick={cancelOAuth}>
+                    <Button variant="ghost" size="sm" onClick={cancelOAuth}>
                       Cancel
-                    </ZoruButton>
+                    </Button>
                   )}
                 </div>
               </StepShell>
@@ -845,7 +845,7 @@ function AddCredentialModal({
           </AnimatePresence>
         </div>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -876,7 +876,7 @@ function ManualFields({
               {field.required && <span className="text-zoru-danger ml-0.5">*</span>}
             </label>
             <div className="relative">
-              <ZoruInput
+              <Input
                 type={isPassword && !isVisible ? 'password' : 'text'}
                 value={form.data[field.key] ?? ''}
                 onChange={(e) =>
@@ -965,19 +965,19 @@ export default function SabFlowConnectionsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageEyebrow>{t('sabflow.connections.module')}</ZoruPageEyebrow>
           <ZoruPageTitle>{t('sabflow.connections.title')}</ZoruPageTitle>
           <ZoruPageDescription>{t('sabflow.connections.subtitle')}</ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton onClick={() => setModalOpen(true)}>
+          <Button onClick={() => setModalOpen(true)}>
             <LuPlus className="w-4 h-4" />
             {t('sabflow.connections.addConnection')}
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!loading && credentials.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
@@ -1004,7 +1004,7 @@ export default function SabFlowConnectionsPage() {
           <LuLoader className="w-6 h-6 text-zoru-ink-muted animate-spin" />
         </div>
       ) : credentials.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<LuCable />}
           title={t('sabflow.connections.empty.title')}
           description={t('sabflow.connections.empty.subtitle')}
@@ -1014,12 +1014,12 @@ export default function SabFlowConnectionsPage() {
           {/* Mobile: card list (under md) */}
           <div className="md:hidden space-y-2">
             {visibleCredentials.length === 0 ? (
-              <ZoruCard variant="soft" className="text-center text-sm text-zoru-ink-muted py-10">
+              <Card variant="soft" className="text-center text-sm text-zoru-ink-muted py-10">
                 {t('sabflow.connections.empty.categoryEmpty')}
-              </ZoruCard>
+              </Card>
             ) : (
               visibleCredentials.map((cred) => (
-                <ZoruCard
+                <Card
                   key={cred.id}
                   variant="soft"
                   className="px-4 py-3 flex items-start gap-3"
@@ -1033,9 +1033,9 @@ export default function SabFlowConnectionsPage() {
                       {isVercelManaged(cred) && <VercelManagedChip />}
                     </div>
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <ZoruBadge variant="secondary">
+                      <Badge variant="secondary">
                         {CREDENTIAL_TYPE_LABEL[cred.type] ?? cred.type}
-                      </ZoruBadge>
+                      </Badge>
                       <span className="text-[11px] text-zoru-ink-muted">
                         {CREDENTIAL_CATEGORY_LABEL[CREDENTIAL_TYPE_CATEGORY[cred.type]] ?? '—'}
                       </span>
@@ -1056,14 +1056,14 @@ export default function SabFlowConnectionsPage() {
                       <LuTrash2 className="w-4 h-4" />
                     )}
                   </button>
-                </ZoruCard>
+                </Card>
               ))
             )}
           </div>
 
           {/* Desktop: table (md+) */}
           <div className="hidden md:block rounded-[var(--zoru-radius-lg)] border border-zoru-line overflow-x-auto bg-zoru-bg">
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead>{t('sabflow.connections.table.name')}</ZoruTableHead>
@@ -1094,9 +1094,9 @@ export default function SabFlowConnectionsPage() {
                         </div>
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <ZoruBadge variant="secondary">
+                        <Badge variant="secondary">
                           {CREDENTIAL_TYPE_LABEL[cred.type] ?? cred.type}
-                        </ZoruBadge>
+                        </Badge>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink-muted text-xs">
                         {CREDENTIAL_CATEGORY_LABEL[CREDENTIAL_TYPE_CATEGORY[cred.type]] ?? '—'}
@@ -1122,7 +1122,7 @@ export default function SabFlowConnectionsPage() {
                   ))
                 )}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           </div>
         </>
       )}
@@ -1153,9 +1153,9 @@ function isVercelManaged(cred: MaskedCredential): boolean {
 
 function VercelManagedChip() {
   return (
-    <ZoruBadge variant="warning" title="Provisioned via Vercel Marketplace">
+    <Badge variant="warning" title="Provisioned via Vercel Marketplace">
       <LuCloud className="w-3 h-3" />
       Vercel-managed
-    </ZoruBadge>
+    </Badge>
   );
 }

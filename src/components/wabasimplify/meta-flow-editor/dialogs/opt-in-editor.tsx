@@ -13,17 +13,17 @@ export function OptInEditor({ component, updateField }: OptInEditorProps) {
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="name">Name (ID)</ZoruLabel>
-                <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                <Label htmlFor="name">Name (ID)</Label>
+                <Input id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
                 <p className="text-[10px] text-muted-foreground">Unique ID used for data binding (true/false).</p>
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">Label</ZoruLabel>
-                <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                <Label htmlFor="label">Label</Label>
+                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
 
             <div className="space-y-2">
-                <ZoruLabel htmlFor="on-click-action">On Click Action (optional)</ZoruLabel>
+                <Label htmlFor="on-click-action">On Click Action (optional)</Label>
                 {/* OptIn usually manages its own state, but sometimes triggers logic. Keeping simple for now, usually no action needed. */}
                 <p className="text-xs text-muted-foreground">OptIn components automatically toggle their state.</p>
             </div>

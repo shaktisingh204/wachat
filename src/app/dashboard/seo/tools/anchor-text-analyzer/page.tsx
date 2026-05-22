@@ -45,36 +45,36 @@ export default function AnchorTextAnalyzerPage() {
   return (
     <ToolShell title="Anchor Text Analyzer" description="Group links by anchor text and show the most common ones.">
       <div className="flex gap-2">
-        <ZoruInput
+        <Input
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <ZoruButton onClick={run} disabled={loading || !url}>
+        <Button onClick={run} disabled={loading || !url}>
           {loading ? 'Analyzing…' : 'Analyze'}
-        </ZoruButton>
+        </Button>
       </div>
 
       {error && (
-        <ZoruCard className="border-red-500/50">
+        <Card className="border-red-500/50">
           <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
 
       {rows && (
-        <ZoruCard>
+        <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="text-sm font-semibold">Top {rows.length} anchors</div>
             <div className="space-y-2">
               {rows.map((r, i) => (
                 <div key={i} className="flex items-center justify-between text-sm border-b pb-2">
                   <div className="truncate pr-3">{r.anchor}</div>
-                  <ZoruBadge variant="secondary">{r.count}</ZoruBadge>
+                  <Badge variant="secondary">{r.count}</Badge>
                 </div>
               ))}
             </div>
           </ZoruCardContent>
-        </ZoruCard>
+        </Card>
       )}
     </ToolShell>
   );

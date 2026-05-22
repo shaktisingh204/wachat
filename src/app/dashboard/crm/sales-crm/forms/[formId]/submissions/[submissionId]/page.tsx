@@ -125,7 +125,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
             }
             rightRail={
                 <>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Status</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -133,7 +133,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                             <div className="space-y-2 text-[12.5px]">
                                 <div className="flex items-center justify-between">
                                     <span className="text-zoru-ink-muted">Current</span>
-                                    <ZoruBadge variant="outline">{status}</ZoruBadge>
+                                    <Badge variant="outline">{status}</Badge>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-zoru-ink-muted">Submitted</span>
@@ -147,9 +147,9 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                                 ) : null}
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Submitter context</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -192,9 +192,9 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Submission ID</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -203,11 +203,11 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                                 {submissionId}
                             </code>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </>
             }
         >
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Response</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -231,10 +231,10 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                         </div>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {submission.notes || submission.processedAt ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Activity</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -258,7 +258,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                             ) : null}
                         </div>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

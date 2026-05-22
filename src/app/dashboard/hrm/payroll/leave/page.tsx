@@ -497,11 +497,11 @@ export default function LeaveListPage(): React.JSX.Element {
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Apply for leave or wait for your team to submit requests.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/hrm/payroll/leave/new">
                   <Plus className="h-4 w-4" /> Apply leave
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }

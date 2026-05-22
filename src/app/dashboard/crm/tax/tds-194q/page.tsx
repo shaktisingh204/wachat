@@ -68,7 +68,7 @@ export default async function Tds194qPage(props: {
             primaryAction={<FyForm fy={fy} />}
         >
             {/* Applicability card */}
-            <ZoruCard>
+            <Card>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-start gap-3">
                         {applicable ? (
@@ -110,10 +110,10 @@ export default async function Tds194qPage(props: {
                         </div>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Vendor tracker — client shell for selection, export, bulk deduction */}
-            <ZoruCard>
+            <Card>
                 <div className="mb-3">
                     <h2 className="text-[15px] font-semibold text-foreground">
                         Vendor tracker
@@ -130,7 +130,7 @@ export default async function Tds194qPage(props: {
                 {!trackerRes.ok && (
                     <p className="mt-3 text-[12.5px] text-destructive">{trackerRes.error}</p>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

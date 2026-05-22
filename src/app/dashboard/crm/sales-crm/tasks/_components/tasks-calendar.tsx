@@ -71,12 +71,12 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
 
     const today = new Date();
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardContent className="space-y-3 pt-4">
                 <header className="flex items-center justify-between">
                     <h3 className="text-[15px] font-medium text-zoru-ink">{monthLabel}</h3>
                     <div className="flex items-center gap-1">
-                        <ZoruButton
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => {
@@ -87,15 +87,15 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                             aria-label="Previous month"
                         >
                             <ChevronLeft className="h-4 w-4" />
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="outline"
                             onClick={() => setCursor(startOfMonth(new Date()))}
                         >
                             Today
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => {
@@ -106,7 +106,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                             aria-label="Next month"
                         >
                             <ChevronRight className="h-4 w-4" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </header>
 
@@ -195,7 +195,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                     <StatusPill label="Completed" tone={statusToTone('Completed')} />
                 </div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 

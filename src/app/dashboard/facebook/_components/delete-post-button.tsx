@@ -66,13 +66,13 @@ export function DeletePostButton({
     <ZoruAlertDialog open={open} onOpenChange={setOpen}>
       <ZoruAlertDialogTrigger asChild>
         {label ? (
-          <ZoruButton variant="outline" size="sm">
+          <Button variant="outline" size="sm">
             <Trash2 /> {label}
-          </ZoruButton>
+          </Button>
         ) : (
-          <ZoruButton variant="ghost" size="icon-sm" aria-label="Delete post">
+          <Button variant="ghost" size="icon-sm" aria-label="Delete post">
             <Trash2 />
-          </ZoruButton>
+          </Button>
         )}
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
@@ -85,19 +85,19 @@ export function DeletePostButton({
         </ZoruAlertDialogHeader>
         <ZoruAlertDialogFooter>
           <ZoruAlertDialogCancel asChild>
-            <ZoruButton variant="outline" disabled={isPending}>
+            <Button variant="outline" disabled={isPending}>
               Cancel
-            </ZoruButton>
+            </Button>
           </ZoruAlertDialogCancel>
           <ZoruAlertDialogAction asChild>
-            <ZoruButton
+            <Button
               variant="destructive"
               onClick={handleConfirm}
               disabled={isPending}
             >
               {isPending ? <Loader2 className="animate-spin" /> : <Trash2 />}
               Delete
-            </ZoruButton>
+            </Button>
           </ZoruAlertDialogAction>
         </ZoruAlertDialogFooter>
       </ZoruAlertDialogContent>

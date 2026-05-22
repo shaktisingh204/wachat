@@ -13,10 +13,10 @@ export default function RemoveLineBreaksPage() {
 
   return (
     <ToolShell title="Remove Line Breaks" description="Strip line breaks from text.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text with line breaks…" className="min-h-[220px]" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text with line breaks…" className="min-h-[220px]" />
       <div className="flex gap-2">
-        <ZoruButton onClick={() => setText(removeLineBreaks(text))}>Remove line breaks</ZoruButton>
-        <ZoruButton variant="ghost" onClick={() => setText('')}>Clear</ZoruButton>
+        <Button onClick={() => setText(removeLineBreaks(text))}>Remove line breaks</Button>
+        <Button variant="ghost" onClick={() => setText('')}>Clear</Button>
       </div>
     </ToolShell>
   );

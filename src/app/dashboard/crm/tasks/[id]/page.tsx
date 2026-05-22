@@ -93,16 +93,16 @@ export default async function TaskDetailPage({ params }: PageProps) {
             actions={
                 <div className="flex items-center gap-2">
                     <PinButton entityType="task" entityId={id} title={task.title} />
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href={`${BASE}/${id}/edit`}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <TaskDetailActions taskId={id} status={status} />
                 </div>
             }
             rightRail={
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>People</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -113,11 +113,11 @@ export default async function TaskDetailPage({ params }: PageProps) {
                             currentAssigneeId={task.assignedTo ?? null}
                         />
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             }
         >
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <div className="flex items-center justify-between">
                         <ZoruCardTitle>Overview</ZoruCardTitle>
@@ -150,10 +150,10 @@ export default async function TaskDetailPage({ params }: PageProps) {
                         <Field label="Created" value={fmtDate(task.createdAt)} />
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {task.description ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Description</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -162,10 +162,10 @@ export default async function TaskDetailPage({ params }: PageProps) {
                             {task.description}
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Checklist</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -199,10 +199,10 @@ export default async function TaskDetailPage({ params }: PageProps) {
                         </ul>
                     )}
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {attachments.length > 0 ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Attachments</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -226,7 +226,7 @@ export default async function TaskDetailPage({ params }: PageProps) {
                             ))}
                         </ul>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

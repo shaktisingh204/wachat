@@ -331,17 +331,17 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
 
     const newCta = !hideNew ? (
         newAction?.href ? (
-            <ZoruButton asChild>
+            <Button asChild>
                 <Link href={newAction.href}>
                     <Plus className="h-4 w-4" />
                     {newAction.label ?? `New ${singular}`}
                 </Link>
-            </ZoruButton>
+            </Button>
         ) : (
-            <ZoruButton onClick={openCreate}>
+            <Button onClick={openCreate}>
                 <Plus className="h-4 w-4" />
                 {newAction?.label ?? `New ${singular}`}
-            </ZoruButton>
+            </Button>
         )
     ) : null;
 
@@ -367,7 +367,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                     filterChips && filterChips.length > 0 ? (
                         <>
                             {filterChips.map((chip) => (
-                                <ZoruButton
+                                <Button
                                     key={chip.key}
                                     type="button"
                                     variant={chip.active ? 'default' : 'outline'}
@@ -375,7 +375,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                                     onClick={() => onFilterChange?.(chip.key)}
                                 >
                                     {chip.label}
-                                </ZoruButton>
+                                </Button>
                             ))}
                         </>
                     ) : null
@@ -387,7 +387,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                                 {selected.size} selected
                             </span>
                             <span className="text-zoru-ink-muted">·</span>
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={bulkDeleting}
@@ -395,25 +395,25 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                             >
                                 <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
                                 Delete
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={exportSelectedCsv}
                             >
                                 <Download className="h-3.5 w-3.5" />
                                 Export CSV
-                            </ZoruButton>
+                            </Button>
                             {extraBulkActions?.(Array.from(selected))}
                             <span className="ml-auto" />
-                            <ZoruButton
+                            <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSelected(new Set())}
                             >
                                 <X className="h-3.5 w-3.5" />
                                 Clear
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
@@ -429,7 +429,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                         >
                             {kpiCards.map((kpi, i) => {
                                 const card = (
-                                    <ZoruStatCard
+                                    <StatCard
                                         label={kpi.label}
                                         value={kpi.value}
                                         icon={kpi.icon}

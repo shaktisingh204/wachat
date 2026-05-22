@@ -44,7 +44,7 @@ export function StartTimerDialog({
   onConfirm,
 }: StartTimerDialogProps) {
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Start a timer</ZoruDialogTitle>
@@ -55,7 +55,7 @@ export function StartTimerDialog({
         </ZoruDialogHeader>
         <div className="space-y-3">
           <div>
-            <ZoruLabel>Project</ZoruLabel>
+            <Label>Project</Label>
             <EntityFormField
               entity="project"
               name="project_id"
@@ -65,7 +65,7 @@ export function StartTimerDialog({
             />
           </div>
           <div>
-            <ZoruLabel>Task (optional)</ZoruLabel>
+            <Label>Task (optional)</Label>
             <EntityFormField
               entity="task"
               name="task_id"
@@ -76,8 +76,8 @@ export function StartTimerDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="start-memo">Memo</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="start-memo">Memo</Label>
+            <Textarea
               id="start-memo"
               rows={3}
               value={form.memo}
@@ -87,20 +87,20 @@ export function StartTimerDialog({
           </div>
         </div>
         <ZoruDialogFooter className="gap-2">
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton disabled={busy} onClick={onConfirm}>
+          </Button>
+          <Button disabled={busy} onClick={onConfirm}>
             {busy ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
               <Play className="h-4 w-4" />
             )}
             Start
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 
@@ -120,7 +120,7 @@ export function RejectLogDialog({
   onConfirm,
 }: RejectLogDialogProps) {
   return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle>Reject log</ZoruDialogTitle>
@@ -128,19 +128,19 @@ export function RejectLogDialog({
             Give a reason for the rejection — the employee will see this.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
-        <ZoruTextarea
+        <Textarea
           rows={4}
           value={reason}
           onChange={(e) => onReasonChange(e.target.value)}
           placeholder="Reason…"
         />
         <ZoruDialogFooter className="gap-2">
-          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ZoruButton>
-          <ZoruButton onClick={onConfirm}>Reject</ZoruButton>
+          </Button>
+          <Button onClick={onConfirm}>Reject</Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

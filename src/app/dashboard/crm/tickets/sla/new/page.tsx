@@ -25,14 +25,14 @@ const initialState: { message?: string; error?: string; id?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruButton type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
       Save SLA
-    </ZoruButton>
+    </Button>
   );
 }
 
@@ -58,13 +58,13 @@ export default function NewSlaPage() {
       back={{ href: '/dashboard/crm/tickets/sla', label: 'SLA Policies' }}
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Row 1: SLA Name + Priority */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="name">SLA Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="name">SLA Name</Label>
+              <Input
                 id="name"
                 name="name"
                 placeholder="e.g. Critical 1-hour SLA"
@@ -72,7 +72,7 @@ export default function NewSlaPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel>Applies to Priority</ZoruLabel>
+              <Label>Applies to Priority</Label>
               <EnumFormField
                 enumName="ticketPriorityWithAll"
                 name="priority"
@@ -85,8 +85,8 @@ export default function NewSlaPage() {
           {/* Row 2: First Response + Resolution */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="firstResponseMinutes">First Response (minutes)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="firstResponseMinutes">First Response (minutes)</Label>
+              <Input
                 id="firstResponseMinutes"
                 name="firstResponseMinutes"
                 type="number"
@@ -96,8 +96,8 @@ export default function NewSlaPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="resolutionMinutes">Resolution (minutes)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="resolutionMinutes">Resolution (minutes)</Label>
+              <Input
                 id="resolutionMinutes"
                 name="resolutionMinutes"
                 type="number"
@@ -117,16 +117,16 @@ export default function NewSlaPage() {
               defaultChecked
               className="h-4 w-4 rounded border-zoru-line accent-zoru-primary"
             />
-            <ZoruLabel htmlFor="businessHoursOnly" className="cursor-pointer">
+            <Label htmlFor="businessHoursOnly" className="cursor-pointer">
               Business Hours Only
-            </ZoruLabel>
+            </Label>
           </div>
 
           {/* Row 4: Escalate After + Escalate To */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="escalateAfterMinutes">Escalate after (minutes)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="escalateAfterMinutes">Escalate after (minutes)</Label>
+              <Input
                 id="escalateAfterMinutes"
                 name="escalateAfterMinutes"
                 type="number"
@@ -135,7 +135,7 @@ export default function NewSlaPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="escalateTo">Escalate to (user)</ZoruLabel>
+              <Label htmlFor="escalateTo">Escalate to (user)</Label>
               <EntityFormField
                 entity="user"
                 name="escalateTo"
@@ -146,8 +146,8 @@ export default function NewSlaPage() {
 
           {/* Row 5: Description */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="description">Description</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               placeholder="Optional description for this SLA policy"
@@ -159,7 +159,7 @@ export default function NewSlaPage() {
             <SubmitButton />
           </div>
         </form>
-      </ZoruCard>
+      </Card>
     </EntityDetailShell>
   );
 }

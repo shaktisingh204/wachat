@@ -99,15 +99,15 @@ export default async function ReconciliationDetailPage({ params }: PageProps) {
             title={`Reconciliation · ${fmtDate(recon.periodStart)} – ${fmtDate(recon.periodEnd)}`}
             back={{ href: BASE, label: 'Reconciliation' }}
             actions={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={`${BASE}/${id}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" /> Edit
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <div className="flex items-center justify-between">
                         <ZoruCardTitle>Overview</ZoruCardTitle>
@@ -141,10 +141,10 @@ export default async function ReconciliationDetailPage({ params }: PageProps) {
                         <Field label="Created" value={fmtDate(recon.createdAt)} />
                     </dl>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
 
             {statementUrl ? (
-                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
                         <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                         Attached statement
@@ -157,11 +157,11 @@ export default async function ReconciliationDetailPage({ params }: PageProps) {
                     >
                         {statementUrl}
                     </a>
-                </ZoruCard>
+                </Card>
             ) : null}
 
             {rest ? (
-                <ZoruCard>
+                <Card>
                     <ZoruCardHeader>
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
@@ -170,7 +170,7 @@ export default async function ReconciliationDetailPage({ params }: PageProps) {
                             {rest}
                         </p>
                     </ZoruCardContent>
-                </ZoruCard>
+                </Card>
             ) : null}
         </EntityDetailShell>
     );

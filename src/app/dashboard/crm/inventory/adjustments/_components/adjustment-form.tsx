@@ -107,14 +107,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create adjustment'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -182,7 +182,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
     );
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -195,7 +195,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                 {/* Row 1: Warehouse + Date + Reason */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="warehouseId">Warehouse *</ZoruLabel>
+                        <Label htmlFor="warehouseId">Warehouse *</Label>
                         <EntityFormField
                             entity="warehouse"
                             name="warehouseId"
@@ -205,8 +205,8 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="date">Date *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="date">Date *</Label>
+                        <Input
                             id="date"
                             name="date"
                             type="date"
@@ -215,7 +215,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="reason">Reason *</ZoruLabel>
+                        <Label htmlFor="reason">Reason *</Label>
                         <EnumFormField
                             enumName="stockAdjustmentReason"
                             name="reason"
@@ -227,8 +227,8 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
 
                 {/* Row 2: Reference number */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="referenceNumber">Reference number</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="referenceNumber">Reference number</Label>
+                    <Input
                         id="referenceNumber"
                         name="referenceNumber"
                         placeholder="Optional — external reference / doc no."
@@ -240,20 +240,20 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <ZoruLabel>Line items *</ZoruLabel>
+                            <Label>Line items *</Label>
                             <p className="text-[11.5px] text-zoru-ink-muted">
                                 Add one row per SKU being adjusted. Delta = after −
                                 before.
                             </p>
                         </div>
-                        <ZoruButton
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={addRow}
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add line
-                        </ZoruButton>
+                        </Button>
                     </div>
 
                     <div className="overflow-x-auto rounded-md border border-zoru-line">
@@ -319,7 +319,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
-                                                <ZoruInput
+                                                <Input
                                                     type="number"
                                                     min={0}
                                                     step="any"
@@ -336,7 +336,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
-                                                <ZoruInput
+                                                <Input
                                                     type="number"
                                                     min={0}
                                                     step="any"
@@ -365,7 +365,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                                                 {delta}
                                             </td>
                                             <td className="px-2 py-2">
-                                                <ZoruInput
+                                                <Input
                                                     name={`lines[${idx}][batch]`}
                                                     value={row.batch}
                                                     onChange={(e) =>
@@ -380,7 +380,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
-                                                <ZoruInput
+                                                <Input
                                                     name={`lines[${idx}][serial]`}
                                                     value={row.serial}
                                                     onChange={(e) =>
@@ -395,7 +395,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
-                                                <ZoruInput
+                                                <Input
                                                     type="number"
                                                     min={0}
                                                     step="any"
@@ -412,7 +412,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                                                 />
                                             </td>
                                             <td className="px-2 py-2 text-right">
-                                                <ZoruButton
+                                                <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="icon"
@@ -421,7 +421,7 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                                                     aria-label="Remove line"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                                </ZoruButton>
+                                                </Button>
                                             </td>
                                         </tr>
                                     );
@@ -456,8 +456,8 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -468,14 +468,14 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to adjustments
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

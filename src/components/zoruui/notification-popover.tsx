@@ -176,9 +176,9 @@ export function ZoruNotificationPopover({
   };
 
   return (
-    <ZoruPopover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <ZoruPopoverTrigger asChild>
-        <ZoruButton
+        <Button
           variant="ghost"
           size="icon"
           aria-label={
@@ -197,7 +197,7 @@ export function ZoruNotificationPopover({
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
-        </ZoruButton>
+        </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent
         align={align}
@@ -215,7 +215,7 @@ export function ZoruNotificationPopover({
             </p>
           </div>
           {unreadCount > 0 && (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={handleMarkAll}
@@ -228,7 +228,7 @@ export function ZoruNotificationPopover({
                 <Check />
               )}
               Mark all read
-            </ZoruButton>
+            </Button>
           )}
         </div>
 
@@ -259,7 +259,7 @@ export function ZoruNotificationPopover({
         </div>
 
         {/* Body */}
-        <ZoruScrollArea className="h-[360px]">
+        <ScrollArea className="h-[360px]">
           {loading && notifications.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-zoru-ink-muted">
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -267,7 +267,7 @@ export function ZoruNotificationPopover({
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex h-full items-center justify-center p-6">
-              <ZoruEmptyState
+              <EmptyState
                 icon={<Inbox />}
                 title="Nothing here"
                 description="No notifications in this category."
@@ -338,7 +338,7 @@ export function ZoruNotificationPopover({
               })}
             </ul>
           )}
-        </ZoruScrollArea>
+        </ScrollArea>
 
         {/* Footer */}
         <div className="border-t border-zoru-line bg-zoru-surface px-4 py-2 text-center">
@@ -354,6 +354,6 @@ export function ZoruNotificationPopover({
           </button>
         </div>
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

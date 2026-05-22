@@ -72,13 +72,13 @@ interface CalendarPost {
 function CalendarPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruSkeleton className="h-3 w-52" />
+      <Skeleton className="h-3 w-52" />
       <div className="mt-5 flex flex-col gap-2">
-        <ZoruSkeleton className="h-3 w-24" />
-        <ZoruSkeleton className="h-8 w-56" />
-        <ZoruSkeleton className="h-4 w-72" />
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-4 w-72" />
       </div>
-      <ZoruSkeleton className="mt-6 h-[600px] w-full" />
+      <Skeleton className="mt-6 h-[600px] w-full" />
     </div>
   );
 }
@@ -197,7 +197,7 @@ export default function CalendarPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -213,9 +213,9 @@ export default function CalendarPage() {
             <ZoruBreadcrumbPage>Calendar</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader bordered={false} className="mt-5">
+      <PageHeader bordered={false} className="mt-5">
         <ZoruPageHeading>
           <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
           <ZoruPageTitle>Post calendar</ZoruPageTitle>
@@ -225,24 +225,24 @@ export default function CalendarPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruBadge variant="success">
+          <Badge variant="success">
             <CalendarDays />
             {counts.published} published
-          </ZoruBadge>
-          <ZoruBadge variant="warning">
+          </Badge>
+          <Badge variant="warning">
             <CalendarDays />
             {counts.scheduled} scheduled
-          </ZoruBadge>
-          <ZoruButton variant="outline" size="sm" onClick={fetchData}>
+          </Badge>
+          <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh
-          </ZoruButton>
-          <ZoruButton size="sm" asChild>
+          </Button>
+          <Button size="sm" asChild>
             <Link href="/dashboard/facebook/create-post">
               <Plus /> New post
             </Link>
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6">
         {!projectId ? (
@@ -250,16 +250,16 @@ export default function CalendarPage() {
         ) : error ? (
           <ErrorState message={error} />
         ) : posts.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Newspaper />}
             title="No posts to show"
             description="Once you publish or schedule posts on this Page they will appear on the calendar."
             action={
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/facebook/create-post">
                   <Plus /> Create post
                 </Link>
-              </ZoruButton>
+              </Button>
             }
           />
         ) : (

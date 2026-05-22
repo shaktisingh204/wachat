@@ -40,9 +40,9 @@ export function TasksKanban({ tasks }: TasksKanbanProps) {
 
     if (tasks.length === 0) {
         return (
-            <ZoruCard className="flex min-h-[240px] items-center justify-center text-sm text-zoru-ink-muted">
+            <Card className="flex min-h-[240px] items-center justify-center text-sm text-zoru-ink-muted">
                 No tasks to plot on the board.
-            </ZoruCard>
+            </Card>
         );
     }
 

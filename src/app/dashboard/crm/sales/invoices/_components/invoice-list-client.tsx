@@ -418,11 +418,11 @@ export function InvoiceListClient({
         subtitle="Bill customers and track payment state across your sales pipeline."
         viewSwitcher={null}
         primaryAction={
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/dashboard/crm/sales/invoices/new">
               <Plus className="h-4 w-4" /> New invoice
             </Link>
-          </ZoruButton>
+          </Button>
         }
         bulkBar={
           selected.size > 0 ? (
@@ -448,11 +448,11 @@ export function InvoiceListClient({
               <p className="max-w-sm text-sm text-zoru-ink-muted">
                 Bill your first customer to start tracking sales revenue.
               </p>
-              <ZoruButton asChild>
+              <Button asChild>
                 <Link href="/dashboard/crm/sales/invoices/new">
                   <Plus className="h-4 w-4" /> New invoice
                 </Link>
-              </ZoruButton>
+              </Button>
             </div>
           ) : null
         }
@@ -484,7 +484,7 @@ export function InvoiceListClient({
             </div>
           ) : null}
 
-          <ZoruCard className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0">
             <InvoicesToolbar
               query={query}
               onQueryChange={setQuery}
@@ -539,7 +539,7 @@ export function InvoiceListClient({
                 density={density}
               />
             )}
-          </ZoruCard>
+          </Card>
         </div>
       </EntityListShell>
 

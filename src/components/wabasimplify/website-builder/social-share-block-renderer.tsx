@@ -136,7 +136,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
                         const shareUrl = getShareUrl(platform, currentUrl, pageTitle);
                         
                         return (
-                            <ZoruButton
+                            <Button
                                 key={platform}
                                 asChild
                                 variant="outline"
@@ -145,7 +145,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
                                 <a href={shareUrl} target="_blank" rel="noopener noreferrer">
                                     {buttonContent}
                                 </a>
-                            </ZoruButton>
+                            </Button>
                         )
                     })}
                 </div>

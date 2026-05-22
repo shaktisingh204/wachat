@@ -122,39 +122,39 @@ export default function SplitTestsPage() {
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                         <FlaskConical className="h-6 w-6" /> A/B split tests
-                        <ZoruBadge className="bg-[#1877F2] text-white">Advanced</ZoruBadge>
+                        <Badge className="bg-[#1877F2] text-white">Advanced</Badge>
                     </h1>
                     <p className="text-sm text-muted-foreground mt-1">
                         Run scientific experiments across creatives, audiences, placements and bid strategies.
                         Winner is auto-selected when statistical significance is reached.
                     </p>
                 </div>
-                <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setSelectedVar('creative')}>
+                <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setSelectedVar('creative')}>
                     <Plus className="h-4 w-4 mr-1" /> Create split test
-                </ZoruButton>
+                </Button>
             </div>
 
-            <ZoruAlert>
+            <Alert>
                 <Sparkles className="h-4 w-4" />
                 <ZoruAlertTitle>Beyond Meta Ads Manager</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     SabNode supports multi-variable tests (2-5 variants simultaneously) with
                     automatic budget reallocation to the winning variant once 95% confidence is reached.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
 
             <div>
                 <h2 className="text-sm font-semibold mb-2">Pick a variable to test</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {VARIABLES.map((v) => (
-                        <ZoruCard key={v.id} className="cursor-pointer hover:border-[#1877F2]/50 transition-colors" onClick={() => setSelectedVar(v.id)}>
+                        <Card key={v.id} className="cursor-pointer hover:border-[#1877F2]/50 transition-colors" onClick={() => setSelectedVar(v.id)}>
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-base">{v.label}</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 <p className="text-xs text-muted-foreground">{v.desc}</p>
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     ))}
                 </div>
             </div>
@@ -165,9 +165,9 @@ export default function SplitTestsPage() {
                     <h2 className="text-sm font-semibold mb-2 flex items-center gap-1">
                         <Clock className="h-4 w-4" /> Past tests
                     </h2>
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardContent className="p-0">
-                            <ZoruTable>
+                            <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow>
                                         <ZoruTableHead>Name</ZoruTableHead>
@@ -184,7 +184,7 @@ export default function SplitTestsPage() {
                                     {pastTests.map((t) => (
                                         <ZoruTableRow key={t.id}>
                                             <ZoruTableCell className="font-medium">{t.name}</ZoruTableCell>
-                                            <ZoruTableCell><ZoruBadge variant="outline">{t.variable}</ZoruBadge></ZoruTableCell>
+                                            <ZoruTableCell><Badge variant="outline">{t.variable}</Badge></ZoruTableCell>
                                             <ZoruTableCell className="text-sm text-muted-foreground max-w-[120px] truncate">{t.variantA}</ZoruTableCell>
                                             <ZoruTableCell className="text-sm text-muted-foreground max-w-[120px] truncate">{t.variantB}</ZoruTableCell>
                                             <ZoruTableCell className="tabular-nums">${t.budget}/day</ZoruTableCell>
@@ -192,24 +192,24 @@ export default function SplitTestsPage() {
                                                 {new Date(t.createdAt).toLocaleDateString()}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruBadge variant={t.status === 'running' ? 'default' : 'secondary'}>{t.status}</ZoruBadge>
+                                                <Badge variant={t.status === 'running' ? 'default' : 'secondary'}>{t.status}</Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <ZoruButton variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(t.id)}>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(t.id)}>
                                                     <Trash2 className="h-4 w-4" />
-                                                </ZoruButton>
+                                                </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ))}
                                 </ZoruTableBody>
-                            </ZoruTable>
+                            </Table>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </div>
             )}
 
             {/* Create dialog */}
-            <ZoruDialog open={!!selectedVar} onOpenChange={(open) => { if (!open) { setSelectedVar(null); resetForm(); } }}>
+            <Dialog open={!!selectedVar} onOpenChange={(open) => { if (!open) { setSelectedVar(null); resetForm(); } }}>
                 <ZoruDialogContent className="max-w-lg">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Create Split Test: {VARIABLES.find(v => v.id === selectedVar)?.label}</ZoruDialogTitle>
@@ -217,30 +217,30 @@ export default function SplitTestsPage() {
                     </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <ZoruLabel>Test Name *</ZoruLabel>
-                            <ZoruInput placeholder="e.g. Creative test - April" value={testName} onChange={e => setTestName(e.target.value)} />
+                            <Label>Test Name *</Label>
+                            <Input placeholder="e.g. Creative test - April" value={testName} onChange={e => setTestName(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Variant A (Control) *</ZoruLabel>
-                            <ZoruInput placeholder="Description or campaign ID" value={variantA} onChange={e => setVariantA(e.target.value)} />
+                            <Label>Variant A (Control) *</Label>
+                            <Input placeholder="Description or campaign ID" value={variantA} onChange={e => setVariantA(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Variant B (Challenger) *</ZoruLabel>
-                            <ZoruInput placeholder="Description or campaign ID" value={variantB} onChange={e => setVariantB(e.target.value)} />
+                            <Label>Variant B (Challenger) *</Label>
+                            <Input placeholder="Description or campaign ID" value={variantB} onChange={e => setVariantB(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>Test Budget (daily) *</ZoruLabel>
-                            <ZoruInput type="number" placeholder="500" value={budget} onChange={e => setBudget(e.target.value)} />
+                            <Label>Test Budget (daily) *</Label>
+                            <Input type="number" placeholder="500" value={budget} onChange={e => setBudget(e.target.value)} />
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <ZoruButton variant="outline" onClick={() => { setSelectedVar(null); resetForm(); }}>Cancel</ZoruButton>
-                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleLaunch}>
+                        <Button variant="outline" onClick={() => { setSelectedVar(null); resetForm(); }}>Cancel</Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleLaunch}>
                             Launch Test
-                        </ZoruButton>
+                        </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
-            </ZoruDialog>
+            </Dialog>
         </div>
     );
 }

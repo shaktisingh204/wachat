@@ -55,14 +55,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Schedule interview'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -99,7 +99,7 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input
@@ -111,7 +111,7 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                 {/* Row 1: Candidate picker (dual-writes candidateName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Candidate *</ZoruLabel>
+                        <Label>Candidate *</Label>
                         {/* TODO 1E.sweep: no dedicated 'candidate' entity in lookup-registry yet — using contact as a near-match; replace with 'candidate' key once registered. */}
                         <EntityFormField
                             entity="contact"
@@ -130,7 +130,7 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                 {/* Row 2: Job + Round / Round name */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Job</ZoruLabel>
+                        <Label>Job</Label>
                         {/* TODO 1E.sweep: no dedicated 'job' entity in lookup-registry yet — using jobTitle taxonomy as a near-match; replace once 'job' lookup is registered. */}
                         <EntityFormField
                             entity="jobTitle"
@@ -141,8 +141,8 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="round">Round</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="round">Round</Label>
+                        <Input
                             id="round"
                             name="round"
                             type="number"
@@ -156,8 +156,8 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="roundName">Round name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="roundName">Round name</Label>
+                        <Input
                             id="roundName"
                             name="roundName"
                             placeholder="e.g. Tech screen"
@@ -169,7 +169,7 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                 {/* Row 3: Type + Scheduled at + Duration */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Type</ZoruLabel>
+                        <Label>Type</Label>
                         <EnumFormField
                             enumName="interviewType"
                             name="interviewType"
@@ -183,8 +183,8 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="scheduledAt">Scheduled at *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="scheduledAt">Scheduled at *</Label>
+                        <Input
                             id="scheduledAt"
                             name="scheduledAt"
                             type="datetime-local"
@@ -193,10 +193,10 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="durationMinutes">
+                        <Label htmlFor="durationMinutes">
                             Duration (minutes)
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="durationMinutes"
                             name="durationMinutes"
                             type="number"
@@ -213,8 +213,8 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
 
                 {/* Row 4: Location */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="location">Location / link</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="location">Location / link</Label>
+                    <Input
                         id="location"
                         name="location"
                         placeholder="Video link, address, or room name"
@@ -224,7 +224,7 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
 
                 {/* Row 5: Interviewers (multi-picker dual-writes label list to interviewerNames) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Interviewers</ZoruLabel>
+                    <Label>Interviewers</Label>
                     <EntityMultiFormField
                         entity="employee"
                         name="interviewers"
@@ -249,7 +249,7 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                     <>
                         <div className="grid gap-4 sm:grid-cols-3">
                             <div className="space-y-1.5">
-                                <ZoruLabel>Status</ZoruLabel>
+                                <Label>Status</Label>
                                 <EnumFormField
                                     enumName="interviewLifecycle"
                                     name="status"
@@ -264,8 +264,8 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="rating">Rating (1-5)</ZoruLabel>
-                                <ZoruInput
+                                <Label htmlFor="rating">Rating (1-5)</Label>
+                                <Input
                                     id="rating"
                                     name="rating"
                                     type="number"
@@ -281,7 +281,7 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel>Recommendation</ZoruLabel>
+                                <Label>Recommendation</Label>
                                 <EnumFormField
                                     enumName="interviewRecommendation"
                                     name="recommendation"
@@ -295,8 +295,8 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                         </div>
 
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="feedback">Feedback</ZoruLabel>
-                            <ZoruTextarea
+                            <Label htmlFor="feedback">Feedback</Label>
+                            <Textarea
                                 id="feedback"
                                 name="feedback"
                                 rows={4}
@@ -309,15 +309,15 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to interviews
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

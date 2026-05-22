@@ -117,14 +117,14 @@ export default function NewRecurringInvoicePage() {
       title="New Recurring Invoice"
       back={{ href: '/dashboard/crm/sales/recurring-invoices', label: 'Recurring Invoices' }}
       actions={
-        <ZoruButton type="submit" form="new-recurring-invoice-form" disabled={isPending}>
+        <Button type="submit" form="new-recurring-invoice-form" disabled={isPending}>
           {isPending ? (
             <LoaderCircle className="h-4 w-4 animate-spin" />
           ) : (
             <Save className="h-4 w-4" />
           )}
           Save
-        </ZoruButton>
+        </Button>
       }
     >
     <form id="new-recurring-invoice-form" action={formAction} className="flex w-full flex-col gap-6">
@@ -139,10 +139,10 @@ export default function NewRecurringInvoicePage() {
       <input type="hidden" name="discount" value={String(discount)} />
       <input type="hidden" name="status" value="active" />
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5 md:col-span-2">
-            <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
+            <Label className="text-zoru-ink">Client</Label>
             <EntityFormField
               entity="client"
               name="client_id"
@@ -150,7 +150,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
+            <Label className="text-zoru-ink">Currency</Label>
             <EntityFormField
               entity="currency"
               name="currency"
@@ -160,8 +160,8 @@ export default function NewRecurringInvoicePage() {
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel className="text-zoru-ink">Every</ZoruLabel>
-            <ZoruInput
+            <Label className="text-zoru-ink">Every</Label>
+            <Input
               type="number"
               min={1}
               value={frequencyCount}
@@ -169,7 +169,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-zoru-ink">Frequency</ZoruLabel>
+            <Label className="text-zoru-ink">Frequency</Label>
             <EnumFormField
               enumName="recurringInvoiceFrequency"
               name="__frequency_picker"
@@ -178,24 +178,24 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-zoru-ink">Start Date</ZoruLabel>
-            <ZoruInput
+            <Label className="text-zoru-ink">Start Date</Label>
+            <Input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-zoru-ink">Until Date (optional)</ZoruLabel>
-            <ZoruInput
+            <Label className="text-zoru-ink">Until Date (optional)</Label>
+            <Input
               type="date"
               value={untilDate}
               onChange={(e) => setUntilDate(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel className="text-zoru-ink">Stop after N invoices (optional)</ZoruLabel>
-            <ZoruInput
+            <Label className="text-zoru-ink">Stop after N invoices (optional)</Label>
+            <Input
               type="number"
               min={0}
               value={stopAtCount}
@@ -203,12 +203,12 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[15px] text-zoru-ink">Items</h2>
-          <ZoruButton
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -216,7 +216,7 @@ export default function NewRecurringInvoicePage() {
           >
             <Plus className="h-3.5 w-3.5" />
             Add line
-          </ZoruButton>
+          </Button>
         </div>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-sm">
@@ -257,7 +257,7 @@ export default function NewRecurringInvoicePage() {
                     ) : null}
                   </td>
                   <td className="p-2">
-                    <ZoruInput
+                    <Input
                       value={row.description}
                       onChange={(e) =>
                         updateRow(row.id, { description: e.target.value })
@@ -265,7 +265,7 @@ export default function NewRecurringInvoicePage() {
                     />
                   </td>
                   <td className="p-2">
-                    <ZoruInput
+                    <Input
                       type="number"
                       className="w-20 text-right"
                       value={row.quantity}
@@ -275,7 +275,7 @@ export default function NewRecurringInvoicePage() {
                     />
                   </td>
                   <td className="p-2">
-                    <ZoruInput
+                    <Input
                       type="number"
                       step="0.01"
                       className="w-28 text-right"
@@ -286,7 +286,7 @@ export default function NewRecurringInvoicePage() {
                     />
                   </td>
                   <td className="p-2">
-                    <ZoruInput
+                    <Input
                       type="number"
                       step="0.01"
                       className="w-20 text-right"
@@ -336,7 +336,7 @@ export default function NewRecurringInvoicePage() {
                   Discount
                 </td>
                 <td className="p-3 text-right">
-                  <ZoruInput
+                  <Input
                     type="number"
                     step="0.01"
                     className="w-28 text-right"
@@ -361,16 +361,16 @@ export default function NewRecurringInvoicePage() {
             </tfoot>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard className="p-6">
-        <ZoruLabel className="text-zoru-ink">Notes</ZoruLabel>
-        <ZoruTextarea
+      <Card className="p-6">
+        <Label className="text-zoru-ink">Notes</Label>
+        <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
         />
-      </ZoruCard>
+      </Card>
     </form>
     </EntityDetailShell>
   );

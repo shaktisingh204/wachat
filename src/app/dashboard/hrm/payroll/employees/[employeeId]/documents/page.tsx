@@ -110,12 +110,12 @@ export default async function EmployeeDocumentsSubPage({
             title={`Documents · ${fullName}`}
             subtitle="HR documents linked to this employee."
             primaryAction={
-                <ZoruButton asChild>
+                <Button asChild>
                     <Link href={NEW_DOC_HREF}>
                         <Plus className="mr-2 h-4 w-4" />
                         Upload
                     </Link>
-                </ZoruButton>
+                </Button>
             }
         >
 
@@ -150,7 +150,7 @@ export default async function EmployeeDocumentsSubPage({
             </div>
 
             {items.length === 0 ? (
-                <ZoruCard className="flex flex-col items-start gap-3 p-8">
+                <Card className="flex flex-col items-start gap-3 p-8">
                     <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
                         <FileText
                             className="h-5 w-5 text-zoru-ink-muted"
@@ -166,13 +166,13 @@ export default async function EmployeeDocumentsSubPage({
                             other HR documents for {fullName}.
                         </p>
                     </div>
-                    <ZoruButton asChild>
+                    <Button asChild>
                         <Link href={NEW_DOC_HREF}>
                             <Plus className="mr-2 h-4 w-4" />
                             Upload document
                         </Link>
-                    </ZoruButton>
-                </ZoruCard>
+                    </Button>
+                </Card>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {items.map((doc) => {
@@ -180,7 +180,7 @@ export default async function EmployeeDocumentsSubPage({
                             STATUS_TONE[doc.status] ?? ('neutral' as StatusTone);
                         const warn = expiryWarning(doc.expiryDate);
                         return (
-                            <ZoruCard key={doc._id} className="flex flex-col gap-3 p-4">
+                            <Card key={doc._id} className="flex flex-col gap-3 p-4">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0 flex-1">
                                         <Link
@@ -253,7 +253,7 @@ export default async function EmployeeDocumentsSubPage({
                                         Edit
                                     </Link>
                                 </div>
-                            </ZoruCard>
+                            </Card>
                         );
                     })}
                 </div>

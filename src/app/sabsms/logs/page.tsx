@@ -95,7 +95,7 @@ function statusBadge(s: SabsmsMessageStatus) {
       : s === "failed" || s === "rejected" || s === "undelivered"
         ? ("destructive" as const)
         : ("secondary" as const);
-  return <ZoruBadge variant={variant}>{s}</ZoruBadge>;
+  return <Badge variant={variant}>{s}</Badge>;
 }
 
 function formatTimestamp(iso?: string): string {
@@ -149,7 +149,7 @@ export default async function SabsmsLogsPage({
 
   return (
     <div className="space-y-6 p-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Message logs</ZoruPageTitle>
           <ZoruPageDescription>
@@ -165,13 +165,13 @@ export default async function SabsmsLogsPage({
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton asChild>
+          <Button asChild>
             <Link href="/sabsms/send">New send</Link>
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
           <div>
             <ZoruCardTitle>Recent activity</ZoruCardTitle>
@@ -183,7 +183,7 @@ export default async function SabsmsLogsPage({
             {FILTERS.map((f) => {
               const active = (statusFilter ?? "") === f.value;
               return (
-                <ZoruButton
+                <Button
                   asChild
                   key={f.value || "all"}
                   variant={active ? "default" : "outline"}
@@ -192,7 +192,7 @@ export default async function SabsmsLogsPage({
                   <Link href={buildHref({ status: f.value, page: 0 })}>
                     {f.label}
                   </Link>
-                </ZoruButton>
+                </Button>
               );
             })}
           </div>
@@ -200,7 +200,7 @@ export default async function SabsmsLogsPage({
         <ZoruCardContent className="p-0">
           {rows.length === 0 ? (
             <div className="p-10">
-              <ZoruEmptyState
+              <EmptyState
                 icon={statusFilter ? <FileSearch /> : <Inbox />}
                 title={
                   statusFilter
@@ -209,14 +209,14 @@ export default async function SabsmsLogsPage({
                 }
                 description="Send a test from the composer — it lands here as soon as the engine enqueues it."
                 action={
-                  <ZoruButton asChild>
+                  <Button asChild>
                     <Link href="/sabsms/send">Open composer</Link>
-                  </ZoruButton>
+                  </Button>
                 }
               />
             </div>
           ) : (
-            <ZoruTable>
+            <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
                   <ZoruTableHead className="w-[110px]">Status</ZoruTableHead>
@@ -264,10 +264,10 @@ export default async function SabsmsLogsPage({
                   </ZoruTableRow>
                 ))}
               </ZoruTableBody>
-            </ZoruTable>
+            </Table>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm text-slate-600">
@@ -275,7 +275,7 @@ export default async function SabsmsLogsPage({
             Page {page + 1} of {totalPages}
           </span>
           <div className="flex gap-2">
-            <ZoruButton
+            <Button
               asChild
               variant="outline"
               size="sm"
@@ -284,15 +284,15 @@ export default async function SabsmsLogsPage({
               <Link href={buildHref({ page: Math.max(0, page - 1) })}>
                 Previous
               </Link>
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               asChild
               variant="outline"
               size="sm"
               disabled={page + 1 >= totalPages}
             >
               <Link href={buildHref({ page: page + 1 })}>Next</Link>
-            </ZoruButton>
+            </Button>
           </div>
         </div>
       )}

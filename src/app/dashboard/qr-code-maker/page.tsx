@@ -91,11 +91,11 @@ function downloadCsv(filename: string, rows: string[][]) {
 
 function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">{label}</div>
       <div className="mt-1.5 text-[22px] text-zoru-ink leading-tight">{value}</div>
       {hint ? <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div> : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -295,7 +295,7 @@ export default function QrCodeMakerPage() {
   };
 
   const breadcrumbs = (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
@@ -305,21 +305,21 @@ export default function QrCodeMakerPage() {
           <ZoruBreadcrumbPage>QR Code Maker</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 
   if (isLoading) {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruSkeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ZoruSkeleton key={i} className="h-[88px] rounded-xl" />
+            <Skeleton key={i} className="h-[88px] rounded-xl" />
           ))}
         </div>
-        <ZoruSkeleton className="h-[420px] w-full rounded-xl" />
-        <ZoruSkeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-[420px] w-full rounded-xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
   }
@@ -328,11 +328,11 @@ export default function QrCodeMakerPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ZoruCard className="p-10 text-center">
+        <Card className="p-10 text-center">
           <AlertCircle className="mx-auto h-10 w-10 text-zoru-ink-muted/40 mb-4" />
           <h3 className="text-sm text-zoru-ink mb-1">Authentication required</h3>
           <p className="text-xs text-zoru-ink-muted">You must be logged in to access this page.</p>
-        </ZoruCard>
+        </Card>
       </div>
     );
   }
@@ -374,7 +374,7 @@ export default function QrCodeMakerPage() {
         {breadcrumbs}
 
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <ZoruPageHeader>
+          <PageHeader>
             <ZoruPageHeading>
               <ZoruPageTitle>
                 <span className="inline-flex items-center gap-3">
@@ -386,9 +386,9 @@ export default function QrCodeMakerPage() {
                 Generate customizable QR codes for links, text, WhatsApp messages, and more.
               </ZoruPageDescription>
             </ZoruPageHeading>
-          </ZoruPageHeader>
+          </PageHeader>
           <div className="flex flex-wrap items-center gap-2">
-            <ZoruButton
+            <Button
               variant="outline"
               size="sm"
               onClick={handleExport}
@@ -396,15 +396,15 @@ export default function QrCodeMakerPage() {
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setBulkImportOpen(true)}
             >
               <Upload className="h-3.5 w-3.5" />
               Bulk Import
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
@@ -417,9 +417,9 @@ export default function QrCodeMakerPage() {
         </div>
 
         {/* Generator */}
-        <ZoruCard className="p-0 overflow-hidden">
+        <Card className="p-0 overflow-hidden">
           <QrCodeGenerator user={session.user} />
-        </ZoruCard>
+        </Card>
 
         {/* Saved QR Codes — sidebar + table */}
         <div className="flex flex-col lg:flex-row gap-4">
@@ -434,7 +434,7 @@ export default function QrCodeMakerPage() {
             onSortChange={setSortKey}
           />
           <div className="flex-1 min-w-0">
-        <ZoruCard className="p-0">
+        <Card className="p-0">
           <div className="flex items-center justify-between border-b border-zoru-line px-5 py-4">
             <h2 className="text-[15px] text-zoru-ink">Your Saved QR Codes</h2>
             <div className="text-[11.5px] text-zoru-ink-muted">
@@ -448,19 +448,19 @@ export default function QrCodeMakerPage() {
                 <strong>{selectedIds.size}</strong> selected
               </span>
               <div className="flex items-center gap-2">
-                <ZoruButton variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
                   Clear
-                </ZoruButton>
+                </Button>
                 <ZoruAlertDialog>
                   <ZoruAlertDialogTrigger asChild>
-                    <ZoruButton size="sm" disabled={isBulkDeleting}>
+                    <Button size="sm" disabled={isBulkDeleting}>
                       {isBulkDeleting ? (
                         <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <Trash2 className="h-3.5 w-3.5" />
                       )}
                       Delete selected
-                    </ZoruButton>
+                    </Button>
                   </ZoruAlertDialogTrigger>
                   <ZoruAlertDialogContent>
                     <ZoruAlertDialogHeader>
@@ -507,7 +507,7 @@ export default function QrCodeMakerPage() {
                 {isRefetching && pageSlice.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-5 py-4">
-                      <ZoruSkeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
                     </td>
                   </tr>
                 ) : pageSlice.length > 0 ? (
@@ -644,7 +644,7 @@ export default function QrCodeMakerPage() {
                             />
                             {/* Scan stats button (only for dynamic QR codes) */}
                             {code.shortUrl && (
-                              <ZoruButton
+                              <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 title="View Scan Stats"
@@ -655,7 +655,7 @@ export default function QrCodeMakerPage() {
                                 })}
                               >
                                 <BarChart2 className="h-3.5 w-3.5" />
-                              </ZoruButton>
+                              </Button>
                             )}
                             <ZoruAlertDialog>
                               <ZoruAlertDialogTrigger asChild>
@@ -745,7 +745,7 @@ export default function QrCodeMakerPage() {
               </div>
             </div>
           ) : null}
-        </ZoruCard>
+        </Card>
           </div>
         </div>
       </div>

@@ -40,7 +40,7 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                 </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Rank Movement (Last 7 Days)</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -54,9 +54,9 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                                 <div className="text-sm text-muted-foreground">Declined</div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Top Keywords</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -66,7 +66,7 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                                     <div key={i} className="flex justify-between items-center text-sm border-b last:border-0 pb-2 last:pb-0">
                                         <span className="font-medium">{k.term}</span>
                                         <div className="flex items-center gap-3">
-                                            <ZoruBadge variant="outline">#{k.rank}</ZoruBadge>
+                                            <Badge variant="outline">#{k.rank}</Badge>
                                             {k.change > 0 && <span className="text-green-600 text-xs">▲ {k.change}</span>}
                                             {k.change < 0 && <span className="text-red-600 text-xs">▼ {Math.abs(k.change)}</span>}
                                         </div>
@@ -74,7 +74,7 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                                 ))}
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
                 </div>
 
                 <footer className="text-center text-xs text-slate-400 mt-12">

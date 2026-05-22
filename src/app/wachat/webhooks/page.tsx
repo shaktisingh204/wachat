@@ -76,7 +76,7 @@ export default function WebhooksPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -90,7 +90,7 @@ export default function WebhooksPage() {
             <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
@@ -103,16 +103,16 @@ export default function WebhooksPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setTestOpen(true)}
           >
             <Send /> Test webhook
-          </ZoruButton>
-          <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+          </Button>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus /> New endpoint
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export default function WebhooksPage() {
       </div>
 
       {/* Setup guide */}
-      <ZoruCard className="mt-6 p-6">
+      <Card className="mt-6 p-6">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
             <Webhook className="h-4 w-4" />
@@ -197,19 +197,19 @@ export default function WebhooksPage() {
         </div>
 
         <div className="mt-5 flex items-center justify-end gap-2">
-          <ZoruButton
+          <Button
             size="sm"
             variant="ghost"
             className="text-zoru-danger hover:bg-zoru-danger/10"
             onClick={() => setDeleteOpen(true)}
           >
             <Trash2 /> Delete endpoint
-          </ZoruButton>
+          </Button>
         </div>
-      </ZoruCard>
+      </Card>
 
       {/* Recent events */}
-      <ZoruCard className="mt-6 p-6">
+      <Card className="mt-6 p-6">
         <div className="mb-4">
           <div className="text-[15px] text-zoru-ink">Recent events</div>
           <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
@@ -218,10 +218,10 @@ export default function WebhooksPage() {
           </div>
         </div>
         <WebhookLogs filterByProject={true} />
-      </ZoruCard>
+      </Card>
 
       {/* ── Create webhook dialog ── */}
-      <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>New webhook endpoint</ZoruDialogTitle>
@@ -231,8 +231,8 @@ export default function WebhooksPage() {
           </ZoruDialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="hook-name">Name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="hook-name">Name</Label>
+              <Input
                 id="hook-name"
                 value={draft.name}
                 onChange={(e) =>
@@ -242,8 +242,8 @@ export default function WebhooksPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="hook-url">Endpoint URL</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="hook-url">Endpoint URL</Label>
+              <Input
                 id="hook-url"
                 type="url"
                 value={draft.url}
@@ -254,8 +254,8 @@ export default function WebhooksPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor="hook-secret">Signing secret</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="hook-secret">Signing secret</Label>
+              <Input
                 id="hook-secret"
                 value={draft.secret}
                 onChange={(e) =>
@@ -266,10 +266,10 @@ export default function WebhooksPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setCreateOpen(false)}>
+            <Button variant="ghost" onClick={() => setCreateOpen(false)}>
               Cancel
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Endpoint created',
@@ -281,13 +281,13 @@ export default function WebhooksPage() {
               disabled={!draft.url.trim()}
             >
               Save endpoint
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Test webhook dialog ── */}
-      <ZoruDialog open={testOpen} onOpenChange={setTestOpen}>
+      <Dialog open={testOpen} onOpenChange={setTestOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
             <ZoruDialogTitle>Test webhook</ZoruDialogTitle>
@@ -296,8 +296,8 @@ export default function WebhooksPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="test-payload">Payload (JSON)</ZoruLabel>
-            <ZoruTextarea
+            <Label htmlFor="test-payload">Payload (JSON)</Label>
+            <Textarea
               id="test-payload"
               rows={10}
               value={testPayload}
@@ -306,10 +306,10 @@ export default function WebhooksPage() {
             />
           </div>
           <ZoruDialogFooter>
-            <ZoruButton variant="ghost" onClick={() => setTestOpen(false)}>
+            <Button variant="ghost" onClick={() => setTestOpen(false)}>
               Close
-            </ZoruButton>
-            <ZoruButton
+            </Button>
+            <Button
               onClick={() => {
                 toast({
                   title: 'Test sent',
@@ -319,10 +319,10 @@ export default function WebhooksPage() {
               }}
             >
               <Send /> Send test
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
 
       {/* ── Delete webhook confirm ── */}
       <ZoruAlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

@@ -98,7 +98,7 @@ const integrations: Integration[] = [
 export default function IntegrationsPage() {
   return (
     <div className="flex h-full w-full flex-col">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -112,9 +112,9 @@ export default function IntegrationsPage() {
             <ZoruBreadcrumbPage>Integrations</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader className="mt-5">
+      <PageHeader className="mt-5">
         <ZoruPageHeading>
           <ZoruPageTitle>Integrations</ZoruPageTitle>
           <ZoruPageDescription>
@@ -122,11 +122,11 @@ export default function IntegrationsPage() {
             payment providers.
           </ZoruPageDescription>
         </ZoruPageHeading>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {integrations.map((integration) => (
-          <ZoruCard key={integration.title} className="flex flex-col gap-4 p-5">
+          <Card key={integration.title} className="flex flex-col gap-4 p-5">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
                 {integration.icon}
@@ -140,28 +140,28 @@ export default function IntegrationsPage() {
 
             <div className="flex items-center justify-between border-t border-zoru-line pt-4">
               {integration.status === 'ready' ? (
-                <ZoruBadge variant="success">Ready to configure</ZoruBadge>
+                <Badge variant="success">Ready to configure</Badge>
               ) : (
-                <ZoruBadge variant="ghost">Coming soon</ZoruBadge>
+                <Badge variant="ghost">Coming soon</Badge>
               )}
               {integration.status === 'ready' ? (
-                <ZoruButton size="sm" asChild>
+                <Button size="sm" asChild>
                   <Link href={integration.href}>
                     Configure
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
-                </ZoruButton>
+                </Button>
               ) : (
-                <ZoruButton size="sm" variant="outline" disabled>
+                <Button size="sm" variant="outline" disabled>
                   Notify me
-                </ZoruButton>
+                </Button>
               )}
             </div>
-          </ZoruCard>
+          </Card>
         ))}
       </div>
 
-      <ZoruCard className="mt-6 flex items-center gap-4 p-5">
+      <Card className="mt-6 flex items-center gap-4 p-5">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
           <Puzzle className="h-[18px] w-[18px]" />
         </span>
@@ -171,7 +171,7 @@ export default function IntegrationsPage() {
             Shopify, HubSpot, Zapier and Stripe are in the works. Need a specific one? Tell us.
           </p>
         </div>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -56,7 +56,7 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
     return (
         <div className="flex items-center gap-2">
             {isPending && <LoaderCircle className="h-4 w-4 animate-spin" />}
-            <ZoruSwitch
+            <Switch
                 id={`calling-switch-${phone.id}`}
                 checked={isChecked}
                 onCheckedChange={handleToggle}

@@ -24,12 +24,12 @@ export default function ManualSetupDocsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
+        <Button variant="ghost" asChild className="mb-4 -ml-4">
           <Link href="/dashboard/wachat/setup">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Setup Options
           </Link>
-        </ZoruButton>
+        </Button>
         <h1 className="text-3xl font-bold font-headline">Manual Setup Guide</h1>
         <p className="text-muted-foreground mt-2">
           This guide is for advanced users who want to connect their WhatsApp
@@ -37,7 +37,7 @@ export default function ManualSetupDocsPage() {
         </p>
       </div>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Prerequisites</ZoruCardTitle>
           <ZoruCardDescription>
@@ -59,9 +59,9 @@ export default function ManualSetupDocsPage() {
             </li>
           </ul>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Step 1: Find Your IDs</ZoruCardTitle>
           <ZoruCardDescription>
@@ -86,9 +86,9 @@ export default function ManualSetupDocsPage() {
             </p>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Step 2: Generate a Permanent Access Token</ZoruCardTitle>
           <ZoruCardDescription>
@@ -125,18 +125,18 @@ export default function ManualSetupDocsPage() {
             </li>
             <li>Click <strong>Generate Token</strong> and copy it immediately. You will not be able to see it again.</li>
           </ol>
-          <ZoruAlert variant="destructive">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <ZoruAlertTitle>Important: Store Your Token Securely</ZoruAlertTitle>
             <ZoruAlertDescription>
               The permanent access token is like a password. Treat it securely
               and do not share it. If you lose it, you will need to revoke the old one and generate a new one.
             </ZoruAlertDescription>
-          </ZoruAlert>
+          </Alert>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Step 3: Connect to SabNode</ZoruCardTitle>
           <ZoruCardDescription>
@@ -154,7 +154,7 @@ export default function ManualSetupDocsPage() {
             <strong>Permanent Access Token</strong> into the respective fields. Click "Create Project" to complete the connection.
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
     </div>
   );

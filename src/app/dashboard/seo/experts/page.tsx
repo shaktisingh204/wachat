@@ -13,7 +13,7 @@ export default function ExpertsDirectoryPage() {
                 </p>
             </div>
 
-            <ZoruCard className="flex flex-col items-center justify-center gap-3 border-dashed py-16 text-center">
+            <Card className="flex flex-col items-center justify-center gap-3 border-dashed py-16 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
                     <Users className="h-6 w-6 text-zoru-ink-muted" />
                 </div>
@@ -21,7 +21,7 @@ export default function ExpertsDirectoryPage() {
                 <ZoruCardDescription className="max-w-md">
                     The expert directory is ready for real marketplace profiles. No sample experts are shown.
                 </ZoruCardDescription>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

@@ -44,9 +44,9 @@ export function ClientReportButton() {
     }
 
     return (
-        <ZoruButton onClick={handleClick} variant="outline" disabled={isPending}>
+        <Button onClick={handleClick} variant="outline" disabled={isPending}>
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <FileText className="mr-2 h-4 w-4" />}
             Generate Report
-        </ZoruButton>
+        </Button>
     )
 }

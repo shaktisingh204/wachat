@@ -57,14 +57,14 @@ const APPLIES_TO_TARGETS = [
 function SubmitButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="sm" disabled={pending}>
+        <Button type="submit" size="sm" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {pending ? 'Saving…' : label}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -156,7 +156,7 @@ export function PricingRuleForm({
     });
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-5">
                 {pricingRuleId ? (
                     <input
@@ -177,10 +177,10 @@ export function PricingRuleForm({
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel>
+                        <Label>
                             Storefront <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             value={storefrontId}
                             onChange={(e) => setStorefrontId(e.target.value)}
                             placeholder="Storefront id"
@@ -188,10 +188,10 @@ export function PricingRuleForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="name">
+                        <Label htmlFor="name">
                             Name <span className="text-red-500">*</span>
-                        </ZoruLabel>
-                        <ZoruInput
+                        </Label>
+                        <Input
                             id="name"
                             name="name"
                             type="text"
@@ -201,8 +201,8 @@ export function PricingRuleForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="kind-select">Kind</ZoruLabel>
-                        <ZoruSelect value={kind} onValueChange={setKind}>
+                        <Label htmlFor="kind-select">Kind</Label>
+                        <Select value={kind} onValueChange={setKind}>
                             <ZoruSelectTrigger id="kind-select">
                                 <ZoruSelectValue placeholder="Kind" />
                             </ZoruSelectTrigger>
@@ -213,11 +213,11 @@ export function PricingRuleForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="value">Value</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="value">Value</Label>
+                        <Input
                             id="value"
                             name="value"
                             type="number"
@@ -232,8 +232,8 @@ export function PricingRuleForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="priority">Priority</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="priority">Priority</Label>
+                        <Input
                             id="priority"
                             name="priority"
                             type="number"
@@ -248,8 +248,8 @@ export function PricingRuleForm({
                         </p>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="status-select">Status</ZoruLabel>
-                        <ZoruSelect value={status} onValueChange={setStatus}>
+                        <Label htmlFor="status-select">Status</Label>
+                        <Select value={status} onValueChange={setStatus}>
                             <ZoruSelectTrigger id="status-select">
                                 <ZoruSelectValue placeholder="Status" />
                             </ZoruSelectTrigger>
@@ -260,14 +260,14 @@ export function PricingRuleForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="startsAt">Starts at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="startsAt">Starts at</Label>
+                        <Input
                             id="startsAt"
                             name="startsAt"
                             type="date"
@@ -275,8 +275,8 @@ export function PricingRuleForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="endsAt">Ends at</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="endsAt">Ends at</Label>
+                        <Input
                             id="endsAt"
                             name="endsAt"
                             type="date"
@@ -287,8 +287,8 @@ export function PricingRuleForm({
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="appliesToTarget">Applies to</ZoruLabel>
-                        <ZoruSelect
+                        <Label htmlFor="appliesToTarget">Applies to</Label>
+                        <Select
                             value={appliesToTarget}
                             onValueChange={setAppliesToTarget}
                         >
@@ -302,16 +302,16 @@ export function PricingRuleForm({
                                     </ZoruSelectItem>
                                 ))}
                             </ZoruSelectContent>
-                        </ZoruSelect>
+                        </Select>
                     </div>
                     {appliesToTarget !== 'all' ? (
                         <div className="flex flex-col gap-1.5">
-                            <ZoruLabel htmlFor="appliesToIds">
+                            <Label htmlFor="appliesToIds">
                                 {appliesToTarget === 'products'
                                     ? 'Product ids'
                                     : 'Category ids'}
-                            </ZoruLabel>
-                            <ZoruInput
+                            </Label>
+                            <Input
                                 id="appliesToIds"
                                 value={appliesToIdsText}
                                 onChange={(e) =>
@@ -327,12 +327,12 @@ export function PricingRuleForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="conditions">Conditions (JSON)</ZoruLabel>
+                    <Label htmlFor="conditions">Conditions (JSON)</Label>
                     <p className="text-[11px] text-zoru-ink-muted">
                         Each: <code>{`{ "field":"subtotal","op":"gte","value":500 }`}</code>
                         . Rich editor coming.
                     </p>
-                    <ZoruTextarea
+                    <Textarea
                         id="conditions"
                         rows={6}
                         value={conditions}
@@ -349,7 +349,7 @@ export function PricingRuleForm({
                     <SubmitButton
                         label={pricingRuleId ? 'Save changes' : 'Create rule'}
                     />
-                    <ZoruButton variant="ghost" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={
                                 pricingRuleId
@@ -360,9 +360,9 @@ export function PricingRuleForm({
                             <ArrowLeft className="h-4 w-4" />
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

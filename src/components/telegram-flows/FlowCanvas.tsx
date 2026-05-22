@@ -450,7 +450,7 @@ export function FlowCanvas({
       {/* Toolbar (floating, top-right) */}
       <div className="pointer-events-none absolute right-72 top-4 flex gap-2">
         {linking ? (
-          <ZoruButton
+          <Button
             variant="secondary"
             size="sm"
             className="pointer-events-auto"
@@ -460,7 +460,7 @@ export function FlowCanvas({
             }}
           >
             Cancel link
-          </ZoruButton>
+          </Button>
         ) : null}
       </div>
     </div>

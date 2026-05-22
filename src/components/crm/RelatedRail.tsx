@@ -21,7 +21,7 @@
  *     ]}
  *   />
  *
- * Rendering: a <ZoruCard> with an "Related" heading and a list of
+ * Rendering: a <Card> with an "Related" heading and a list of
  * navigable rows (label + monospaced count). Empty (zero-length items)
  * collapses to `null`.
  */

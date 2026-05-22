@@ -87,9 +87,9 @@ export default async function KbArticleDetailPage({
                         <StatusPill label={status} tone={statusToTone(status)} />
                     ) : null}
                     {visibility ? (
-                        <ZoruBadge variant={VISIBILITY_VARIANTS[visibility] ?? 'ghost'}>
+                        <Badge variant={VISIBILITY_VARIANTS[visibility] ?? 'ghost'}>
                             {visibility}
-                        </ZoruBadge>
+                        </Badge>
                     ) : null}
                 </div>
                 <KbDetailActions articleId={articleId} article={article} />
@@ -97,7 +97,7 @@ export default async function KbArticleDetailPage({
 
             <div className="grid gap-4 lg:grid-cols-3">
                 <div className="flex flex-col gap-4 lg:col-span-2">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
                             Content
                         </h2>
@@ -110,10 +110,10 @@ export default async function KbArticleDetailPage({
                                 No content yet.
                             </div>
                         )}
-                    </ZoruCard>
+                    </Card>
 
                     {(article.seoTitle || article.seoDescription) ? (
-                        <ZoruCard className="p-6">
+                        <Card className="p-6">
                             <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
                                 SEO meta
                             </h2>
@@ -135,12 +135,12 @@ export default async function KbArticleDetailPage({
                                     </div>
                                 </div>
                             </div>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
                 </div>
 
                 <aside className="flex flex-col gap-4">
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Article details</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -178,9 +178,9 @@ export default async function KbArticleDetailPage({
                                         <span className="text-zoru-ink-muted">—</span>
                                     ) : (
                                         tags.map((t) => (
-                                            <ZoruBadge key={t} variant="ghost">
+                                            <Badge key={t} variant="ghost">
                                                 {t}
-                                            </ZoruBadge>
+                                            </Badge>
                                         ))
                                     )}
                                 </div>
@@ -210,7 +210,7 @@ export default async function KbArticleDetailPage({
                                 </div>
                             </div>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
                     <KbHelpfulWidget
                         articleId={articleId}

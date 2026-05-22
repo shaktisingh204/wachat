@@ -97,14 +97,14 @@ function StatCard({
   loading?: boolean;
 }) {
   return (
-    <ZoruCard className="flex items-start gap-4 p-5">
+    <Card className="flex items-start gap-4 p-5">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-5">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-[12px] text-zoru-ink-muted">{label}</p>
         {loading ? (
-          <ZoruSkeleton className="mt-1 h-7 w-24" />
+          <Skeleton className="mt-1 h-7 w-24" />
         ) : (
           <p className="text-[22px] tabular-nums text-zoru-ink leading-tight">
             {value}
@@ -112,7 +112,7 @@ function StatCard({
         )}
         <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</p>
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -241,27 +241,27 @@ export default function WhatsAppPayPage() {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => (
-          <ZoruBadge
+          <Badge
             variant={statusVariant(row.original.status)}
             className="capitalize"
           >
             {row.original.status.toLowerCase()}
-          </ZoruBadge>
+          </Badge>
         ),
       },
       {
         id: 'actions',
         header: '',
         cell: ({ row }) => (
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <ZoruButton
+              <Button
                 variant="ghost"
                 size="icon-sm"
                 aria-label="Open actions menu"
               >
                 <MoreHorizontal />
-              </ZoruButton>
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
@@ -284,7 +284,7 @@ export default function WhatsAppPayPage() {
                 Refund payment
               </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         ),
       },
     ],
@@ -293,7 +293,7 @@ export default function WhatsAppPayPage() {
 
   if (!activeProjectId) {
     return (
-      <ZoruEmptyState
+      <EmptyState
         icon={<Receipt />}
         title="No project selected"
         description="Select a project from the home screen to manage its payments."
@@ -312,7 +312,7 @@ export default function WhatsAppPayPage() {
           onChange={setDateRange}
           className="w-[300px]"
         />
-        <ZoruButton
+        <Button
           variant="outline"
           size="sm"
           onClick={() => fetchData(true)}
@@ -320,8 +320,8 @@ export default function WhatsAppPayPage() {
         >
           <RefreshCw className={isLoading ? 'animate-spin' : ''} />
           Refresh
-        </ZoruButton>
-        <ZoruButton
+        </Button>
+        <Button
           variant="outline"
           size="sm"
           onClick={handleExport}
@@ -329,7 +329,7 @@ export default function WhatsAppPayPage() {
         >
           <Download />
           Export
-        </ZoruButton>
+        </Button>
       </div>
 
       {/* Stats */}
@@ -360,16 +360,16 @@ export default function WhatsAppPayPage() {
       </div>
 
       {/* Chart */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h3 className="text-[15px] text-zoru-ink">Transactions over time</h3>
         <p className="mb-4 text-[12px] text-zoru-ink-muted">
           Revenue curve across the selected date range.
         </p>
         <TransactionChart transactions={transactions} dateRange={dateRange} />
-      </ZoruCard>
+      </Card>
 
       {/* Table */}
-      <ZoruCard className="p-5">
+      <Card className="p-5">
         <h3 className="text-[15px] text-zoru-ink">Transaction history</h3>
         <p className="mb-4 text-[12px] text-zoru-ink-muted">
           A detailed log of all payments initiated from this platform.
@@ -377,24 +377,24 @@ export default function WhatsAppPayPage() {
         {statsLoading ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ZoruSkeleton key={i} className="h-10" />
+              <Skeleton key={i} className="h-10" />
             ))}
           </div>
         ) : tableData.length === 0 ? (
-          <ZoruEmptyState
+          <EmptyState
             icon={<Receipt />}
             title="No transactions yet"
             description="Once customers pay through WhatsApp, the records will appear here."
           />
         ) : (
-          <ZoruDataTable
+          <DataTable
             columns={columns}
             data={tableData}
             filterColumn="description"
             filterPlaceholder="Filter transactions…"
           />
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Refund-confirm alert dialog */}
       <ZoruAlertDialog

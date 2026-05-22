@@ -79,7 +79,7 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
             key={index}
             className="relative rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3"
           >
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               size="icon-sm"
@@ -88,11 +88,11 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
               onClick={() => handleRemove(index)}
             >
               <Trash2 />
-            </ZoruButton>
+            </Button>
             <div className="grid items-end gap-3 md:grid-cols-3">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Day of Week</ZoruLabel>
-                <ZoruSelect
+                <Label>Day of Week</Label>
+                <Select
                   value={entry.day_of_week}
                   onValueChange={(val) =>
                     handleChange(index, 'day_of_week', val)
@@ -108,11 +108,11 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Open Time</ZoruLabel>
-                <ZoruInput
+                <Label>Open Time</Label>
+                <Input
                   type="time"
                   value={
                     entry.open_time.slice(0, 2) + ':' + entry.open_time.slice(2)
@@ -123,8 +123,8 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel>Close Time</ZoruLabel>
-                <ZoruInput
+                <Label>Close Time</Label>
+                <Input
                   type="time"
                   value={
                     entry.close_time.slice(0, 2) +
@@ -140,7 +140,7 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
           </div>
         ))}
       </div>
-      <ZoruButton
+      <Button
         type="button"
         variant="outline"
         size="sm"
@@ -148,7 +148,7 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
       >
         <Plus />
         Add Time Slot
-      </ZoruButton>
+      </Button>
     </div>
   );
 };

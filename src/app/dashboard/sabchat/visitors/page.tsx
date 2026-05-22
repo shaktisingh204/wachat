@@ -52,13 +52,13 @@ import type { WithId,
 
 function VisitorTableSkeleton() {
   return (
-    <ZoruCard className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0">
       <div className="space-y-2 p-4">
         {Array.from({ length: 5 }).map((_, i) => (
-          <ZoruSkeleton key={i} className="h-12 w-full" />
+          <Skeleton key={i} className="h-12 w-full" />
         ))}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -102,7 +102,7 @@ export default function SabChatVisitorsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -118,9 +118,9 @@ export default function SabChatVisitorsPage() {
             <ZoruBreadcrumbPage>Live Visitors</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>Live visitors</ZoruPageTitle>
           <ZoruPageDescription>
@@ -128,7 +128,7 @@ export default function SabChatVisitorsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => fetchData(true)}
@@ -140,21 +140,21 @@ export default function SabChatVisitorsPage() {
               <RefreshCw />
             )}
             Refresh
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       {!didInitialLoad && visitors.length === 0 ? (
         <VisitorTableSkeleton />
       ) : visitors.length === 0 ? (
-        <ZoruEmptyState
+        <EmptyState
           icon={<Users />}
           title="No live visitors right now"
           description="When visitors land on your site, they will appear here in real time."
         />
       ) : (
-        <ZoruCard className="overflow-hidden p-0">
-          <ZoruTable>
+        <Card className="overflow-hidden p-0">
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
                 <ZoruTableHead>Visitor</ZoruTableHead>
@@ -185,7 +185,7 @@ export default function SabChatVisitorsPage() {
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge
+                      <Badge
                         variant={isOnline ? "success" : "secondary"}
                         className={cn(
                           "gap-1.5",
@@ -202,7 +202,7 @@ export default function SabChatVisitorsPage() {
                           )}
                         />
                         {isOnline ? "Online" : "Offline"}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink-muted">
                       {formatDistanceToNow(new Date(visitor.updatedAt), {
@@ -223,7 +223,7 @@ export default function SabChatVisitorsPage() {
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <ZoruButton
+                      <Button
                         asChild
                         variant="outline"
                         size="sm"
@@ -234,14 +234,14 @@ export default function SabChatVisitorsPage() {
                           <MessageSquare />
                           Chat
                         </a>
-                      </ZoruButton>
+                      </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 );
               })}
             </ZoruTableBody>
-          </ZoruTable>
-        </ZoruCard>
+          </Table>
+        </Card>
       )}
     </div>
   );

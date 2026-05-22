@@ -65,13 +65,13 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
         <div className="w-52 flex-shrink-0 border-r border-zoru-border flex flex-col py-3 gap-1">
             <div className="flex items-center justify-between px-3 pb-1">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60">Collections</span>
-                <ZoruButton
+                <Button
                     variant="ghost" size="icon-sm"
                     onClick={() => setAdding((v) => !v)}
                     title="New collection"
                 >
                     <Plus className="h-3.5 w-3.5" />
-                </ZoruButton>
+                </Button>
             </div>
 
             <button
@@ -89,7 +89,7 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
 
             {adding && (
                 <div className="mx-2 p-2 rounded-md border border-zoru-border bg-zinc-900 space-y-2">
-                    <ZoruInput
+                    <Input
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         placeholder="Collection name"
@@ -112,10 +112,10 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
                         ))}
                     </div>
                     <div className="flex gap-1">
-                        <ZoruButton size="xs" onClick={handleCreate} disabled={isPending || !newName.trim()} className="flex-1">
+                        <Button size="xs" onClick={handleCreate} disabled={isPending || !newName.trim()} className="flex-1">
                             {isPending ? <LoaderCircle className="h-3 w-3 animate-spin" /> : 'Add'}
-                        </ZoruButton>
-                        <ZoruButton size="xs" variant="ghost" onClick={() => setAdding(false)}>&#x2715;</ZoruButton>
+                        </Button>
+                        <Button size="xs" variant="ghost" onClick={() => setAdding(false)}>&#x2715;</Button>
                     </div>
                 </div>
             )}

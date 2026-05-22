@@ -48,16 +48,16 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
   }
 
   return (
-    <ZoruCard>
+    <Card>
       <ZoruCardHeader>
         <ZoruCardTitle>AI Content Assistant</ZoruCardTitle>
         <ZoruCardDescription>Get AI-powered suggestions for your template body.</ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
         <div className="space-y-2">
-          <ZoruLabel htmlFor="topic">Topic</ZoruLabel>
+          <Label htmlFor="topic">Topic</Label>
           <div className="flex gap-2">
-            <ZoruInput
+            <Input
               id="topic"
               placeholder="e.g., flash sale, new product"
               value={topic}
@@ -69,28 +69,28 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
                 }
               }}
             />
-            <ZoruButton type="button" onClick={getSuggestions} disabled={isLoading}>
+            <Button type="button" onClick={getSuggestions} disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
                 <Wand2 className="h-4 w-4" />
               )}
               <span className="sr-only">Get Suggestions</span>
-            </ZoruButton>
+            </Button>
           </div>
         </div>
 
         {error && (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Error</ZoruAlertTitle>
                 <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         )}
 
         {suggestions.length > 0 && (
           <div className="space-y-2">
-            <ZoruLabel>Suggestions</ZoruLabel>
+            <Label>Suggestions</Label>
             <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
               {suggestions.map((suggestion, index) => (
                 <div
@@ -105,6 +105,6 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
           </div>
         )}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

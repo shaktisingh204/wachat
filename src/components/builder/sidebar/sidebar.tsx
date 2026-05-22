@@ -113,7 +113,7 @@ export const BuilderSidebar = () => {
                         <div className="space-y-4 h-full flex flex-col">
                             <div className="flex justify-between items-center pb-2 border-b">
                                 <h3 className="font-medium text-sm">Content</h3>
-                                <ZoruButton variant="destructive" size="sm" onClick={handleDelete} className="h-6 text-xs">Delete</ZoruButton>
+                                <Button variant="destructive" size="sm" onClick={handleDelete} className="h-6 text-xs">Delete</Button>
                             </div>
 
                             {/* Content Tab */}
@@ -123,8 +123,8 @@ export const BuilderSidebar = () => {
                                         {/* Text Content */}
                                         {['HEADING', 'TEXT', 'BUTTON'].includes(selectedElement.widgetType) && (
                                             <div className="space-y-1">
-                                                <ZoruLabel className="text-xs">Text</ZoruLabel>
-                                                <ZoruInput
+                                                <Label className="text-xs">Text</Label>
+                                                <Input
                                                     value={selectedElement.content.text || ''}
                                                     onChange={(e) => handleUpdate('text', e.target.value)}
                                                     className="h-8 text-sm"
@@ -135,8 +135,8 @@ export const BuilderSidebar = () => {
                                         {/* Image Source */}
                                         {selectedElement.widgetType === 'IMAGE' && (
                                             <div className="space-y-1">
-                                                <ZoruLabel className="text-xs">Image URL</ZoruLabel>
-                                                <ZoruInput
+                                                <Label className="text-xs">Image URL</Label>
+                                                <Input
                                                     value={selectedElement.content.src || ''}
                                                     onChange={(e) => handleUpdate('src', e.target.value)}
                                                     className="h-8 text-sm"

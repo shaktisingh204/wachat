@@ -48,14 +48,14 @@ const initialState: SaveState = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create travel request'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -85,7 +85,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
     }, [state, toast, router, initialData?._id]);
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="travelId" value={initialData!._id} />
@@ -93,7 +93,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
 
                 {/* Row 1: Employee picker (dual-writes employee_name for legacy callers) */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Employee *</ZoruLabel>
+                    <Label>Employee *</Label>
                     <EntityFormField
                         entity="employee"
                         name="employee_id"
@@ -108,8 +108,8 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
 
                 {/* Row 2: Purpose */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="purpose">Purpose</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="purpose">Purpose</Label>
+                    <Input
                         id="purpose"
                         name="purpose"
                         placeholder="e.g. Client kickoff workshop"
@@ -120,7 +120,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                 {/* Row 3: From / To / Mode */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel>From city</ZoruLabel>
+                        <Label>From city</Label>
                         <EntityFormField
                             entity="city"
                             name="from_city"
@@ -130,7 +130,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>To city</ZoruLabel>
+                        <Label>To city</Label>
                         <EntityFormField
                             entity="city"
                             name="to_city"
@@ -140,7 +140,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Mode</ZoruLabel>
+                        <Label>Mode</Label>
                         <EnumFormField
                             enumName="travelMode"
                             name="mode"
@@ -154,8 +154,8 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                 {/* Row 4: Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="travel_date">Travel date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="travel_date">Travel date</Label>
+                        <Input
                             id="travel_date"
                             name="travel_date"
                             type="date"
@@ -163,8 +163,8 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="return_date">Return date</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="return_date">Return date</Label>
+                        <Input
                             id="return_date"
                             name="return_date"
                             type="date"
@@ -176,8 +176,8 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                 {/* Row 5: Costs + currency */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="estimated_cost">Estimated cost</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="estimated_cost">Estimated cost</Label>
+                        <Input
                             id="estimated_cost"
                             name="estimated_cost"
                             type="number"
@@ -187,8 +187,8 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="actual_cost">Actual cost</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="actual_cost">Actual cost</Label>
+                        <Input
                             id="actual_cost"
                             name="actual_cost"
                             type="number"
@@ -198,7 +198,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Currency</ZoruLabel>
+                        <Label>Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -212,7 +212,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                 {/* Row 6: Approver + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>Approver</ZoruLabel>
+                        <Label>Approver</Label>
                         <EntityFormField
                             entity="employee"
                             name="approver_id"
@@ -224,7 +224,7 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel>Status</ZoruLabel>
+                        <Label>Status</Label>
                         {/* TODO 1E.sweep: catalogued travelStatus has 'submitted'+'booked' slugs not in original options; existing 'pending' was renamed. */}
                         <EnumFormField
                             enumName="travelStatus"
@@ -242,8 +242,8 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
 
                 {/* Row 7: Notes */}
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -253,15 +253,15 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to travel requests
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

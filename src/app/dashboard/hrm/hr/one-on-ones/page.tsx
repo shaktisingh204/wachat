@@ -79,7 +79,7 @@ function CalendarView({ rows }: { rows: Row[] }) {
   for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d });
 
   return (
-    <ZoruCard className="p-4">
+    <Card className="p-4">
       <div className="mb-2 grid grid-cols-7 gap-1 text-center text-[11px] text-zoru-ink-muted">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
           <div key={d}>{d}</div>
@@ -124,7 +124,7 @@ function CalendarView({ rows }: { rows: Row[] }) {
           );
         })}
       </div>
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -197,20 +197,20 @@ export default function OneOnOnesPage() {
       emptyText="No 1:1s yet"
       viewSwitcher={
         <div className="inline-flex overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
-          <ZoruButton
+          <Button
             size="sm"
             variant={view === 'table' ? 'default' : 'ghost'}
             onClick={() => setView('table')}
           >
             Table
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             size="sm"
             variant={view === 'calendar' ? 'default' : 'ghost'}
             onClick={() => setView('calendar')}
           >
             Calendar
-          </ZoruButton>
+          </Button>
         </div>
       }
       columns={[

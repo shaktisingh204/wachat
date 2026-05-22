@@ -21,9 +21,9 @@ export default function CssMinifierPage() {
   );
   return (
     <ToolShell title="CSS Minifier" description="Strip comments and whitespace from CSS.">
-      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste CSS…" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste CSS…" />
       <div className="text-sm text-muted-foreground">{text.length} → {min.length} bytes ({text.length ? ((1 - min.length / text.length) * 100).toFixed(1) : 0}% saved)</div>
-      <ZoruTextarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
+      <Textarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
     </ToolShell>
   );
 }

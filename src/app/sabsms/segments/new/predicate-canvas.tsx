@@ -88,9 +88,9 @@ export function PredicateCanvas({ predicate, onChange }: PredicateCanvasProps) {
     <div className="space-y-3">
       <GroupNode node={root} path={[]} onUpdate={update} depth={0} />
       <div className="flex items-center gap-2 text-xs text-slate-500">
-        <ZoruBadge variant="outline" className="text-[10px]">
+        <Badge variant="outline" className="text-[10px]">
           ROOT
-        </ZoruBadge>
+        </Badge>
         <span>
           The root group is implicit. Add rules and nested groups to refine
           who matches.
@@ -153,7 +153,7 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
   return (
     <div className={`space-y-3 ${indentClass}`}>
       <div className="flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-slate-50 p-2">
-        <ZoruSelect
+        <Select
           value={node.op}
           onValueChange={(v) => {
             if (v === "and" || v === "or") {
@@ -170,30 +170,30 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
             <ZoruSelectItem value="and">All of</ZoruSelectItem>
             <ZoruSelectItem value="or">Any of</ZoruSelectItem>
           </ZoruSelectContent>
-        </ZoruSelect>
+        </Select>
         <span className="text-xs text-slate-500">
           {node.op === "and"
             ? "Contacts matching every rule below."
             : "Contacts matching at least one rule below."}
         </span>
         <div className="ml-auto flex items-center gap-1">
-          <ZoruButton variant="outline" size="sm" onClick={addLeaf}>
+          <Button variant="outline" size="sm" onClick={addLeaf}>
             <Plus className="mr-1 h-3.5 w-3.5" /> Rule
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={addGroup}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={addGroup}>
             <Plus className="mr-1 h-3.5 w-3.5" /> Group
-          </ZoruButton>
+          </Button>
           {!isRoot && (
-            <ZoruButton
+            <Button
               variant="ghost"
               size="sm"
               onClick={removeSelf}
               aria-label="Remove group"
             >
               <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-            </ZoruButton>
+            </Button>
           )}
-          <ZoruButton
+          <Button
             variant="ghost"
             size="sm"
             onClick={flipOp}
@@ -201,7 +201,7 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
             className="text-[10px] uppercase"
           >
             ⇄
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -269,7 +269,7 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-white p-2">
-      <ZoruSelect
+      <Select
         value={node.field}
         onValueChange={(v) => changeField(v as SegmentField)}
       >
@@ -283,9 +283,9 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
 
-      <ZoruSelect
+      <Select
         value={node.op}
         onValueChange={(v) => changeOp(v as SegmentOperator)}
       >
@@ -299,11 +299,11 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
             </ZoruSelectItem>
           ))}
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
 
       <ValueEditor node={node} onChange={onChange} />
 
-      <ZoruButton
+      <Button
         variant="ghost"
         size="sm"
         onClick={onRemove}
@@ -311,7 +311,7 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
         className="ml-auto"
       >
         <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-      </ZoruButton>
+      </Button>
     </div>
   );
 }
@@ -325,7 +325,7 @@ function ValueEditor({
 }) {
   if (BOOLEAN_FIELDS.has(node.field)) {
     return (
-      <ZoruSelect
+      <Select
         value={node.value === true || node.value === "true" ? "true" : "false"}
         onValueChange={(v) => onChange({ ...node, value: v === "true" })}
       >
@@ -336,13 +336,13 @@ function ValueEditor({
           <ZoruSelectItem value="false">No</ZoruSelectItem>
           <ZoruSelectItem value="true">Yes</ZoruSelectItem>
         </ZoruSelectContent>
-      </ZoruSelect>
+      </Select>
     );
   }
   if (DATE_FIELDS.has(node.field)) {
     const raw = typeof node.value === "string" ? node.value : "";
     return (
-      <ZoruInput
+      <Input
         type="datetime-local"
         value={raw.slice(0, 16)}
         onChange={(e) => onChange({ ...node, value: e.target.value })}
@@ -352,7 +352,7 @@ function ValueEditor({
   }
   if (NUMERIC_FIELDS.has(node.field)) {
     return (
-      <ZoruInput
+      <Input
         type="number"
         value={
           typeof node.value === "number"
@@ -376,7 +376,7 @@ function ValueEditor({
         ? node.value
         : "";
     return (
-      <ZoruInput
+      <Input
         value={raw}
         placeholder="comma, separated, values"
         onChange={(e) => onChange({ ...node, value: e.target.value })}
@@ -385,7 +385,7 @@ function ValueEditor({
     );
   }
   return (
-    <ZoruInput
+    <Input
       value={typeof node.value === "string" ? node.value : ""}
       placeholder={node.field === "e164_prefix" ? "+1" : "value"}
       onChange={(e) => onChange({ ...node, value: e.target.value })}

@@ -91,7 +91,7 @@ export function TemplatesClient() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ZoruPageHeader>
+      <PageHeader>
         <ZoruPageHeading>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-3">
@@ -103,11 +103,11 @@ export function TemplatesClient() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <ZoruButton type="button" onClick={handleCreate} disabled={createPending}>
+          <Button type="button" onClick={handleCreate} disabled={createPending}>
             <Plus /> {createPending ? 'Creating…' : 'New template'}
-          </ZoruButton>
+          </Button>
         </ZoruPageActions>
-      </ZoruPageHeader>
+      </PageHeader>
 
       <SegmentedButton
         value={section}
@@ -132,9 +132,9 @@ export function TemplatesClient() {
             templates={mine}
             onDelete={handleDelete}
             emptyCta={
-              <ZoruButton type="button" onClick={handleCreate} disabled={createPending}>
+              <Button type="button" onClick={handleCreate} disabled={createPending}>
                 <Plus /> New template
-              </ZoruButton>
+              </Button>
             }
           />
         )
@@ -209,7 +209,7 @@ function SectionSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <ZoruSkeleton key={i} className="aspect-[4/3] w-full rounded-md" />
+        <Skeleton key={i} className="aspect-[4/3] w-full rounded-md" />
       ))}
     </div>
   );

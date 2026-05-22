@@ -105,7 +105,7 @@ function KpiCard({
                 active ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : '',
             ].join(' ')}
         >
-            <ZoruStatCard label={label} value={value} icon={icon} period={sublabel} />
+            <StatCard label={label} value={value} icon={icon} period={sublabel} />
         </button>
     );
 }

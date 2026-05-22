@@ -46,7 +46,7 @@ export default function GscPage({ params }: { params: Promise<{ projectId: strin
         }
     };
 
-    if (loading) return <ZoruSkeleton className="h-[400px] w-full" />;
+    if (loading) return <Skeleton className="h-[400px] w-full" />;
 
     if (!integration) {
         return (
@@ -58,10 +58,10 @@ export default function GscPage({ params }: { params: Promise<{ projectId: strin
                 <p className="text-zoru-ink-muted max-w-md text-center mb-6">
                     Import real performance data (clicks, impressions, position) directly from Google.
                 </p>
-                <ZoruButton onClick={handleConnect} disabled={connecting} size="lg">
+                <Button onClick={handleConnect} disabled={connecting} size="lg">
                     {connecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Connect Google Account
-                </ZoruButton>
+                </Button>
             </div>
         );
     }
@@ -84,9 +84,9 @@ export default function GscPage({ params }: { params: Promise<{ projectId: strin
                         Connected to {integration.selectedSite || integration.sites?.[0] || 'Unknown Site'}
                     </p>
                 </div>
-                <ZoruButton variant="outline" onClick={handleConnect}>
+                <Button variant="outline" onClick={handleConnect}>
                     Reconnect
-                </ZoruButton>
+                </Button>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -96,7 +96,7 @@ export default function GscPage({ params }: { params: Promise<{ projectId: strin
                 <MetricCard title="Avg. Position" value={avg(data, 'position').toFixed(1)} />
             </div>
 
-            <ZoruCard>
+            <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Performance (Last 28 Days)</ZoruCardTitle>
                 </ZoruCardHeader>
@@ -125,21 +125,21 @@ export default function GscPage({ params }: { params: Promise<{ projectId: strin
                         </BarChart>
                     </ResponsiveContainer>
                 </ZoruCardContent>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }
 
 function MetricCard({ title, value }: { title: string; value: string | number }) {
     return (
-        <ZoruCard>
+        <Card>
             <ZoruCardHeader className="pb-2">
                 <ZoruCardTitle className="text-sm text-zoru-ink-muted">{title}</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
                 <div className="text-2xl text-zoru-ink">{value}</div>
             </ZoruCardContent>
-        </ZoruCard>
+        </Card>
     );
 }
 

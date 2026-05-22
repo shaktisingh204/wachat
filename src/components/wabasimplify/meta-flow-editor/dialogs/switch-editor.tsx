@@ -40,8 +40,8 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="value">Value expression</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="value">Value expression</Label>
+                <Input
                     id="value"
                     value={component.value || ''}
                     onChange={(e) => updateField('value', e.target.value)}
@@ -57,7 +57,7 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <ZoruLabel>Cases ({caseKeys.length})</ZoruLabel>
+                    <Label>Cases ({caseKeys.length})</Label>
                     <button type="button" onClick={addCase} className="text-[11px] font-medium text-primary hover:underline">
                         + Add case
                     </button>
@@ -68,7 +68,7 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
                     </p>
                 ) : caseKeys.map((k) => (
                     <div key={k} className="flex items-center gap-2">
-                        <ZoruInput
+                        <Input
                             value={k}
                             onChange={(e) => renameCase(k, e.target.value)}
                             className="font-mono text-xs"
@@ -87,14 +87,14 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
                 ))}
             </div>
 
-            <ZoruAlert>
+            <Alert>
                 <GitBranch className="h-4 w-4" />
                 <ZoruAlertTitle>Edit branch children in JSON</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Components inside each case branch are edited in the Raw JSON tab.
                     This panel only configures the switch value and case keys.
                 </ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
         </div>
     );
 }

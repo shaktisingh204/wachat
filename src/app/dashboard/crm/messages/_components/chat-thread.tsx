@@ -197,7 +197,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           </ul>
         ) : null}
 
-        <ZoruTextarea
+        <Textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Write a message…"
@@ -205,7 +205,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           className="rounded-lg border-border bg-card text-[13px]"
         />
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruInput
+          <Input
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
             placeholder="File name (optional)"
@@ -223,7 +223,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             placeholder="https://file-url"
             className="flex-1 min-w-[180px]"
           />
-          <ZoruButton
+          <Button
             type="button"
             variant="pill"
             size="sm"
@@ -231,8 +231,8 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             leading={<Paperclip className="h-3.5 w-3.5" />}
           >
             Attach
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="submit"
             variant="obsidian"
             size="sm"
@@ -246,7 +246,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             }
           >
             Send
-          </ZoruButton>
+          </Button>
         </div>
       </form>
     </ClayCard>

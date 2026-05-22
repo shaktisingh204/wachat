@@ -30,14 +30,14 @@ import {
  *   2. `kind: 'confirm'` — wraps the action in <ConfirmDialog/>. Used
  *      for destructive actions like "Reject", "Withdraw", "Terminate",
  *      "Retire".
- *   3. `kind: 'prompt'` — opens an inline <ZoruDialog/> with one or
+ *   3. `kind: 'prompt'` — opens an inline <Dialog/> with one or
  *      more input fields, then submits to the server action with the
  *      collected values. Used for "Renew" (expiry date), "Extend" (new
  *      end date), "Mark reimbursed" (amount), etc.
  *
  * The component lives next to the HR detail shells but is shape-agnostic
  * — it can be slotted into both `<EntityDetailShell>` and
- * `<RecruitmentDetailShell>` because it just emits `<ZoruButton>`
+ * `<RecruitmentDetailShell>` because it just emits `<Button>`
  * children.
  */
 
@@ -157,7 +157,7 @@ export function HrActionButtons({
         const variant = a.variant ?? 'outline';
         return (
           <React.Fragment key={a.key}>
-            <ZoruButton
+            <Button
               variant={variant === 'destructive' ? 'ghost' : variant}
               size={size}
               type="button"
@@ -182,7 +182,7 @@ export function HrActionButtons({
                 a.icon
               )}
               <span>{a.label}</span>
-            </ZoruButton>
+            </Button>
 
             {a.kind === 'confirm' ? (
               <ConfirmDialog
@@ -284,7 +284,7 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
   };
 
   return (
-    <ZoruDialog
+    <Dialog
       open={open}
       onOpenChange={(next) => (submitting ? null : onOpenChange(next))}
     >
@@ -301,12 +301,12 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
         <div className="flex flex-col gap-3">
           {action.fields.map((f) => (
             <div key={f.name} className="flex flex-col gap-1.5">
-              <ZoruLabel htmlFor={`hr-prompt-${f.name}`}>
+              <Label htmlFor={`hr-prompt-${f.name}`}>
                 {f.label}
                 {f.required ? <span className="ml-0.5 text-zoru-danger-ink">*</span> : null}
-              </ZoruLabel>
+              </Label>
               {f.type === 'textarea' ? (
-                <ZoruTextarea
+                <Textarea
                   id={`hr-prompt-${f.name}`}
                   placeholder={f.placeholder}
                   value={values[f.name] ?? ''}
@@ -317,7 +317,7 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
                   rows={3}
                 />
               ) : (
-                <ZoruInput
+                <Input
                   id={`hr-prompt-${f.name}`}
                   type={f.type ?? 'text'}
                   placeholder={f.placeholder}
@@ -334,15 +334,15 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
         </div>
 
         <ZoruDialogFooter>
-          <ZoruButton
+          <Button
             type="button"
             variant="secondary"
             onClick={() => onOpenChange(false)}
             disabled={submitting}
           >
             Cancel
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             type="button"
             onClick={handleSubmit}
             disabled={submitting || !requiredOk}
@@ -356,10 +356,10 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
             ) : (
               action.submitLabel ?? 'Submit'
             )}
-          </ZoruButton>
+          </Button>
         </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }
 

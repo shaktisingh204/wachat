@@ -243,15 +243,15 @@ export default function StorageIntegrationPage() {
           title="Driver & credentials"
           description="Pick a storage driver and provide the credentials it needs."
           actions={
-            <ZoruBadge variant="secondary">
+            <Badge variant="secondary">
               Active: {DRIVER_LABELS[driver]}
-            </ZoruBadge>
+            </Badge>
           }
         >
           {!doc && !docId ? (
             <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ) : null}
 
@@ -260,11 +260,11 @@ export default function StorageIntegrationPage() {
             <input type="hidden" name="storage_driver" value={driver} />
 
             <div>
-              <ZoruLabel htmlFor="storage_driver_select">
+              <Label htmlFor="storage_driver_select">
                 Storage driver
-              </ZoruLabel>
+              </Label>
               <div className="mt-1.5">
-                <ZoruSelect
+                <Select
                   value={driver}
                   onValueChange={(val) => setDriver(val as WsStorageDriver)}
                 >
@@ -280,16 +280,16 @@ export default function StorageIntegrationPage() {
                       ),
                     )}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
 
             {driver === 's3' ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <ZoruLabel htmlFor="aws_access_key">Access key</ZoruLabel>
+                  <Label htmlFor="aws_access_key">Access key</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="aws_access_key"
                       name="aws_access_key"
                       defaultValue={v('aws_access_key')}
@@ -297,9 +297,9 @@ export default function StorageIntegrationPage() {
                   </div>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="aws_secret">Secret key</ZoruLabel>
+                  <Label htmlFor="aws_secret">Secret key</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="aws_secret"
                       name="aws_secret"
                       type="password"
@@ -308,9 +308,9 @@ export default function StorageIntegrationPage() {
                   </div>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="aws_region">Region</ZoruLabel>
+                  <Label htmlFor="aws_region">Region</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="aws_region"
                       name="aws_region"
                       defaultValue={v('aws_region')}
@@ -319,9 +319,9 @@ export default function StorageIntegrationPage() {
                   </div>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="aws_bucket">Bucket</ZoruLabel>
+                  <Label htmlFor="aws_bucket">Bucket</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="aws_bucket"
                       name="aws_bucket"
                       defaultValue={v('aws_bucket')}
@@ -335,9 +335,9 @@ export default function StorageIntegrationPage() {
             {driver === 'google-drive' ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <ZoruLabel htmlFor="gd_client_id">Client ID</ZoruLabel>
+                  <Label htmlFor="gd_client_id">Client ID</Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="gd_client_id"
                       name="gd_client_id"
                       defaultValue={v('gd_client_id')}
@@ -345,11 +345,11 @@ export default function StorageIntegrationPage() {
                   </div>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="gd_client_secret">
+                  <Label htmlFor="gd_client_secret">
                     Client secret
-                  </ZoruLabel>
+                  </Label>
                   <div className="mt-1.5">
-                    <ZoruInput
+                    <Input
                       id="gd_client_secret"
                       name="gd_client_secret"
                       type="password"
@@ -362,9 +362,9 @@ export default function StorageIntegrationPage() {
 
             {driver === 'azure' ? (
               <div>
-                <ZoruLabel htmlFor="azure_account">Account / container</ZoruLabel>
+                <Label htmlFor="azure_account">Account / container</Label>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <Input
                     id="azure_account"
                     name="azure_account"
                     defaultValue={v('azure_account')}
@@ -381,18 +381,18 @@ export default function StorageIntegrationPage() {
             ) : null}
 
             <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
                 Save changes
-              </ZoruButton>
+              </Button>
             </div>
           </form>
         </IntegrationSection>
 
         {stats?.lastErrorMessage ? (
-          <ZoruCard>
+          <Card>
             <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
               <div>
@@ -404,7 +404,7 @@ export default function StorageIntegrationPage() {
                 </p>
               </div>
             </ZoruCardContent>
-          </ZoruCard>
+          </Card>
         ) : null}
 
         <IntegrationActivityFeed

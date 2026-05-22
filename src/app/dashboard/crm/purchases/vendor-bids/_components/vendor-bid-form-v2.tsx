@@ -69,14 +69,14 @@ function toDateInput(value: unknown): string {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <Save className="mr-2 h-4 w-4" />
             )}
             {isEditing ? 'Save changes' : 'Create vendor bid'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -163,7 +163,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
     const bidNumber = (initialData as unknown as { bidNumber?: string })?.bidNumber ?? '';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 {isEditing ? (
                     <input type="hidden" name="bidId" value={initialData!._id} />
@@ -174,8 +174,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="bidNumber">Bid number</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="bidNumber">Bid number</Label>
+                        <Input
                             id="bidNumber"
                             name="bidNumber"
                             placeholder="Auto-generated"
@@ -184,7 +184,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <Label htmlFor="status-trigger">Status</Label>
                         <EnumFormField
                             enumName="vendorBidStatus"
                             name="__status_picker"
@@ -197,11 +197,11 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel>RFQ *</ZoruLabel>
+                        <Label>RFQ *</Label>
                         {isEditing ? (
                             <>
                                 <input type="hidden" name="rfqId" value={initialData?.rfqId ?? ''} />
-                                <ZoruInput
+                                <Input
                                     value={initialData?.rfqId ?? ''}
                                     readOnly
                                     className="font-mono text-[12.5px]"
@@ -218,8 +218,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                         )}
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="vendorId">Vendor id *</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="vendorId">Vendor id *</Label>
+                        <Input
                             id="vendorId"
                             name="vendorId"
                             required={!isEditing}
@@ -232,8 +232,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="vendorName">Vendor name</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="vendorName">Vendor name</Label>
+                        <Input
                             id="vendorName"
                             name="vendorName"
                             placeholder="Cached display name"
@@ -241,8 +241,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
                             id="currency"
                             name="currency"
                             placeholder="INR"
@@ -250,8 +250,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="validUntil">Valid until</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="validUntil">Valid until</Label>
+                        <Input
                             id="validUntil"
                             name="validUntil"
                             type="date"
@@ -261,8 +261,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="bidAmount">Bid amount (override)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="bidAmount">Bid amount (override)</Label>
+                    <Input
                         id="bidAmount"
                         name="bidAmount"
                         type="number"
@@ -276,15 +276,15 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                 {/* Line items */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <ZoruLabel>Line items *</ZoruLabel>
-                        <ZoruButton
+                        <Label>Line items *</Label>
+                        <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={addRow}
                         >
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add row
-                        </ZoruButton>
+                        </Button>
                     </div>
                     <div className="rounded-lg border border-zoru-line">
                         <div className="grid grid-cols-12 gap-2 border-b border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] font-medium text-zoru-ink-muted">
@@ -300,7 +300,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                 key={i}
                                 className="grid grid-cols-12 gap-2 border-b border-zoru-line px-3 py-2 last:border-b-0"
                             >
-                                <ZoruInput
+                                <Input
                                     className="col-span-3"
                                     placeholder="catalogue id"
                                     value={row.itemId}
@@ -308,7 +308,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                         updateRow(i, { itemId: e.target.value })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     type="number"
                                     min={0}
@@ -317,7 +317,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                         updateRow(i, { qty: Number(e.target.value) || 0 })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     type="number"
                                     min={0}
@@ -327,7 +327,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                         updateRow(i, { rate: Number(e.target.value) || 0 })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     type="number"
                                     min={0}
@@ -338,7 +338,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                         })
                                     }
                                 />
-                                <ZoruInput
+                                <Input
                                     className="col-span-2"
                                     placeholder="Optional"
                                     value={row.notes}
@@ -347,7 +347,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                     }
                                 />
                                 <div className="col-span-1 flex items-center justify-end">
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
@@ -355,7 +355,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                         disabled={items.length === 1}
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </ZoruButton>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -366,8 +366,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="terms">Terms</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="terms">Terms</Label>
+                    <Textarea
                         id="terms"
                         name="terms"
                         rows={3}
@@ -377,8 +377,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -388,7 +388,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
 
                 {/* Attachments */}
                 <div className="space-y-1.5">
-                    <ZoruLabel>Attachments</ZoruLabel>
+                    <Label>Attachments</Label>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton onPick={onAttach}>
                             <FileUp className="mr-1.5 h-4 w-4" />
@@ -415,14 +415,14 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                     >
                                         {a.name ?? a.fileId ?? a.url}
                                     </a>
-                                    <ZoruButton
+                                    <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => removeAttachment(i)}
                                     >
                                         Remove
-                                    </ZoruButton>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
@@ -430,15 +430,15 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <ZoruButton variant="ghost" asChild>
+                    <Button variant="ghost" asChild>
                         <Link href={BASE}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to vendor bids
                         </Link>
-                    </ZoruButton>
+                    </Button>
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

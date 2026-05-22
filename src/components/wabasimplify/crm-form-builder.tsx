@@ -62,9 +62,9 @@ const defaultFields: FormField[] = [
 
 function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     return (
-        <ZoruDialog>
+        <Dialog>
             <ZoruDialogTrigger asChild>
-                <ZoruButton variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</ZoruButton>
+                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</Button>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-2xl overflow-hidden">
                  <ZoruDialogHeader>
@@ -77,7 +77,7 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
                     <CodeBlock code={embedScript} language="html" />
                 </div>
             </ZoruDialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }
 
@@ -168,35 +168,35 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
         <div className="h-full flex flex-col">
             <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-border bg-card">
                 <div className="flex items-center gap-2">
-                    <ZoruButton variant="ghost" size="icon" onClick={() => router.back()}>
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-4 w-4" />
-                    </ZoruButton>
-                    <ZoruInput value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-foreground border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                    </Button>
+                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-foreground border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
                     {initialForm?._id && (
                         <>
-                            <ZoruButton variant="outline" asChild>
+                            <Button variant="outline" asChild>
                                 <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
-                            </ZoruButton>
+                            </Button>
                             <CodeEmbedDialog embedScript={embedScript} />
                         </>
                     )}
-                    <ZoruButton
+                    <Button
                         variant="obsidian"
                         onClick={handleSave}
                         disabled={isSaving}
                         leading={isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     >
                         Save Form
-                    </ZoruButton>
+                    </Button>
                 </div>
             </header>
             <div className="flex-1 grid grid-cols-12 min-h-0">
                  <div className="col-span-3 border-r border-border p-4 overflow-y-auto">
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold text-foreground">Form Fields</h2>
-                        <ZoruButton variant="outline" size="sm" onClick={() => addField('text')} leading={<Plus className="h-4 w-4"/>}>Add Field</ZoruButton>
+                        <Button variant="outline" size="sm" onClick={() => addField('text')} leading={<Plus className="h-4 w-4"/>}>Add Field</Button>
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                             <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
                                 <div className="space-y-2">
@@ -220,10 +220,10 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-foreground">Properties</h2>
                          {selectedFieldId && (
-                            <ZoruButton variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Form Settings
-                            </ZoruButton>
+                            </Button>
                         )}
                     </div>
                     {selectedField ? (
@@ -239,19 +239,19 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                 <TabsTrigger value="style">Style</TabsTrigger>
                             </TabsList>
                             <TabsContent value="general" className="mt-4">
-                                <ZoruAccordion type="multiple" className="w-full" defaultValue={['general_settings']}>
+                                <Accordion type="multiple" className="w-full" defaultValue={['general_settings']}>
                                     <ZoruAccordionItem value="general_settings">
                                         <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
                                         <ZoruAccordionContent className="space-y-4 pt-2">
-                                            <div className="space-y-2"><ZoruLabel>Form Title</ZoruLabel><ZoruInput value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
-                                            <div className="space-y-2"><ZoruLabel>Form Description</ZoruLabel><ZoruTextarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
-                                            <div className="space-y-2"><ZoruLabel>Submit Button Text</ZoruLabel><ZoruInput value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
-                                            <div className="space-y-2"><ZoruLabel>Success Message</ZoruLabel><ZoruTextarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
-                                            <div className="space-y-2"><ZoruLabel>Logo URL</ZoruLabel><ZoruInput value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
-                                            <div className="space-y-2"><ZoruLabel>Footer Text (HTML allowed)</ZoruLabel><ZoruTextarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Form Title</Label><Input value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Form Description</Label><Textarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Submit Button Text</Label><Input value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Success Message</Label><Textarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Logo URL</Label><Input value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Footer Text (HTML allowed)</Label><Textarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
                                         </ZoruAccordionContent>
                                     </ZoruAccordionItem>
-                                </ZoruAccordion>
+                                </Accordion>
                             </TabsContent>
                             <TabsContent value="style" className="mt-4">
                                  <StyleSettingsPanel settings={settings} onUpdate={setSettings} />

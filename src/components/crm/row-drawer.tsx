@@ -46,7 +46,7 @@ export function RowDrawer({
     const [open, setOpen] = React.useState(false);
 
     return (
-        <ZoruSheet open={open} onOpenChange={setOpen}>
+        <Sheet open={open} onOpenChange={setOpen}>
             <button
                 type="button"
                 onClick={() => setOpen(true)}
@@ -73,6 +73,6 @@ export function RowDrawer({
                 </ZoruSheetHeader>
                 <div className="mt-4">{children}</div>
             </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
     );
 }

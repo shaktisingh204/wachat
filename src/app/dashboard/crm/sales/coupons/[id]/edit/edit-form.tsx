@@ -41,14 +41,14 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" size="sm" disabled={pending}>
+        <Button type="submit" size="sm" disabled={pending}>
             {pending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : (
                 <Save className="h-4 w-4" />
             )}
             {pending ? 'Saving…' : 'Save changes'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -88,16 +88,16 @@ export function EditCouponForm({
     const valueLabel = couponType === 'percent' ? 'Discount %' : 'Flat Amount (₹)';
 
     return (
-        <ZoruCard className="p-6">
+        <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
                 <input type="hidden" name="couponId" value={couponId} />
                 <input type="hidden" name="type" value={couponType} />
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="code">
+                    <Label htmlFor="code">
                         Coupon Code <span className="text-red-500">*</span>
-                    </ZoruLabel>
-                    <ZoruInput
+                    </Label>
+                    <Input
                         id="code"
                         name="code"
                         type="text"
@@ -110,7 +110,7 @@ export function EditCouponForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel>Type</ZoruLabel>
+                    <Label>Type</Label>
                     <div className="w-full max-w-xs">
                         <EnumFormField
                             enumName="couponType"
@@ -124,8 +124,8 @@ export function EditCouponForm({
 
                 {showValueField ? (
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="value">{valueLabel}</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="value">{valueLabel}</Label>
+                        <Input
                             id="value"
                             name="value"
                             type="number"
@@ -138,8 +138,8 @@ export function EditCouponForm({
                 ) : null}
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="minCart">Min Cart Value (₹)</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="minCart">Min Cart Value (₹)</Label>
+                    <Input
                         id="minCart"
                         name="minCart"
                         type="number"
@@ -151,8 +151,8 @@ export function EditCouponForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="maxUses">Max Total Uses</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="maxUses">Max Total Uses</Label>
+                    <Input
                         id="maxUses"
                         name="maxUses"
                         type="number"
@@ -164,8 +164,8 @@ export function EditCouponForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="perCustomerLimit">Per Customer Limit</ZoruLabel>
-                    <ZoruInput
+                    <Label htmlFor="perCustomerLimit">Per Customer Limit</Label>
+                    <Input
                         id="perCustomerLimit"
                         name="perCustomerLimit"
                         type="number"
@@ -178,8 +178,8 @@ export function EditCouponForm({
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="validFrom">Valid From</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="validFrom">Valid From</Label>
+                        <Input
                             id="validFrom"
                             name="validFrom"
                             type="date"
@@ -188,8 +188,8 @@ export function EditCouponForm({
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <ZoruLabel htmlFor="validTo">Valid To</ZoruLabel>
-                        <ZoruInput
+                        <Label htmlFor="validTo">Valid To</Label>
+                        <Input
                             id="validTo"
                             name="validTo"
                             type="date"
@@ -200,8 +200,8 @@ export function EditCouponForm({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
                         id="notes"
                         name="notes"
                         rows={3}
@@ -216,14 +216,14 @@ export function EditCouponForm({
 
                 <div className="flex items-center gap-3">
                     <SubmitButton />
-                    <ZoruButton variant="ghost" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild>
                         <Link href={`/dashboard/crm/sales/coupons/${couponId}`}>
                             <ArrowLeft className="h-4 w-4" />
                             Cancel
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             </form>
-        </ZoruCard>
+        </Card>
     );
 }

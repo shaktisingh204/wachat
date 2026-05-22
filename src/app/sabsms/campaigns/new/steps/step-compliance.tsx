@@ -104,7 +104,7 @@ export function StepCompliance({
 
   return (
     <div className="space-y-5">
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Variable preview</ZoruCardTitle>
           <ZoruCardDescription>
@@ -121,8 +121,8 @@ export function StepCompliance({
             <div className="grid gap-2 md:grid-cols-2">
               {templateVariables.map((v) => (
                 <div key={v} className="space-y-1">
-                  <ZoruLabel className="text-xs">{`{{${v}}}`}</ZoruLabel>
-                  <ZoruInput
+                  <Label className="text-xs">{`{{${v}}}`}</Label>
+                  <Input
                     value={sampleVars[v] ?? ""}
                     onChange={(e) =>
                       setSampleVars({ ...sampleVars, [v]: e.target.value })
@@ -136,9 +136,9 @@ export function StepCompliance({
             {previewed || "Pick a template back in Step 1 to preview here."}
           </pre>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">A/B split</ZoruCardTitle>
           <ZoruCardDescription>
@@ -149,7 +149,7 @@ export function StepCompliance({
         <ZoruCardContent className="space-y-3">
           <label className="flex items-center justify-between">
             <span className="text-sm text-slate-700">Enable A/B split</span>
-            <ZoruSwitch
+            <Switch
               checked={draft.abSplit.enabled}
               onCheckedChange={(v) => setAb({ enabled: Boolean(v) })}
             />
@@ -159,8 +159,8 @@ export function StepCompliance({
             <>
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                  <ZoruLabel>Winner metric</ZoruLabel>
-                  <ZoruSelect
+                  <Label>Winner metric</Label>
+                  <Select
                     value={draft.abSplit.winnerMetric}
                     onValueChange={(v) =>
                       setAb({ winnerMetric: v as ABWinnerMetric })
@@ -176,11 +176,11 @@ export function StepCompliance({
                         Conversion
                       </ZoruSelectItem>
                     </ZoruSelectContent>
-                  </ZoruSelect>
+                  </Select>
                 </div>
                 <div className="space-y-1">
-                  <ZoruLabel>Sample window (hours)</ZoruLabel>
-                  <ZoruInput
+                  <Label>Sample window (hours)</Label>
+                  <Input
                     type="number"
                     min={1}
                     max={168}
@@ -201,7 +201,7 @@ export function StepCompliance({
                     className="space-y-2 rounded border border-slate-200 p-3"
                   >
                     <div className="flex items-center justify-between">
-                      <ZoruInput
+                      <Input
                         className="max-w-[200px]"
                         value={v.label}
                         onChange={(e) => {
@@ -210,7 +210,7 @@ export function StepCompliance({
                           setVariants(next);
                         }}
                       />
-                      <ZoruButton
+                      <Button
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -221,9 +221,9 @@ export function StepCompliance({
                         }
                       >
                         Remove
-                      </ZoruButton>
+                      </Button>
                     </div>
-                    <ZoruTextarea
+                    <Textarea
                       rows={2}
                       value={v.body}
                       placeholder="Variant body…"
@@ -236,7 +236,7 @@ export function StepCompliance({
                   </div>
                 ))}
                 {draft.abSplit.variants.length < 5 && (
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -248,15 +248,15 @@ export function StepCompliance({
                     }
                   >
                     Add variant
-                  </ZoruButton>
+                  </Button>
                 )}
               </div>
             </>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Frequency cap</ZoruCardTitle>
           <ZoruCardDescription>
@@ -266,7 +266,7 @@ export function StepCompliance({
         <ZoruCardContent className="space-y-3">
           <label className="flex items-center justify-between">
             <span className="text-sm text-slate-700">Enable frequency cap</span>
-            <ZoruSwitch
+            <Switch
               checked={draft.frequencyCap.enabled}
               onCheckedChange={(v) => setFc({ enabled: Boolean(v) })}
             />
@@ -274,8 +274,8 @@ export function StepCompliance({
           {draft.frequencyCap.enabled && (
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1">
-                <ZoruLabel>Max messages</ZoruLabel>
-                <ZoruInput
+                <Label>Max messages</Label>
+                <Input
                   type="number"
                   min={1}
                   value={draft.frequencyCap.maxPerPeriod}
@@ -287,8 +287,8 @@ export function StepCompliance({
                 />
               </div>
               <div className="space-y-1">
-                <ZoruLabel>Per</ZoruLabel>
-                <ZoruSelect
+                <Label>Per</Label>
+                <Select
                   value={draft.frequencyCap.period}
                   onValueChange={(v) =>
                     setFc({ period: v as FrequencyCapPeriod })
@@ -302,14 +302,14 @@ export function StepCompliance({
                     <ZoruSelectItem value="week">Week</ZoruSelectItem>
                     <ZoruSelectItem value="month">Month</ZoruSelectItem>
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
           )}
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Smart toggles</ZoruCardTitle>
         </ZoruCardHeader>
@@ -321,7 +321,7 @@ export function StepCompliance({
                 Filter out contacts that haven&apos;t engaged in 90 days.
               </span>
             </span>
-            <ZoruSwitch
+            <Switch
               checked={draft.smartSuppression}
               onCheckedChange={(v) =>
                 onChange({ smartSuppression: Boolean(v) })
@@ -335,7 +335,7 @@ export function StepCompliance({
                 Pick the best send hour per recipient based on history.
               </span>
             </span>
-            <ZoruSwitch
+            <Switch
               checked={draft.sendTimeOptimization}
               onCheckedChange={(v) =>
                 onChange({ sendTimeOptimization: Boolean(v) })
@@ -343,9 +343,9 @@ export function StepCompliance({
             />
           </label>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Cost estimate</ZoruCardTitle>
           <ZoruCardDescription>
@@ -355,8 +355,8 @@ export function StepCompliance({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           <div className="space-y-1">
-            <ZoruLabel>Currency</ZoruLabel>
-            <ZoruSelect
+            <Label>Currency</Label>
+            <Select
               value={draft.costCurrency}
               onValueChange={(v) => onChange({ costCurrency: v })}
             >
@@ -370,7 +370,7 @@ export function StepCompliance({
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
-            </ZoruSelect>
+            </Select>
           </div>
           <div className="grid grid-cols-3 gap-2 text-sm">
             <div className="rounded border border-slate-200 p-3">
@@ -393,9 +393,9 @@ export function StepCompliance({
             </div>
           </div>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
 
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="text-base">Compliance</ZoruCardTitle>
           <ZoruCardDescription>
@@ -404,7 +404,7 @@ export function StepCompliance({
         </ZoruCardHeader>
         <ZoruCardContent>
           <label className="flex items-start gap-3">
-            <ZoruCheckbox
+            <Checkbox
               checked={draft.complianceAttested}
               onCheckedChange={(v) =>
                 onChange({ complianceAttested: Boolean(v) })
@@ -415,19 +415,19 @@ export function StepCompliance({
               category, and the message includes valid sender ID + opt-out
               instructions where required.
               {draft.category === "marketing" && (
-                <ZoruBadge variant="destructive" className="ml-2">
+                <Badge variant="destructive" className="ml-2">
                   Required
-                </ZoruBadge>
+                </Badge>
               )}
             </span>
           </label>
-          <ZoruSeparator className="my-3" />
+          <Separator className="my-3" />
           <p className="text-xs text-slate-500">
             Your attestation, along with workspace + user + timestamp, is
             written to the audit log when you launch.
           </p>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

@@ -194,14 +194,14 @@ export function PosTerminalManagerClient({ terminals }: Props) {
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-sm flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                    <ZoruInput
+                    <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search terminal or cashier…"
                         className="h-9 pl-9 text-[13px]"
                     />
                 </div>
-                <ZoruSelect
+                <Select
                     value={statusFilter}
                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                 >
@@ -213,26 +213,26 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                         <ZoruSelectItem value="online">Online</ZoruSelectItem>
                         <ZoruSelectItem value="offline">Offline</ZoruSelectItem>
                     </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
                 {hasFilters ? (
-                    <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                    <Button variant="ghost" size="sm" onClick={clearFilters}>
                         <X className="h-3.5 w-3.5" /> Clear
-                    </ZoruButton>
+                    </Button>
                 ) : null}
                 <div className="ml-auto flex items-center gap-1">
-                    <ZoruButton
+                    <Button
                         size="sm"
                         variant="outline"
                         onClick={() => router.refresh()}
                     >
                         <RefreshCw className="h-3.5 w-3.5" /> Refresh
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={exportCsv}>
                         <Download className="h-3.5 w-3.5" /> CSV
-                    </ZoruButton>
-                    <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={exportXlsx}>
                         <Download className="h-3.5 w-3.5" /> XLSX
-                    </ZoruButton>
+                    </Button>
                 </div>
             </div>
 
@@ -244,32 +244,32 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
-                        <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+                        <Button size="sm" variant="outline" onClick={exportCsv}>
                             Export CSV
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={exportXlsx}>
                             Export XLSX
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setSelected(new Set())}
                             aria-label="Clear selection"
                         >
                             <X className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                     </div>
                 </div>
             ) : null}
 
             {/* Table */}
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 <div className="overflow-x-auto">
-                    <ZoruTable>
+                    <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-8">
-                                    <ZoruCheckbox
+                                    <Checkbox
                                         checked={headChecked}
                                         onCheckedChange={(c) =>
                                             toggleAll(Boolean(c))
@@ -308,7 +308,7 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                 filtered.map((t) => (
                                     <ZoruTableRow key={t.terminalId}>
                                         <ZoruTableCell>
-                                            <ZoruCheckbox
+                                            <Checkbox
                                                 checked={selected.has(
                                                     t.terminalId,
                                                 )}
@@ -374,7 +374,7 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                             <div className="flex justify-end gap-1">
                                                 {t.status === 'online' ? (
                                                     <>
-                                                        <ZoruButton
+                                                        <Button
                                                             size="sm"
                                                             variant="outline"
                                                             asChild
@@ -385,8 +385,8 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                                 <ShoppingCart className="h-3.5 w-3.5" />
                                                                 Open
                                                             </Link>
-                                                        </ZoruButton>
-                                                        <ZoruButton
+                                                        </Button>
+                                                        <Button
                                                             size="sm"
                                                             variant="outline"
                                                             disabled={
@@ -398,10 +398,10 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                             }
                                                         >
                                                             Close
-                                                        </ZoruButton>
+                                                        </Button>
                                                     </>
                                                 ) : (
-                                                    <ZoruButton
+                                                    <Button
                                                         size="sm"
                                                         variant="outline"
                                                         asChild
@@ -411,7 +411,7 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                         >
                                                             Reset · Open
                                                         </Link>
-                                                    </ZoruButton>
+                                                    </Button>
                                                 )}
                                             </div>
                                         </ZoruTableCell>
@@ -419,9 +419,9 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                 ))
                             )}
                         </ZoruTableBody>
-                    </ZoruTable>
+                    </Table>
                 </div>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

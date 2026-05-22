@@ -401,7 +401,7 @@ export function ItemsListClient({
         </div>
       ) : null}
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <ItemsToolbar
           query={query}
           onQueryChange={setQuery}
@@ -469,7 +469,7 @@ export function ItemsListClient({
         <div className="border-t border-zoru-line p-3">
           <PaginationBar page={page} limit={limit} hasMore={hasMore} />
         </div>
-      </ZoruCard>
+      </Card>
 
       <ConfirmDialog
         open={archivePending}

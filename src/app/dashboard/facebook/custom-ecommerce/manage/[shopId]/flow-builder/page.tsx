@@ -306,7 +306,7 @@ function NodeComponent({
         onSelectNode(node.id);
       }}
     >
-      <ZoruCard
+      <Card
         className={cn(
           "w-64 hover:-translate-y-0.5 hover:shadow-[var(--zoru-shadow-md)]",
           isSelected && "ring-2 ring-zoru-ink",
@@ -324,13 +324,13 @@ function NodeComponent({
             <div className="flex items-center justify-between">
               <span>Yes</span>
             </div>
-            <ZoruSeparator className="my-1" />
+            <Separator className="my-1" />
             <div className="flex items-center justify-between">
               <span>No</span>
             </div>
           </ZoruCardContent>
         ) : null}
-      </ZoruCard>
+      </Card>
 
       {node.type !== "start" ? (
         <Handle
@@ -595,10 +595,10 @@ function PropertiesPanel({
         return (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="triggerKeywords">
+              <Label htmlFor="triggerKeywords">
                 Trigger keywords
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="triggerKeywords"
                 placeholder="e.g., help, menu"
                 value={selectedNode.data.triggerKeywords || ""}
@@ -612,14 +612,14 @@ function PropertiesPanel({
             </div>
             <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4">
               <div>
-                <ZoruLabel htmlFor="isWelcomeFlow">
+                <Label htmlFor="isWelcomeFlow">
                   Set as welcome flow
-                </ZoruLabel>
+                </Label>
                 <p className="text-xs text-zoru-ink-muted">
                   Automatically triggers for new users.
                 </p>
               </div>
-              <ZoruSwitch
+              <Switch
                 id="isWelcomeFlow"
                 checked={selectedNode.data.isWelcomeFlow}
                 onCheckedChange={(checked: boolean) =>
@@ -631,7 +631,7 @@ function PropertiesPanel({
         );
       case "text":
         return (
-          <ZoruTextarea
+          <Textarea
             id="text-content"
             placeholder="Enter your message here…"
             value={selectedNode.data.text || ""}
@@ -642,10 +642,10 @@ function PropertiesPanel({
       case "orderConfirmation":
         return (
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="confirmation-text">
+            <Label htmlFor="confirmation-text">
               Confirmation message
-            </ZoruLabel>
-            <ZoruTextarea
+            </Label>
+            <Textarea
               id="confirmation-text"
               placeholder="Thank you for your order, {{name}}!"
               defaultValue={
@@ -665,7 +665,7 @@ function PropertiesPanel({
         return (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="image-url">Image URL</ZoruLabel>
+              <Label htmlFor="image-url">Image URL</Label>
               <SabFileUrlInput
                 id="image-url"
                 accept="image"
@@ -675,8 +675,8 @@ function PropertiesPanel({
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="image-caption">Caption (optional)</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="image-caption">Caption (optional)</Label>
+              <Textarea
                 id="image-caption"
                 placeholder="A caption for your image…"
                 value={selectedNode.data.caption || ""}
@@ -689,8 +689,8 @@ function PropertiesPanel({
         return (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="buttons-text">Message text</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="buttons-text">Message text</Label>
+              <Textarea
                 id="buttons-text"
                 placeholder="Choose an option:"
                 value={selectedNode.data.text || ""}
@@ -698,7 +698,7 @@ function PropertiesPanel({
               />
             </div>
             <div className="space-y-2">
-              <ZoruLabel>Quick replies</ZoruLabel>
+              <Label>Quick replies</Label>
               <div className="space-y-3">
                 {(selectedNode.data.buttons || []).map(
                   (btn: ButtonConfig, index: number) => (
@@ -706,7 +706,7 @@ function PropertiesPanel({
                       key={btn.id || index}
                       className="flex items-center gap-2"
                     >
-                      <ZoruInput
+                      <Input
                         placeholder="Button text"
                         value={btn.text}
                         onChange={(e) =>
@@ -714,7 +714,7 @@ function PropertiesPanel({
                         }
                         maxLength={20}
                       />
-                      <ZoruButton
+                      <Button
                         type="button"
                         variant="ghost"
                         size="icon-sm"
@@ -722,12 +722,12 @@ function PropertiesPanel({
                         aria-label="Remove button"
                       >
                         <Trash2 />
-                      </ZoruButton>
+                      </Button>
                     </div>
                   ),
                 )}
               </div>
-              <ZoruButton
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -737,7 +737,7 @@ function PropertiesPanel({
               >
                 <Plus />
                 Add quick reply
-              </ZoruButton>
+              </Button>
             </div>
           </div>
         );
@@ -745,8 +745,8 @@ function PropertiesPanel({
         return (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="input-text">Question to ask</ZoruLabel>
-              <ZoruTextarea
+              <Label htmlFor="input-text">Question to ask</Label>
+              <Textarea
                 id="input-text"
                 placeholder="e.g., What is your name?"
                 value={selectedNode.data.text || ""}
@@ -754,10 +754,10 @@ function PropertiesPanel({
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="input-variable">
+              <Label htmlFor="input-variable">
                 Save answer to variable
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="input-variable"
                 placeholder="e.g., user_name"
                 value={selectedNode.data.variableToSave || ""}
@@ -775,8 +775,8 @@ function PropertiesPanel({
         return (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="delay-seconds">Delay (seconds)</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="delay-seconds">Delay (seconds)</Label>
+              <Input
                 id="delay-seconds"
                 type="number"
                 min="1"
@@ -790,10 +790,10 @@ function PropertiesPanel({
               />
             </div>
             <div className="flex items-center justify-between rounded-[var(--zoru-radius-lg)] border border-zoru-line p-3">
-              <ZoruLabel htmlFor="typing-indicator" className="font-normal">
+              <Label htmlFor="typing-indicator" className="font-normal">
                 Show typing indicator
-              </ZoruLabel>
-              <ZoruSwitch
+              </Label>
+              <Switch
                 id="typing-indicator"
                 checked={selectedNode.data.showTyping}
                 onCheckedChange={(checked: boolean) =>
@@ -807,8 +807,8 @@ function PropertiesPanel({
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <ZoruLabel>Condition type</ZoruLabel>
-              <ZoruRadioGroup
+              <Label>Condition type</Label>
+              <RadioGroup
                 value={selectedNode.data.conditionType || "variable"}
                 onValueChange={(val: string) =>
                   handleDataChange("conditionType", val)
@@ -817,26 +817,26 @@ function PropertiesPanel({
               >
                 <div className="flex items-center gap-2">
                   <ZoruRadioGroupItem value="variable" id="type-variable" />
-                  <ZoruLabel
+                  <Label
                     htmlFor="type-variable"
                     className="font-normal"
                   >
                     Variable
-                  </ZoruLabel>
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <ZoruRadioGroupItem
                     value="user_response"
                     id="type-user-response"
                   />
-                  <ZoruLabel
+                  <Label
                     htmlFor="type-user-response"
                     className="font-normal"
                   >
                     User response
-                  </ZoruLabel>
+                  </Label>
                 </div>
-              </ZoruRadioGroup>
+              </RadioGroup>
               <p className="text-xs text-zoru-ink-muted">
                 &ldquo;User response&rdquo; will pause the flow and wait for
                 the user&rsquo;s next message.
@@ -846,10 +846,10 @@ function PropertiesPanel({
             {(selectedNode.data.conditionType === "variable" ||
               !selectedNode.data.conditionType) && (
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="condition-variable">
+                <Label htmlFor="condition-variable">
                   Variable to check
-                </ZoruLabel>
-                <ZoruInput
+                </Label>
+                <Input
                   id="condition-variable"
                   placeholder="e.g., {{user_name}}"
                   value={selectedNode.data.variable || ""}
@@ -861,8 +861,8 @@ function PropertiesPanel({
             )}
 
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="condition-operator">Operator</ZoruLabel>
-              <ZoruSelect
+              <Label htmlFor="condition-operator">Operator</Label>
+              <Select
                 value={selectedNode.data.operator || "equals"}
                 onValueChange={(val: string) =>
                   handleDataChange("operator", val)
@@ -884,14 +884,14 @@ function PropertiesPanel({
                     Is not one of (comma-sep)
                   </ZoruSelectItem>
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="condition-value">
+              <Label htmlFor="condition-value">
                 Value to compare against
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 id="condition-value"
                 placeholder="e.g., confirmed"
                 value={selectedNode.data.value || ""}
@@ -903,7 +903,7 @@ function PropertiesPanel({
       case "api":
         return (
           <div className="space-y-4">
-            <ZoruSelect
+            <Select
               value={selectedNode.data.apiRequest?.method || "GET"}
               onValueChange={(val: string) => handleApiChange("method", val)}
             >
@@ -915,26 +915,26 @@ function PropertiesPanel({
                 <ZoruSelectItem value="POST">POST</ZoruSelectItem>
                 <ZoruSelectItem value="PUT">PUT</ZoruSelectItem>
               </ZoruSelectContent>
-            </ZoruSelect>
-            <ZoruInput
+            </Select>
+            <Input
               placeholder="https://api.example.com"
               value={selectedNode.data.apiRequest?.url || ""}
               onChange={(e) => handleApiChange("url", e.target.value)}
             />
-            <ZoruTextarea
+            <Textarea
               placeholder='Headers (JSON)\n{ "Authorization": "Bearer …" }'
               className="h-24 font-mono text-xs"
               value={selectedNode.data.apiRequest?.headers || ""}
               onChange={(e) => handleApiChange("headers", e.target.value)}
             />
-            <ZoruTextarea
+            <Textarea
               placeholder="Request body (JSON)"
               className="h-32 font-mono text-xs"
               value={selectedNode.data.apiRequest?.body || ""}
               onChange={(e) => handleApiChange("body", e.target.value)}
             />
-            <ZoruSeparator />
-            <ZoruLabel>Save response to variables</ZoruLabel>
+            <Separator />
+            <Label>Save response to variables</Label>
             <div className="space-y-3">
               {(selectedNode.data.apiRequest?.responseMappings || []).map(
                 (
@@ -945,7 +945,7 @@ function PropertiesPanel({
                     key={index}
                     className="relative space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line p-2"
                   >
-                    <ZoruButton
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon-sm"
@@ -954,15 +954,15 @@ function PropertiesPanel({
                       aria-label="Remove mapping"
                     >
                       <Trash2 />
-                    </ZoruButton>
-                    <ZoruInput
+                    </Button>
+                    <Input
                       placeholder="Variable name (e.g. user_email)"
                       value={mapping.variable || ""}
                       onChange={(e) =>
                         handleMappingChange(index, "variable", e.target.value)
                       }
                     />
-                    <ZoruInput
+                    <Input
                       placeholder="Response path (e.g. data.email)"
                       value={mapping.path || ""}
                       onChange={(e) =>
@@ -973,7 +973,7 @@ function PropertiesPanel({
                 ),
               )}
             </div>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               size="sm"
@@ -982,7 +982,7 @@ function PropertiesPanel({
             >
               <Plus />
               Add mapping
-            </ZoruButton>
+            </Button>
             <p className="text-xs text-zoru-ink-muted">
               Use {"{{variable_name}}"} to access mapped values later.
             </p>
@@ -992,14 +992,14 @@ function PropertiesPanel({
         const elements: CarouselElement[] = selectedNode.data.elements || [];
         return (
           <div className="space-y-4">
-            <ZoruLabel>Carousel cards ({elements.length}/10)</ZoruLabel>
+            <Label>Carousel cards ({elements.length}/10)</Label>
             <div className="max-h-[40vh] space-y-3 overflow-y-auto pr-2">
               {elements.map((el, elIndex) => (
                 <div
                   key={el.id}
                   className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2 p-3"
                 >
-                  <ZoruButton
+                  <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
@@ -1008,7 +1008,7 @@ function PropertiesPanel({
                     aria-label="Remove card"
                   >
                     <Trash2 />
-                  </ZoruButton>
+                  </Button>
                   <h4 className="text-sm tracking-tight text-zoru-ink">
                     Card {elIndex + 1}
                   </h4>
@@ -1023,7 +1023,7 @@ function PropertiesPanel({
                     }
                     onChange={(file) => handleElementChange(el.id, "image_url", file?.url ?? "")}
                   />
-                  <ZoruInput
+                  <Input
                     placeholder="Title (80 chars max)"
                     value={el.title}
                     onChange={(e) =>
@@ -1032,7 +1032,7 @@ function PropertiesPanel({
                     maxLength={80}
                     required
                   />
-                  <ZoruInput
+                  <Input
                     placeholder="Subtitle (80 chars max)"
                     value={el.subtitle || ""}
                     onChange={(e) =>
@@ -1046,7 +1046,7 @@ function PropertiesPanel({
                         key={btnIndex}
                         className="relative space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2"
                       >
-                        <ZoruButton
+                        <Button
                           type="button"
                           variant="ghost"
                           size="icon-sm"
@@ -1057,8 +1057,8 @@ function PropertiesPanel({
                           aria-label="Remove card button"
                         >
                           <Trash2 />
-                        </ZoruButton>
-                        <ZoruRadioGroup
+                        </Button>
+                        <RadioGroup
                           value={btn.type}
                           onValueChange={(val: string) =>
                             handleElementButtonChange(
@@ -1075,27 +1075,27 @@ function PropertiesPanel({
                               value="web_url"
                               id={`btn-type-url-${el.id}-${btnIndex}`}
                             />
-                            <ZoruLabel
+                            <Label
                               htmlFor={`btn-type-url-${el.id}-${btnIndex}`}
                               className="font-normal"
                             >
                               URL
-                            </ZoruLabel>
+                            </Label>
                           </div>
                           <div className="flex items-center gap-2">
                             <ZoruRadioGroupItem
                               value="postback"
                               id={`btn-type-postback-${el.id}-${btnIndex}`}
                             />
-                            <ZoruLabel
+                            <Label
                               htmlFor={`btn-type-postback-${el.id}-${btnIndex}`}
                               className="font-normal"
                             >
                               Postback
-                            </ZoruLabel>
+                            </Label>
                           </div>
-                        </ZoruRadioGroup>
-                        <ZoruInput
+                        </RadioGroup>
+                        <Input
                           placeholder="Button title (20 chars max)"
                           value={btn.title}
                           onChange={(e) =>
@@ -1111,7 +1111,7 @@ function PropertiesPanel({
                         />
                         {btn.type === "web_url" ? (
                           <>
-                            <ZoruInput
+                            <Input
                               placeholder="https://example.com/cart?user_id={{psid}}"
                               value={btn.url || ""}
                               onChange={(e) =>
@@ -1126,13 +1126,13 @@ function PropertiesPanel({
                             />
                             <div className="grid grid-cols-2 gap-2 pt-2">
                               <div className="space-y-1">
-                                <ZoruLabel
+                                <Label
                                   htmlFor={`webview-height-${el.id}-${btnIndex}`}
                                   className="text-xs"
                                 >
                                   Webview height
-                                </ZoruLabel>
-                                <ZoruSelect
+                                </Label>
+                                <Select
                                   value={btn.webview_height_ratio || "full"}
                                   onValueChange={(val: string) =>
                                     handleElementButtonChange(
@@ -1160,16 +1160,16 @@ function PropertiesPanel({
                                       Compact
                                     </ZoruSelectItem>
                                   </ZoruSelectContent>
-                                </ZoruSelect>
+                                </Select>
                               </div>
                               <div className="space-y-1 pt-1">
-                                <ZoruLabel
+                                <Label
                                   htmlFor={`messenger-ext-${el.id}-${btnIndex}`}
                                   className="text-xs"
                                 >
                                   Extensions
-                                </ZoruLabel>
-                                <ZoruSwitch
+                                </Label>
+                                <Switch
                                   id={`messenger-ext-${el.id}-${btnIndex}`}
                                   checked={btn.messenger_extensions || false}
                                   onCheckedChange={(checked: boolean) =>
@@ -1185,7 +1185,7 @@ function PropertiesPanel({
                             </div>
                           </>
                         ) : (
-                          <ZoruInput
+                          <Input
                             placeholder="Payload_for_webhook"
                             value={btn.payload || ""}
                             onChange={(e) =>
@@ -1203,29 +1203,29 @@ function PropertiesPanel({
                     ))}
                     {(el.buttons?.length || 0) < 3 ? (
                       <div className="flex gap-2">
-                        <ZoruButton
+                        <Button
                           type="button"
                           variant="outline"
                           size="sm"
                           onClick={() => addElementButton(el.id, "web_url")}
                         >
                           + URL button
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           type="button"
                           variant="outline"
                           size="sm"
                           onClick={() => addElementButton(el.id, "postback")}
                         >
                           + Postback button
-                        </ZoruButton>
+                        </Button>
                       </div>
                     ) : null}
                   </div>
                 </div>
               ))}
             </div>
-            <ZoruButton
+            <Button
               type="button"
               variant="outline"
               block
@@ -1233,7 +1233,7 @@ function PropertiesPanel({
             >
               <Plus />
               Add card
-            </ZoruButton>
+            </Button>
           </div>
         );
       }
@@ -1241,8 +1241,8 @@ function PropertiesPanel({
         return (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="productId">Product ID / SKU</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="productId">Product ID / SKU</Label>
+              <Input
                 id="productId"
                 value={selectedNode.data.productId || ""}
                 onChange={(e) =>
@@ -1252,8 +1252,8 @@ function PropertiesPanel({
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="productName">Product name</ZoruLabel>
-              <ZoruInput
+              <Label htmlFor="productName">Product name</Label>
+              <Input
                 id="productName"
                 value={selectedNode.data.productName || ""}
                 onChange={(e) =>
@@ -1264,8 +1264,8 @@ function PropertiesPanel({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="quantity">Quantity</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="quantity">Quantity</Label>
+                <Input
                   id="quantity"
                   type="number"
                   value={selectedNode.data.quantity || 1}
@@ -1279,8 +1279,8 @@ function PropertiesPanel({
                 />
               </div>
               <div className="space-y-1.5">
-                <ZoruLabel htmlFor="price">Price</ZoruLabel>
-                <ZoruInput
+                <Label htmlFor="price">Price</Label>
+                <Input
                   id="price"
                   type="number"
                   value={selectedNode.data.price || ""}
@@ -1306,40 +1306,40 @@ function PropertiesPanel({
   };
 
   return (
-    <ZoruCard className="flex h-full flex-col">
+    <Card className="flex h-full flex-col">
       <ZoruCardHeader>
         <ZoruCardTitle>Properties</ZoruCardTitle>
         <ZoruCardDescription>
           Configure the &lsquo;{selectedNode.data.label}&rsquo; block.
         </ZoruCardDescription>
       </ZoruCardHeader>
-      <ZoruScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         <ZoruCardContent className="space-y-4">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="node-label">Block label</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="node-label">Block label</Label>
+            <Input
               id="node-label"
               value={selectedNode.data.label || ""}
               onChange={(e) => handleDataChange("label", e.target.value)}
             />
           </div>
-          <ZoruSeparator />
+          <Separator />
           {renderProperties()}
         </ZoruCardContent>
-      </ZoruScrollArea>
+      </ScrollArea>
       {selectedNode.type !== "start" ? (
         <ZoruCardFooter className="border-t border-zoru-line pt-4">
-          <ZoruButton
+          <Button
             variant="destructive"
             block
             onClick={() => deleteNode(selectedNode.id)}
           >
             <Trash2 />
             Delete block
-          </ZoruButton>
+          </Button>
         </ZoruCardFooter>
       ) : null}
-    </ZoruCard>
+    </Card>
   );
 }
 
@@ -1365,22 +1365,22 @@ function FlowsAndBlocksPanel({
 }) {
   return (
     <>
-      <ZoruCard>
+      <Card>
         <ZoruCardHeader className="flex-row items-center justify-between p-3">
           <ZoruCardTitle className="text-base">Flows</ZoruCardTitle>
-          <ZoruButton
+          <Button
             variant="ghost"
             size="icon-sm"
             onClick={handleCreateNewFlow}
             aria-label="New flow"
           >
             <Plus />
-          </ZoruButton>
+          </Button>
         </ZoruCardHeader>
         <ZoruCardContent className="p-2 pt-0">
-          <ZoruScrollArea className="h-40">
+          <ScrollArea className="h-40">
             {isLoading && flows.length === 0 ? (
-              <ZoruSkeleton className="h-full w-full" />
+              <Skeleton className="h-full w-full" />
             ) : (
               flows.map((flow) => {
                 const isActive =
@@ -1390,7 +1390,7 @@ function FlowsAndBlocksPanel({
                     key={flow._id.toString()}
                     className="group flex items-center"
                   >
-                    <ZoruButton
+                    <Button
                       variant={isActive ? "secondary" : "ghost"}
                       block
                       className="justify-start font-normal"
@@ -1398,8 +1398,8 @@ function FlowsAndBlocksPanel({
                     >
                       <FileIcon />
                       {flow.name}
-                    </ZoruButton>
-                    <ZoruButton
+                    </Button>
+                    <Button
                       variant="ghost"
                       size="icon-sm"
                       className="opacity-0 group-hover:opacity-100"
@@ -1407,22 +1407,22 @@ function FlowsAndBlocksPanel({
                       aria-label="Delete flow"
                     >
                       <Trash2 />
-                    </ZoruButton>
+                    </Button>
                   </div>
                 );
               })
             )}
-          </ZoruScrollArea>
+          </ScrollArea>
         </ZoruCardContent>
-      </ZoruCard>
-      <ZoruCard className="flex flex-1 flex-col">
+      </Card>
+      <Card className="flex flex-1 flex-col">
         <ZoruCardHeader className="p-3">
           <ZoruCardTitle className="text-base">Blocks</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent className="min-h-0 flex-1 space-y-2 p-2 pt-0">
-          <ZoruScrollArea className="h-full">
+          <ScrollArea className="h-full">
             {blockTypes.map(({ type, label, icon: Icon }) => (
-              <ZoruButton
+              <Button
                 key={type}
                 variant="outline"
                 block
@@ -1431,11 +1431,11 @@ function FlowsAndBlocksPanel({
               >
                 <Icon />
                 {label}
-              </ZoruButton>
+              </Button>
             ))}
-          </ZoruScrollArea>
+          </ScrollArea>
         </ZoruCardContent>
-      </ZoruCard>
+      </Card>
     </>
   );
 }
@@ -1867,18 +1867,18 @@ export default function EcommFlowBuilderPage() {
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
 
   if (!isClient) {
-    return <ZoruSkeleton className="h-full w-full" />;
+    return <Skeleton className="h-full w-full" />;
   }
 
   if (!shopId || !shop) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <ZoruAlertTitle>No shop found</ZoruAlertTitle>
         <ZoruAlertDescription>
           Please select a valid shop to use the chat-bot builder.
         </ZoruAlertDescription>
-      </ZoruAlert>
+      </Alert>
     );
   }
 
@@ -1888,7 +1888,7 @@ export default function EcommFlowBuilderPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-zoru-ink-muted" />
-          <ZoruInput
+          <Input
             id="flow-name-input"
             key={currentFlow?._id.toString() || "new-flow"}
             defaultValue={currentFlow?.name || "New flow"}
@@ -1899,35 +1899,35 @@ export default function EcommFlowBuilderPage() {
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 md:hidden">
-            <ZoruButton
+            <Button
               variant="outline"
               onClick={() => setIsBlocksSheetOpen(true)}
             >
               <PanelLeft />
               Flows &amp; blocks
-            </ZoruButton>
+            </Button>
             {selectedNode ? (
-              <ZoruButton
+              <Button
                 variant="outline"
                 onClick={() => setIsPropsSheetOpen(true)}
               >
                 <Settings2 />
                 Properties
-              </ZoruButton>
+              </Button>
             ) : null}
           </div>
-          <ZoruButton variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link
               href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}/flow-builder/docs`}
             >
               <BookOpen />
               <span className="hidden sm:inline">View docs</span>
             </Link>
-          </ZoruButton>
-          <ZoruButton onClick={handleSaveFlow} disabled={isSaving}>
+          </Button>
+          <Button onClick={handleSaveFlow} disabled={isSaving}>
             {isSaving ? <LoaderCircle className="animate-spin" /> : <Save />}
             <span className="hidden sm:inline">Save flow</span>
-          </ZoruButton>
+          </Button>
         </div>
       </div>
 
@@ -1945,7 +1945,7 @@ export default function EcommFlowBuilderPage() {
           />
         </div>
 
-        <ZoruSheet
+        <Sheet
           open={isBlocksSheetOpen}
           onOpenChange={setIsBlocksSheetOpen}
         >
@@ -1969,10 +1969,10 @@ export default function EcommFlowBuilderPage() {
               addNode={addNode}
             />
           </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
 
         <div className="md:col-span-6 lg:col-span-7">
-          <ZoruCard
+          <Card
             ref={viewportRef}
             className="relative h-full w-full cursor-grab overflow-hidden active:cursor-grabbing"
             onMouseDown={handleCanvasMouseDown}
@@ -2064,40 +2064,40 @@ export default function EcommFlowBuilderPage() {
               )}
             </div>
             <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-              <ZoruButton
+              <Button
                 variant="outline"
                 size="icon"
                 onClick={() => handleZoomControls("out")}
                 aria-label="Zoom out"
               >
                 <ZoomOut />
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="icon"
                 onClick={() => handleZoomControls("in")}
                 aria-label="Zoom in"
               >
                 <ZoomIn />
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="icon"
                 onClick={() => handleZoomControls("reset")}
                 aria-label="Reset zoom"
               >
                 <Frame />
-              </ZoruButton>
-              <ZoruButton
+              </Button>
+              <Button
                 variant="outline"
                 size="icon"
                 onClick={handleToggleFullScreen}
                 aria-label="Toggle full screen"
               >
                 {isFullScreen ? <Minimize /> : <Maximize />}
-              </ZoruButton>
+              </Button>
             </div>
-          </ZoruCard>
+          </Card>
         </div>
 
         <div className="hidden md:col-span-3 md:block">
@@ -2110,7 +2110,7 @@ export default function EcommFlowBuilderPage() {
           ) : null}
         </div>
 
-        <ZoruSheet
+        <Sheet
           open={isPropsSheetOpen}
           onOpenChange={setIsPropsSheetOpen}
         >
@@ -2132,7 +2132,7 @@ export default function EcommFlowBuilderPage() {
               />
             ) : null}
           </ZoruSheetContent>
-        </ZoruSheet>
+        </Sheet>
       </div>
     </div>
   );

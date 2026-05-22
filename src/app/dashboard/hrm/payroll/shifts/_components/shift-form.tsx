@@ -85,7 +85,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
         <h2 className="mb-4 text-[16px] font-semibold text-foreground">Shift Details</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Field label="Shift Name" required>
-            <ZoruInput
+            <Input
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
               required
@@ -100,7 +100,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
                 onChange={(e) => set('color_code', e.target.value)}
                 className="h-9 w-12 cursor-pointer rounded-md border border-border bg-card p-1"
               />
-              <ZoruInput
+              <Input
                 value={form.color_code}
                 onChange={(e) => set('color_code', e.target.value)}
                 placeholder="#EAB308"
@@ -108,35 +108,35 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             </div>
           </Field>
           <Field label="Clock In Time">
-            <ZoruInput
+            <Input
               type="time"
               value={form.clock_in_time ?? ''}
               onChange={(e) => set('clock_in_time', e.target.value)}
             />
           </Field>
           <Field label="Clock Out Time">
-            <ZoruInput
+            <Input
               type="time"
               value={form.clock_out_time ?? ''}
               onChange={(e) => set('clock_out_time', e.target.value)}
             />
           </Field>
           <Field label="Office Start Time">
-            <ZoruInput
+            <Input
               type="time"
               value={form.office_start_time}
               onChange={(e) => set('office_start_time', e.target.value)}
             />
           </Field>
           <Field label="Office End Time">
-            <ZoruInput
+            <Input
               type="time"
               value={form.office_end_time}
               onChange={(e) => set('office_end_time', e.target.value)}
             />
           </Field>
           <Field label="Total Hours">
-            <ZoruInput
+            <Input
               type="number"
               step="0.25"
               value={form.total_hours ?? 0}
@@ -144,7 +144,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Office Hours">
-            <ZoruInput
+            <Input
               type="number"
               step="0.25"
               value={form.office_hours ?? 0}
@@ -152,7 +152,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Late Mark After (minutes)">
-            <ZoruInput
+            <Input
               type="number"
               min={0}
               value={form.late_mark_after}
@@ -160,7 +160,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Early Clock-In Allowed (minutes)">
-            <ZoruInput
+            <Input
               type="number"
               min={0}
               value={form.early_clock_in}
@@ -168,7 +168,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Break Time (hours)">
-            <ZoruInput
+            <Input
               type="number"
               step="0.25"
               min={0}
@@ -191,7 +191,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
         <h2 className="mb-4 text-[16px] font-semibold text-foreground">Half-Day Rules</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Field label="Half-Day After (hours)">
-            <ZoruInput
+            <Input
               type="number"
               step="0.25"
               min={0}
@@ -200,14 +200,14 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Half-Day Start">
-            <ZoruInput
+            <Input
               type="time"
               value={form.half_day_start ?? ''}
               onChange={(e) => set('half_day_start', e.target.value)}
             />
           </Field>
           <Field label="Half-Day End">
-            <ZoruInput
+            <Input
               type="time"
               value={form.half_day_end ?? ''}
               onChange={(e) => set('half_day_end', e.target.value)}
@@ -226,7 +226,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
                 key={day}
                 className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground"
               >
-                <ZoruCheckbox
+                <Checkbox
                   checked={checked}
                   onCheckedChange={(v) => toggleDay(day, Boolean(v))}
                 />
@@ -244,16 +244,16 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
       ) : null}
 
       <div className="flex items-center justify-end gap-2">
-        <ZoruButton
+        <Button
           variant="pill"
           type="button"
           onClick={() => router.push('/dashboard/hrm/payroll/shifts')}
         >
           Cancel
-        </ZoruButton>
-        <ZoruButton type="submit" disabled={pending}>
+        </Button>
+        <Button type="submit" disabled={pending}>
           {pending ? 'Saving…' : initial?._id ? 'Save Changes' : 'Create Shift'}
-        </ZoruButton>
+        </Button>
       </div>
     </form>
   );
@@ -270,10 +270,10 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <ZoruLabel className="text-[12px] text-muted-foreground">
+      <Label className="text-[12px] text-muted-foreground">
         {label}
         {required ? <span className="ml-0.5 text-destructive">*</span> : null}
-      </ZoruLabel>
+      </Label>
       {children}
     </div>
   );

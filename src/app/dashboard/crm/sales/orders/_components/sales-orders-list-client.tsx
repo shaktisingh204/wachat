@@ -346,7 +346,7 @@ export function SalesOrdersListClient({
         onClear={clearAllFilters}
       />
 
-      <ZoruCard className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <SoFiltersBar
           filters={filters}
           onQueryChange={setQuery}
@@ -376,11 +376,11 @@ export function SalesOrdersListClient({
           onDelete={() => setPendingBulkDelete(true)}
         />
 
-        <ZoruTable>
+        <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead className="w-[36px]">
-                <ZoruCheckbox
+                <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
@@ -419,7 +419,7 @@ export function SalesOrdersListClient({
                 return (
                   <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
                     <ZoruTableCell>
-                      <ZoruCheckbox
+                      <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleOne(id)}
                         aria-label={`Select ${order.soNo}`}
@@ -485,33 +485,33 @@ export function SalesOrdersListClient({
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <ZoruButton size="sm" variant="ghost" asChild title="Convert to delivery challan">
+                        <Button size="sm" variant="ghost" asChild title="Convert to delivery challan">
                           <Link
                             href={`/dashboard/crm/sales/delivery/new?fromKind=salesOrder&fromId=${id}`}
                           >
                             <Truck className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="ghost" asChild title="Convert to invoice">
+                        </Button>
+                        <Button size="sm" variant="ghost" asChild title="Convert to invoice">
                           <Link
                             href={`/dashboard/crm/sales/invoices/new?fromKind=salesOrder&fromId=${id}`}
                           >
                             <ArrowRightCircle className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton size="sm" variant="ghost" asChild>
+                        </Button>
+                        <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/sales/orders/${id}/edit`}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Link>
-                        </ZoruButton>
-                        <ZoruButton
+                        </Button>
+                        <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(order)}
                           className="text-zoru-danger-ink"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
+                        </Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -519,7 +519,7 @@ export function SalesOrdersListClient({
               })
             )}
           </ZoruTableBody>
-        </ZoruTable>
+        </Table>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
 
@@ -580,7 +580,7 @@ export function SalesOrdersListClient({
             </ZoruAlertDialogFooter>
           </ZoruAlertDialogContent>
         </ZoruAlertDialog>
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

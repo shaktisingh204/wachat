@@ -20,12 +20,12 @@ export function BulkCreateQrDialog() {
   const [open, setOpen] = useState(false);
   
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton variant="outline" disabled>
+        <Button variant="outline" disabled>
             <Upload className="mr-2 h-4 w-4" />
             Bulk Create
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
           <ZoruDialogHeader>
@@ -43,9 +43,9 @@ export function BulkCreateQrDialog() {
             </Alert>
           </div>
           <ZoruDialogFooter>
-            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Close</ZoruButton>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Close</Button>
           </ZoruDialogFooter>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

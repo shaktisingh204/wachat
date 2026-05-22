@@ -69,11 +69,11 @@ export function BlockProfileDialog({
   };
 
   return (
-    <ZoruDialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <ZoruButton size="sm">
+        <Button size="sm">
           <UserPlus /> Block profile
-        </ZoruButton>
+        </Button>
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -86,14 +86,14 @@ export function BlockProfileDialog({
           </ZoruDialogHeader>
 
           {error ? (
-            <ZoruAlert variant="destructive">
+            <Alert variant="destructive">
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </ZoruAlert>
+            </Alert>
           ) : null}
 
           <div className="grid gap-1.5">
-            <ZoruLabel htmlFor="profileId">Profile ID</ZoruLabel>
-            <ZoruInput
+            <Label htmlFor="profileId">Profile ID</Label>
+            <Input
               id="profileId"
               value={profileId}
               onChange={(e) => setProfileId(e.target.value)}
@@ -103,20 +103,20 @@ export function BlockProfileDialog({
           </div>
 
           <ZoruDialogFooter>
-            <ZoruButton
+            <Button
               type="button"
               variant="ghost"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isPending || !profileId.trim()}>
+            </Button>
+            <Button type="submit" disabled={isPending || !profileId.trim()}>
               {isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
               {isPending ? "Blocking…" : "Block profile"}
-            </ZoruButton>
+            </Button>
           </ZoruDialogFooter>
         </form>
       </ZoruDialogContent>
-    </ZoruDialog>
+    </Dialog>
   );
 }

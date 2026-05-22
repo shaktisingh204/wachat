@@ -167,7 +167,7 @@ export function OverdueTasksClient({ data, filters }: Props) {
             className="h-9 w-24 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
-        <ZoruButton type="submit" size="sm">Apply</ZoruButton>
+        <Button type="submit" size="sm">Apply</Button>
       </form>
 
       {/* KPIs */}
@@ -183,7 +183,7 @@ export function OverdueTasksClient({ data, filters }: Props) {
       </div>
 
       {/* Chart */}
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">Overdue by assignee</h2>
           <p className="mt-0.5 text-[12.5px] text-muted-foreground">Top 10 assignees by overdue task count.</p>
@@ -207,7 +207,7 @@ export function OverdueTasksClient({ data, filters }: Props) {
             </ResponsiveContainer>
           </div>
         )}
-      </ZoruCard>
+      </Card>
 
       {/* Bulk action toolbar */}
       {data.rows.length > 0 && (
@@ -218,22 +218,22 @@ export function OverdueTasksClient({ data, filters }: Props) {
           <div className="flex gap-2">
             {selected.size > 0 && (
               <>
-                <ZoruButton size="sm" variant="outline" onClick={handleBulkReassign}>
+                <Button size="sm" variant="outline" onClick={handleBulkReassign}>
                   <UserCheck className="mr-1.5 h-3.5 w-3.5" />
                   Reassign
-                </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={handleBulkExtend}>
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleBulkExtend}>
                   <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
                   Extend due
-                </ZoruButton>
+                </Button>
               </>
             )}
-            <ZoruDropdownMenu>
+            <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <ZoruButton variant="outline" size="sm">
+                <Button variant="outline" size="sm">
                   <Download className="mr-1.5 h-3.5 w-3.5" />
                   Export
-                </ZoruButton>
+                </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="end">
                 <ZoruDropdownMenuItem onClick={handleCsv}>
@@ -243,15 +243,15 @@ export function OverdueTasksClient({ data, filters }: Props) {
                   <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
-            </ZoruDropdownMenu>
+            </DropdownMenu>
           </div>
         </div>
       )}
 
       {/* Table */}
-      <ZoruCard className="p-0">
+      <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
+          <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-border hover:bg-transparent">
                 <ZoruTableHead className="w-10">
@@ -309,17 +309,17 @@ export function OverdueTasksClient({ data, filters }: Props) {
                       {r.daysOverdue}d
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <ZoruBadge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
+                      <Badge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
                         {r.priority}
-                      </ZoruBadge>
+                      </Badge>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               )}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
-      </ZoruCard>
+      </Card>
     </>
   );
 }

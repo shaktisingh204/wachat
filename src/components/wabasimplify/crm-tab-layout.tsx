@@ -661,11 +661,11 @@ const userSettingsItems = [
 
 const FullPageSkeleton = () => (
     <div className="flex h-screen w-screen bg-background p-2 gap-2">
-        <div className="w-16 rounded-lg bg-card p-2"><ZoruSkeleton className="h-full w-full" /></div>
-        <div className="w-60 rounded-lg bg-card p-2"><ZoruSkeleton className="h-full w-full" /></div>
+        <div className="w-16 rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
+        <div className="w-60 rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
         <div className="flex-1 flex flex-col gap-2">
-            <div className="h-16 rounded-lg bg-card p-4"><ZoruSkeleton className="h-full w-full" /></div>
-            <div className="flex-1 rounded-lg bg-card p-4"><ZoruSkeleton className="h-full w-full" /></div>
+            <div className="h-16 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="flex-1 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
         </div>
     </div>
 );
@@ -809,12 +809,12 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const HeaderAppRail = () => (
         <nav className="hidden items-center gap-1 md:flex">
             {appIcons.map(app => (
-                <ZoruButton key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
+                <Button key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
                     <Link href={app.href} className="flex items-center gap-2">
                         <app.icon className="h-4 w-4" />
                         {app.label}
                     </Link>
-                </ZoruButton>
+                </Button>
             ))}
         </nav>
     );
@@ -825,16 +825,16 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
                     <div className="flex items-center gap-2">
                         <SidebarTrigger>
-                            <ZoruButton variant="ghost" size="icon" className="md:hidden">
+                            <Button variant="ghost" size="icon" className="md:hidden">
                                 <PanelLeft />
-                            </ZoruButton>
+                            </Button>
                         </SidebarTrigger>
                         <Link href="/wachat" className="hidden font-bold sm:inline-block">
                             SabNode
                         </Link>
                         {appRailPosition === 'top' && (
                             <>
-                                <ZoruSeparator orientation="vertical" className="h-6 mx-2 hidden md:block" />
+                                <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
                                 <HeaderAppRail />
                             </>
                         )}
@@ -842,14 +842,14 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
                     <div className="flex items-center gap-2">
                         <div className="font-medium text-sm hidden md:block">{activeProjectName}</div>
-                        <ZoruDropdownMenu>
+                        <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="ghost" className="relative h-10 w-10 rounded-full">
-                                    <ZoruAvatar>
+                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                    <Avatar>
                                         <ZoruAvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" data-ai-hint="person avatar" />
                                         <ZoruAvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</ZoruAvatarFallback>
-                                    </ZoruAvatar>
-                                </ZoruButton>
+                                    </Avatar>
+                                </Button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
                                 <ZoruDropdownMenuLabel>My Account</ZoruDropdownMenuLabel>
@@ -860,7 +860,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <ZoruDropdownMenuItem asChild><Link href="/api/auth/admin-logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></ZoruDropdownMenuItem>
                                 <ZoruDropdownMenuItem asChild><Link href="/api/auth/logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Logout</Link></ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                        </DropdownMenu>
                     </div>
                 </header>
 

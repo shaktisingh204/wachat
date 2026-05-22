@@ -149,16 +149,16 @@ export default function ShiftChangeRequestsPage() {
       title="Shift Change Requests"
       subtitle="Review and action employee requests to swap shifts."
       primaryAction={
-        <ZoruButton
+        <Button
           onClick={() => { resetForm(); setDialogOpen(true); }}
         >
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           New Request
-        </ZoruButton>
+        </Button>
       }
     >
 
-      <ZoruCard className="p-6">
+      <Card className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">All Requests</h2>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full border-collapse text-[13px]">
@@ -203,27 +203,27 @@ export default function ShiftChangeRequestsPage() {
                         {r.reason || '—'}
                       </td>
                       <td className="px-4 py-2.5">
-                        <ZoruBadge variant={variant(r.status)}>{r.status}</ZoruBadge>
+                        <Badge variant={variant(r.status)}>{r.status}</Badge>
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         {r.status === 'pending' ? (
                           <div className="flex items-center justify-end gap-2">
-                            <ZoruButton
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleApprove(r._id)}
                             >
                               <Check className="h-3.5 w-3.5" strokeWidth={2} />
                               Approve
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleReject(r._id)}
                             >
                               <X className="h-3.5 w-3.5" strokeWidth={2} />
                               Reject
-                            </ZoruButton>
+                            </Button>
                           </div>
                         ) : (
                           <span className="text-[11.5px] text-zoru-ink-muted">—</span>
@@ -242,19 +242,19 @@ export default function ShiftChangeRequestsPage() {
             </tbody>
           </table>
         </div>
-      </ZoruCard>
+      </Card>
 
-      <ZoruDialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
         <ZoruDialogContent className="sm:max-w-[520px]">
           <ZoruDialogHeader>
             <ZoruDialogTitle>New Shift Change Request</ZoruDialogTitle>
           </ZoruDialogHeader>
           <form onSubmit={handleCreateRequest} className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              <Label className="text-[12px] text-zoru-ink-muted">
                 Employee <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruSelect value={newUserId} onValueChange={setNewUserId}>
+              </Label>
+              <Select value={newUserId} onValueChange={setNewUserId}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Select employee" />
                 </ZoruSelectTrigger>
@@ -265,14 +265,14 @@ export default function ShiftChangeRequestsPage() {
                     </ZoruSelectItem>
                   ))}
                 </ZoruSelectContent>
-              </ZoruSelect>
+              </Select>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              <Label className="text-[12px] text-zoru-ink-muted">
                 Date <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
+              </Label>
+              <Input
                 type="date"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
@@ -282,10 +282,10 @@ export default function ShiftChangeRequestsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                <Label className="text-[12px] text-zoru-ink-muted">
                   Current Shift <span className="text-zoru-danger-ink">*</span>
-                </ZoruLabel>
-                <ZoruSelect value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
+                </Label>
+                <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue placeholder="Current" />
                   </ZoruSelectTrigger>
@@ -296,14 +296,14 @@ export default function ShiftChangeRequestsPage() {
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                <Label className="text-[12px] text-zoru-ink-muted">
                   Requested Shift <span className="text-zoru-danger-ink">*</span>
-                </ZoruLabel>
-                <ZoruSelect value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
+                </Label>
+                <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue placeholder="Requested" />
                   </ZoruSelectTrigger>
@@ -314,12 +314,12 @@ export default function ShiftChangeRequestsPage() {
                       </ZoruSelectItem>
                     ))}
                   </ZoruSelectContent>
-                </ZoruSelect>
+                </Select>
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Reason (optional)</ZoruLabel>
+              <Label className="text-[12px] text-zoru-ink-muted">Reason (optional)</Label>
               <textarea
                 value={newReason}
                 onChange={(e) => setNewReason(e.target.value)}
@@ -336,20 +336,20 @@ export default function ShiftChangeRequestsPage() {
             ) : null}
 
             <ZoruDialogFooter>
-              <ZoruButton
+              <Button
                 variant="outline"
                 type="button"
                 onClick={() => { setDialogOpen(false); resetForm(); }}
               >
                 Cancel
-              </ZoruButton>
-              <ZoruButton type="submit" disabled={pending}>
+              </Button>
+              <Button type="submit" disabled={pending}>
                 {pending ? 'Saving…' : 'Submit Request'}
-              </ZoruButton>
+              </Button>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
-      </ZoruDialog>
+      </Dialog>
     </EntityListShell>
   );
 }

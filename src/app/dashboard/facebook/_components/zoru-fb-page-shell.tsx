@@ -39,7 +39,7 @@ interface FbBreadcrumbProps {
 
 export function FbBreadcrumb({ page, parent }: FbBreadcrumbProps) {
   return (
-    <ZoruBreadcrumb>
+    <Breadcrumb>
       <ZoruBreadcrumbList>
         <ZoruBreadcrumbItem>
           <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -65,7 +65,7 @@ export function FbBreadcrumb({ page, parent }: FbBreadcrumbProps) {
           <ZoruBreadcrumbPage>{page}</ZoruBreadcrumbPage>
         </ZoruBreadcrumbItem>
       </ZoruBreadcrumbList>
-    </ZoruBreadcrumb>
+    </Breadcrumb>
   );
 }
 
@@ -83,7 +83,7 @@ export function FbHeader({
   className,
 }: FbHeaderProps) {
   return (
-    <ZoruPageHeader className={className ?? "mt-5"}>
+    <PageHeader className={className ?? "mt-5"}>
       <ZoruPageHeading>
         <ZoruPageTitle>{title}</ZoruPageTitle>
         {description && (
@@ -91,28 +91,28 @@ export function FbHeader({
         )}
       </ZoruPageHeading>
       {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
-    </ZoruPageHeader>
+    </PageHeader>
   );
 }
 
 export function FbNoProject() {
   return (
-    <ZoruAlert variant="destructive" className="mt-6">
+    <Alert variant="destructive" className="mt-6">
       <CircleAlert />
       <ZoruAlertTitle>No project selected</ZoruAlertTitle>
       <ZoruAlertDescription>
         Please select a project from the main dashboard to manage this section.
       </ZoruAlertDescription>
-    </ZoruAlert>
+    </Alert>
   );
 }
 
 export function FbErrorAlert({ message }: { message: string }) {
   return (
-    <ZoruAlert variant="destructive" className="mt-6">
+    <Alert variant="destructive" className="mt-6">
       <CircleAlert />
       <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
       <ZoruAlertDescription>{message}</ZoruAlertDescription>
-    </ZoruAlert>
+    </Alert>
   );
 }

@@ -89,11 +89,11 @@ export default async function TicketDetailPage({
                     <p className="text-[14px] text-zoru-ink">
                         Couldn&apos;t load this ticket — {error}
                     </p>
-                    <ZoruButton variant="outline" asChild>
+                    <Button variant="outline" asChild>
                         <Link href="/dashboard/crm/tickets">
                             <ArrowLeft className="h-4 w-4" /> Back to Tickets
                         </Link>
-                    </ZoruButton>
+                    </Button>
                 </div>
             );
         }
@@ -125,7 +125,7 @@ export default async function TicketDetailPage({
 
             <div className="grid gap-4 lg:grid-cols-3">
                 <div className="flex flex-col gap-4 lg:col-span-2">
-                    <ZoruCard className="p-6">
+                    <Card className="p-6">
                         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Basics
                         </h3>
@@ -143,7 +143,7 @@ export default async function TicketDetailPage({
                             </Field>
                             <Field label="Channel">
                                 {ticket.channel ? (
-                                    <ZoruBadge variant="secondary">{ticket.channel}</ZoruBadge>
+                                    <Badge variant="secondary">{ticket.channel}</Badge>
                                 ) : (
                                     '—'
                                 )}
@@ -160,9 +160,9 @@ export default async function TicketDetailPage({
                             </Field>
                             <Field label="Priority">
                                 {priority ? (
-                                    <ZoruBadge variant={PRIORITY_VARIANTS[priority] ?? 'ghost'}>
+                                    <Badge variant={PRIORITY_VARIANTS[priority] ?? 'ghost'}>
                                         {priority}
-                                    </ZoruBadge>
+                                    </Badge>
                                 ) : (
                                     '—'
                                 )}
@@ -184,10 +184,10 @@ export default async function TicketDetailPage({
                                 </div>
                             ) : null}
                         </div>
-                    </ZoruCard>
+                    </Card>
 
                     {customFields.length > 0 ? (
-                        <ZoruCard className="p-6">
+                        <Card className="p-6">
                             <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Custom fields
                             </h3>
@@ -208,12 +208,12 @@ export default async function TicketDetailPage({
                                     </Field>
                                 ))}
                             </div>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
                 </div>
 
                 <aside className="flex flex-col gap-4">
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Assignment</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -255,9 +255,9 @@ export default async function TicketDetailPage({
                                 {fmtDateTime(ticket.assignment?.assignedAt)}
                             </Field>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
-                    <ZoruCard>
+                    <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle>Linked</ZoruCardTitle>
                         </ZoruCardHeader>
@@ -299,10 +299,10 @@ export default async function TicketDetailPage({
                                 )}
                             </Field>
                         </ZoruCardContent>
-                    </ZoruCard>
+                    </Card>
 
                     {tags.length > 0 ? (
-                        <ZoruCard>
+                        <Card>
                             <ZoruCardHeader>
                                 <ZoruCardTitle>Tags</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -311,7 +311,7 @@ export default async function TicketDetailPage({
                                     <EntityPickerChip key={tId} entity="tag" id={tId} />
                                 ))}
                             </ZoruCardContent>
-                        </ZoruCard>
+                        </Card>
                     ) : null}
 
                     <RelatedRail

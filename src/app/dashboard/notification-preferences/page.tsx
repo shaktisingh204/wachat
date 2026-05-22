@@ -141,7 +141,7 @@ export default function NotificationPreferencesPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
+      <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
             <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
@@ -151,23 +151,23 @@ export default function NotificationPreferencesPage() {
             <ZoruBreadcrumbPage>Notification preferences</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <ZoruPageHeader>
+        <PageHeader>
           <ZoruPageHeading>
             <ZoruPageTitle>Notification preferences</ZoruPageTitle>
             <ZoruPageDescription>
               Control which notifications you receive from Wachat.
             </ZoruPageDescription>
           </ZoruPageHeading>
-        </ZoruPageHeader>
-        <ZoruButton size="sm" onClick={handleSave} disabled={!dirty || isSaving}>
+        </PageHeader>
+        <Button size="sm" onClick={handleSave} disabled={!dirty || isSaving}>
           {isSaving ? 'Saving…' : dirty ? 'Save changes' : 'All saved'}
-        </ZoruButton>
+        </Button>
       </div>
 
-      <ZoruCard className="divide-y divide-zoru-line p-0">
+      <Card className="divide-y divide-zoru-line p-0">
         {NOTIF_DEFS.map((def) => {
           const Icon = def.icon;
           return (
@@ -179,7 +179,7 @@ export default function NotificationPreferencesPage() {
                 <div className="text-sm text-zoru-ink">{def.label}</div>
                 <div className="text-[12.5px] text-zoru-ink-muted">{def.description}</div>
               </div>
-              <ZoruSwitch
+              <Switch
                 checked={!!prefs[def.id]}
                 onCheckedChange={() => toggle(def.id)}
                 aria-label={`Toggle ${def.label}`}
@@ -187,7 +187,7 @@ export default function NotificationPreferencesPage() {
             </div>
           );
         })}
-      </ZoruCard>
+      </Card>
     </div>
   );
 }

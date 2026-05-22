@@ -48,7 +48,7 @@ export function ImpersonateUserButton({ userId, userName }: ImpersonateUserButto
     };
 
     return (
-        <ZoruButton
+        <Button
             variant="ghost"
             size="icon"
             onClick={handleImpersonate}
@@ -56,6 +56,6 @@ export function ImpersonateUserButton({ userId, userName }: ImpersonateUserButto
             title={`Login as ${userName}`}
         >
             <LogIn className="h-4 w-4" />
-        </ZoruButton>
+        </Button>
     );
 }
