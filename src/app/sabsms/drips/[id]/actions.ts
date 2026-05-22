@@ -441,6 +441,3 @@ export async function getLiveEnrolCount(
   );
   return { ok: true, count: (doc as unknown as { activeRecipients?: number } | null)?.activeRecipients ?? 0 };
 }
-
-// Re-export collection name for any direct callers.
-export { SABSMS_COLLECTIONS };

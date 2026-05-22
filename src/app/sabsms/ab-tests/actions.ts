@@ -48,15 +48,15 @@ import {
 
 // Re-export pure helpers + types so callers can keep importing from
 // `./actions` while the tests load `./significance` directly.
-export {
-  type AbConversionMetric,
-  type AbStatsMode,
-  type AbTestKind,
-  type AbTestRow,
-  type AbTestStatus,
-  type AbVariant,
-  type SegmentLift,
-  type SignificanceResult,
+export type {
+  AbConversionMetric,
+  AbStatsMode,
+  AbTestKind,
+  AbTestRow,
+  AbTestStatus,
+  AbVariant,
+  SegmentLift,
+  SignificanceResult,
 } from "./significance";
 
 /**

@@ -480,5 +480,3 @@ export async function testSendFromNumber(input: {
     };
   }
 }
-
-export { SABSMS_COLLECTIONS };

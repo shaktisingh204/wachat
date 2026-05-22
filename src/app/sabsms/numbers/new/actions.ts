@@ -227,5 +227,3 @@ export async function loadProvisioningContext(): Promise<{
     complianceReady: { tendlc: hasTwilio, dlt: false },
   };
 }
-
-export { SABSMS_COLLECTIONS };

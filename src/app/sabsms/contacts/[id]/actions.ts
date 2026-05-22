@@ -31,8 +31,6 @@ import {
   hashPhone,
 } from "../helpers";
 
-export { computeRiskScore } from "../helpers";
-
 export type ActionResult =
   | { ok: true }
   | { ok: false; error: string };

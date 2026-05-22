@@ -25,7 +25,7 @@ import { rowsToCsv } from "@/components/sabsms/page-toolkit";
 // ─── Types ────────────────────────────────────────────────────────────────
 
 /** Collection name — not yet registered in `db/collections.ts`. */
-export const SABSMS_IMPORTS_COLLECTION = "sabsms_imports";
+const SABSMS_IMPORTS_COLLECTION = "sabsms_imports";
 
 export type ImportStatus =
   | "queued"

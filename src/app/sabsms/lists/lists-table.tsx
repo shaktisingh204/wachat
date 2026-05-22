@@ -69,13 +69,13 @@ import {
   deleteList,
   duplicateList,
   exportListCsv,
-  parsePhoneList,
   removeContactsFromList,
   setListShareToken,
   tagList,
   type ListAnalytics,
   type ListRecord,
 } from "./actions";
+import { parsePhoneList } from "./helpers";
 import { parseCsv } from "../imports/parse";
 
 // Default per-message cost (USD). Mirrors what /sabsms/send shows so the

@@ -24,7 +24,7 @@ import type {
 
 import { projectTemplate, type TemplateDocExt, type TemplateRow } from "./projection";
 
-export { projectTemplate, type TemplateRow };
+export type { TemplateRow };
 
 // ─── Auth ────────────────────────────────────────────────────────────────
 

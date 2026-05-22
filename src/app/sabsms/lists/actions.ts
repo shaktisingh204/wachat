@@ -25,23 +25,12 @@ import { getCachedSession } from "@/lib/server-cache";
 import { rowsToCsv } from "@/components/sabsms/page-toolkit";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 
-import {
-  computeOverlap as computeOverlapPure,
-  normalisePhone as normalisePhonePure,
-  parsePhoneList as parsePhoneListPure,
-} from "./helpers";
-
-// Re-export the pure helpers so callers that depend on the action
-// surface keep working. The implementations live in `./helpers` so the
-// unit tests can import them without pulling `server-only`.
-export const normalisePhone = normalisePhonePure;
-export const parsePhoneList = parsePhoneListPure;
-export const computeOverlap = computeOverlapPure;
+import { computeOverlap, normalisePhone } from "./helpers";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
 /** Collection name — not yet registered in `db/collections.ts`. */
-export const SABSMS_LISTS_COLLECTION = "sabsms_lists";
+const SABSMS_LISTS_COLLECTION = "sabsms_lists";
 
 export interface ListAuditEvent {
   at: string;

@@ -423,6 +423,3 @@ export async function massExit(
   revalidatePath("/sabsms/drips");
   return { ok: true };
 }
-
-// Re-export collection name for direct callers.
-export { SABSMS_COLLECTIONS };

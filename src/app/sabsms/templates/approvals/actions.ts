@@ -37,13 +37,6 @@ import {
   type AiVerdictAdvisory,
 } from "./heuristics";
 
-export {
-  APPROVAL_SLA_MS,
-  computeComplianceScore,
-  detectUndeclaredVariables,
-  type AiVerdictAdvisory,
-};
-
 async function resolveSession(): Promise<
   { ok: true; workspaceId: string; reviewerId: string } | { ok: false; error: string }
 > {

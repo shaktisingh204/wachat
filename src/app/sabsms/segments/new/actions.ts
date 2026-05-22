@@ -42,7 +42,7 @@ import {
 // Re-export the pure validator + draft type from `./types.ts` so client
 // code can keep importing them from `./actions`. Keeping the impl in
 // `./types.ts` lets the unit tests dodge `server-only`.
-export const validateDraftForSave = validateDraftForSaveImpl;
+const validateDraftForSave = validateDraftForSaveImpl;
 export type SegmentBuilderDraft = SegmentBuilderDraftType;
 
 const SEGMENTS_COLLECTION = "sabsms_segments";

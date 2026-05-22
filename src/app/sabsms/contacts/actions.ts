@@ -36,8 +36,6 @@ import {
   type ContactConsentState as HelperConsentState,
 } from "./helpers";
 
-export { countryFromPhone, engagementScore } from "./helpers";
-
 // ─── Types ────────────────────────────────────────────────────────────────
 
 export type ContactConsentState =
