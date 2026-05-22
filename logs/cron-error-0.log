@@ -302,3 +302,7 @@
 2026-05-23 02:27:00: [cron-worker] [FAILURE] 2026-05-22T20:57:00.007Z sabflow-scheduled failed in 1ms. Error: fetch failed
 2026-05-23 02:27:00: [cron-worker] [FAILURE] 2026-05-22T20:57:00.007Z send-broadcasts failed in 1ms. Error: fetch failed
 2026-05-23 02:27:00: [cron-worker] [FAILURE] 2026-05-22T20:57:00.007Z webhook-dispatcher failed in 1ms. Error: fetch failed
+2026-05-23 02:28:00: [cron-worker] [FAILURE] 2026-05-22T20:58:00.007Z send-scheduled-emails failed in 1ms. Error: fetch failed
+2026-05-23 02:28:00: [cron-worker] [FAILURE] 2026-05-22T20:58:00.007Z send-broadcasts failed in 1ms. Error: fetch failed
+2026-05-23 02:28:00: [cron-worker] [FAILURE] 2026-05-22T20:58:00.008Z sabflow-scheduled failed in 2ms. Error: fetch failed
+2026-05-23 02:28:00: [cron-worker] [FAILURE] 2026-05-22T20:58:00.008Z webhook-dispatcher failed in 2ms. Error: fetch failed
