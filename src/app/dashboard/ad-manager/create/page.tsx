@@ -40,7 +40,9 @@ import {
   Textarea,
 } from '@/components/zoruui';
 import {
-  useRouter } from 'next/navigation';
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
 import {
     ArrowLeft,
   Megaphone,
@@ -116,13 +118,42 @@ const LANGUAGES = [
 // =================================================================
 
 export default function CreateAdPage() {
+    return (
+        <React.Suspense
+            fallback={
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            }
+        >
+            <CreateAdForm />
+        </React.Suspense>
+    );
+}
+
+function CreateAdForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { toast } = useToast();
     const { activeAccount } = useAdManager();
 
     const [step, setStep] = React.useState<Step>(1);
     const [maxStep, setMaxStep] = React.useState<Step>(1);
     const [state, setState] = React.useState<CreateFormState>(initialFormState);
+
+    // Hydrate form state from URL parameters
+    React.useEffect(() => {
+        const dest = searchParams?.get('destination');
+        const obj = searchParams?.get('objective');
+
+        if (dest || obj) {
+            setState((s) => ({
+                ...s,
+                ...(dest === 'WHATSAPP' ? { conversionLocation: 'whatsapp' } : {}),
+                ...(obj ? { objective: obj } : {}),
+            }));
+        }
+    }, [searchParams]);
     const [pages, setPages] = React.useState<FacebookPage[]>([]);
     const [pixels, setPixels] = React.useState<any[]>([]);
     const [audiences, setAudiences] = React.useState<CustomAudience[]>([]);

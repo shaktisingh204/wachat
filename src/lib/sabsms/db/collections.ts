@@ -470,7 +470,7 @@ export const SabsmsConsentEventSchema = z.object({
   ip: z.string().optional(),
   userAgent: z.string().optional(),
   doubleOptInVerifiedAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   createdAt: z.date(),
 });
 
