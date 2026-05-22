@@ -6,7 +6,7 @@
  * Ships:
  *   - KPI strip (total, active, draft, archived)
  *   - Filter row: search by name, status (active/draft/archived)
- *   - ZoruCheckbox selection
+ *   - Checkbox selection
  *   - Bulk archive, bulk delete with confirm
  *   - Export CSV
  *   - EntityRowLink on template name → detail page
@@ -23,31 +23,31 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruDialog,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {

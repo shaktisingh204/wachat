@@ -27,9 +27,9 @@ import { Eye, Pencil, Trash2 } from 'lucide-react';
 import type { ObjectId, WithId } from 'mongodb';
 
 import {
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruTable,
+  Button,
+  Checkbox,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

@@ -34,23 +34,23 @@ import {
 import type { DateRange } from 'react-day-picker';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
+    Badge,
+    Button,
+    Card,
     ZoruCardContent,
-    ZoruCheckbox,
+    Checkbox,
     ZoruDateRangePicker,
-    ZoruDropdownMenu,
+    DropdownMenu,
     ZoruDropdownMenuContent,
     ZoruDropdownMenuItem,
     ZoruDropdownMenuTrigger,
-    ZoruLabel,
-    ZoruSelect,
+    Label,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruStatCard,
+    StatCard,
     useZoruToast,
 } from '@/components/zoruui';
 

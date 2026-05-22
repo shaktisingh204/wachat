@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruTextarea,
+  Button,
+  Label,
+  Switch,
+  Textarea,
 } from '@/components/zoruui';
 import {
   useActionState,

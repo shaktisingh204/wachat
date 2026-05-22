@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

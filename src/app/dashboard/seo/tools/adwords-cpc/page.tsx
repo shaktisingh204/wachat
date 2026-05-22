@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardContent, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Card, ZoruCardContent, Input, Label } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';

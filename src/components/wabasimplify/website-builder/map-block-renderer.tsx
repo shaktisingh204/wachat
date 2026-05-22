@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruSkeleton, ZoruAlert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { Skeleton, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 import React, { useEffect, useState } from 'react';

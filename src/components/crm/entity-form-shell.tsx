@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/zoruui';
+import { Button, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/zoruui';
 import {
   LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
@@ -63,7 +63,7 @@ export interface EntityFormShellProps {
     subtitle?: string;
     /** Wraps a <form action={action}>. Pass `action` here so the shell can render the submit button. */
     action: (formData: FormData) => Promise<unknown> | void;
-    /** Sections list — rendered as ZoruCard each. */
+    /** Sections list — rendered as Card each. */
     sections: EntityFormShellSection[];
     /** Submit button label (default: "Save"). */
     submitLabel?: string;

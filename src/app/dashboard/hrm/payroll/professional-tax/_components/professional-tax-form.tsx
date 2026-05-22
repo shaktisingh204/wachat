@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -26,7 +26,7 @@ import { ArrowLeft,
 
 // 1E.sweep: status converted to <EnumFormField enumName="tdsStatus">
 // (slugs match: pending/deposited/filed/archived). TODOs remaining:
-// - state stays as ZoruSelect over indianStates (dynamic list) — needs
+// - state stays as Select over indianStates (dynamic list) — needs
 //   <EntityFormField entity="state"> with India-only filter.
 // - month is a <input type="month"> (native), not a dropdown.
 // - employee → <EntityFormField entity="employee">.

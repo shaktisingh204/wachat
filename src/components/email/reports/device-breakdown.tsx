@@ -3,7 +3,7 @@
 import { PieChart as PieIcon } from 'lucide-react';
 import {
   ZORU_CHART_PALETTE,
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
@@ -11,7 +11,7 @@ import {
   ZoruChart,
   ZoruChartContainer,
   ZoruChartTooltip,
-  ZoruEmptyState,
+  EmptyState,
 } from '@/components/zoruui';
 import type { EmailDeviceBreakdown } from '@/lib/rust-client/email-reports';
 

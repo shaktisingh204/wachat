@@ -15,10 +15,10 @@
 
 import * as React from 'react';
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
@@ -28,9 +28,9 @@ import {
   ZoruDrawerDescription,
   ZoruDrawerHeader,
   ZoruDrawerTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Input,
+  Label,
+  Textarea,
 } from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {

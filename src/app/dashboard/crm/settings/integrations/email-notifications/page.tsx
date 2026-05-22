@@ -14,11 +14,11 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruSwitch,
-  ZoruBadge,
+  Switch,
+  Badge,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {

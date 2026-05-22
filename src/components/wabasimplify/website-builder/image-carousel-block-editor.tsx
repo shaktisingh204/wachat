@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruAccordion,
+  Label,
+  Button,
+  Input,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruSeparator,
-  ZoruTextarea,
+  Switch,
+  Separator,
+  Textarea,
 } from '@/components/zoruui';
 import { Plus, Trash2, TrendingUp, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';

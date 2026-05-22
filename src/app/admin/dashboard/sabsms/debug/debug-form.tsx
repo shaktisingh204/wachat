@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Badge,
+  Button,
+  Input,
+  Label,
+  Textarea,
 } from '@/components/zoruui';
 import { sendDebugSms, fetchDebugStatus } from './actions';
 import type {

@@ -24,10 +24,10 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
+  Badge,
+  Button,
+  Checkbox,
+  Dialog,
   ZoruDialogClose,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -35,9 +35,9 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruInput,
-  ZoruLabel,
-  ZoruStatCard,
+  Input,
+  Label,
+  StatCard,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruButton,
+  Button,
 } from '@/components/zoruui';
 import { AlertCircle, Facebook } from 'lucide-react';
 import type { WithId,

@@ -6,7 +6,7 @@
  * Composes <EntityListShell> with:
  *   - KPI strip (Draft · Sent · Accepted · Closed · Total value)
  *   - Status filter + search
- *   - Dense ZoruTable with row checkboxes
+ *   - Dense Table with row checkboxes
  *   - Bulk delete with ConfirmDialog
  *   - CSV export
  */
@@ -15,11 +15,11 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruTable,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

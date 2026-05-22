@@ -4,7 +4,7 @@ import * as React from "react";
 import { Download, Pencil, Share2, Trash2 } from "lucide-react";
 
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,

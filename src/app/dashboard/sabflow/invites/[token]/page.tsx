@@ -1,11 +1,11 @@
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruEmptyState,
+  EmptyState,
 } from '@/components/zoruui';
 import {
   redirect } from "next/navigation";

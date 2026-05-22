@@ -1,28 +1,28 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruBadge,
-  ZoruButton,
-  ZoruDialog,
+  Badge,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruScrollArea,
-  ZoruSheet,
+  Input,
+  ScrollArea,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetHeader,
   ZoruSheetTitle,
   ZoruSheetDescription,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
   cn,
 } from '@/components/zoruui';
@@ -77,7 +77,7 @@ import type {
  *   1. Conversations list  (rebuilt inline with Zoru primitives)
  *   2. Message thread      (rebuilt inline; reuses sendFacebookMessage
  *                           server action via useActionState)
- *   3. Contact info panel  (Zoru-native, in a ZoruSheet on mobile)
+ *   3. Contact info panel  (Zoru-native, in a Sheet on mobile)
  *
  * Same data, same handlers, same server-action calls — visual layer only.
  *

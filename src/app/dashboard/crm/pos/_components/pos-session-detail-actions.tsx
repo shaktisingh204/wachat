@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, zoruSonnerToast } from '@/components/zoruui';
+import { Button, zoruSonnerToast } from '@/components/zoruui';
 import { useRouter } from 'next/navigation';
 
 /**

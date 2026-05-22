@@ -1,4 +1,4 @@
-import { ZoruCard, ZoruBadge } from '@/components/zoruui';
+import { Card, Badge } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
 
 /**

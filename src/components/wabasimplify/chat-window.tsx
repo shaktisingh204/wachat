@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruButton,
-  ZoruScrollArea,
-  ZoruAlert,
+  Button,
+  ScrollArea,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
 } from '@/components/zoruui';

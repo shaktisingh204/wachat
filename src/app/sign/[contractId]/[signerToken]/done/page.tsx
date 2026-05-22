@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent } from '@/components/zoruui';
 import {
   ObjectId } from 'mongodb';
 import { CheckCircle2,

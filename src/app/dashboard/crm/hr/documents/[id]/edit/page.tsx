@@ -1,42 +1,25 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
-/**
- * Edit document page — server wrapper that loads the document by id and
- * passes it as `initialData` to `<DocumentForm />`.
- */
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getDocumentById } from '@/app/actions/crm-documents.actions';
+export default async function LegacyHrRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-import { DocumentForm } from '../../_components/document-form';
+  let target = '/dashboard/hrm/hr/documents/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v) target = target.replace(`[${key}]`, encodeURIComponent(v));
+  }
 
-export const dynamic = 'force-dynamic';
-
-const BASE = '/dashboard/crm/hr/documents';
-
-export default async function EditDocumentPage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id: documentId } = await params;
-
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
-    const doc = await getDocumentById(documentId);
-    if (!doc) notFound();
-
-    return (
-        <EntityDetailShell
-            title={`Edit · ${doc.name}`}
-            eyebrow="DOCUMENT"
-            back={{ href: BASE, label: 'Documents' }}
-        >
-            <DocumentForm initialData={doc} />
-        </EntityDetailShell>
-    );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

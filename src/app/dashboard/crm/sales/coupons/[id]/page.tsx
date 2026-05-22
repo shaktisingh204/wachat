@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 
@@ -7,7 +7,7 @@ import { Pencil } from 'lucide-react';
  *
  * Server component: fetches via `getCouponById`, renders the
  * `<EntityDetailShell>` with header (status pill + Edit button), a
- * ZoruCard body of fields, and an Activity footer powered by
+ * Card body of fields, and an Activity footer powered by
  * `<EntityAuditTimeline>` (entityKind: 'coupon').
  */
 

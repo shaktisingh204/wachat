@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruTextarea,
-  ZoruInput,
-  ZoruSelect,
+  Label,
+  Button,
+  Textarea,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

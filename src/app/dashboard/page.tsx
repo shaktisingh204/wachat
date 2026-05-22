@@ -1,15 +1,15 @@
 "use client";
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDropdownMenu,
+  Button,
+  Card,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
@@ -17,7 +17,7 @@ import {
   ZoruDropdownMenuRadioItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruSkeleton,
+  Skeleton,
   cn,
 } from '@/components/zoruui';
 import {

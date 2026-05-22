@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Input,
+  Label,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -88,13 +88,13 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
         const names = currentTags.map(t => t.name.trim().toLowerCase());
         
         if (names.some(name => name === '')) {
-            setValidationError('ZoruLabel names cannot be empty. Please fill them in or remove the blank labels.');
+            setValidationError('Label names cannot be empty. Please fill them in or remove the blank labels.');
             return;
         }
 
         const uniqueNames = new Set(names);
         if (uniqueNames.size !== names.length) {
-            setValidationError('ZoruLabel names must be unique. Please remove or rename duplicates.');
+            setValidationError('Label names must be unique. Please remove or rename duplicates.');
             return;
         }
         
@@ -114,7 +114,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
                     </ZoruDialogHeader>
                     <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                         <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-muted-foreground">
-                            <span>ZoruLabel Name</span>
+                            <span>Label Name</span>
                             <span className="text-center">Color</span>
                             <span className="w-10"></span>
                         </div>
@@ -140,7 +140,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
                         </div>
                          <ZoruButton type="button" variant="outline" className="w-full" onClick={handleAddTag}>
                             <Plus className="mr-2 h-4 w-4" />
-                            Add ZoruLabel
+                            Add Label
                         </ZoruButton>
                         {validationError && <p className="text-sm text-destructive">{validationError}</p>}
                     </div>

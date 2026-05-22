@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Input, Label, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { Lightbulb } from 'lucide-react';
 
 interface IfEditorProps {

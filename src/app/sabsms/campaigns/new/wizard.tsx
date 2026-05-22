@@ -4,17 +4,17 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruInput,
+  Input,
   ZoruKbd,
-  ZoruLabel,
-  ZoruSeparator,
+  Label,
+  Separator,
 } from "@/components/zoruui";
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 

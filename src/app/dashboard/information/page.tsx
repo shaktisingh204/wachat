@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruSkeleton,
-  ZoruAlert,
+  Skeleton,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruSeparator,
+  Badge,
+  Separator,
 } from '@/components/zoruui';
 import {
   getProjectById } from '@/app/actions/index';

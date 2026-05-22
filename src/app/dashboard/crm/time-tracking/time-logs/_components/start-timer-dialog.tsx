@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Input,
+  Label,
+  Textarea,
 } from '@/components/zoruui';
 import {
   LoaderCircle,

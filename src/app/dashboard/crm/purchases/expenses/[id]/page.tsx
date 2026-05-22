@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import { ObjectId } from 'mongodb';

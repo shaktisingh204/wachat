@@ -1,66 +1,25 @@
-'use client';
+import { permanentRedirect } from 'next/navigation';
 
-import { ZoruSkeleton } from '@/components/zoruui';
-import {
-  use,
-  useEffect,
-  useState } from 'react';
-import { Route } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { getLearningPaths,
-  saveLearningPath } from '@/app/actions/hr.actions';
-import type { HrLearningPath } from '@/lib/hr-types';
-import { fields,
-  sections } from '../../_config';
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function EditLearningPathPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
-  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+export default async function LegacyHrRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const list = (await getLearningPaths()) as (HrLearningPath & { _id: string })[];
-        if (!mounted) return;
-        const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === id) || null
-          : null;
-        setInitial(found as Record<string, unknown> | null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
+  let target = '/dashboard/hrm/hr/learning-paths/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v) target = target.replace(`[${key}]`, encodeURIComponent(v));
   }
 
-  return (
-    <HrFormPage
-      title="Edit Learning Path"
-      subtitle="Update learning path details."
-      icon={Route}
-      backHref="/dashboard/crm/hr/learning-paths"
-      singular="Path"
-      fields={fields}
-      sections={sections}
-      saveAction={saveLearningPath}
-      initial={initial}
-    />
-  );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

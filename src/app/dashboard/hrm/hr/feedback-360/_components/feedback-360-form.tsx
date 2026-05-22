@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -28,7 +28,7 @@ import { ArrowLeft,
   Trash2 } from 'lucide-react';
 
 // §1E.sweep: status migrated to <EnumFormField enumName="feedback360Status">.
-// reviewer role ZoruSelect kept — no dedicated enum in catalogue yet (values: self/peer/manager/direct_report).
+// reviewer role Select kept — no dedicated enum in catalogue yet (values: self/peer/manager/direct_report).
 
 /**
  * <Feedback360Form /> — create + edit form for 360° feedback.

@@ -5,7 +5,7 @@
  * `src/app/dashboard/crm/bookings/[id]/page.tsx`:
  *   - Header: eyebrow · title · status · action menu.
  *   - Main column: Overview (body) · Comments · Attachments · Related
- *     sections rendered as anchor-linked cards (no ZoruTabs per the
+ *     sections rendered as anchor-linked cards (no Tabs per the
  *     no-tab-ui directive in zoruui).
  *   - Right rail: key facts · counts · quick actions.
  *   - Footer: <EntityAuditTimeline /> via shell `audit` slot.
@@ -16,13 +16,13 @@ import Link from 'next/link';
 import { Pin } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
+    Badge,
+    Button,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-    ZoruEmptyState,
+    EmptyState,
 } from '@/components/zoruui';
 
 import {

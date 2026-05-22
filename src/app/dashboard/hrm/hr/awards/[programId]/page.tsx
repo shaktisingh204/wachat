@@ -1,8 +1,8 @@
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
+  Badge,
+  Button,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -11,10 +11,12 @@ import {
 } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
+import Link from 'next/link';
 import { ObjectId } from 'mongodb';
 import {
   Trophy,
-  PlusCircle } from 'lucide-react';
+  PlusCircle,
+  Pencil } from 'lucide-react';
 
 /**
  * Award program detail page.
@@ -129,6 +131,12 @@ export default async function AwardProgramDetailPage({
             title={name}
             subtitle="Award program detail"
             primaryAction={
+                <div className="flex items-center gap-2">
+                <Button variant="outline" asChild>
+                    <Link href={`/dashboard/hrm/hr/awards/${programId}/edit`}>
+                        <Pencil className="h-4 w-4" /> Edit
+                    </Link>
+                </Button>
                 <HrActionButtons
                             actions={[
                                 {
@@ -181,13 +189,14 @@ export default async function AwardProgramDetailPage({
                                 },
                             ]}
                         />
+                </div>
             }
         >
 
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                     <h2 className="text-[15px] font-medium text-zoru-ink">Program Details</h2>
-                    <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+                    <Badge variant={statusVariant(status)}>{status}</Badge>
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
@@ -213,10 +222,10 @@ export default async function AwardProgramDetailPage({
                         </DetailRow>
                     ) : null}
                 </div>
-            </ZoruCard>
+            </Card>
 
             {/* Nominations */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-[15px] font-medium text-zoru-ink">Nominations</h2>
                     <span className="text-[12px] text-zoru-ink-muted">{nominations} total</span>
@@ -227,7 +236,7 @@ export default async function AwardProgramDetailPage({
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Nominee</ZoruTableHead>
@@ -254,13 +263,13 @@ export default async function AwardProgramDetailPage({
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
 
             {/* Winners */}
-            <ZoruCard className="p-6">
+            <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-[15px] font-medium text-zoru-ink">Winners</h2>
                     <span className="text-[12px] text-zoru-ink-muted">{winners} total</span>
@@ -271,7 +280,7 @@ export default async function AwardProgramDetailPage({
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-                        <ZoruTable>
+                        <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
                                     <ZoruTableHead>Winner</ZoruTableHead>
@@ -294,10 +303,10 @@ export default async function AwardProgramDetailPage({
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>
-                        </ZoruTable>
+                        </Table>
                     </div>
                 )}
-            </ZoruCard>
+            </Card>
         </EntityListShell>
     );
 }

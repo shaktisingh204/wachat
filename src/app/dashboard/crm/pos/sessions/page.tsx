@@ -1,4 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { Plus } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';

@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -16,7 +16,7 @@ import {
  * HR Announcement detail page.
  *
  * Server component that fetches a single announcement via
- * `getAnnouncementById` (Rust-backed) and renders a stacked ZoruCard
+ * `getAnnouncementById` (Rust-backed) and renders a stacked Card
  * layout:
  *   1. Header — title, category, status, priority, pinned
  *   2. Banner (when present)

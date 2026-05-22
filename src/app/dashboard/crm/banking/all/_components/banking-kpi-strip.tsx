@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { Banknote, CheckCircle2, Layers, RotateCw } from 'lucide-react';
 
 import * as React from 'react';

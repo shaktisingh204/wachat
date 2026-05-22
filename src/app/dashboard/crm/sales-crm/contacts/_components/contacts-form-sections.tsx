@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDatePicker,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  DatePicker,
+  Input,
+  Label,
+  Textarea,
 } from '@/components/zoruui';
 /**
  * Field-section sub-components for <ContactForm>, extracted to keep

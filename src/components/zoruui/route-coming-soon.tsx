@@ -4,8 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Construction } from 'lucide-react';
 
-import { ZoruButton } from './button';
-import { ZoruEmptyState } from './empty-state';
+import { Button } from './button';
+import { EmptyState } from './empty-state';
 
 export interface RouteComingSoonProps {
   title: string;

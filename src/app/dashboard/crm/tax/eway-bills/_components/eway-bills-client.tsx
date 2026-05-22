@@ -5,7 +5,7 @@
  *
  * Responsibilities:
  *  - Filter row (search by EWB no / GSTIN, status select, date range)
- *  - ZoruCheckbox row selection + select-all
+ *  - Checkbox row selection + select-all
  *  - Bulk cancel with confirm dialog
  *  - Export CSV / XLSX
  *  - Delegates per-row mutations to <EWayBillRowActions>
@@ -16,10 +16,10 @@ import { useRouter } from 'next/navigation';
 import { Download, X, Loader2 } from 'lucide-react';
 
 import {
-    ZoruButton,
-    ZoruBadge,
-    ZoruCheckbox,
-    ZoruInput,
+    Button,
+    Badge,
+    Checkbox,
+    Input,
 } from '@/components/zoruui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';

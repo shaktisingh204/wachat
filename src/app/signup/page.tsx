@@ -3,12 +3,12 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

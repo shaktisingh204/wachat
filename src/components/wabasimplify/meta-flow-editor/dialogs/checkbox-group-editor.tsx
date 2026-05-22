@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruCheckbox } from '@/components/zoruui';
+import { Input, Label, Checkbox } from '@/components/zoruui';
 import { DataSourceEditor } from '../shared/data-source-editor';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
@@ -20,12 +20,12 @@ export function CheckboxGroupEditor({ component, updateField, updateAction }: Ch
                 <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">ZoruLabel (shown to user)</ZoruLabel>
+                <ZoruLabel htmlFor="label">Label (shown to user)</ZoruLabel>
                 <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} />
             </div>
             
             <DataSourceEditor
-                label="ZoruCheckbox Items"
+                label="Checkbox Items"
                 dataSource={component['data-source'] || []}
                 updateDataSource={(newDataSource) => updateField('data-source', newDataSource)}
             />

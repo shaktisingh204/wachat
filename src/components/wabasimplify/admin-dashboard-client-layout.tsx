@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruButton,
-  ZoruAvatar,
+  Button,
+  Avatar,
   ZoruAvatarImage,
   ZoruAvatarFallback,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import {
   usePathname,
@@ -153,7 +153,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                                 <ZoruDropdownMenuTrigger asChild>
                                     <ZoruButton variant="ghost" className="flex items-center gap-2">
                                         <ZoruAvatar className="h-8 w-8">
-                                            <ZoruAvatarImage src="https://placehold.co/100x100.png" alt="Admin ZoruAvatar" data-ai-hint="person avatar" />
+                                            <ZoruAvatarImage src="https://placehold.co/100x100.png" alt="Admin Avatar" data-ai-hint="person avatar" />
                                             <ZoruAvatarFallback>A</ZoruAvatarFallback>
                                         </ZoruAvatar>
                                         <span className="hidden md:inline">Admin User</span>

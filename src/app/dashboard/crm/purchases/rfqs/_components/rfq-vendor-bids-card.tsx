@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 /**
  * <RfqVendorBidsCard> — server component that lists all vendor bids
  * submitted against an RFQ. Highlights the awarded vendor and exposes

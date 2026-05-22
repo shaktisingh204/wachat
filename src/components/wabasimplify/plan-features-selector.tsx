@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruBadge,
-  ZoruSwitch,
+  Button,
+  Input,
+  Badge,
+  Switch,
 } from '@/components/zoruui';
 import {
   planFeatureMap,

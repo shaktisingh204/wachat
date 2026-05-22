@@ -15,12 +15,12 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
-  ZoruBadge,
-  ZoruButton,
-  ZoruScrollArea,
-  ZoruSeparator,
+  Badge,
+  Button,
+  ScrollArea,
+  Separator,
   cn,
 } from '@/components/zoruui';
 import type {

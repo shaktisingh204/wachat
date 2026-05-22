@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruDatePicker, ZoruLabel } from '@/components/zoruui';
+import { Button, DatePicker, Label } from '@/components/zoruui';
 import {
   useRouter,
   usePathname,

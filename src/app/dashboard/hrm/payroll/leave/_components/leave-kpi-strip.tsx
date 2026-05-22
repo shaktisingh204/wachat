@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { CalendarOff, CheckCircle2, Clock, Hourglass, XCircle, } from 'lucide-react';
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruLabel } from '@/components/zoruui';
+import { Label } from '@/components/zoruui';
 export function CartBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     return (
         <div className="space-y-4 text-center text-muted-foreground p-4">

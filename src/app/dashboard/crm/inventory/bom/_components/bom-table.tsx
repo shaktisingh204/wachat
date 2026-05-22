@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruCheckbox,
-  ZoruDropdownMenu,
+  Checkbox,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

@@ -8,11 +8,11 @@ import { useDebouncedCallback } from 'use-debounce';
 import { Building2, Plus, Trash2 } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruTable,
+    Badge,
+    Button,
+    Card,
+    Checkbox,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

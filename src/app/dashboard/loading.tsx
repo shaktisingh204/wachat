@@ -1,4 +1,4 @@
-import { ZoruSkeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/zoruui';
 /**
  * /dashboard/* loading fallback. Shown instantly during route
  * transitions while the layout's session + project + RBAC checks

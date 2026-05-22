@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 /**
  * <VendorBidFilters> — collapsible filter row for the Vendor Bids list.
  *

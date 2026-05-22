@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruLabel, ZoruTextarea, cn, ZoruInput } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, Label, Textarea, cn, Input } from '@/components/zoruui';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -17,7 +17,7 @@ export default function Base64ToImagePage() {
     try {
       const value = input.trim();
       if (!value.startsWith('data:image/')) {
-        throw new Error('ZoruInput must be a data:image/... URL');
+        throw new Error('Input must be a data:image/... URL');
       }
       setSrc(value);
     } catch (e: any) {

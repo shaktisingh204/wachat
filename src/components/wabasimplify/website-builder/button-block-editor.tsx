@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
+  Label,
+  Button,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSeparator,
-  ZoruSwitch,
-  ZoruTextarea,
+  Separator,
+  Switch,
+  Textarea,
 } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2, TrendingUp } from 'lucide-react';
@@ -72,7 +72,7 @@ export function ButtonBlockEditor({ settings, onUpdate }: { settings: any, onUpd
             <TabsContent value="content" className="pt-4">
                  <ZoruAccordion type="multiple" className="w-full" defaultValue={['content_general']}>
                     <ZoruAccordionItem value="content_general">
-                        <ZoruAccordionTrigger>ZoruButton</ZoruAccordionTrigger>
+                        <ZoruAccordionTrigger>Button</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><ZoruLabel htmlFor="text">Text</ZoruLabel><ZoruInput id="text" value={settings.text || 'Click Me'} onChange={(e) => handleUpdate('text', e.target.value)} /></div>
                              <div className="space-y-2"><ZoruLabel htmlFor="link">Link</ZoruLabel><ZoruInput id="link" value={settings.link || '#'} onChange={(e) => handleUpdate('link', e.target.value)} /></div>
@@ -99,7 +99,7 @@ export function ButtonBlockEditor({ settings, onUpdate }: { settings: any, onUpd
              <TabsContent value="style" className="pt-4">
                  <ZoruAccordion type="multiple" className="w-full" defaultValue={['style_button']}>
                     <ZoruAccordionItem value="style_button">
-                        <ZoruAccordionTrigger>ZoruButton</ZoruAccordionTrigger>
+                        <ZoruAccordionTrigger>Button</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><ZoruLabel>Typography</ZoruLabel><ZoruSelect value={settings.typography?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('typography', 'fontFamily', v)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="inherit">Default</ZoruSelectItem><ZoruSelectItem value="'Inter', sans-serif">Inter</ZoruSelectItem><ZoruSelectItem value="'Roboto', sans-serif">Roboto</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                             <Tabs defaultValue="normal">

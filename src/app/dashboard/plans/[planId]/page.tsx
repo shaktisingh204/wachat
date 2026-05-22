@@ -1,24 +1,24 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruSkeleton,
-  ZoruSwitch,
+  Separator,
+  Skeleton,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import {

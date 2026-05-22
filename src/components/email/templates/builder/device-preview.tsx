@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Monitor, Moon, Smartphone, Sun } from 'lucide-react';
 
 import {
-  ZoruButton,
+  Button,
   ZoruDrawer,
   ZoruDrawerContent,
   ZoruDrawerHeader,

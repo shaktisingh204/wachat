@@ -1,6 +1,6 @@
 "use client";
 
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { Pin, UsersRound, VolumeX } from "lucide-react";
 
 /**

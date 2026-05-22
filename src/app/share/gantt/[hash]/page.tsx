@@ -8,8 +8,8 @@
 
 import { notFound } from 'next/navigation';
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,

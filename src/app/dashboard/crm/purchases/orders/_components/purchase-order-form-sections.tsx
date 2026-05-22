@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { Card, Input, Label, Textarea } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { Paperclip, X } from 'lucide-react';
 /**

@@ -6,7 +6,7 @@ import { ChevronDown, Plus } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruAccordion = AccordionPrimitive.Root;
+export const Accordion = AccordionPrimitive.Root;
 
 export const ZoruAccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,

@@ -16,20 +16,20 @@ export { cn } from "./lib/cn";
 export { ZoruDock, ZoruDockIcon, type ZoruDockAccent } from "./dock";
 
 // Atoms — form & text primitives
-export { ZoruButton, zoruButtonVariants, type ZoruButtonProps } from "./button";
-export { ZoruInput, type ZoruInputProps } from "./input";
-export { ZoruTextarea, type ZoruTextareaProps } from "./textarea";
-export { ZoruLabel, type ZoruLabelProps } from "./label";
-export { ZoruCheckbox } from "./checkbox";
+export { Button, zoruButtonVariants, type ZoruButtonProps } from "./button";
+export { Input, type ZoruInputProps } from "./input";
+export { Textarea, type ZoruTextareaProps } from "./textarea";
+export { Label, type ZoruLabelProps } from "./label";
+export { Checkbox } from "./checkbox";
 export {
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
   ZoruRadioCard,
   type ZoruRadioCardProps,
 } from "./radio-group";
-export { ZoruSwitch, ZoruBouncyToggle, type ZoruBouncyToggleProps } from "./switch";
+export { Switch, ZoruBouncyToggle, type ZoruBouncyToggleProps } from "./switch";
 export {
-  ZoruSelect,
+  Select,
   ZoruSelectGroup,
   ZoruSelectValue,
   ZoruSelectTrigger,
@@ -38,14 +38,14 @@ export {
   ZoruSelectItem,
   ZoruSelectSeparator,
 } from "./select";
-export { ZoruSeparator } from "./separator";
-export { ZoruSkeleton, type ZoruSkeletonProps } from "./skeleton";
-export { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from "./avatar";
-export { ZoruBadge, zoruBadgeVariants, type ZoruBadgeProps } from "./badge";
+export { Separator } from "./separator";
+export { Skeleton, type ZoruSkeletonProps } from "./skeleton";
+export { Avatar, ZoruAvatarImage, ZoruAvatarFallback } from "./avatar";
+export { Badge, zoruBadgeVariants, type ZoruBadgeProps } from "./badge";
 export { ZoruKbd, type ZoruKbdProps } from "./kbd";
-export { ZoruProgress, type ZoruProgressProps } from "./progress";
+export { Progress, type ZoruProgressProps } from "./progress";
 export {
-  ZoruTooltip,
+  Tooltip,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
   ZoruTooltipContent,
@@ -53,7 +53,7 @@ export {
 
 // Overlays, feedback & menus
 export {
-  ZoruDialog,
+  Dialog,
   ZoruDialogTrigger,
   ZoruDialogClose,
   ZoruDialogPortal,
@@ -79,7 +79,7 @@ export {
   ZoruAlertDialogCancel,
 } from "./alert-dialog";
 export {
-  ZoruSheet,
+  Sheet,
   ZoruSheetTrigger,
   ZoruSheetClose,
   ZoruSheetPortal,
@@ -103,14 +103,14 @@ export {
   ZoruDrawerDescription,
 } from "./drawer";
 export {
-  ZoruPopover,
+  Popover,
   ZoruPopoverTrigger,
   ZoruPopoverAnchor,
   ZoruPopoverPortal,
   ZoruPopoverContent,
 } from "./popover";
 export {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuGroup,
   ZoruDropdownMenuPortal,
@@ -175,7 +175,7 @@ export {
 export { ZoruToaster } from "./toaster";
 export { ZoruSonner, zoruSonnerToast } from "./sonner";
 export {
-  ZoruAlert,
+  Alert,
   ZoruAlertTitle,
   ZoruAlertDescription,
   type ZoruAlertProps,
@@ -188,7 +188,7 @@ export {
 
 // Layout & navigation
 export {
-  ZoruCard,
+  Card,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardDescription,
@@ -198,7 +198,7 @@ export {
   type ZoruCardProps,
 } from "./card";
 export {
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageEyebrow,
   ZoruPageTitle,
@@ -207,7 +207,7 @@ export {
   type ZoruPageHeaderProps,
 } from "./page-header";
 export {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbList,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -219,7 +219,7 @@ export {
 // Per the no-tab-ui directive, zoruui has no tab primitive — use
 // segmented buttons, numbered steppers, or distinct routes instead.
 export {
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
   ZoruAccordionContent,
@@ -233,13 +233,13 @@ export {
   ZoruCollapsibleTrigger,
   ZoruCollapsibleContent,
 } from "./collapsible";
-export { ZoruScrollArea, ZoruScrollBar } from "./scroll-area";
+export { ScrollArea, ZoruScrollBar } from "./scroll-area";
 export {
   ZoruResizablePanelGroup,
   ZoruResizablePanel,
   ZoruResizableHandle,
 } from "./resizable";
-export { ZoruEmptyState, type ZoruEmptyStateProps } from "./empty-state";
+export { EmptyState, type ZoruEmptyStateProps } from "./empty-state";
 export { RouteComingSoon, type RouteComingSoonProps } from "./route-coming-soon";
 export {
   ZoruLimelightNav,
@@ -266,7 +266,7 @@ export {
 
 // Data display & inputs
 export {
-  ZoruTable,
+  Table,
   ZoruTableHeader,
   ZoruTableBody,
   ZoruTableFooter,
@@ -276,7 +276,7 @@ export {
   ZoruTableCaption,
 } from "./table";
 export {
-  ZoruDataTable,
+  DataTable,
   type ZoruDataTableProps,
 } from "./data-table";
 export {
@@ -284,7 +284,7 @@ export {
   type ZoruTableWithDialogProps,
   type ZoruTableColumn,
 } from "./table-with-dialog";
-export { ZoruCalendar, type ZoruCalendarProps } from "./calendar";
+export { Calendar, type ZoruCalendarProps } from "./calendar";
 export {
   ZoruCalendarLume,
   type ZoruCalendarLumeProps,
@@ -295,7 +295,7 @@ export {
   type ZoruFullscreenCalendarProps,
 } from "./fullscreen-calendar";
 export {
-  ZoruDatePicker,
+  DatePicker,
   ZoruDateRangePicker,
   type ZoruDatePickerProps,
   type ZoruDateRangePickerProps,
@@ -341,7 +341,7 @@ export {
   type ZoruChartContainerProps,
   type ZoruChartTooltipProps,
 } from "./chart";
-export { ZoruStatCard, type ZoruStatCardProps } from "./stat-card";
+export { StatCard, type ZoruStatCardProps } from "./stat-card";
 export {
   ZoruStatisticsCard1,
   type ZoruStatisticsCard1Props,

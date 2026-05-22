@@ -16,7 +16,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { ZoruButton, ZoruBadge } from '@/components/zoruui';
+import { Button, Badge } from '@/components/zoruui';
 import type { SubmissionRow } from '../page';
 
 /* ── Types ─────────────────────────────────────────────────────────────── */

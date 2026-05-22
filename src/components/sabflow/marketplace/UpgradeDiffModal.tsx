@@ -38,8 +38,8 @@ import {
 } from 'react-icons/lu';
 
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,

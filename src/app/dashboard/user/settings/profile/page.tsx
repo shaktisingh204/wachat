@@ -1,19 +1,19 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruSeparator,
-  ZoruTextarea,
-  ZoruBadge,
+  Button,
+  Input,
+  Label,
+  Skeleton,
+  Separator,
+  Textarea,
+  Badge,
 } from '@/components/zoruui';
 import {
   useEffect,

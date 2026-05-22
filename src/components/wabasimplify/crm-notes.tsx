@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruTextarea, ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import { Button, Textarea, Avatar, ZoruAvatarFallback } from '@/components/zoruui';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ClayCard } from '@/components/clay';

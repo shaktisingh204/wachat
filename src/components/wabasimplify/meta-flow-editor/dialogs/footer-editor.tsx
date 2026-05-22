@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruButton } from '@/components/zoruui';
+import { Input, Label, Button } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 
@@ -16,7 +16,7 @@ export function FooterEditor({ component, updateField, updateAction, allScreens 
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">ZoruButton ZoruLabel</ZoruLabel>
+                <ZoruLabel htmlFor="label">Button Label</ZoruLabel>
                 <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={35} />
             </div>
             <div className="space-y-2">

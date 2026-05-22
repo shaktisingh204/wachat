@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea } from '@/components/zoruui';
+import { Button, Input, Label, Switch, Textarea } from '@/components/zoruui';
 import {
   GripVertical,
   Plus,

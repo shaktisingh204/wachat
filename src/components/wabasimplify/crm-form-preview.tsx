@@ -1,19 +1,19 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruRadioGroup,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
 } from '@/components/zoruui';
 import React from 'react';
 import Image from 'next/image';

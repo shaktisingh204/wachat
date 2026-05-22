@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruSelect,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruScrollArea,
-  ZoruSeparator,
+  ScrollArea,
+  Separator,
 } from '@/components/zoruui';
 import {
   useState,
@@ -31,7 +31,7 @@ function VariableInserter({ onInsert }: { onInsert: (v: string) => void }) {
     const vars = [
         { key: '{{name}}', label: 'Contact Name' },
         { key: '{{waId}}', label: 'Phone Number' },
-        { key: '{{last_input}}', label: 'Last User ZoruInput' },
+        { key: '{{last_input}}', label: 'Last User Input' },
         { key: '{{cart_summary}}', label: 'Cart Summary' },
         { key: '{{custom.', label: 'Custom Variable...' },
     ];
@@ -148,12 +148,12 @@ function ButtonsNodeEditor({ data, onChange }: { data: any; onChange: (d: any) =
                 <ZoruLabel className="text-xs">Buttons ({buttons.length}/3)</ZoruLabel>
                 {buttons.map((btn: any, i: number) => (
                     <div key={i} className="flex items-center gap-2">
-                        <ZoruInput value={btn.text || ''} onChange={e => updateBtn(i, 'text', e.target.value)} placeholder={`ZoruButton ${i + 1}`} className="flex-1 text-sm" />
+                        <ZoruInput value={btn.text || ''} onChange={e => updateBtn(i, 'text', e.target.value)} placeholder={`Button ${i + 1}`} className="flex-1 text-sm" />
                         <ZoruButton type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeBtn(i)}><Trash2 className="h-3 w-3" /></ZoruButton>
                     </div>
                 ))}
                 {buttons.length < 3 && (
-                    <ZoruButton type="button" variant="outline" size="sm" onClick={addBtn} className="w-full"><Plus className="h-3 w-3 mr-1" /> Add ZoruButton</ZoruButton>
+                    <ZoruButton type="button" variant="outline" size="sm" onClick={addBtn} className="w-full"><Plus className="h-3 w-3 mr-1" /> Add Button</ZoruButton>
                 )}
             </div>
         </>
@@ -179,7 +179,7 @@ function ListMessageEditor({ data, onChange }: { data: any; onChange: (d: any) =
             <Field label="Body Text">
                 <ZoruTextarea value={data.text || ''} onChange={e => onChange({ text: e.target.value })} placeholder="Choose from the options below" rows={2} />
             </Field>
-            <Field label="ZoruButton Text" hint="Text shown on the list menu button">
+            <Field label="Button Text" hint="Text shown on the list menu button">
                 <ZoruInput value={data.buttonText || ''} onChange={e => onChange({ buttonText: e.target.value })} placeholder="View Options" />
             </Field>
             <Field label="Header (Optional)">
@@ -396,7 +396,7 @@ function CtaUrlEditor({ data, onChange }: { data: any; onChange: (d: any) => voi
     return (
         <>
             <Field label="Body Text"><ZoruTextarea value={data.body || ''} onChange={e => onChange({ body: e.target.value })} placeholder="Check out our website" rows={2} /></Field>
-            <Field label="ZoruButton Text"><ZoruInput value={data.displayText || ''} onChange={e => onChange({ displayText: e.target.value })} placeholder="Visit Website" /></Field>
+            <Field label="Button Text"><ZoruInput value={data.displayText || ''} onChange={e => onChange({ displayText: e.target.value })} placeholder="Visit Website" /></Field>
             <Field label="URL"><ZoruInput value={data.url || ''} onChange={e => onChange({ url: e.target.value })} placeholder="https://example.com" /></Field>
             <Field label="Header (Optional)"><ZoruInput value={data.header || ''} onChange={e => onChange({ header: e.target.value })} /></Field>
         </>
@@ -413,7 +413,7 @@ function AgentEditor({ data, onChange }: { data: any; onChange: (d: any) => void
                     const agent = agents.find((a: any) => a.userId?.toString() === v);
                     onChange({ agentId: v, agentName: agent?.name || v });
                 }}>
-                    <ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect an agent..." /></ZoruSelectTrigger>
+                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select an agent..." /></ZoruSelectTrigger>
                     <ZoruSelectContent>
                         {agents.length === 0 ? (
                             <ZoruSelectItem value="" disabled>No agents configured</ZoruSelectItem>
@@ -512,7 +512,7 @@ interface PropertiesPanelProps {
 
 export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode }: PropertiesPanelProps) {
     if (!node) {
-        return <div className="p-6 text-center text-sm text-muted-foreground">ZoruSelect a block to configure it.</div>;
+        return <div className="p-6 text-center text-sm text-muted-foreground">Select a block to configure it.</div>;
     }
 
     const handleDataChange = (data: Partial<any>) => onUpdate(node.id, data);
@@ -554,7 +554,7 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
             case 'sendTemplate':
                 return <SimpleEditor data={d} onChange={onChange} fields={[
                     { key: 'templateName', label: 'Template Name', placeholder: 'order_confirmation' },
-                    { key: 'templateId', label: 'Template ID', placeholder: 'ZoruSelect or enter ID' },
+                    { key: 'templateId', label: 'Template ID', placeholder: 'Select or enter ID' },
                 ]} />;
             case 'triggerMetaFlow':
                 return <SimpleEditor data={d} onChange={onChange} fields={[
@@ -585,7 +585,7 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
                     { key: 'leadName', label: 'Lead Name', placeholder: '{{name}}' },
                     { key: 'leadEmail', label: 'Email', placeholder: '{{email}}' },
                     { key: 'leadPhone', label: 'Phone', placeholder: '{{waId}}' },
-                    { key: 'pipelineId', label: 'Pipeline ID', placeholder: 'ZoruSelect pipeline' },
+                    { key: 'pipelineId', label: 'Pipeline ID', placeholder: 'Select pipeline' },
                 ]} />;
             case 'sendOrder':
                 return <SimpleEditor data={d} onChange={onChange} fields={[
@@ -619,8 +619,8 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
 
             <ZoruScrollArea className="flex-1">
                 <div className="p-4 space-y-5">
-                    {/* ZoruLabel */}
-                    <Field label="Block ZoruLabel">
+                    {/* Label */}
+                    <Field label="Block Label">
                         <ZoruInput value={node.data.label || ''} onChange={handleLabelChange} placeholder={blockInfo?.label || 'Enter label'} className="bg-background" />
                     </Field>
 

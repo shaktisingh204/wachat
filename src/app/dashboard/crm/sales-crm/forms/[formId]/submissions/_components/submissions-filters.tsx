@@ -5,9 +5,9 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 
 import {
-    ZoruButton,
-    ZoruInput,
-    ZoruSelect,
+    Button,
+    Input,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,

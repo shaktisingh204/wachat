@@ -9,17 +9,17 @@ import { useDebouncedCallback } from 'use-debounce';
 import { Plus, Target, Upload } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruDialog,
+    Badge,
+    Button,
+    Card,
+    Checkbox,
+    Dialog,
     ZoruDialogContent,
     ZoruDialogDescription,
     ZoruDialogFooter,
     ZoruDialogHeader,
     ZoruDialogTitle,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

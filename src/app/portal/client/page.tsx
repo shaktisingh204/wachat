@@ -22,7 +22,7 @@ import {
     getClientPortalKpis,
 } from '@/app/actions/client-portal.actions';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,

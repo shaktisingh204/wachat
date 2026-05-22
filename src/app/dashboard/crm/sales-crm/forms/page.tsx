@@ -6,7 +6,7 @@
  * Ships:
  *   - KPI strip: total forms, published, draft, total submissions
  *   - Filter: search by name, status (published/draft/archived)
- *   - ZoruCheckbox row selection
+ *   - Checkbox row selection
  *   - Bulk publish, bulk archive, bulk delete with confirm
  *   - Export CSV
  *   - EntityRowLink on form name → submissions page
@@ -16,19 +16,19 @@ import * as React from 'react';
 import { useState, useEffect, useCallback, useTransition } from 'react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

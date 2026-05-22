@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDialog,
+  Button,
+  Card,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruSwitch,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import {

@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruScrollArea,
-  ZoruButton,
-  ZoruAvatar,
+  ScrollArea,
+  Button,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruBadge,
-  ZoruSkeleton,
-  ZoruInput,
-  ZoruSelect,
+  Badge,
+  Skeleton,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -147,7 +147,7 @@ export function ChatContactList({
                 </div>
                 <ZoruSelect value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
                     <ZoruSelectTrigger id="phoneNumberId">
-                        <ZoruSelectValue placeholder="ZoruSelect a phone number..." />
+                        <ZoruSelectValue placeholder="Select a phone number..." />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
                         {(project?.phoneNumbers || []).map((phone) => (

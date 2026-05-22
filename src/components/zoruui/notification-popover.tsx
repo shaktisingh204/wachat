@@ -37,10 +37,10 @@ import { getMyMentionNotifications } from "@/app/actions/mentions.actions";
 import type { NotificationWithProject } from "@/lib/definitions";
 import type { WithId } from "mongodb";
 
-import { ZoruButton } from "./button";
-import { ZoruEmptyState } from "./empty-state";
-import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from "./popover";
-import { ZoruScrollArea } from "./scroll-area";
+import { Button } from "./button";
+import { EmptyState } from "./empty-state";
+import { Popover, ZoruPopoverContent, ZoruPopoverTrigger } from "./popover";
+import { ScrollArea } from "./scroll-area";
 import { useZoruToast } from "./use-zoru-toast";
 import { cn } from "./lib/cn";
 

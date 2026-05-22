@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 import React from 'react';

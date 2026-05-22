@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruLabel,
-  ZoruSelect,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

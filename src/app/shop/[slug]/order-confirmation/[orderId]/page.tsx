@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruSeparator,
+  Separator,
 } from '@/components/zoruui';
 import {
   getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle, ZoruSkeleton } from '@/components/zoruui';
+import { Card, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle, Skeleton } from '@/components/zoruui';
 import {
   useEffect,
   useState } from 'react';

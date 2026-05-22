@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardDescription,
-  ZoruTextarea,
-  ZoruBadge,
-  ZoruTable,
+  Textarea,
+  Badge,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
   cn,
-  ZoruInput,
+  Input,
 } from '@/components/zoruui';
 import { cn as _zoruCn, useState } from 'react';
 
@@ -124,7 +124,7 @@ export default function KeywordClusteringPage() {
             <div className="grid gap-6 md:grid-cols-2">
                 <ZoruCard className="h-full">
                     <ZoruCardHeader>
-                        <ZoruCardTitle>ZoruInput Keywords</ZoruCardTitle>
+                        <ZoruCardTitle>Input Keywords</ZoruCardTitle>
                         <ZoruCardDescription>Paste your list (one per line).</ZoruCardDescription>
                     </ZoruCardHeader>
                     <ZoruCardContent className="h-full">

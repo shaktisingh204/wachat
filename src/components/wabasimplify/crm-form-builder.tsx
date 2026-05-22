@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Switch,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruScrollArea,
-  ZoruSeparator,
-  ZoruDialog,
+  ScrollArea,
+  Separator,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,
@@ -245,7 +245,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                         <ZoruAccordionContent className="space-y-4 pt-2">
                                             <div className="space-y-2"><ZoruLabel>Form Title</ZoruLabel><ZoruInput value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
                                             <div className="space-y-2"><ZoruLabel>Form Description</ZoruLabel><ZoruTextarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
-                                            <div className="space-y-2"><ZoruLabel>Submit ZoruButton Text</ZoruLabel><ZoruInput value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
+                                            <div className="space-y-2"><ZoruLabel>Submit Button Text</ZoruLabel><ZoruInput value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
                                             <div className="space-y-2"><ZoruLabel>Success Message</ZoruLabel><ZoruTextarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
                                             <div className="space-y-2"><ZoruLabel>Logo URL</ZoruLabel><ZoruInput value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
                                             <div className="space-y-2"><ZoruLabel>Footer Text (HTML allowed)</ZoruLabel><ZoruTextarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>

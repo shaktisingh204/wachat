@@ -3,24 +3,24 @@
 import * as React from "react";
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruSwitch,
-  ZoruTextarea,
+  Separator,
+  Switch,
+  Textarea,
 } from "@/components/zoruui";
 
 import type {

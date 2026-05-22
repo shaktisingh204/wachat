@@ -5,10 +5,10 @@ import type { DateRange } from 'react-day-picker';
 import { X } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
+    Badge,
+    Button,
     ZoruDateRangePicker,
-    ZoruSelect,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,

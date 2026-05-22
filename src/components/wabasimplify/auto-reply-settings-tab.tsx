@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruSwitch,
-  ZoruSeparator,
+  Button,
+  Switch,
+  Separator,
 } from '@/components/zoruui';
 import {
   useState } from 'react';
@@ -46,7 +46,7 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
                  <ZoruCardHeader>
                     <div className="flex items-center justify-between">
                         <div className="space-y-1.5">
-                            <ZoruCardTitle>Master Auto-Reply ZoruSwitch</ZoruCardTitle>
+                            <ZoruCardTitle>Master Auto-Reply Switch</ZoruCardTitle>
                             <ZoruCardDescription>Enable or disable all auto-reply functionality for this project.</ZoruCardDescription>
                         </div>
                          <div className="flex items-center gap-2">

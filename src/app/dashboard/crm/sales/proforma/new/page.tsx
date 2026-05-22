@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSeparator, ZoruTextarea, useZoruToast, ZoruSelect } from '@/components/zoruui';
+import { Button, Card, Input, Label, Separator, Textarea, useZoruToast, Select } from '@/components/zoruui';
 import {
   useState,
   useEffect,
@@ -183,7 +183,7 @@ export default function NewProformaInvoicePage() {
                                         entity="client"
                                         value={selectedClientId || null}
                                         allowCreate
-                                        placeholder="ZoruSelect client…"
+                                        placeholder="Select client…"
                                         onCreateClick={() => {
                                             const ret = encodeURIComponent(pathname);
                                             router.push(`/dashboard/crm/sales/clients/new?return=${ret}`);

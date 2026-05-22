@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { LuEllipsis } from 'react-icons/lu';
 
 import * as React from 'react';
@@ -16,7 +16,7 @@ export interface ClayUserCardProps {
 }
 
 /**
- * ClayUserCard — bottom-of-sidebar user row. ZoruAvatar + name/email +
+ * ClayUserCard — bottom-of-sidebar user row. Avatar + name/email +
  * overflow icon. Built on the shadcn `ZoruAvatar` primitive.
  */
 export function ClayUserCard({

@@ -1,25 +1,25 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
-  ZoruButton,
-  ZoruTable,
+  Button,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruBadge,
-  ZoruSelect,
+  Badge,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruProgress,
+  Progress,
 } from '@/components/zoruui';
 import {
   useTransition } from 'react';
@@ -100,7 +100,7 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                                     </ZoruSelectTrigger>
                                                     <ZoruSelectContent>
                                                         <ZoruSelectItem value="To-Do">To-Do</ZoruSelectItem>
-                                                        <ZoruSelectItem value="In ZoruProgress">In ZoruProgress</ZoruSelectItem>
+                                                        <ZoruSelectItem value="In Progress">In Progress</ZoruSelectItem>
                                                         <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
                                                     </ZoruSelectContent>
                                                 </ZoruSelect>

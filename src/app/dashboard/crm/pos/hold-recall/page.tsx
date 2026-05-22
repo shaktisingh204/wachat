@@ -1,4 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 

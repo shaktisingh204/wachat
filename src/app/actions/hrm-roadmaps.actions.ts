@@ -265,28 +265,72 @@ export async function updateTaskStatus(
     // Auto-report on task completion — delegates to hrm-task-reports.actions
     // so the manager sees it in the Reports Inbox (/portal/reports).
     if (status === 'done' && task) {
-      const workerId = task.assigneeId ?? String(session.user._id);
-      const assignerId = String(roadmap.createdBy ?? session.user._id);
+      // FIX: workerId / assignerId must be **employee _ids** (so the Reports
+      // Inbox filter `assignerId == me._id` matches). Previously we fell back
+      // to `session.user._id` (a User document _id) when the task had no
+      // explicit assignee or the roadmap createdBy was a user id, which made
+      // those reports invisible to the manager / worker history views.
+      const callerEmployee = await db
+        .collection<{ _id: ObjectId; firstName?: string; lastName?: string }>(
+          'crm_employees',
+        )
+        .findOne(
+          { userId, email: session.user.email ?? '' },
+          { projection: { firstName: 1, lastName: 1 } },
+        );
 
-      const [workerName, assignerName] = await Promise.all([
-        resolveEmployeeNameById(String(session.user._id), workerId),
-        resolveEmployeeNameById(String(session.user._id), assignerId),
-      ]);
+      // Worker id: explicit assignee → falls back to the caller's employee id.
+      const workerEmpId = task.assigneeId ?? (callerEmployee ? String(callerEmployee._id) : '');
+      // Assigner id: roadmap.createdBy is a *user* id (stored that way in
+      // createRoadmap), so resolve it to the corresponding employee record.
+      const roadmapCreatorUserId = roadmap.createdBy
+        ? String(roadmap.createdBy)
+        : String(session.user._id);
+      let assignerEmpId = '';
+      try {
+        if (ObjectId.isValid(roadmapCreatorUserId)) {
+          const creatorEmp = await db
+            .collection<{ _id: ObjectId }>('crm_employees')
+            .findOne(
+              { userId: new ObjectId(roadmapCreatorUserId) },
+              { projection: { _id: 1 } },
+            );
+          if (creatorEmp) assignerEmpId = String(creatorEmp._id);
+        }
+      } catch {
+        // ignore — leave assignerEmpId empty
+      }
+      // Final fallback: if we still couldn't find the assigner's employee
+      // record (e.g. their account was deleted), use the caller's employee id.
+      if (!assignerEmpId && callerEmployee) {
+        assignerEmpId = String(callerEmployee._id);
+      }
 
-      // Best-effort: a report write failure must not unwind the task update.
-      await createTaskReport({
-        roadmapId,
-        phaseId,
-        taskId,
-        taskTitle: task.title,
-        workerId,
-        workerName,
-        assignerId,
-        assignerName,
-        completedAt: now,
-      }).catch((err: unknown) => {
-        console.error('[updateTaskStatus] createTaskReport best-effort failed:', err);
-      });
+      // Only write the report if we resolved at least the worker — without
+      // that, the report would be unreachable from both inbox and history.
+      if (workerEmpId) {
+        const [workerName, assignerName] = await Promise.all([
+          resolveEmployeeNameById(String(session.user._id), workerEmpId),
+          assignerEmpId
+            ? resolveEmployeeNameById(String(session.user._id), assignerEmpId)
+            : Promise.resolve('Unknown'),
+        ]);
+
+        // Best-effort: a report write failure must not unwind the task update.
+        await createTaskReport({
+          roadmapId,
+          phaseId,
+          taskId,
+          taskTitle: task.title,
+          workerId: workerEmpId,
+          workerName,
+          assignerId: assignerEmpId,
+          assignerName,
+          completedAt: now,
+        }).catch((err: unknown) => {
+          console.error('[updateTaskStatus] createTaskReport best-effort failed:', err);
+        });
+      }
     }
 
     revalidatePath(`/dashboard/hrm/portal/roadmaps/${roadmapId}`);

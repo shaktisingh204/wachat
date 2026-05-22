@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruSelect,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSwitch,
-  ZoruSeparator,
-  ZoruAlert,
+  Switch,
+  Separator,
+  Alert,
   ZoruAlertTitle,
   ZoruAlertDescription,
 } from '@/components/zoruui';
@@ -77,9 +77,9 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <div className="space-y-2"><ZoruLabel>Title</ZoruLabel><ZoruInput value={settings.title || ''} onChange={(e) => handleUpdate('title', e.target.value)} /></div>
                         <div className="space-y-2"><ZoruLabel>Subtitle</ZoruLabel><ZoruTextarea value={settings.subtitle || ''} onChange={(e) => handleUpdate('subtitle', e.target.value)} /></div>
                         <ZoruSeparator />
-                        <h4 className="font-medium">Call to Action ZoruButton</h4>
-                        <div className="space-y-2"><ZoruLabel>ZoruButton Text</ZoruLabel><ZoruInput placeholder="Shop Now" value={settings.buttonText || ''} onChange={(e) => handleUpdate('buttonText', e.target.value)} /></div>
-                        <div className="space-y-2"><ZoruLabel>ZoruButton URL</ZoruLabel><ZoruInput type="url" placeholder="https://..." value={settings.buttonLink || ''} onChange={(e) => handleUpdate('buttonLink', e.target.value)} /></div>
+                        <h4 className="font-medium">Call to Action Button</h4>
+                        <div className="space-y-2"><ZoruLabel>Button Text</ZoruLabel><ZoruInput placeholder="Shop Now" value={settings.buttonText || ''} onChange={(e) => handleUpdate('buttonText', e.target.value)} /></div>
+                        <div className="space-y-2"><ZoruLabel>Button URL</ZoruLabel><ZoruInput type="url" placeholder="https://..." value={settings.buttonLink || ''} onChange={(e) => handleUpdate('buttonLink', e.target.value)} /></div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
                 
@@ -157,11 +157,11 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <div className="space-y-2"><ZoruLabel>Overlay Opacity</ZoruLabel><ZoruInput type="range" min="0" max="1" step="0.1" value={settings.overlayOpacity || 0.3} onChange={(e) => handleUpdate('overlayOpacity', e.target.value)} /></div>
                         
                         <ZoruSeparator />
-                        <h4 className="font-medium">Text & ZoruButton Colors</h4>
+                        <h4 className="font-medium">Text & Button Colors</h4>
                         <div className="grid grid-cols-2 gap-4">
                              <div className="space-y-2"><ZoruLabel>Text Color</ZoruLabel><ZoruInput type="color" value={settings.textColor || '#FFFFFF'} onChange={(e) => handleUpdate('textColor', e.target.value)} /></div>
-                             <div className="space-y-2"><ZoruLabel>ZoruButton Color</ZoruLabel><ZoruInput type="color" value={settings.buttonColor || '#FFFFFF'} onChange={(e) => handleUpdate('buttonColor', e.target.value)} /></div>
-                             <div className="space-y-2"><ZoruLabel>ZoruButton Text Color</ZoruLabel><ZoruInput type="color" value={settings.buttonTextColor || '#000000'} onChange={(e) => handleUpdate('buttonTextColor', e.target.value)} /></div>
+                             <div className="space-y-2"><ZoruLabel>Button Color</ZoruLabel><ZoruInput type="color" value={settings.buttonColor || '#FFFFFF'} onChange={(e) => handleUpdate('buttonColor', e.target.value)} /></div>
+                             <div className="space-y-2"><ZoruLabel>Button Text Color</ZoruLabel><ZoruInput type="color" value={settings.buttonTextColor || '#000000'} onChange={(e) => handleUpdate('buttonTextColor', e.target.value)} /></div>
                         </div>
 
                          <ZoruSeparator />

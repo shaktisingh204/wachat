@@ -12,16 +12,16 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientInvoiceById } from '@/app/actions/client-portal.actions';
-import { ZoruBadge } from '@/components/zoruui/badge';
-import { ZoruButton } from '@/components/zoruui/button';
+import { Badge } from '@/components/zoruui/badge';
+import { Button } from '@/components/zoruui/button';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
 } from '@/components/zoruui/card';
 import {
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Input, Label } from '@/components/zoruui';
 
 interface TemplatePreviewProps {
   body: string;

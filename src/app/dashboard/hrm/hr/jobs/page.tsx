@@ -9,14 +9,14 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
+  Button,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -53,7 +53,7 @@ import type {
 
 const BASE = '/dashboard/hrm/hr/jobs';
 
-// §1E.sweep: jobStatus ZoruSelect kept — 'filled' slug not in enum; jobEmploymentType ZoruSelect kept — 'intern' slug differs from enum 'internship'. Resolve Rust DTO first.
+// §1E.sweep: jobStatus Select kept — 'filled' slug not in enum; jobEmploymentType Select kept — 'intern' slug differs from enum 'internship'. Resolve Rust DTO first.
 const STATUS_OPTIONS: Array<{ value: CrmJobStatus | 'all'; label: string }> = [
     { value: 'all', label: 'All statuses' },
     { value: 'draft', label: 'Draft' },

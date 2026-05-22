@@ -2,16 +2,16 @@
 
 import {
   useZoruToast,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruBadge,
-  ZoruScrollArea,
+  Button,
+  Card,
+  Badge,
+  ScrollArea,
   cn,
 } from '@/components/zoruui';
 import {

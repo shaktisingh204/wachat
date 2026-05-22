@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
 } from '@/components/zoruui';
 import {
   ArrowRight,

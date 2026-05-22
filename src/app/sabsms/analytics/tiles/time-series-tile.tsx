@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import {
   ZORU_CHART_PALETTE,
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,

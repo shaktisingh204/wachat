@@ -11,24 +11,24 @@ import {
   type WebhookDelivery,
 } from '@/app/actions/developer-platform.actions';
 import {
-  ZoruCard,
+  Card,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardDescription,
   ZoruCardContent,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruAlert,
+  Button,
+  Input,
+  Textarea,
+  Alert,
   ZoruAlertDescription,
-  ZoruTable,
+  Table,
   ZoruTableHeader,
   ZoruTableHead,
   ZoruTableBody,
   ZoruTableRow,
   ZoruTableCell,
-  ZoruBadge,
-  ZoruEmptyState,
+  Badge,
+  EmptyState,
 } from '@/components/zoruui';
 import { AlertCircle, TriangleAlert, Copy, Webhook, RefreshCw } from 'lucide-react';
 

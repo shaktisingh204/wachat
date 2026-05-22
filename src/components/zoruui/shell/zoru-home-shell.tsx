@@ -25,7 +25,7 @@ import { findAppSidebarConfig } from "./zoru-app-sidebars";
 import { useProject } from "@/context/project-context";
 import { isElevatedRole } from "@/lib/rbac";
 import { ZoruHeader } from "./zoru-header";
-import { ZoruButton } from "../button";
+import { Button } from "../button";
 import { ZoruNotificationPopover } from "../notification-popover";
 import { ZoruUserDropdown } from "../user-dropdown";
 import {
@@ -235,7 +235,7 @@ function ZoruHomeShellContent({
   ) : null;
 
   return (
-    <div className="zoruui flex h-screen w-full overflow-hidden bg-zoru-bg text-zoru-ink">
+    <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-zoru-bg text-zoru-ink">
       <ZoruAppRail items={railItems} />
       {!fullBleed && (
         <ZoruAppSidebar

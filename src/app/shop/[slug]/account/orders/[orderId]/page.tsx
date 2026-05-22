@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruSeparator } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/zoruui';
 import {
   getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
 

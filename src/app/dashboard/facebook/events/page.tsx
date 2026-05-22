@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -12,35 +12,35 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDialog,
+  Button,
+  Card,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSheet,
+  EmptyState,
+  Input,
+  Label,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Skeleton,
+  Textarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
 import {
@@ -74,7 +74,7 @@ import type { FacebookEvent } from '@/lib/definitions';
  * /dashboard/facebook/events — Facebook Page events.
  *
  * Lists upcoming events on the connected Page, exposes a "New event" dialog
- * (name/description/place/start_time), and opens a details ZoruSheet on
+ * (name/description/place/start_time), and opens a details Sheet on
  * click to surface attending counts and an attendee list. Cancel/delete is
  * a confirm-step via ZoruAlertDialog.
  *

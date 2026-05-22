@@ -6,7 +6,7 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruDropdownMenu = DropdownMenuPrimitive.Root;
+export const DropdownMenu = DropdownMenuPrimitive.Root;
 export const ZoruDropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 export const ZoruDropdownMenuGroup = DropdownMenuPrimitive.Group;
 export const ZoruDropdownMenuPortal = DropdownMenuPrimitive.Portal;

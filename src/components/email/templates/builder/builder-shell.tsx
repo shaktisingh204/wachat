@@ -18,13 +18,13 @@ import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft, Eye, Save } from 'lucide-react';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruInput,
-  ZoruSeparator,
+  Badge,
+  Button,
+  Input,
+  Separator,
   zoruToast,
 } from '@/components/zoruui';
 import type {

@@ -1,29 +1,29 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
+  Label,
+  Button,
+  Input,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruBadge,
-  ZoruSelect,
+  Badge,
+  Select,
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSelectContent,
   ZoruSelectItem,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSwitch,
+  Switch,
 } from '@/components/zoruui';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -81,7 +81,7 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
                             </ZoruSelect>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel>ZoruSelect Products</ZoruLabel>
+                            <ZoruLabel>Select Products</ZoruLabel>
                             <ZoruPopover open={open} onOpenChange={setOpen}>
                                 <ZoruPopoverTrigger asChild>
                                     <ZoruButton variant="outline" role="combobox" className="w-full justify-between h-auto">
@@ -91,7 +91,7 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
                                                     .filter(p => selectedProductIds.includes(p._id.toString()))
                                                     .map(p => <ZoruBadge key={p._id.toString()} variant="secondary">{p.name}</ZoruBadge>)
                                             ) : (
-                                                <span>ZoruSelect products...</span>
+                                                <span>Select products...</span>
                                             )}
                                         </div>
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -121,7 +121,7 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
                         </div>
                         <div className="flex items-center space-x-2 pt-4">
                             <ZoruSwitch id="showViewAllButton" checked={settings.showViewAllButton} onCheckedChange={(val) => handleUpdate('showViewAllButton', val)} />
-                            <ZoruLabel htmlFor="showViewAllButton">Show "View All" ZoruButton</ZoruLabel>
+                            <ZoruLabel htmlFor="showViewAllButton">Show "View All" Button</ZoruLabel>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>

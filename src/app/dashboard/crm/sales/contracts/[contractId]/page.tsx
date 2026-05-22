@@ -10,7 +10,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { FileSignature, Pencil, Plus } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getContract } from '@/app/actions/crm/contracts.actions';
 

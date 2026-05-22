@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { CheckCircle2, FileEdit, Hourglass, PackageCheck, PackageOpen, } from 'lucide-react';
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruButton } from '@/components/zoruui';
+import { Popover, ZoruPopoverContent, ZoruPopoverTrigger, Button } from '@/components/zoruui';
 import {
   useState } from 'react';
 import { SketchPicker } from 'react-color';

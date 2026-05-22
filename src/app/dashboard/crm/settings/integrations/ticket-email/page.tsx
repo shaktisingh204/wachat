@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { Mail, Inbox, Ticket, ArrowUpRight } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
+  Input,
+  Label,
+  Switch,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {

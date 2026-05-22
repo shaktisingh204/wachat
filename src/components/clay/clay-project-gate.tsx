@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruButton, ZoruSelect } from '@/components/zoruui';
+import { Card, Button, Select } from '@/components/zoruui';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -98,14 +98,14 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
       <ClayBreadcrumbs
         items={[
           { label: 'Wachat', href: '/dashboard' },
-          { label: 'ZoruSelect project' },
+          { label: 'Select project' },
         ]}
       />
 
       <div className="mt-5 flex items-center justify-between gap-6">
         <div className="min-w-0">
           <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-            ZoruSelect a project
+            Select a project
           </h1>
           <p className="mt-1.5 text-[13px] text-muted-foreground">
             Wachat is scoped per WhatsApp Business Account. Pick the

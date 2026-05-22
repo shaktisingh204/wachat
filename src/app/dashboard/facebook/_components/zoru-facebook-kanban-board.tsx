@@ -1,27 +1,27 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruInput,
-  ZoruScrollArea,
+  Input,
+  ScrollArea,
   ZoruScrollBar,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
   cn,
 } from '@/components/zoruui';
@@ -53,7 +53,7 @@ import type {
  *
  * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx`:
  *   - Conversations grouped by status into columns.
- *   - Each column is a ZoruCard, each conversation is a row card.
+ *   - Each column is a Card, each conversation is a row card.
  *   - No drag-and-drop — status changes happen via per-row dropdown.
  *
  * Server-action wiring preserved:

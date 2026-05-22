@@ -1,19 +1,19 @@
 import Link from "next/link";
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruPageActions,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruStatCard,
+  StatCard,
 } from "@/components/zoruui";
 
 import { connectToDatabase } from "@/lib/mongodb";

@@ -1,28 +1,28 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruAccordion,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruSeparator,
-  ZoruAlert,
+  Switch,
+  Separator,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruCheckbox,
-  ZoruRadioGroup,
+  Checkbox,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruCard,
+  Card,
 } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -103,7 +103,7 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <ZoruAccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><ZoruLabel>Form Title</ZoruLabel><ZoruInput value={settings.title || 'Contact Form'} onChange={(e) => handleUpdate('title', e.target.value)} /></div>
                              <div className="space-y-2"><ZoruLabel>Description</ZoruLabel><ZoruTextarea value={settings.description || ''} onChange={(e) => handleUpdate('description', e.target.value)} /></div>
-                             <div className="space-y-2"><ZoruLabel>ZoruButton ID</ZoruLabel><ZoruInput value={settings.buttonId || ''} onChange={(e) => handleUpdate('buttonId', e.target.value)} placeholder="e.g. my-form-submit"/></div>
+                             <div className="space-y-2"><ZoruLabel>Button ID</ZoruLabel><ZoruInput value={settings.buttonId || ''} onChange={(e) => handleUpdate('buttonId', e.target.value)} placeholder="e.g. my-form-submit"/></div>
                         </ZoruAccordionContent>
                     </ZoruAccordionItem>
                      <ZoruAccordionItem value="fields">
@@ -116,14 +116,14 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                                         <ZoruAccordionItem value="field-content" className="border-b-0">
                                             <ZoruAccordionTrigger className="p-3 text-sm">{field.label || `Field ${index+1}`}</ZoruAccordionTrigger>
                                             <ZoruAccordionContent className="px-3 pb-3 space-y-4">
-                                                <div className="space-y-2"><ZoruLabel>Type</ZoruLabel><ZoruSelect value={field.type} onValueChange={(val) => handleFieldChange(index, 'type', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="text">Text</ZoruSelectItem><ZoruSelectItem value="email">Email</ZoruSelectItem><ZoruSelectItem value="textarea">Text Area</ZoruSelectItem><ZoruSelectItem value="url">URL</ZoruSelectItem><ZoruSelectItem value="tel">Tel</ZoruSelectItem><ZoruSelectItem value="radio">Radio</ZoruSelectItem><ZoruSelectItem value="checkbox">ZoruCheckbox</ZoruSelectItem><ZoruSelectItem value="select">ZoruSelect</ZoruSelectItem><ZoruSelectItem value="number">Number</ZoruSelectItem><ZoruSelectItem value="date">Date</ZoruSelectItem><ZoruSelectItem value="time">Time</ZoruSelectItem><ZoruSelectItem value="file">File Upload</ZoruSelectItem><ZoruSelectItem value="password">Password</ZoruSelectItem><ZoruSelectItem value="hidden">Hidden</ZoruSelectItem><ZoruSelectItem value="html">HTML</ZoruSelectItem><ZoruSelectItem value="acceptance">Acceptance</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                                                <div className="space-y-2"><ZoruLabel>ZoruLabel</ZoruLabel><ZoruInput value={field.label} onChange={(e) => handleFieldChange(index, 'label', e.target.value)} placeholder="e.g., Your Name" /></div>
+                                                <div className="space-y-2"><ZoruLabel>Type</ZoruLabel><ZoruSelect value={field.type} onValueChange={(val) => handleFieldChange(index, 'type', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="text">Text</ZoruSelectItem><ZoruSelectItem value="email">Email</ZoruSelectItem><ZoruSelectItem value="textarea">Text Area</ZoruSelectItem><ZoruSelectItem value="url">URL</ZoruSelectItem><ZoruSelectItem value="tel">Tel</ZoruSelectItem><ZoruSelectItem value="radio">Radio</ZoruSelectItem><ZoruSelectItem value="checkbox">Checkbox</ZoruSelectItem><ZoruSelectItem value="select">Select</ZoruSelectItem><ZoruSelectItem value="number">Number</ZoruSelectItem><ZoruSelectItem value="date">Date</ZoruSelectItem><ZoruSelectItem value="time">Time</ZoruSelectItem><ZoruSelectItem value="file">File Upload</ZoruSelectItem><ZoruSelectItem value="password">Password</ZoruSelectItem><ZoruSelectItem value="hidden">Hidden</ZoruSelectItem><ZoruSelectItem value="html">HTML</ZoruSelectItem><ZoruSelectItem value="acceptance">Acceptance</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                                <div className="space-y-2"><ZoruLabel>Label</ZoruLabel><ZoruInput value={field.label} onChange={(e) => handleFieldChange(index, 'label', e.target.value)} placeholder="e.g., Your Name" /></div>
                                                 <div className="space-y-2"><ZoruLabel>Field ID (for `name` attribute)</ZoruLabel><ZoruInput value={field.fieldId || ''} onChange={(e) => handleFieldChange(index, 'fieldId', e.target.value)} placeholder="e.g., user_name"/></div>
                                                 <div className="space-y-2"><ZoruLabel>Placeholder</ZoruLabel><ZoruInput value={field.placeholder || ''} onChange={(e) => handleFieldChange(index, 'placeholder', e.target.value)} /></div>
                                                 <div className="space-y-2"><ZoruLabel>Default Value</ZoruLabel><ZoruInput value={field.defaultValue || ''} onChange={(e) => handleFieldChange(index, 'defaultValue', e.target.value)} /></div>
                                                 <div className="space-y-2"><ZoruLabel>Description</ZoruLabel><ZoruInput value={field.description || ''} onChange={(e) => handleFieldChange(index, 'description', e.target.value)} /></div>
                                                 <div className="grid grid-cols-2 gap-4">
-                                                    <div className="space-y-2"><ZoruLabel>ZoruLabel Position</ZoruLabel><ZoruSelect value={field.labelPosition || 'above'} onValueChange={(val) => handleFieldChange(index, 'labelPosition', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="above">Above</ZoruSelectItem><ZoruSelectItem value="inline">Inline</ZoruSelectItem><ZoruSelectItem value="hidden">Hidden</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                                    <div className="space-y-2"><ZoruLabel>Label Position</ZoruLabel><ZoruSelect value={field.labelPosition || 'above'} onValueChange={(val) => handleFieldChange(index, 'labelPosition', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="above">Above</ZoruSelectItem><ZoruSelectItem value="inline">Inline</ZoruSelectItem><ZoruSelectItem value="hidden">Hidden</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                                                     <div className="space-y-2"><ZoruLabel>Field Size</ZoruLabel><ZoruSelect value={field.size || 'md'} onValueChange={(val) => handleFieldChange(index, 'size', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="sm">Small</ZoruSelectItem><ZoruSelectItem value="md">Medium</ZoruSelectItem><ZoruSelectItem value="lg">Large</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                                                 </div>
                                                 <div className="space-y-2"><ZoruLabel>Column Width</ZoruLabel><ZoruSelect value={field.columnWidth || '100%'} onValueChange={(val) => handleFieldChange(index, 'columnWidth', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="100%">100%</ZoruSelectItem><ZoruSelectItem value="50%">50%</ZoruSelectItem><ZoruSelectItem value="33.33%">33%</ZoruSelectItem><ZoruSelectItem value="25%">25%</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
@@ -142,7 +142,7 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         </ZoruAccordionContent>
                     </ZoruAccordionItem>
                     <ZoruAccordionItem value="submit_button">
-                        <ZoruAccordionTrigger>Submit ZoruButton</ZoruAccordionTrigger>
+                        <ZoruAccordionTrigger>Submit Button</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><ZoruLabel>Text</ZoruLabel><ZoruInput value={settings.submitButtonText || 'Submit'} onChange={(e) => handleUpdate('submitButtonText', e.target.value)} /></div>
                             <div className="space-y-2"><ZoruLabel>Size</ZoruLabel><ZoruSelect value={settings.buttonSize || 'md'} onValueChange={v => handleUpdate('buttonSize', v)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="sm">Small</ZoruSelectItem><ZoruSelectItem value="md">Medium</ZoruSelectItem><ZoruSelectItem value="lg">Large</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
@@ -194,7 +194,7 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         </ZoruAccordionContent>
                     </ZoruAccordionItem>
                     <ZoruAccordionItem value="style_button">
-                        <ZoruAccordionTrigger>Submit ZoruButton</ZoruAccordionTrigger>
+                        <ZoruAccordionTrigger>Submit Button</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><ZoruLabel>Typography</ZoruLabel><ZoruSelect value={settings.buttonTypography?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('buttonTypography', 'fontFamily', v)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="inherit">Default</ZoruSelectItem><ZoruSelectItem value="sans-serif">Sans-serif</ZoruSelectItem><ZoruSelectItem value="serif">Serif</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                              <Tabs defaultValue="normal">

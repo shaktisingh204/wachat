@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';

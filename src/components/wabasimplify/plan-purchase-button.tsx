@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruSwitch } from '@/components/zoruui';
+import { Button, Switch } from '@/components/zoruui';
 import {
   useTransition } from 'react';
 import type { Plan } from '@/lib/definitions';
@@ -100,7 +100,7 @@ export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurch
             ) : (
                 <ArrowUpRight className="mr-2 h-4 w-4" />
             )}
-            {isFree ? `ZoruSwitch to ${plan.name}` : `Upgrade to ${plan.name}`}
+            {isFree ? `Switch to ${plan.name}` : `Upgrade to ${plan.name}`}
         </ZoruButton>
     );
 }

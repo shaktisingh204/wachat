@@ -1,8 +1,8 @@
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Button,
+  Card,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,

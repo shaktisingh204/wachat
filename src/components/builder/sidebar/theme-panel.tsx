@@ -1,6 +1,6 @@
 "use client";
 
-import { ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Input, Label } from '@/components/zoruui';
 import { useEditor } from '@/components/builder/editor-provider';
 
 import React from 'react';

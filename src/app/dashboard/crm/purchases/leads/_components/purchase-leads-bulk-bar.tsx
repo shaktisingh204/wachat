@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Archive, Download, ListChecks, Trash2, X } from 'lucide-react';
 
 import {
-    ZoruButton,
-    ZoruDropdownMenu,
+    Button,
+    DropdownMenu,
     ZoruDropdownMenuContent,
     ZoruDropdownMenuItem,
     ZoruDropdownMenuLabel,

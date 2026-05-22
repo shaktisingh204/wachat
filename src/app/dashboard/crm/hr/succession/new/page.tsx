@@ -1,14 +1,5 @@
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { SuccessionForm } from './succession-form';
+import { permanentRedirect } from 'next/navigation';
 
-export default function NewSuccessionPage() {
-    return (
-        <EntityDetailShell
-            title="New succession plan"
-            eyebrow="SUCCESSION"
-            back={{ href: '/dashboard/crm/hr/succession', label: 'Succession' }}
-        >
-            <SuccessionForm />
-        </EntityDetailShell>
-    );
+export default function LegacyHrRedirect() {
+  permanentRedirect('/dashboard/hrm/hr/succession/new');
 }

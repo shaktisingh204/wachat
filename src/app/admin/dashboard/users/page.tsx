@@ -1,4 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import {
   getUsersForAdmin,
   getPlans } from '@/app/actions/index';
@@ -14,7 +14,8 @@ import { ApproveUserButton } from '@/components/wabasimplify/approve-user-button
 import { AdminAssignUserPlanDialog } from '@/components/wabasimplify/admin-assign-user-plan-dialog';
 import { ImpersonateUserButton } from '@/components/wabasimplify/impersonate-user-button';
 import { AdminUserPermissionsDialog } from '@/components/wabasimplify/admin-user-permissions-dialog';
-import { Users, CheckCircle, Clock } from 'lucide-react';
+import { AdminUserActionsMenu } from '@/components/wabasimplify/admin-user-actions-menu';
+import { Users, CheckCircle, Clock, Ban } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'User Management | SabNode Admin' };
@@ -47,10 +48,11 @@ export default async function AdminUsersPage({
     }
 
     const totalPages = Math.ceil(total / USERS_PER_PAGE);
-    const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { plan?: WithId<Plan>; isApproved?: boolean; customPermissions?: any })[];
+    const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { plan?: WithId<Plan>; isApproved?: boolean; isSuspended?: boolean; customPermissions?: any })[];
 
-    const approved = plainUsers.filter(u => u.isApproved).length;
+    const approved = plainUsers.filter(u => u.isApproved && !u.isSuspended).length;
     const pending = plainUsers.filter(u => !u.isApproved).length;
+    const suspended = plainUsers.filter(u => u.isSuspended).length;
 
     return (
         <div className="space-y-6">
@@ -69,6 +71,12 @@ export default async function AdminUsersPage({
                         <Clock className="h-3.5 w-3.5" />
                         {pending} pending
                     </div>
+                    {suspended > 0 && (
+                        <div className="flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600">
+                            <Ban className="h-3.5 w-3.5" />
+                            {suspended} suspended
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -121,7 +129,12 @@ export default async function AdminUsersPage({
                                             </span>
                                         </td>
                                         <td className="px-4 py-3.5">
-                                            {user.isApproved ? (
+                                            {user.isSuspended ? (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-600">
+                                                    <Ban className="h-3 w-3" />
+                                                    Suspended
+                                                </span>
+                                            ) : user.isApproved ? (
                                                 <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600">
                                                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                                                     Approved
@@ -150,6 +163,11 @@ export default async function AdminUsersPage({
                                                 {!user.isApproved && (
                                                     <ApproveUserButton userId={user._id.toString()} />
                                                 )}
+                                                <AdminUserActionsMenu
+                                                    userId={user._id.toString()}
+                                                    userName={user.name}
+                                                    isSuspended={user.isSuspended}
+                                                />
                                             </div>
                                         </td>
                                     </tr>

@@ -1,4 +1,4 @@
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { CheckCircle2, AlertTriangle } from 'lucide-react';

@@ -4,17 +4,17 @@ import * as React from "react";
 import { ArrowDownUp, RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 
 import {
-  ZoruBadge,
-  ZoruButton,
+  Badge,
+  Button,
   ZoruDateRangePicker,
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuCheckboxItem,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruInput,
-  ZoruSelect,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

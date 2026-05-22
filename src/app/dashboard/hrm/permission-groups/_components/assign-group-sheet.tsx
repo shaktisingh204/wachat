@@ -8,14 +8,14 @@
 import * as React from 'react';
 import { UserCheck } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSheet,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetFooter,

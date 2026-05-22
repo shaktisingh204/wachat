@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruInput, ZoruLabel, ZoruSeparator } from '@/components/zoruui';
+import { Card, Input, Label, Separator } from '@/components/zoruui';
 /**
  * <PurchaseOrderSummarySection> — money summary card for
  * `<PurchaseOrderForm>`.

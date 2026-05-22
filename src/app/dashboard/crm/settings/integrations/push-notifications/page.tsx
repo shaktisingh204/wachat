@@ -18,13 +18,13 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruTextarea,
+  Label,
+  Skeleton,
+  Switch,
+  Textarea,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {

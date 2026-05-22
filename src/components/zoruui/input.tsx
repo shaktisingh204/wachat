@@ -13,7 +13,7 @@ export interface ZoruInputProps
   trailingSlot?: React.ReactNode;
 }
 
-export const ZoruInput = React.forwardRef<HTMLInputElement, ZoruInputProps>(
+export const Input = React.forwardRef<HTMLInputElement, ZoruInputProps>(
   (
     { className, type = "text", invalid, leadingSlot, trailingSlot, ...props },
     ref,
@@ -67,4 +67,4 @@ export const ZoruInput = React.forwardRef<HTMLInputElement, ZoruInputProps>(
     );
   },
 );
-ZoruInput.displayName = "ZoruInput";
+Input.displayName = "Input";

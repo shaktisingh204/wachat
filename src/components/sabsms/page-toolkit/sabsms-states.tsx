@@ -5,9 +5,9 @@ import Link from "next/link";
 import { AlertTriangle, Inbox } from "lucide-react";
 
 import {
-  ZoruButton,
-  ZoruEmptyState,
-  ZoruSkeleton,
+  Button,
+  EmptyState,
+  Skeleton,
 } from "@/components/zoruui";
 
 export interface SabsmsEmptyProps {

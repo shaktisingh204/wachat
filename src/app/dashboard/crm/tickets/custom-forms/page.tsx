@@ -12,7 +12,7 @@
 
 import * as React from 'react';
 import { FormInput, Star, Tag } from 'lucide-react';
-import { ZoruBadge } from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
 
 import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';

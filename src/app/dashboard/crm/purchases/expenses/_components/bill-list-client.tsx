@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, useZoruToast } from '@/components/zoruui';
+import { Card, useZoruToast } from '@/components/zoruui';
 /**
  * <BillListClient> — canonical Bills list view per CRM_REBUILD_PLAN §1D.
  *

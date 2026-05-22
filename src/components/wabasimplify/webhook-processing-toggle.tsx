@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruSwitch, ZoruLabel, ZoruSkeleton } from '@/components/zoruui';
+import { Switch, Label, Skeleton } from '@/components/zoruui';
 import {
   useState,
   useEffect,

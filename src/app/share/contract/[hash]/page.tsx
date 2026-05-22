@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getPublicContract } from '@/app/actions/public-contract.actions';
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,

@@ -3,17 +3,17 @@
 import * as React from "react";
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSeparator,
-  ZoruSwitch,
+  Input,
+  Label,
+  Separator,
+  Switch,
 } from "@/components/zoruui";
 
 import type { CampaignDraft, QuietHoursWindow } from "../types";

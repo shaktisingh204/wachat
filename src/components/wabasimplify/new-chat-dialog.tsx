@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
 } from '@/components/zoruui';
 import {
   useState } from 'react';
@@ -69,7 +69,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
             <ZoruDialogTitle>Start New Conversation</ZoruDialogTitle>
             <ZoruDialogDescription>
-              ZoruSelect the country code and enter the phone number to start a new chat.
+              Select the country code and enter the phone number to start a new chat.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
@@ -86,7 +86,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                         className="w-[140px] justify-between"
                         type="button"
                       >
-                        {selectedCountry ? `+${selectedCountry.code}` : "ZoruSelect..."}
+                        {selectedCountry ? `+${selectedCountry.code}` : "Select..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </ZoruButton>
                     </PopoverTrigger>
@@ -132,7 +132,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Format: {selectedCountry ? `+${selectedCountry.code} 9876543210` : 'ZoruSelect country code first'}
+                  Format: {selectedCountry ? `+${selectedCountry.code} 9876543210` : 'Select country code first'}
                 </p>
               </div>
             </div>

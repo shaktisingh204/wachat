@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
+  Badge,
+  Button,
   ZoruDateRangePicker,
 } from '@/components/zoruui';
 import {

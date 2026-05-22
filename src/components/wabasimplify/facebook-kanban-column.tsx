@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCardHeader, ZoruCardTitle, ZoruScrollArea } from '@/components/zoruui';
+import { ZoruCardHeader, ZoruCardTitle, ScrollArea } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { FacebookKanbanCard } from './facebook-kanban-card';
 import type { WithId, FacebookSubscriber } from '@/lib/definitions';

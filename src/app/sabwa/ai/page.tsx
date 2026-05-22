@@ -1,18 +1,18 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
@@ -23,21 +23,21 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruPopover,
+  EmptyState,
+  Input,
+  Label,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruScrollArea,
-  ZoruSelect,
+  ScrollArea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruTextarea,
+  Skeleton,
+  Switch,
+  Textarea,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -78,7 +78,7 @@ import {
  * wired through — for Phase 1 we fall back to 'free'.
  *
  * Rebuilt on ZoruUI primitives. No tab UI — the four per-chat tools live
- * in a segmented ZoruButton switcher.
+ * in a segmented Button switcher.
  */
 
 import * as React from "react";

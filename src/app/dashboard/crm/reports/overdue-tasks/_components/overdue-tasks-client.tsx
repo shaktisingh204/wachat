@@ -25,14 +25,14 @@ import {
 import { Download, FileSpreadsheet, UserCheck, CalendarClock } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruBadge,
-  ZoruDropdownMenu,
+  Button,
+  Card,
+  Badge,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

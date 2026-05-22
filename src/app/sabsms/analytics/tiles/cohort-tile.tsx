@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,

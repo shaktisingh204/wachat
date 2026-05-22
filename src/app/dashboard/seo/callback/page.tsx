@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, useZoruToast } from '@/components/zoruui';
+import { Card, useZoruToast } from '@/components/zoruui';
 import {
   useEffect,
   useState } from 'react';

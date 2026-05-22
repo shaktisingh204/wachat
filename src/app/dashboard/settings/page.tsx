@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
-  ZoruCard,
+  Card,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';

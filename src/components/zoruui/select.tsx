@@ -6,7 +6,7 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruSelect = SelectPrimitive.Root;
+export const Select = SelectPrimitive.Root;
 export const ZoruSelectGroup = SelectPrimitive.Group;
 export const ZoruSelectValue = SelectPrimitive.Value;
 

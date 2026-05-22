@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruTextarea,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Textarea,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -70,7 +70,7 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
                         <ZoruLabel>Location</ZoruLabel>
                         <ZoruSelect value={location} onValueChange={setLocation}>
                             <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="ZoruSelect Location" />
+                                <ZoruSelectValue placeholder="Select Location" />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="2840">United States</ZoruSelectItem>

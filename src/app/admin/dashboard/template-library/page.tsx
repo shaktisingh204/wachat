@@ -1,14 +1,16 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button, Checkbox } from '@/components/zoruui';
 import { useEffect, useState, useTransition, useMemo } from 'react';
 import Link from 'next/link';
 
 import { getLibraryTemplates } from '@/app/actions/template.actions';
+import { bulkDeleteLibraryTemplates } from '@/app/actions/admin-hardening.actions';
+import { useToast } from '@/hooks/use-toast';
 import type { LibraryTemplate } from '@/lib/definitions';
 import { AdminDeleteLibraryTemplateButton } from '@/components/wabasimplify/admin-delete-library-template-button';
 import { AdminTemplateCategoryManager } from '@/components/wabasimplify/admin-template-category-manager';
-import { PlusCircle, BookCopy, Lock, Trash2 } from 'lucide-react';
+import { PlusCircle, BookCopy, Lock, Trash2, LoaderCircle, X } from 'lucide-react';
 
 export default function AdminTemplateLibraryPage() {
     const [templates, setTemplates] = useState<LibraryTemplate[]>([]);

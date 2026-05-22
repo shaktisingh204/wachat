@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruStatCard, useZoruToast } from '@/components/zoruui';
+import { Button, StatCard, useZoruToast } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';

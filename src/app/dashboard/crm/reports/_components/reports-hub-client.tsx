@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { ChevronDown, Search } from 'lucide-react';
 
 import {
-    ZoruCard,
-    ZoruInput,
-    ZoruBadge,
-    ZoruButton,
+    Card,
+    Input,
+    Badge,
+    Button,
     ZoruCollapsible,
     ZoruCollapsibleContent,
     ZoruCollapsibleTrigger,

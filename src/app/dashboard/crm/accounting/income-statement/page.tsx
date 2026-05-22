@@ -17,16 +17,16 @@ import {
 import { AlertCircle, LoaderCircle, Percent, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
 import {
-    ZoruAlert,
+    Alert,
     ZoruAlertDescription,
     ZoruAlertTitle,
-    ZoruButton,
-    ZoruSelect,
+    Button,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

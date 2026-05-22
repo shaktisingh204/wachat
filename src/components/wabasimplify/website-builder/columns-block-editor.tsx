@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruLabel, ZoruInput, ZoruSwitch, ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import { Label, Input, Switch, Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 import { Slider } from '@/components/ui/slider';
 
 export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {

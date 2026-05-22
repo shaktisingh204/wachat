@@ -4,7 +4,7 @@ import {
   getPublicInvoice,
   markInvoiceViewed,
 } from '@/app/actions/public-invoice.actions';
-import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { InvoicePaymentPanel } from './invoice-payment-panel';
 
 type Params = Promise<{ hash: string }>;

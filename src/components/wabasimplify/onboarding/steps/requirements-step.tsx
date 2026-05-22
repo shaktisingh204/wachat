@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import {
   AlertCircle,
   BarChart3,

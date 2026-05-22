@@ -9,11 +9,11 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruStatCard,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  StatCard,
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
@@ -38,7 +38,7 @@ import {
  * Time Logs — list page (rebuilt per §1D.1).
  *
  * Additions over the original:
- *  - ZoruCheckbox multi-select on every row
+ *  - Checkbox multi-select on every row
  *  - Bulk bar: Mark billable + Mark non-billable + Delete with confirm
  *  - Export CSV/XLSX (time log entries with hours, project, task, billable flag)
  */

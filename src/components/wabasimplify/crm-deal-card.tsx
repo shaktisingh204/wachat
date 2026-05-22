@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback } from '@/components/zoruui';
 import Link from 'next/link';
 
 import { User, Building, FolderKanban } from 'lucide-react';

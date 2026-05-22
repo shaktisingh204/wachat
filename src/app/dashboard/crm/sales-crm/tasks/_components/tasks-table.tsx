@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruCheckbox,
-  ZoruDropdownMenu,
+  Badge,
+  Checkbox,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

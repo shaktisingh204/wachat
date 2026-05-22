@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface TextInputEditorProps {
@@ -30,7 +30,7 @@ export function TextInputEditor({ component, updateField }: TextInputEditorProps
                 <p className="text-[10px] text-muted-foreground">Unique ID for data binding.</p>
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">ZoruLabel</ZoruLabel>
+                <ZoruLabel htmlFor="label">Label</ZoruLabel>
                 <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
             <div className="space-y-2">
@@ -48,7 +48,7 @@ export function TextInputEditor({ component, updateField }: TextInputEditorProps
 
             {isTextInputComponent && (
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="input-type">ZoruInput Type</ZoruLabel>
+                    <ZoruLabel htmlFor="input-type">Input Type</ZoruLabel>
                     <ZoruSelect value={component['input-type'] || 'text'} onValueChange={(v) => updateField('input-type', v)}>
                         <ZoruSelectTrigger id="input-type"><ZoruSelectValue /></ZoruSelectTrigger>
                         <ZoruSelectContent>

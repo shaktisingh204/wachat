@@ -1,29 +1,29 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruEmptyState,
-  ZoruSheet,
+  EmptyState,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -61,7 +61,7 @@ import type { FacebookLead,
  *
  * Master/detail layout: left column lists Lead Gen forms (name, leads
  * count, created), right column lists leads for the selected form in a
- * table. Clicking a row opens a ZoruSheet with all field_data. CSV export
+ * table. Clicking a row opens a Sheet with all field_data. CSV export
  * dumps every lead in the selected form.
  */
 

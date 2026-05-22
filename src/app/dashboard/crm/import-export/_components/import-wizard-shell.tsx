@@ -22,16 +22,16 @@ import {
 } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruEmptyState,
-    ZoruSheet,
+    Badge,
+    Button,
+    Card,
+    EmptyState,
+    Sheet,
     ZoruSheetContent,
     ZoruSheetDescription,
     ZoruSheetHeader,
     ZoruSheetTitle,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

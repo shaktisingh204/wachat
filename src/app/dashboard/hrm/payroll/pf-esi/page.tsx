@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruCard, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Badge, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import {
   useState,
   useEffect,

@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruCard,
+  Card,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
@@ -23,7 +23,7 @@ import {
 /**
  * Wachat WhatsApp Ads — Facebook integration roadmap (ZoruUI).
  *
- * Static grid of ZoruCard tiles, one per phase, with a status badge.
+ * Static grid of Card tiles, one per phase, with a status badge.
  */
 
 import * as React from 'react';

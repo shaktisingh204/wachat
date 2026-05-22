@@ -27,9 +27,9 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
+    Badge,
+    Button,
+    Card,
     useZoruToast,
 } from '@/components/zoruui';
 import { findInvoiceDuplicates, type InvoiceDuplicateGroup } from '@/app/actions/crm/invoices.actions';

@@ -45,7 +45,8 @@ export type WidgetKey =
   | 'upcoming-followups'
   | 'activity-feed'
   | 'calendar'
-  | 'sticky-notes';
+  | 'sticky-notes'
+  | 'my-team';
 
 export const AVAILABLE_WIDGETS: Array<{
   key: WidgetKey;
@@ -73,6 +74,7 @@ export const AVAILABLE_WIDGETS: Array<{
   { key: 'activity-feed', label: 'Activity feed', description: 'Recent activity across the CRM', defaultDashboards: ['overview'] },
   { key: 'calendar', label: 'Calendar', description: 'Inline calendar widget', defaultDashboards: ['overview'] },
   { key: 'sticky-notes', label: 'Sticky notes', description: 'Personal quick notes', defaultDashboards: ['overview'] },
+  { key: 'my-team', label: 'My team', description: 'Direct reports + their open work', defaultDashboards: ['overview', 'hr'] },
 ];
 
 export type WidgetPref = {

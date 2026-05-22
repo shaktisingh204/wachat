@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import {
   useState,

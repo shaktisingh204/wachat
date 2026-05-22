@@ -10,29 +10,29 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
+  Button,
+  Card,
+  Checkbox,
+  Input,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruStatCard,
-  ZoruTable,
+  Skeleton,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -57,7 +57,7 @@ import {
  *
  * Additions:
  *  - Filter row: search by name/description, status select
- *  - ZoruCheckbox multi-select
+ *  - Checkbox multi-select
  *  - Bulk revoke + bulk delete with confirm
  *  - Export CSV (name, created, last used, status — NEVER the token value)
  */

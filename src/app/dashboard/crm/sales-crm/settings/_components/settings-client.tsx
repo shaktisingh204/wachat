@@ -2,17 +2,17 @@
 
 import * as React from 'react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruSwitch,
+  Separator,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import { Bell, Boxes, Settings2, Users } from 'lucide-react';

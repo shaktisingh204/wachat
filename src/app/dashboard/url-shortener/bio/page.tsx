@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Card,
+  Input,
+  Label,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruTextarea,
+  Textarea,
   cn,
   useZoruToast,
 } from '@/components/zoruui';

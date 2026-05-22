@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, cn, ZoruCard } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, cn, Card } from '@/components/zoruui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;
@@ -19,9 +19,9 @@ export default function TwitterCardGeneratorPage() {
   ].filter(Boolean).join('\n'), [f]);
 
   return (
-    <ToolShell title="Twitter ZoruCard Generator" description="Generate Twitter/X ZoruCard meta tags.">
+    <ToolShell title="Twitter Card Generator" description="Generate Twitter/X Card meta tags.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><ZoruLabel>ZoruCard</ZoruLabel>
+        <div className="space-y-1"><ZoruLabel>Card</ZoruLabel>
           <select className="border rounded h-9 px-2 w-full bg-background" value={f.card} onChange={(e) => update('card', e.target.value)}>
             <option value="summary">summary</option>
             <option value="summary_large_image">summary_large_image</option>

@@ -9,7 +9,7 @@ import {
   ZoruCommandList,
   ZoruCommandSeparator,
   ZoruCommandShortcut,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogTitle,
   ZoruDialogDescription,

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { Activity, AlertTriangle, CheckCircle2, Gauge, Pause } from 'lucide-react';
 
 /**

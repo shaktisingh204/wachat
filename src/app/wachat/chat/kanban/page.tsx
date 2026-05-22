@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruSkeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/zoruui';
 import { ZoruKanbanBoard } from '../../_components/zoru-kanban-board';
 import {
   Suspense } from 'react';

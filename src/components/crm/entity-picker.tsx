@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
   ZoruCommand,
@@ -10,10 +10,10 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruSelect,
+  Select,
 } from '@/components/zoruui';
 import {
   Check,
@@ -63,6 +63,7 @@ import {
   type LookupResult,
   isReferenceEntity,
 } from '@/lib/lookup-registry';
+import { QuickCreateDialog } from './quick-create-dialog';
 
 /**
  * Env-flag that flips the picker from the TS server action to the Rust
@@ -372,6 +373,7 @@ export function EntityPicker({
   className,
 }: EntityPickerProps) {
   const [open, setOpen] = React.useState(false);
+  const [quickCreateOpen, setQuickCreateOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const debouncedSearch = useDebouncedValue(search, 200);
 
@@ -650,8 +652,8 @@ export function EntityPicker({
   const triggerPlaceholder =
     placeholder ??
     (multi
-      ? `ZoruSelect ${ENTITY_LABEL[entity]}s…`
-      : `ZoruSelect ${ENTITY_LABEL[entity]}…`);
+      ? `Select ${ENTITY_LABEL[entity]}s…`
+      : `Select ${ENTITY_LABEL[entity]}…`);
 
   const popoverStyle: React.CSSProperties | undefined =
     typeof popoverWidth === 'number'
@@ -768,6 +770,86 @@ export function EntityPicker({
                 )}
               </ZoruCommandEmpty>
 
+              {(() => {
+                const isReference = isReferenceEntity(entity);
+                const useInline = inlineCreate ?? isReference;
+                const showCreate = allowCreate || useInline;
+                if (!showCreate) return null;
+                const typed = search.trim();
+                const hasExactMatch = results.some(
+                  (r) => r.chip.primary.toLowerCase() === typed.toLowerCase(),
+                );
+                
+                if (useInline) {
+                  if (!typed || hasExactMatch) return null;
+                }
+                
+                const ENTITY_CREATE_HREF: Partial<Record<EntityKey, string>> = {
+                  invoice: '/dashboard/crm/sales/invoices/new',
+                  quotation: '/dashboard/crm/sales/quotations/new',
+                  purchaseOrder: '/dashboard/crm/purchases/orders/new',
+                  vendorBill: '/dashboard/crm/purchases/expenses/new',
+                  vendor: '/dashboard/crm/purchases/vendors/new',
+                  item: '/dashboard/crm/inventory/items/new',
+                  employee: '/dashboard/hrm/payroll/employees/new',
+                  deal: '/dashboard/crm/deals',
+                  lead: '/dashboard/crm/leads',
+                  project: '/dashboard/crm/projects',
+                  client: '/dashboard/crm/sales-crm/clients',
+                  contact: '/dashboard/crm/contacts',
+                  account: '/dashboard/crm/accounting/charts',
+                  warehouse: '/dashboard/crm/inventory/warehouses',
+                  bankAccount: '/dashboard/crm/banking/bank-accounts',
+                  issue: '/dashboard/crm/projects/issues',
+                  subtask: '/dashboard/crm/projects/subtasks',
+                  task: '/dashboard/crm/sales-crm/tasks',
+                  asset: '/dashboard/hrm/hr/assets',
+                  ticket: '/dashboard/crm/tickets',
+                  user: '/dashboard/team/manage-users',
+                };
+
+                return (
+                  <ZoruCommandGroup>
+                    <ZoruCommandItem
+                      key="__create__"
+                      value="__create__"
+                      onSelect={() => {
+                        if (useInline && typed) {
+                          const synthetic: LookupItem = {
+                            id: typed,
+                            chip: { primary: typed },
+                            raw: { name: typed, _inlineCreated: true },
+                          };
+                          commitSelection(synthetic);
+                          return;
+                        }
+                        setOpen(false);
+                        if (onCreateClick) {
+                          onCreateClick();
+                        } else {
+                          const CORE_QUICK_CREATE = ['client', 'contact', 'vendor', 'item', 'employee', 'lead', 'project', 'task'];
+                          if (CORE_QUICK_CREATE.includes(entity)) {
+                            setQuickCreateOpen(true);
+                          } else {
+                            const href = ENTITY_CREATE_HREF[entity] || `/dashboard/crm/settings`;
+                            window.open(href, '_blank');
+                          }
+                        }
+                      }}
+                      className="text-zoru-primary font-medium"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      {useInline ? `Use` : `Create new ${ENTITY_LABEL[entity]}`}
+                      {typed ? (
+                        <span className="ml-1 truncate text-zoru-ink-muted font-normal">
+                          “{typed}”
+                        </span>
+                      ) : null}
+                    </ZoruCommandItem>
+                  </ZoruCommandGroup>
+                );
+              })()}
+
               {showRecent ? (
                 <ZoruCommandGroup heading="Recent">
                   {recentItems.map((item) => {
@@ -815,69 +897,17 @@ export function EntityPicker({
                   </div>
                 ) : null}
               </ZoruCommandGroup>
-
-              {(() => {
-                const isReference = isReferenceEntity(entity);
-                const useInline = inlineCreate ?? isReference;
-                const showCreate = allowCreate || useInline;
-                if (!showCreate) return null;
-                const typed = search.trim();
-                const hasExactMatch = results.some(
-                  (r) => r.chip.primary.toLowerCase() === typed.toLowerCase(),
-                );
-                // Gating the Create row is the bit that broke clicks in
-                // the previous revision: when `allowCreate` flipped to
-                // default-true, non-reference pickers (client, branch,
-                // employee, …) rendered a Create row with no typed text
-                // and no `onCreateClick`. cmdk auto-highlights the first
-                // item; Enter (or a stray click) fires a no-op handler
-                // and closes the popover — looks like "click does
-                // nothing". Tightened rules:
-                //   - inline-create (reference entities): show ONLY when
-                //     the user has typed something new (no exact match).
-                //   - non-reference: show ONLY when the user has typed
-                //     something AND a real `onCreateClick` is wired.
-                if (useInline) {
-                  if (!typed || hasExactMatch) return null;
-                } else {
-                  if (!typed) return null;
-                  if (!onCreateClick) return null;
-                }
-                return (
-                  <ZoruCommandGroup>
-                    <ZoruCommandItem
-                      key="__create__"
-                      value="__create__"
-                      onSelect={() => {
-                        if (useInline && typed) {
-                          const synthetic: LookupItem = {
-                            id: typed,
-                            chip: { primary: typed },
-                            raw: { name: typed, _inlineCreated: true },
-                          };
-                          commitSelection(synthetic);
-                          return;
-                        }
-                        setOpen(false);
-                        onCreateClick?.();
-                      }}
-                      className="text-zoru-ink"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      {useInline ? `Use` : `Create new ${ENTITY_LABEL[entity]}`}
-                      {typed ? (
-                        <span className="ml-1 truncate text-zoru-ink-muted">
-                          “{typed}”
-                        </span>
-                      ) : null}
-                    </ZoruCommandItem>
-                  </ZoruCommandGroup>
-                );
-              })()}
             </ZoruCommandList>
           </ZoruCommand>
         </ZoruPopoverContent>
       </ZoruPopover>
+
+      <QuickCreateDialog
+        open={quickCreateOpen}
+        onOpenChange={setQuickCreateOpen}
+        entity={entity}
+        onCreated={(item) => commitSelection(item)}
+      />
     </div>
   );
 }

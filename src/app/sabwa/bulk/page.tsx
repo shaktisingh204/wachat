@@ -1,41 +1,41 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruCheckbox,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruProgress,
-  ZoruSelect,
+  Checkbox,
+  EmptyState,
+  Input,
+  Label,
+  Progress,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruTable,
+  Separator,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
-  ZoruTooltip,
+  Textarea,
+  Tooltip,
   ZoruTooltipContent,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
@@ -71,7 +71,7 @@ import {
  *
  * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
  * surface, prop shapes and data flow are unchanged. Audience source uses a
- * segmented ZoruButton group instead of a Tabs/ZoruRadioGroup card matrix per the
+ * segmented Button group instead of a Tabs/ZoruRadioGroup card matrix per the
  * no-tab-ui directive; stepper is the existing pattern from `connect/_client`.
  */
 
@@ -466,7 +466,7 @@ function Step1Audience({
                       }
                     >
                       <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="ZoruSelect column" />
+                        <ZoruSelectValue placeholder="Select column" />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
                         {state.csv.headers.map((h) => (
@@ -545,7 +545,7 @@ function Step1Audience({
 
         {state.source === 'label' && (
           <div className="space-y-1">
-            <ZoruLabel>ZoruLabel</ZoruLabel>
+            <ZoruLabel>Label</ZoruLabel>
             <ZoruSelect
               value={state.label ?? ''}
               onValueChange={(v) => onChange({ ...state, label: v })}

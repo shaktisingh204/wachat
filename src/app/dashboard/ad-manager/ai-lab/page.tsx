@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Label, Textarea } from '@/components/zoruui';
 import {
   Sparkles,
   Wand2,

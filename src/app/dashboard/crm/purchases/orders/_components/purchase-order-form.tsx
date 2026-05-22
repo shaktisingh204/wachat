@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import {
   useSearchParams } from 'next/navigation';
 import { useFormStatus } from 'react-dom';

@@ -16,15 +16,15 @@ import {
   Cell,
 } from 'recharts';
 import {
-  ZoruCard,
-  ZoruTable,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruBadge,
-  ZoruButton,
+  Badge,
+  Button,
 } from '@/components/zoruui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';

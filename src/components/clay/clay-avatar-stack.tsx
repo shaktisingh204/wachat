@@ -1,4 +1,4 @@
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -41,7 +41,7 @@ const overflowClass: Record<
 
 /**
  * ClayAvatarStack — overlapped avatars with a trailing "+N" chip.
- * Now delegates to shadcn ZoruAvatar primitives wrapped in a flex container.
+ * Now delegates to shadcn Avatar primitives wrapped in a flex container.
  */
 export function ClayAvatarStack({
   items,

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruBadge, cn } from '@/components/zoruui';
+import { Button, Badge, cn } from '@/components/zoruui';
 import { Loader2, RefreshCw, Smartphone } from 'lucide-react';
 
 /**

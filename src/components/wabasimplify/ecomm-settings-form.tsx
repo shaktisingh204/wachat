@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardDescription,
   ZoruCardFooter,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruSwitch,
+  Separator,
+  Switch,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -99,7 +99,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                             <ZoruLabel htmlFor="customDomain">Custom Domain</ZoruLabel>
                             <ZoruSelect name="customDomain" defaultValue={shop.customDomain || 'none'}>
                                 <ZoruSelectTrigger id="customDomain">
-                                    <ZoruSelectValue placeholder="ZoruSelect a verified domain..." />
+                                    <ZoruSelectValue placeholder="Select a verified domain..." />
                                 </ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     <ZoruSelectItem value="none">None (Use default)</ZoruSelectItem>
@@ -147,7 +147,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                                 <div className="space-y-2">
                                     <ZoruLabel htmlFor="abandonedCart.flowId">Reminder Flow</ZoruLabel>
                                     <ZoruSelect name="abandonedCart.flowId" defaultValue={shop.abandonedCart?.flowId}>
-                                        <ZoruSelectTrigger id="abandonedCart.flowId"><ZoruSelectValue placeholder="ZoruSelect a flow..."/></ZoruSelectTrigger>
+                                        <ZoruSelectTrigger id="abandonedCart.flowId"><ZoruSelectValue placeholder="Select a flow..."/></ZoruSelectTrigger>
                                         <ZoruSelectContent>
                                             {ecommFlows.map(flow => (
                                                 <ZoruSelectItem key={flow._id.toString()} value={flow._id.toString()}>{flow.name}</ZoruSelectItem>

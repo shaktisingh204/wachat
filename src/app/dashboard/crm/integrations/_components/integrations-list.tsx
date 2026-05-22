@@ -9,10 +9,10 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruSwitch,
+  Badge,
+  Button,
+  Card,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import {

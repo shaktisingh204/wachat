@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruAccordion,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruSeparator,
+  Switch,
+  Separator,
 } from '@/components/zoruui';
 import { Plus, Trash2, TrendingUp } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -95,7 +95,7 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
             <TabsContent value="content" className="pt-4">
                 <ZoruAccordion type="multiple" className="w-full" defaultValue={['items', 'settings']}>
                     <ZoruAccordionItem value="items">
-                        <ZoruAccordionTrigger>ZoruAccordion Items</ZoruAccordionTrigger>
+                        <ZoruAccordionTrigger>Accordion Items</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                             {items.map((item: AccordionItemData, index: number) => (
                                 <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-background">
@@ -106,7 +106,7 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
                                     <ZoruInput placeholder="Item Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} />
                                     <ZoruTextarea placeholder="Item content..." value={item.content || ''} onChange={(e) => handleItemChange(index, 'content', e.target.value)} />
                                     <ZoruSelect value={item.icon || '__none__'} onValueChange={(val) => handleItemChange(index, 'icon', val === '__none__' ? '' : val)}>
-                                        <ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect an icon..."/></ZoruSelectTrigger>
+                                        <ZoruSelectTrigger><ZoruSelectValue placeholder="Select an icon..."/></ZoruSelectTrigger>
                                         <ZoruSelectContent>
                                             <ZoruSelectItem value="__none__">No Icon</ZoruSelectItem>
                                             {iconNames.map(iconName => (<ZoruSelectItem key={iconName} value={iconName}>{iconName}</ZoruSelectItem>))}
@@ -120,7 +120,7 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
                     <ZoruAccordionItem value="settings">
                         <ZoruAccordionTrigger>Settings</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
-                            <div className="space-y-2"><ZoruLabel>Toggle Behavior</ZoruLabel><ZoruSelect value={settings.behavior || 'single'} onValueChange={(val) => handleUpdate('behavior', val)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="single">ZoruAccordion</ZoruSelectItem><ZoruSelectItem value="multiple">Toggle</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                            <div className="space-y-2"><ZoruLabel>Toggle Behavior</ZoruLabel><ZoruSelect value={settings.behavior || 'single'} onValueChange={(val) => handleUpdate('behavior', val)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="single">Accordion</ZoruSelectItem><ZoruSelectItem value="multiple">Toggle</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                             <div className="space-y-2"><ZoruLabel>Default Active Item</ZoruLabel><ZoruSelect value={settings.defaultActiveItem || '__none__'} onValueChange={v => handleUpdate('defaultActiveItem', v === '__none__' ? '' : v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="None"/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="__none__">None</ZoruSelectItem>{items.map((item: AccordionItemData, index: number) => <ZoruSelectItem key={item.id} value={item.id}>Item {index+1} ({item.title})</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
                             <div className="space-y-2"><ZoruLabel>Title HTML Tag</ZoruLabel><ZoruSelect value={settings.titleHtmlTag || 'h3'} onValueChange={v => handleUpdate('titleHtmlTag', v)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="h2">H2</ZoruSelectItem><ZoruSelectItem value="h3">H3</ZoruSelectItem><ZoruSelectItem value="h4">H4</ZoruSelectItem><ZoruSelectItem value="div">div</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                             <div className="grid grid-cols-2 gap-4">
@@ -136,7 +136,7 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
             <TabsContent value="style" className="pt-4">
                  <ZoruAccordion type="multiple" className="w-full" defaultValue={['style_box', 'style_title', 'style_content']}>
                     <ZoruAccordionItem value="style_box">
-                        <ZoruAccordionTrigger>ZoruAccordion Box Style</ZoruAccordionTrigger>
+                        <ZoruAccordionTrigger>Accordion Box Style</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><ZoruLabel>Space Between (px)</ZoruLabel><ZoruInput type="number" placeholder="10" value={settings.spaceBetween || ''} onChange={e => handleUpdate('spaceBetween', Number(e.target.value))} /></div>
                             <div className="space-y-2"><ZoruLabel>Border Type</ZoruLabel><ZoruSelect value={settings.border?.type || 'solid'} onValueChange={(val) => handleSubFieldUpdate('border', 'type', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="none">None</ZoruSelectItem><ZoruSelectItem value="solid">Solid</ZoruSelectItem><ZoruSelectItem value="dashed">Dashed</ZoruSelectItem><ZoruSelectItem value="dotted">Dotted</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>

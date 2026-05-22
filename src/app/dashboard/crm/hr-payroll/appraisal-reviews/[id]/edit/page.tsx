@@ -1,79 +1,26 @@
-'use client';
+import { permanentRedirect } from 'next/navigation';
 
-import { ZoruSkeleton } from '@/components/zoruui';
-import {
-  use } from 'react';
-import { Star } from 'lucide-react';
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-import { HrFormPage } from '../../../../hr/_components/hr-form-page';
-import {
-  getCrmAppraisalReviews,
-  saveCrmAppraisalReview,
-  } from '@/app/actions/crm-hr-appraisals.actions';
-import { fields,
-  sections } from '../../_config';
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-import * as React from 'react';
-
-export default function EditAppraisalPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
-  const [initial, setInitial] = React.useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = await getCrmAppraisalReviews();
-        const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === id) || null
-          : null;
-        if (!active) return;
-        // Flatten ratings.* → rating_* so the form fields read defaults.
-        if (found) {
-          const r = found as unknown as {
-            ratings?: Record<string, number>;
-          } & Record<string, unknown>;
-          const flat: Record<string, unknown> = { ...r };
-          if (r.ratings) {
-            for (const [k, v] of Object.entries(r.ratings)) {
-              flat[`rating_${k}`] = v;
-            }
-          }
-          setInitial(flat);
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
+  let target = '/dashboard/hrm/payroll/appraisal-reviews/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
   }
 
-  return (
-    <HrFormPage
-      title="Edit appraisal review"
-      icon={Star}
-      backHref="/dashboard/crm/hr-payroll/appraisal-reviews"
-      singular="Review"
-      fields={fields}
-      sections={sections}
-      saveAction={saveCrmAppraisalReview}
-      initial={initial}
-    />
-  );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

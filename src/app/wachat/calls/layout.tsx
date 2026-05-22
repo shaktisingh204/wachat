@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
+  Button,
 } from '@/components/zoruui';
 import {
   usePathname } from 'next/navigation';
@@ -20,7 +20,7 @@ import { useProject } from '@/context/project-context';
 /**
  * Wachat Calls — ZoruUI layout.
  *
- * Two sub-pages: Call Logs · Call Setup. Sub-nav uses ZoruButton
+ * Two sub-pages: Call Logs · Call Setup. Sub-nav uses Button
  * variants (no tab UI per the no-tab-ui directive). Each sub-page's
  * content is rendered by its child route.
  */

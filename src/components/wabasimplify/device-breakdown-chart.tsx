@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { ZoruCard, ZoruSkeleton } from '@/components/zoruui';
+import { Card, Skeleton } from '@/components/zoruui';
 import { Monitor } from 'lucide-react';
 
 interface AnalyticsDevices {

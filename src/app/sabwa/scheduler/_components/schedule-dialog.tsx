@@ -1,33 +1,33 @@
 "use client";
 
 import {
-  ZoruButton,
-  ZoruCalendar,
+  Button,
+  Calendar,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruPopover,
+  Input,
+  Label,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -62,7 +62,7 @@ import {
  * There is intentionally no free-text URL field.
  *
  * Rebuilt on ZoruUI primitives. The recipient-type picker is rendered as
- * a segmented ZoruButton group (no tab UI per ZoruUI design rules).
+ * a segmented Button group (no tab UI per ZoruUI design rules).
  */
 
 import * as React from "react";

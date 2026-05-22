@@ -1,23 +1,23 @@
 "use client";
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruEmptyState,
+  Button,
+  EmptyState,
   ZoruFullscreenCalendar,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   type ZoruFullscreenCalendarEvent,
 } from '@/components/zoruui';
 import {
@@ -45,7 +45,7 @@ import {
  * /dashboard/facebook/calendar — Post calendar, ZoruUI rebuild.
  *
  * Same handlers + server actions (`getFacebookPosts`, `getScheduledPosts`).
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, ZoruFullscreenCalendar
+ * Visual layer: PageHeader + Breadcrumb, ZoruFullscreenCalendar
  * showing both published and scheduled posts as events.
  */
 

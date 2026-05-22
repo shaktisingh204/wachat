@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Button, Card, Input, Label } from '@/components/zoruui';
 import { Lock, LoaderCircle } from 'lucide-react';
 import { verifyLinkPassword } from '@/app/actions/url-shortener.actions';
 

@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardDescription,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruSeparator,
+  Input,
+  Textarea,
+  Label,
+  Switch,
+  Separator,
 } from '@/components/zoruui';
 import {
   Send,

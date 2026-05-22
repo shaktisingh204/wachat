@@ -8,14 +8,14 @@ import {
   X,
 } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruEmptyState,
+  EmptyState,
   zoruToast,
 } from '@/components/zoruui';
 import {

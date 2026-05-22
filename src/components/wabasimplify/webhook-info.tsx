@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruBadge,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Skeleton,
+  Badge,
+  Select,
 } from '@/components/zoruui';
 import {
   useToast } from '@/hooks/use-toast';
@@ -138,7 +138,7 @@ function WebhookStatus() {
                         <SubscribeProjectButton projectId={projectId} isActive={status.isActive} />
                     </div>
                 ) : (
-                    <p className="text-muted-foreground text-sm">Could not determine status. ZoruSelect a project.</p>
+                    <p className="text-muted-foreground text-sm">Could not determine status. Select a project.</p>
                 )}
             </ZoruCardContent>
         </ZoruCard>

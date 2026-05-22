@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAvatar, ZoruAvatarFallback, ZoruBadge } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, Badge } from '@/components/zoruui';
 import { User as UserIcon } from 'lucide-react';
 
 /**

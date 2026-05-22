@@ -7,7 +7,7 @@
  *  - KPI strip (Total · Issued · Converted · Expired · Pending)
  *  - Status filter via <EnumFilterField enumName="quotationStatus" />
  *  - Client/account filter chip
- *  - Dense ZoruTable with row checkboxes
+ *  - Dense Table with row checkboxes
  *  - Bulk-action bar (archive · delete · export CSV)
  *  - Hard-delete + archive confirmation dialogs
  */
@@ -28,10 +28,10 @@ import {
   X,
 } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruTable,
+  Button,
+  Card,
+  Checkbox,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

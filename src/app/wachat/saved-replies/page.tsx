@@ -1,38 +1,38 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDataTable,
-  ZoruDialog,
+  Button,
+  Card,
+  DataTable,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
+  EmptyState,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Skeleton,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -58,8 +58,8 @@ import {
 
 /**
  * /wachat/saved-replies — manage shortcut replies for conversations.
- * ZoruUI: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable per category,
- * dialog for create/edit, ZoruEmptyState for zero rows.
+ * ZoruUI: PageHeader + Breadcrumb, DataTable per category,
+ * dialog for create/edit, EmptyState for zero rows.
  */
 
 import * as React from 'react';

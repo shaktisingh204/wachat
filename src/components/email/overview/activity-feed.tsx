@@ -4,14 +4,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { Send } from 'lucide-react';
 import Link from 'next/link';
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruBadge,
+  Badge,
 } from '@/components/zoruui';
 import type { WithId, EmailCampaign } from '@/lib/definitions';
 

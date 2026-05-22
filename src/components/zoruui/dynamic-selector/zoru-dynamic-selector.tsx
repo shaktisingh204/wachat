@@ -4,9 +4,9 @@ import * as React from "react";
 import { Check, ChevronDown, Loader2, Plus, Search } from "lucide-react";
 
 import { cn } from "../lib/cn";
-import { ZoruButton } from "../button";
-import { ZoruInput } from "../input";
-import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from "../popover";
+import { Button } from "../button";
+import { Input } from "../input";
+import { Popover, ZoruPopoverContent, ZoruPopoverTrigger } from "../popover";
 
 export interface DynamicSelectorOption {
   id: string;

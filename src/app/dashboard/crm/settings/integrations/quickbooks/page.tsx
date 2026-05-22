@@ -12,16 +12,16 @@
  */
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Badge,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import { Suspense, useCallback, useEffect, useState, useTransition } from 'react';

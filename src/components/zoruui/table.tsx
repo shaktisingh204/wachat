@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruTable = React.forwardRef<
+export const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
@@ -16,7 +16,7 @@ export const ZoruTable = React.forwardRef<
     </div>
   </div>
 ));
-ZoruTable.displayName = "ZoruTable";
+Table.displayName = "Table";
 
 export const ZoruTableHeader = React.forwardRef<
   HTMLTableSectionElement,

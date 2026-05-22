@@ -3,17 +3,17 @@
 import * as React from "react";
 
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruCheckbox,
-  ZoruLabel,
+  Checkbox,
+  Label,
   ZoruRadioCard,
-  ZoruRadioGroup,
-  ZoruSelect,
+  RadioGroup,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

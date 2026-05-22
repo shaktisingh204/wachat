@@ -3,17 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Badge,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruTextarea,
+  Separator,
+  Textarea,
 } from "@/components/zoruui";
 
 import type {

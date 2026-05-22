@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -11,8 +11,8 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruEmptyState,
+  Button,
+  EmptyState,
 } from '@/components/zoruui';
 import {
   useCallback,

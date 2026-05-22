@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruProgress,
-  ZoruSelect,
+  Badge,
+  Button,
+  Card,
+  Input,
+  Label,
+  Progress,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
+  StatCard,
   cn,
   useZoruToast,
 } from '@/components/zoruui';

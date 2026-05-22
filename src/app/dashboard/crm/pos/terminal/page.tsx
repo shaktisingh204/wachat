@@ -1,6 +1,6 @@
 import {
-    ZoruButton,
-    ZoruCard,
+    Button,
+    Card,
     ZoruCardContent,
 } from '@/components/zoruui';
 import { Plus, ShoppingCart, Store } from 'lucide-react';

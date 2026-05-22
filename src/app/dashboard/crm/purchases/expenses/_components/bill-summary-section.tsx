@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruSeparator } from '@/components/zoruui';
+import { Card, Separator } from '@/components/zoruui';
 /**
  * <BillSummarySection> — bill money summary card.
  *

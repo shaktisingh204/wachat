@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruSeparator } from '@/components/zoruui';
+import { Button, Separator } from '@/components/zoruui';
 import {
   SortableContext,
   useSortable,

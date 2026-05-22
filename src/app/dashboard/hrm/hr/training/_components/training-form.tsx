@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -170,7 +170,7 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                     />
                 ) : null}
                 <input type="hidden" name="materialsUrl" value={materialsUrl} />
-                {/* TODO 1E.sweep: trainingType + deliveryMode dropdowns are still ZoruSelect because the local FORM_TYPE_OPTIONS / DELIVERY_OPTIONS slugs in _config.ts don't map 1:1 to the catalogued `trainingDeliveryMode` enum. Bridge slugs or extend the catalogue, then swap to <EnumFormField>. */}
+                {/* TODO 1E.sweep: trainingType + deliveryMode dropdowns are still Select because the local FORM_TYPE_OPTIONS / DELIVERY_OPTIONS slugs in _config.ts don't map 1:1 to the catalogued `trainingDeliveryMode` enum. Bridge slugs or extend the catalogue, then swap to <EnumFormField>. */}
                 <input type="hidden" name="trainingType" value={trainingType} />
                 <input type="hidden" name="deliveryMode" value={deliveryMode} />
 

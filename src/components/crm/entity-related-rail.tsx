@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 /**
  * <EntityRelatedRail> — generic right-rail "Related" card.
  *
@@ -48,7 +48,7 @@ export interface EntityRelatedRailProps<TKey extends string = string> {
   /** Optional async refresher invoked on mount. */
   refresh?: () => Promise<Record<TKey, number>>;
   items: EntityRelatedRailItem<TKey>[];
-  /** Optional className passed through to the outer ZoruCard. */
+  /** Optional className passed through to the outer Card. */
   className?: string;
 }
 

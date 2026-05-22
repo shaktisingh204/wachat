@@ -1,4 +1,4 @@
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import { AlertTriangle } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';

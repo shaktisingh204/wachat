@@ -1,4 +1,4 @@
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import {
   Award } from 'lucide-react';
 

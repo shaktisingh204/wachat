@@ -1,20 +1,20 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruDataTable,
-  ZoruEmptyState,
-  ZoruSeparator,
-  ZoruSheet,
+  Badge,
+  Button,
+  DataTable,
+  EmptyState,
+  Separator,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import {
   useCallback,

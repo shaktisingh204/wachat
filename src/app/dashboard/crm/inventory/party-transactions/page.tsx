@@ -39,11 +39,11 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruDatePicker,
-    ZoruLabel,
-    ZoruTable,
+    Button,
+    Card,
+    DatePicker,
+    Label,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

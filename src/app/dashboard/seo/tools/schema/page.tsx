@@ -1,6 +1,6 @@
 'use client';
 
-import { cn as _zoruCn, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { cn as _zoruCn, Card, ZoruCardContent } from '@/components/zoruui';
 void _zoruCn;
 
 import SchemaBuilder from '@/components/seo/schema-builder';

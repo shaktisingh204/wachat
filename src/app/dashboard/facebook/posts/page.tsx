@@ -1,19 +1,19 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruDataTable,
-  ZoruDropdownMenu,
+  Button,
+  DataTable,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
@@ -21,14 +21,14 @@ import {
   ZoruDropdownMenuRadioItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruEmptyState,
+  EmptyState,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -61,7 +61,7 @@ import type { FacebookPost } from "@/lib/definitions";
 /**
  * /dashboard/facebook/posts — Master Facebook post list.
  *
- * ZoruUI rebuild: page header + breadcrumb, ZoruDataTable with status
+ * ZoruUI rebuild: page header + breadcrumb, DataTable with status
  * badges, edit/delete actions per row. Same data (`getFacebookPosts`,
  * `handleLikeObject`) and same handlers as before. Neutral palette only.
  */

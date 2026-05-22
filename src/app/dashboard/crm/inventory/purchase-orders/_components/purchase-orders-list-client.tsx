@@ -6,7 +6,7 @@
  * Ships:
  *   - KPI strip (from kpi prop)
  *   - Filters (status, vendor, date range)
- *   - ZoruCheckbox row selection
+ *   - Checkbox row selection
  *   - Bulk bar (approve, cancel, delete with confirm)
  *   - Export CSV + XLSX
  *   - Pagination
@@ -15,19 +15,19 @@
 import * as React from 'react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

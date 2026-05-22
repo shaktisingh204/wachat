@@ -2,15 +2,15 @@
 
 import * as React from 'react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
+  StatCard,
   useZoruToast,
 } from '@/components/zoruui';
 import {

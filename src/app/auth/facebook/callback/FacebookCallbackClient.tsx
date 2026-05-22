@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
 import {
   useEffect,
   useTransition } from 'react'

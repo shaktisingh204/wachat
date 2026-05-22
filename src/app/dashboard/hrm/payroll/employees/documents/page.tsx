@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruInput,
-  ZoruLabel,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Input,
+  Label,
+  Badge,
+  Button,
+  Card,
   useZoruToast,
 } from '@/components/zoruui';
 import {

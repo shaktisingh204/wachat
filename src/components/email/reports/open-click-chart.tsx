@@ -2,7 +2,7 @@
 
 import {
   ZORU_CHART_PALETTE,
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
@@ -10,7 +10,7 @@ import {
   ZoruChart,
   ZoruChartContainer,
   ZoruChartTooltip,
-  ZoruEmptyState,
+  EmptyState,
 } from '@/components/zoruui';
 import { LineChart } from 'lucide-react';
 import type { EmailTimeseriesPoint } from '@/lib/rust-client/email-reports';

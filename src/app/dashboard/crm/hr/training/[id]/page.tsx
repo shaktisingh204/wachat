@@ -1,96 +1,25 @@
-import { HrDetailPage } from '../../_components/hr-detail-page';
-import {
-  getTrainingPrograms,
-  deleteTrainingProgram,
-} from '@/app/actions/hr.actions';
-import type { HrTrainingProgram } from '@/lib/hr-types';
+import { permanentRedirect } from 'next/navigation';
 
-type Row = HrTrainingProgram & {
-  _id: string;
-  format?: string;
-  trainer?: string;
-  trainerEmail?: string;
-  durationHours?: number;
-  maxParticipants?: number;
-  venue?: string;
-  meetingLink?: string;
-  costPerParticipant?: number;
-  currency?: string;
-  registrationDeadline?: string | Date;
-  materialsUrl?: string;
-  feedbackFormUrl?: string;
-};
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default async function TrainingDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const list = (await getTrainingPrograms()) as Row[];
-  const row = list.find((r) => String(r._id) === id) ?? null;
+export default async function LegacyHrRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Program not found.</div>;
+  let target = '/dashboard/hrm/hr/training/[id]';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v) target = target.replace(`[${key}]`, encodeURIComponent(v));
+  }
 
-  return (
-    <HrDetailPage
-      title={row.name || 'Training program'}
-      eyebrow="TRAINING"
-      status={{ label: String(row.status ?? 'draft') }}
-      listHref="/dashboard/crm/hr/training"
-      listLabel="Back to training"
-      editHref={`/dashboard/crm/hr/training/${id}/edit`}
-      deleteAction={deleteTrainingProgram}
-      entityId={id}
-      sections={[
-        {
-          title: 'Overview',
-          fields: [
-            { label: 'Mode', value: row.format },
-            { label: 'Trainer', value: row.trainer },
-            { label: 'Trainer email', value: row.trainerEmail },
-            { label: 'Status', value: row.status },
-            { label: 'Description', value: row.description, fullWidth: true },
-          ],
-        },
-        {
-          title: 'Schedule',
-          fields: [
-            {
-              label: 'Start',
-              value: row.startDate ? new Date(row.startDate).toLocaleDateString() : null,
-            },
-            {
-              label: 'End',
-              value: row.endDate ? new Date(row.endDate).toLocaleDateString() : null,
-            },
-            { label: 'Duration (hours)', value: row.durationHours },
-            {
-              label: 'Registration deadline',
-              value: row.registrationDeadline
-                ? new Date(row.registrationDeadline).toLocaleDateString()
-                : null,
-            },
-            { label: 'Max participants', value: row.maxParticipants },
-          ],
-        },
-        {
-          title: 'Logistics & cost',
-          fields: [
-            { label: 'Venue', value: row.venue },
-            { label: 'Meeting link', value: row.meetingLink },
-            {
-              label: 'Cost per participant',
-              value:
-                row.costPerParticipant != null
-                  ? `${row.currency ?? ''} ${row.costPerParticipant}`.trim()
-                  : null,
-            },
-            { label: 'Materials URL', value: row.materialsUrl },
-            { label: 'Feedback form URL', value: row.feedbackFormUrl },
-          ],
-        },
-      ]}
-    />
-  );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

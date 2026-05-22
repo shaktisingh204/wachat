@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/zoruui';
 import Link from 'next/link';
 import Image from 'next/image';
 

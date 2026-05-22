@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getPublicProposal } from '@/app/actions/public-proposal.actions';
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,

@@ -1,26 +1,26 @@
 'use client';
 
 import {
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSeparator,
+  Separator,
 } from '@/components/zoruui';
 import {
   useParams,
@@ -34,7 +34,7 @@ import { ArrowLeft,
  *
  * Replaces the @/components/ui/* version. Same content (block reference
  * + variables guide), now rendered in the neutral Zoru palette using
- * ZoruAccordion. No tab UI.
+ * Accordion. No tab UI.
  */
 
 import * as React from 'react';

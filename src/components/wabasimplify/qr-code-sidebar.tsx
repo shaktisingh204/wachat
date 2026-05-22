@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruSeparator,
+  Button,
+  Input,
+  Separator,
   cn,
 } from '@/components/zoruui';
 import { Filter, Search } from 'lucide-react';

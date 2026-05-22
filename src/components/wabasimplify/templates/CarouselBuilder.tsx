@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruLabel,
-  ZoruCard,
+  Button,
+  Input,
+  Textarea,
+  Label,
+  Card,
   ZoruCardContent,
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruBadge,
-  ZoruSelect,
+  Badge,
+  Select,
 } from '@/components/zoruui';
 import {
   useState } from 'react';
@@ -101,7 +101,7 @@ function SortableCard({ id, card, isActive, onClick, onRemove }: { id: string, c
                 <div {...attributes} {...listeners} className="absolute top-1 left-1 p-1 bg-background/80 rounded opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing hover:bg-accent ring-1 ring-border">
                     <GripVertical className="h-3 w-3" />
                 </div>
-                {/* Delete ZoruButton */}
+                {/* Delete Button */}
                 <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onRemove(e); }}
@@ -110,9 +110,9 @@ function SortableCard({ id, card, isActive, onClick, onRemove }: { id: string, c
                     <Trash2 className="h-3 w-3" />
                 </button>
             </div>
-            {/* Number ZoruBadge */}
+            {/* Number Badge */}
             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-muted-foreground font-mono">
-                ZoruCard
+                Card
             </div>
         </div>
     );
@@ -196,7 +196,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                     <ZoruLabel className="text-sm font-semibold">Carousel Cards ({cards.length}/10)</ZoruLabel>
                     <ZoruButton type="button" size="sm" variant="outline" onClick={addCard} disabled={cards.length >= 10}>
                         <Plus className="h-4 w-4 mr-2" />
-                        Add ZoruCard
+                        Add Card
                     </ZoruButton>
                 </div>
 
@@ -225,14 +225,14 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                 </div>
             </div>
 
-            {/* 2. Active ZoruCard Editor */}
+            {/* 2. Active Card Editor */}
             {activeCard ? (
                 <div className="grid md:grid-cols-12 gap-6 animate-in fade-in duration-300">
 
                     {/* Editor Column */}
                     <div className="md:col-span-12 space-y-6 border rounded-xl p-6 bg-card relative">
                         <div className="absolute -top-3 left-4 bg-background px-2 text-sm font-semibold text-primary">
-                            Editing ZoruCard {cards.findIndex(c => c.id === activeCardId) + 1}
+                            Editing Card {cards.findIndex(c => c.id === activeCardId) + 1}
                         </div>
 
                         {/* Header Config */}
@@ -398,7 +398,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                             </div>
 
                                             <ZoruInput
-                                                placeholder="ZoruButton ZoruLabel"
+                                                placeholder="Button Label"
                                                 value={btn.text}
                                                 onChange={(e) => updateActiveCardButton(index, { ...btn, text: e.target.value })}
                                             />
@@ -428,7 +428,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
                             {activeCard.buttons.length < 2 && (
                                 <div className="flex gap-2">
-                                    <ZoruButton type="button" variant="outline" size="sm" onClick={() => addActiveCardButton('QUICK_REPLY')}>+ Add ZoruButton</ZoruButton>
+                                    <ZoruButton type="button" variant="outline" size="sm" onClick={() => addActiveCardButton('QUICK_REPLY')}>+ Add Button</ZoruButton>
                                 </div>
                             )}
                         </div>
@@ -437,7 +437,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                 </div>
             ) : (
                 <div className="p-12 text-center border-2 border-dashed rounded-xl text-muted-foreground">
-                    ZoruSelect a card to edit
+                    Select a card to edit
                 </div>
             )}
         </div>

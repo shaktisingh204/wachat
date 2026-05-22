@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruStatCard,
-  ZoruTable,
+  Badge,
+  Button,
+  Checkbox,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

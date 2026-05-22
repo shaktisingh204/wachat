@@ -1,48 +1,48 @@
 'use client';
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  EmptyState,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruSheet,
+  Separator,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   cn,
 } from '@/components/zoruui';
 import {
@@ -70,7 +70,7 @@ import {
  * last 5 messages + scheduled messages for the selected contact.
  *
  * Migrated to ZoruUI primitives. The drawer's tab strip is replaced with
- * a segmented ZoruButton group (no tab UI per the ZoruUI design rules).
+ * a segmented Button group (no tab UI per the ZoruUI design rules).
  * No server actions, prop shapes, or data flow changed.
  *
  * Source of truth: SABWA_PLAN.md § 6 — Page 14.

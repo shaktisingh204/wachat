@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -258,7 +258,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                         />
                     ))}
 
-                    {/* Picker — single ZoruSelect + Add button. */}
+                    {/* Picker — single Select + Add button. */}
                     <div className="flex flex-wrap items-center gap-2">
                         <ZoruSelect value={pickerValue} onValueChange={setPickerValue}>
                             <ZoruSelectTrigger className="min-w-[260px] flex-1">

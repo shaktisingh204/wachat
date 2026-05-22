@@ -423,6 +423,10 @@ export async function assignTaskToEmployee(
         const me = await resolveMyEmployee(String(session.user._id));
 
         const now = new Date();
+        // FIX: persist `assignedBy` (the employee that delegated the task) so
+        // managers can audit who routed each task — `createdBy` alone conflated
+        // "task author" with "task delegator".
+        const assignerEmployeeId = me ? me._id : null;
         const doc: Record<string, unknown> = {
             userId,
             title: taskData.title.trim(),
@@ -431,7 +435,8 @@ export async function assignTaskToEmployee(
             status: 'To-Do' as CrmTask['status'],
             type: 'Follow-up',
             assignedTo: new ObjectId(employeeId),
-            createdBy: me ? me._id : userId,
+            assignedBy: assignerEmployeeId ?? userId,
+            createdBy: assignerEmployeeId ?? userId,
             dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
             createdAt: now,
             updatedAt: now,
@@ -465,21 +470,27 @@ export async function markTaskComplete(
         const userId = new ObjectId(String(session.user._id));
         const me = await resolveMyEmployee(String(session.user._id));
 
+        // FIX: previously, when `me` was null we allowed ANY task in the tenant
+        // to be marked complete. Require a linked employee profile so the
+        // assignee/creator gate is actually enforced.
+        if (!me) {
+            return { success: false, error: 'No employee profile linked to your account.' };
+        }
+
         const taskFilter: Record<string, unknown> = {
             _id: new ObjectId(taskId),
             userId,
-        };
-
-        // Gate: only the assignee or creator may mark complete.
-        if (me) {
-            taskFilter.$or = [
+            $or: [
                 { assignedTo: me._id },
                 { createdBy: me._id },
-            ];
-        }
+            ],
+        };
 
+        const now = new Date();
         const result = await db.collection('crm_tasks').updateOne(taskFilter, {
-            $set: { status: 'Completed', updatedAt: new Date() },
+            // FIX: also record `completedAt` so dashboards / reports can sort
+            // and filter on completion time.
+            $set: { status: 'Completed', completedAt: now, updatedAt: now },
         });
 
         if (result.matchedCount === 0) {
@@ -533,10 +544,17 @@ export async function getPortalKpis(): Promise<PortalKpis> {
                     status: 'Completed',
                     updatedAt: { $gte: startOfWeek },
                 }),
-                db.collection('crm_tasks').countDocuments({
+                // FIX: previously this counted completed crm_tasks I created,
+                // but the Reports Inbox lives in `hrm_task_reports`. The KPI
+                // should reflect *unacknowledged* reports waiting for me as
+                // the manager, mirroring the filter used by getReportKpis.
+                db.collection('hrm_task_reports').countDocuments({
                     userId,
-                    createdBy: me._id,
-                    status: 'Completed',
+                    assignerId: String(me._id),
+                    $or: [
+                        { acknowledgedAt: { $exists: false } },
+                        { acknowledgedAt: null },
+                    ],
                 }),
             ]);
 

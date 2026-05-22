@@ -1,25 +1,26 @@
-import { notFound } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getHoliday } from '@/app/actions/crm/holidays.actions';
-import { HolidayForm } from '../../new/holiday-form';
+import { permanentRedirect } from 'next/navigation';
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function HolidayEditPage({ params }: PageProps) {
-    const { id } = await params;
-    const holiday = await getHoliday(id);
-    if (!holiday) notFound();
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-    return (
-        <EntityDetailShell
-            title={`Edit ${(holiday as any).name || 'holiday'}`}
-            eyebrow="HOLIDAY"
-            back={{ href: '/dashboard/crm/hr-payroll/holidays', label: 'Holidays' }}
-        >
-            <HolidayForm holiday={{ ...(holiday as any), _id: String((holiday as any)._id ?? id) }} />
-        </EntityDetailShell>
-    );
+  let target = '/dashboard/hrm/payroll/holidays/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
+  }
+
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

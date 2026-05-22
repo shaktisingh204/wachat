@@ -2,7 +2,7 @@
 
 import { Printer } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 
 export function EWayPrintButton() {
   return (

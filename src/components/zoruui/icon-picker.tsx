@@ -22,8 +22,8 @@ import {
 } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruInput } from "./input";
-import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from "./popover";
+import { Input } from "./input";
+import { Popover, ZoruPopoverContent, ZoruPopoverTrigger } from "./popover";
 
 export const ZORU_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   plane: Plane, car: Car, bus: Bus, train: Train, ship: Ship, bike: Bike, fuel: Fuel,

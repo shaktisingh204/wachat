@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruRadioGroup, ZoruRadioGroupItem, ZoruTextarea } from '@/components/zoruui';
+import { Input, Label, RadioGroup, ZoruRadioGroupItem, Textarea } from '@/components/zoruui';
 import React, { useState } from 'react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';

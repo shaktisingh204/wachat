@@ -9,7 +9,7 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
+  Button,
   useZoruToast,
 } from '@/components/zoruui';
 import {

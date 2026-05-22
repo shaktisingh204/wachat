@@ -9,31 +9,31 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCheckbox,
+  Button,
+  Checkbox,
   ZoruColorPicker,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruIconPicker,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruSwitch,
-  ZoruTable,
+  StatCard,
+  Switch,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -45,7 +45,7 @@ import { Download, Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
  * Expense Categories — settings-style list.
  *
  * Additions over the original:
- *  - ZoruCheckbox multi-select column
+ *  - Checkbox multi-select column
  *  - Bulk bar: delete with confirm + activate + deactivate
  */
 

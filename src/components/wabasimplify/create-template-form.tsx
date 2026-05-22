@@ -1,24 +1,24 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruLabel,
-  ZoruInput,
-  ZoruRadioGroup,
+  Button,
+  Label,
+  Input,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
-  ZoruSeparator,
+  Textarea,
+  Separator,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -398,7 +398,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
         {/* Main Editor Column */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* Common Details ZoruCard */}
+          {/* Common Details Card */}
           <ZoruCard>
             <ZoruCardHeader>
               <ZoruCardTitle>Template Details</ZoruCardTitle>
@@ -533,7 +533,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                   <div key={i} className="p-3 border rounded relative bg-muted/20">
                     <div className="font-semibold text-xs mb-1">{b.type}</div>
                     <ZoruInput
-                      placeholder="ZoruLabel"
+                      placeholder="Label"
                       value={b.text}
                       onChange={(e) => {
                         const newBtns = [...buttons];
@@ -592,11 +592,11 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
               <ZoruCard>
                 <ZoruCardHeader>
                   <ZoruCardTitle>Catalog Configuration</ZoruCardTitle>
-                  <ZoruCardDescription>ZoruSelect a catalog and define your sections.</ZoruCardDescription>
+                  <ZoruCardDescription>Select a catalog and define your sections.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
                   <div className="space-y-2">
-                    <ZoruLabel>ZoruSelect Catalog</ZoruLabel>
+                    <ZoruLabel>Select Catalog</ZoruLabel>
                     <ZoruSelect value={catalogId} onValueChange={setCatalogId} required>
                       <ZoruSelectTrigger><ZoruSelectValue placeholder="Choose a catalog..." /></ZoruSelectTrigger>
                       <ZoruSelectContent>
@@ -638,7 +638,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                   </div>
                   <div className="p-4 border rounded-md bg-muted/20 text-sm">
                     {catalogSection1Ids.length === 0 ? (
-                      <span className="text-muted-foreground">No products selected. Click "ZoruSelect Products" above.</span>
+                      <span className="text-muted-foreground">No products selected. Click "Select Products" above.</span>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
                         {catalogSection1Ids.map(id => (

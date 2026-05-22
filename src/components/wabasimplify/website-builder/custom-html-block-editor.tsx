@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruTextarea,
-  ZoruAlert,
+  Label,
+  Textarea,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruInput,
-  ZoruSelect,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

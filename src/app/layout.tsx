@@ -82,7 +82,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} ${onest.variable}`}
     >
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans min-h-screen bg-background text-foreground">
         <MotionProvider>
           <SessionProvider>
             <ZoruTooltipProvider>

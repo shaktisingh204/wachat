@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, type ZoruButtonProps } from '@/components/zoruui';
+import { Button, type ZoruButtonProps } from '@/components/zoruui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -23,8 +23,8 @@ export interface ClayButtonProps
 }
 
 /**
- * Map clay variants → ZoruButton variants. ClayButton is now a thin
- * back-compat wrapper around ZoruButton for the public-facing pages
+ * Map clay variants → Button variants. ClayButton is now a thin
+ * back-compat wrapper around Button for the public-facing pages
  * and dashboards that still reference it.
  */
 const variantToZoru: Record<Variant, ZoruButtonProps['variant']> = {

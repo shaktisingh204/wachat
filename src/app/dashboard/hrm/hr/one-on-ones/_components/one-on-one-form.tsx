@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -27,8 +27,8 @@ import { ArrowLeft,
   Save,
   Trash2 } from 'lucide-react';
 
-// §1E.sweep: status ZoruSelect kept — form uses in_progress/no_show/archived but oneOnOneStatus enum only has scheduled/completed/cancelled/rescheduled; resolve Rust DTO first.
-// §1E.sweep: mood ZoruSelect kept — no moodStatus enum in catalogue.
+// §1E.sweep: status Select kept — form uses in_progress/no_show/archived but oneOnOneStatus enum only has scheduled/completed/cancelled/rescheduled; resolve Rust DTO first.
+// §1E.sweep: mood Select kept — no moodStatus enum in catalogue.
 
 /**
  * <OneOnOneForm /> — create + edit form for HR one-on-ones.

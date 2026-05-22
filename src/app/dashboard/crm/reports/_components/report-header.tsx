@@ -4,8 +4,8 @@ import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { RefreshCw, Download, ChevronDown } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruDropdownMenu,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,

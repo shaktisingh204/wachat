@@ -1,12 +1,12 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Input, Label, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { GitBranch } from 'lucide-react';
 
 /**
- * Meta Flow JSON v7.3 ZoruSwitch — a control-flow component, not a UI toggle.
+ * Meta Flow JSON v7.3 Switch — a control-flow component, not a UI toggle.
  *
- *   { type: "ZoruSwitch", value: "<expr>", cases: { "<v1>": [...], default: [...] } }
+ *   { type: "Switch", value: "<expr>", cases: { "<v1>": [...], default: [...] } }
  *
  * Render branches in the raw JSON tab; here we only expose the
  * discriminator value and the case keys.

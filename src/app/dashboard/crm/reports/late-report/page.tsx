@@ -3,9 +3,9 @@ export const dynamic = 'force-dynamic';
 import * as React from 'react';
 
 import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruTable,
+  Badge,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

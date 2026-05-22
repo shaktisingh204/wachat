@@ -5,7 +5,7 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
 import { cn } from "./lib/cn";
 
-export const ZoruAvatar = React.forwardRef<
+export const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
 >(({ className, ...props }, ref) => (
@@ -18,7 +18,7 @@ export const ZoruAvatar = React.forwardRef<
     {...props}
   />
 ));
-ZoruAvatar.displayName = "ZoruAvatar";
+Avatar.displayName = "Avatar";
 
 export const ZoruAvatarImage = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Image>,

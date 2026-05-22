@@ -7,8 +7,8 @@
 import { Braces } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruPopover,
+  Button,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
 } from '@/components/zoruui';

@@ -1,14 +1,14 @@
 export const dynamic = 'force-dynamic';
 
 import {
-  ZoruCard,
-  ZoruTable,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruBadge,
+  Badge,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';

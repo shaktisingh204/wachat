@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, Pencil, Send, Trash2, X } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
     deleteCrmTimesheet,

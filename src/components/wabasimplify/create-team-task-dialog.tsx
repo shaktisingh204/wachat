@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -97,7 +97,7 @@ export function CreateTeamTaskDialog({ onTaskCreated, teamMembers }: CreateTeamT
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="assignedTo">Assign To</ZoruLabel>
                                 <ZoruSelect name="assignedTo">
-                                    <ZoruSelectTrigger id="assignedTo"><ZoruSelectValue placeholder="ZoruSelect team member" /></ZoruSelectTrigger>
+                                    <ZoruSelectTrigger id="assignedTo"><ZoruSelectValue placeholder="Select team member" /></ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {teamMembers.map(member => (
                                             <ZoruSelectItem key={member._id.toString()} value={member._id.toString()}>

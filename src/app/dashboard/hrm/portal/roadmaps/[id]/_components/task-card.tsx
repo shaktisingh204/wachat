@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/zoruui';
 import type { RoadmapTask } from '@/app/actions/hrm-roadmaps.actions';
 
 /* ─── Priority badge ────────────────────────────────────────────────── */

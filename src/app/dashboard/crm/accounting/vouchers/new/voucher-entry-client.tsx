@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruButton,
-  ZoruCard,
-  ZoruDatePicker,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  DatePicker,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruTextarea,
+  Separator,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 /**

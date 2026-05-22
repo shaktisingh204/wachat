@@ -10,7 +10,7 @@
 import { getSession } from '@/app/actions/user.actions';
 import { getMyEmployeeProfile } from '@/app/actions/hrm-portal.actions';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,

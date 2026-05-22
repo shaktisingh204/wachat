@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
 import { Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';

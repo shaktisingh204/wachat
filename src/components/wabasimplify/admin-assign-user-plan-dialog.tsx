@@ -1,20 +1,20 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruSelect,
+  Button,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruLabel,
+  Label,
 } from '@/components/zoruui';
 import {
   useState,
@@ -74,14 +74,14 @@ export function AdminAssignUserPlanDialog({ userId, userName, currentPlanId, all
           <ZoruDialogHeader>
             <ZoruDialogTitle>Assign Plan to {userName}</ZoruDialogTitle>
             <ZoruDialogDescription>
-              ZoruSelect a new subscription plan for this user.
+              Select a new subscription plan for this user.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="py-6">
             <ZoruLabel htmlFor="plan-select">Subscription Plan</ZoruLabel>
             <ZoruSelect name="planId" value={selectedPlan} onValueChange={setSelectedPlan}>
               <ZoruSelectTrigger id="plan-select">
-                <ZoruSelectValue placeholder="ZoruSelect a plan..." />
+                <ZoruSelectValue placeholder="Select a plan..." />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
                 {allPlans.map((plan) => (

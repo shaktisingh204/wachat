@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import { Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -72,7 +72,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     } = settings;
 
     if (items.length === 0) {
-        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">ZoruAccordion Block: No items configured.</div>;
+        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">Accordion Block: No items configured.</div>;
     }
     
     const wrapperStyle: React.CSSProperties = {

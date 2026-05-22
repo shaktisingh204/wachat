@@ -8,7 +8,7 @@ import {
     Users,
 } from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';

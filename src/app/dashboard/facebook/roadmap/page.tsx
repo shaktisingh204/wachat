@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruCard,
+  Card,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
@@ -36,7 +36,7 @@ import {
  * /dashboard/facebook/roadmap — Meta Suite product roadmap (ZoruUI).
  *
  * Replaces the legacy redirect-only stub. Renders a status-grouped grid
- * of ZoruCard tiles. Status is communicated via ZoruBadge using ONLY
+ * of Card tiles. Status is communicated via Badge using ONLY
  * neutral / success / info / ghost variants (no rainbow accents).
  *
  * Data is local + static — this is product-marketing content, not user

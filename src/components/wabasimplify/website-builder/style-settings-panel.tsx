@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruInput,
-  ZoruSelect,
+  Label,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruButton,
+  Button,
 } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as LucideIcons from 'lucide-react';
@@ -81,7 +81,7 @@ export function StyleSettingsPanel({ settings, onUpdate }: { settings: any, onUp
                 </ZoruAccordionContent>
             </ZoruAccordionItem>
             <ZoruAccordionItem value="style_button">
-                <ZoruAccordionTrigger>Submit ZoruButton</ZoruAccordionTrigger>
+                <ZoruAccordionTrigger>Submit Button</ZoruAccordionTrigger>
                 <ZoruAccordionContent className="space-y-4 pt-2">
                      <div className="space-y-2"><ZoruLabel>Typography</ZoruLabel><ZoruSelect value={settings.buttonTypography?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('buttonTypography', 'fontFamily', v)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="inherit">Default</ZoruSelectItem><ZoruSelectItem value="sans-serif">Sans-serif</ZoruSelectItem><ZoruSelectItem value="serif">Serif</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                      <Tabs defaultValue="normal">

@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
+  Checkbox,
+  Input,
+  Label,
   useZoruToast,
 } from '@/components/zoruui';
 import {

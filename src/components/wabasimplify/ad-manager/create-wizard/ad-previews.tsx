@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruBadge, ZoruScrollArea, ZoruScrollBar } from '@/components/zoruui';
+import { Button, Badge, ScrollArea, ZoruScrollBar } from '@/components/zoruui';
 import {
   Heart,
   MessageCircle,

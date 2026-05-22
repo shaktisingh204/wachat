@@ -9,33 +9,33 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruDropdownMenu,
+  EmptyState,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  ZoruInput,
-  ZoruLabel as ZoruUiLabel,
-  ZoruSkeleton,
+  Input,
+  Label as ZoruUiLabel,
+  Skeleton,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -60,7 +60,7 @@ import {
  *
  * Layout: header + "New label" button + grid of label cards (swatch +
  * name + chat count + Rename/Recolour/Delete actions). Edit/create
- * open a ZoruDialog with a name input and a 10-swatch colour picker.
+ * open a Dialog with a name input and a 10-swatch colour picker.
  * Delete opens a ZoruAlertDialog that warns the user that chats keep
  * their tag references.
  *

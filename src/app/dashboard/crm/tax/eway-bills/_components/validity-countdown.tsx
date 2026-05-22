@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { ZoruBadge } from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
 
 interface ValidityCountdownProps {
   validUpto: string;

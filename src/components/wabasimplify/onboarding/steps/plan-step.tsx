@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruSelect } from '@/components/zoruui';
+import { Button, Alert, ZoruAlertDescription, ZoruAlertTitle, Select } from '@/components/zoruui';
 import {
   AlertCircle,
   Check,
@@ -215,7 +215,7 @@ export function PlanStep({
 
     const submit = () => {
         if (!chosen) {
-            setError('ZoruSelect a plan to continue.');
+            setError('Select a plan to continue.');
             return;
         }
         const plan = plans.find((p) => p._id === chosen);

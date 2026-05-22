@@ -1,42 +1,25 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
-/**
- * Edit job page — server wrapper that loads the job by id and passes it
- * as `initialData` to `<JobForm />`.
- */
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getJobById } from '@/app/actions/crm-jobs.actions';
+export default async function LegacyHrRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-import { JobForm } from '../../_components/job-form';
+  let target = '/dashboard/hrm/hr/jobs/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v) target = target.replace(`[${key}]`, encodeURIComponent(v));
+  }
 
-export const dynamic = 'force-dynamic';
-
-const BASE = '/dashboard/crm/hr/jobs';
-
-export default async function EditJobPage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id: jobId } = await params;
-
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
-    const job = await getJobById(jobId);
-    if (!job) notFound();
-
-    return (
-        <EntityDetailShell
-            title={`Edit · ${job.title}`}
-            eyebrow="JOB"
-            back={{ href: `${BASE}/${jobId}`, label: 'Job detail' }}
-        >
-            <JobForm initialData={job} />
-        </EntityDetailShell>
-    );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

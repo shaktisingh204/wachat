@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruAlert,
+  Button,
+  Input,
+  Label,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -153,7 +153,7 @@ export function ProfileStep({
                         disabled={isPending}
                     >
                         <ZoruSelectTrigger id="role">
-                            <ZoruSelectValue placeholder="ZoruSelect your role" />
+                            <ZoruSelectValue placeholder="Select your role" />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {ROLES.map((r) => (

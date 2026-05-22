@@ -1,20 +1,20 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruAvatar,
+  Button,
+  Input,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruSeparator,
-  ZoruLabel,
-  ZoruSelect,
+  Separator,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -103,7 +103,7 @@ function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: bo
                      <div className="space-y-2">
                         <ZoruLabel htmlFor="role">Role</ZoruLabel>
                         <ZoruSelect name="role" defaultValue="agent">
-                            <ZoruSelectTrigger id="role"><ZoruSelectValue placeholder="ZoruSelect role" /></ZoruSelectTrigger>
+                            <ZoruSelectTrigger id="role"><ZoruSelectValue placeholder="Select role" /></ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
                                 <ZoruSelectItem value="admin">Admin</ZoruSelectItem>

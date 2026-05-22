@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/zoruui';
 import {
   useSearchParams } from 'next/navigation';
 import { Pencil } from 'lucide-react';

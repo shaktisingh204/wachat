@@ -4,7 +4,7 @@ import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruButton } from "./button";
+import { Button } from "./button";
 
 /**
  * Lightweight CSS-snap carousel — zero external dependencies. Each

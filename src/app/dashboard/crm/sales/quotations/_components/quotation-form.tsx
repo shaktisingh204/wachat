@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
+import { Button, Card, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,

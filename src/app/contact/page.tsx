@@ -1,13 +1,13 @@
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruLabel,
-  ZoruSeparator,
+  Button,
+  Input,
+  Textarea,
+  Label,
+  Separator,
 } from '@/components/zoruui';
 import Link from 'next/link';
 

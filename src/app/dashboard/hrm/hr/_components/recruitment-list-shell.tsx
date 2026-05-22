@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruCheckbox,
-  ZoruSelect,
+  Checkbox,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruTable,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruInput,
+  Input,
   useZoruToast,
 } from '@/components/zoruui';
 import {

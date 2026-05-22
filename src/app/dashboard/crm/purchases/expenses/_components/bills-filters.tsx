@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Input, Label } from '@/components/zoruui';
 /**
  * <BillsFilters> — collapsible filter row for the bills list (§1D).
  *

@@ -24,8 +24,8 @@ import {
   Megaphone,
 } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
@@ -209,6 +209,19 @@ function CalendarWidget() {
 function StickyNotesWidget() {
   return <WidgetShell title="Sticky notes" icon={StickyNote} />;
 }
+function MyTeamWidgetStub() {
+  // Real widget is a server component (`./my-team-widget.tsx`). The
+  // registry runs on the client; it renders this lightweight link card
+  // and the dashboard page mounts the server version separately.
+  return (
+    <WidgetShell
+      title="My team"
+      icon={Users}
+      href="/dashboard/hrm/portal#team"
+      hint="Direct reports"
+    />
+  );
+}
 
 /* Catch-all map. */
 const REGISTRY: Partial<Record<WidgetKey, React.ComponentType>> = {
@@ -232,6 +245,7 @@ const REGISTRY: Partial<Record<WidgetKey, React.ComponentType>> = {
   'activity-feed': ActivityFeedWidget,
   calendar: CalendarWidget,
   'sticky-notes': StickyNotesWidget,
+  'my-team': MyTeamWidgetStub,
 };
 
 export interface RenderWidgetProps {

@@ -3,16 +3,16 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { AlertTriangle, Check, Copy } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
+  Button,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
   zoruToast,
 } from '@/components/zoruui';
 import {

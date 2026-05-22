@@ -10,7 +10,7 @@ export interface ZoruProgressProps
   indicatorClassName?: string;
 }
 
-export const ZoruProgress = React.forwardRef<
+export const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   ZoruProgressProps
 >(({ className, value, indicatorClassName, ...props }, ref) => (
@@ -25,4 +25,4 @@ export const ZoruProgress = React.forwardRef<
     />
   </ProgressPrimitive.Root>
 ));
-ZoruProgress.displayName = "ZoruProgress";
+Progress.displayName = "Progress";

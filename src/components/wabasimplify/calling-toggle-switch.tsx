@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruSwitch } from '@/components/zoruui';
+import { Switch } from '@/components/zoruui';
 import { useState, useTransition, useEffect, useCallback } from 'react';
 
 import { useToast } from '@/hooks/use-toast';

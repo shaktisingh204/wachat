@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -126,7 +126,7 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
                 <div className="space-y-2">
                   <ZoruLabel htmlFor="category">Category</ZoruLabel>
                   <ZoruSelect name="category" required>
-                    <ZoruSelectTrigger id="category"><ZoruSelectValue placeholder="ZoruSelect..." /></ZoruSelectTrigger>
+                    <ZoruSelectTrigger id="category"><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger>
                     <ZoruSelectContent>
                       <ZoruSelectItem value="MARKETING">Marketing</ZoruSelectItem>
                       <ZoruSelectItem value="UTILITY">Utility</ZoruSelectItem>
@@ -140,7 +140,7 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
                 <ZoruTextarea id="bodyText" name="bodyText" placeholder="This message will appear above the button." required />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="buttonText">ZoruButton Text</ZoruLabel>
+                <ZoruLabel htmlFor="buttonText">Button Text</ZoruLabel>
                 <ZoruInput id="buttonText" name="buttonText" placeholder="e.g., Start Support Chat" required />
               </div>
             </div>

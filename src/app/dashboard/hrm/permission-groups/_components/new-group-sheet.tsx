@@ -8,17 +8,17 @@
 import * as React from 'react';
 import { Plus } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSheet,
+  Button,
+  Input,
+  Label,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetFooter,
   ZoruSheetHeader,
   ZoruSheetTitle,
   ZoruSheetTrigger,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { createPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';

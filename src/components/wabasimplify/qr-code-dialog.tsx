@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruButton } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, Button } from '@/components/zoruui';
 import {
   useRef } from 'react';
 

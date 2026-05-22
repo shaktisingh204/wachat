@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast, ZoruSelect } from '@/components/zoruui';
+import { Button, Card, Input, Label, Textarea, useZoruToast, Select } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,
@@ -88,7 +88,7 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
                             <EntityPicker
                                 entity="bankAccount"
                                 value={bankAccountId || null}
-                                placeholder="ZoruSelect bank account…"
+                                placeholder="Select bank account…"
                                 onChange={(next) => {
                                     const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
                                     setBankAccountId(id);

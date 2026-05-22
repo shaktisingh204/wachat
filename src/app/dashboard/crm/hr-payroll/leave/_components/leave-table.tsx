@@ -24,10 +24,10 @@ import Link from 'next/link';
 import { Eye, Pencil } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruTable,
+  Button,
+  Card,
+  Checkbox,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

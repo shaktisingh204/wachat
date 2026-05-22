@@ -6,10 +6,10 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
 import { cn } from "./lib/cn";
-import { ZoruButton } from "./button";
-import { ZoruCalendar } from "./calendar";
+import { Button } from "./button";
+import { Calendar } from "./calendar";
 import {
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
 } from "./popover";

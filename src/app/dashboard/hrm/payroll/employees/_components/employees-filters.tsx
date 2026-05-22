@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Input, Label } from '@/components/zoruui';
 /**
  * <EmployeesFilters> — collapsible filter row for the employees list.
  *

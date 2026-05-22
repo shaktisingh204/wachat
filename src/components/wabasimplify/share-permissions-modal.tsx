@@ -2,10 +2,10 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import {
-    ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
-    ZoruButton, ZoruInput, ZoruLabel, ZoruBadge, ZoruSelect,
+    Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
+    Button, Input, Label, Badge, Select,
     ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue,
-    ZoruSkeleton, ZoruSeparator, cn, useZoruToast
+    Skeleton, Separator, cn, useZoruToast
 } from '@/components/zoruui';
 import { Share2, Trash2, LoaderCircle, UserPlus, Mail, Eye, Pencil } from 'lucide-react';
 import {

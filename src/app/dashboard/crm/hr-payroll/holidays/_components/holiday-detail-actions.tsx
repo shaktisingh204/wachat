@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Pencil, Trash2 } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { deleteHolidayAction } from '@/app/actions/crm/holidays.actions';
 

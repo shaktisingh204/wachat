@@ -1,20 +1,20 @@
 'use client';
 
 import {
-    ZoruAlert,
+    Alert,
     ZoruAlertDescription,
     ZoruAlertTitle,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDatePicker,
-    ZoruLabel,
-    ZoruSelect,
+    Badge,
+    Button,
+    Card,
+    DatePicker,
+    Label,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruSkeleton,
+    Skeleton,
     useZoruToast,
 } from '@/components/zoruui';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';

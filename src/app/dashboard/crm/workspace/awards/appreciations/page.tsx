@@ -25,19 +25,19 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruSelect,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
+  StatCard,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

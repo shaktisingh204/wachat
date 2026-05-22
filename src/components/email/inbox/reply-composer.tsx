@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Loader2, Paperclip, Send, X } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruTextarea,
+  Button,
+  Textarea,
   cn,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';

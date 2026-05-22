@@ -10,7 +10,7 @@
  */
 
 import { useState } from 'react';
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { Copy, Check } from 'lucide-react';
 
 export interface CodeSample {

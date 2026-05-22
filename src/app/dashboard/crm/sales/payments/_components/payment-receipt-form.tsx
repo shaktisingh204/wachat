@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Button,
+  Card,
+  Input,
+  Label,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -24,8 +24,8 @@ import { LoaderCircle } from 'lucide-react';
  * Server-action driven via `savePaymentReceiptAction`. The form encodes
  * relational/reference fields (customer, bank account, currency) as
  * `<EntityFormField>` so the value stored is an id. Payment method is a
- * ZoruSelect over the fixed Rust enum. The allocation section uses a
- * plain ZoruInput for the invoice id/number since `invoice` is not in
+ * Select over the fixed Rust enum. The allocation section uses a
+ * plain Input for the invoice id/number since `invoice` is not in
  * the EntityKey scope here.
  *
  * Note: `'paymentReceipt'` is NOT in `WsCustomFieldBelongsTo`, so the
@@ -124,7 +124,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
       {editing ? <input type="hidden" name="_id" value={String(initial!._id)} /> : null}
-      {/* Mode + status are ZoruSelect (client state) — render hidden mirror
+      {/* Mode + status are Select (client state) — render hidden mirror
           inputs so the FormData carries the latest values. */}
       <input type="hidden" name="mode" value={mode} />
       {editing ? <input type="hidden" name="status" value={status} /> : null}

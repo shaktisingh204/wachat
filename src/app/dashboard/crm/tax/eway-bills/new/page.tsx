@@ -1,4 +1,4 @@
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 
 /**
  * Generate-new e-way bill — `/dashboard/crm/tax/eway-bills/new`.

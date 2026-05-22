@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -27,8 +27,8 @@ import { ArrowLeft,
   Save,
   Trash2 } from 'lucide-react';
 
-// §1E.sweep: readinessOverall ZoruSelect kept — form slugs (ready_now/1_year/2_3_years) differ from successionReadiness enum (ready_1_2y/ready_3_5y); resolve Rust DTO first.
-// §1E.sweep: status ZoruSelect kept — no successionStatus enum in catalogue.
+// §1E.sweep: readinessOverall Select kept — form slugs (ready_now/1_year/2_3_years) differ from successionReadiness enum (ready_1_2y/ready_3_5y); resolve Rust DTO first.
+// §1E.sweep: status Select kept — no successionStatus enum in catalogue.
 
 /**
  * <SuccessionForm /> — create + edit form for HR succession plans.

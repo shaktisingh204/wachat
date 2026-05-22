@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import { Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 import React from 'react';
 
 export function FaqBlockRenderer({ settings }: { settings: any }) {

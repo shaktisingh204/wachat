@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import * as React from 'react';
 import { AtSign, Check } from 'lucide-react';
 

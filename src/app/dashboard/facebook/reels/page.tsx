@@ -1,33 +1,33 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDialog,
+  Button,
+  Card,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruLabel,
+  EmptyState,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Skeleton,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -57,8 +57,8 @@ import {
  * /dashboard/facebook/reels — Meta Suite Reels manager, ZoruUI rebuild.
  *
  * Same handlers + server actions as before (getPageReels, publishPageReel).
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, neutral elevated cards
- * for the grid tiles, ZoruDialog (built on ZoruFileUploadCard) for upload.
+ * Visual layer: PageHeader + Breadcrumb, neutral elevated cards
+ * for the grid tiles, Dialog (built on ZoruFileUploadCard) for upload.
  */
 
 import * as React from "react";

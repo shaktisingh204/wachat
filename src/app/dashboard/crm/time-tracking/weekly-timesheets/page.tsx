@@ -11,28 +11,28 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruTable,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
-  ZoruDropdownMenu,
+  Textarea,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
@@ -63,7 +63,7 @@ import {
  * Weekly Timesheets — list page (rebuilt per §1D.1).
  *
  * Additions over the original:
- *  - ZoruCheckbox multi-select
+ *  - Checkbox multi-select
  *  - Bulk bar: Submit + Approve + Reject + Delete with confirm
  *  - Export CSV/XLSX (timesheet summaries)
  */

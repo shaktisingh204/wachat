@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruButton, ZoruSwitch, ZoruBadge, ZoruLabel } from '@/components/zoruui';
+import { Input, Button, Switch, Badge, Label } from '@/components/zoruui';
 import {
   moduleCategories,
   permissionActions } from '@/lib/permission-modules';

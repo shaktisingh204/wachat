@@ -1,33 +1,33 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDialog,
+  Button,
+  Card,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
+  EmptyState,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -55,8 +55,8 @@ import {
  * /dashboard/facebook/stories — Meta Suite Stories manager, ZoruUI rebuild.
  *
  * Same handlers + server actions as before (getPageStories, publishPhotoStory).
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, neutral elevated tiles,
- * ZoruDialog for create-story.
+ * Visual layer: PageHeader + Breadcrumb, neutral elevated tiles,
+ * Dialog for create-story.
  */
 
 import * as React from "react";

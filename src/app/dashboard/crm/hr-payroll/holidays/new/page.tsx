@@ -1,14 +1,5 @@
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { HolidayForm } from './holiday-form';
+import { permanentRedirect } from 'next/navigation';
 
-export default function NewHolidayPage() {
-    return (
-        <EntityDetailShell
-            title="New holiday"
-            eyebrow="HOLIDAY"
-            back={{ href: '/dashboard/crm/hr-payroll/holidays', label: 'Holidays' }}
-        >
-            <HolidayForm />
-        </EntityDetailShell>
-    );
+export default function LegacyHrPayrollRedirect() {
+  permanentRedirect('/dashboard/hrm/payroll/holidays/new');
 }

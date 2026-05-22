@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruCard,
+  Button,
+  Input,
+  Label,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruSeparator,
+  Separator,
 } from '@/components/zoruui';
 import {
   useForm,

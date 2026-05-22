@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { Card, Input, Label, Textarea } from '@/components/zoruui';
 /**
  * <QuotationFormSections> — the top-of-form sections of
  * `<QuotationForm>` (Header · Customer · Subject · Notes). Extracted

@@ -12,14 +12,14 @@
 import * as React from 'react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruStatCard,
-  ZoruTable,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

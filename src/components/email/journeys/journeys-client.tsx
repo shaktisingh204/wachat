@@ -4,23 +4,23 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { GitBranch, Plus } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
+  EmptyState,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Skeleton,
+  Textarea,
   zoruToast,
 } from '@/components/zoruui';
 import {

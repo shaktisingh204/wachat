@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruButton, ZoruSelect } from '@/components/zoruui';
+import { Input, Label, Button, Select } from '@/components/zoruui';
 import { DataSourceEditor } from '../shared/data-source-editor';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
@@ -20,18 +20,18 @@ export function RadioButtonsEditor({ component, updateField, updateAction }: Rad
                 <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">ZoruLabel (shown to user)</ZoruLabel>
+                <ZoruLabel htmlFor="label">Label (shown to user)</ZoruLabel>
                 <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
             
             <DataSourceEditor
-                label="Radio ZoruButton Options"
+                label="Radio Button Options"
                 dataSource={component['data-source'] || []}
                 updateDataSource={(newDataSource) => updateField('data-source', newDataSource)}
             />
 
             <ActionEditor
-                label="On ZoruSelect Action (optional)"
+                label="On Select Action (optional)"
                 action={component['on-select-action']}
                 onActionChange={updateAction}
                 actionType="on-select-action"

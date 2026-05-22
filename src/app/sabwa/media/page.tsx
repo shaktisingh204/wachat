@@ -1,31 +1,31 @@
 "use client";
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruCheckbox,
-  ZoruDialog,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  EmptyState,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
+  Skeleton,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -65,7 +65,7 @@ import {
  *
  * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports. Tabs UI
  * is intentionally avoided per the ZoruUI design rules; the media-type
- * switcher is a segmented ZoruButton group.
+ * switcher is a segmented Button group.
  */
 
 import * as React from "react";
@@ -423,7 +423,7 @@ export default function SabWaMediaPage() {
         </ZoruCardContent>
       </ZoruCard>
 
-      {/* Type switcher — segmented ZoruButton group (no tab UI) */}
+      {/* Type switcher — segmented Button group (no tab UI) */}
       <div
         role="group"
         aria-label="Media type"

@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
-  ZoruButton,
-  ZoruBadge,
-  ZoruDropdownMenu,
+  Button,
+  Badge,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
@@ -169,13 +169,13 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                                     OR we can try to compose it. 
                                     
                                     Let's keep it simple: Reset the DeleteProjectButton to be a menu item trigger if possible, 
-                                    BUT DeleteProjectButton likely renders a default ZoruButton trigger.
+                                    BUT DeleteProjectButton likely renders a default Button trigger.
                                     
                                     New Plan for Actions: Just show the DeleteProjectButton as a discrete action 
                                     OR keep it simple and just show the menu if we had more actions. 
                                     Since we only have Delete, let's just show a trash icon button that triggers the dialog.
                                     
-                                    Wait, DeleteProjectButton encapsulates the ZoruDialog logic.
+                                    Wait, DeleteProjectButton encapsulates the Dialog logic.
                                     Let's just position the DeleteProjectButton nicely.
                                 */}
                             </ZoruDropdownMenuContent>

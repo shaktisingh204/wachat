@@ -3,17 +3,17 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Check, Copy } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
+  Button,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
+  Input,
+  Label,
+  Switch,
   zoruToast,
 } from '@/components/zoruui';
 import {

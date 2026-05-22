@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDatePicker,
-  ZoruEmptyState,
+  DatePicker,
+  EmptyState,
   cn,
 } from '@/components/zoruui';
 import {
@@ -42,7 +42,7 @@ import { useSabwaSession } from '@/lib/sabwa/session-context';
  * a "Phase 1" error, so the page is usable end-to-end today.
  *
  * Visual layer migrated to ZoruUI. The range picker is rendered as a
- * segmented ZoruButton group (no tab UI per ZoruUI design rules).
+ * segmented Button group (no tab UI per ZoruUI design rules).
  */
 
 import * as React from 'react';

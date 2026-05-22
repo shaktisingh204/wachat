@@ -13,7 +13,7 @@ import {
 import { Banknote, LoaderCircle, PieChart as PieChartIcon, Scale, ShieldCheck } from 'lucide-react';
 
 import {
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

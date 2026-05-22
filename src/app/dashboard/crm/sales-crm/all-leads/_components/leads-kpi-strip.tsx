@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { BarChart3, CheckCircle2, Sparkles, Trophy, Users } from 'lucide-react';
 
 /**

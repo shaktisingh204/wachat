@@ -1,7 +1,7 @@
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
+    Badge,
+    Button,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,

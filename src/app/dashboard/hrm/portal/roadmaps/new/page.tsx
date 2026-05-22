@@ -7,13 +7,13 @@ import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 
 import { createRoadmap, type RoadmapPhase } from '@/app/actions/hrm-roadmaps.actions';
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  ZoruCard,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Card,
   ZoruCardContent,
-  ZoruSelect,
+  Select,
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSelectContent,

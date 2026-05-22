@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput } from '@/components/zoruui';
+import { Button, Input } from '@/components/zoruui';
 /**
  * <DealCompetitorsEditor> — free-text competitor chips. Extracted from
  * <DealForm> to keep the parent under the 600-line cap.

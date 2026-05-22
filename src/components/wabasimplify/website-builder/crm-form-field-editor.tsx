@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruSelect,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruCheckbox,
-  ZoruRadioGroup,
+  Switch,
+  Checkbox,
+  RadioGroup,
   ZoruRadioGroupItem,
 } from '@/components/zoruui';
 import type { FormField } from '@/lib/definitions';
@@ -50,8 +50,8 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                         <ZoruSelectItem value="email">Email</ZoruSelectItem>
                         <ZoruSelectItem value="textarea">Text Area</ZoruSelectItem>
                         <ZoruSelectItem value="number">Number</ZoruSelectItem>
-                        <ZoruSelectItem value="select">ZoruSelect</ZoruSelectItem>
-                        <ZoruSelectItem value="checkbox">ZoruCheckbox</ZoruSelectItem>
+                        <ZoruSelectItem value="select">Select</ZoruSelectItem>
+                        <ZoruSelectItem value="checkbox">Checkbox</ZoruSelectItem>
                         <ZoruSelectItem value="radio">Radio Group</ZoruSelectItem>
                         <ZoruSelectItem value="date">Date</ZoruSelectItem>
                         <ZoruSelectItem value="file">File Upload</ZoruSelectItem>
@@ -60,13 +60,13 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                 </ZoruSelect>
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="field-label">ZoruLabel {field.required && <span className="text-destructive">*</span>}</ZoruLabel>
+                <ZoruLabel htmlFor="field-label">Label {field.required && <span className="text-destructive">*</span>}</ZoruLabel>
                 <ZoruInput id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
             </div>
              <div className="space-y-2">
                 <ZoruLabel htmlFor="fieldId">Map to CRM Field</ZoruLabel>
                 <ZoruSelect value={field.fieldId || '__none__'} onValueChange={(val) => handleUpdate('fieldId', val === '__none__' ? '' : val)}>
-                    <ZoruSelectTrigger id="fieldId"><ZoruSelectValue placeholder="ZoruSelect a CRM field..."/></ZoruSelectTrigger>
+                    <ZoruSelectTrigger id="fieldId"><ZoruSelectValue placeholder="Select a CRM field..."/></ZoruSelectTrigger>
                     <ZoruSelectContent>
                         <ZoruSelectItem value="__none__">-- None (Custom Field) --</ZoruSelectItem>
                         {crmFieldMappingOptions.map(opt => (
@@ -74,7 +74,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                         ))}
                     </ZoruSelectContent>
                 </ZoruSelect>
-                 <p className="text-xs text-muted-foreground">ZoruSelect which lead property this input should save to.</p>
+                 <p className="text-xs text-muted-foreground">Select which lead property this input should save to.</p>
             </div>
              <div className="space-y-2">
                 <ZoruLabel htmlFor="field-placeholder">Placeholder</ZoruLabel>

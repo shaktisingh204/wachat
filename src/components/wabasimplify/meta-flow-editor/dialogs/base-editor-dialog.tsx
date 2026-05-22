@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruDialog, ZoruDialogContent, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, ZoruButton, ZoruScrollArea } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Button, ScrollArea } from '@/components/zoruui';
 interface BaseEditorDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;

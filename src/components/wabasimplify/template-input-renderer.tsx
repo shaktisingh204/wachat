@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruRadioGroup,
+  Label,
+  Button,
+  Input,
+  RadioGroup,
   ZoruRadioGroupItem,
   ZoruCommand,
   ZoruCommandEmpty,
@@ -12,11 +12,11 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruSelect,
-  ZoruCard,
+  Select,
+  Card,
 } from '@/components/zoruui';
 import { UploadCloud, Link as LinkIcon, MapPin, ChevronsUpDown, Check } from 'lucide-react';
 import type { WithId } from 'mongodb';
@@ -76,10 +76,10 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
                                 aria-expanded={open}
                                 className="w-[40px] px-0 flex-shrink-0"
                                 type="button"
-                                title="ZoruSelect Variable"
+                                title="Select Variable"
                             >
                                 <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                                <span className="sr-only">ZoruSelect Variable</span>
+                                <span className="sr-only">Select Variable</span>
                             </ZoruButton>
                         </ZoruPopoverTrigger>
                         <ZoruPopoverContent className="w-[200px] p-0" align="end">
@@ -286,7 +286,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
 
                 return (
                     <div className="space-y-3 pt-2">
-                        <ZoruLabel className="font-semibold">ZoruButton Parameters</ZoruLabel>
+                        <ZoruLabel className="font-semibold">Button Parameters</ZoruLabel>
                         <div className="grid gap-3">
                             {interactiveButtons.map((btn: any) => (
                                 <div key={`btn-${btn.index}`} className="space-y-1">
@@ -322,7 +322,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                             return (
                                 <div key={index} className="p-4 border rounded-md bg-muted/20 space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <ZoruLabel className="font-medium">ZoruCard {index + 1} ({header.format})</ZoruLabel>
+                                        <ZoruLabel className="font-medium">Card {index + 1} ({header.format})</ZoruLabel>
                                     </div>
                                     <ZoruInput
                                         ref={(el) => {

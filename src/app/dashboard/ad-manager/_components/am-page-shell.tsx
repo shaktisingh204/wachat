@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
@@ -12,7 +12,7 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruPageActions,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
@@ -23,7 +23,7 @@ import {
  * Shared chrome for /dashboard/ad-manager ZoruUI pages.
  *
  * - <AmBreadcrumb> renders SabNode › Ad Manager › <section>.
- * - <AmHeader> renders ZoruPageHeader with title / description / actions.
+ * - <AmHeader> renders PageHeader with title / description / actions.
  * - <AmNoProject> is the canonical empty state for "No project selected".
  * - <AmErrorAlert> is the canonical error.
  *

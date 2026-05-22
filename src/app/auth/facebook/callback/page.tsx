@@ -1,4 +1,4 @@
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   Suspense } from 'react'
 import { LoaderCircle } from 'lucide-react'

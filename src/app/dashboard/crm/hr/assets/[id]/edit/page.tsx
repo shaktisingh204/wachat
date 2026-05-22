@@ -1,42 +1,25 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
-/**
- * Edit asset page — server wrapper that loads the asset and passes it as
- * `initialData` to `<AssetForm />`.
- */
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getAssetById } from '@/app/actions/crm-assets.actions';
+export default async function LegacyHrRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-import { AssetForm } from '../../_components/asset-form';
+  let target = '/dashboard/hrm/hr/assets/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v) target = target.replace(`[${key}]`, encodeURIComponent(v));
+  }
 
-export const dynamic = 'force-dynamic';
-
-const BASE = '/dashboard/crm/hr/assets';
-
-export default async function EditAssetPage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id: assetId } = await params;
-
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
-    const asset = await getAssetById(assetId);
-    if (!asset) notFound();
-
-    return (
-        <EntityDetailShell
-            title={`Edit · ${asset.name}`}
-            eyebrow="ASSET"
-            back={{ href: `${BASE}/${assetId}`, label: 'Asset detail' }}
-        >
-            <AssetForm initialData={asset} />
-        </EntityDetailShell>
-    );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
+  Badge,
+  Button,
   ZoruDateRangePicker,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

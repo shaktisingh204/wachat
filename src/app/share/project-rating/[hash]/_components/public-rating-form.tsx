@@ -12,10 +12,10 @@
 import { useState, useTransition } from 'react';
 import { Star } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruLabel,
-  ZoruTextarea,
-  ZoruInput,
+  Button,
+  Label,
+  Textarea,
+  Input,
   cn,
 } from '@/components/zoruui';
 import {

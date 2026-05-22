@@ -9,7 +9,7 @@
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getCrmBankTransactions,

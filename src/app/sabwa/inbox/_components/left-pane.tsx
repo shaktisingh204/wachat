@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruScrollArea,
-  ZoruSelect,
+  EmptyState,
+  Input,
+  ScrollArea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

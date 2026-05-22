@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
+import { Button, Card, Badge } from '@/components/zoruui';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 
 /**

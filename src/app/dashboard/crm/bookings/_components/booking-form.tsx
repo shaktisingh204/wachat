@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Button,
+  Card,
+  Input,
+  Label,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
@@ -86,7 +86,7 @@ export function BookingForm({ initial }: BookingFormProps) {
 
   const editing = !!initial?._id;
 
-  // Mirror the ZoruSelect's controlled value into a hidden input so the
+  // Mirror the Select's controlled value into a hidden input so the
   // server action sees it in FormData. (ZoruSelect's underlying Radix
   // primitive isn't itself a form control.)
   const [status, setStatus] = React.useState<CrmBookingStatus>(

@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruInput,
-  ZoruTextarea,
-  ZoruLabel,
-  ZoruCheckbox,
-  ZoruSelect,
+  Input,
+  Textarea,
+  Label,
+  Checkbox,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -85,7 +85,7 @@ function entityRefValue(
 }
 
 /* ------------------------------------------------------------------ */
-/* ZoruInput                                                               */
+/* Input                                                               */
 /* ------------------------------------------------------------------ */
 
 export function CustomFieldInput({
@@ -124,7 +124,7 @@ export function CustomFieldInput({
     case 'select':
     case 'radio': {
       // `radio` shares the same shape on disk (single string). For now
-      // we render both as a ZoruSelect — the visual difference can be
+      // we render both as a Select — the visual difference can be
       // upgraded later without changing storage.
       const options = field.values ?? [];
       control = (
@@ -135,7 +135,7 @@ export function CustomFieldInput({
           disabled={disabled}
         >
           <ZoruSelectTrigger id={slug}>
-            <ZoruSelectValue placeholder={`ZoruSelect ${label}…`} />
+            <ZoruSelectValue placeholder={`Select ${label}…`} />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
             {options.map((opt) => (
@@ -170,7 +170,7 @@ export function CustomFieldInput({
           ) : null}
         </div>
       );
-      // ZoruCheckbox renders its own inline label, so skip the outer one.
+      // Checkbox renders its own inline label, so skip the outer one.
       return (
         <div className={cn('flex flex-col gap-1', className)}>{control}</div>
       );

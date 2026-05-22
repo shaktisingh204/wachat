@@ -1,6 +1,6 @@
 "use client";
 
-import { ZoruButton, ZoruInput, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruTextarea } from '@/components/zoruui';
+import { Button, Input, Popover, ZoruPopoverContent, ZoruPopoverTrigger, Textarea } from '@/components/zoruui';
 import {
   CalendarClock,
   Loader2,

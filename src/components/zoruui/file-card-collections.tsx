@@ -4,7 +4,7 @@ import * as React from "react";
 import { File, FileText, FileImage, FileVideo, FileAudio, FileArchive, MoreHorizontal } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruButton } from "./button";
+import { Button } from "./button";
 
 export interface ZoruFileCardItem {
   id: string;

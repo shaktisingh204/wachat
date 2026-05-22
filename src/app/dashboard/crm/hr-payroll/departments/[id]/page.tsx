@@ -1,175 +1,26 @@
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import {
-  notFound } from 'next/navigation';
-import { Pencil,
-  ArrowLeft } from 'lucide-react';
+import { permanentRedirect } from 'next/navigation';
 
-/**
- * Department detail — `/dashboard/crm/hr-payroll/departments/[id]` (canonical).
- *
- * Server component. Renders the department via `<EntityDetailShell>`
- * with a right-rail showing member + child counts (resolved through
- * the same Rust list endpoints used by the directory). Edit / Back
- * actions live in the header.
- */
-
-import Link from 'next/link';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { EntityPickerChip } from '@/components/crm/entity-picker';
-import {
-  getDepartment,
-  listDepartments,
-} from '@/app/actions/crm/departments.actions';
-import { listEmployees } from '@/app/actions/crm/employees.actions';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-
-export const dynamic = 'force-dynamic';
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
-    </div>
-  );
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function DepartmentDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const { item, error } = await getDepartment(id);
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-  if (!item) {
-    if (error) {
-      return (
-        <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
-            Couldn&apos;t load this department — {error}
-          </p>
-          <ZoruButton variant="outline" asChild>
-            <Link href="/dashboard/crm/hr-payroll/departments">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Link>
-          </ZoruButton>
-        </div>
-      );
-    }
-    notFound();
+  let target = '/dashboard/hrm/payroll/departments/[id]';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
   }
 
-  // Related counts — best-effort, fall back to 0 on error. The Rust
-  // departments list endpoint doesn't expose a parent filter, so we
-  // pull a wide page and partition client-side.
-  const [{ employees: members = [] }, { items: allDepartments = [] }] =
-    await Promise.all([
-      listEmployees({ departmentId: id, limit: 100 }),
-      listDepartments({ limit: 100 }),
-    ]);
-  const children = allDepartments.filter((d) => d.parentDepartmentId === id);
-
-  return (
-    <EntityDetailShell
-      eyebrow="Department"
-      title={item.name}
-      status={{
-        label: item.active === false ? 'Inactive' : 'Active',
-        tone: item.active === false ? 'neutral' : 'green',
-      }}
-      back={{ href: '/dashboard/crm/hr-payroll/departments', label: 'Departments' }}
-      actions={
-        <ZoruButton asChild>
-          <Link href={`/dashboard/crm/hr-payroll/departments/${id}/edit`}>
-            <Pencil className="h-4 w-4" /> Edit
-          </Link>
-        </ZoruButton>
-      }
-      audit={<EntityAuditTimeline entityKind="department" entityId={id} />}
-      rightRail={
-        <>
-          <ZoruCard className="p-4">
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Related
-            </h3>
-            <dl className="space-y-2 text-[13px] text-zoru-ink">
-              <div className="flex justify-between">
-                <dt className="text-zoru-ink-muted">Members</dt>
-                <dd className="tabular-nums">{members.length}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-zoru-ink-muted">Child departments</dt>
-                <dd className="tabular-nums">{children.length}</dd>
-              </div>
-            </dl>
-          </ZoruCard>
-
-          {children.length > 0 ? (
-            <ZoruCard className="p-4">
-              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Child departments
-              </h3>
-              <ul className="space-y-1.5">
-                {children.slice(0, 8).map((c) => (
-                  <li key={c._id}>
-                    <Link
-                      href={`/dashboard/crm/hr-payroll/departments/${c._id}`}
-                      className="text-[13px] text-zoru-ink hover:underline"
-                    >
-                      {c.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </ZoruCard>
-          ) : null}
-        </>
-      }
-    >
-      <ZoruCard className="p-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Name">{item.name}</Field>
-          <Field label="Code">{item.code || '—'}</Field>
-          <Field label="Parent department">
-            {item.parentDepartmentId ? (
-              <EntityPickerChip
-                entity="department"
-                id={item.parentDepartmentId}
-              />
-            ) : (
-              '—'
-            )}
-          </Field>
-          <Field label="Head">
-            {item.headId ? (
-              <EntityPickerChip entity="employee" id={item.headId} />
-            ) : (
-              '—'
-            )}
-          </Field>
-          <Field label="Cost center">{item.costCenter || '—'}</Field>
-          <Field label="Color">
-            {item.color ? (
-              <ZoruBadge variant="outline">{item.color}</ZoruBadge>
-            ) : (
-              '—'
-            )}
-          </Field>
-          <div className="md:col-span-2">
-            <Field label="Description">{item.description || '—'}</Field>
-          </div>
-        </div>
-      </ZoruCard>
-    </EntityDetailShell>
-  );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

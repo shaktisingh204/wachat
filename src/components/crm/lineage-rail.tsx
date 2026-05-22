@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge } from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
 import {
   Sparkles,
   Handshake,

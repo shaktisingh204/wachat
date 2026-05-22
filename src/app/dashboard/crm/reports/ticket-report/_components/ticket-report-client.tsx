@@ -27,14 +27,14 @@ import {
 import { Download, FileSpreadsheet } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDropdownMenu,
+    Badge,
+    Button,
+    Card,
+    DropdownMenu,
     ZoruDropdownMenuContent,
     ZoruDropdownMenuItem,
     ZoruDropdownMenuTrigger,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

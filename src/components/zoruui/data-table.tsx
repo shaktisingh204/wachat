@@ -17,10 +17,10 @@ import {
 import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, ChevronsUpDown, Settings2 } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruButton } from "./button";
-import { ZoruInput } from "./input";
+import { Button } from "./button";
+import { Input } from "./input";
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuCheckboxItem,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuLabel,
@@ -28,7 +28,7 @@ import {
   ZoruDropdownMenuTrigger,
 } from "./dropdown-menu";
 import {
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -55,7 +55,7 @@ export interface ZoruDataTableProps<TData, TValue> {
   onRowSelectionChange?: (rows: TData[]) => void;
 }
 
-export function ZoruDataTable<TData, TValue>({
+export function DataTable<TData, TValue>({
   columns,
   data,
   filterColumn,

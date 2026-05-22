@@ -7,15 +7,15 @@
 
 import * as React from 'react';
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
 } from '@/components/zoruui';
 import { SignaturePad } from '@/components/share/signature-pad';
 import { signContract } from '@/app/actions/public-contract.actions';

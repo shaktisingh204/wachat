@@ -10,12 +10,12 @@ import Link from 'next/link';
 
 import { getClientKnowledgeBase } from '@/app/actions/client-portal.actions';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
 } from '@/components/zoruui/card';
-import { ZoruEmptyState } from '@/components/zoruui/empty-state';
+import { EmptyState } from '@/components/zoruui/empty-state';
 import { KbSearch } from '@/components/client-portal/kb-search';
 import { cn } from '@/components/zoruui/lib/cn';
 

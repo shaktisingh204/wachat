@@ -1,43 +1,26 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
-/**
- * Edit salary structure page — wrap `<SalaryStructureForm initialData=… />`.
- */
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-import { SalaryStructureForm } from '../../_components/salary-structure-form';
+  let target = '/dashboard/hrm/payroll/salary-structure/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
+  }
 
-export const dynamic = 'force-dynamic';
-
-const BASE = '/dashboard/crm/hr-payroll/salary-structure';
-
-export default async function EditSalaryStructurePage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id } = await params;
-
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
-    const doc = await getSalaryStructureDoc(id);
-    if (!doc) notFound();
-
-    const label = doc.employeeName ?? doc.employeeId ?? id;
-
-    return (
-        <EntityDetailShell
-            title={`Edit · ${label}`}
-            eyebrow="SALARY STRUCTURE"
-            back={{ href: BASE, label: 'Salary structures' }}
-        >
-            <SalaryStructureForm initialData={doc} />
-        </EntityDetailShell>
-    );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

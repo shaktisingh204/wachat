@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruSkeleton,
-  ZoruButton,
-  ZoruAlert,
+  Skeleton,
+  Button,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruScrollArea,
+  ScrollArea,
   ZoruScrollBar,
-  ZoruInput,
+  Input,
 } from '@/components/zoruui';
 import {
   useEffect,

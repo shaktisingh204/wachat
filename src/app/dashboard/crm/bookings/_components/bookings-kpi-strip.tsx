@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { Ban, CalendarClock, CalendarDays, CreditCard, UserX, } from 'lucide-react';
 
 /**

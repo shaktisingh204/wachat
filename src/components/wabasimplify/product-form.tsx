@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruAccordion,
+  Button,
+  Input,
+  Label,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSeparator,
-  ZoruTextarea,
-  ZoruSelect,
+  Separator,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -161,8 +161,8 @@ export function ProductForm({ product }: ProductFormProps) {
                         </div>
                             <ZoruSeparator />
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="gender">Gender</ZoruLabel><ZoruSelect name="gender" defaultValue={product?.gender}><ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="male">Male</ZoruSelectItem><ZoruSelectItem value="female">Female</ZoruSelectItem><ZoruSelectItem value="unisex">Unisex</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="age_group">Age Group</ZoruLabel><ZoruSelect name="age_group" defaultValue={product?.age_group}><ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="adult">Adult</ZoruSelectItem><ZoruSelectItem value="kids">Kids</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="gender">Gender</ZoruLabel><ZoruSelect name="gender" defaultValue={product?.gender}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="male">Male</ZoruSelectItem><ZoruSelectItem value="female">Female</ZoruSelectItem><ZoruSelectItem value="unisex">Unisex</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="age_group">Age Group</ZoruLabel><ZoruSelect name="age_group" defaultValue={product?.age_group}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="adult">Adult</ZoruSelectItem><ZoruSelectItem value="kids">Kids</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>
@@ -182,8 +182,8 @@ export function ProductForm({ product }: ProductFormProps) {
                     <ZoruAccordionTrigger>Advanced / Optional</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><ZoruLabel htmlFor="custom_label_0">Custom ZoruLabel 0</ZoruLabel><ZoruInput id="custom_label_0" name="custom_label_0" defaultValue={product?.custom_label_0}/></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="custom_label_1">Custom ZoruLabel 1</ZoruLabel><ZoruInput id="custom_label_1" name="custom_label_1" defaultValue={product?.custom_label_1}/></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="custom_label_0">Custom Label 0</ZoruLabel><ZoruInput id="custom_label_0" name="custom_label_0" defaultValue={product?.custom_label_0}/></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="custom_label_1">Custom Label 1</ZoruLabel><ZoruInput id="custom_label_1" name="custom_label_1" defaultValue={product?.custom_label_1}/></div>
                         </div>
                         <div className="space-y-2"><ZoruLabel htmlFor="visibility">Visibility</ZoruLabel><ZoruSelect name="visibility" defaultValue={product?.visibility}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="published">Published</ZoruSelectItem><ZoruSelectItem value="hidden">Hidden</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                     </ZoruAccordionContent>

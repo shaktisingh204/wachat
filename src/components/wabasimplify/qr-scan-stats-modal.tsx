@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import { useEffect, useState } from 'react';
 import { BarChart2, MousePointerClick, Users, Info } from 'lucide-react';

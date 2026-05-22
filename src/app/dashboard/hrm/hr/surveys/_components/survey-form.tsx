@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -23,7 +23,7 @@ import { ArrowLeft,
   LoaderCircle,
   Save } from 'lucide-react';
 
-// §1E.sweep: status ZoruSelect kept — wire value 'active' differs from surveyStatus enum 'open'; resolve Rust DTO then swap.
+// §1E.sweep: status Select kept — wire value 'active' differs from surveyStatus enum 'open'; resolve Rust DTO then swap.
 // §1E.sweep: type/audience ZoruSelects kept — no matching catalogue enums (surveyType/surveyAudience not in CRM_ENUMS).
 
 /**

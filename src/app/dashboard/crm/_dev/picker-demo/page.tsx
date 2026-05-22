@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 /**

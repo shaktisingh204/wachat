@@ -2,17 +2,17 @@
 
 import {
   useZoruToast,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruBadge,
-  ZoruEmptyState,
+  Button,
+  Card,
+  Input,
+  Badge,
+  EmptyState,
 } from '@/components/zoruui';
 import {
   useEffect,

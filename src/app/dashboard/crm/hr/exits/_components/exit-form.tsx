@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Input,
+  Label,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { useFormStatus } from 'react-dom';

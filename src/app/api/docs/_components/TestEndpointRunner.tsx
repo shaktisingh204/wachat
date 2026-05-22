@@ -18,10 +18,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruLabel,
+  Button,
+  Input,
+  Textarea,
+  Label,
 } from '@/components/zoruui';
 
 interface ParamSpec {

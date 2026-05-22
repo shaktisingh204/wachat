@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Input, Label } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface PhotoPickerEditorProps {
@@ -17,7 +17,7 @@ export function PhotoPickerEditor({ component, updateField }: PhotoPickerEditorP
                 <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">ZoruLabel (shown to user)</ZoruLabel>
+                <ZoruLabel htmlFor="label">Label (shown to user)</ZoruLabel>
                 <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
             <div className="space-y-2">

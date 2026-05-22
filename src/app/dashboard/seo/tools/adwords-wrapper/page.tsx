@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { Label, Textarea } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';

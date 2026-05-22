@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { Input, Label, Textarea } from '@/components/zoruui';
 interface EditorProps {
   node: any;
   onUpdate: (data: any) => void;

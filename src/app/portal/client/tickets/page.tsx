@@ -7,20 +7,20 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 
 import { getClientTickets } from '@/app/actions/client-portal.actions';
-import { ZoruBadge } from '@/components/zoruui/badge';
+import { Badge } from '@/components/zoruui/badge';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
 } from '@/components/zoruui/card';
 import {
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
 } from '@/components/zoruui/table';
-import { ZoruEmptyState } from '@/components/zoruui/empty-state';
+import { EmptyState } from '@/components/zoruui/empty-state';
 import { NewTicketDrawer } from '@/components/client-portal/new-ticket-drawer';
 
 function fmtDate(iso: string | null): string {

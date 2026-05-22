@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
+  Badge,
+  Button,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruScrollArea,
+  ScrollArea,
   cn,
 } from '@/components/zoruui';
 import {

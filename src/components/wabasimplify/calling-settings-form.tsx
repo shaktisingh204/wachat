@@ -1,26 +1,26 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruSkeleton,
-  ZoruLabel,
-  ZoruInput,
-  ZoruSelect,
+  Button,
+  Skeleton,
+  Label,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruTextarea,
+  Textarea,
 } from '@/components/zoruui';
 import {
   useState,
@@ -161,7 +161,7 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
                          <ZoruCard>
                              <ZoruCardContent className="pt-6 space-y-6">
                                 <div className="space-y-2"><ZoruLabel>Business Hours Status</ZoruLabel><ZoruSelect name="call_hours_status" defaultValue={settings.call_hours?.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                                <div className="space-y-2"><ZoruLabel>Timezone</ZoruLabel><ZoruSelect name="timezone_id" defaultValue={settings.call_hours?.timezone_id}><ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect a timezone..."/></ZoruSelectTrigger><ZoruSelectContent>{timezones.map(tz => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                                <div className="space-y-2"><ZoruLabel>Timezone</ZoruLabel><ZoruSelect name="timezone_id" defaultValue={settings.call_hours?.timezone_id}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select a timezone..."/></ZoruSelectTrigger><ZoruSelectContent>{timezones.map(tz => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
                                 <WeeklyHoursEditor hours={weeklyHours} onChange={setWeeklyHours} />
                                 <HolidayScheduleEditor schedule={holidaySchedule} onChange={setHolidaySchedule} />
                              </ZoruCardContent>

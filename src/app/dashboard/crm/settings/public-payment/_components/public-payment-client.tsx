@@ -11,11 +11,11 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruSkeleton,
-  ZoruStatCard,
+  Badge,
+  Button,
+  Card,
+  Skeleton,
+  StatCard,
   useZoruToast,
 } from '@/components/zoruui';
 

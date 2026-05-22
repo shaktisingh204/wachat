@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruSkeleton, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruCard, ZoruSelect } from '@/components/zoruui';
+import { Button, Skeleton, Alert, ZoruAlertDescription, ZoruAlertTitle, Card, Select } from '@/components/zoruui';
 import {
   useEffect,
   useState,
@@ -290,7 +290,7 @@ export function ChatClient() {
                                 <div className="h-20 w-20 bg-muted rounded-full flex items-center justify-center mb-2">
                                     <MessageSquare className="h-10 w-10 text-muted-foreground/50" />
                                 </div>
-                                <h2 className="text-xl font-semibold">ZoruSelect a conversation</h2>
+                                <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p className="max-w-xs text-sm">Choose a contact from the list or start a new chat to begin messaging.</p>
                                 <ZoruButton
                                     onClick={() => setIsNewChatDialogOpen(true)}

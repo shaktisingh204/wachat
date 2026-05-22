@@ -1,4 +1,4 @@
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruProgress } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Progress } from '@/components/zoruui';
 import {
   HardDrive } from 'lucide-react';
 

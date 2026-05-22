@@ -1,25 +1,25 @@
-import { notFound } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getCrmSuccessionPlanById } from '@/app/actions/crm-succession.actions';
-import { SuccessionForm } from '../../new/succession-form';
+import { permanentRedirect } from 'next/navigation';
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function SuccessionEditPage({ params }: PageProps) {
-    const { id } = await params;
-    const plan = await getCrmSuccessionPlanById(id);
-    if (!plan) notFound();
+export default async function LegacyHrRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-    return (
-        <EntityDetailShell
-            title="Edit succession plan"
-            eyebrow="SUCCESSION"
-            back={{ href: '/dashboard/crm/hr/succession', label: 'Succession' }}
-        >
-            <SuccessionForm plan={{ ...(plan as any), _id: String((plan as any)._id ?? id) }} />
-        </EntityDetailShell>
-    );
+  let target = '/dashboard/hrm/hr/succession/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v) target = target.replace(`[${key}]`, encodeURIComponent(v));
+  }
+
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

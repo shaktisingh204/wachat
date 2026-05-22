@@ -1,23 +1,23 @@
 'use client';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruSelect,
+    Badge,
+    Button,
+    Card,
+    Input,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruStatCard,
-    ZoruTable,
+    StatCard,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-    ZoruCheckbox,
+    Checkbox,
     useZoruToast,
 } from '@/components/zoruui';
 import * as React from 'react';

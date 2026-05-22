@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruCard, ZoruCardContent, ZoruSkeleton } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Card, ZoruCardContent, Skeleton } from '@/components/zoruui';
 import {
   CalendarDays,
   ChevronLeft,

@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruInput,
-  ZoruPopover,
+  Input,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruScrollArea,
-  ZoruSelect,
+  ScrollArea,
+  Select,
 } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
@@ -159,7 +159,7 @@ function AccountPill() {
       >
         {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
       </span>
-      {activeAccount?.name || 'ZoruSelect account'}
+      {activeAccount?.name || 'Select account'}
       <ChevronsUpDown className="ml-1.5 h-3 w-3 opacity-60" />
     </ZoruButton>
   );

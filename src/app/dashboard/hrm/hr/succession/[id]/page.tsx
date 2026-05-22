@@ -1,8 +1,8 @@
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
+  Badge,
+  Button,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

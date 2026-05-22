@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import * as React from 'react';
 
 import { EnumFilterField } from '@/components/crm/enum-filter-field';

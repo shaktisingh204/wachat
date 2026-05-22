@@ -19,9 +19,9 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Copy, Check, ExternalLink, Share2 } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruSwitch,
+  Button,
+  Card,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import {

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { FileMinus, BadgeDollarSign, Hourglass, Link2 } from 'lucide-react';
 
 /**

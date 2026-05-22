@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruEmptyState,
+  EmptyState,
   ZoruFilesPage,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
   type ZoruFileEntity,
 } from '@/components/zoruui';

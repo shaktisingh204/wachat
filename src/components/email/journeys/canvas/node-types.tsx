@@ -10,7 +10,7 @@ import {
   Wand2,
   Zap,
 } from 'lucide-react';
-import { ZoruBadge, cn } from '@/components/zoruui';
+import { Badge, cn } from '@/components/zoruui';
 import type { EmailJourneyNode, EmailJourneyNodeType } from '@/lib/email/types';
 
 interface NodeVisualMeta {

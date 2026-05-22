@@ -1,25 +1,25 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruLabel,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Label,
+  Input,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarImage,
   ZoruAvatarFallback,
-  ZoruSeparator,
+  Separator,
 } from '@/components/zoruui';
 import {
   useState,
@@ -146,7 +146,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     <div className="space-y-2"><ZoruLabel>Header Title</ZoruLabel><ZoruInput value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} /></div>
                                     <div className="space-y-2"><ZoruLabel>Header Subtitle</ZoruLabel><ZoruInput value={settings.headerSubtitle} onChange={e => handleSettingChange('headerSubtitle', e.target.value)} /></div>
                                     <div className="space-y-2">
-                                        <ZoruLabel>ZoruAvatar URL or Upload</ZoruLabel>
+                                        <ZoruLabel>Avatar URL or Upload</ZoruLabel>
                                         <ZoruInput placeholder="https://..." value={settings.headerAvatarUrl} onChange={e => handleSettingChange('headerAvatarUrl', e.target.value)} />
                                         <SabFilePickerButton
                                             accept="image"
@@ -161,7 +161,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     <div className="space-y-2"><ZoruLabel>Padding ({settings.padding}px)</ZoruLabel><Slider value={[settings.padding]} onValueChange={v => handleSettingChange('padding', v[0])} min={8} max={32} /></div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2"><ZoruLabel htmlFor="text-color">Text Color</ZoruLabel><ColorPicker id="text-color" value={settings.textColor} onChange={v => handleSettingChange('textColor', v)} /></div>
-                                        <div className="space-y-2"><ZoruLabel htmlFor="button-text-color">ZoruButton Text Color</ZoruLabel><ColorPicker id="button-text-color" value={settings.buttonTextColor} onChange={v => handleSettingChange('buttonTextColor', v)} /></div>
+                                        <div className="space-y-2"><ZoruLabel htmlFor="button-text-color">Button Text Color</ZoruLabel><ColorPicker id="button-text-color" value={settings.buttonTextColor} onChange={v => handleSettingChange('buttonTextColor', v)} /></div>
                                     </div>
                                 </ZoruCardContent>
                             </ZoruCard>

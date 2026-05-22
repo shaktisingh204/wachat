@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ZoruCard, cn } from '@/components/zoruui';
+import { Card, cn } from '@/components/zoruui';
 import { BarChart2, Users, Settings as SettingsIcon } from 'lucide-react';
 
 interface AnalyticsTabsShellProps {

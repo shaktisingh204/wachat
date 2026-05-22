@@ -8,17 +8,17 @@ import { CodeSamplesTabs } from '../../../_components/CodeSamplesTabs';
 import { TestEndpointRunner } from '../../../_components/TestEndpointRunner';
 import { buildSamples } from '@/lib/api-platform/sample-builder';
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbList,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruPageDescription,
-  ZoruTable,
+  Table,
   ZoruTableHeader,
   ZoruTableHead,
   ZoruTableBody,

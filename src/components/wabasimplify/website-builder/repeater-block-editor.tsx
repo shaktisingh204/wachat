@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruAccordion,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruSeparator,
-  ZoruCard,
+  Switch,
+  Separator,
+  Card,
   ZoruCardContent,
 } from '@/components/zoruui';
 import { Plus, Trash2, Upload } from 'lucide-react';
@@ -95,8 +95,8 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                     </div>
                                     <div className="space-y-2"><ZoruLabel>Title</ZoruLabel><ZoruInput placeholder="Item Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} /></div>
                                     <div className="space-y-2"><ZoruLabel>Description</ZoruLabel><ZoruTextarea placeholder="Item description..." value={item.description || ''} onChange={(e) => handleItemChange(index, 'description', e.target.value)} /></div>
-                                    <div className="space-y-2"><ZoruLabel>ZoruButton Text</ZoruLabel><ZoruInput placeholder="e.g., Learn More" value={item.buttonText || ''} onChange={(e) => handleItemChange(index, 'buttonText', e.target.value)} /></div>
-                                    <div className="space-y-2"><ZoruLabel>ZoruButton Link</ZoruLabel><ZoruInput placeholder="https://..." value={item.buttonLink || ''} onChange={(e) => handleItemChange(index, 'buttonLink', e.target.value)} /></div>
+                                    <div className="space-y-2"><ZoruLabel>Button Text</ZoruLabel><ZoruInput placeholder="e.g., Learn More" value={item.buttonText || ''} onChange={(e) => handleItemChange(index, 'buttonText', e.target.value)} /></div>
+                                    <div className="space-y-2"><ZoruLabel>Button Link</ZoruLabel><ZoruInput placeholder="https://..." value={item.buttonLink || ''} onChange={(e) => handleItemChange(index, 'buttonLink', e.target.value)} /></div>
                                 </ZoruCardContent>
                             </ZoruCard>
                         ))}

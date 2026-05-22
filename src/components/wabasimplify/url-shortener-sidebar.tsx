@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSeparator,
+  Button,
+  Input,
+  Label,
+  Separator,
   cn,
   useZoruToast,
 } from '@/components/zoruui';

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruTextarea, cn } from '@/components/zoruui';
+import { Textarea, cn } from '@/components/zoruui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;

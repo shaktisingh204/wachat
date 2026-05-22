@@ -1,4 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import {
   ArrowLeft } from 'lucide-react';
 import { ObjectId } from 'mongodb';

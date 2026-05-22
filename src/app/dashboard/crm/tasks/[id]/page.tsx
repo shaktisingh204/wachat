@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -19,6 +19,7 @@ import {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { PinButton } from '@/components/crm/pin-button';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { AssignmentControl } from '@/components/crm/assignment-control';
 import { getSession } from '@/app/actions/user.actions';
 import { getTaskById } from '@/app/actions/crm-tasks-rust.actions';
 import type { CrmTaskStatus } from '@/lib/rust-client/crm-tasks';
@@ -99,6 +100,20 @@ export default async function TaskDetailPage({ params }: PageProps) {
                     </ZoruButton>
                     <TaskDetailActions taskId={id} status={status} />
                 </div>
+            }
+            rightRail={
+                <ZoruCard>
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>People</ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent>
+                        <AssignmentControl
+                            entityType="task"
+                            entityId={id}
+                            currentAssigneeId={task.assignedTo ?? null}
+                        />
+                    </ZoruCardContent>
+                </ZoruCard>
             }
         >
 

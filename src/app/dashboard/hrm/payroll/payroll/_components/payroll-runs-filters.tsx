@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Button, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   RefreshCw,

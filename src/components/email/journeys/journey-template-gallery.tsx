@@ -4,10 +4,10 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruSkeleton,
+  Badge,
+  Button,
+  Card,
+  Skeleton,
   zoruToast,
 } from '@/components/zoruui';
 import {

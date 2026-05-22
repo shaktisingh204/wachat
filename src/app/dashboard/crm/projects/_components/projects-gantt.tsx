@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 

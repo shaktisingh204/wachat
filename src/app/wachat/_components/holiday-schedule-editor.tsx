@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruDatePicker, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Button, DatePicker, Input, Label } from '@/components/zoruui';
 import {
   format } from 'date-fns';
 import { Plus,

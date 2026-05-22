@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruButton, ZoruBadge } from '@/components/zoruui';
+import { Card, Button, Badge } from '@/components/zoruui';
 import {
   useState,
   useTransition } from 'react';

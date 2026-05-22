@@ -1,4 +1,4 @@
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 /**
  * <ItemPrintView> — A4 label sheet for an item barcode or QR.
  *

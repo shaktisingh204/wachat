@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
+  Label,
+  Button,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruTextarea,
-  ZoruSwitch,
-  ZoruSeparator,
+  Textarea,
+  Switch,
+  Separator,
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -191,8 +191,8 @@ export function CountdownBlockEditor({ settings, onUpdate }: { settings: any, on
                         <ZoruAccordionTrigger>Separators</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2"><ZoruLabel>ZoruSeparator Color</ZoruLabel><ZoruInput type="color" value={settings.separatorColor || '#000000'} onChange={e => handleUpdate('separatorColor', e.target.value)} /></div>
-                                <div className="space-y-2"><ZoruLabel>ZoruSeparator Size (px)</ZoruLabel><ZoruInput type="number" value={settings.separatorSize || 48} onChange={e => handleUpdate('separatorSize', Number(e.target.value))} /></div>
+                                <div className="space-y-2"><ZoruLabel>Separator Color</ZoruLabel><ZoruInput type="color" value={settings.separatorColor || '#000000'} onChange={e => handleUpdate('separatorColor', e.target.value)} /></div>
+                                <div className="space-y-2"><ZoruLabel>Separator Size (px)</ZoruLabel><ZoruInput type="number" value={settings.separatorSize || 48} onChange={e => handleUpdate('separatorSize', Number(e.target.value))} /></div>
                             </div>
                         </ZoruAccordionContent>
                     </ZoruAccordionItem>

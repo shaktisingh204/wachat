@@ -1,16 +1,16 @@
 "use client";
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruEmptyState,
-  ZoruSkeleton,
-  ZoruTooltip,
+  Button,
+  EmptyState,
+  Skeleton,
+  Tooltip,
   ZoruTooltipContent,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
@@ -40,7 +40,7 @@ import {
  * placeholder/sample data.
  *
  * Rebuilt on ZoruUI primitives. The month/week/day view picker is rendered
- * as a segmented ZoruButton group (no tab UI per the ZoruUI design rules).
+ * as a segmented Button group (no tab UI per the ZoruUI design rules).
  */
 
 import * as React from "react";

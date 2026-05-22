@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 import { Package, Pencil } from 'lucide-react';
 import type { WithId } from 'mongodb';
 

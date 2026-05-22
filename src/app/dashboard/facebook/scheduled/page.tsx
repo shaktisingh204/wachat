@@ -1,23 +1,23 @@
 "use client";
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruDataTable,
-  ZoruEmptyState,
+  Button,
+  DataTable,
+  EmptyState,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -54,7 +54,7 @@ import type { FacebookPost } from "@/lib/definitions";
  *
  * Same handlers + server actions as before (`getScheduledPosts`,
  * `publishScheduledPost`, `handleUpdatePost`, `handleDeletePost`).
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable with
+ * Visual layer: PageHeader + Breadcrumb, DataTable with
  * status/scheduled badges, EditScheduleSheet, CancelScheduleDialog.
  */
 

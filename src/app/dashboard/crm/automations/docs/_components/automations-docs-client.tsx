@@ -13,16 +13,16 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import {
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruSeparator,
-  ZoruStatCard,
-  ZoruTable,
+  Badge,
+  Button,
+  Card,
+  Separator,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

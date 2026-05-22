@@ -9,29 +9,29 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
+  Badge,
+  Button,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruTable,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -61,7 +61,7 @@ import {
  * Mongo collection (no Rust crate).
  *
  *   - Search + status filter + billable-by filter
- *   - Inline ZoruDialog for create/edit
+ *   - Inline Dialog for create/edit
  *   - SabFiles picker for the service image (no free-text URLs)
  *   - ZoruAlertDialog soft-delete confirm
  *   - Per-tenant unique code guard enforced server-side

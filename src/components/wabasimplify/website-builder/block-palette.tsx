@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruSeparator, ZoruAccordion } from '@/components/zoruui';
+import { Button, Separator, Accordion } from '@/components/zoruui';
 import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2, Repeat, LayoutGrid, ShoppingCart as CartIcon, Zap } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
@@ -11,7 +11,7 @@ const blockSections = [
             { type: 'section', label: 'Section / Container', icon: LayoutDashboard },
             { type: 'columns', label: 'Columns', icon: LayoutGrid },
             { type: 'tabs', label: 'Tabs', icon: TabsIcon },
-            { type: 'accordion', label: 'ZoruAccordion', icon: PanelTopClose },
+            { type: 'accordion', label: 'Accordion', icon: PanelTopClose },
             { type: 'spacer', label: 'Spacer / Divider', icon: Minus },
         ]
     },
@@ -23,7 +23,7 @@ const blockSections = [
             { type: 'image', label: 'Image', icon: ImageIcon },
             { type: 'video', label: 'Video', icon: Video },
             { type: 'imageCarousel', label: 'Image Carousel', icon: GalleryVertical },
-            { type: 'button', label: 'ZoruButton', icon: MousePointerClick },
+            { type: 'button', label: 'Button', icon: MousePointerClick },
             { type: 'icon', label: 'Icon', icon: StarIcon },
             { type: 'countdown', label: 'Countdown Timer', icon: Timer },
             { type: 'socialShare', label: 'Social Share', icon: Share2 },

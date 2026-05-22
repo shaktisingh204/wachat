@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
 } from '@/components/zoruui';
 import {
   EmailSegmentBuilder,

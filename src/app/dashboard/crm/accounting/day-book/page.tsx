@@ -14,13 +14,13 @@ import {
 import { ArrowDownCircle, ArrowUpCircle, ListChecks, Scale } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruSelect,
+    Badge,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

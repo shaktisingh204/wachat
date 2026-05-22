@@ -2,7 +2,7 @@
 
 import { PlusCircle } from 'lucide-react';
 import {
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

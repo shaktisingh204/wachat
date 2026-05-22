@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
@@ -35,7 +35,7 @@ import { LoaderCircle } from 'lucide-react';
  * No custom-fields panel — `'leave'` is not a registered
  * `WsCustomFieldBelongsTo` value.
  *
- * Status is surfaced as a ZoruSelect for display continuity with the
+ * Status is surfaced as a Select for display continuity with the
  * rest of the CRM forms, but it is NOT forwarded to the Rust DTO —
  * workflow transitions go through dedicated approve / reject / cancel
  * actions. The action layer silently drops the field; see

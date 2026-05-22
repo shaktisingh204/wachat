@@ -1,4 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import {
   getPlans } from '@/app/actions/plan.actions';
 import type { Plan,
@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 import { AdminDeletePlanButton } from '@/components/wabasimplify/admin-delete-plan-button';
 import { AdminPlanPermissionsDialog } from '@/components/wabasimplify/admin-plan-permissions-dialog';
+import { AdminDuplicatePlanButton } from '@/components/wabasimplify/admin-duplicate-plan-button';
 import { PlusCircle, Edit, CheckCircle2, XCircle, CreditCard } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -101,6 +102,7 @@ export default async function PlansManagementPage() {
                                     planName={plan.name}
                                     initialPermissions={plan.permissions}
                                 />
+                                <AdminDuplicatePlanButton planId={plan._id.toString()} planName={plan.name} />
                                 <AdminDeletePlanButton planId={plan._id.toString()} planName={plan.name} />
                             </div>
                         </div>

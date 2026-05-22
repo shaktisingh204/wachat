@@ -10,14 +10,14 @@ import { useTransition } from 'react';
 import { Copy, FileText, Sparkles } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruEmptyState,
+  EmptyState,
   zoruToast,
 } from '@/components/zoruui';
 import { actionForkLibraryTemplate } from '@/app/actions/email/templates.actions';

@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruTextarea,
+  Button,
+  Card,
+  Input,
+  Label,
+  Switch,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';

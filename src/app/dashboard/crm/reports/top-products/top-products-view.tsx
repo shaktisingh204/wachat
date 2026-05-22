@@ -11,8 +11,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import {
-  ZoruCard,
-  ZoruTable,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

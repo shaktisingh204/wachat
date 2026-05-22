@@ -1,33 +1,33 @@
 "use client";
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDatePicker,
-  ZoruInput,
-  ZoruLabel,
+  DatePicker,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSeparator,
-  ZoruSwitch,
-  ZoruTextarea,
+  Separator,
+  Switch,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -62,7 +62,7 @@ import { SabFilePickerButton } from "@/components/sabfiles";
  * /dashboard/facebook/create-post — Composer, ZoruUI rebuild.
  *
  * Two-pane layout:
- *  - Left  : multi-section ZoruCard form (page identity, message, media,
+ *  - Left  : multi-section Card form (page identity, message, media,
  *             scheduling). Files now flow through SabFiles first, so the
  *             form submits a `mediaUrl` instead of a binary `mediaFile`.
  *             Hidden fields: projectId, postType, message, mediaUrl,

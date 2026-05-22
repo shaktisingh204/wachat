@@ -3,19 +3,19 @@
 import * as React from "react";
 import { Copy, Link as LinkIcon, Mail } from "lucide-react";
 
-import { ZoruButton } from "../button";
+import { Button } from "../button";
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
 } from "../dialog";
-import { ZoruInput } from "../input";
-import { ZoruLabel } from "../label";
+import { Input } from "../input";
+import { Label } from "../label";
 import {
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

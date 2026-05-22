@@ -1,62 +1,27 @@
-import { ZoruButton } from '@/components/zoruui';
-import {
-  ArrowLeft } from 'lucide-react';
-import { ObjectId } from 'mongodb';
+import { permanentRedirect } from 'next/navigation';
 
-import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
-import { getEmployeeDetailByEmployeeId } from '@/app/actions/worksuite/hr-ext.actions';
-import { connectToDatabase } from '@/lib/mongodb';
-
-import Link from 'next/link';
-
-async function getEmployeeById(id: string) {
-    if (!ObjectId.isValid(id)) return null;
-    const { db } = await connectToDatabase();
-    const employee = await db
-        .collection('crm_employees')
-        .findOne({ _id: new ObjectId(id) });
-    return JSON.parse(JSON.stringify(employee));
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function EditEmployeePage(props: {
-    params: Promise<{ id: string }>;
-}) {
-    const params = await props.params;
-    const id = params.id;
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-    // The rebuilt EmployeeForm uses <EntityFormField> pickers that
-    // fetch on focus, so we no longer need to prefetch departments +
-    // designations server-side.
-    const [employee, detail] = await Promise.all([
-        getEmployeeById(id),
-        getEmployeeDetailByEmployeeId(id),
-    ]);
+  const KEY_REMAP: Record<string, string> = { 'id': 'employeeId' };
+  let target = '/dashboard/hrm/payroll/employees/[employeeId]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = KEY_REMAP[key] ?? key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
+  }
 
-    if (!employee) {
-        return (
-            <p className="text-[13px] text-zoru-ink-muted">Employee not found.</p>
-        );
-    }
-
-    return (
-        <div className="flex w-full max-w-4xl flex-col gap-6">
-            <div>
-                <Link href="/dashboard/crm/hr-payroll/employees" className="inline-flex">
-                    <ZoruButton variant="ghost">
-                        <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
-                        Back to Employee Directory
-                    </ZoruButton>
-                </Link>
-                <h1 className="mt-2 text-[26px] leading-tight text-zoru-ink">
-                    Edit Employee
-                </h1>
-            </div>
-
-            <EmployeeForm
-                employee={employee}
-                detail={detail}
-                redirectAfterSave={`/dashboard/crm/hr-payroll/employees`}
-            />
-        </div>
-    );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

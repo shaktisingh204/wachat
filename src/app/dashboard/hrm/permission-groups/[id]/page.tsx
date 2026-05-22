@@ -13,19 +13,19 @@ import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, LoaderCircle, ShieldCheck, UserMinus } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruTable,
+  Badge,
+  Button,
+  Card,
+  Input,
+  Label,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {

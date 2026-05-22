@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruEmptyState,
-  ZoruPopover,
+  Button,
+  Card,
+  EmptyState,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruScrollArea,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruSheet,
+  ScrollArea,
+  Input,
+  Label,
+  Switch,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
@@ -77,7 +77,7 @@ import { cn } from '@/lib/utils';
  *   - Clay header bar (back link, flow name input, status switch, save CTA)
  *   - React Flow canvas (dotted background, custom nodes, drop-to-add)
  *   - Floating Clay FAB for opening the Add Block palette
- *   - Clay ZoruSheet on mobile / pinned Properties panel on desktop
+ *   - Clay Sheet on mobile / pinned Properties panel on desktop
  *   - Clay-styled Settings dialog for name + trigger keywords
  */
 

@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruStatCard,
-  ZoruSelect,
+  Button,
+  StatCard,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

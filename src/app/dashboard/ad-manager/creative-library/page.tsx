@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruCard, ZoruCardContent, ZoruSkeleton } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Card, ZoruCardContent, Skeleton } from '@/components/zoruui';
 import {
   Image as ImageIcon,
   Upload,
@@ -23,7 +23,7 @@ export default function CreativeLibraryPage() {
     const [images, setImages] = React.useState<any[]>([]);
     const [videos, setVideos] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
-    // TODO(zoru): missing tab primitive — using segmented ZoruButton group instead.
+    // TODO(zoru): missing tab primitive — using segmented Button group instead.
     const [activeTab, setActiveTab] = React.useState<'images' | 'videos'>('images');
 
     const load = React.useCallback(async () => {

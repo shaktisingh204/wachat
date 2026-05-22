@@ -2,7 +2,7 @@ import * as React from "react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruCard, ZoruCardContent } from "./card";
+import { Card, ZoruCardContent } from "./card";
 
 export interface ZoruStatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   label: React.ReactNode;

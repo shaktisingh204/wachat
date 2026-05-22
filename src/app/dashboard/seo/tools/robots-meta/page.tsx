@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruLabel, ZoruSwitch, cn } from '@/components/zoruui';
+import { Button, Label, Switch, cn } from '@/components/zoruui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;

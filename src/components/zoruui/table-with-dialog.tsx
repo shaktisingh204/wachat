@@ -4,14 +4,14 @@ import * as React from "react";
 
 import { cn } from "./lib/cn";
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
 } from "./dialog";
 import {
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

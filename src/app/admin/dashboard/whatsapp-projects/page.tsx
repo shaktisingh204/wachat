@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import {
   getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
 import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
@@ -16,7 +16,8 @@ import { usePathname,
   useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-import { MessageSquare, LoaderCircle } from 'lucide-react';
+import { MessageSquare, LoaderCircle, Archive } from 'lucide-react';
+import { AdminArchiveProjectButton } from '@/components/wabasimplify/admin-archive-project-button';
 
 const PROJECTS_PER_PAGE = 20;
 
@@ -36,7 +37,7 @@ export default function WhatsAppProjectsPage() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
 
-    const [projects, setProjects] = useState<WithId<Project & { owner: { name: string; email: string } }>[]>([]);
+    const [projects, setProjects] = useState<WithId<Project & { owner: { name: string; email: string }; isArchived?: boolean }>[]>([]);
     const [users, setUsers] = useState<WithId<User>[]>([]);
     const [totalProjects, setTotalProjects] = useState(0);
     const [isLoading, startTransition] = useTransition();
@@ -91,8 +92,8 @@ export default function WhatsAppProjectsPage() {
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="border-b border-slate-200">
-                                {['Project', 'Owner', 'WABA ID', 'Status'].map(h => (
-                                    <th key={h} className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                {['Project', 'Owner', 'WABA ID', 'Status', ''].map((h, i) => (
+                                    <th key={i} className={`px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider ${i === 4 ? 'text-right' : 'text-left'}`}>
                                         {h}
                                     </th>
                                 ))}
@@ -101,14 +102,24 @@ export default function WhatsAppProjectsPage() {
                         <tbody className="divide-y divide-slate-200">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-12 text-center">
+                                    <td colSpan={5} className="px-6 py-12 text-center">
                                         <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-slate-500" />
                                     </td>
                                 </tr>
                             ) : projects.length > 0 ? (
                                 projects.map(project => (
-                                    <tr key={project._id.toString()} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-3.5 font-medium text-slate-900">{project.name}</td>
+                                    <tr key={project._id.toString()} className={`hover:bg-slate-50 transition-colors ${project.isArchived ? 'opacity-60' : ''}`}>
+                                        <td className="px-6 py-3.5 font-medium text-slate-900">
+                                            <span className="inline-flex items-center gap-2">
+                                                {project.name}
+                                                {project.isArchived && (
+                                                    <span className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                                                        <Archive className="h-3 w-3" />
+                                                        Archived
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </td>
                                         <td className="px-6 py-3.5">
                                             <p className="font-medium text-slate-900">{project.owner?.name || '—'}</p>
                                             <p className="text-xs text-slate-500">{project.owner?.email || '—'}</p>
@@ -119,11 +130,18 @@ export default function WhatsAppProjectsPage() {
                                                 {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
                                             </span>
                                         </td>
+                                        <td className="px-6 py-3.5 text-right">
+                                            <AdminArchiveProjectButton
+                                                projectId={project._id.toString()}
+                                                projectName={project.name}
+                                                isArchived={project.isArchived}
+                                            />
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-16 text-center text-slate-500">
+                                    <td colSpan={5} className="px-6 py-16 text-center text-slate-500">
                                         No WhatsApp projects found.
                                     </td>
                                 </tr>

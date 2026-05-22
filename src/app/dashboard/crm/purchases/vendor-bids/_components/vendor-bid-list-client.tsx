@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, useZoruToast } from '@/components/zoruui';
+import { Card, useZoruToast } from '@/components/zoruui';
 /**
  * <VendorBidListClient> — canonical Vendor Bids list view per
  * `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D (thin spec).

@@ -2,13 +2,13 @@
 
 import {
   ZORU_CHART_PALETTE,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
@@ -16,11 +16,11 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
-  ZoruStatCard,
+  Skeleton,
+  StatCard,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -40,7 +40,7 @@ import { getSabChatAnalytics } from "@/app/actions/sabchat.actions";
  * /dashboard/sabchat/analytics — KPI cards + chart.
  *
  * Same `getSabChatAnalytics` server action. Visual layer fully Zoru —
- * stat cards via ZoruStatCard, chart via ZoruChart family with the
+ * stat cards via StatCard, chart via ZoruChart family with the
  * greyscale palette (no rainbow).
  */
 

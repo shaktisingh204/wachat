@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruEmptyState,
+  Button,
+  EmptyState,
 } from '@/components/zoruui';
 import {
   useRouter,

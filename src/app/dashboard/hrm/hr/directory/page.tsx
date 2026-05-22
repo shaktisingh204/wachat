@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruSkeleton } from '@/components/zoruui';
+import { Badge, Button, Card, Input, Skeleton } from '@/components/zoruui';
 import {
   ArrowRight,
   Mail,

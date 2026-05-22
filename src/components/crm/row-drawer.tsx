@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import {
-    ZoruSheet,
+    Sheet,
     ZoruSheetContent,
     ZoruSheetDescription,
     ZoruSheetHeader,

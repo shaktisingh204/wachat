@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -130,7 +130,7 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
               <div className="space-y-2">
                 <ZoruLabel htmlFor="provider_name">Provider</ZoruLabel>
                 <ZoruSelect name="provider_name" onValueChange={setProviderType} defaultValue="gateway" required>
-                  <ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect provider type..." /></ZoruSelectTrigger>
+                  <ZoruSelectTrigger><ZoruSelectValue placeholder="Select provider type..." /></ZoruSelectTrigger>
                   <ZoruSelectContent>
                     <ZoruSelectItem value="razorpay">Razorpay</ZoruSelectItem>
                     <ZoruSelectItem value="payu">PayU</ZoruSelectItem>

@@ -21,14 +21,14 @@
 
 import * as React from 'react';
 import {
-    ZoruButton,
-    ZoruCard,
+    Button,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
+    Input,
+    Label,
+    Textarea,
 } from '@/components/zoruui';
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';

@@ -1,17 +1,17 @@
 "use client";
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import { ZoruFacebookKanbanBoard } from '../_components/zoru-facebook-kanban-board';
 import {
@@ -23,8 +23,8 @@ import {
  * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx` —
  * conversations grouped by status, status moves via per-row dropdown
  * (no drag-and-drop yet). Same server-action wiring as the legacy
- * `FacebookKanbanBoard`. Page chrome is a ZoruBreadcrumb +
- * ZoruPageHeader on top of the board.
+ * `FacebookKanbanBoard`. Page chrome is a Breadcrumb +
+ * PageHeader on top of the board.
  */
 
 import * as React from "react";

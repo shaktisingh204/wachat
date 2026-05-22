@@ -6,7 +6,7 @@ import { Check, Minus } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruCheckbox = React.forwardRef<
+export const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
 >(({ className, ...props }, ref) => (
@@ -32,4 +32,4 @@ export const ZoruCheckbox = React.forwardRef<
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 ));
-ZoruCheckbox.displayName = "ZoruCheckbox";
+Checkbox.displayName = "Checkbox";

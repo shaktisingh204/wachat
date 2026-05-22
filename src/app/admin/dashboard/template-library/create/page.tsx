@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruSkeleton } from '@/components/zoruui';
+import { Button, Skeleton } from '@/components/zoruui';
 import {
   Suspense,
   useEffect,

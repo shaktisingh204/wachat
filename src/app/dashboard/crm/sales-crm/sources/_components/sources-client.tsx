@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruStatCard,
-  ZoruTable,
+  Button,
+  Input,
+  Label,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

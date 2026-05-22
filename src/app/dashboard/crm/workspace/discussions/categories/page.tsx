@@ -23,11 +23,11 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCheckbox,
+  Badge,
+  Button,
+  Checkbox,
   ZoruColorPicker,
-  ZoruDialog,
+  Dialog,
   ZoruDialogClose,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -35,15 +35,15 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruTextarea,
+  StatCard,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

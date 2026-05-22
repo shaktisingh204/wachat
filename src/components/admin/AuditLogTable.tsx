@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { Badge, Input, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import {
   Search,
   ShieldAlert,
@@ -276,7 +276,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                 )}
             </div>
 
-            {/* ZoruTable */}
+            {/* Table */}
             <div className="rounded-2xl border border-slate-200 bg-white">
                 <div className="border-b border-slate-200 px-4 py-3">
                     <h2 className="text-sm font-semibold text-slate-900">

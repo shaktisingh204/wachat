@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruButton, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { Input, Button, Label, Textarea } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -45,7 +45,7 @@ export function ButtonsEditor({ node, onUpdate }: EditorProps) {
                     {(node.data.buttons || []).map((btn: any, index: number) => (
                         <div key={btn.id || index} className="flex items-center gap-2">
                             <ZoruInput 
-                                placeholder="ZoruButton Text" 
+                                placeholder="Button Text" 
                                 value={btn.text} 
                                 onChange={(e) => handleButtonChange(index, 'text', e.target.value)} 
                                 maxLength={20}
@@ -54,7 +54,7 @@ export function ButtonsEditor({ node, onUpdate }: EditorProps) {
                         </div>
                     ))}
                 </div>
-                <ZoruButton type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addFlowButton}><Plus className="mr-2 h-4 w-4"/>Add ZoruButton</ZoruButton>
+                <ZoruButton type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addFlowButton}><Plus className="mr-2 h-4 w-4"/>Add Button</ZoruButton>
             </div>
         </div>
     );

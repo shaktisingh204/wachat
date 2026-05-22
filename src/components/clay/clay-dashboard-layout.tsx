@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
@@ -14,10 +14,10 @@ import {
   ZoruCommandItem,
   ZoruCommandList,
   ZoruCommandSeparator,
-  ZoruButton,
-  ZoruSwitch,
-  ZoruSelect,
-  ZoruSheet,
+  Button,
+  Switch,
+  Select,
+  Sheet,
 } from '@/components/zoruui';
 import {
   usePathname,
@@ -1417,7 +1417,7 @@ const crmFinance: NavEntry[] = [
   },
   {
     key: 'crm-balance-sheet',
-    label: 'Balance ZoruSheet',
+    label: 'Balance Sheet',
     icon: <LuFileSpreadsheet className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/accounting/balance-sheet',
     matches: ['/dashboard/crm/accounting/balance-sheet'],
@@ -3494,7 +3494,7 @@ function ClayWachatBrand() {
                 <WabaHealthDot status={healthStatus} />
               </span>
               <span className="block truncate text-[12.5px] font-semibold text-foreground leading-tight">
-                {activeProject?.name || 'ZoruSelect a project'}
+                {activeProject?.name || 'Select a project'}
               </span>
             </span>
             <LuChevronDown
@@ -3508,7 +3508,7 @@ function ClayWachatBrand() {
           className="w-[216px]"
           sideOffset={6}
         >
-          <ZoruDropdownMenuLabel>ZoruSwitch project</ZoruDropdownMenuLabel>
+          <ZoruDropdownMenuLabel>Switch project</ZoruDropdownMenuLabel>
           <ZoruDropdownMenuSeparator />
           {projects.length === 0 ? (
             <ZoruDropdownMenuItem disabled>No projects yet</ZoruDropdownMenuItem>

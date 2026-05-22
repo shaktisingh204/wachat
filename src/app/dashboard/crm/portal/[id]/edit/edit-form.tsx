@@ -21,15 +21,15 @@
 
 import * as React from 'react';
 import {
-    ZoruButton,
-    ZoruCard,
+    Button,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
+    Checkbox,
+    Input,
+    Label,
+    Textarea,
 } from '@/components/zoruui';
 import { useActionState, useEffect, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';

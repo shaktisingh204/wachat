@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -27,7 +27,7 @@ import { ArrowLeft,
 // 1E.sweep: quarter/status converted to <EnumFormField> using
 // `tdsQuarter` / `tdsStatus`. TODOs remaining:
 // - financial-year is a dynamically-generated list (fyOptions(6)) — leave
-//   as ZoruSelect until an <EnumFieldYearRange> variant exists.
+//   as Select until an <EnumFieldYearRange> variant exists.
 // - employee → <EntityFormField entity="employee">.
 
 /**

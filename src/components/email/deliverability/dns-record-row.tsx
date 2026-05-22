@@ -3,8 +3,8 @@
 import { useCallback, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
+  Badge,
+  Button,
   zoruToast,
 } from '@/components/zoruui';
 import type { DnsRecord, DnsRecordStatus } from '@/lib/rust-client/email-deliverability';

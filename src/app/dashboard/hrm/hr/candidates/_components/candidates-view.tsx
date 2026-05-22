@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast, ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import { useZoruToast, Avatar, ZoruAvatarFallback } from '@/components/zoruui';
 import {
   LayoutGrid,
   Table as TableIcon,

@@ -9,23 +9,23 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
+  Button,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruSwitch,
-  ZoruTable,
+  StatCard,
+  Switch,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -48,7 +48,7 @@ import { AlertTriangle,
  * Currencies — settings-style list (§1D.4 specialized: settings list).
  *
  * Additions over the original:
- *  - ZoruCheckbox multi-select column
+ *  - Checkbox multi-select column
  *  - Bulk bar: delete (non-default only) + set active + set inactive
  */
 

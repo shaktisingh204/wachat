@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,

@@ -1,20 +1,20 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruAccordion,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAvatar,
+  Avatar,
 } from '@/components/zoruui';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -84,7 +84,7 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                                     >
                                         <Upload className="mr-2 h-4 w-4" /> {item.avatar ? 'Replace photo' : 'Pick photo'}
                                     </SabFilePickerButton>
-                                    {item.avatar && <Image src={item.avatar} alt="ZoruAvatar Preview" width={32} height={32} className="rounded-full object-cover" />}
+                                    {item.avatar && <Image src={item.avatar} alt="Avatar Preview" width={32} height={32} className="rounded-full object-cover" />}
                                 </div>
                             </div>
                         ))}

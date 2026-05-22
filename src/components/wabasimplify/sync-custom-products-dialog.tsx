@@ -1,20 +1,20 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruSelect,
+  Button,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruLabel,
+  Label,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -98,7 +98,7 @@ export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProduc
               <div className="flex items-center gap-2">
                 <ZoruSelect value={selectedCatalogId} onValueChange={setSelectedCatalogId} disabled={isLoading}>
                   <ZoruSelectTrigger id="catalog-select">
-                    <ZoruSelectValue placeholder="ZoruSelect a catalog..." />
+                    <ZoruSelectValue placeholder="Select a catalog..." />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
                     {catalogs.map((catalog) => (

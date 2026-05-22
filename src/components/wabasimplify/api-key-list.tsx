@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruButton,
+  Button,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -17,7 +17,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  ZoruBadge,
+  Badge,
 } from '@/components/zoruui';
 import {
   useState,

@@ -1,5 +1,5 @@
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
@@ -21,7 +21,7 @@ export interface ClayBreadcrumbsProps extends React.HTMLAttributes<HTMLElement> 
 }
 
 /**
- * ClayBreadcrumbs — delegates to the shadcn ZoruBreadcrumb primitive set.
+ * ClayBreadcrumbs — delegates to the shadcn Breadcrumb primitive set.
  * Trailing segment renders as `ZoruBreadcrumbPage`; preceding segments use
  * `ZoruBreadcrumbLink` (with next/link via `asChild` when an href is provided).
  */

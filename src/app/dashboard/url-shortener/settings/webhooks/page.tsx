@@ -2,22 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Card,
+  Input,
+  Label,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSwitch,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import { Plus, Trash2, Webhook } from 'lucide-react';

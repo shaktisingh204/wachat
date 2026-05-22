@@ -13,14 +13,14 @@ import {
   Settings,
 } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruStatCard,
-  ZoruTextarea,
+  Badge,
+  Button,
+  Card,
+  Input,
+  Label,
+  Skeleton,
+  StatCard,
+  Textarea,
   cn,
   zoruToast,
 } from '@/components/zoruui';
@@ -173,7 +173,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
         </div>
       </div>
 
-      {/* Segmented button group — intentionally NOT the ZoruTabs primitive. */}
+      {/* Segmented button group — intentionally NOT the Tabs primitive. */}
       <div
         role="tablist"
         aria-label="Journey view"

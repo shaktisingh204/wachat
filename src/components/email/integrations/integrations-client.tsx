@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { KeyRound, Network, Plus } from 'lucide-react';
 import {
-  ZoruButton,
+  Button,
   ZoruPageActions,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   zoruToast,
 } from '@/components/zoruui';
 import { cn } from '@/components/zoruui/lib/cn';

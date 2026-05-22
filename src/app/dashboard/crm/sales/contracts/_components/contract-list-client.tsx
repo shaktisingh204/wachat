@@ -6,7 +6,7 @@
  * Composes <EntityListShell> with:
  *   - KPI strip (Active · Pending Signature · Expiring Soon · Terminated · Renewed)
  *   - Filters: status, customer search, date range (effective/expiry), value range
- *   - Dense ZoruTable with row checkboxes
+ *   - Dense Table with row checkboxes
  *   - Bulk-action bar: archive, change status, export CSV, delete
  *   - URL-based pagination via PaginationBar
  */
@@ -15,16 +15,16 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

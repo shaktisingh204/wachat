@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCheckbox, useZoruToast } from '@/components/zoruui';
+import { Checkbox, useZoruToast } from '@/components/zoruui';
 /**
  * <TaskChecklist> — interactive checklist for the task detail page.
  *

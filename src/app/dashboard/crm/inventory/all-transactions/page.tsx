@@ -49,15 +49,15 @@ import {
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDatePicker,
-    ZoruLabel,
-    ZoruPopover,
+    Badge,
+    Button,
+    Card,
+    DatePicker,
+    Label,
+    Popover,
     ZoruPopoverContent,
     ZoruPopoverTrigger,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

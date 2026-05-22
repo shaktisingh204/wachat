@@ -9,7 +9,7 @@
  *   - Filter row: search by contract_id, from/to date range
  *   - Table: contract ref (EntityRowLink), from date, to date, new value,
  *     days remaining badge, actions
- *   - ZoruCheckbox selection
+ *   - Checkbox selection
  *   - Bulk delete with confirm
  *   - Export CSV
  */
@@ -17,14 +17,14 @@
 import * as React from 'react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruTable,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

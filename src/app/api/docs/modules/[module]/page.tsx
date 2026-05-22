@@ -5,17 +5,17 @@
 import catalog from '../../_data/catalog.json';
 import { notFound } from 'next/navigation';
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbList,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruPageDescription,
-  ZoruTable,
+  Table,
   ZoruTableHeader,
   ZoruTableHead,
   ZoruTableBody,

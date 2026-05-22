@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruSwitch,
-  ZoruLabel,
-  ZoruInput,
-  ZoruBadge,
-  ZoruSeparator,
-  ZoruSelect,
+  Button,
+  Switch,
+  Label,
+  Input,
+  Badge,
+  Separator,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -428,7 +428,7 @@ export default function NotificationsSettingsPage() {
             <ZoruTable>
               <ZoruTableHeader>
                 <ZoruTableRow>
-                  <ZoruTableHead>ZoruLabel</ZoruTableHead>
+                  <ZoruTableHead>Label</ZoruTableHead>
                   <ZoruTableHead>Start</ZoruTableHead>
                   <ZoruTableHead>End</ZoruTableHead>
                   <ZoruTableHead>Days</ZoruTableHead>

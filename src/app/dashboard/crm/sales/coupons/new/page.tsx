@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Button,
+  Card,
+  Input,
+  Label,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -85,7 +85,7 @@ export default function NewCouponPage() {
 
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
-          {/* Hidden type field for ZoruSelect (controlled) */}
+          {/* Hidden type field for Select (controlled) */}
           <input type="hidden" name="type" value={couponType} />
 
           {/* Coupon Code */}

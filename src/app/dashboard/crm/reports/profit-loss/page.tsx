@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
 
 import {
-  ZoruCard,
-  ZoruTable,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

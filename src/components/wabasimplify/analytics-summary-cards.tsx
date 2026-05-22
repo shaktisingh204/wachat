@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruSkeleton } from '@/components/zoruui';
+import { Card, Skeleton } from '@/components/zoruui';
 import { MousePointerClick, Users, TrendingUp, Globe2 } from 'lucide-react';
 
 interface AnalyticsSummaryCardsProps {

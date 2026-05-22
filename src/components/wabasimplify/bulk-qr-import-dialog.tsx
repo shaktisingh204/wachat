@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruBadge,
-  ZoruDialog,
+  Button,
+  Badge,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruLabel,
+  Label,
   cn,
 } from '@/components/zoruui';
 import { useRef, useState } from 'react';

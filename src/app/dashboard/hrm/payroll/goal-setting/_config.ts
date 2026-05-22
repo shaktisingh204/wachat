@@ -128,7 +128,7 @@ export const sections = [
   { title: 'Check-ins', fieldNames: ['checkins'] },
 ];
 
-// §1E ZoruSelect migration — consumed by goal-form.tsx until <EnumFormField> is wired up
+// §1E Select migration — consumed by goal-form.tsx until <EnumFormField> is wired up
 export const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'draft', label: 'Draft' },
   { value: 'active', label: 'Active' },

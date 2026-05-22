@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruLabel, ZoruInput, ZoruRadioGroup, ZoruRadioGroupItem, ZoruSelect } from '@/components/zoruui';
+import { Label, Input, RadioGroup, ZoruRadioGroupItem, Select } from '@/components/zoruui';
 import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
 import { getTemplates } from '@/app/actions';
 import { useProject } from '@/context/project-context';
@@ -132,7 +132,7 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
                     value={node.data.templateId || ''}
                     onSelect={handleTemplateChange}
                     options={templates.map(t => ({ label: t.name, value: t._id.toString() }))}
-                    placeholder="ZoruSelect a template..."
+                    placeholder="Select a template..."
                     searchPlaceholder="Search templates..."
                 />
             </div>

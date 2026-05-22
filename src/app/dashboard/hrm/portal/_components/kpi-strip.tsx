@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import type { PortalKpis } from '@/app/actions/hrm-portal.actions';
 import { Users, ClipboardList, CheckCircle2, FileWarning } from 'lucide-react';
 

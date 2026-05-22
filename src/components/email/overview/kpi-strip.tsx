@@ -3,7 +3,7 @@
 import { Activity, MousePointerClick, Send, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,

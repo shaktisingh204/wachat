@@ -15,12 +15,12 @@ import {
 import { ArrowDownCircle, ArrowUpCircle, Banknote, Wallet } from 'lucide-react';
 
 import {
-    ZoruSelect,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

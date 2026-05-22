@@ -1,11 +1,11 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCheckbox } from '@/components/zoruui';
+import { Badge, Button, Checkbox } from '@/components/zoruui';
 import { CalendarClock, Download, Loader2, Wallet, X } from 'lucide-react';
 
 /**
  * Per-bucket MSME alerts table with:
- *   - ZoruCheckbox row selection + select-all
+ *   - Checkbox row selection + select-all
  *   - Bulk bar: Mark Paid · Export CSV/XLSX · Request Extension
  *   - Per-row "Mark paid" / "Negotiate extension" deep-links (unchanged)
  */

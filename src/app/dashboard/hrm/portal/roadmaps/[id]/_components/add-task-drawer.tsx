@@ -4,17 +4,17 @@ import * as React from 'react';
 import { useState } from 'react';
 
 import {
-  ZoruSheet,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetHeader,
   ZoruSheetTitle,
   ZoruSheetFooter,
   ZoruSheetClose,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Select,
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSelectContent,

@@ -8,7 +8,7 @@
 import { useMemo } from 'react';
 import { ArrowDown, ArrowUp, Copy, Trash2 } from 'lucide-react';
 
-import { ZoruButton, ZoruEmptyState, ZoruScrollArea, cn } from '@/components/zoruui';
+import { Button, EmptyState, ScrollArea, cn } from '@/components/zoruui';
 import type {
   EmailBuilderBlock,
   EmailBuilderDocument,

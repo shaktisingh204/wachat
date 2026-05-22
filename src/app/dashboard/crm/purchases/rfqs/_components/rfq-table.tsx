@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruDropdownMenu,
+  Badge,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,

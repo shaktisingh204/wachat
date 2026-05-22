@@ -3,15 +3,15 @@
 import * as React from "react";
 
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruCheckbox,
+  Checkbox,
   ZoruRadioCard,
-  ZoruRadioGroup,
+  RadioGroup,
 } from "@/components/zoruui";
 
 import type { CampaignDraft, SenderStrategy } from "../types";

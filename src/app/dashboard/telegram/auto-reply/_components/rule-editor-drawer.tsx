@@ -1,24 +1,24 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruDrawer,
   ZoruDrawerContent,
   ZoruDrawerDescription,
   ZoruDrawerHeader,
   ZoruDrawerTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruTextarea,
+  Switch,
+  Textarea,
 } from '@/components/zoruui';
 import {
   Plus,

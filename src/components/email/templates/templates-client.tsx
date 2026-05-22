@@ -10,13 +10,13 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Library, Plus, SquarePen } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruPageHeader,
+  Button,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruPageDescription,
   ZoruPageActions,
-  ZoruSkeleton,
+  Skeleton,
   cn,
   zoruToast,
 } from '@/components/zoruui';

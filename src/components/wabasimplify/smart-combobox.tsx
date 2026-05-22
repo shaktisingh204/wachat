@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  ZoruButton,
+  Button,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
@@ -9,10 +9,10 @@ import {
   ZoruCommandItem,
   ZoruCommandList,
   ZoruCommandSeparator,
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruSelect,
+  Select,
 } from '@/components/zoruui';
 import {
   Check,
@@ -46,7 +46,7 @@ export function SmartCombobox({
     value,
     onSelect,
     onCreate,
-    placeholder = "ZoruSelect option...",
+    placeholder = "Select option...",
     searchPlaceholder = "Search...",
     createLabel = "Create",
     isLoading = false,

@@ -6,7 +6,7 @@ import { Search } from "lucide-react";
 
 import { cn } from "./lib/cn";
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogTitle,
   type ZoruDialogContentProps,

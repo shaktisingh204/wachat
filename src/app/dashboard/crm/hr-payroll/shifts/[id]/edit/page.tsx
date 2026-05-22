@@ -1,15 +1,26 @@
-/**
- * Legacy edit route — shift editing now happens through the inline
- * dialog on the settings-style list page. Redirect to the list.
- */
+import { permanentRedirect } from 'next/navigation';
 
-import { redirect } from 'next/navigation';
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default async function EditShiftLegacyRedirect({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    await params;
-    redirect('/dashboard/crm/hr-payroll/shifts');
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
+
+  let target = '/dashboard/hrm/payroll/shifts/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
+  }
+
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

@@ -2,9 +2,9 @@
 
 import { Scale } from 'lucide-react';
 import {
-  ZoruCard,
-  ZoruEmptyState,
-  ZoruTable,
+  Card,
+  EmptyState,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 import {
   useEffect } from 'react';
 import { AlertTriangle,

@@ -30,7 +30,7 @@ export interface ZoruCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof zoruCardVariants> {}
 
-export const ZoruCard = React.forwardRef<HTMLDivElement, ZoruCardProps>(
+export const Card = React.forwardRef<HTMLDivElement, ZoruCardProps>(
   ({ className, variant, interactive, ...props }, ref) => (
     <div
       ref={ref}
@@ -39,7 +39,7 @@ export const ZoruCard = React.forwardRef<HTMLDivElement, ZoruCardProps>(
     />
   ),
 );
-ZoruCard.displayName = "ZoruCard";
+Card.displayName = "Card";
 
 export const ZoruCardHeader = React.forwardRef<
   HTMLDivElement,

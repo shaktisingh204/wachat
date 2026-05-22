@@ -12,14 +12,14 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import {
-  ZoruCard,
-  ZoruTable,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruButton,
+  Button,
 } from '@/components/zoruui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';

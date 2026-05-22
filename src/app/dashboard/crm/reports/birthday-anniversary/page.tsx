@@ -5,9 +5,9 @@ import { Cake, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 
 import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruTable,
+  Badge,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

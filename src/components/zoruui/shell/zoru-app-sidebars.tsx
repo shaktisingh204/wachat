@@ -704,6 +704,14 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("lead-contact", "Lead Contact", "/dashboard/crm/sales-crm/contacts", Users, p),
           leaf("deal-pipeline", "Deal Pipeline", "/dashboard/crm/sales-crm/pipelines", GitBranch, p),
           leaf("all-leads", "All Leads", "/dashboard/crm/sales-crm/all-leads", Target, p),
+          leaf("lead-forms", "Forms", "/dashboard/crm/sales-crm/forms", FileSpreadsheet, p),
+          leaf("lead-categories", "Categories", "/dashboard/crm/sales-crm/categories", FolderOpen, p),
+          leaf("lead-sources", "Sources", "/dashboard/crm/sales-crm/sources", Filter, p),
+          leaf("lead-statuses", "Statuses", "/dashboard/crm/sales-crm/statuses", Flag, p),
+          leaf("lead-pipelines", "Pipelines", "/dashboard/crm/sales-crm/pipelines", GitBranch, p, { exact: true }),
+          leaf("lead-source-report", "Lead Source Report", "/dashboard/crm/sales-crm/lead-source-report", BarChart3, p),
+          leaf("client-perf-report", "Client Performance", "/dashboard/crm/sales-crm/client-performance-report", TrendingUp, p),
+          leaf("team-sales-report", "Team Sales Report", "/dashboard/crm/sales-crm/team-sales-report", BarChart3, p),
         ],
       },
 
@@ -717,19 +725,23 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 4. HR ─── */
+      /* ─── 4. Sales Documents ─── */
       {
-        id: "crm-hr",
-        label: "HR",
+        id: "crm-sales-docs",
+        label: "Sales Documents",
         items: [
-          leaf("hr-employees", "Employees", "/dashboard/crm/hr-payroll/employees", Users, p),
-          leaf("hr-leaves", "Leaves", "/dashboard/crm/hr-payroll/leave", Calendar, p),
-          leaf("hr-shifts", "Shift Roster", "/dashboard/crm/hr-payroll/shifts", Clock, p),
-          leaf("hr-attendance", "Attendance", "/dashboard/crm/hr-payroll/attendance", UserCheck, p),
-          leaf("hr-holidays", "Holidays", "/dashboard/crm/hr-payroll/holidays", Calendar, p),
-          leaf("hr-designations", "Designation", "/dashboard/crm/hr-payroll/designations", BadgeCheck, p),
-          leaf("hr-departments", "Department", "/dashboard/crm/hr-payroll/departments", Building2, p),
-          leaf("hr-appreciation", "Appreciation", "/dashboard/crm/hr/recognition", Heart, p),
+          leaf("sd-estimate-requests", "Estimate Requests", "/dashboard/crm/sales/estimate-requests", FileText, p),
+          leaf("sd-estimate-templates", "Estimate Templates", "/dashboard/crm/sales/estimates-templates", FileSpreadsheet, p),
+          leaf("sd-quotations", "Quotations", "/dashboard/crm/sales/quotations", FileText, p),
+          leaf("sd-proposals", "Proposals", "/dashboard/crm/sales/proposals", FileText, p),
+          leaf("sd-proforma", "Proforma Invoices", "/dashboard/crm/sales/proforma", Receipt, p),
+          leaf("sd-invoices", "Invoices", "/dashboard/crm/sales/invoices", Receipt, p),
+          leaf("sd-recurring", "Recurring Invoices", "/dashboard/crm/sales/recurring-invoices", Repeat, p),
+          leaf("sd-subscriptions", "Subscriptions", "/dashboard/crm/sales/subscriptions", Repeat, p),
+          leaf("sd-credit-notes", "Credit Notes", "/dashboard/crm/sales/credit-notes", FileText, p),
+          leaf("sd-delivery", "Delivery Challans", "/dashboard/crm/sales/delivery", Truck, p),
+          leaf("sd-promotions", "Promotions", "/dashboard/crm/sales/promotions", Megaphone, p),
+          leaf("sd-service-contracts", "Service Contracts", "/dashboard/crm/service-contracts", FileText, p),
         ],
       },
 
@@ -745,7 +757,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 6. Finance ─── */
+      /* ─── 14. Finance ─── */
       {
         id: "crm-finance",
         label: "Finance",
@@ -759,7 +771,46 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 7. Products ─── */
+      /* ─── 15. Accounting ─── */
+      {
+        id: "crm-accounting",
+        label: "Accounting",
+        items: [
+          leaf("acc-charts", "General Ledger (Charts)", "/dashboard/crm/accounting/charts", BookOpen, p),
+          leaf("acc-vouchers", "Journal / Vouchers", "/dashboard/crm/accounting/vouchers", FileText, p),
+          leaf("acc-day-book", "Day Book", "/dashboard/crm/accounting/day-book", BookOpen, p),
+          leaf("acc-trial-balance", "Trial Balance", "/dashboard/crm/accounting/trial-balance", FileSpreadsheet, p),
+          leaf("acc-pnl", "P&L Statement", "/dashboard/crm/accounting/pnl", TrendingUp, p),
+          leaf("acc-income-statement", "Income Statement", "/dashboard/crm/accounting/income-statement", DollarSign, p),
+          leaf("acc-balance-sheet", "Balance Sheet", "/dashboard/crm/accounting/balance-sheet", FileSpreadsheet, p),
+          leaf("acc-cash-flow", "Cash Flow", "/dashboard/crm/accounting/cash-flow", CircleDollarSign, p),
+          leaf("acc-groups", "Account Groups", "/dashboard/crm/accounting/groups", Layers, p),
+        ],
+      },
+
+      /* ─── 16. Banking ─── */
+      {
+        id: "crm-banking",
+        label: "Banking",
+        items: [
+          leaf("bk-accounts", "Bank Accounts", "/dashboard/crm/banking/bank-accounts", Building, p),
+          leaf("bk-transactions", "All Transactions", "/dashboard/crm/banking/bank-transactions", History, p),
+          leaf("bk-reconciliation", "Reconciliation", "/dashboard/crm/banking/reconciliation", CheckCheck, p),
+          leaf("bk-employee-accounts", "Employee Accounts", "/dashboard/crm/banking/employee-accounts", Users, p),
+          leaf("bk-all", "All Banking", "/dashboard/crm/banking/all", Wallet, p),
+        ],
+      },
+
+      /* ─── 17. Petty Cash ─── */
+      {
+        id: "crm-petty-cash",
+        label: "Petty Cash",
+        items: [
+          leaf("petty-cash", "Petty Cash", "/dashboard/crm/petty-cash", Coins, p, { exact: true }),
+        ],
+      },
+
+      /* ─── 18. Products ─── */
       {
         id: "crm-products",
         label: "Products",
@@ -769,7 +820,45 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 8. Orders ─── */
+      /* ─── 19. Inventory ─── */
+      {
+        id: "crm-inventory",
+        label: "Inventory",
+        items: [
+          leaf("inv-items", "Items", "/dashboard/crm/inventory/items", Package, p),
+          leaf("inv-warehouses", "Warehouses", "/dashboard/crm/inventory/warehouses", Building2, p),
+          leaf("inv-vendors", "Vendors", "/dashboard/crm/inventory/vendors", Users, p),
+          leaf("inv-stock-transfers", "Stock Transfers", "/dashboard/crm/inventory/stock-transfers", Truck, p),
+          leaf("inv-adjustments", "Stock Adjustments", "/dashboard/crm/inventory/adjustments", PackageCheck, p),
+          leaf("inv-batch-expiry", "Batch & Expiry", "/dashboard/crm/inventory/batch-expiry", Calendar, p),
+          leaf("inv-purchase-orders", "Purchase Orders", "/dashboard/crm/inventory/purchase-orders", FileText, p),
+          leaf("inv-grn", "GRN", "/dashboard/crm/inventory/grn", PackageCheck, p),
+          leaf("inv-bom", "Bill of Materials", "/dashboard/crm/inventory/bom", Layers, p),
+          leaf("inv-production", "Production Orders", "/dashboard/crm/inventory/production-orders", Workflow, p),
+          leaf("inv-all-tx", "All Transactions", "/dashboard/crm/inventory/all-transactions", History, p),
+          leaf("inv-party-tx", "Party Transactions", "/dashboard/crm/inventory/party-transactions", History, p),
+          leaf("inv-stock-value", "Stock Value", "/dashboard/crm/inventory/stock-value", CircleDollarSign, p),
+          leaf("inv-pnl", "Inventory P&L", "/dashboard/crm/inventory/pnl", TrendingUp, p),
+        ],
+      },
+
+      /* ─── 20. Purchases ─── */
+      {
+        id: "crm-purchases",
+        label: "Purchases",
+        items: [
+          leaf("pur-vendors", "Vendors", "/dashboard/crm/purchases/vendors", Users, p),
+          leaf("pur-orders", "Purchase Orders", "/dashboard/crm/purchases/orders", FileText, p),
+          leaf("pur-rfqs", "RFQs", "/dashboard/crm/purchases/rfqs", FileSearch, p),
+          leaf("pur-vendor-bids", "Vendor Bids", "/dashboard/crm/purchases/vendor-bids", FileText, p),
+          leaf("pur-expenses", "Expenses", "/dashboard/crm/purchases/expenses", Wallet, p),
+          leaf("pur-recurring-expenses", "Recurring Expenses", "/dashboard/crm/purchases/recurring-expenses", Repeat, p),
+          leaf("pur-payouts", "Vendor Payouts", "/dashboard/crm/purchases/payouts", CreditCard, p),
+          leaf("pur-debit-notes", "Debit Notes", "/dashboard/crm/purchases/debit-notes", FileText, p),
+        ],
+      },
+
+      /* ─── 21. Orders ─── */
       {
         id: "crm-orders",
         label: "Orders",
@@ -779,7 +868,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 9. Tickets ─── */
+      /* ─── 22. Tickets ─── */
       {
         id: "crm-tickets",
         label: "Tickets",
@@ -791,7 +880,24 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 10. Events ─── */
+      /* ─── 23. Helpdesk Configuration ─── */
+      {
+        id: "crm-helpdesk-config",
+        label: "Helpdesk Configuration",
+        items: [
+          leaf("hd-channels", "Channels", "/dashboard/crm/tickets/channels", Inbox, p, { adminOnly: true }),
+          leaf("hd-types", "Types", "/dashboard/crm/tickets/types", Tags, p, { adminOnly: true }),
+          leaf("hd-groups", "Groups", "/dashboard/crm/tickets/groups", Users, p, { adminOnly: true }),
+          leaf("hd-tags", "Tags", "/dashboard/crm/tickets/tags", Tag, p, { adminOnly: true }),
+          leaf("hd-agent-groups", "Agent Groups", "/dashboard/crm/tickets/agent-groups", Users, p, { adminOnly: true }),
+          leaf("hd-sla", "SLA Policies", "/dashboard/crm/tickets/sla", ShieldCheck, p, { adminOnly: true }),
+          leaf("hd-reply-templates", "Reply Templates", "/dashboard/crm/tickets/reply-templates", FileText, p, { adminOnly: true }),
+          leaf("hd-custom-forms", "Custom Forms", "/dashboard/crm/tickets/custom-forms", FileSpreadsheet, p, { adminOnly: true }),
+          leaf("hd-knowledge-base", "Knowledge Base", "/dashboard/crm/tickets/knowledge-base", BookOpen, p, { adminOnly: true }),
+        ],
+      },
+
+      /* ─── 24. Events ─── */
       {
         id: "crm-events",
         label: "Events",
@@ -800,7 +906,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 11. Communication ─── */
+      /* ─── 25. Communication ─── */
       {
         id: "crm-comms",
         label: "Communication",
@@ -812,7 +918,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 12. Knowledge Base ─── */
+      /* ─── 26. Knowledge Base ─── */
       {
         id: "crm-knowledge",
         label: "Knowledge Base",
@@ -821,7 +927,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 13. Reports ─── */
+      /* ─── 27. Reports ─── */
       {
         id: "crm-reports",
         label: "Reports",
@@ -834,7 +940,43 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 14. GDPR & Compliance ─── */
+      /* ─── 28. Analytics & Activity ─── */
+      {
+        id: "crm-analytics-activity",
+        label: "Analytics & Activity",
+        items: [
+          leaf("aa-dashboards", "Dashboards", "/dashboard/crm/dashboards", LayoutGrid, p),
+          leaf("aa-analytics", "Analytics", "/dashboard/crm/analytics", BarChart3, p),
+          leaf("aa-activity", "Activity Feed", "/dashboard/crm/activity", Activity, p),
+          leaf("aa-audit-log", "Audit Log", "/dashboard/crm/audit-log", FileSearch, p, { adminOnly: true }),
+          leaf("aa-conversions", "Conversions", "/dashboard/crm/conversions", TrendingUp, p),
+        ],
+      },
+
+      /* ─── 29. Automation ─── */
+      {
+        id: "crm-automation",
+        label: "Automation",
+        items: [
+          leaf("auto-home", "Automations", "/dashboard/crm/automations", Workflow, p, { exact: true }),
+          leaf("auto-new", "New Automation", "/dashboard/crm/automations/new", Plus, p),
+          leaf("auto-docs", "Automation Docs", "/dashboard/crm/automations/docs", BookOpen, p),
+        ],
+      },
+
+      /* ─── 30. Integrations ─── */
+      {
+        id: "crm-integrations",
+        label: "Integrations",
+        items: [
+          leaf("int-hub", "Integrations Hub", "/dashboard/crm/integrations", Plug, p, { exact: true }),
+          leaf("int-import-export", "Import / Export", "/dashboard/crm/import-export", ArrowDown, p),
+          leaf("int-email", "Email Integration", "/dashboard/crm/email", Mail, p),
+          leaf("int-files", "File Manager", "/dashboard/crm/files", FolderOpen, p),
+        ],
+      },
+
+      /* ─── 31. GDPR & Compliance ─── */
       {
         id: "crm-gdpr",
         label: "GDPR & Compliance",
@@ -845,7 +987,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 15. Tax & Compliance (India) ─── */
+      /* ─── 32. Tax & Compliance (India) ─── */
       {
         id: "crm-india-tax",
         label: "Tax & Compliance (India)",
@@ -860,7 +1002,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 16. POS ─── */
+      /* ─── 33. POS ─── */
       {
         id: "crm-pos",
         label: "POS",
@@ -873,7 +1015,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 17. Online Store ─── */
+      /* ─── 34. Online Store ─── */
       {
         id: "crm-store",
         label: "Online Store",
@@ -886,7 +1028,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 18. Settings ─── */
+      /* ─── 35. Settings ─── */
       {
         id: "crm-settings",
         label: "Settings",
@@ -943,7 +1085,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── 19. Admin ─── */
+      /* ─── 36. Admin ─── */
       {
         id: "crm-admin",
         label: "Admin",

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
+import { Button, EmptyState } from '@/components/zoruui';
 import { AlertTriangle } from 'lucide-react';
 
 import * as React from 'react';

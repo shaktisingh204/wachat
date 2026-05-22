@@ -1,18 +1,18 @@
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruTable,
+  Button,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruBadge,
-  ZoruSeparator,
+  Badge,
+  Separator,
 } from '@/components/zoruui';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { ArrowLeft,

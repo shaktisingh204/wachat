@@ -9,32 +9,32 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDataTable,
-  ZoruDialog,
+  Button,
+  Card,
+  DataTable,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
+  EmptyState,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -57,8 +57,8 @@ import {
 
 /**
  * /wachat/quick-reply-categories — organize quick replies into categories.
- * ZoruUI: header + breadcrumb, ZoruDataTable for list, dialogs for
- * create/edit/delete. Empty state via ZoruEmptyState.
+ * ZoruUI: header + breadcrumb, DataTable for list, dialogs for
+ * create/edit/delete. Empty state via EmptyState.
  */
 
 import * as React from 'react';

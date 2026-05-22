@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruCard, ZoruButton, useZoruToast } from '@/components/zoruui';
+import { Badge, Card, Button, useZoruToast } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
 import { Clock,

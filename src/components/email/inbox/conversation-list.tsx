@@ -4,11 +4,11 @@ import * as React from 'react';
 import { Loader2, Search, Star } from 'lucide-react';
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
-  ZoruBadge,
-  ZoruInput,
-  ZoruScrollArea,
+  Badge,
+  Input,
+  ScrollArea,
   cn,
 } from '@/components/zoruui';
 import type { EmailInboxThreadDoc } from '@/app/actions/email/inbox.actions';

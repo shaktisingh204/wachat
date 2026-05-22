@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCheckbox, ZoruInput, ZoruLabel, cn, useZoruToast } from '@/components/zoruui';
+import { Button, Checkbox, Input, Label, cn, useZoruToast } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
 import { Eraser,

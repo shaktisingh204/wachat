@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruScrollArea,
-  ZoruButton,
+  ScrollArea,
+  Button,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -39,7 +39,7 @@ import { MultiSelectCombobox } from './multi-select-combobox';
 /**
  * AddContactDialog — ZoruUI-styled contact creation modal.
  *
- * Uses ZoruDialog, ZoruInput, ZoruSelect, and a ZoruButton trigger so it
+ * Uses Dialog, Input, Select, and a Button trigger so it
  * matches the rest of the Wachat contacts toolbar.
  */
 

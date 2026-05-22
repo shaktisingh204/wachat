@@ -11,7 +11,7 @@ import {
     Users,
 } from 'lucide-react';
 
-import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import { Card, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { getT } from '@/lib/i18n/server';

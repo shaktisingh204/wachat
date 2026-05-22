@@ -2,10 +2,10 @@
 
 import { useTransition } from 'react';
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruEmptyState,
-    ZoruTable,
+    Badge,
+    Button,
+    EmptyState,
+    Table,
     ZoruTableHeader,
     ZoruTableBody,
     ZoruTableRow,

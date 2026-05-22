@@ -9,23 +9,23 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
+  Badge,
+  Button,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTable,
+  Input,
+  Label,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -39,7 +39,7 @@ import { Edit,
 /**
  * Shifts — settings-style master-data page.
  *
- * Inline dialog (create + edit) over a single ZoruTable. Each row defines
+ * Inline dialog (create + edit) over a single Table. Each row defines
  * a shift's HH:MM window, break/grace, working-day mask, and an optional
  * color swatch. Drives `crmShiftsApi` through `crm-shifts.actions`.
  */

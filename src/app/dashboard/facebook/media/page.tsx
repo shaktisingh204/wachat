@@ -1,29 +1,29 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruDropdownMenu,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuRadioGroup,
   ZoruDropdownMenuRadioItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruEmptyState,
+  EmptyState,
   ZoruFilesPage,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
   type ZoruFileEntity,
 } from '@/components/zoruui';
@@ -51,7 +51,7 @@ import {
  *
  * The Meta API surfaces 4 collections (photos, albums, videos, playlists).
  * Per the no-tab-ui rule we flatten them into a single ZoruFilesPage and
- * expose a neutral kind selector via ZoruDropdownMenu.
+ * expose a neutral kind selector via DropdownMenu.
  *
  * ZoruFilesPage already composes 5 dialogs internally (preview, rename,
  * delete, share, upload). Upload/rename/delete are stubbed for the

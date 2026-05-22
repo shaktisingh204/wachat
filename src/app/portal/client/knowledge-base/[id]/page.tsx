@@ -9,7 +9,7 @@ import { notFound } from 'next/navigation';
 
 import { getClientKnowledgeBaseArticle } from '@/app/actions/client-portal.actions';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,

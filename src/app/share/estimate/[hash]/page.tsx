@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getPublicEstimate } from '@/app/actions/public-estimate.actions';
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,

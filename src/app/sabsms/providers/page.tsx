@@ -2,22 +2,22 @@ import Link from "next/link";
 import { ServerCog } from "lucide-react";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruEmptyState,
+  EmptyState,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSeparator,
+  Separator,
 } from "@/components/zoruui";
 
 import { connectToDatabase } from "@/lib/mongodb";

@@ -16,16 +16,16 @@ import {
 } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
+    Badge,
+    Button,
+    Card,
+    Checkbox,
+    DropdownMenu,
     ZoruDropdownMenuContent,
     ZoruDropdownMenuItem,
     ZoruDropdownMenuSeparator,
     ZoruDropdownMenuTrigger,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

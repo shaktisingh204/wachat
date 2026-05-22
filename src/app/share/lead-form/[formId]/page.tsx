@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getPublicLeadForm } from '@/app/actions/public-lead-form.actions';
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,

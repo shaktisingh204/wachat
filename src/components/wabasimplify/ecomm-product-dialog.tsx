@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  ZoruScrollArea,
-  ZoruSeparator,
-  ZoruAccordion,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  ScrollArea,
+  Separator,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -196,8 +196,8 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                         </div>
                                          <ZoruSeparator />
                                         <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2"><ZoruLabel htmlFor="gender">Gender</ZoruLabel><ZoruSelect name="gender" defaultValue={p?.gender}><ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="male">Male</ZoruSelectItem><ZoruSelectItem value="female">Female</ZoruSelectItem><ZoruSelectItem value="unisex">Unisex</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                                            <div className="space-y-2"><ZoruLabel htmlFor="age_group">Age Group</ZoruLabel><ZoruSelect name="age_group" defaultValue={p?.age_group}><ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="adult">Adult</ZoruSelectItem><ZoruSelectItem value="kids">Kids</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                            <div className="space-y-2"><ZoruLabel htmlFor="gender">Gender</ZoruLabel><ZoruSelect name="gender" defaultValue={p?.gender}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="male">Male</ZoruSelectItem><ZoruSelectItem value="female">Female</ZoruSelectItem><ZoruSelectItem value="unisex">Unisex</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                            <div className="space-y-2"><ZoruLabel htmlFor="age_group">Age Group</ZoruLabel><ZoruSelect name="age_group" defaultValue={p?.age_group}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="adult">Adult</ZoruSelectItem><ZoruSelectItem value="kids">Kids</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                                         </div>
                                     </ZoruAccordionContent>
                                 </ZoruAccordionItem>

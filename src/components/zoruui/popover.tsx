@@ -5,7 +5,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 
 import { cn } from "./lib/cn";
 
-export const ZoruPopover = PopoverPrimitive.Root;
+export const Popover = PopoverPrimitive.Root;
 export const ZoruPopoverTrigger = PopoverPrimitive.Trigger;
 export const ZoruPopoverAnchor = PopoverPrimitive.Anchor;
 export const ZoruPopoverPortal = PopoverPrimitive.Portal;

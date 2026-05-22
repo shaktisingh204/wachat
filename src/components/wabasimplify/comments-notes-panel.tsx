@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruTextarea,
-  ZoruBadge,
+  Textarea,
+  Badge,
 } from '@/components/zoruui';
 import { Trash2, Paperclip, MessageSquare, StickyNote } from 'lucide-react';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';

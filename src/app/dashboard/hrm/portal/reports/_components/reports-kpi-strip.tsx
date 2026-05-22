@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import { ClipboardList, Clock, CheckCircle2, CalendarDays } from 'lucide-react';
 

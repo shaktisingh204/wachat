@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruButton,
-  ZoruAvatar,
+  Button,
+  Avatar,
   ZoruAvatarFallback,
-  ZoruSwitch,
+  Switch,
 } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
@@ -62,7 +62,7 @@ export function ProjectSwitcher() {
                 </ZoruButton>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
-                <ZoruDropdownMenuLabel>ZoruSwitch Project</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuLabel>Switch Project</ZoruDropdownMenuLabel>
                 <ZoruDropdownMenuSeparator />
                 {projects.map(project => (
                     <ZoruDropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>

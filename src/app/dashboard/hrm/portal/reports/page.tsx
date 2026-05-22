@@ -18,8 +18,8 @@
 
 import * as React from 'react';
 import {
-  ZoruButton,
-  ZoruInput,
+  Button,
+  Input,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -288,7 +288,7 @@ export default function TaskReportsPage() {
         </p>
       </div>
 
-      {/* Segmented view switcher (no ZoruTabs per project directive) */}
+      {/* Segmented view switcher (no Tabs per project directive) */}
       <div className="inline-flex items-center rounded-lg border border-zoru-line bg-zoru-surface p-0.5 gap-0.5">
         <ZoruButton
           variant={view === 'inbox' ? 'default' : 'ghost'}

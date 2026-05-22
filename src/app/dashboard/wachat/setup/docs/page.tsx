@@ -1,14 +1,14 @@
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruButton,
-  ZoruSelect,
+  Button,
+  Select,
 } from '@/components/zoruui';
 import React from 'react';
 
@@ -103,7 +103,7 @@ export default function ManualSetupDocsPage() {
               <strong>Users</strong> &rarr; <strong>System Users</strong>.
             </li>
             <li>
-              ZoruSelect an existing System User (with Admin role) or create a new one.
+              Select an existing System User (with Admin role) or create a new one.
             </li>
             <li>
               Click <strong>Add Assets</strong>. In the popup, assign your
@@ -114,7 +114,7 @@ export default function ManualSetupDocsPage() {
               With the System User selected, click{' '}
               <strong>Generate new token</strong>.
             </li>
-            <li>ZoruSelect your App from the dropdown menu.</li>
+            <li>Select your App from the dropdown menu.</li>
             <li>
               For Token Expiration, select <strong>Never</strong>. This is essential for uninterrupted service.
             </li>

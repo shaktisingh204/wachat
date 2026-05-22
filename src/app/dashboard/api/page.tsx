@@ -1,4 +1,4 @@
-import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import { Card, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   ArrowUpRight,
   Key,

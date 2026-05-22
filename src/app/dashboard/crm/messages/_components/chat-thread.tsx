@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruTextarea, ZoruInput } from '@/components/zoruui';
+import { Button, Textarea, Input } from '@/components/zoruui';
 import { Paperclip, Send, LoaderCircle, Download } from 'lucide-react';
 
 import { ClayCard } from '@/components/clay';

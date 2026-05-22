@@ -1,38 +1,38 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruProgress,
-  ZoruSelect,
+  EmptyState,
+  Input,
+  Label,
+  Progress,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Skeleton,
+  Textarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
 import {
@@ -58,7 +58,7 @@ import {
  * /dashboard/facebook/audience — Audience demographics + saved segments.
  *
  * Top panel: Page-fan demographics (gender, age, top countries) rendered
- * with ZoruProgress bars. Bottom panel: saved audience segments with a
+ * with Progress bars. Bottom panel: saved audience segments with a
  * "New segment" dialog. Backed by Rust BFF actions in
  * `src/app/actions/facebook.actions.ts`.
  */

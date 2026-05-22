@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
+  Button,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
@@ -31,8 +31,8 @@ import { Cog,
  * delete dialogs and renders inside ZoruDataTable-like Zoru chrome).
  *
  * Page chrome:
- *   - ZoruBreadcrumb  (SabNode › Meta Suite › Webhooks)
- *   - ZoruPageHeader  (eyebrow + title + description + actions)
+ *   - Breadcrumb  (SabNode › Meta Suite › Webhooks)
+ *   - PageHeader  (eyebrow + title + description + actions)
  *   - Status alert when no project is selected
  *   - FacebookWebhookLogs body
  */

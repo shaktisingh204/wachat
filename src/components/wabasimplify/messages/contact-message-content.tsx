@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruButton } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button } from '@/components/zoruui';
 import { User, Phone, Briefcase } from 'lucide-react';
 
 interface ContactMessageContentProps {
@@ -23,7 +23,7 @@ export function ContactMessageContent({ contacts }: ContactMessageContentProps) 
         <ZoruCardHeader className="p-2">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            <ZoruCardTitle className="text-base">Contact ZoruCard</ZoruCardTitle>
+            <ZoruCardTitle className="text-base">Contact Card</ZoruCardTitle>
           </div>
         </ZoruCardHeader>
         <ZoruCardContent className="p-2 space-y-2 text-sm">

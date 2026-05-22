@@ -3,8 +3,8 @@
 import { useState, useTransition } from 'react';
 import { updateQrCode } from '@/app/actions/qr-code.actions';
 import {
-    ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
-    ZoruButton, ZoruInput, ZoruLabel, cn, useZoruToast
+    Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
+    Button, Input, Label, cn, useZoruToast
 } from '@/components/zoruui';
 import type { QrCodeWithShortUrl } from '@/lib/definitions';
 import { LoaderCircle, Pencil } from 'lucide-react';

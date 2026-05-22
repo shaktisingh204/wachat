@@ -2,18 +2,18 @@
 
 import {
   useZoruToast,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruEmptyState,
-  ZoruBadge,
+  Button,
+  Card,
+  Input,
+  Label,
+  EmptyState,
+  Badge,
   cn,
 } from '@/components/zoruui';
 import {

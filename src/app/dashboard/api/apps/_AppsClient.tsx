@@ -7,18 +7,18 @@ import {
   type OAuthAppRow,
 } from '@/app/actions/developer-platform.actions';
 import {
-  ZoruCard,
+  Card,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardContent,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruLabel,
-  ZoruAlert,
+  Button,
+  Input,
+  Textarea,
+  Label,
+  Alert,
   ZoruAlertDescription,
-  ZoruEmptyState,
-  ZoruSeparator,
+  EmptyState,
+  Separator,
 } from '@/components/zoruui';
 import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2 } from 'lucide-react';
 

@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
+  Label,
+  Button,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruCheckbox,
-  ZoruSwitch,
-  ZoruTextarea,
-  ZoruSeparator,
-  ZoruAlert,
+  Checkbox,
+  Switch,
+  Textarea,
+  Separator,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
 } from '@/components/zoruui';
@@ -138,7 +138,7 @@ export function SocialShareBlockEditor({ settings, onUpdate }: { settings: any, 
             <TabsContent value="style" className="pt-4">
                  <ZoruAccordion type="multiple" className="w-full" defaultValue={['style_buttons']}>
                     <ZoruAccordionItem value="style_buttons">
-                        <ZoruAccordionTrigger>ZoruButton Style</ZoruAccordionTrigger>
+                        <ZoruAccordionTrigger>Button Style</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><ZoruLabel>Style</ZoruLabel><ZoruSelect value={settings.style || 'iconOnly'} onValueChange={v => handleUpdate('style', v)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="iconOnly">Icon Only</ZoruSelectItem><ZoruSelectItem value="withLabel">Icon & Text</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                              <div className="space-y-2"><ZoruLabel>Shape</ZoruLabel><ZoruSelect value={settings.shape || 'rounded'} onValueChange={v => handleUpdate('shape', v)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="square">Square</ZoruSelectItem><ZoruSelectItem value="rounded">Rounded</ZoruSelectItem><ZoruSelectItem value="circle">Circle</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>

@@ -6,7 +6,7 @@ import { Circle } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruRadioGroup = React.forwardRef<
+export const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
 >(({ className, ...props }, ref) => (
@@ -16,7 +16,7 @@ export const ZoruRadioGroup = React.forwardRef<
     {...props}
   />
 ));
-ZoruRadioGroup.displayName = "ZoruRadioGroup";
+RadioGroup.displayName = "RadioGroup";
 
 export const ZoruRadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,

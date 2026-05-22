@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import {
-    ZoruButton, ZoruInput, cn, useZoruToast
+    Button, Input, cn, useZoruToast
 } from '@/components/zoruui';
 import { Folder, Plus, Trash2, LoaderCircle, FolderX } from 'lucide-react';
 import {

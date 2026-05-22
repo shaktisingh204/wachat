@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruButton,
-  ZoruLabel,
-  ZoruCheckbox,
-  ZoruScrollArea,
-  ZoruSkeleton,
-  ZoruSelect,
+  Button,
+  Label,
+  Checkbox,
+  ScrollArea,
+  Skeleton,
+  Select,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -89,7 +89,7 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
             <ZoruDialogTitle>Crosspost Video</ZoruDialogTitle>
             <ZoruDialogDescription>
-              ZoruSelect pages to share this video with. Pages must be linked in your Business Manager.
+              Select pages to share this video with. Pages must be linked in your Business Manager.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
 

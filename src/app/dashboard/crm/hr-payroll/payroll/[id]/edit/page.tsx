@@ -1,43 +1,26 @@
-/**
- * Payroll run — Edit page.
- *
- * Server component: fetches the run and hands it to the existing
- * `<PayrollRunForm initial>` client island. The form posts via
- * `savePayrollRunAction` (Rust BFF), which detects `_id` on the
- * FormData and PATCHes instead of POSTing.
- */
-
-import { notFound, redirect } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getPayrollRun } from '@/app/actions/crm/payroll-runs.actions';
-import { PayrollRunForm } from '../../_components/payroll-run-form';
-
-export const dynamic = 'force-dynamic';
-
-const BASE = '/dashboard/crm/hr-payroll/payroll';
+import { permanentRedirect } from 'next/navigation';
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function PayrollRunEditPage({ params }: PageProps) {
-    const { id } = await params;
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
+  let target = '/dashboard/hrm/payroll/payroll/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
+  }
 
-    const { run } = await getPayrollRun(id);
-    if (!run) notFound();
-
-    return (
-        <EntityDetailShell
-            title="Edit payroll run"
-            eyebrow="PAYROLL RUN"
-            back={{ href: `${BASE}/${id}`, label: 'Back to run' }}
-        >
-            <PayrollRunForm initial={run} />
-        </EntityDetailShell>
-    );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

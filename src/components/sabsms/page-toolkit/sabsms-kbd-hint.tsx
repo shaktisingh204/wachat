@@ -4,8 +4,8 @@ import * as React from "react";
 import { Keyboard } from "lucide-react";
 
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,

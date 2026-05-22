@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruButton,
-  ZoruAvatar,
+  Button,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruSwitch,
+  Switch,
 } from '@/components/zoruui';
 import {
   useRouter,
@@ -61,7 +61,7 @@ export function FacebookProjectSwitcher({ projects, activeProject }: FacebookPro
                 </ZoruButton>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start">
-                <ZoruDropdownMenuLabel>ZoruSwitch Project</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuLabel>Switch Project</ZoruDropdownMenuLabel>
                 <ZoruDropdownMenuSeparator />
                 {projects.map(project => (
                     <ZoruDropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>

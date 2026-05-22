@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruTable,
+  Button,
+  Input,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableRow,

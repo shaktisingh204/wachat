@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruInput, ZoruSkeleton } from '@/components/zoruui';
+import { Card, Input, Skeleton } from '@/components/zoruui';
 import { Search } from 'lucide-react';
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAlert, ZoruAlertDescription, ZoruBadge, ZoruButton, ZoruCard, ZoruEmptyState, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, Badge, Button, Card, EmptyState, Skeleton, useZoruToast } from '@/components/zoruui';
 import {
   useEffect,
   useState,

@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruLabel,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Label,
+  Input,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -59,7 +59,7 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
                 <ZoruLabel htmlFor="phone-number">Phone Number</ZoruLabel>
                 <ZoruSelect value={selectedPhone} onValueChange={setSelectedPhone}>
                     <ZoruSelectTrigger id="phone-number">
-                        <ZoruSelectValue placeholder="ZoruSelect a number..." />
+                        <ZoruSelectValue placeholder="Select a number..." />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
                         {project.phoneNumbers.map(phone => (

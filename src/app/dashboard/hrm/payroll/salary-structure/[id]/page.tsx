@@ -1,4 +1,4 @@
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -15,7 +15,7 @@ import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import type { StatusTone } from '@/components/crm/status-pill';
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';

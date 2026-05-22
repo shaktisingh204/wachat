@@ -9,18 +9,18 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruColorPicker,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
+  Input,
+  Label,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -46,7 +46,7 @@ import type { WithId } from "mongodb";
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/appearance
  *
  * Per-shop theme picker. Uses ZoruColorPicker with neutral presets and a
- * ZoruCard preview pane (storefront mock) — same neutral palette as the
+ * Card preview pane (storefront mock) — same neutral palette as the
  * account-level appearance page. Save flow goes through a confirmation
  * dialog before persisting.
  *

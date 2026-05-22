@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
-  ZoruSeparator,
+  Textarea,
+  Separator,
 } from '@/components/zoruui';
 import {
   useState } from 'react';
@@ -66,7 +66,7 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
                         value={action?.next?.name || ''}
                         onValueChange={(val) => onActionChange({ ...action, next: { type: 'screen', name: val } })}
                     >
-                        <ZoruSelectTrigger id="next-screen"><ZoruSelectValue placeholder="ZoruSelect a screen..." /></ZoruSelectTrigger>
+                        <ZoruSelectTrigger id="next-screen"><ZoruSelectValue placeholder="Select a screen..." /></ZoruSelectTrigger>
                         <ZoruSelectContent>
                             {allScreens.map(screen => (
                                 <ZoruSelectItem key={screen.id} value={screen.id}>{screen.title || screen.id}</ZoruSelectItem>

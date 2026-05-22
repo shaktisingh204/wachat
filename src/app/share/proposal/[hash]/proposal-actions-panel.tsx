@@ -7,22 +7,22 @@
 
 import * as React from 'react';
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Input,
+  Label,
+  Textarea,
 } from '@/components/zoruui';
 import { SignaturePad } from '@/components/share/signature-pad';
 import {

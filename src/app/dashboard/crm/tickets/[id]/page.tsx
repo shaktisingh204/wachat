@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import {
@@ -25,6 +25,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
 import { RelatedRail } from '@/components/crm/RelatedRail';
+import { AssignmentControl } from '@/components/crm/assignment-control';
 import {
     getTicket,
     getCrmTicketRelatedCounts,
@@ -217,7 +218,13 @@ export default async function TicketDetailPage({
                             <ZoruCardTitle>Assignment</ZoruCardTitle>
                         </ZoruCardHeader>
                         <ZoruCardContent className="space-y-3">
-                            <Field label="Assignee">
+                            <AssignmentControl
+                                entityType="ticket"
+                                entityId={id}
+                                currentAssigneeId={ticket.assigneeId ?? null}
+                                label="Agent"
+                            />
+                            <Field label="Assignee (legacy)">
                                 {ticket.assigneeId ? (
                                     <EntityPickerChip entity="user" id={ticket.assigneeId} />
                                 ) : (

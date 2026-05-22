@@ -13,17 +13,17 @@ import Link from 'next/link';
 import { Copy, GitMerge, Mail, Phone, RefreshCcw, X } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruRadioGroup,
+    Badge,
+    Button,
+    Card,
+    RadioGroup,
     ZoruRadioGroupItem,
-    ZoruSelect,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruSkeleton,
+    Skeleton,
     useZoruToast,
 } from '@/components/zoruui';
 

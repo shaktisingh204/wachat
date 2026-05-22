@@ -16,13 +16,13 @@ import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
+    Badge,
+    Button,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-    ZoruEmptyState,
+    EmptyState,
 } from '@/components/zoruui';
 
 import {

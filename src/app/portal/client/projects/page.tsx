@@ -6,21 +6,21 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { getClientProjects } from '@/app/actions/client-portal.actions';
-import { ZoruBadge } from '@/components/zoruui/badge';
+import { Badge } from '@/components/zoruui/badge';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
 } from '@/components/zoruui/card';
 import {
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
 } from '@/components/zoruui/table';
-import { ZoruEmptyState } from '@/components/zoruui/empty-state';
-import { ZoruProgress } from '@/components/zoruui/progress';
+import { EmptyState } from '@/components/zoruui/empty-state';
+import { Progress } from '@/components/zoruui/progress';
 
 function statusVariant(s: string): 'default' | 'secondary' | 'destructive' | 'outline' {
     const v = s.toLowerCase();

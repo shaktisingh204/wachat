@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruDropdownMenu,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuGroup,
-  ZoruSelect,
+  Select,
 } from '@/components/zoruui';
 import * as React from 'react';
 
@@ -39,7 +39,7 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
     const activeSurfaceLabel =
         siteParts.find(p => p.id === activeSurface)?.name ||
         allPages.find(p => p._id.toString() === activeSurface)?.name ||
-        'ZoruSelect a Page';
+        'Select a Page';
 
     return (
         <ZoruDropdownMenu>

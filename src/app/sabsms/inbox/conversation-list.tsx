@@ -15,10 +15,10 @@ import * as React from "react";
 import { CheckCircle2, Clock3, MailWarning, Tag, UserCheck } from "lucide-react";
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruScrollArea,
+  Badge,
+  Button,
+  Checkbox,
+  ScrollArea,
   cn,
 } from "@/components/zoruui";
 import {

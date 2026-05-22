@@ -1,13 +1,13 @@
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Input,
+  Label,
 } from '@/components/zoruui';
 import {
   TemplateInputRenderer } from './template-input-renderer';

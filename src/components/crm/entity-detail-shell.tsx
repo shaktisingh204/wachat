@@ -1,4 +1,4 @@
-import { ZoruBadge, type ZoruBadgeProps } from '@/components/zoruui';
+import { Badge, type ZoruBadgeProps } from '@/components/zoruui';
 import {
   ArrowLeft } from 'lucide-react';
 import { type ReactNode } from 'react';

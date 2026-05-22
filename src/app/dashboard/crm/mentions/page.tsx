@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruCard, ZoruPageActions, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruPageActions, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   AtSign } from 'lucide-react';
 

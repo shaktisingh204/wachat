@@ -18,11 +18,11 @@ import * as React from 'react';
 import { LoaderCircle, Mail, Search } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruInput,
+    Badge,
+    Input,
     ZoruPageDescription,
     ZoruPageEyebrow,
-    ZoruPageHeader,
+    PageHeader,
     ZoruPageHeading,
     ZoruPageTitle,
 } from '@/components/zoruui';

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
 
-import { ZoruButton } from "@/components/zoruui";
+import { Button } from "@/components/zoruui";
 
 /**
  * Customisable layout for the analytics tiles.

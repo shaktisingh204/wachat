@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard, ZoruStatCard } from '@/components/zoruui';
+import { Button, Card, StatCard } from '@/components/zoruui';
 import {
   Store,
   Package,

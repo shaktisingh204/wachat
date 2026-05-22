@@ -9,7 +9,7 @@ import { cn } from "./lib/cn";
 export type ZoruCalendarProps = React.ComponentProps<typeof DayPicker>;
 
 /**
- * ZoruCalendar — react-day-picker v9 themed in zoru tokens.
+ * Calendar — react-day-picker v9 themed in zoru tokens.
  * Pass `mode="single"` (default), `mode="range"`, or `mode="multiple"`
  * via the underlying API.
  */
@@ -70,4 +70,4 @@ export function ZoruCalendar({
     />
   );
 }
-ZoruCalendar.displayName = "ZoruCalendar";
+Calendar.displayName = "Calendar";

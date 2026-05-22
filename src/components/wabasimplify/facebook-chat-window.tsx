@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruScrollArea, ZoruButton, ZoruSkeleton, ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { ScrollArea, Button, Skeleton, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
 import { FacebookChatMessage } from './facebook-chat-message';
 import { FacebookMessageInput } from './facebook-message-input';

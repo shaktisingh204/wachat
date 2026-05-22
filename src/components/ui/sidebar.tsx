@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruTooltip,
+  Button,
+  Tooltip,
   ZoruTooltipContent,
   ZoruTooltipTrigger,
   ZoruDrawer,
   ZoruDrawerContent,
   ZoruDrawerTrigger,
-  ZoruScrollArea,
+  ScrollArea,
   type ZoruButtonProps,
 } from '@/components/zoruui';
 import { cn } from '@/lib/utils';

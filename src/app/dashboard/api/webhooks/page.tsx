@@ -3,17 +3,17 @@ import {
   listWebhookDeliveries,
 } from '@/app/actions/developer-platform.actions';
 import {
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruPageDescription,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbList,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
 } from '@/components/zoruui';
 import { AlertCircle } from 'lucide-react';

@@ -4,8 +4,8 @@ import * as React from "react";
 import { Columns } from "lucide-react";
 
 import {
-  ZoruButton,
-  ZoruDropdownMenu,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuCheckboxItem,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuLabel,

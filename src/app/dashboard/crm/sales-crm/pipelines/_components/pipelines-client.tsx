@@ -2,14 +2,14 @@
 
 import * as React from 'react';
 import {
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruButton,
-  ZoruCard,
-  ZoruStatCard,
-  ZoruTable,
+  Button,
+  Card,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

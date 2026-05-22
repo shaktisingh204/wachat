@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  Label,
+  Skeleton,
+  Textarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
 import {

@@ -2,29 +2,29 @@
 
 import {
   useZoruToast,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSheet,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetFooter,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruBadge,
-  ZoruEmptyState,
+  Badge,
+  EmptyState,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -42,7 +42,7 @@ import { getConversationFilters, saveConversationFilter, deleteConversationFilte
 
 /**
  * /wachat/conversation-filters — Saved filter presets, rebuilt on
- * ZoruUI primitives. The create-filter form lives inside a ZoruSheet.
+ * ZoruUI primitives. The create-filter form lives inside a Sheet.
  */
 
 import * as React from 'react';

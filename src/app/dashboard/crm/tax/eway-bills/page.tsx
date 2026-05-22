@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { Plus } from 'lucide-react';
 
 /**
@@ -7,7 +7,7 @@ import { Plus } from 'lucide-react';
  * Server component. KPI strip (Active · Expired · Cancelled) + a client
  * shell that provides:
  *   - Filter row (search, status, date range)
- *   - ZoruCheckbox row selection
+ *   - Checkbox row selection
  *   - Bulk cancel with confirm dialog
  *   - Export CSV / XLSX
  *   - Per-row actions (delegated to <EWayBillRowActions>)

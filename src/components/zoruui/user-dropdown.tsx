@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from "./avatar";
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from "./avatar";
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,

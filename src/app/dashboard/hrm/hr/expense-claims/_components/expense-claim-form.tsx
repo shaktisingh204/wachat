@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -25,7 +25,7 @@ import { ArrowLeft,
   LoaderCircle,
   Save } from 'lucide-react';
 
-// §1E.sweep: status ZoruSelect kept — form has cancelled/archived slugs missing from expenseClaimStatus enum; extend enum once Rust DTO is confirmed.
+// §1E.sweep: status Select kept — form has cancelled/archived slugs missing from expenseClaimStatus enum; extend enum once Rust DTO is confirmed.
 
 /**
  * <ExpenseClaimForm /> — create + edit form for HR expense claims.

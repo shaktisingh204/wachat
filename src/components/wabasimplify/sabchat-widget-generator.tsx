@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruLabel,
-  ZoruInput,
-  ZoruSwitch,
-  ZoruTextarea,
-  ZoruAvatar,
+  Button,
+  Label,
+  Input,
+  Switch,
+  Textarea,
+  Avatar,
   ZoruAvatarImage,
   ZoruAvatarFallback,
 } from '@/components/zoruui';
@@ -124,7 +124,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                 <ZoruTextarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <ZoruLabel>ZoruAvatar URL</ZoruLabel>
+                                <ZoruLabel>Avatar URL</ZoruLabel>
                                 <ZoruInput value={settings.avatarUrl} onChange={e => handleSettingChange('avatarUrl', e.target.value)} />
                             </div>
                         </div>

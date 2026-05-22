@@ -9,8 +9,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { ZoruButton } from '@/components/zoruui/button';
-import { ZoruTextarea } from '@/components/zoruui/textarea';
+import { Button } from '@/components/zoruui/button';
+import { Textarea } from '@/components/zoruui/textarea';
 import { replyToClientTicket } from '@/app/actions/client-portal.actions';
 
 export function TicketReplyForm({ ticketId }: { ticketId: string }) {

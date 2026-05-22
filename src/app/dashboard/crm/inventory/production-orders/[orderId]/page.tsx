@@ -1,4 +1,4 @@
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruProgress } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Progress } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 

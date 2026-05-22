@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruSeparator,
-  ZoruButton,
-  ZoruDropdownMenu,
+  Separator,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  ZoruSelect,
+  Select,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -331,7 +331,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
-                                    <p className="text-sm">ZoruSelect a block on the canvas to edit its properties.</p>
+                                    <p className="text-sm">Select a block on the canvas to edit its properties.</p>
                                 </div>
                             )}
                         </div>

@@ -3,11 +3,11 @@
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruSelect,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

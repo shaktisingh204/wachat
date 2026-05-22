@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruDialog,
+  Button,
+  Input,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
   ZoruDialogFooter,
-  ZoruScrollArea,
-  ZoruBadge,
-  ZoruSelect,
+  ScrollArea,
+  Badge,
+  Select,
 } from '@/components/zoruui';
 import {
   useState,
@@ -93,7 +93,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
         return (
             <ZoruButton variant="outline" disabled size="sm" className="opacity-50 cursor-not-allowed">
                 <ShoppingBag className="mr-2 h-4 w-4" />
-                ZoruSelect Catalog First
+                Select Catalog First
             </ZoruButton>
         );
     }
@@ -103,12 +103,12 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
             <ZoruDialogTrigger asChild>
                 <ZoruButton variant="outline" size="sm">
                     <ShoppingBag className="mr-2 h-4 w-4" />
-                    ZoruSelect Products {selectedIds.length > 0 && `(${selectedIds.length})`}
+                    Select Products {selectedIds.length > 0 && `(${selectedIds.length})`}
                 </ZoruButton>
             </ZoruDialogTrigger>
             <ZoruDialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle>ZoruSelect Products</ZoruDialogTitle>
+                    <ZoruDialogTitle>Select Products</ZoruDialogTitle>
                 </ZoruDialogHeader>
 
                 <div className="flex gap-2 my-2">

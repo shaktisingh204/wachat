@@ -4,21 +4,21 @@ import * as React from "react";
 import { Bookmark, BookmarkPlus, Pin, PinOff, Trash2 } from "lucide-react";
 
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
 } from "@/components/zoruui";
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";

@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Badge,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
+  StatCard,
 } from '@/components/zoruui';
 import {
   useRouter,
@@ -36,7 +36,7 @@ import { EntityPicker } from '@/components/crm/entity-picker';
  *     back button doesn't paginate.
  *
  * Visually mirrors the existing CRM list pages: <EntityListShell>
- * chrome, ZoruStatCard KPI strip, ZoruCard list grouped by date bucket.
+ * chrome, StatCard KPI strip, Card list grouped by date bucket.
  */
 
 import * as React from 'react';

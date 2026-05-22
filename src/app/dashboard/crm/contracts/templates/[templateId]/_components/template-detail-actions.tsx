@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Copy, Pencil, Trash2, FilePlus } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruDropdownMenu,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,

@@ -1,32 +1,32 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruEmptyState,
-  ZoruSelect,
+  EmptyState,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSheet,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Skeleton,
+  Textarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
 import {
@@ -60,7 +60,7 @@ import {
  *
  * Lists visitor posts with author + message preview + status, with a
  * status filter (all/published/hidden/spam). Click a row to open a
- * ZoruSheet for the full message, reply input, hide, and mark-spam
+ * Sheet for the full message, reply input, hide, and mark-spam
  * actions. Reply uses `handlePostComment`; delete uses `handleDeleteComment`;
  * hide/spam are queued (no dedicated server action yet) and surface a
  * toast — matches the prompt's "render the buttons but call existing

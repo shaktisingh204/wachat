@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import {
-    ZoruPageHeader, ZoruPageTitle, ZoruPageHeading, ZoruPageDescription,
-    ZoruCard, ZoruButton, ZoruBadge, cn, useZoruToast
+    PageHeader, ZoruPageTitle, ZoruPageHeading, ZoruPageDescription,
+    Card, Button, Badge, cn, useZoruToast
 } from '@/components/zoruui';
 import { FolderOpen, Link2 } from 'lucide-react';
 import {

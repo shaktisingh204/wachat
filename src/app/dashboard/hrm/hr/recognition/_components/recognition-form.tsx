@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -27,8 +27,8 @@ import {
   X,
   } from 'lucide-react';
 
-// §1E.sweep: category ZoruSelect kept — CATEGORY_OPTIONS slugs (achievement/teamwork/etc.) differ from recognitionType enum (kudos/award/etc.); resolve Rust DTO first.
-// §1E.sweep: status ZoruSelect kept — no recognitionStatus enum in catalogue yet; add it once Rust wire format is confirmed.
+// §1E.sweep: category Select kept — CATEGORY_OPTIONS slugs (achievement/teamwork/etc.) differ from recognitionType enum (kudos/award/etc.); resolve Rust DTO first.
+// §1E.sweep: status Select kept — no recognitionStatus enum in catalogue yet; add it once Rust wire format is confirmed.
 
 /**
  * <RecognitionForm /> — shared create/edit form for HR Recognition.

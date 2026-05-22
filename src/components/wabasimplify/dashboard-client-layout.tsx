@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruSkeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/zoruui';
 import { useRouter } from 'next/navigation';
 
 import * as React from 'react';

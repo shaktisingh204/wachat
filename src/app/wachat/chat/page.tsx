@@ -1,4 +1,4 @@
-import { ZoruSkeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/zoruui';
 import { ZoruChatClient } from '../_components/zoru-chat-client';
 import {
   Suspense } from 'react';

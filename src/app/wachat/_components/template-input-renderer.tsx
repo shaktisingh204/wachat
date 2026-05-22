@@ -1,19 +1,19 @@
 'use client';
 
 import {
-  ZoruButton,
+  Button,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruInput,
-  ZoruLabel,
-  ZoruPopover,
+  Input,
+  Label,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
   cn,
 } from '@/components/zoruui';

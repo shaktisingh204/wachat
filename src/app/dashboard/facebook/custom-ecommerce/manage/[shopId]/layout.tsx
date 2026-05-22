@@ -1,6 +1,6 @@
 "use client";
 
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Skeleton, useZoruToast } from '@/components/zoruui';
 import {
   useEffect,
   useState,
@@ -33,7 +33,7 @@ import type { WithId } from "mongodb";
  *
  * Per-shop scope wrap. Loads the active shop, renders a zoru page-header
  * with shop name + apply-default-theme action, and a route-driven sub-page
- * nav using `ZoruButton variant="default|outline"` (NOT tabs — per the
+ * nav using `Button variant="default|outline"` (NOT tabs — per the
  * design directive).
  *
  * The website-builder route is exempt: it renders its own full-bleed

@@ -1,42 +1,26 @@
-/**
- * Edit attendance — `/dashboard/crm/hr-payroll/attendance/[id]/edit` (canonical).
- *
- * Hydrates the existing record and passes it to the shared
- * `<AttendanceForm>` (re-used from the Create flow). The form submits
- * a PATCH because `_id` is rendered as a hidden input.
- */
+import { permanentRedirect } from 'next/navigation';
 
-import { notFound } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { AttendanceForm } from '@/app/dashboard/crm/hr-payroll/attendance/_components/attendance-form';
-import { getAttendance } from '@/app/actions/crm/attendance.actions';
-
-export const dynamic = 'force-dynamic';
-
-function fmtDate(v?: string): string {
-  if (!v) return 'record';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? 'record' : d.toLocaleDateString();
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function EditAttendancePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const { record } = await getAttendance(id);
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-  if (!record) notFound();
+  let target = '/dashboard/hrm/payroll/attendance/[id]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
+  }
 
-  return (
-    <EntityDetailShell
-      title={`Edit ${fmtDate(record.date)}`}
-      eyebrow="ATTENDANCE"
-      back={{ href: '/dashboard/crm/hr-payroll/attendance', label: 'Attendance' }}
-    >
-      <AttendanceForm initial={record} />
-    </EntityDetailShell>
-  );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

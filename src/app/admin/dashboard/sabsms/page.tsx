@@ -6,17 +6,17 @@ import { sabsmsEngine, SabsmsEngineError } from '@/lib/sabsms/engine-client';
 import { connectToDatabase } from '@/lib/mongodb';
 import { SABSMS_COLLECTIONS } from '@/lib/sabsms/db/collections';
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruStatCard,
+  StatCard,
 } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';

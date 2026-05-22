@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { ZoruInput, cn } from '@/components/zoruui';
+import { Input, cn } from '@/components/zoruui';
 
 export type InboxQuickFilter =
   | 'all'

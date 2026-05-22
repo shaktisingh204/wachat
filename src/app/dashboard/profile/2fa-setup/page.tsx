@@ -4,15 +4,15 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { LoaderCircle, Mail, ShieldCheck, ShieldOff, Smartphone } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSeparator,
-  ZoruBadge,
+  Input,
+  Label,
+  Separator,
+  Badge,
 } from '@/components/zoruui';
 import {
   disable2fa,

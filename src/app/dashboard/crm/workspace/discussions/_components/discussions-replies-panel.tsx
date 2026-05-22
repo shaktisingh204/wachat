@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { Button, Card, Textarea, useZoruToast } from '@/components/zoruui';
 /**
  * <DiscussionsRepliesPanel> — client island rendered inside the detail
  * page. Loads replies on mount, owns the composer + per-row delete.

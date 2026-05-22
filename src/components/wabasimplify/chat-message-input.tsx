@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruInput,
-  ZoruButton,
-  ZoruPopover,
+  Input,
+  Button,
+  Popover,
   ZoruPopoverAnchor,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruScrollArea,
-  ZoruDialog,
+  ScrollArea,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
@@ -18,7 +18,7 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruSelect,
+  Select,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -238,7 +238,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
             <ZoruDialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
                 <ZoruDialogContent className="p-0">
                     <ZoruDialogHeader className="px-4 pt-4 pb-2">
-                        <ZoruDialogTitle>ZoruSelect a Template</ZoruDialogTitle>
+                        <ZoruDialogTitle>Select a Template</ZoruDialogTitle>
                     </ZoruDialogHeader>
                     <ZoruCommand>
                         <ZoruCommandInput placeholder="Search templates..." />
@@ -284,7 +284,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                     SabFiles
                 </SabFileToFileButton>
 
-                {/* Template Selection ZoruDialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
+                {/* Template Selection Dialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
                 {/* For now, I will use a simple logical trick:
                     If the user clicks "Template", I'll show a ZoruCommandDialog to pick a template.
                     Then clicking one sets `templateToSend`.

@@ -1,4 +1,4 @@
-import { ZoruSeparator } from '@/components/zoruui';
+import { Separator } from '@/components/zoruui';
 import { ShieldCheck, AlertTriangle, Zap, RefreshCw, Image as ImageIcon } from 'lucide-react';
 
 import { SubscribeAllButton } from '@/components/wabasimplify/subscribe-all-button';

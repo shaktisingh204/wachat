@@ -1005,7 +1005,7 @@ export const APPRAISAL_STATUS: EnumValue[] = [
   v('cancelled', 'Cancelled', { tone: 'destructive' }),
 ];
 
-// ── §1E HRM payroll ZoruSelect migration ─────────────────────────────────────
+// ── §1E HRM payroll Select migration ─────────────────────────────────────
 
 /** Holiday type (national/regional/religious/optional/restricted). */
 export const HOLIDAY_TYPE: EnumValue[] = [
@@ -2989,7 +2989,7 @@ export const CRM_ENUMS = {
   // Workspace awards (§1E sweep)
   awardFrequency: AWARD_FREQUENCY,
 
-  // §1E HRM payroll ZoruSelect migration
+  // §1E HRM payroll Select migration
   holidayType: HOLIDAY_TYPE,
   daysOffType: DAYS_OFF_TYPE,
   payslipStatus: PAYSLIP_STATUS,

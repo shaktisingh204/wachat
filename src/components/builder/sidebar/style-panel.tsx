@@ -1,14 +1,14 @@
 "use client";
 
 import {
-  ZoruInput,
-  ZoruLabel,
-  ZoruButton,
-  ZoruAccordion,
+  Input,
+  Label,
+  Button,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
 } from '@/components/zoruui';
 import {
   useEditor } from '@/components/builder/editor-provider';
@@ -35,7 +35,7 @@ export const StylePanel = () => {
         : null;
 
     if (!selectedElement) {
-        return <div className="p-4 text-center text-gray-500">ZoruSelect an element to edit styles</div>;
+        return <div className="p-4 text-center text-gray-500">Select an element to edit styles</div>;
     }
 
     const handleUpdate = (styleProp: string, value: string) => {

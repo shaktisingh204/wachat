@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { ZoruSkeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/zoruui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { EmailInboxClient } from '@/components/email/inbox';
 

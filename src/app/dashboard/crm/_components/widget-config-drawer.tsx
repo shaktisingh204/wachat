@@ -3,14 +3,14 @@
 import * as React from 'react';
 import { GripVertical, Settings2 } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruSheet,
+  Button,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
   ZoruSheetTrigger,
-  ZoruSwitch,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import {

@@ -26,7 +26,7 @@ export interface ZoruAlertProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof alertVariants> {}
 
-export const ZoruAlert = React.forwardRef<HTMLDivElement, ZoruAlertProps>(
+export const Alert = React.forwardRef<HTMLDivElement, ZoruAlertProps>(
   ({ className, variant, ...props }, ref) => (
     <div
       ref={ref}
@@ -36,7 +36,7 @@ export const ZoruAlert = React.forwardRef<HTMLDivElement, ZoruAlertProps>(
     />
   ),
 );
-ZoruAlert.displayName = "ZoruAlert";
+Alert.displayName = "Alert";
 
 export const ZoruAlertTitle = React.forwardRef<
   HTMLHeadingElement,

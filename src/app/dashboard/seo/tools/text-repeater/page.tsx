@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruTextarea, cn, ZoruSeparator } from '@/components/zoruui';
+import { Input, Label, Textarea, cn, Separator } from '@/components/zoruui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;
@@ -23,7 +23,7 @@ export default function TextRepeaterPage() {
           <ZoruInput type="number" min={1} max={10000} value={count} onChange={(e) => setCount(Number(e.target.value) || 1)} className="w-24" />
         </div>
         <div className="space-y-1">
-          <ZoruLabel>ZoruSeparator (use \n, \t)</ZoruLabel>
+          <ZoruLabel>Separator (use \n, \t)</ZoruLabel>
           <ZoruInput value={separator} onChange={(e) => setSeparator(e.target.value)} className="w-32" />
         </div>
       </div>

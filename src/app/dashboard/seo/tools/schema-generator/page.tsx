@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, cn, ZoruBreadcrumb, ZoruBreadcrumbList } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, cn, Breadcrumb, ZoruBreadcrumbList } from '@/components/zoruui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;
@@ -77,7 +77,7 @@ export default function SchemaGeneratorPage() {
           <div className="space-y-1 md:col-span-2"><ZoruLabel>Answer</ZoruLabel><ZoruTextarea value={fields.answer} onChange={(e) => update('answer', e.target.value)} /></div>
         </>}
         {type === 'ZoruBreadcrumbList' && <>
-          <div className="space-y-1 md:col-span-2"><ZoruLabel>ZoruBreadcrumb items (one per line)</ZoruLabel><ZoruTextarea value={fields.items} onChange={(e) => update('items', e.target.value)} /></div>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>Breadcrumb items (one per line)</ZoruLabel><ZoruTextarea value={fields.items} onChange={(e) => update('items', e.target.value)} /></div>
         </>}
       </div>
       <ZoruButton onClick={() => navigator.clipboard.writeText(schema)}>Copy</ZoruButton>

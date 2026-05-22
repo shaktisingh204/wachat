@@ -5,21 +5,21 @@
 export const dynamic = 'force-dynamic';
 
 import { getClientContracts } from '@/app/actions/client-portal.actions';
-import { ZoruBadge } from '@/components/zoruui/badge';
-import { ZoruButton } from '@/components/zoruui/button';
+import { Badge } from '@/components/zoruui/badge';
+import { Button } from '@/components/zoruui/button';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
 } from '@/components/zoruui/card';
 import {
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
 } from '@/components/zoruui/table';
-import { ZoruEmptyState } from '@/components/zoruui/empty-state';
+import { EmptyState } from '@/components/zoruui/empty-state';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '—';

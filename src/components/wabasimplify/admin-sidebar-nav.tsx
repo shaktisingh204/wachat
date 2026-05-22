@@ -15,6 +15,9 @@ import {
     MessageSquare,
     Shield,
     ChevronRight,
+    ScrollText,
+    Store,
+    Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
@@ -27,6 +30,9 @@ const navItems = [
     { href: '/admin/dashboard/template-library', label: 'Template Library', icon: BookCopy },
     { href: '/admin/dashboard/broadcast-log', label: 'Broadcast Log', icon: History },
     { href: '/admin/dashboard/flow-logs', label: 'Flow Logs', icon: GitFork },
+    { href: '/admin/dashboard/sabsms', label: 'SabSMS', icon: Send },
+    { href: '/admin/dashboard/marketplace/queue', label: 'Marketplace Queue', icon: Store },
+    { href: '/admin/dashboard/audit', label: 'Audit Log', icon: ScrollText },
     { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
 ] as const;
 

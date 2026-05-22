@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruSelect,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
@@ -26,14 +26,14 @@ export function CrmAutomationBlockEditor({ settings, onUpdate, availableAutomati
                         <div className="space-y-2">
                             <ZoruLabel>Automation Trigger</ZoruLabel>
                             <ZoruSelect value={settings.triggerId || ''} onValueChange={(val) => handleUpdate('triggerId', val)}>
-                                <ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect a trigger..." /></ZoruSelectTrigger>
+                                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a trigger..." /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     {(availableAutomations || []).map(automation => (
                                         <ZoruSelectItem key={automation.id} value={automation.id}>{automation.name}</ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
                             </ZoruSelect>
-                            <p className="text-xs text-muted-foreground">ZoruSelect which automation campaign to start when this block is activated.</p>
+                            <p className="text-xs text-muted-foreground">Select which automation campaign to start when this block is activated.</p>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>

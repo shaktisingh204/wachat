@@ -9,35 +9,35 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTable,
+  Input,
+  Label,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTooltip,
+  Tooltip,
   ZoruTooltipContent,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
@@ -67,7 +67,7 @@ import type { WithId } from 'mongodb';
  * refresh the list on success.
  *
  * Rebuilt on ZoruUI primitives. The grid/table view-mode picker is a
- * segmented ZoruButton group (no tab UI per the ZoruUI design rules).
+ * segmented Button group (no tab UI per the ZoruUI design rules).
  */
 
 import * as React from 'react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import { LuArrowUpRight } from 'react-icons/lu';
 
 import * as React from 'react';
@@ -18,7 +18,7 @@ export interface ClayNotificationCardProps {
 /**
  * ClayNotificationCard — small stacked notification pills. Renders a
  * shadcn `ZoruCard` shaped as a button via the `asChild`-friendly
- * pattern: we wrap a real <button> around the ZoruCard so the whole row
+ * pattern: we wrap a real <button> around the Card so the whole row
  * is keyboard- and click-accessible.
  */
 export function ClayNotificationCard({

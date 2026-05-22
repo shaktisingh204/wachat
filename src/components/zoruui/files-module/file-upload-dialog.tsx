@@ -2,9 +2,9 @@
 
 import * as React from "react";
 
-import { ZoruButton } from "../button";
+import { Button } from "../button";
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,

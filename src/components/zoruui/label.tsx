@@ -10,7 +10,7 @@ export interface ZoruLabelProps
   required?: boolean;
 }
 
-export const ZoruLabel = React.forwardRef<
+export const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   ZoruLabelProps
 >(({ className, required, children, ...props }, ref) => (
@@ -27,4 +27,4 @@ export const ZoruLabel = React.forwardRef<
     {required && <span className="ml-0.5 text-zoru-danger">*</span>}
   </LabelPrimitive.Root>
 ));
-ZoruLabel.displayName = "ZoruLabel";
+Label.displayName = "Label";

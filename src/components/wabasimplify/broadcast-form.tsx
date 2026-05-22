@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
   ZoruCommand,
@@ -641,7 +641,7 @@ export function BroadcastForm({
                     <LuTag className="h-3.5 w-3.5" strokeWidth={2} />
                     {selectedTagIds.length > 0
                       ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
-                      : 'ZoruSelect tags…'}
+                      : 'Select tags…'}
                   </span>
                   <LuChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                 </button>

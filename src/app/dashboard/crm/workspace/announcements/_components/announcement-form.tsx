@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruTextarea,
+  Input,
+  Label,
+  Switch,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
@@ -43,9 +43,9 @@ import Link from 'next/link';
  *    field name, so the existing server action is unchanged.
  *  - Multi-file attachment list via SabFilePickerButton (in addition to
  *    the banner image) — JSON-encoded into a hidden `attachments` field.
- *  - Reorganised into ZoruCard sections (Content · Schedule · Targeting
+ *  - Reorganised into Card sections (Content · Schedule · Targeting
  *    · Behaviour · Attachments).
- *  - Falls back to ZoruTextarea for the body — there is no shared rich
+ *  - Falls back to Textarea for the body — there is no shared rich
  *    text editor in the repo today (see report; only Meta-Flow's
  *    in-canvas RichText component exists, which is not reusable here).
  */

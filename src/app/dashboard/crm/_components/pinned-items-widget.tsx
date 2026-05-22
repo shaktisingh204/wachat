@@ -4,10 +4,10 @@ import * as React from 'react';
 import Link from 'next/link';
 import { GripVertical, Pin, X } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruSkeleton,
+  Badge,
+  Button,
+  Card,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {

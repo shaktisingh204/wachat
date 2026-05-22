@@ -23,13 +23,13 @@ import {
 import { Download, FileJson, FileSpreadsheet } from 'lucide-react';
 
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruDropdownMenu,
+    Button,
+    Card,
+    DropdownMenu,
     ZoruDropdownMenuContent,
     ZoruDropdownMenuItem,
     ZoruDropdownMenuTrigger,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

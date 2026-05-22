@@ -1,24 +1,24 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruLabel,
+  Button,
+  Card,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruTextarea,
+  Skeleton,
+  Switch,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -38,8 +38,8 @@ import {
 
 /**
  * /wachat/greeting-messages — single-form page (one config per project).
- * ZoruUI: header + breadcrumb, ZoruSwitch for activate, ZoruTextarea for
- * body, ZoruCard for preview. Skeleton on initial load.
+ * ZoruUI: header + breadcrumb, Switch for activate, Textarea for
+ * body, Card for preview. Skeleton on initial load.
  */
 
 import * as React from 'react';

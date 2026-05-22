@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Card, Input, Label } from '@/components/zoruui';
 import { Paperclip, Trash2 } from 'lucide-react';
 
 /**

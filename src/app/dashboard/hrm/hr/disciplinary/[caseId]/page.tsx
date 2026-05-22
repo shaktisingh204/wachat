@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
 import {
@@ -11,7 +11,7 @@ import {
 /**
  * Disciplinary case detail page.
  *
- * Server component that renders a ZoruCard "Case Details" grid for a
+ * Server component that renders a Card "Case Details" grid for a
  * single disciplinary case from the `crm_disciplinary_cases` collection.
  * Requires an active session; redirects to the list page otherwise or
  * when the case is not found.

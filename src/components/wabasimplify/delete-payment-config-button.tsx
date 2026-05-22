@@ -10,7 +10,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  ZoruButton,
+  Button,
 } from '@/components/zoruui';
 import {
   useTransition } from 'react';

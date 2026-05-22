@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ZoruTextarea } from '@/components/zoruui';
+import { Textarea } from '@/components/zoruui';
 import { cn } from '@/components/zoruui/lib/cn';
 
 export type MentionUser = {

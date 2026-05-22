@@ -1,4 +1,4 @@
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 /**
  * <InvoiceDetailBody> — body cards on the invoice detail page.
  *

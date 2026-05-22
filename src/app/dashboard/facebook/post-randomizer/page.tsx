@@ -1,31 +1,31 @@
 "use client";
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
+  EmptyState,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
-  ZoruSwitch,
+  Skeleton,
+  Switch,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -61,7 +61,7 @@ import { useProject } from "@/context/project-context";
  * Same handlers + server actions (`saveRandomizerSettings`,
  * `getRandomizerPosts`, `addRandomizerPost`, `deleteRandomizerPost`).
  * Uses `useProject` for project context and FeatureLock for plan gating.
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, two-column layout
+ * Visual layer: PageHeader + Breadcrumb, two-column layout
  * (settings card + content pool list), CreateRandomizerPostDialog.
  */
 

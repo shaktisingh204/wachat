@@ -1,27 +1,27 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruCheckbox,
-  ZoruDatePicker,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruRadioGroup,
+  Checkbox,
+  DatePicker,
+  EmptyState,
+  Input,
+  Label,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -61,7 +61,7 @@ import { formatJid,
  * History (right): status, format, size, created, download link, expires.
  *
  * Visual layer migrated to ZoruUI. Scope picker uses a segmented
- * ZoruButton group (no tab UI).
+ * Button group (no tab UI).
  */
 
 import * as React from 'react';

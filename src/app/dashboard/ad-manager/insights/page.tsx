@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruTable,
+  Input,
+  Label,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -207,7 +207,7 @@ export default function InsightsPage() {
                       ))}
             </div>
 
-            {/* Segmented buttons replace ZoruTabs (no tab primitive in Zoru). */}
+            {/* Segmented buttons replace Tabs (no tab primitive in Zoru). */}
             <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1 w-fit">
                 {TABS.map((t) => (
                     <ZoruButton

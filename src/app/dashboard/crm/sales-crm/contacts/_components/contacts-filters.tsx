@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruLabel,
+  Label,
 } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';

@@ -2,17 +2,17 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Card,
+  Input,
+  Label,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruTextarea,
+  Skeleton,
+  Switch,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {

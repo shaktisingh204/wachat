@@ -1,27 +1,27 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruInput,
-  ZoruScrollArea,
+  Input,
+  ScrollArea,
   ZoruScrollBar,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
   cn,
 } from '@/components/zoruui';
@@ -51,7 +51,7 @@ import type {
  * /wachat/chat/kanban — ZoruUI rebuild of `KanbanBoard`.
  *
  * Conversations grouped by status into columns. Each column is a
- * ZoruCard, each conversation is a row card with avatar + badge.
+ * Card, each conversation is a row card with avatar + badge.
  *
  * Server-action wiring preserved:
  *   - getKanbanData(projectId)
@@ -60,7 +60,7 @@ import type {
  *
  * Drag-and-drop is intentionally stubbed (the legacy version pulled in
  * @dnd-kit/core for cross-column reordering). Status changes happen
- * via the per-row ZoruDropdownMenu instead.
+ * via the per-row DropdownMenu instead.
  *
  * TODO: drag-reorder — re-introduce @dnd-kit/core (DndContext +
  * useDroppable on columns + useDraggable on cards) and call

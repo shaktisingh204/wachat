@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Select,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -97,7 +97,7 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                     <ZoruDialogHeader className="px-6 pt-6 pb-2">
                         <ZoruDialogTitle className="flex items-center gap-2"><ShoppingBag />Send Product Catalog</ZoruDialogTitle>
                         <ZoruDialogDescription>
-                            ZoruSelect products to send to {contact.name}. You can send up to 30 items at a time.
+                            Select products to send to {contact.name}. You can send up to 30 items at a time.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
 
@@ -119,7 +119,7 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                             </div>
 
                             <div className="space-y-2">
-                                <ZoruLabel>ZoruSelect Products ({selectedProducts.length}/30)</ZoruLabel>
+                                <ZoruLabel>Select Products ({selectedProducts.length}/30)</ZoruLabel>
                                 <ScrollArea className="h-64 border rounded-md p-2">
                                     {isLoading ? (
                                         <div className="flex items-center justify-center h-full">

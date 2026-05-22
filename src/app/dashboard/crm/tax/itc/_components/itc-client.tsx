@@ -4,7 +4,7 @@
  * Client shell for the ITC Reconciliation page.
  *
  * Provides:
- *  - ZoruCheckbox row selection on the Mismatched table
+ *  - Checkbox row selection on the Mismatched table
  *  - Bulk reconcile action (moves onlyInBooks rows to matched)
  *  - Export CSV / XLSX for each of the three table sections
  *  - EntityRowLink on supplier name → vendor detail page
@@ -15,9 +15,9 @@ import { useRouter } from 'next/navigation';
 import { Download, Loader2, X } from 'lucide-react';
 
 import {
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruTable,
+    Button,
+    Checkbox,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

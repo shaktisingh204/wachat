@@ -9,14 +9,14 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruProgress,
-  ZoruSelect,
+  Button,
+  Progress,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -34,7 +34,7 @@ import {
  * OKRs — list page.
  *
  * Columns: Objective · Period · Owner · Progress% · Confidence · Status.
- * Search + status filter, inline-rendered ZoruTable, delete via ZoruAlertDialog.
+ * Search + status filter, inline-rendered Table, delete via ZoruAlertDialog.
  * Talks to the Rust-backed actions in `crm-okrs.actions.ts`.
  */
 
@@ -49,7 +49,7 @@ import type { CrmOkrDoc, CrmOkrStatus } from '@/lib/rust-client/crm-okrs';
 
 const BASE = '/dashboard/hrm/hr/okrs';
 
-// §1E.sweep: OKR status ZoruSelect kept — page uses 'behind'/'missed' slugs; okrStatus enum has 'off_track'/'cancelled'. Resolve Rust DTO first.
+// §1E.sweep: OKR status Select kept — page uses 'behind'/'missed' slugs; okrStatus enum has 'off_track'/'cancelled'. Resolve Rust DTO first.
 const STATUS_OPTIONS: Array<{ value: CrmOkrStatus | 'all'; label: string }> = [
     { value: 'all', label: 'All statuses' },
     { value: 'draft', label: 'Draft' },

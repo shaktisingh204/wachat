@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruEmptyState } from '@/components/zoruui';
+import { EmptyState } from '@/components/zoruui';
 import {
   useEffect } from 'react';
 import { useRouter } from 'next/navigation';

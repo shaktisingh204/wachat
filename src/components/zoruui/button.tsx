@@ -62,7 +62,7 @@ export interface ZoruButtonProps
   trailing?: React.ReactNode;
 }
 
-export const ZoruButton = React.forwardRef<HTMLButtonElement, ZoruButtonProps>(
+export const Button = React.forwardRef<HTMLButtonElement, ZoruButtonProps>(
   ({ className, variant, size, block, asChild, leading, trailing, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
@@ -82,4 +82,4 @@ export const ZoruButton = React.forwardRef<HTMLButtonElement, ZoruButtonProps>(
     );
   },
 );
-ZoruButton.displayName = "ZoruButton";
+Button.displayName = "Button";

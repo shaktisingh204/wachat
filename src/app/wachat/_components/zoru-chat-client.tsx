@@ -1,42 +1,42 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruBadge,
-  ZoruButton,
+  Badge,
+  Button,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruPopover,
+  Input,
+  Label,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruScrollArea,
-  ZoruSelect,
+  ScrollArea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSheet,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
   cn,
 } from '@/components/zoruui';
@@ -94,7 +94,7 @@ import { ContactInfoPanel } from "@/components/wabasimplify/contact-info-panel";
  *                           attachments, reactions, reply, etc.)
  *   3. Contact info panel  (existing wabasimplify ContactInfoPanel —
  *                           preserves contact-edit server actions;
- *                           presented in a ZoruSheet on mobile, side
+ *                           presented in a Sheet on mobile, side
  *                           panel on lg+ desktop).
  *
  * Server-action wiring preserved end-to-end:

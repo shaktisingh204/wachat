@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
+  Button,
+  Card,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruBadge,
+  Badge,
   useZoruToast,
-  ZoruCheckbox,
+  Checkbox,
 } from '@/components/zoruui';
 import {
   Plus,

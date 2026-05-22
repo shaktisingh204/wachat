@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Button, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import {
   useProject } from '@/context/project-context';
 import { SidebarTrigger } from '@/components/ui/sidebar';

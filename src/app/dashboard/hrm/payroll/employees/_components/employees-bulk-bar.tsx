@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { Archive, Building2, Download, ListChecks, Mail, UserCog, X, } from 'lucide-react';
 
 /**

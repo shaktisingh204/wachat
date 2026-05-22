@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruCheckbox,
+  Button,
+  Input,
+  Label,
+  Checkbox,
 } from '@/components/zoruui';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';

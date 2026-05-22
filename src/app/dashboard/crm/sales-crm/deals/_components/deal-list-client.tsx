@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
+  Card,
+  Input,
+  Label,
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';

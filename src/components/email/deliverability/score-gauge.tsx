@@ -2,7 +2,7 @@
 
 /**
  * Circular score gauge for deliverability (0..100). Pure SVG — we don't
- * use ZoruProgress here because the zoruui progress primitive is linear-only.
+ * use Progress here because the zoruui progress primitive is linear-only.
  */
 import { cn } from '@/components/zoruui/lib/cn';
 

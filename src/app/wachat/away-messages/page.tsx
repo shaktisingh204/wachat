@@ -1,27 +1,27 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Card,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruRadioCard,
-  ZoruRadioGroup,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruTextarea,
+  RadioGroup,
+  Skeleton,
+  Switch,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -39,8 +39,8 @@ import {
 
 /**
  * /wachat/away-messages — auto-reply for offline / outside-hours.
- * ZoruUI: header + breadcrumb, ZoruSwitch + ZoruRadioCard for schedule,
- * ZoruTextarea for body. Skeleton on initial load.
+ * ZoruUI: header + breadcrumb, Switch + ZoruRadioCard for schedule,
+ * Textarea for body. Skeleton on initial load.
  */
 
 import * as React from 'react';

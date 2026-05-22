@@ -5,7 +5,7 @@ import * as SwitchPrimitive from "@radix-ui/react-switch";
 
 import { cn } from "./lib/cn";
 
-export const ZoruSwitch = React.forwardRef<
+export const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>
 >(({ className, ...props }, ref) => (
@@ -30,7 +30,7 @@ export const ZoruSwitch = React.forwardRef<
     />
   </SwitchPrimitive.Root>
 ));
-ZoruSwitch.displayName = "ZoruSwitch";
+Switch.displayName = "Switch";
 
 /**
  * ZoruBouncyToggle — taller, bouncier variant inspired by the

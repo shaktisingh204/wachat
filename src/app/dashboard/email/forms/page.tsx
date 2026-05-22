@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { ZoruSkeleton, RouteComingSoon } from '@/components/zoruui';
+import { Skeleton, RouteComingSoon } from '@/components/zoruui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 
 export default function EmailFormsPage() {

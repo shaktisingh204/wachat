@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruTextarea, ZoruSwitch, cn } from '@/components/zoruui';
+import { Input, Label, Textarea, Switch, cn } from '@/components/zoruui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;

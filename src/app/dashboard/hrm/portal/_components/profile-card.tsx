@@ -1,8 +1,8 @@
 'use client';
 
 import {
-    ZoruCard,
-    ZoruBadge,
+    Card,
+    Badge,
 } from '@/components/zoruui';
 import type { PortalEmployeeProfile } from '@/app/actions/hrm-portal.actions';
 import { Building2, Briefcase, CalendarDays, Hash } from 'lucide-react';

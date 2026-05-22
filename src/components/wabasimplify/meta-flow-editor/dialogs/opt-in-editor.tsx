@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Input, Label } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface OptInEditorProps {
@@ -18,7 +18,7 @@ export function OptInEditor({ component, updateField }: OptInEditorProps) {
                 <p className="text-[10px] text-muted-foreground">Unique ID used for data binding (true/false).</p>
             </div>
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">ZoruLabel</ZoruLabel>
+                <ZoruLabel htmlFor="label">Label</ZoruLabel>
                 <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
 

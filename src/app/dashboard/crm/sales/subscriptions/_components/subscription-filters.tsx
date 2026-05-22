@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 /**
  * <SubscriptionFilters> — collapsible filter row for the §1D
  * subscriptions list.

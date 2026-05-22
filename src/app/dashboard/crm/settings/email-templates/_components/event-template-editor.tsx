@@ -12,16 +12,16 @@ import * as React from 'react';
 import { LoaderCircle, RotateCcw, Send, Save, Eye, Code } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
+    Badge,
+    Button,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    ZoruTooltip,
+    Input,
+    Label,
+    Textarea,
+    Tooltip,
     ZoruTooltipContent,
     ZoruTooltipProvider,
     ZoruTooltipTrigger,

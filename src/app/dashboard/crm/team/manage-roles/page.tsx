@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
@@ -14,20 +14,20 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
+  Button,
+  Checkbox,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruStatCard,
-  ZoruTable,
+  Input,
+  Label,
+  Skeleton,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -55,7 +55,7 @@ import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
  * Manage Roles — list page.
  *
  * Additions over the original:
- *  - ZoruCheckbox multi-select per role row (in the accordion header)
+ *  - Checkbox multi-select per role row (in the accordion header)
  *  - Bulk delete with confirm (only non-system roles)
  *  - Export CSV (role names + permission counts)
  */

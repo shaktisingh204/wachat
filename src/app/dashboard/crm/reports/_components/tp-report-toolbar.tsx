@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { RefreshCw } from 'lucide-react';
 import {
   ReportExportButton,

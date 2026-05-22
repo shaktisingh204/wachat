@@ -1,20 +1,20 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardDescription,
-  ZoruInput,
-  ZoruScrollArea,
-  ZoruSeparator,
-  ZoruSkeleton,
-  ZoruAlert,
+  Input,
+  ScrollArea,
+  Separator,
+  Skeleton,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruSheet,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetTitle,
@@ -89,7 +89,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'input', label: 'Get User ZoruInput', icon: Type },
+    { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'condition', label: 'Condition', icon: GitFork },
     { type: 'api', label: 'Call API', icon: Code },
@@ -138,7 +138,7 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
                         <div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2">
                             {(node.data.buttons || []).map((btn: any, index: number) => (
                                 <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
-                                    {btn.text || `ZoruButton ${index + 1}`}
+                                    {btn.text || `Button ${index + 1}`}
                                 </div>
                             ))}
                         </div>

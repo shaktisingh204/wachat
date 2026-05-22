@@ -64,6 +64,80 @@ export async function saveAwardProgram(
 }
 
 /**
+ * Update an existing award program.
+ *
+ * Mirrors `saveAwardProgram` but issues an `updateOne` scoped to the
+ * tenant. The `programId` is bound on the client via `.bind(null, id)`
+ * so the signature stays `useActionState`-compatible.
+ */
+export async function updateAwardProgram(
+  programId: string,
+  _prev: any,
+  formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Access denied.' };
+
+  const guard = await requirePermission('hrm_award', 'update');
+  if (!guard.ok) return { error: guard.error };
+
+  if (!ObjectId.isValid(programId)) return { error: 'Invalid program id.' };
+
+  const name = (formData.get('name') as string | null)?.trim() || '';
+  if (!name) return { error: 'Program name is required.' };
+
+  const programType =
+    (formData.get('programType') as string | null)?.trim() || 'recognition';
+  const frequency =
+    (formData.get('frequency') as string | null)?.trim() || 'monthly';
+  const status = (formData.get('status') as string | null)?.trim() || 'draft';
+  const periodStartRaw =
+    (formData.get('periodStart') as string | null)?.trim() || '';
+  const periodEndRaw =
+    (formData.get('periodEnd') as string | null)?.trim() || '';
+  const criteria = (formData.get('criteria') as string | null)?.trim() || '';
+  const description =
+    (formData.get('description') as string | null)?.trim() || '';
+  const pointsValue = formData.get('pointsValue');
+  const cashValue = formData.get('cashValue');
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection('crm_award_programs').updateOne(
+      {
+        _id: new ObjectId(programId),
+        userId: new ObjectId(session.user._id as string),
+      },
+      {
+        $set: {
+          name,
+          programType,
+          frequency,
+          status,
+          periodStart: periodStartRaw ? new Date(periodStartRaw) : null,
+          periodEnd: periodEndRaw ? new Date(periodEndRaw) : null,
+          criteria: criteria || null,
+          description: description || null,
+          pointsValue: pointsValue ? parseFloat(pointsValue as string) : null,
+          cashValue: cashValue ? parseFloat(cashValue as string) : null,
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    if (result.matchedCount === 0)
+      return { error: 'Award program not found.' };
+
+    revalidatePath('/dashboard/hrm/hr/awards');
+    revalidatePath(`/dashboard/hrm/hr/awards/${programId}`);
+    return { message: 'Award program updated.', id: programId };
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error';
+    return { error: `Failed to update award program: ${msg}` };
+  }
+}
+
+/**
  * Fetch a single award program document scoped to the current user.
  *
  * Mirrors the canonical loader shape used elsewhere in the CRM.

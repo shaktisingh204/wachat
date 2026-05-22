@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruLabel,
-  ZoruPopover,
+  Badge,
+  Button,
+  Card,
+  Label,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
   useZoruToast,

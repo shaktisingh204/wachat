@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruButton, ZoruLabel, ZoruScrollArea, ZoruSeparator, ZoruBadge } from '@/components/zoruui';
+import { Input, Button, Label, ScrollArea, Separator, Badge } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { ActionEditor } from '../shared/action-editor';
 import { v4 as uuidv4 } from 'uuid';
@@ -42,7 +42,7 @@ export function NavigationListEditor({ component, updateField }: NavigationListE
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <ZoruLabel htmlFor="label">ZoruLabel (Title)</ZoruLabel>
+                <ZoruLabel htmlFor="label">Label (Title)</ZoruLabel>
                 <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} />
             </div>
              <div className="space-y-2">
@@ -91,7 +91,7 @@ export function NavigationListEditor({ component, updateField }: NavigationListE
                                 </div>
                             </div>
                              <div className="space-y-2">
-                                <ZoruLabel htmlFor={`badge-${index}`}>ZoruBadge (Optional)</ZoruLabel>
+                                <ZoruLabel htmlFor={`badge-${index}`}>Badge (Optional)</ZoruLabel>
                                 <ZoruInput id={`badge-${index}`} value={item.badge || ''} onChange={(e) => handleItemChange(index, 'badge', e.target.value)} />
                             </div>
                             <ActionEditor label="On Click Action" action={item['on-click-action']} onActionChange={(action) => handleItemChange(index, 'on-click-action', action)} actionType="on-click-action" />

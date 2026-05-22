@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import { LuArrowUpRight } from 'react-icons/lu';
 
 import * as React from 'react';

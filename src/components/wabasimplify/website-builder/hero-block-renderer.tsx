@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';

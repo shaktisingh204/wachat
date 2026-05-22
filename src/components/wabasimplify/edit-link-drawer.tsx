@@ -3,13 +3,13 @@
 import { useState, useTransition } from 'react';
 import { updateShortUrl } from '@/app/actions/url-shortener.actions';
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Input,
+  Label,
   useZoruToast,
 } from '@/components/zoruui';
 import type { WithId } from 'mongodb';

@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { PlusCircle, Users, Mail, Workflow, ShieldCheck } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,

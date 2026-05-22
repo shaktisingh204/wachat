@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { cn } from "../lib/cn";
 import {
-  ZoruTooltip,
+  Tooltip,
   ZoruTooltipContent,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,

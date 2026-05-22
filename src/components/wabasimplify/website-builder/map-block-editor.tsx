@@ -1,24 +1,24 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
+  Label,
+  Button,
+  Input,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSwitch,
-  ZoruAlert,
+  Switch,
+  Alert,
   ZoruAlertTitle,
   ZoruAlertDescription,
-  ZoruTextarea,
-  ZoruSeparator,
+  Textarea,
+  Separator,
 } from '@/components/zoruui';
 import { MapPin, Lightbulb } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';

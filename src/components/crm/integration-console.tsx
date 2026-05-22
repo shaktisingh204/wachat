@@ -14,13 +14,13 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruScrollArea,
-  ZoruSeparator,
-  ZoruStatCard,
+  ScrollArea,
+  Separator,
+  StatCard,
   useZoruToast,
 } from '@/components/zoruui';
 

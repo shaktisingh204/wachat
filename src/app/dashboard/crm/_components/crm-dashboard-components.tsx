@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruBadge,
-  ZoruCard,
-  ZoruScrollArea,
-  ZoruTable,
+  Badge,
+  Card,
+  ScrollArea,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

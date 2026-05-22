@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruLabel, ZoruInput, ZoruTextarea, ZoruSelect } from '@/components/zoruui';
+import { Label, Input, Textarea, Select } from '@/components/zoruui';
 import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
 
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
@@ -32,7 +32,7 @@ export function TriggerMetaFlowEditor({ node, onUpdate }: EditorProps) {
                     value={node.data.metaFlowId || ''}
                     onSelect={(val: string) => onUpdate({ metaFlowId: val })}
                     options={metaFlows.map(f => ({ label: f.name, value: f.metaId }))}
-                    placeholder="ZoruSelect a Meta Flow..."
+                    placeholder="Select a Meta Flow..."
                     searchPlaceholder="Search meta flows..."
                 />
             </div>

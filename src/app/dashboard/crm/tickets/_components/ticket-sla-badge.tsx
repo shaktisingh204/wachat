@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge } from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
 import { AlertTriangle, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 
 /**

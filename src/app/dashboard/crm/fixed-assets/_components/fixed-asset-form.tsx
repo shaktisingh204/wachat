@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -85,7 +85,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
 
   const editing = !!initial?._id;
 
-  // Controlled ZoruSelect values (Radix select doesn't expose a
+  // Controlled Select values (Radix select doesn't expose a
   // defaultValue that gets serialized into FormData on submit — we
   // mirror to hidden inputs).
   const [depreciationMethod, setDepreciationMethod] = React.useState<string>(
@@ -112,7 +112,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
       {editing ? <input type="hidden" name="_id" value={String(initial!._id)} /> : null}
-      {/* ZoruSelect → hidden input bridge for FormData. */}
+      {/* Select → hidden input bridge for FormData. */}
       <input type="hidden" name="depreciationMethod" value={depreciationMethod} />
       <input type="hidden" name="condition" value={condition} />
 

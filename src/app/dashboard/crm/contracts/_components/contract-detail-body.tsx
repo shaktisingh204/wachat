@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 /**
  * <ContractDetailBody> — main content cards for the contract detail page.
  * Server component. Renders: Overview · Parties · Terms & body ·

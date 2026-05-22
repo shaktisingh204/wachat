@@ -2,17 +2,17 @@
 
 import * as React from "react";
 
-import { ZoruButton } from "../button";
+import { Button } from "../button";
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
 } from "../dialog";
-import { ZoruInput } from "../input";
-import { ZoruLabel } from "../label";
+import { Input } from "../input";
+import { Label } from "../label";
 
 import type { ZoruFileEntity } from "./types";
 

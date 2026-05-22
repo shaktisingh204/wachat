@@ -4,7 +4,7 @@
  * Client shell for the TDS §194Q vendor tracker table.
  *
  * Provides:
- *  - ZoruCheckbox row selection + select-all
+ *  - Checkbox row selection + select-all
  *  - EntityRowLink on vendor name → /dashboard/crm/purchases/vendors/[id]
  *  - Bulk export (selected or all) CSV / XLSX
  *  - Bulk "Record Deduction" — opens a compact modal for each selected vendor
@@ -16,10 +16,10 @@ import * as React from 'react';
 import { Download, Loader2, X } from 'lucide-react';
 
 import {
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruTable,
+    Button,
+    Checkbox,
+    Input,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

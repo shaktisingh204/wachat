@@ -4,9 +4,9 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import {
-  ZoruInput,
+  Input,
   ZoruKbd,
-  ZoruPopover,
+  Popover,
   ZoruPopoverAnchor,
   ZoruPopoverContent,
 } from '@/components/zoruui';

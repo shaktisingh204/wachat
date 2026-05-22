@@ -1,4 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import Link from 'next/link';
 
 import { AlertTriangle } from 'lucide-react';

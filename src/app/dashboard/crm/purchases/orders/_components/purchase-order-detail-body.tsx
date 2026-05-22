@@ -1,4 +1,4 @@
-import { ZoruCard } from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 /**
  * <PurchaseOrderDetailBody> — body cards on the PO detail page.
  *

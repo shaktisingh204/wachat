@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { AlertOctagon, IndianRupee, Receipt, Wallet, } from 'lucide-react';
 
 /**

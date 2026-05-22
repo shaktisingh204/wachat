@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ZoruCard, ZoruBadge, ZoruButton, ZoruEmptyState } from '@/components/zoruui';
+import { Card, Badge, Button, EmptyState } from '@/components/zoruui';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions';
 import { AssignTaskDrawer } from './assign-task-drawer';
 import { ClipboardPlus, Users } from 'lucide-react';

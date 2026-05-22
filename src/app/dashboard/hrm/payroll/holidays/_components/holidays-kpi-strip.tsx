@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { CalendarHeart, Layers, Repeat, Sparkles, } from 'lucide-react';
 
 /**

@@ -9,29 +9,29 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCheckbox,
+  Button,
+  Checkbox,
   ZoruColorPicker,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruTable,
+  StatCard,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -580,7 +580,7 @@ function CustomFieldDialog({
 }
 
 /**
- * Local helper — controlled ZoruCheckbox that posts `on` via a hidden
+ * Local helper — controlled Checkbox that posts `on` via a hidden
  * input when checked so the server action's `pickBool` parser works
  * without needing the underlying Radix primitive to be inside a form.
  */

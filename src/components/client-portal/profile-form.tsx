@@ -10,9 +10,9 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { ZoruButton } from '@/components/zoruui/button';
-import { ZoruInput } from '@/components/zoruui/input';
-import { ZoruLabel } from '@/components/zoruui/label';
+import { Button } from '@/components/zoruui/button';
+import { Input } from '@/components/zoruui/input';
+import { Label } from '@/components/zoruui/label';
 import { updateClientProfile } from '@/app/actions/client-portal.actions';
 
 export interface ProfileFormProps {

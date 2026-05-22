@@ -1,45 +1,25 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
-/**
- * Edit disciplinary case page — server wrapper that loads the case by
- * id and passes it as `initialData` to `<DisciplinaryForm />`.
- */
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
+export default async function LegacyHrRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-import { DisciplinaryForm } from '../../_components/disciplinary-form';
+  let target = '/dashboard/hrm/hr/disciplinary/[caseId]/edit';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v) target = target.replace(`[${key}]`, encodeURIComponent(v));
+  }
 
-export const dynamic = 'force-dynamic';
-
-const BASE = '/dashboard/crm/hr/disciplinary';
-
-export default async function EditDisciplinaryCasePage({
-    params,
-}: {
-    params: Promise<{ caseId: string }>;
-}) {
-    const { caseId } = await params;
-
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
-    const caseDoc = await getDisciplinaryCaseById(caseId);
-    if (!caseDoc) notFound();
-
-    const employeeRef =
-        caseDoc.employeeName || caseDoc.employeeId || `Case ${caseId.slice(-8)}`;
-
-    return (
-        <EntityDetailShell
-            title={`Edit · ${employeeRef}`}
-            eyebrow="DISCIPLINARY"
-            back={{ href: `${BASE}/${caseId}`, label: 'Case detail' }}
-        >
-            <DisciplinaryForm initialData={caseDoc} />
-        </EntityDetailShell>
-    );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

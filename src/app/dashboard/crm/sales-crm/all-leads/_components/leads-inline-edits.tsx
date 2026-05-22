@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  ZoruInput,
-  ZoruPopover,
+  Input,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

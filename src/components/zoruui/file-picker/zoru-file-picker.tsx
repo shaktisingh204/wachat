@@ -4,16 +4,16 @@ import * as React from "react";
 import { File as FileIcon, Image as ImageIcon, Loader2, Search, Upload, X } from "lucide-react";
 
 import { cn } from "../lib/cn";
-import { ZoruButton } from "../button";
+import { Button } from "../button";
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
 } from "../dialog";
-import { ZoruInput } from "../input";
+import { Input } from "../input";
 import {
   listLibraryFiles,
   uploadLibraryFile,

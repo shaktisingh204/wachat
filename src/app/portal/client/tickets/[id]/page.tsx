@@ -8,9 +8,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientTicketById } from '@/app/actions/client-portal.actions';
-import { ZoruBadge } from '@/components/zoruui/badge';
+import { Badge } from '@/components/zoruui/badge';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,

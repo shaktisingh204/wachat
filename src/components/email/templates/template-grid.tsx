@@ -11,14 +11,14 @@ import { useMemo } from 'react';
 import { FileText, PenLine, Sparkles, Trash2 } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruEmptyState,
+  EmptyState,
 } from '@/components/zoruui';
 import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 

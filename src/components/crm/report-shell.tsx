@@ -6,10 +6,10 @@ import { ChevronLeft, Download, RefreshCw, FileSpreadsheet, FileText } from 'luc
 import type { DateRange } from 'react-day-picker';
 
 import {
-    ZoruButton,
-    ZoruCard,
+    Button,
+    Card,
     ZoruDateRangePicker,
-    ZoruDropdownMenu,
+    DropdownMenu,
     ZoruDropdownMenuTrigger,
     ZoruDropdownMenuContent,
     ZoruDropdownMenuItem,

@@ -10,9 +10,9 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardFooter,
   ZoruCardHeader,
@@ -32,7 +32,7 @@ import type { WithId } from "mongodb";
  * Zoru-only replacement for `@/components/wabasimplify/ecomm-product-card`.
  *
  * Same data shape and same `deleteEcommProduct` server action — visuals are
- * rebuilt with ZoruCard, ZoruBadge, ZoruButton, and ZoruAlertDialog.
+ * rebuilt with Card, Badge, Button, and ZoruAlertDialog.
  */
 
 import * as React from "react";

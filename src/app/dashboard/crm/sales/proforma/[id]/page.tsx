@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 
@@ -6,7 +6,7 @@ import { Pencil } from 'lucide-react';
  * Proforma invoice detail — `/dashboard/crm/sales/proforma/[id]`.
  *
  * Server component: fetches via `getProformaInvoiceById`, renders the
- * `<EntityDetailShell>` with header (status pill + Edit), a ZoruCard
+ * `<EntityDetailShell>` with header (status pill + Edit), a Card
  * body, and an Activity footer for `entityKind: 'proforma'`.
  */
 

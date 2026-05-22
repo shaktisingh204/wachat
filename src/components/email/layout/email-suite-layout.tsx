@@ -24,8 +24,8 @@ import {
   Workflow,
 } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruSkeleton,
+  Badge,
+  Skeleton,
 } from '@/components/zoruui';
 import { ModuleLayout } from '@/components/wabasimplify/module-layout';
 import type { WithId, EmailSettings } from '@/lib/definitions';

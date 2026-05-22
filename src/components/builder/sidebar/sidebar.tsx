@@ -1,6 +1,6 @@
 "use client";
 
-import { ZoruButton, ZoruInput, ZoruLabel, ZoruSelect } from '@/components/zoruui';
+import { Button, Input, Label, Select } from '@/components/zoruui';
 import {
   useEditor } from '@/components/builder/editor-provider';
 import { WIDGET_REGISTRY } from '@/components/builder/registry';
@@ -154,7 +154,7 @@ export const BuilderSidebar = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center text-gray-500 py-10">ZoruSelect an element to edit</div>
+                        <div className="text-center text-gray-500 py-10">Select an element to edit</div>
                     )}
                 </TabsContent>
                 <TabsContent value="global" className="h-[calc(100vh-100px)] overflow-hidden">

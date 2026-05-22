@@ -1,4 +1,4 @@
-import { ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import { ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   MessageSquare } from 'lucide-react';
 

@@ -9,32 +9,32 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruColorPicker,
-  ZoruDataTable,
-  ZoruDialog,
+  DataTable,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
+  EmptyState,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -58,7 +58,7 @@ import {
 
 /**
  * /wachat/message-tags — manage conversation tags.
- * ZoruUI: header + breadcrumb, ZoruDataTable, ZoruColorPicker (neutral
+ * ZoruUI: header + breadcrumb, DataTable, ZoruColorPicker (neutral
  * palette), edit-tag dialog, delete alert dialog.
  */
 

@@ -1,19 +1,19 @@
 'use client';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruSelect,
+    Badge,
+    Button,
+    Card,
+    Checkbox,
+    Input,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruSkeleton,
-    ZoruStatCard,
-    ZoruTable,
+    Skeleton,
+    StatCard,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,
@@ -53,6 +53,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
+import { AssignedToMeToggle } from '@/components/crm/assigned-to-me-toggle';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 import { useT } from '@/lib/i18n/client';
@@ -135,12 +136,25 @@ export default function TasksPage() {
     /* ─── Selection ──────────────────────────────────────────── */
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
 
+    /* ─── "Assigned to me" filter ────────────────────────────── */
+    const [myEmployeeId, setMyEmployeeId] = React.useState<string | null>(null);
+
     const hasActiveFilters =
         !!search.trim() ||
         statusFilter !== 'all' ||
         priorityFilter !== 'all' ||
         !!dueFrom ||
-        !!dueTo;
+        !!dueTo ||
+        !!myEmployeeId;
+
+    /* Filter the loaded page client-side when "assigned to me" is on.
+     * (Acceptable per spec: no extra query.) */
+    const visibleTasks = React.useMemo(() => {
+        if (!myEmployeeId) return tasks;
+        return tasks.filter(
+            (t) => String((t as { assignedTo?: unknown }).assignedTo ?? '') === myEmployeeId,
+        );
+    }, [tasks, myEmployeeId]);
 
     /* ─── Fetch ──────────────────────────────────────────────── */
     const fetchData = React.useCallback(() => {
@@ -323,6 +337,14 @@ export default function TasksPage() {
                         aria-label="Due to"
                     />
 
+                    <AssignedToMeToggle
+                        onToggle={(id) => {
+                            setMyEmployeeId(id);
+                            setPage(1);
+                        }}
+                        count={visibleTasks.length}
+                    />
+
                     {hasActiveFilters ? (
                         <ZoruButton
                             variant="ghost"
@@ -451,7 +473,7 @@ export default function TasksPage() {
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ))
-                                ) : tasks.length === 0 ? (
+                                ) : visibleTasks.length === 0 ? (
                                     <ZoruTableRow className="border-zoru-line">
                                         <ZoruTableCell
                                             colSpan={7}
@@ -463,7 +485,7 @@ export default function TasksPage() {
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (
-                                    tasks.map((task) => {
+                                    visibleTasks.map((task) => {
                                         const id = task._id.toString();
                                         const overdue = isOverdue(task);
                                         return (

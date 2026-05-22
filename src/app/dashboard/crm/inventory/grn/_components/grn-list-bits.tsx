@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput } from '@/components/zoruui';
+import { Button, Input } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   ArrowRightCircle,

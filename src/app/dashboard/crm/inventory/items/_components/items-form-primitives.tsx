@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCheckbox, ZoruLabel } from '@/components/zoruui';
+import { Card, Checkbox, Label } from '@/components/zoruui';
 /**
  * Shared form primitives used by the item-form sections.
  *

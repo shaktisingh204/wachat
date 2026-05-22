@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruScrollArea,
-  ZoruAvatar,
+  ScrollArea,
+  Avatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
-  ZoruBadge,
-  ZoruSkeleton,
-  ZoruButton,
-  ZoruInput,
+  Badge,
+  Skeleton,
+  Button,
+  Input,
 } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';

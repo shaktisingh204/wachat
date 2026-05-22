@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Building2, CheckCircle2, Crown, Wallet } from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 
 import type { CrmVendorKpis } from '@/app/actions/crm-vendors.actions';
 

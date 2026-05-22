@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruBadge } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';

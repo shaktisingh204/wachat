@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruScrollArea, useZoruToast } from '@/components/zoruui';
+import { Button, ScrollArea, useZoruToast } from '@/components/zoruui';
 import {
   useCallback,
   useEffect,

@@ -4,7 +4,7 @@ import { ChevronRight, MoreHorizontal } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruBreadcrumb = React.forwardRef<
+export const Breadcrumb = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithoutRef<"nav"> & {
     separator?: React.ReactNode;
@@ -12,7 +12,7 @@ export const ZoruBreadcrumb = React.forwardRef<
 >(({ ...props }, ref) => (
   <nav ref={ref} aria-label="breadcrumb" {...props} />
 ));
-ZoruBreadcrumb.displayName = "ZoruBreadcrumb";
+Breadcrumb.displayName = "Breadcrumb";
 
 export const ZoruBreadcrumbList = React.forwardRef<
   HTMLOListElement,

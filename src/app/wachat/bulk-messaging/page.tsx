@@ -11,17 +11,17 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruLabel,
-  ZoruProgress,
-  ZoruTextarea,
+  Button,
+  Card,
+  Label,
+  Progress,
+  Textarea,
 } from '@/components/zoruui';
 import {
   useState } from 'react';

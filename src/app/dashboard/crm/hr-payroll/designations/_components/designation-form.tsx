@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruColorPicker, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { Button, Card, ZoruColorPicker, Input, Label, Switch, Textarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { AlertTriangle, Banknote, CalendarClock, HandCoins, Receipt, } from 'lucide-react';
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruTextarea, ZoruCard, ZoruCardContent, ZoruLabel, cn, ZoruInput } from '@/components/zoruui';
+import { Button, Textarea, Card, ZoruCardContent, Label, cn, Input } from '@/components/zoruui';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -33,7 +33,7 @@ export default function UrlEncoderPage() {
   return (
     <ToolShell title="URL Encoder" description="Encode text or URLs using encodeURIComponent.">
       <div className="flex flex-col gap-3">
-        <ZoruLabel>ZoruInput text</ZoruLabel>
+        <ZoruLabel>Input text</ZoruLabel>
         <ZoruTextarea
           value={input}
           onChange={(e) => setInput(e.target.value)}

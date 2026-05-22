@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -108,8 +108,8 @@ export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages
                 <div className="space-y-2"><ZoruLabel>Expected Close Date</ZoruLabel><DatePicker date={closeDate} setDate={setCloseDate} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><ZoruLabel htmlFor="accountId">Account</ZoruLabel><ZoruSelect name="accountId" required><ZoruSelectTrigger id="accountId"><ZoruSelectValue placeholder="ZoruSelect an account..." /></ZoruSelectTrigger><ZoruSelectContent>{accounts.map(acc => <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
-                <div className="space-y-2"><ZoruLabel htmlFor="contactId">Primary Contact</ZoruLabel><ZoruSelect name="contactId" required><ZoruSelectTrigger id="contactId"><ZoruSelectValue placeholder="ZoruSelect a contact..." /></ZoruSelectTrigger><ZoruSelectContent>{contacts.map(c => <ZoruSelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                <div className="space-y-2"><ZoruLabel htmlFor="accountId">Account</ZoruLabel><ZoruSelect name="accountId" required><ZoruSelectTrigger id="accountId"><ZoruSelectValue placeholder="Select an account..." /></ZoruSelectTrigger><ZoruSelectContent>{accounts.map(acc => <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                <div className="space-y-2"><ZoruLabel htmlFor="contactId">Primary Contact</ZoruLabel><ZoruSelect name="contactId" required><ZoruSelectTrigger id="contactId"><ZoruSelectValue placeholder="Select a contact..." /></ZoruSelectTrigger><ZoruSelectContent>{contacts.map(c => <ZoruSelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
               </div>
             </div>
           </div>

@@ -1,25 +1,25 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruEmptyState,
-  ZoruSheet,
+  Button,
+  Card,
+  EmptyState,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import {
   useCallback,
@@ -47,7 +47,7 @@ import { useProject } from '@/context/project-context';
  * /dashboard/instagram/reels — Published Reels for the connected IG account.
  *
  * Grid of reel thumbnails with caption preview + engagement counters.
- * Clicking a tile opens a ZoruSheet with the full caption and on-demand
+ * Clicking a tile opens a Sheet with the full caption and on-demand
  * insights (impressions, reach, plays, saves).
  */
 

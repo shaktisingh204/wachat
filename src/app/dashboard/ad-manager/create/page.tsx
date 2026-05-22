@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruCheckbox,
+  Checkbox,
   ZoruCollapsible,
   ZoruCollapsibleContent,
   ZoruCollapsibleTrigger,
@@ -18,26 +18,26 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruInput,
-  ZoruLabel,
-  ZoruPopover,
+  Input,
+  Label,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruSheet,
+  Separator,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetHeader,
   ZoruSheetTitle,
   ZoruSheetTrigger,
-  ZoruSwitch,
-  ZoruTextarea,
+  Switch,
+  Textarea,
 } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
@@ -1630,7 +1630,7 @@ function Step3Ad({
                     <Section title="Media" icon={ImageIcon}>
                         {state.adFormat === 'SINGLE_IMAGE' && (
                             <div>
-                                {/* Zoru has no tab primitive — use a segmented ZoruButton group */}
+                                {/* Zoru has no tab primitive — use a segmented Button group */}
                                 <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-lg">
                                     <ZoruButton
                                         type="button"

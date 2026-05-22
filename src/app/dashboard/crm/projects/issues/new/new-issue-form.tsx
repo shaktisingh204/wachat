@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, ZoruSelect } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, Select } from '@/components/zoruui';
 import { useRouter } from 'next/navigation';
 import { useActionState,
   useEffect } from 'react';
@@ -67,7 +67,7 @@ export function NewIssueForm() {
             <EntityFormField
               entity="project"
               name="projectId"
-              placeholder="ZoruSelect project (optional)"
+              placeholder="Select project (optional)"
             />
           </div>
           <div>
@@ -99,7 +99,7 @@ export function NewIssueForm() {
               entity="employee"
               name="assigneeId"
               dualWriteName="assigneeName"
-              placeholder="ZoruSelect assignee"
+              placeholder="Select assignee"
             />
           </div>
         </div>
@@ -112,7 +112,7 @@ export function NewIssueForm() {
             entity="user"
             name="reporterId"
             dualWriteName="reporterName"
-            placeholder="ZoruSelect reporter"
+            placeholder="Select reporter"
           />
         </div>
 

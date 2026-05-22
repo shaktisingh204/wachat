@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useEffect } from 'react';

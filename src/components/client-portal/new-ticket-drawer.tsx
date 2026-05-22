@@ -14,10 +14,10 @@ import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui/button';
-import { ZoruInput } from '@/components/zoruui/input';
-import { ZoruLabel } from '@/components/zoruui/label';
-import { ZoruTextarea } from '@/components/zoruui/textarea';
+import { Button } from '@/components/zoruui/button';
+import { Input } from '@/components/zoruui/input';
+import { Label } from '@/components/zoruui/label';
+import { Textarea } from '@/components/zoruui/textarea';
 import {
     ZoruDrawer,
     ZoruDrawerContent,

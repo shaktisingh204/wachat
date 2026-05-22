@@ -1,37 +1,37 @@
 'use client';
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruEmptyState,
+  EmptyState,
   ZoruFileInput,
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruTextarea,
+  Skeleton,
+  Textarea,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -77,8 +77,8 @@ import { handleCreateTemplate } from '@/app/actions/template.actions';
  * Template Creator — full-featured WhatsApp Cloud API template builder,
  * rebuilt on ZoruUI primitives.
  *
- * Same data flow as before. Submit-for-review uses ZoruDialog confirm.
- * Live preview lives in a ZoruCard on the right pane.
+ * Same data flow as before. Submit-for-review uses Dialog confirm.
+ * Live preview lives in a Card on the right pane.
  */
 
 import * as React from 'react';

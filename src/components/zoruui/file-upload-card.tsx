@@ -4,8 +4,8 @@ import * as React from "react";
 import { CloudUpload, X } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruButton } from "./button";
-import { ZoruProgress } from "./progress";
+import { Button } from "./button";
+import { Progress } from "./progress";
 
 export interface ZoruFileUploadItem {
   id: string;

@@ -1,4 +1,4 @@
-import { ZoruInput } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -69,9 +69,9 @@ export interface ClaySelectProps
 }
 
 /**
- * ClaySelect — native <select> styled to match the shadcn ZoruInput.
+ * ClaySelect — native <select> styled to match the shadcn Input.
  * (We deliberately keep this as a native element rather than the
- * Radix-based shadcn ZoruSelect primitive because the public API here
+ * Radix-based shadcn Select primitive because the public API here
  * accepts standard select HTML attributes plus a flat `options` list.)
  */
 export const ClaySelect = React.forwardRef<HTMLSelectElement, ClaySelectProps>(

@@ -1,24 +1,24 @@
 'use client';
 
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruButton,
-  ZoruAvatar,
+  Button,
+  Avatar,
   ZoruAvatarImage,
   ZoruAvatarFallback,
-  ZoruSkeleton,
+  Skeleton,
   ZoruDrawer,
   ZoruDrawerTrigger,
   ZoruCollapsible,
   ZoruCollapsibleContent,
   ZoruCollapsibleTrigger,
-  ZoruSeparator,
-  ZoruSheet,
+  Separator,
+  Sheet,
 } from '@/components/zoruui';
 import {
   usePathname,
@@ -218,7 +218,7 @@ const crmMenuItems = [
             {
                 label: 'Reports',
                 subSubItems: [
-                    { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance ZoruSheet" },
+                    { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance Sheet" },
                     { href: "/dashboard/crm/accounting/trial-balance", label: "Trial Balance" },
                     { href: "/dashboard/crm/accounting/pnl", label: "Profit and Loss" },
                     { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement" },

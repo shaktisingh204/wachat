@@ -13,10 +13,10 @@ import {
   type RoadmapTask,
 } from '@/app/actions/hrm-roadmaps.actions';
 import {
-  ZoruButton,
-  ZoruBadge,
-  ZoruProgress,
-  ZoruInput,
+  Button,
+  Badge,
+  Progress,
+  Input,
 } from '@/components/zoruui';
 import { TaskCard } from './task-card';
 import { AddTaskDrawer, type DirectReport } from './add-task-drawer';

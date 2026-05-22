@@ -1,17 +1,17 @@
 'use client';
 
 import {
-    ZoruButton,
-    ZoruCard,
+    Button,
+    Card,
     ZoruCardContent,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruSelect,
+    Checkbox,
+    Input,
+    Select,
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-    ZoruTable,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

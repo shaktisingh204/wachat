@@ -4,8 +4,8 @@ import { useState, useTransition } from "react";
 import { Sparkles, Languages, Scissors, Smile, MousePointerClick } from "lucide-react";
 
 import {
-  ZoruButton,
-  ZoruSelect,
+  Button,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

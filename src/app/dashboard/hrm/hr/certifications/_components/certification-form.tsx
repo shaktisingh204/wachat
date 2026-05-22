@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
+  Button,
+  Card,
+  Input,
+  Label,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -19,7 +19,7 @@ import { ArrowLeft,
   LoaderCircle,
   Save } from 'lucide-react';
 
-// §1E: ZoruSelect (status) converted to <EnumFormField enumName="certificationStatus">.
+// §1E: Select (status) converted to <EnumFormField enumName="certificationStatus">.
 
 /**
  * <CertificationForm /> — create + edit form for HR Certifications.

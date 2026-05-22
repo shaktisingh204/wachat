@@ -1,22 +1,22 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
-  ZoruSeparator,
-  ZoruButton,
+  Textarea,
+  Separator,
+  Button,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -203,7 +203,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                     <ZoruLabel htmlFor="vertical">Business Category</ZoruLabel>
                     <ZoruSelect name="vertical" defaultValue={phone.profile?.vertical}>
                       <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="ZoruSelect a category..." />
+                        <ZoruSelectValue placeholder="Select a category..." />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
                         {verticals.map(v => <ZoruSelectItem key={v} value={v} className="capitalize">{v.replace(/_/g, ' ').toLowerCase()}</ZoruSelectItem>)}

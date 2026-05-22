@@ -9,31 +9,31 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCheckbox,
+  Button,
+  Checkbox,
   ZoruColorPicker,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruIconPicker,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
-  ZoruSwitch,
-  ZoruTable,
+  StatCard,
+  Switch,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -174,7 +174,7 @@ function TicketGroupDialog({
           {isEditing ? (
             <input type="hidden" name="_id" value={String(initialData!._id)} />
           ) : null}
-          {/* ZoruSwitch doesn't post a value — mirror it into a hidden input */}
+          {/* Switch doesn't post a value — mirror it into a hidden input */}
           <input
             type="hidden"
             name="isActive"

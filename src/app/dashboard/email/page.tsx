@@ -5,10 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import { BarChart3 } from 'lucide-react';
 import {
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
 } from '@/components/zoruui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import {

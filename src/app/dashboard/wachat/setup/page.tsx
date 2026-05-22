@@ -1,20 +1,20 @@
 'use client';
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruCheckbox,
-  ZoruLabel,
-  ZoruDialog,
+  Checkbox,
+  Label,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruBadge,
-  ZoruSelect,
+  Button,
+  Badge,
+  Select,
 } from '@/components/zoruui';
 import {
   useState } from 'react';
@@ -60,7 +60,7 @@ const TRUST = [
 const STEPS = [
     { n: '1', title: 'Click "Connect WhatsApp"', sub: 'Opens the official Meta authorization flow in a popup.' },
     { n: '2', title: 'Log in to Facebook',        sub: 'Use the Facebook account linked to your Business portfolio.' },
-    { n: '3', title: 'ZoruSelect your WABA',          sub: 'Choose an existing WhatsApp Business Account or create one.' },
+    { n: '3', title: 'Select your WABA',          sub: 'Choose an existing WhatsApp Business Account or create one.' },
     { n: '4', title: 'You\'re live',              sub: 'Return here — your project appears instantly.' },
 ];
 

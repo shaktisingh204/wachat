@@ -6,7 +6,7 @@
  * Composes <EntityListShell> with:
  *  - KPI strip (Total · Active · Paused · Stopped · Completed)
  *  - Status + frequency filters via <EnumFilterField>
- *  - Dense ZoruTable with row checkboxes
+ *  - Dense Table with row checkboxes
  *  - Bulk-action bar (delete · export CSV)
  *  - Hard-delete confirmation dialog
  */
@@ -20,10 +20,10 @@ import {
 } from 'next/navigation';
 import { Download, PauseCircle, RefreshCw, Plus, XCircle } from 'lucide-react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruTable,
+  Button,
+  Card,
+  Checkbox,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

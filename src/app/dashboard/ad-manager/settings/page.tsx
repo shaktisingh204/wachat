@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardContent } from '@/components/zoruui';
 import { Facebook, Briefcase, Wallet, Bell, Shield } from 'lucide-react';
 
 import Link from 'next/link';

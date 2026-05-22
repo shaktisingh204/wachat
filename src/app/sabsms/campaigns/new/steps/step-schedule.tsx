@@ -3,11 +3,11 @@
 import * as React from "react";
 
 import {
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
   ZoruRadioCard,
-  ZoruRadioGroup,
-  ZoruSelect,
+  RadioGroup,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,

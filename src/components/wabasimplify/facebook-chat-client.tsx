@@ -1,19 +1,19 @@
 'use client';
 
 import {
-  ZoruSkeleton,
-  ZoruAlert,
+  Skeleton,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruCard,
-  ZoruDialog,
+  Card,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruButton,
-  ZoruSelect,
+  Button,
+  Select,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -234,7 +234,7 @@ export function FacebookChatClient() {
                         ) : (
                             <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
                                 <MessageSquare className="h-16 w-16" />
-                                <h2 className="text-xl font-semibold">ZoruSelect a conversation</h2>
+                                <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p>Choose a conversation from the list to start messaging.</p>
                             </div>
                         )}

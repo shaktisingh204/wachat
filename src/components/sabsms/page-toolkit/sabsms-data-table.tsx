@@ -4,13 +4,13 @@ import * as React from "react";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 
 import {
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDropdownMenu,
+  Button,
+  Checkbox,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  ZoruTable,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

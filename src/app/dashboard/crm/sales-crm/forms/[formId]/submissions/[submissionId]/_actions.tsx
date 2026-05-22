@@ -11,7 +11,7 @@ import {
     Briefcase,
 } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/zoruui';
 import {
     updateSubmissionStatus,
     deleteSubmission,

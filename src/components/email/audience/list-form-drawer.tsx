@@ -2,16 +2,16 @@
 
 import { useState, useTransition } from 'react';
 import {
-  ZoruButton,
+  Button,
   ZoruDrawer,
   ZoruDrawerContent,
   ZoruDrawerDescription,
   ZoruDrawerFooter,
   ZoruDrawerHeader,
   ZoruDrawerTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
+  Input,
+  Label,
+  Textarea,
   zoruToast,
 } from '@/components/zoruui';
 import {

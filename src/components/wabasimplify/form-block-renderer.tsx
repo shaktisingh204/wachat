@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Input,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruCheckbox,
-  ZoruLabel,
-  ZoruCard,
+  Checkbox,
+  Label,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruRadioGroup,
+  RadioGroup,
   ZoruRadioGroupItem,
 } from '@/components/zoruui';
 import {
@@ -190,7 +190,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
 
                                             switch(field.type) {
                                                 case 'textarea': return <ZoruTextarea {...commonProps} />;
-                                                case 'select': return <ZoruSelect onValueChange={controllerField.onChange} defaultValue={controllerField.value}><ZoruSelectTrigger className={cn('form-field', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "ZoruSelect..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect>;
+                                                case 'select': return <ZoruSelect onValueChange={controllerField.onChange} defaultValue={controllerField.value}><ZoruSelectTrigger className={cn('form-field', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect>;
                                                 case 'checkbox': return <div className="flex items-center gap-2 pt-2"><ZoruCheckbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><ZoruLabel htmlFor={fieldName} className="font-normal">{field.label}</ZoruLabel></div>;
                                                 case 'acceptance': return <div className="flex items-center gap-2 pt-2"><ZoruCheckbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><ZoruLabel htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</ZoruLabel></div>;
                                                 case 'radio': return <ZoruRadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><ZoruLabel htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</ZoruLabel></div>)}</ZoruRadioGroup>

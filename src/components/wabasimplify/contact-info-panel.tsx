@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruScrollArea,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  ScrollArea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruPopover,
+  Separator,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
   ZoruCommand,
@@ -20,8 +20,8 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruBadge,
-  ZoruAvatar,
+  Badge,
+  Avatar,
   ZoruAvatarFallback,
 } from '@/components/zoruui';
 import {
@@ -65,7 +65,7 @@ function MultiSelectCombobox({
     options,
     selected,
     onSelectionChange,
-    placeholder = "ZoruSelect...",
+    placeholder = "Select...",
     className
 }: {
     options: { value: string, label: string, color?: string }[],
@@ -339,7 +339,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                             options={tagOptions}
                             selected={tagIds}
                             onSelectionChange={handleTagsChange}
-                            placeholder="ZoruSelect tags..."
+                            placeholder="Select tags..."
                         />
                     </div>
 

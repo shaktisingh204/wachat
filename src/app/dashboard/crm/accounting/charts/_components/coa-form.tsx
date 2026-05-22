@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  ZoruDatePicker,
-  ZoruInput,
-  ZoruLabel,
-  ZoruRadioGroup,
+  DatePicker,
+  Input,
+  Label,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruTextarea,
+  Switch,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {

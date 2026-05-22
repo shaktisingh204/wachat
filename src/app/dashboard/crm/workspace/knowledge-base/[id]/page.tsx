@@ -15,13 +15,13 @@ import Link from 'next/link';
 import { CheckSquare, FileText, Pin } from 'lucide-react';
 
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
+    Badge,
+    Button,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-    ZoruEmptyState,
+    EmptyState,
 } from '@/components/zoruui';
 
 import {

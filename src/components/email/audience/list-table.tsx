@@ -4,15 +4,15 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Archive, MoreHorizontal, Pencil, Users } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruDropdownMenu,
+  Badge,
+  Button,
+  Card,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  ZoruEmptyState,
-  ZoruTable,
+  EmptyState,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

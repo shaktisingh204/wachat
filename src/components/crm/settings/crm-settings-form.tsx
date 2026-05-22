@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, ZoruSwitch, ZoruSeparator } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, Switch, Separator } from '@/components/zoruui';
 import { useActionState, useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 

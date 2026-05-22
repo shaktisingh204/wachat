@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTextarea } from '@/components/zoruui';
+import { Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, Textarea } from '@/components/zoruui';
 /**
  * Internal helpers for <SettingsEntityShell>:
  *  - FieldRenderer: renders one form field by `SettingsField` shape

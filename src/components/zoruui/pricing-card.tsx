@@ -2,7 +2,7 @@ import * as React from "react";
 import { Check } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruBadge } from "./badge";
+import { Badge } from "./badge";
 
 export interface ZoruPricingFeature {
   label: React.ReactNode;

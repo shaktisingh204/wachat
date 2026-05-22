@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -12,16 +12,16 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruDataTable,
-  ZoruEmptyState,
-  ZoruSheet,
+  Badge,
+  Button,
+  DataTable,
+  EmptyState,
+  Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSkeleton,
+  Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -46,7 +46,7 @@ import type { FacebookOrder } from "@/lib/definitions";
 /**
  * /dashboard/facebook/commerce/orders — Meta Suite Commerce orders.
  *
- * Orders table via ZoruDataTable, per-order detail in a ZoruSheet, and
+ * Orders table via DataTable, per-order detail in a Sheet, and
  * a refund confirmation via ZoruAlertDialog. Same data fetcher as before
  * (getFacebookOrders); refund handler is wired locally to a no-op until
  * a server action is connected — same pattern as the previous page,

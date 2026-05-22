@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -82,7 +82,7 @@ export function CreateVoucherBookDialog({ onSave }: { onSave: () => void }) {
                 <ZoruLabel htmlFor="voucherBookType">Voucher Book Type *</ZoruLabel>
                 <ZoruSelect name="voucherBookType" required>
                   <ZoruSelectTrigger id="voucherBookType">
-                    <ZoruSelectValue placeholder="ZoruSelect Voucher Book Type" />
+                    <ZoruSelectValue placeholder="Select Voucher Book Type" />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
                     {voucherTypes.map(type => (

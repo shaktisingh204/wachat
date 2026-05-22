@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruSeparator } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/zoruui';
 import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 

@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
   ZoruDialogFooter,
   ZoruDialogDescription,
-  ZoruButton,
+  Button,
 } from '@/components/zoruui';
 import * as React from 'react';
 

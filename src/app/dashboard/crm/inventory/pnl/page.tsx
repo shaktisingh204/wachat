@@ -37,9 +37,9 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
+    Button,
+    Card,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

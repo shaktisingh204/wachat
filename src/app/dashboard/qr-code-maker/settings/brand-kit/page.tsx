@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
   cn,
 } from '@/components/zoruui';
 import { useEffect, useState } from 'react';

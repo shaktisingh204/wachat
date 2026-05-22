@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruDialog = DialogPrimitive.Root;
+export const Dialog = DialogPrimitive.Root;
 export const ZoruDialogTrigger = DialogPrimitive.Trigger;
 export const ZoruDialogClose = DialogPrimitive.Close;
 export const ZoruDialogPortal = DialogPrimitive.Portal;

@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 
 import { cn } from "../lib/cn";
-import { ZoruButton } from "../button";
-import { ZoruInput } from "../input";
+import { Button } from "../button";
+import { Input } from "../input";
 import {
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,

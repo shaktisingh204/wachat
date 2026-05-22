@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruDialog,
+  Button,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 /**
@@ -316,7 +316,7 @@ export function DealWonLossDialog({
           {/* TODO 1E.sweep: `reasons` is a runtime list from props (per-tenant
               configured win/loss reasons). Once we model `dealReasonsEnum` as
               a Mongo-backed enum, this becomes an `<EnumFormField>`; for now
-              the raw ZoruSelect is preserved so the inline-custom sentinel
+              the raw Select is preserved so the inline-custom sentinel
               still works. */}
           {Array.isArray(reasons) && reasons.length > 0 ? (
             <div className="space-y-1">

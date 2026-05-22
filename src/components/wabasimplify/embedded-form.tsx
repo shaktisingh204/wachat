@@ -1,19 +1,19 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Input,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruCheckbox,
-  ZoruLabel,
-  ZoruRadioGroup,
+  Checkbox,
+  Label,
+  RadioGroup,
   ZoruRadioGroupItem,
-  ZoruCard,
+  Card,
 } from '@/components/zoruui';
 import {
   useForm,

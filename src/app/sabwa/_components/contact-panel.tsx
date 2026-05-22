@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton, ZoruScrollArea } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage, Button, ScrollArea } from '@/components/zoruui';
 import {
   Archive,
   Ban,

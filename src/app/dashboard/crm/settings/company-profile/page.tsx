@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruStatCard, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { Card, Input, Label, Skeleton, StatCard, Textarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useCallback,

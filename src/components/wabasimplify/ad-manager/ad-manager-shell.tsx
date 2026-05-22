@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruPopover,
+  Button,
+  Input,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruAvatar,
+  Avatar,
   ZoruAvatarFallback,
-  ZoruDropdownMenu,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruScrollArea,
-  ZoruSelect,
+  ScrollArea,
+  Select,
 } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
@@ -69,7 +69,7 @@ function AccountSwitcher() {
                     </ZoruAvatar>
                     <div className="truncate">
                         <div className="truncate leading-tight">
-                            {activeAccount?.name || 'ZoruSelect ad account'}
+                            {activeAccount?.name || 'Select ad account'}
                         </div>
                         {activeAccount?.account_id && (
                             <div className="text-[10px] font-mono text-muted-foreground">

@@ -3,19 +3,19 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { BarChart3, DollarSign, RefreshCw, TrendingUp } from 'lucide-react';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruPageActions,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSkeleton,
+  Skeleton,
   zoruToast,
 } from '@/components/zoruui';
 import {

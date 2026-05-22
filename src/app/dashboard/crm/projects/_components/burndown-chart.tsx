@@ -12,7 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 import { BarChart3, RefreshCw } from 'lucide-react';
-import { ZoruBadge, ZoruButton, ZoruSkeleton } from '@/components/zoruui';
+import { Badge, Button, Skeleton } from '@/components/zoruui';
 import {
   getProjectBurndown,
   type BurndownMode,

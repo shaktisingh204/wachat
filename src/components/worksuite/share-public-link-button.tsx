@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { useState } from 'react';
 import { Copy, Link2, LoaderCircle, X } from 'lucide-react';
 import { ClayCard, ClayInput } from '@/components/clay';

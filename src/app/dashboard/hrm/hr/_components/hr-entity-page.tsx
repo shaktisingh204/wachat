@@ -9,29 +9,29 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCard,
-  ZoruDialog,
+  Button,
+  Card,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruTable,
+  Skeleton,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  ZoruTextarea,
+  Textarea,
   cn,
   useZoruToast,
   zoruBadgeVariants,
@@ -109,7 +109,7 @@ export interface HrColumn<T> {
 
 /**
  * ClayBadge — legacy compat shim. Maps the old `tone` API onto
- * ZoruBadge variants so existing HR pages keep rendering during the
+ * Badge variants so existing HR pages keep rendering during the
  * migration. Prefer `ZoruBadge` directly in new code.
  */
 type LegacyTone =

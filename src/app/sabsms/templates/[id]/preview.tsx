@@ -3,14 +3,14 @@
 import { useMemo } from "react";
 
 import {
-  ZoruBadge,
-  ZoruCard,
+  Badge,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruProgress,
-  ZoruSeparator,
+  Progress,
+  Separator,
 } from "@/components/zoruui";
 
 import type { TemplateEditorMetadata, VariableDefault } from "./types";
@@ -23,7 +23,7 @@ import type { TemplateEditorMetadata, VariableDefault } from "./types";
  *  - Cost-per-segment estimate (#3).
  *  - Test interpolation against a sample contact map (#8, via
  *    `sampleVars` passed in from `editor.tsx`).
- *  - Spam likelihood heuristic + ZoruProgress (#13).
+ *  - Spam likelihood heuristic + Progress (#13).
  *  - Footer policy injection toggle preview (#20).
  *  - Conditional block (`{% if x %}…{% endif %}`) interpolation (#6).
  *  - Date-filter helper rendering (#7), mock evaluator only.

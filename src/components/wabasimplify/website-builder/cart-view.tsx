@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruSeparator } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/zoruui';
 import {
   useCart } from '@/context/cart-context';
 

@@ -8,7 +8,7 @@ export interface ZoruTextareaProps extends React.TextareaHTMLAttributes<HTMLText
   invalid?: boolean;
 }
 
-export const ZoruTextarea = React.forwardRef<HTMLTextAreaElement, ZoruTextareaProps>(
+export const Textarea = React.forwardRef<HTMLTextAreaElement, ZoruTextareaProps>(
   ({ className, invalid, ...props }, ref) => {
     return (
       <textarea
@@ -29,4 +29,4 @@ export const ZoruTextarea = React.forwardRef<HTMLTextAreaElement, ZoruTextareaPr
     );
   },
 );
-ZoruTextarea.displayName = "ZoruTextarea";
+Textarea.displayName = "Textarea";

@@ -1,4 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import {
   headers } from 'next/headers';
 import { getCachedSession } from '@/lib/server-cache';

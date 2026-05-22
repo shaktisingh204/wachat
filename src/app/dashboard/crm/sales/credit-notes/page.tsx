@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/zoruui';
 import {
   Plus,
   FileMinus } from 'lucide-react';

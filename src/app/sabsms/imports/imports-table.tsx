@@ -1,0 +1,473 @@
+"use client";
+
+/**
+ * SabSMS imports — main table client component.
+ *
+ * Composes the page-toolkit primitives (`SabsmsPageShell`,
+ * `SabsmsFilterBar`, `SabsmsDataTable`, `SabsmsExportMenu`,
+ * `SabsmsDetailDrawer`, `SabsmsRefreshButton`) with the wizard from
+ * `wizard.tsx`. Drives the 20 page-unique features for /sabsms/imports.
+ */
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import {
+  ChevronRight,
+  ListChecks,
+  Pause,
+  Play,
+  RefreshCw,
+  RotateCcw,
+  Trash2,
+  Undo2,
+  X,
+} from "lucide-react";
+
+import {
+  SabsmsPageShell,
+  SabsmsFilterBar,
+  SabsmsDataTable,
+  SabsmsExportMenu,
+  SabsmsRefreshButton,
+  SabsmsDetailDrawer,
+  type SabsmsColumn,
+  type SabsmsRowAction,
+  rowsToCsv,
+} from "@/components/sabsms/page-toolkit";
+import {
+  Badge,
+  Progress,
+  zoruSonnerToast,
+} from "@/components/zoruui";
+
+import { ImportsWizard } from "./wizard";
+import {
+  cancelImport,
+  createImport,
+  deleteImport,
+  failedRowsCsv,
+  pauseImport,
+  resumeImport,
+  retryFailedRows,
+  rollbackImport,
+  type ImportRecord,
+  type ImportStatus,
+} from "./actions";
+
+export interface ImportsTableProps {
+  workspaceId: string;
+  initialImports: ImportRecord[];
+}
+
+function statusVariant(
+  status: ImportStatus,
+): "default" | "secondary" | "destructive" | "outline" {
+  switch (status) {
+    case "completed":
+      return "secondary";
+    case "running":
+    case "queued":
+      return "default";
+    case "paused":
+      return "outline";
+    case "cancelled":
+    case "failed":
+      return "destructive";
+    default:
+      return "outline";
+  }
+}
+
+export function ImportsTable({
+  workspaceId: _workspaceId,
+  initialImports,
+}: ImportsTableProps) {
+  void _workspaceId;
+  const router = useRouter();
+  const [imports, setImports] = React.useState<ImportRecord[]>(initialImports);
+  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [wizardOpen, setWizardOpen] = React.useState(false);
+  const [drawerImport, setDrawerImport] = React.useState<ImportRecord | null>(
+    null,
+  );
+
+  React.useEffect(() => {
+    setImports(initialImports);
+  }, [initialImports]);
+
+  const handleRefresh = React.useCallback(() => {
+    router.refresh();
+  }, [router]);
+
+  async function withToast(
+    label: string,
+    fn: () =>
+      | Promise<{ ok: true } | { ok: false; error: string }>
+      | Promise<{ ok: true; id: string } | { ok: false; error: string }>,
+  ) {
+    const result = await fn();
+    if (result.ok) {
+      zoruSonnerToast.success(`${label} succeeded.`);
+      handleRefresh();
+    } else {
+      zoruSonnerToast.error(`${label} failed: ${result.error}`);
+    }
+  }
+
+  const columns: SabsmsColumn<ImportRecord>[] = [
+    {
+      id: "name",
+      header: "Name",
+      render: (r) => (
+        <button
+          type="button"
+          className="text-left font-medium text-slate-800 hover:underline"
+          onClick={() => setDrawerImport(r)}
+        >
+          {r.name}
+        </button>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      render: (r) => (
+        <ZoruBadge variant={statusVariant(r.status)}>{r.status}</ZoruBadge>
+      ),
+    },
+    {
+      id: "progress",
+      header: "Progress",
+      render: (r) => {
+        const pct =
+          r.counts.total > 0
+            ? Math.round(
+                ((r.counts.imported + r.counts.failed + r.counts.skipped) /
+                  r.counts.total) *
+                  100,
+              )
+            : 0;
+        return (
+          <div className="min-w-[140px] space-y-1">
+            <ZoruProgress value={pct} className="h-1.5" />
+            <p className="text-[10px] text-slate-500">
+              {r.counts.imported.toLocaleString()} / {r.counts.total.toLocaleString()}
+              {r.counts.failed > 0 && (
+                <span className="ml-1 text-red-600">
+                  ({r.counts.failed.toLocaleString()} failed)
+                </span>
+              )}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      id: "tags",
+      header: "Tags",
+      render: (r) =>
+        r.options.bulkTags.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {r.options.bulkTags.slice(0, 3).map((t) => (
+              <ZoruBadge key={t} variant="outline" className="text-[10px]">
+                {t}
+              </ZoruBadge>
+            ))}
+            {r.options.bulkTags.length > 3 && (
+              <span className="text-[10px] text-slate-500">
+                +{r.options.bulkTags.length - 3}
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-slate-400">—</span>
+        ),
+    },
+    {
+      id: "cost",
+      header: "Cost",
+      align: "right",
+      render: (r) =>
+        r.costEstimate ? (
+          <span className="text-xs tabular-nums">
+            ${r.costEstimate.amount.toFixed(2)}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-400">—</span>
+        ),
+    },
+    {
+      id: "createdAt",
+      header: "Created",
+      render: (r) => (
+        <span className="text-xs text-slate-600">
+          {r.createdAt ? new Date(r.createdAt).toLocaleString() : "—"}
+        </span>
+      ),
+    },
+  ];
+
+  const rowActions: SabsmsRowAction<ImportRecord>[] = [
+    {
+      label: "View details",
+      icon: <ChevronRight className="h-3.5 w-3.5" />,
+      onSelect: (r) => setDrawerImport(r),
+    },
+    {
+      label: "Pause",
+      icon: <Pause className="h-3.5 w-3.5" />,
+      onSelect: (r) => withToast("Pause", () => pauseImport(r.id)),
+    },
+    {
+      label: "Resume",
+      icon: <Play className="h-3.5 w-3.5" />,
+      onSelect: (r) => withToast("Resume", () => resumeImport(r.id)),
+    },
+    {
+      label: "Cancel",
+      icon: <X className="h-3.5 w-3.5" />,
+      onSelect: (r) => withToast("Cancel", () => cancelImport(r.id)),
+    },
+    {
+      label: "Retry failed rows",
+      icon: <RotateCcw className="h-3.5 w-3.5" />,
+      onSelect: (r) => withToast("Retry", () => retryFailedRows(r.id)),
+    },
+    {
+      label: "Rollback",
+      icon: <Undo2 className="h-3.5 w-3.5" />,
+      onSelect: (r) => withToast("Rollback", () => rollbackImport(r.id)),
+    },
+    {
+      label: "Delete",
+      icon: <Trash2 className="h-3.5 w-3.5" />,
+      destructive: true,
+      onSelect: (r) => withToast("Delete", () => deleteImport(r.id)),
+    },
+  ];
+
+  return (
+    <SabsmsPageShell
+      eyebrow="Contacts"
+      title="Imports"
+      description="Bring contacts into SabSMS from CSV. Drag-drop via SabFiles, map columns, preview normalisation, and watch the import run."
+      breadcrumbs={[{ label: "Imports" }]}
+      primaryAction={{
+        label: "New import",
+        onClick: () => setWizardOpen(true),
+      }}
+      helpTitle="About imports"
+      helpBody={
+        <ul className="list-disc space-y-1 pl-4 text-xs">
+          <li>Every CSV must come from SabFiles — no external URLs.</li>
+          <li>
+            Phone numbers are normalised to E.164; rows that fail validation
+            are written to a per-import failure CSV.
+          </li>
+          <li>
+            Marketing imports require an explicit consent attestation before
+            they can be queued.
+          </li>
+        </ul>
+      }
+      secondaryActions={[
+        { label: "Mapping templates", icon: <ListChecks className="h-3.5 w-3.5" /> },
+        { label: "Schedules", icon: <RefreshCw className="h-3.5 w-3.5" /> },
+      ]}
+      toolbar={
+        <SabsmsFilterBar
+          searchPlaceholder="Search imports by name…"
+          facets={[
+            {
+              key: "status",
+              label: "Status",
+              multi: true,
+              options: [
+                { value: "queued", label: "Queued" },
+                { value: "running", label: "Running" },
+                { value: "paused", label: "Paused" },
+                { value: "completed", label: "Completed" },
+                { value: "cancelled", label: "Cancelled" },
+                { value: "failed", label: "Failed" },
+              ],
+            },
+          ]}
+          dateRangeKey={{ from: "from", to: "to" }}
+          sortOptions={[
+            { value: "newest", label: "Newest first" },
+            { value: "oldest", label: "Oldest first" },
+            { value: "largest", label: "Largest first" },
+          ]}
+          defaultSort="newest"
+          trailing={
+            <>
+              <SabsmsRefreshButton onRefresh={handleRefresh} />
+              <SabsmsExportMenu
+                filename="sabsms-imports"
+                toCsv={async () =>
+                  rowsToCsv(
+                    imports.map((i) => ({
+                      name: i.name,
+                      status: i.status,
+                      total: i.counts.total,
+                      imported: i.counts.imported,
+                      failed: i.counts.failed,
+                      createdAt: i.createdAt,
+                    })),
+                    [
+                      { key: "name", header: "Name" },
+                      { key: "status", header: "Status" },
+                      { key: "total", header: "Total" },
+                      { key: "imported", header: "Imported" },
+                      { key: "failed", header: "Failed" },
+                      { key: "createdAt", header: "Created" },
+                    ],
+                  )
+                }
+              />
+            </>
+          }
+        />
+      }
+    >
+      <SabsmsDataTable<ImportRecord>
+        rows={imports}
+        columns={columns}
+        rowKey={(r) => r.id}
+        selectable
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        rowActions={rowActions}
+        bulkActions={[
+          {
+            label: "Cancel selected",
+            icon: <X className="h-3.5 w-3.5" />,
+            onSelect: async (rows) => {
+              await Promise.all(rows.map((r) => cancelImport(r.id)));
+              zoruSonnerToast.success(`Cancelled ${rows.length} import(s).`);
+              handleRefresh();
+            },
+          },
+          {
+            label: "Delete selected",
+            icon: <Trash2 className="h-3.5 w-3.5" />,
+            destructive: true,
+            onSelect: async (rows) => {
+              await Promise.all(rows.map((r) => deleteImport(r.id)));
+              zoruSonnerToast.success(`Deleted ${rows.length} import(s).`);
+              setSelectedIds([]);
+              handleRefresh();
+            },
+          },
+        ]}
+        emptyTitle="No imports yet"
+        emptyDescription="Run your first CSV import to bring contacts into SabSMS."
+        emptyAction={{
+          label: "New import",
+          onClick: () => setWizardOpen(true),
+        }}
+      />
+
+      <ImportsWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onSubmit={createImport}
+        lastImport={imports[0]}
+      />
+
+      <SabsmsDetailDrawer
+        open={drawerImport !== null}
+        onOpenChange={(o) => !o && setDrawerImport(null)}
+        title={drawerImport?.name ?? "Import"}
+        description={
+          drawerImport ? `Audit trail and failed-row download` : undefined
+        }
+      >
+        {drawerImport && (
+          <ImportDetail
+            record={drawerImport}
+            onDownloadFailures={async () =>
+              failedRowsCsv(drawerImport.workspaceId, drawerImport.id)
+            }
+          />
+        )}
+      </SabsmsDetailDrawer>
+    </SabsmsPageShell>
+  );
+}
+
+function ImportDetail({
+  record,
+  onDownloadFailures,
+}: {
+  record: ImportRecord;
+  onDownloadFailures: () => Promise<string>;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Status" value={record.status} />
+        <Field label="Source" value={record.source} />
+        <Field label="Total rows" value={record.counts.total.toLocaleString()} />
+        <Field
+          label="Imported"
+          value={record.counts.imported.toLocaleString()}
+        />
+        <Field label="Failed" value={record.counts.failed.toLocaleString()} />
+        <Field
+          label="Skipped"
+          value={record.counts.skipped.toLocaleString()}
+        />
+        {record.options.cronExpression && (
+          <Field label="Cron" value={record.options.cronExpression} />
+        )}
+        {record.options.webhookUrl && (
+          <Field label="Webhook" value={record.options.webhookUrl} />
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium text-slate-700">Failed rows</h3>
+        {record.counts.failed > 0 ? (
+          <SabsmsExportMenu
+            filename={`sabsms-import-${record.id}-failures`}
+            toCsv={onDownloadFailures}
+          />
+        ) : (
+          <p className="text-xs text-slate-500">No failed rows.</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium text-slate-700">Audit trail</h3>
+        <ol className="space-y-2">
+          {record.audit.map((evt, i) => (
+            <li
+              key={i}
+              className="rounded-md border border-slate-200 bg-slate-50 p-2 text-xs"
+            >
+              <div className="font-medium text-slate-700">{evt.kind}</div>
+              {evt.message && (
+                <div className="text-slate-600">{evt.message}</div>
+              )}
+              <div className="mt-0.5 text-[10px] text-slate-400">
+                {new Date(evt.at).toLocaleString()}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
+      <div className="text-sm text-slate-800">{value}</div>
+    </div>
+  );
+}

@@ -6,22 +6,22 @@ import {
   revokeDeveloperKey,
 } from '@/app/actions/developer-platform.actions';
 import {
-  ZoruCard,
+  Card,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardContent,
-  ZoruButton,
-  ZoruInput,
-  ZoruAlert,
+  Button,
+  Input,
+  Alert,
   ZoruAlertDescription,
-  ZoruTable,
+  Table,
   ZoruTableHeader,
   ZoruTableHead,
   ZoruTableBody,
   ZoruTableRow,
   ZoruTableCell,
-  ZoruBadge,
-  ZoruEmptyState,
+  Badge,
+  EmptyState,
 } from '@/components/zoruui';
 import { AlertCircle, TriangleAlert, Copy, Key } from 'lucide-react';
 

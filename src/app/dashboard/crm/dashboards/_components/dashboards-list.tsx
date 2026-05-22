@@ -1,10 +1,10 @@
 'use client';
 
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruTable,
+    Button,
+    Card,
+    Input,
+    Table,
     ZoruTableBody,
     ZoruTableCell,
     ZoruTableHead,

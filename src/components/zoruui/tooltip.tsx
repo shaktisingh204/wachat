@@ -6,7 +6,7 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cn } from "./lib/cn";
 
 export const ZoruTooltipProvider = TooltipPrimitive.Provider;
-export const ZoruTooltip = TooltipPrimitive.Root;
+export const Tooltip = TooltipPrimitive.Root;
 export const ZoruTooltipTrigger = TooltipPrimitive.Trigger;
 
 export const ZoruTooltipContent = React.forwardRef<

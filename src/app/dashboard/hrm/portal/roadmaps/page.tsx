@@ -13,11 +13,11 @@ import {
   type HrmRoadmap,
 } from '@/app/actions/hrm-roadmaps.actions';
 import {
-  ZoruButton,
-  ZoruBadge,
-  ZoruStatCard,
-  ZoruProgress,
-  ZoruCard,
+  Button,
+  Badge,
+  StatCard,
+  Progress,
+  Card,
   ZoruCardContent,
 } from '@/components/zoruui';
 

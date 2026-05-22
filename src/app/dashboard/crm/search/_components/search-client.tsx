@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruStatCard } from '@/components/zoruui';
+import { Input, StatCard } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
 import { Search as SearchIcon } from 'lucide-react';

@@ -564,7 +564,7 @@ export default function CrmProductsPage() {
                           />
                           <div className="flex-1 min-w-0">
                             <Link
-                              href={`/dashboard/crm/products/${id}/edit`}
+                              href={`/dashboard/crm/products/${id}`}
                               className="font-medium text-zoru-ink hover:underline"
                             >
                               {product.name}

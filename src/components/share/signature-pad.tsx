@@ -14,7 +14,7 @@
  */
 
 import * as React from 'react';
-import { ZoruButton } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 
 export type SignaturePadProps = {
   width?: number;

@@ -1,21 +1,21 @@
 "use client";
 
 import {
-  ZoruBadge,
-  ZoruBreadcrumb,
+  Badge,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruSkeleton,
+  EmptyState,
+  Input,
+  Skeleton,
   cn,
 } from '@/components/zoruui';
 import {
@@ -30,7 +30,7 @@ import {
  * /sabwa/starred — Cross-chat starred-message view.
  *
  * Uses `listStarred(sessionId)` (via `useStarred` hook). Groups results by
- * chat; each group is a collapsible ZoruCard showing the chat name +
+ * chat; each group is a collapsible Card showing the chat name +
  * starred count + the first 3 starred messages as compact
  * `<MessageBubble>` previews. Each preview links back to the source
  * thread with a `"Jump to message"` deep-link:

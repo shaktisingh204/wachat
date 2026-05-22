@@ -1,4 +1,4 @@
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/zoruui';
 import {
   Smartphone,
   ArrowRight } from 'lucide-react';

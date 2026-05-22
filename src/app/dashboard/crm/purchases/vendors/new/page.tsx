@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruAccordion,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruRadioGroup,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  RadioGroup,
   ZoruRadioGroupItem,
   useZoruToast,
 } from '@/components/zoruui';

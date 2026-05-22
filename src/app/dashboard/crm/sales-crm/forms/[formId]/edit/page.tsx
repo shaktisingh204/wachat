@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  ZoruSkeleton,
-  ZoruButton,
-  ZoruInput,
-  ZoruDialog,
+  Skeleton,
+  Button,
+  Input,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,

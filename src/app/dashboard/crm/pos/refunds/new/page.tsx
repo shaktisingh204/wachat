@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 

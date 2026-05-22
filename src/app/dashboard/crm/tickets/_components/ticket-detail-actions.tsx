@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import { Button, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
 import {

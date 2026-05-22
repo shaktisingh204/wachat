@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruStatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/zoruui';
 import { CalendarClock, FileSignature, IndianRupee, Send, ShieldCheck, } from 'lucide-react';
 
 /**

@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
 import {
@@ -13,7 +13,7 @@ import {
  * HR Notice detail page.
  *
  * Server component that fetches a single notice via `getNoticeById` and
- * renders a stacked ZoruCard layout:
+ * renders a stacked Card layout:
  *   1. Header — notice number, title, severity badge, status
  *   2. Body   — main notice text (whitespace preserved)
  *   3. Recipients

@@ -1,21 +1,21 @@
 'use client';
 
 import {
-  ZoruLabel,
-  ZoruButton,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruAccordion,
+  Label,
+  Button,
+  Input,
+  Textarea,
+  Accordion,
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSwitch,
-  ZoruSeparator,
+  Switch,
+  Separator,
 } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -87,9 +87,9 @@ export function TabsBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                                         <Trash2 className="h-4 w-4 text-destructive" />
                                     </ZoruButton>
                                     <ZoruLabel>Tab {index + 1}</ZoruLabel>
-                                    <ZoruInput placeholder="Tab ZoruLabel" value={tab.label || ''} onChange={(e) => handleTabChange(index, 'label', e.target.value)} />
+                                    <ZoruInput placeholder="Tab Label" value={tab.label || ''} onChange={(e) => handleTabChange(index, 'label', e.target.value)} />
                                     <ZoruSelect value={tab.icon || '__none__'} onValueChange={(val) => handleTabChange(index, 'icon', val === '__none__' ? '' : val)}>
-                                        <ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect an icon..."/></ZoruSelectTrigger>
+                                        <ZoruSelectTrigger><ZoruSelectValue placeholder="Select an icon..."/></ZoruSelectTrigger>
                                         <ZoruSelectContent>
                                             <ZoruSelectItem value="__none__">No Icon</ZoruSelectItem>
                                             {iconNames.map(iconName => (

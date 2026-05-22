@@ -1,4 +1,4 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 
@@ -6,7 +6,7 @@ import { Pencil } from 'lucide-react';
  * Loyalty program detail — `/dashboard/crm/sales/loyalty/[id]`.
  *
  * Server component: fetches via `getLoyaltyProgramById`, renders the
- * `<EntityDetailShell>` with header (status pill + Edit), a ZoruCard
+ * `<EntityDetailShell>` with header (status pill + Edit), a Card
  * body, and an Activity footer for `entityKind: 'loyaltyProgram'`.
  */
 

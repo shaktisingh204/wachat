@@ -1,6 +1,6 @@
 "use client";
 
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruSeparator, ZoruSkeleton } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle, Separator, Skeleton } from '@/components/zoruui';
 import {
   useEffect,
   useState,

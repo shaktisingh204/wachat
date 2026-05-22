@@ -1,19 +1,19 @@
 'use client';
 
 import {
-  ZoruButton,
+  Button,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruBadge,
-  ZoruScrollArea,
-  ZoruSelect,
+  Badge,
+  ScrollArea,
+  Select,
 } from '@/components/zoruui';
 import {
   cn } from '@/lib/utils';
@@ -42,7 +42,7 @@ export function MultiSelectCombobox({
   options,
   selected,
   onSelectionChange,
-  placeholder = "ZoruSelect...",
+  placeholder = "Select...",
   className,
 }: MultiSelectComboboxProps) {
   const [open, setOpen] = React.useState(false);

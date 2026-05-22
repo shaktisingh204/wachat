@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogFooter,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Select,
 } from '@/components/zoruui';
 import {
   useState,
@@ -149,7 +149,7 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
                                         </ZoruButton>
                                     </div>
                                 </div>
-                            ) : <p>ZoruSelect a pipeline to edit.</p>}
+                            ) : <p>Select a pipeline to edit.</p>}
                         </div>
                     </div>
                 </div>

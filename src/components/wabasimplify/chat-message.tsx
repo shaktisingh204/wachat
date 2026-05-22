@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  ZoruTooltip,
+  Tooltip,
   ZoruTooltipContent,
   ZoruTooltipTrigger,
   ZoruTooltipProvider,
-  ZoruButton,
-  ZoruSeparator,
-  ZoruAvatar,
+  Button,
+  Separator,
+  Avatar,
   ZoruAvatarFallback,
 } from '@/components/zoruui';
 import {

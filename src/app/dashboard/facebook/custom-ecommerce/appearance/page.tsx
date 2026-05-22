@@ -1,27 +1,27 @@
 "use client";
 
 import {
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruColorPicker,
-  ZoruDialog,
+  Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
   useZoruToast,
@@ -39,7 +39,7 @@ import { Brush,
  * Account-level theme picker for Custom E-commerce. Lets the operator
  * pick a neutral preset and a primary accent that becomes the default
  * starting palette for every newly-created shop. Uses ZoruColorPicker
- * with neutral presets and a ZoruCard preview pane.
+ * with neutral presets and a Card preview pane.
  *
  * NOTE: in the legacy app this route was a redirect because per-shop
  * appearance lives at /manage/[shopId]/appearance. We keep both: this

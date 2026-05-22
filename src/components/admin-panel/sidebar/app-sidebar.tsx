@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruBadge,
+  Badge,
   ZoruCollapsible,
   ZoruCollapsibleContent,
   ZoruCollapsibleTrigger,
-  ZoruScrollArea,
-  ZoruDropdownMenu,
+  ScrollArea,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-  ZoruSelect,
+  Select,
 } from '@/components/zoruui';
 import {
   usePathname,
@@ -210,7 +210,7 @@ function InlineProjectSwitcher() {
                             {(activeProject?.name?.[0] || 'P').toUpperCase()}
                         </div>
                         <span className="flex-1 text-left truncate text-foreground">
-                            {activeProject?.name || 'ZoruSelect project'}
+                            {activeProject?.name || 'Select project'}
                         </span>
                         <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     </button>

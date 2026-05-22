@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
+import { Avatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
 import {
   cn } from '@/lib/utils';
 import { format } from 'date-fns';

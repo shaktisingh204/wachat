@@ -1,4 +1,4 @@
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import { Badge, Card } from '@/components/zoruui';
 import { ArrowRight, ShoppingCart, Truck, GitMerge, ShoppingBag, Package } from 'lucide-react';
 
 /**

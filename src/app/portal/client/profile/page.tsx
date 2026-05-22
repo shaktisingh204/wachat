@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 
 import { getClientProfile } from '@/app/actions/client-portal.actions';
 import {
-    ZoruCard,
+    Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,

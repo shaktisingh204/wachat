@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruSwitch, ZoruTableCell, ZoruTableRow, cn } from '@/components/zoruui';
+import { Badge, Button, Switch, ZoruTableCell, ZoruTableRow, cn } from '@/components/zoruui';
 import {
   useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

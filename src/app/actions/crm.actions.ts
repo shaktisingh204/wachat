@@ -219,7 +219,7 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
 
     if (useRustCrm()) {
         try {
-            await contactApi.create({
+            const { id, entity } = await contactApi.create({
                 name,
                 email,
                 phone,
@@ -242,7 +242,12 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
                 userId: String(session.user._id),
                 metadata: { name, email, company },
             });
-            return { message: 'Contact added successfully.' };
+            return { 
+                message: 'Contact added successfully.',
+                newContact: entity 
+                    ? { ...rustContactDocToLegacy(entity), _id: id } 
+                    : { _id: id, name } 
+            };
         } catch (e) {
             console.error('[addCrmContact] rust path failed; falling back:', e);
             recordRustFallback({ entity: 'contact', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
@@ -285,7 +290,7 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
             target: inserted.insertedId?.toString?.(),
             metadata: { name, email, company },
         });
-        return { message: 'Contact added successfully.' };
+        return { message: 'Contact added successfully.', newContact: { ...newContact, _id: inserted.insertedId } };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }

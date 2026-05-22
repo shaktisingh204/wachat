@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Button, Input, Label } from '@/components/zoruui';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
 /**

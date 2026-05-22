@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  ZoruSelect,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruCheckbox,
+  Checkbox,
 } from '@/components/zoruui';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState,
@@ -167,7 +167,7 @@ export function NewCustomFieldForm() {
               id="group_id"
               className="h-10 rounded-lg border-border bg-card text-[13px]"
             >
-              <ZoruSelectValue placeholder="ZoruSelect a group" />
+              <ZoruSelectValue placeholder="Select a group" />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
               {groups.map((g) => (
@@ -182,7 +182,7 @@ export function NewCustomFieldForm() {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <ZoruLabel htmlFor="label" className="text-foreground">
-              ZoruLabel <span className="text-destructive">*</span>
+              Label <span className="text-destructive">*</span>
             </ZoruLabel>
             <ZoruInput
               id="label"

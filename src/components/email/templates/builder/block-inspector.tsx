@@ -9,18 +9,18 @@ import { useRef } from 'react';
 import { ImagePlus, Plus, Trash2 } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruLabel,
-  ZoruScrollArea,
-  ZoruSelect,
+  Button,
+  EmptyState,
+  Input,
+  Label,
+  ScrollArea,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSeparator,
-  ZoruTextarea,
+  Separator,
+  Textarea,
 } from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type {

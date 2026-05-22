@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruSkeleton, cn } from '@/components/zoruui';
+import { Skeleton, cn } from '@/components/zoruui';
 import {
   cn as _zoruCn,
   Suspense } from 'react';

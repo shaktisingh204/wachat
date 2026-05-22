@@ -3,8 +3,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  ZoruBadge,
-  ZoruTable,
+  Badge,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

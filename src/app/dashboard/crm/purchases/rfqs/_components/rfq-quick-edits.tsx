@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, useZoruToast } from '@/components/zoruui';
+import { DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, useZoruToast } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
 

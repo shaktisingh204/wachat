@@ -1,17 +1,17 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCardDescription,
   ZoruCardFooter,
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruCheckbox,
-  ZoruLabel,
+  Checkbox,
+  Label,
 } from '@/components/zoruui';
 import {
   useState } from 'react';

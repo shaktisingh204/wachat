@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruCard,
+  Button,
+  Input,
+  Label,
+  Skeleton,
+  Switch,
+  Card,
   ZoruCardContent,
 } from '@/components/zoruui';
 import {

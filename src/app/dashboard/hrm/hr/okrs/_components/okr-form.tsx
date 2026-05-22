@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
+  Button,
+  Card,
+  Input,
+  Label,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruTextarea,
+  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -26,8 +26,8 @@ import { ArrowLeft,
   Save,
   Trash2 } from 'lucide-react';
 
-// §1E.sweep: OKR status ZoruSelect kept — form uses behind/missed slugs; okrStatus enum has off_track/cancelled. Resolve Rust DTO first.
-// §1E.sweep: period ZoruSelect — okrPeriod enum (q1/q2/q3/q4/h1/h2/annual) matches; can be migrated once status is resolved.
+// §1E.sweep: OKR status Select kept — form uses behind/missed slugs; okrStatus enum has off_track/cancelled. Resolve Rust DTO first.
+// §1E.sweep: period Select — okrPeriod enum (q1/q2/q3/q4/h1/h2/annual) matches; can be migrated once status is resolved.
 
 /**
  * <OkrForm /> — create + edit form for OKRs.

@@ -1,117 +1,26 @@
-import { Star } from 'lucide-react';
+import { permanentRedirect } from 'next/navigation';
 
-import { HrDetailPage } from '../../../hr/_components/hr-detail-page';
-import {
-  getCrmAppraisalReviews,
-  deleteCrmAppraisalReview,
-} from '@/app/actions/crm-hr-appraisals.actions';
-
-type Row = {
-  _id: string;
-  employeeId?: string;
-  reviewerId?: string;
-  reviewDate?: string | Date;
-  status?: string;
-  cycle?: string;
-  strengths?: string;
-  areasForImprovement?: string;
-  reviewerComments?: string;
-  employeeInfo?: { firstName?: string; lastName?: string };
-  reviewerInfo?: { name?: string };
-  ratings?: Record<string, number>;
-};
-
-function StarRow({ label, value }: { label: string; value?: number }) {
-  const n = Math.round(Math.min(5, Math.max(0, value ?? 0)));
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Star
-            key={i}
-            className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-zoru-line'}`}
-          />
-        ))}
-      </div>
-      <span className="text-[12px] tabular-nums text-zoru-ink-muted">
-        {value !== undefined && value !== null ? Number(value).toFixed(1) : '—'} · {label}
-      </span>
-    </div>
-  );
+interface PageProps {
+  params: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function AppraisalDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const list = (await getCrmAppraisalReviews()) as unknown as Row[];
-  const row = list.find((r) => String(r._id) === id) ?? null;
+export default async function LegacyHrPayrollRedirect({ params, searchParams }: PageProps) {
+  const p = await params;
+  const sp = await searchParams;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Review not found.</div>;
+  let target = '/dashboard/hrm/payroll/appraisal-reviews/[id]';
+  for (const [key, value] of Object.entries(p)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    const targetKey = key;
+    if (v) target = target.replace(`[${targetKey}]`, encodeURIComponent(v));
+  }
 
-  const emp = row.employeeInfo
-    ? `${row.employeeInfo.firstName ?? ''} ${row.employeeInfo.lastName ?? ''}`.trim()
-    : '—';
-  const ratings = row.ratings ?? {};
-  const ratingPairs: { key: string; label: string }[] = [
-    { key: 'qualityOfWork', label: 'Quality of work' },
-    { key: 'communication', label: 'Communication' },
-    { key: 'teamwork', label: 'Teamwork' },
-    { key: 'problemSolving', label: 'Problem solving' },
-    { key: 'punctuality', label: 'Punctuality' },
-  ];
-
-  return (
-    <HrDetailPage
-      title={`Review · ${emp}`}
-      eyebrow="APPRAISAL"
-      status={{ label: String(row.status ?? 'Scheduled') }}
-      listHref="/dashboard/crm/hr-payroll/appraisal-reviews"
-      listLabel="Back to appraisals"
-      editHref={`/dashboard/crm/hr-payroll/appraisal-reviews/${id}/edit`}
-      deleteAction={deleteCrmAppraisalReview}
-      entityId={id}
-      sections={[
-        {
-          title: 'Participants',
-          fields: [
-            { label: 'Employee', value: emp },
-            { label: 'Reviewer', value: row.reviewerInfo?.name },
-            { label: 'Cycle', value: row.cycle },
-            {
-              label: 'Review date',
-              value: row.reviewDate
-                ? new Date(row.reviewDate).toLocaleDateString()
-                : null,
-            },
-          ],
-        },
-        {
-          title: 'Ratings',
-          fields: ratingPairs.map(({ key, label }) => ({
-            label,
-            value: <StarRow label={label} value={ratings[key]} />,
-          })),
-        },
-        {
-          title: 'Qualitative',
-          fields: [
-            { label: 'Strengths', value: row.strengths, fullWidth: true },
-            {
-              label: 'Areas for improvement',
-              value: row.areasForImprovement,
-              fullWidth: true,
-            },
-            {
-              label: 'Reviewer comments',
-              value: row.reviewerComments,
-              fullWidth: true,
-            },
-          ],
-        },
-      ]}
-    />
-  );
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === 'string') usp.set(key, value);
+    else if (Array.isArray(value) && value[0]) usp.set(key, value[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(target + (qs ? `?${qs}` : ''));
 }

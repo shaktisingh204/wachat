@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
@@ -12,7 +12,7 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruPageActions,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
@@ -23,7 +23,7 @@ import {
  * Shared chrome for Meta Suite ZoruUI pages.
  *
  * - <FbBreadcrumb> renders SabNode › Meta Suite › <section>.
- * - <FbHeader> renders ZoruPageHeader with eyebrow / title / description /
+ * - <FbHeader> renders PageHeader with eyebrow / title / description /
  *   actions slot.
  * - <FbNoProject> is the canonical empty state for "No project selected".
  *

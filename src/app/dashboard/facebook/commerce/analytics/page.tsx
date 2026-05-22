@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  ZoruAlert,
+  Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
@@ -15,10 +15,10 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   ZORU_CHART_PALETTE,
-  ZoruDataTable,
-  ZoruEmptyState,
-  ZoruSkeleton,
-  ZoruStatCard,
+  DataTable,
+  EmptyState,
+  Skeleton,
+  StatCard,
 } from '@/components/zoruui';
 import {
   useCallback,

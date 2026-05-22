@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruDateRangePicker, ZoruLabel } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruDateRangePicker, Label } from '@/components/zoruui';
 import {
   CheckCircle2,
   Clock,

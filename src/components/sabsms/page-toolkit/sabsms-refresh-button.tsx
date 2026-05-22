@@ -4,8 +4,8 @@ import * as React from "react";
 import { RefreshCcw } from "lucide-react";
 
 import {
-  ZoruButton,
-  ZoruDropdownMenu,
+  Button,
+  DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,

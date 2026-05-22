@@ -17,7 +17,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruButton } from "./button";
+import { Button } from "./button";
 
 export interface ZoruFullscreenCalendarEvent {
   id: string;

@@ -6,7 +6,7 @@
  * Surfaces every active contract whose `expiryDate` is within the next 90
  * days, sorted by soonest expiry first.
  *
- * Features: KPI strip, urgency-bucket filters, ZoruCheckbox bulk selection,
+ * Features: KPI strip, urgency-bucket filters, Checkbox bulk selection,
  * Send Renewal Notice + Mark Renewed bulk actions, CSV/XLSX export.
  *
  * RBAC: crm_contract (view / edit).
@@ -23,20 +23,20 @@ import {
 } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
+  Badge,
+  Button,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruCheckbox,
-  ZoruSelect,
+  Checkbox,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruInput,
-  ZoruTable,
+  Input,
+  Table,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,

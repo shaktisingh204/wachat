@@ -10,36 +10,36 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  ZoruBreadcrumb,
+  Breadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
+  Button,
+  Card,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  ZoruInput,
-  ZoruLabel,
+  Input,
+  Label,
   ZoruPageDescription,
-  ZoruPageHeader,
+  PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruPopover,
+  Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruSelect,
+  Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruSwitch,
+  Skeleton,
+  Switch,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -185,7 +185,7 @@ function TagsSelector({
                   .map((id) => userTags.find((t) => t._id === id)?.name)
                   .filter(Boolean)
                   .join(', ')
-              : placeholder || 'ZoruSelect tags...'}
+              : placeholder || 'Select tags...'}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-zoru-ink-muted" />
         </button>
@@ -878,7 +878,7 @@ export default function UrlShortenerPage() {
                       type="checkbox"
                       checked={allPageSelected}
                       onChange={toggleSelectPage}
-                      aria-label="ZoruSelect all on page"
+                      aria-label="Select all on page"
                       className="h-3.5 w-3.5 rounded border-zoru-line"
                     />
                   </th>
@@ -916,7 +916,7 @@ export default function UrlShortenerPage() {
                             type="checkbox"
                             checked={selected}
                             onChange={() => toggleSelect(id)}
-                            aria-label="ZoruSelect link"
+                            aria-label="Select link"
                             className="h-3.5 w-3.5 rounded border-zoru-line"
                           />
                         </td>

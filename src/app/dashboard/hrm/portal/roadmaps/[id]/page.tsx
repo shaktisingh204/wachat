@@ -1,38 +1,13 @@
 import { notFound } from 'next/navigation';
-import { ObjectId } from 'mongodb';
 
 import { getRoadmapById } from '@/app/actions/hrm-roadmaps.actions';
 import { getSession } from '@/app/actions/user.actions';
-import { connectToDatabase } from '@/lib/mongodb';
+import { getMyDirectReports } from '@/app/actions/hrm-portal.actions';
 import { RoadmapEditor } from './_components/roadmap-editor';
 import type { DirectReport } from './_components/add-task-drawer';
 
 interface PageProps {
   params: Promise<{ id: string }>;
-}
-
-async function getDirectReports(userId: string): Promise<DirectReport[]> {
-  try {
-    const { db } = await connectToDatabase();
-    const docs = await db
-      .collection('crm_employees')
-      .find(
-        { userId: new ObjectId(userId), status: 'Active' },
-        { projection: { _id: 1, firstName: 1, lastName: 1, name: 1 } },
-      )
-      .limit(200)
-      .toArray();
-
-    return docs.map((d) => ({
-      _id: String(d._id),
-      name:
-        (d.name as string | undefined)?.trim() ||
-        `${d.firstName ?? ''} ${d.lastName ?? ''}`.trim() ||
-        'Unknown',
-    }));
-  } catch {
-    return [];
-  }
 }
 
 export default async function RoadmapEditorPage({ params }: PageProps) {
@@ -45,7 +20,15 @@ export default async function RoadmapEditorPage({ params }: PageProps) {
 
   if (!session?.user || !roadmap) notFound();
 
-  const directReports = await getDirectReports(session.user._id);
+  // FIX: previously this listed *every* active employee in the tenant as a
+  // "direct report", letting any roadmap author assign tasks to anyone in the
+  // org. Now it uses the real org-chart lookup that scopes by
+  // `reportingManagerId == myEmployee._id`, matching the My Team grid.
+  const reports = await getMyDirectReports();
+  const directReports: DirectReport[] = reports.map((r) => ({
+    _id: r._id,
+    name: `${r.firstName} ${r.lastName}`.trim() || 'Unknown',
+  }));
 
   return (
     <div className="h-full">

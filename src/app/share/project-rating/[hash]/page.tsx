@@ -9,7 +9,7 @@
 
 import { notFound } from 'next/navigation';
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,

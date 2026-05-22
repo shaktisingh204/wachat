@@ -10,7 +10,7 @@ import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 
-import { ZoruInput } from '@/components/zoruui/input';
+import { Input } from '@/components/zoruui/input';
 
 export function KbSearch() {
     const router = useRouter();

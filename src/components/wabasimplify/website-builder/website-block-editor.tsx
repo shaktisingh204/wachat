@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  ZoruCard,
+  Card,
   ZoruCardContent,
   ZoruCardDescription,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-  ZoruButton,
-  ZoruSelect,
+  Button,
+  Select,
 } from '@/components/zoruui';
 import {
   WebsiteBlock,
@@ -91,7 +91,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
                     <Trash2 className="h-8 w-8 text-muted-foreground/30" />
                 </div>
                 <h3 className="font-medium text-lg text-foreground">No Block Selected</h3>
-                <p className="text-sm max-w-[200px] mt-2">ZoruSelect a block on the canvas to edit its properties here.</p>
+                <p className="text-sm max-w-[200px] mt-2">Select a block on the canvas to edit its properties here.</p>
             </div>
         );
     }
